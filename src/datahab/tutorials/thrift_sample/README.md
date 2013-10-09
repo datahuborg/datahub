@@ -2,4 +2,6 @@
 
   `thrift --gen py sample.thrift`
 
-  `python thrift.py`
+  `python server.py`
+
+  `python client.py`
