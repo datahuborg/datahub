@@ -3,6 +3,7 @@ sys.path.append('./gen-py')
 
 from datahub.tutorials.thrift_sample import UniversityInfo
 from datahub.tutorials.thrift_sample.constants import *
+from thrift import Thrift
 from thrift.protocol import TBinaryProtocol
 from thrift.transport import TSocket
 from thrift.transport import TTransport
@@ -14,14 +15,19 @@ from thrift.transport import TTransport
 Sample Client Code (Thrift)
 '''
 
-dept = Department(id=1, name='MIT CSAIL')
-faculty = Faculty(id=1, name='Sam Madden', dept=dept, sex=Sex.MALE)
+try:
+  transport = TSocket.TSocket("localhost", 9090)
+  transport = TTransport.TBufferedTransport(transport)
 
-transport = TSocket.TSocket("localhost", 9090)
-transport.open()
-protocol = TBinaryProtocol.TBinaryProtocol(transport)
+  protocol = TBinaryProtocol.TBinaryProtocol(transport)
+  client = UniversityInfo.Client(protocol)
 
-service = UniversityInfo.Client(protocol)
+  transport.open()
 
-print service.get_faculties()
-print service.get_departments()
+  print client.get_faculties()
+  print client.get_departments()
+
+  transport.close()
+
+except Thrift.TException, tex:
+  print '%s' % (tex.message)
