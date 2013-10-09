@@ -16,7 +16,7 @@ Sample Client Code (Thrift)
 '''
 
 try:
-  transport = TSocket.TSocket("localhost", 9090)
+  transport = TSocket.TSocket("localhost", 9000)
   transport = TTransport.TBufferedTransport(transport)
 
   protocol = TBinaryProtocol.TBinaryProtocol(transport)
