@@ -6,7 +6,7 @@ from avro.io import DatumReader, DatumWriter
 @author: anant bhardwaj
 @date: Oct 9, 2013
 
-Avro Sample Code
+Sample Serialization/De-serialization Code (Avro)
 '''
 
 schema = avro.schema.parse(open("sample.avsc").read())

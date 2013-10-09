@@ -17,3 +17,17 @@ struct Faculty {
   4: Department dept,
   5: string office
 }
+
+struct University {
+  1: i32 id,
+  2: string name,
+  3: list<Faculty> faculties,
+  4: list<Department> departments
+}
+
+
+service UniversityInfo {
+   list<Faculty> get_faculties(),
+   list<Department> get_departments()
+}
+
