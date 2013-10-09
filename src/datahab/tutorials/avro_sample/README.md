@@ -1,3 +1,3 @@
 #Avro Sample Code
 
-'python avr˜.py'
+`python avro.py`
