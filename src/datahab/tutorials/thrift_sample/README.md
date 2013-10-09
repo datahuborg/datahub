@@ -1,5 +1,4 @@
-Thrift Sample Code
-=======
-thrift --gen py -out . sample.thrift
+# Thrift Sample Code
 
-python thrift.py
+'thrift --gen py sample.thrift'
+'python thrift.py'

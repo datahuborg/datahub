@@ -1,4 +1,3 @@
-AVRO Schema
-=======
+#Avro Sample Code
 
-python avr˜.py
+'python avr˜.py'
