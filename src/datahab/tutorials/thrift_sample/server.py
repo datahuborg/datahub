@@ -1,11 +1,12 @@
 import sys
 sys.path.append('./gen-py')
-from thrift.transport import TSocket
-from thrift.transport import TTransport
+
+from datahub.tutorials.thrift_sample import UniversityInfo
+from datahub.tutorials.thrift_sample.constants import *
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
-from datahub.tutorials.thrift_sample.constants import *
-from datahub.tutorials.thrift_sample import UniversityInfo
+from thrift.transport import TSocket
+from thrift.transport import TTransport
 
 '''
 @author: anant bhardwaj
