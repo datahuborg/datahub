@@ -1,4 +1,4 @@
-Sample Thrift
+Thrift Sample Code
 =======
 thrift --gen py -out . sample.thrift
 
