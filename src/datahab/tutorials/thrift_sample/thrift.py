@@ -1,4 +1,6 @@
-from sample.ttypes import *
+import sys
+sys.path.append('./gen-py')
+from datahub.tutorials.thrift_sample.constants import *
 
 # Make an object
 dept = Department(id=1, name='MIT CSAIL')

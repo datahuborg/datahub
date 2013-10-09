@@ -10,8 +10,6 @@ Avro Sample Code
 '''
 
 schema = avro.schema.parse(open("sample.avsc").read())
-
-
 writer = DataFileWriter(open("data.avro", "w"), DatumWriter(), schema)
 csail = {"id":1, "name": "MIT Computer Science & Artificial Intelligence Lab"}
 writer.append({"id": 1, "name": "Sam Madden", "dept": csail, "sex": "Male"})

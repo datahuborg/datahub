@@ -1,6 +1,12 @@
 # Ignore all emacs backup files
 *.*~
 
+# Thrift generated files
+gen-*
+
+# Avro generated files
+*.avro
+
 # Ignore Mac DS_Store Files
 .DS_Store
 

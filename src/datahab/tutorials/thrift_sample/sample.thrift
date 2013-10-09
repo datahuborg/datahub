@@ -1,3 +1,5 @@
+namespace py datahub.tutorials.thrift_sample
+
 enum Sex {
   MALE,
   FEMALE
