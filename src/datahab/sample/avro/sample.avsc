@@ -1,0 +1,27 @@
+[
+
+{"type": "enum",
+ "name": "Sex",
+ "symbols" : ["Male", "Female"]
+},
+
+{"type": "record",
+ "name": "Department",
+ "fields": [
+     {"name": "id", "type": "int"},
+     {"name": "name",  "type": ["string", "null"]}
+ ]
+},
+
+{"type": "record",
+ "name": "Faculty",
+ "fields": [
+     {"name": "id", "type": "int"},
+     {"name": "name",  "type": ["string", "null"]},
+     {"name": "sex", "type": ["Sex", "null"]},
+     {"name": "dept", "type": ["Department", "null"]},
+     {"name": "office", "type": ["string", "null"]}
+ ]
+}
+
+]
