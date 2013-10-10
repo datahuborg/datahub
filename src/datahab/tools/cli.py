@@ -23,6 +23,15 @@ CMD_LIST = [
     'USE'
 ]
 
+COMMIT_TOKENS = [
+    'create',
+    'insert',
+    'update',
+    'delete',
+    'alter',
+    'drop'
+]
+
 def authenticate(login_required=True):
   def response(f):
     def print_response(self, args):
@@ -52,20 +61,16 @@ class DatahubTerminal(cmd.Cmd):
     tokens = map(lambda x: x.strip(), tokens)
     if tokens[0].lower() == 'databases':
       res = self.client.show_databases()
-    elif tokens[0].lower() == 'tables':
-      if 'database' in self.session:
-        db = self.session['database']    
-        res = self.client.show_tables(db)
-      else:
-        res = '** not connected to any database'
+      self.print_line('%s' % (res))
+    elif tokens[0].lower() == 'tables' and 'database' in self.session:
+      db = self.session['database']    
+      res = self.client.show_tables(db)
+      self.print_line('%s' % (res))
     else:
-      pass
-
-    self.print_line('%s' % (res))
+      self.default('show ' + line)
 
   @authenticate()
   def do_use(self, line):
-    res = None
     tokens = line.split()
     tokens = map(lambda x: x.strip(), tokens)
     self.session['database'] = tokens[0]
@@ -73,56 +78,34 @@ class DatahubTerminal(cmd.Cmd):
 
   @authenticate()
   def do_drop(self, line):
-    res = None
     tokens = line.split()
     tokens = map(lambda x: x.strip(), tokens)
     if tokens[0].lower() == 'database':
       res = self.client.drop_database(tokens[1])
-    elif tokens[0].lower() == 'table':
-      if 'database' in self.session:
-        db = self.session['database']
-        res = self.client.execute_sql(db, 'drop ' + line)
-      else:
-        res = '** not connected to any database'
+      self.print_line('%s' % (res))
     else:
-      pass
-
-    self.print_line('%s' % (res))
+      self.default('drop ' + line)
 
   @authenticate()
   def do_create(self, line):
-    res = None
     tokens = line.split()
     tokens = map(lambda x: x.strip(), tokens)
     if tokens[0].lower() == 'database':
       res = self.client.create_database(tokens[1])
-    elif tokens[0].lower() == 'table':
-      if 'database' in self.session:
-        db = self.session['database']
-        res = self.client.execute_sql(
-            db, 'create ' + ' '.join(tokens), commit=True)
-      else:
-        res = '** not connected to any database'
+      self.print_line('%s' % (res))
     else:
-      pass
-
-    self.print_line('%s' % (res))
+      self.default('create ' + line)
 
   @authenticate()
-  def do_select(self, line):
+  def default(self, line):
+    commit = False
+    tokens = line.split()
+    if tokens[0].lower() in COMMIT_TOKENS:
+      commit = True
+
     if 'database' in self.session:
         db = self.session['database']
-        res = self.client.execute_sql(db, 'select ' + line)
-    else:
-      res = '** not connected to any database'
-
-    self.print_line('%s' % (res))
-
-  @authenticate()
-  def do_insert(self, line):
-    if 'database' in self.session:
-        db = self.session['database']
-        res = self.client.execute_sql(db, 'insert ' + line, commit=True)
+        res = self.client.execute_sql(db, line, commit=commit)
     else:
       res = '** not connected to any database'
 
