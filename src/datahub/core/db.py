@@ -16,11 +16,11 @@ class Connection:
     self.connection.close()
 
   def execute_sql(self, query, params=None, commit=False):
-    tuples = None
+    tuples = []
     c = self.connection.cursor()
     c.execute(query, params)
     try:
-      tuples = c.fetchall()
+      tuples = list(c.fetchall())
     except:
       pass
     c.close()
