@@ -15,7 +15,7 @@ from thrift.transport import TTransport
 DataHub Server
 '''
 
-class DataHubServer:
+class DataHubHandler:
   def get_version(self):
     return VERSION
 
