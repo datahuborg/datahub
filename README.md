@@ -1,8 +1,8 @@
 DataHub
 =======
 ### Dependencies
-* thrift
-* postgres
+* `thrift`
+* `postgres`
 
 ### Runnning DataHub Server
 `cd src/datahub`
