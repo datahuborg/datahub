@@ -4,7 +4,7 @@ import os
 import shlex
 import sys
 
-from client.python.client import DataHubClient
+from client.python.dh_client import DataHubClient
 
 '''
 @author: anant bhardwaj
@@ -22,7 +22,7 @@ def authenticate(login_required=True):
       except TypeError, e:
           self.stdout.write(str(e) + '\n')
       except Error, e:
-          self.stdout.write('Error: %s\n' % str(e))
+          self.print_line('Error: %s' % str(e))
 
     print_response.__doc__ = f.__doc__
     return print_response        
@@ -39,38 +39,33 @@ class DatahubTerminal(cmd.Cmd):
 
   @authenticate()
   def do_info(self):
-    """prints version number."""
+    '''prints version number.'''
     version = self.client.get_version()
-    self.stdout.write('%s\n' % (version))
+    self.print_line('%s' % (version))
 
   @authenticate()
   def do_exit(self):
-    """exits the datahub shell."""
+    '''exits the datahub shell.'''
     return True
 
   @authenticate()
   def do_help(self):
+    '''prints help.'''
     cmd_list = dir(self)
     cmd_names = []
     for name in cmd_list:
       if name[:3] == 'do_':
         cmd_names.append(name[3:])
+
     cmd_names.sort()
+
     for cmd_name in cmd_names:
-      f = getattr(self, 'do_' + cmd_name)
-      if f.__doc__:
-        self.stdout.write('%s: %s\n' % (cmd_name, f.__doc__))
+      f = getattr(self, 'do_' + cmd_name)      
+      self.print_line('%s: %s' % (cmd_name, f.__doc__))
 
-  def do_EOF(self, line):
+  def print_line(self, line):
+    self.stdout.write(line)
     self.stdout.write('\n')
-    return True
-
-  def parse_line(self, line):
-    parts = shlex.split(line)
-    if len(parts) == 0:
-      return None, None, line
-    else:
-      return parts[0], parts[1:], line
 
 
 def main():
