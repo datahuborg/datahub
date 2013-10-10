@@ -19,31 +19,31 @@ DataHub Server
 
 class DataHubHandler:
   def __init__(self):
-    self.con = Connection()
+    pass
 
   def get_version(self):
     return VERSION
 
   def create_database(self, db_name):
     try:
-      self.con.create_database(db_name)
+      con = Connection()
+      con.create_database(db_name)
       return True
-
     except:
       return False
 
   def drop_database(self, db_name):
     try:
-      self.con.drop_database(db_name)
+      con = Connection()
+      con.drop_database(db_name)
       return True
-
     except:
       return False
 
   def show_databases(self):
     try:
-      return str(self.con.show_databases())
-
+      con = Connection()
+      return str(con.show_databases())
     except Exception, e:
       return str(e)
 
@@ -51,7 +51,6 @@ class DataHubHandler:
     try:
       con = Connection(db_name=db_name)
       return str(con.show_tables())
-
     except Exception, e:
       return str(e)
 
@@ -59,11 +58,8 @@ class DataHubHandler:
     try:
       con = Connection(db_name=db_name)
       return str(con.execute_sql(query, params, commit))
-
     except Exception, e:
       return str(e)
-
-
 
 handler = DataHubHandler()
   
