@@ -12,6 +12,16 @@ from client.python.dh_client import DataHubClient
 
 datahub cli interface
 '''
+CMD_LIST = [
+    'CREATE DATABASE',
+    'CREATE TABLE',
+    'DROP DATABASE',
+    'DROP TABLE',
+    'SHOW DATABASES',
+    'SHOW TABLES',
+    'SELECT',
+    'USE'
+]
 
 def authenticate(login_required=True):
   def response(f):
@@ -19,14 +29,13 @@ def authenticate(login_required=True):
       # TODO: authentication code here
       try:
         return f(self, args)
-      except TypeError, e:
-          self.stdout.write(str(e) + '\n')
+
       except Exception, e:
           self.print_line('Error: %s' % str(e))
 
     print_response.__doc__ = f.__doc__
     return print_response        
-      
+
   return response
 
 
@@ -92,28 +101,20 @@ class DatahubTerminal(cmd.Cmd):
 
     self.print_line('%s' % (res))
 
-  @authenticate()
   def do_exit(self, line):
-    '''exits the datahub shell.'''
     return True
 
-  @authenticate()
   def do_help(self, line): 
-    self.print_line('coming soon...')
+    for cmd in CMD_LIST:
+      self.print_line(cmd)
 
   def print_line(self, line):
     self.stdout.write(line)
     self.stdout.write('\n')
 
-  def parse_line(self, line):
-    parts = shlex.split(line)
-    if len(parts) == 0:
-      return None, None, line
-    else:
-      return parts[0], parts[1:], line
+  def completedefault(text, line, begidx, endidx):
+    print text, line, begidx, endidx
 
-  def do_EOF(self, line):
-    return True
 
 
 def main():
