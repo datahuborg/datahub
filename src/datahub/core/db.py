@@ -20,7 +20,7 @@ class Connection:
     c = self.connection.cursor()
     c.execute(query, params)
     try:
-      tuples = list(c.fetchall())
+      tuples = c.fetchall()
     except:
       pass
     c.close()
