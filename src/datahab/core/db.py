@@ -15,76 +15,55 @@ class Connection:
   def __del__(self):
     self.connection.close()
 
-  def execute_query(self, query, params=None):
-    res={'status':False}
-    try:
-      c = self.connection.cursor()
-      c.execute(query, params)
-      res['data'] = c.fetchall()
-      c.close()
-      res['status'] = True
-    except exc:
-      res['error'] = ex
+  def execute_sql(self, query, params=None):
+    c = self.connection.cursor()
+    c.execute(query, params)
+    tuples = c.fetchall()
+    c.close()
+    return tuples
 
-    return res
+  def show_databases(self):
+    s = "SELECT datname FROM pg_catalog.pg_database WHERE NOT datistemplate"
+    return self.execute_sql(s)
 
-  def list_databases(self):
-    res={'status':False}
-    try:
-      s = "SELECT datname FROM pg_catalog.pg_database WHERE NOT datistemplate"
-      return self.execute_query(s)
-    except exc:
-      res['error'] = exc
+  def show_tables(self):
+    s = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
+    return self.execute_sql(s);
 
-    return res
+  def create_database(self, db_name):   
+    self.connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+    c = self.connection.cursor()
+    s = "CREATE DATABASE %s" % (db_name)
+    c.execute(s, None)
 
-  def list_tables(self):
-    res={'status':False}
-    try:
-      s = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
-      return self.execute_query(s);
-    except exc:
-      res['error'] = exc
-
-    return res
-
-  def create_database(self, db_name):
-    res={'status':False}
-    try:
-      self.connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-      c = self.connection.cursor()
-      s = "CREATE DATABASE %s" %(db_name)
-      c.execute(s, None)
-      res={'status':True}
-    except exc:
-      res['error'] = exc
-
-    return res
+  def drop_database(self, db_name):   
+    self.connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+    c = self.connection.cursor()
+    s = "DROP DATABASE %s" % (db_name)
+    c.execute(s, None)
 
   def create_table(self, query):
-    res={'status':False}
-    try:
-      c = self.connection.cursor()
-      c.execute(query, None)
-      res={'status':True}
-    except exc:
-      res['error'] = exc
+    c = self.connection.cursor()
+    c.execute(query, None)
+    c.close()
+    self.connection.commit()
 
-    return res
+  def drop_table(self, table_name):
+    c = self.connection.cursor()
+    c.execute("DROP TABLE %s" % (table_name), None)
+    c.close()
+    self.connection.commit()
 
-  def close(self):
-    res={'status':False}
-    try:
-      self.connection.close()
-      res={'status':True}
-    except exc:
-      res['error'] = exc
-
-    return res
+  def close(self):    
+    self.connection.close()
 
 
 if __name__ == '__main__':
   con = Connection()
-  print  con.list_databases()
-  con = Connection(db_name='leaderboard')
-  print con.list_tables()
+  print  con.show_databases()
+  con = Connection(db_name='datahub')
+  print con.show_tables()
+  con.create_table('create table test(id integer, name varchar(20))')
+  print con.show_tables()
+  con = Connection(db_name='datahub')
+  print con.show_tables()
