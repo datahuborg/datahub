@@ -31,7 +31,7 @@ def authenticate(login_required=True):
         return f(self, args)
 
       except Exception, e:
-          self.print_line('Error: %s' % str(e))
+          self.print_line('error: %s' % str(e))
 
     print_response.__doc__ = f.__doc__
     return print_response        
@@ -41,8 +41,8 @@ def authenticate(login_required=True):
 
 class DatahubTerminal(cmd.Cmd):
   def __init__(self):
-    cmd.Cmd.__init__(self)
-    self.session = {'user': None, 'database': None}
+    cmd.Cmd.__init__(self, completekey='tab')
+    self.session = {}
     self.prompt = "datahub> "
     self.client = DataHubClient()
 
@@ -53,9 +53,11 @@ class DatahubTerminal(cmd.Cmd):
     if tokens[0].lower() == 'databases':
       res = self.client.show_databases()
     elif tokens[0].lower() == 'tables':
-      db = self.session['database']
-      if db:
+      if 'database' in self.session:
+        db = self.session['database']    
         res = self.client.show_tables(db)
+      else:
+        res = '** not connected to any database'
     else:
       pass
 
@@ -77,9 +79,11 @@ class DatahubTerminal(cmd.Cmd):
     if tokens[0].lower() == 'database':
       res = self.client.drop_database(tokens[1])
     elif tokens[0].lower() == 'table':
-      db = self.session['database']
-      if db:
-        res = self.client.drop_table(db, tokens[1])
+      if 'database' in self.session:
+        db = self.session['database']
+        res = self.client.execute_sql(db, 'drop ' + line)
+      else:
+        res = '** not connected to any database'
     else:
       pass
 
@@ -93,11 +97,34 @@ class DatahubTerminal(cmd.Cmd):
     if tokens[0].lower() == 'database':
       res = self.client.create_database(tokens[1])
     elif tokens[0].lower() == 'table':
-      db = self.session['database']
-      if db:
-        res = self.client.create_table(db, 'create ' + ' '.join(tokens))
+      if 'database' in self.session:
+        db = self.session['database']
+        res = self.client.execute_sql(
+            db, 'create ' + ' '.join(tokens), commit=True)
+      else:
+        res = '** not connected to any database'
     else:
       pass
+
+    self.print_line('%s' % (res))
+
+  @authenticate()
+  def do_select(self, line):
+    if 'database' in self.session:
+        db = self.session['database']
+        res = self.client.execute_sql(db, 'select ' + line)
+    else:
+      res = '** not connected to any database'
+
+    self.print_line('%s' % (res))
+
+  @authenticate()
+  def do_insert(self, line):
+    if 'database' in self.session:
+        db = self.session['database']
+        res = self.client.execute_sql(db, 'insert ' + line, commit=True)
+    else:
+      res = '** not connected to any database'
 
     self.print_line('%s' % (res))
 
@@ -112,9 +139,8 @@ class DatahubTerminal(cmd.Cmd):
     self.stdout.write(line)
     self.stdout.write('\n')
 
-  def completedefault(text, line, begidx, endidx):
-    print text, line, begidx, endidx
-
+  def completedefault(self, text, line, begidx, endidx):
+    pass
 
 
 def main():

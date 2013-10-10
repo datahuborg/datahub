@@ -15,11 +15,17 @@ class Connection:
   def __del__(self):
     self.connection.close()
 
-  def execute_sql(self, query, params=None):
+  def execute_sql(self, query, params=None, commit=False):
+    tuples = None
     c = self.connection.cursor()
     c.execute(query, params)
-    tuples = c.fetchall()
+    try:
+      tuples = c.fetchall()
+    except:
+      pass
     c.close()
+    if commit:
+      self.connection.commit()
     return tuples
 
   def show_databases(self):
@@ -42,18 +48,6 @@ class Connection:
     s = "DROP DATABASE %s" % (db_name)
     c.execute(s, None)
 
-  def create_table(self, query):
-    c = self.connection.cursor()
-    c.execute(query, None)
-    c.close()
-    self.connection.commit()
-
-  def drop_table(self, table_name):
-    c = self.connection.cursor()
-    c.execute("DROP TABLE %s" % (table_name), None)
-    c.close()
-    self.connection.commit()
-
   def close(self):    
     self.connection.close()
 
@@ -63,7 +57,7 @@ if __name__ == '__main__':
   print  con.show_databases()
   con = Connection(db_name='datahub')
   print con.show_tables()
-  con.create_table('create table test(id integer, name varchar(20))')
+  con.execute_sql('create table test(id integer, name varchar(20))')
   print con.show_tables()
   con = Connection(db_name='datahub')
   print con.show_tables()

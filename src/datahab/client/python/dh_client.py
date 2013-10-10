@@ -55,21 +55,9 @@ class DataHubClient:
     self.transport.close()
     return res
 
-  def create_table(self, db_name, query):
+  def execute_sql(self, db_name, query, params=None, commit=False):
     self.transport.open()
-    res = self.client.create_table(db_name, query)
-    self.transport.close()
-    return res
-
-  def drop_table(self, db_name, table_name):
-    self.transport.open()
-    res = self.client.drop_table(db_name, table_name)
-    self.transport.close()
-    return res
-
-  def execute_sql(self, db_name, query, params=None):
-    self.transport.open()
-    res = self.client.execute_sql(db_name, query, params)
+    res = self.client.execute_sql(db_name, query, params, commit)
     self.transport.close()
     return res
 
@@ -82,7 +70,7 @@ def main():
   print client.create_database('datahub')
   print client.show_databases()
   print client.show_tables('datahub')
-  print client.create_table('datahub', 'create table test(id integer, name varchar(20))')
+  print client.execute_sql('datahub', 'create table test(id integer, name varchar(20))', commit = True)
   print client.show_tables('datahub')
 
 if __name__ == '__main__':

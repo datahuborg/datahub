@@ -44,42 +44,24 @@ class DataHubHandler:
     try:
       return str(self.con.show_databases())
 
-    except:
-      return False
+    except Exception, e:
+      return str(e)
 
   def show_tables(self, db_name):
     try:
       con = Connection(db_name=db_name)
       return str(con.show_tables())
 
-    except:
-      return False
+    except Exception, e:
+      return str(e)
 
-  def create_table(self, db_name, query):
+  def execute_sql(self, db_name, query, params=None, commit=False):
     try:
       con = Connection(db_name=db_name)
-      con.create_table(query)
-      return True
+      return str(con.execute_sql(query, params, commit))
 
-    except:
-      return False
-
-  def drop_table(self, db_name, table_name):
-    try:
-      con = Connection(db_name=db_name)
-      con.drop_table(table_name)
-      return True
-
-    except:
-      return False
-
-  def execute_sql(self, db_name, query, params=None):
-    try:
-      con = Connection(db_name=db_name)
-      return str(con.execute_sql(query, params))
-
-    except:
-      return False
+    except Exception, e:
+      return str(e)
 
 
 
