@@ -17,7 +17,7 @@ DataHub Server
 
 class DataHubServer:
   def get_version(self):
-    return "1.0"
+    return VERSION
 
 
 handler = DataHubServer()

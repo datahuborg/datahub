@@ -1,5 +1,7 @@
 namespace py datahub
 
+const double VERSION = 1.0
+
 service DataHub {
-  string get_version()
+  double get_version()
 }
