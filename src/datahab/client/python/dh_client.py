@@ -20,7 +20,7 @@ class DataHubClient:
     try:
       transport = TSocket.TSocket("localhost", 9000)
       self.transport = TTransport.TBufferedTransport(transport)
-      protocol = TBinaryProtocol.TBinaryProtocol(transport)
+      protocol = TBinaryProtocol.TBinaryProtocol(self.transport)
       self.client = DataHub.Client(protocol)
     except Thrift.TException, tex:
       print '%s' % (tex.message)
