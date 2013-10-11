@@ -80,11 +80,9 @@ class DatahubTerminal(cmd.Cmd):
 
   def print_result(self, res):
     if res.row_count > 0:
-      self.print_line('%s' % ('\t'.join(
-          ['----------' for i in range(0, len(res.column_names))])))
       self.print_line('%s' % ('\t'.join(res.column_names)))
-      self.print_line('%s' % ('\t'.join(
-          ['----------' for i in range(0, len(res.column_names))])))
+      self.print_line('%s' % (''.join(
+          ['------------' for i in range(0, len(res.column_names))])))
       for t in res.tuples:
         self.print_line('%s' % ('\t'.join(t)))
     else:
