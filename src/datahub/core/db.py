@@ -16,9 +16,6 @@ class Connection:
     self.connection = psycopg2.connect(user=user, password=password,
                                       host=host, port=port, database=db_name)
 
-  def __del__(self):
-    self.connection.close()
-
   def execute_sql(self, query, params=None):
     result = {
         'status': False,
