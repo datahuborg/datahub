@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import cmd
+import cmd2
 import os
 import shlex
 import sys
@@ -36,9 +36,9 @@ def authenticate(login_required=True):
   return response
 
 
-class DatahubTerminal(cmd.Cmd):
+class DatahubTerminal(cmd2.Cmd):
   def __init__(self):
-    cmd.Cmd.__init__(self, completekey='tab')
+    cmd2.Cmd.__init__(self, completekey='tab')
     self.client = DataHubClient()
     con_params = DHConnectionParams(user=None, password=None, database=None)
     self.con = self.client.connect(con_params)
