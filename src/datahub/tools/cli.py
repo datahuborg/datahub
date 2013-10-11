@@ -90,6 +90,7 @@ class DatahubTerminal(cmd.Cmd):
           ['------------' for i in range(0, len(res.column_names))])))
       for t in res.tuples:
         self.print_line('%s' % ('\t'.join(t)))
+
     else:
       self.print_line('%s' % ('success' if res.status else 'error'))
 
