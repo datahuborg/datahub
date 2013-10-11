@@ -22,7 +22,7 @@ class Connection:
   def execute_sql(self, query, params=None):
     result = {
         'status': False,
-        'num_rows_affected': 0,
+        'row_count': 0,
         'tuples': [],
         'column_names': [],
         'column_types': []
@@ -44,7 +44,7 @@ class Connection:
       pass
 
     result['status'] = True
-    result['num_rows_affected'] = c.rowcount
+    result['row_count'] = c.rowcount
     if c.description:
       result['column_names'] = [col[0] for col in c.description]
 

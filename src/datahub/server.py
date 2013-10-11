@@ -20,7 +20,7 @@ DataHub Server
 def construct_query_result(res):
   query_result = QueryResult(
       status = res['status'],
-      num_rows_affected = res['num_rows_affected'],
+      row_count = res['row_count'],
       column_types = res['column_types'],
       column_names = res['column_names'],
       tuples = res['tuples'])

@@ -15,7 +15,7 @@ struct DHConnection {
 
 struct QueryResult {
   1: bool status,
-  2: i32 num_rows_affected,
+  2: i32 row_count,
   3: list <string> column_types,
   4: list <string> column_names,
   5: list <list <string>> tuples,

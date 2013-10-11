@@ -50,16 +50,15 @@ class DatahubTerminal(cmd.Cmd):
       tokens = map(lambda x: x.strip(), tokens)
       if tokens[0].lower() == 'databases':
         res = self.client.list_databases(self.connection)
-        self.print_line('%s' % (res))
+        self.print_result(res)
       elif tokens[0].lower() == 'tables' and self.connection.database: 
         res = self.client.list_tables(self.connection)
-        self.print_line('%s' % (res))
+        self.print_result(res)
       else:
         self.default('show ' + line)
 
     except Exception, e:
       self.print_line('%s' % (e.message))
-
 
   @authenticate()
   def do_use(self, line):
@@ -72,13 +71,24 @@ class DatahubTerminal(cmd.Cmd):
   def default(self, line):
     try:      
       res = self.client.execute_sql(self.connection, line, params=None)
-      self.print_line('%s' % (res))
+      self.print_result(res)
     except Exception, e:
       self.print_line('%s' % (e.message))
 
-
   def do_exit(self, line):
     return True
+
+  def print_result(self, res):
+    if res.row_count > 0:
+      self.print_line('%s' % ('\t'.join(
+          ['----------' for i in range(0, len(res.column_names))])))
+      self.print_line('%s' % ('\t'.join(res.column_names)))
+      self.print_line('%s' % ('\t'.join(
+          ['----------' for i in range(0, len(res.column_names))])))
+      for t in res.tuples:
+        self.print_line('%s' % ('\t'.join(t)))
+    else:
+      self.print_line('%s' % ('success' if res.status else 'error'))
 
   def do_help(self, line): 
     for cmd in CMD_LIST:
