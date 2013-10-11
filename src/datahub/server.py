@@ -18,7 +18,7 @@ DataHub Server
 '''
 
 def construct_query_result(res):
-  query_result = QueryResult(
+  query_result = DHQueryResult(
       status = res['status'],
       row_count = res['row_count'],
       column_types = res['column_types'],
@@ -35,36 +35,50 @@ class DataHubHandler:
   def get_version(self):
     return VERSION
 
-  def connect_database(self, con):  
+  def connect(self, dh_con_params):  
     try:
-      con = Connection(db_name=con.database)
-      return True
-    except Exception, e:
-      raise DBException(message=str(e))
+      dh_database = DHDatabase()
 
-  def list_databases(self, con):  
+      if dh_con_params.database:
+        dh_database.name = dh_con_params.database.name
+
+      con = Connection(db_name=dh_database.name)
+      dh_con = DHConnection(database=dh_database)
+      return dh_con
+    except Exception, e:
+      raise DHException(message=str(e))
+    
+  def open_database(self, dh_con, dh_db):  
     try:
-      con = Connection(db_name=con.database)
+      con = Connection(db_name=dh_db.name)
+      dh_con.database = dh_db
+      return dh_con
+    except Exception, e:
+      raise DHException(message=str(e))
+
+  def list_databases(self, dh_con):
+    try:
+      con = Connection(db_name=dh_con.database.name)
       res = con.list_databases()
       return construct_query_result(res)
     except Exception, e:
-      raise DBException(message=str(e))
+      raise DHException(message=str(e))
 
-  def list_tables(self, con):
+  def list_tables(self, dh_con):
     try:
-      con = Connection(db_name=con.database)
+      con = Connection(db_name=dh_con.database.name)
       res = con.list_tables()
       return construct_query_result(res)
     except Exception, e:
-      raise DBException(message=str(e))
+      raise DHException(message=str(e))
 
-  def execute_sql(self, con, query, params=None):
+  def execute_sql(self, dh_con, query, query_params=None):
     try:
-      con = Connection(db_name=con.database)
-      res = con.execute_sql(query, params)
+      con = Connection(db_name=dh_con.database.name)
+      res = con.execute_sql(query, query_params)
       return construct_query_result(res)
     except Exception, e:
-      raise DBException(message=str(e))
+      raise DHException(message=str(e))
 
 handler = DataHubHandler()
   

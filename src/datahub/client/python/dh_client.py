@@ -31,9 +31,15 @@ class DataHubClient:
     self.transport.close()
     return version
 
-  def connect_database(self, con):
+  def connect(self, con_params):
     self.transport.open()
-    res = self.client.connect_database(con)
+    con = self.client.connect(con_params)
+    self.transport.close()
+    return con
+  
+  def open_database(self, con, database):
+    self.transport.open()
+    res = self.client.open_database(con, database)
     self.transport.close()
     return res
 
@@ -49,9 +55,9 @@ class DataHubClient:
     self.transport.close()
     return res
 
-  def execute_sql(self, con, query, params=None):
+  def execute_sql(self, con, query, query_params=None):
     self.transport.open()
-    res = self.client.execute_sql(con, query, params)
+    res = self.client.execute_sql(con, query, query_params)
     self.transport.close()
     return res
 
@@ -59,22 +65,25 @@ class DataHubClient:
 def test():
   client = DataHubClient()
   print client.get_version()
-  con = DHConnection(database=None, user='anantb')
-  print client.list_databases(con)
+  con_params = DHConnectionParams(user=None, password=None, database=None)
+  con = client.connect(con_params=con_params)
+  print client.list_databases(con=con)
 
   try:
-    print client.execute_sql(con, 'drop database test')
-    print client.list_databases(con)
-  except:
-    pass
+    print client.execute_sql(con=con, query='drop database test')
+    print client.list_databases(con=con)
+  except Exception, e:
+    print e.message
+  
 
-  print client.execute_sql(con, 'create database test')
-  print client.list_databases(con)
+  print client.execute_sql(con=con, query='create database test')
+  print client.list_databases(con=con)
 
-  con = DHConnection(database='test', user='anantb')
-  print client.list_tables(con)
-  print client.execute_sql(con, 'create table person(id integer, name varchar(20))')
-  print client.list_tables(con)
+  database = DHDatabase(name='test')
+  con = client.open_database(con=con, database=database)
+  print client.list_tables(con=con)
+  print client.execute_sql(con=con, query='create table person(id integer, name varchar(20))')
+  print client.list_tables(con=con)
 
 if __name__ == '__main__':
   test()

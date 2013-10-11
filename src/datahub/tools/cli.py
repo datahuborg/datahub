@@ -39,9 +39,10 @@ def authenticate(login_required=True):
 class DatahubTerminal(cmd.Cmd):
   def __init__(self):
     cmd.Cmd.__init__(self, completekey='tab')
-    self.connection = DHConnection(database=None)
-    self.prompt = "datahub> "
     self.client = DataHubClient()
+    con_params = DHConnectionParams(user=None, password=None, database=None)
+    self.con = self.client.connect(con_params)
+    self.prompt = "datahub> "
 
   @authenticate()
   def do_show(self, line):
@@ -49,10 +50,10 @@ class DatahubTerminal(cmd.Cmd):
       tokens = line.split()
       tokens = map(lambda x: x.strip(), tokens)
       if tokens[0].lower() == 'databases':
-        res = self.client.list_databases(self.connection)
+        res = self.client.list_databases(self.con)
         self.print_result(res)
-      elif tokens[0].lower() == 'tables' and self.connection.database: 
-        res = self.client.list_tables(con=self.connection)
+      elif tokens[0].lower() == 'tables' and self.con.database.name: 
+        res = self.client.list_tables(con=self.con)
         self.print_result(res)
       else:
         self.print_line('error: not connected to any database')
@@ -65,16 +66,16 @@ class DatahubTerminal(cmd.Cmd):
     try:
       tokens = line.split()
       tokens = map(lambda x: x.strip(), tokens)
-      self.connection.database = tokens[0]
-      status =  self.client.connect_database(con=self.connection)
-      self.print_line('%s' % ('success' if status else 'error'))
+      database = DHDatabase(name=tokens[0])
+      self.con =  self.client.open_database(con=self.con, database=database)
+      self.print_line('%s' % ('success'))
     except Exception, e:
       self.print_line('error: %s' % (e.message))
 
   @authenticate()
   def default(self, line):
     try:      
-      res = self.client.execute_sql(con=self.connection, query=line, params=None)
+      res = self.client.execute_sql(con=self.con, query=line, query_params=None)
       self.print_result(res)
     except Exception, e:
       self.print_line('error: %s' % (e.message))
