@@ -17,7 +17,7 @@ CMD_LIST = [
     '**Any SQL Query**'
     'SHOW DATABASES',
     'SHOW TABLES',
-    'USE'
+    'USE <database-name>'
 ]
 
 def authenticate(login_required=True):
