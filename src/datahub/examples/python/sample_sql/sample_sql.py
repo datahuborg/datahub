@@ -44,3 +44,11 @@ print client.execute_sql(con=con, query="""insert into person values(1, 'anant')
 print client.execute_sql(con=con, query="""insert into person values(2, 'david')""")
 print client.execute_sql(con=con, query="""insert into person values(3, 'sam')""")
 print client.execute_sql(con=con, query='select * from person')
+
+try:
+  database = DHDatabase(name='postgres')
+  con = client.open_database(con=con, database=database)
+  print client.execute_sql(con=con, query='drop database test')
+  print client.list_databases(con=con)
+except Exception, e:
+  print e.message
