@@ -44,14 +44,13 @@ struct DHQueryResult {
 
 service DataHub {
   double get_version()
-
-  DHConnection connect(1:DHConnectionParams con_params) throws (1: DHException ex)
-
-  DHConnection open_database(1:DHConnection con, 2:DHDatabase database) throws (1: DHException ex)
-
-  DHQueryResult list_databases(1:DHConnection con) throws (1: DHException ex)
-
+  DHConnection connect(1:DHConnectionParams con_params)
+      throws (1: DHException ex)
+  DHConnection open_database(1:DHConnection con, 2:DHDatabase database)
+      throws (1: DHException ex)
+  DHQueryResult list_databases(1:DHConnection con)
+      throws (1: DHException ex)
   DHQueryResult list_tables(1:DHConnection con) throws (1: DHException ex)
-
-  DHQueryResult execute_sql(1:DHConnection con, 2: string query,  3: list <string> query_params) throws (1: DHException ex)
+  DHQueryResult execute_sql(1:DHConnection con, 2: string query,
+      3: list <string> query_params) throws (1: DHException ex)
 }
