@@ -13,8 +13,8 @@ from client.python.dh_client import DataHubClient
 
 datahub cli interface
 '''
-CMD_LIST = [
-    '**Any SQL Query**'
+kCmdList = [
+    '** Any SQL Query **',
     'SHOW DATABASES',
     'SHOW TABLES',
     'USE <database-name>'

@@ -74,7 +74,6 @@ def test():
     print client.list_databases(con=con)
   except Exception, e:
     print e.message
-  
 
   print client.execute_sql(con=con, query='create database test')
   print client.list_databases(con=con)

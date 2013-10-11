@@ -1,3 +1,5 @@
+namespace py sample
+
 enum Sex {
   MALE,
   FEMALE

@@ -5,16 +5,18 @@ import re
 @author: anant bhardwaj
 @date: Oct 3, 2013
 
-datahub connection manager
+DataHub internal APIs for raw database (postgres)
 '''
 
 kCommitTokens = ['create', 'update', 'alter', 'delete', 'insert', 'drop']
 
 class Connection:
-  def __init__(self, user="postgres", password="postgres",
-               host='localhost', port=5432, db_name='postgres'):
-    self.connection = psycopg2.connect(user=user, password=password,
-                                      host=host, port=port, database=db_name)
+  def __init__(
+      self, user="postgres", password="postgres",
+      host='localhost', port=5432, db_name='postgres'):
+
+    self.connection = psycopg2.connect(
+        user=user, password=password, host=host, port=port, database=db_name)
 
   def execute_sql(self, query, params=None):
     result = {
