@@ -52,13 +52,13 @@ class DatahubTerminal(cmd.Cmd):
         res = self.client.list_databases(self.connection)
         self.print_result(res)
       elif tokens[0].lower() == 'tables' and self.connection.database: 
-        res = self.client.list_tables(self.connection)
+        res = self.client.list_tables(con=self.connection)
         self.print_result(res)
       else:
-        self.default('show ' + line)
+        self.print_line('error: not connected to any database')
 
     except Exception, e:
-      self.print_line('%s' % (e.message))
+      self.print_line('error: %s' % (e.message))
 
   @authenticate()
   def do_use(self, line):
@@ -66,35 +66,34 @@ class DatahubTerminal(cmd.Cmd):
       tokens = line.split()
       tokens = map(lambda x: x.strip(), tokens)
       self.connection.database = tokens[0]
-      status =  self.client.connect_database(self.connection)
+      status =  self.client.connect_database(con=self.connection)
       self.print_line('%s' % ('success' if status else 'error'))
     except Exception, e:
-      self.print_line('%s' % (e.message))
+      self.print_line('error: %s' % (e.message))
 
   @authenticate()
   def default(self, line):
     try:      
-      res = self.client.execute_sql(self.connection, line, params=None)
+      res = self.client.execute_sql(con=self.connection, query=line, params=None)
       self.print_result(res)
     except Exception, e:
-      self.print_line('%s' % (e.message))
+      self.print_line('error: %s' % (e.message))
 
   def do_exit(self, line):
     return True
 
   def print_result(self, res):
-    self.print_line('')
-    if res.row_count > 0:
+    if res.row_count >= 0:
       self.print_line('%s' % ('\t'.join(res.column_names)))
       self.print_line('%s' % (''.join(
           ['------------' for i in range(0, len(res.column_names))])))
       for t in res.tuples:
         self.print_line('%s' % ('\t'.join(t)))
 
+      self.print_line('')
+      self.print_line('%s rows returned' % (res.row_count))
     else:
       self.print_line('%s' % ('success' if res.status else 'error'))
-
-    self.print_line('')
 
   def do_help(self, line): 
     for cmd in CMD_LIST:
