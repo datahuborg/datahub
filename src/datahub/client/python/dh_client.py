@@ -31,6 +31,12 @@ class DataHubClient:
     self.transport.close()
     return version
 
+  def connect_database(self, con):
+    self.transport.open()
+    res = self.client.connect_database(con)
+    self.transport.close()
+    return res
+
   def list_databases(self, con):
     self.transport.open()
     res = self.client.list_databases(con)

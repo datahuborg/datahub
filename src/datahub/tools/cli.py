@@ -62,10 +62,14 @@ class DatahubTerminal(cmd.Cmd):
 
   @authenticate()
   def do_use(self, line):
-    tokens = line.split()
-    tokens = map(lambda x: x.strip(), tokens)
-    self.connection.database = tokens[0]
-    self.print_line('connected to: %s' % (self.connection.database))
+    try:
+      tokens = line.split()
+      tokens = map(lambda x: x.strip(), tokens)
+      self.connection.database = tokens[0]
+      status =  self.client.connect_database(self.connection)
+      self.print_line('%s' % ('success' if status else 'error'))
+    except Exception, e:
+      self.print_line('%s' % (e.message))
 
   @authenticate()
   def default(self, line):

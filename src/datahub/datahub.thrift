@@ -1,3 +1,12 @@
+/**
+ * datahub.thrift
+ * IDL for DataHub Services
+ *
+ * @author: Anant Bhardwaj
+ * @date: 10/09/2013
+ *
+ */
+
 namespace py datahub
 
 const double VERSION = 1.0
@@ -23,6 +32,8 @@ struct QueryResult {
 
 service DataHub {
   double get_version()
+
+  bool connect_database(1:DHConnection con) throws (1: DBException ex)
 
   QueryResult list_databases(1:DHConnection con) throws (1: DBException ex)
 

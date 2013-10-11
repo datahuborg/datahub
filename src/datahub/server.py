@@ -35,22 +35,26 @@ class DataHubHandler:
   def get_version(self):
     return VERSION
 
-  def list_databases(self, con):  
+  def connect_database(self, con):  
     try:
-      con = Connection()
-      res = con.list_databases()
-      return construct_query_result(res)
-
+      con = Connection(db_name=con.database)
+      return True
     except Exception, e:
       raise DBException(message=str(e))
-    
+
+  def list_databases(self, con):  
+    try:
+      con = Connection(db_name=con.database)
+      res = con.list_databases()
+      return construct_query_result(res)
+    except Exception, e:
+      raise DBException(message=str(e))
 
   def list_tables(self, con):
     try:
       con = Connection(db_name=con.database)
       res = con.list_tables()
       return construct_query_result(res)
-
     except Exception, e:
       raise DBException(message=str(e))
 
@@ -59,7 +63,6 @@ class DataHubHandler:
       con = Connection(db_name=con.database)
       res = con.execute_sql(query, params)
       return construct_query_result(res)
-
     except Exception, e:
       raise DBException(message=str(e))
 
