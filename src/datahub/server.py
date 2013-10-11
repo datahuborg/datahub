@@ -17,6 +17,17 @@ from thrift.transport import TTransport
 DataHub Server
 '''
 
+def construct_query_result(res):
+  query_result = QueryResult(
+      status = res['status'],
+      num_rows_affected = res['num_rows_affected'],
+      column_types = res['column_types'],
+      column_names = res['column_names'],
+      tuples = res['tuples'])
+
+  return query_result
+
+
 class DataHubHandler:
   def __init__(self):
     pass
@@ -24,42 +35,33 @@ class DataHubHandler:
   def get_version(self):
     return VERSION
 
-  def create_database(self, db_name):
+  def list_databases(self, con):  
     try:
       con = Connection()
-      con.create_database(db_name)
-      return True
-    except:
-      return False
+      res = con.list_databases()
+      return construct_query_result(res)
 
-  def drop_database(self, db_name):
-    try:
-      con = Connection()
-      con.drop_database(db_name)
-      return True
-    except:
-      return False
-
-  def show_databases(self):
-    try:
-      con = Connection()
-      return str(con.show_databases())
     except Exception, e:
-      return str(e)
+      raise DBException(message=str(e))
+    
 
-  def show_tables(self, db_name):
+  def list_tables(self, con):
     try:
-      con = Connection(db_name=db_name)
-      return str(con.show_tables())
-    except Exception, e:
-      return str(e)
+      con = Connection(db_name=con.database)
+      res = con.list_tables()
+      return construct_query_result(res)
 
-  def execute_sql(self, db_name, query, params=None, commit=False):
-    try:
-      con = Connection(db_name=db_name)
-      return str(con.execute_sql(query, params, commit))
     except Exception, e:
-      return str(e)
+      raise DBException(message=str(e))
+
+  def execute_sql(self, con, query, params=None):
+    try:
+      con = Connection(db_name=con.database)
+      res = con.execute_sql(query, params)
+      return construct_query_result(res)
+
+    except Exception, e:
+      raise DBException(message=str(e))
 
 handler = DataHubHandler()
   

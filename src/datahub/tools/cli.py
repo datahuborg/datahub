@@ -4,6 +4,7 @@ import os
 import shlex
 import sys
 
+from datahub.constants import *
 from client.python.dh_client import DataHubClient
 
 '''
@@ -13,23 +14,10 @@ from client.python.dh_client import DataHubClient
 datahub cli interface
 '''
 CMD_LIST = [
-    'CREATE DATABASE',
-    'CREATE TABLE',
-    'DROP DATABASE',
-    'DROP TABLE',
+    '**Any SQL Query**'
     'SHOW DATABASES',
     'SHOW TABLES',
-    'SELECT',
     'USE'
-]
-
-COMMIT_TOKENS = [
-    'create',
-    'insert',
-    'update',
-    'delete',
-    'alter',
-    'drop'
 ]
 
 def authenticate(login_required=True):
@@ -51,65 +39,43 @@ def authenticate(login_required=True):
 class DatahubTerminal(cmd.Cmd):
   def __init__(self):
     cmd.Cmd.__init__(self, completekey='tab')
-    self.session = {}
+    self.connection = DHConnection(database=None)
     self.prompt = "datahub> "
     self.client = DataHubClient()
 
   @authenticate()
   def do_show(self, line):
-    tokens = line.split()
-    tokens = map(lambda x: x.strip(), tokens)
-    if tokens[0].lower() == 'databases':
-      res = self.client.show_databases()
-      self.print_line('%s' % (res))
-    elif tokens[0].lower() == 'tables' and 'database' in self.session:
-      db = self.session['database']    
-      res = self.client.show_tables(db)
-      self.print_line('%s' % (res))
-    else:
-      self.default('show ' + line)
+    try:
+      tokens = line.split()
+      tokens = map(lambda x: x.strip(), tokens)
+      if tokens[0].lower() == 'databases':
+        res = self.client.list_databases(self.connection)
+        self.print_line('%s' % (res))
+      elif tokens[0].lower() == 'tables' and self.connection.database: 
+        res = self.client.list_tables(self.connection)
+        self.print_line('%s' % (res))
+      else:
+        self.default('show ' + line)
+
+    except Exception, e:
+      self.print_line('%s' % (e.message))
+
 
   @authenticate()
   def do_use(self, line):
     tokens = line.split()
     tokens = map(lambda x: x.strip(), tokens)
-    self.session['database'] = tokens[0]
-    self.print_line('connected to: %s' % (self.session['database']))
-
-  @authenticate()
-  def do_drop(self, line):
-    tokens = line.split()
-    tokens = map(lambda x: x.strip(), tokens)
-    if tokens[0].lower() == 'database':
-      res = self.client.drop_database(tokens[1])
-      self.print_line('%s' % (res))
-    else:
-      self.default('drop ' + line)
-
-  @authenticate()
-  def do_create(self, line):
-    tokens = line.split()
-    tokens = map(lambda x: x.strip(), tokens)
-    if tokens[0].lower() == 'database':
-      res = self.client.create_database(tokens[1])
-      self.print_line('%s' % (res))
-    else:
-      self.default('create ' + line)
+    self.connection.database = tokens[0]
+    self.print_line('connected to: %s' % (self.connection.database))
 
   @authenticate()
   def default(self, line):
-    commit = False
-    tokens = line.split()
-    if tokens[0].lower() in COMMIT_TOKENS:
-      commit = True
+    try:      
+      res = self.client.execute_sql(self.connection, line, params=None)
+      self.print_line('%s' % (res))
+    except Exception, e:
+      self.print_line('%s' % (e.message))
 
-    if 'database' in self.session:
-        db = self.session['database']
-        res = self.client.execute_sql(db, line, commit=commit)
-    else:
-      res = '** not connected to any database'
-
-    self.print_line('%s' % (res))
 
   def do_exit(self, line):
     return True

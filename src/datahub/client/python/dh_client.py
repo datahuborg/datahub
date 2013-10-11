@@ -31,47 +31,44 @@ class DataHubClient:
     self.transport.close()
     return version
 
-  def create_database(self, db_name):
+  def list_databases(self, con):
     self.transport.open()
-    res = self.client.create_database(db_name)
+    res = self.client.list_databases(con)
     self.transport.close()
     return res
 
-  def drop_database(self, db_name):
+  def list_tables(self, con):
     self.transport.open()
-    res = self.client.drop_database(db_name)
+    res = self.client.list_tables(con)
     self.transport.close()
     return res
 
-  def show_databases(self):
+  def execute_sql(self, con, query, params=None):
     self.transport.open()
-    res = self.client.show_databases()
-    self.transport.close()
-    return res
-
-  def show_tables(self, db_name):
-    self.transport.open()
-    res = self.client.show_tables(db_name)
-    self.transport.close()
-    return res
-
-  def execute_sql(self, db_name, query, params=None, commit=False):
-    self.transport.open()
-    res = self.client.execute_sql(db_name, query, params, commit)
+    res = self.client.execute_sql(con, query, params)
     self.transport.close()
     return res
 
 
-def main():
+def test():
   client = DataHubClient()
   print client.get_version()
-  print client.drop_database('datahub')
-  print client.show_databases()
-  print client.create_database('datahub')
-  print client.show_databases()
-  print client.show_tables('datahub')
-  print client.execute_sql('datahub', 'create table test(id integer, name varchar(20))', commit = True)
-  print client.show_tables('datahub')
+  con = DHConnection(database=None, user='anantb')
+  print client.list_databases(con)
+
+  try:
+    print client.execute_sql(con, 'drop database test')
+    print client.list_databases(con)
+  except:
+    pass
+
+  print client.execute_sql(con, 'create database test')
+  print client.list_databases(con)
+
+  con = DHConnection(database='test', user='anantb')
+  print client.list_tables(con)
+  print client.execute_sql(con, 'create table person(id integer, name varchar(20))')
+  print client.list_tables(con)
 
 if __name__ == '__main__':
-  main()
+  test()
