@@ -79,6 +79,7 @@ class DatahubTerminal(cmd.Cmd):
     return True
 
   def print_result(self, res):
+    self.print_line('')
     if res.row_count > 0:
       self.print_line('%s' % ('\t'.join(res.column_names)))
       self.print_line('%s' % (''.join(
@@ -87,6 +88,8 @@ class DatahubTerminal(cmd.Cmd):
         self.print_line('%s' % ('\t'.join(t)))
     else:
       self.print_line('%s' % ('success' if res.status else 'error'))
+
+    self.print_line('')
 
   def do_help(self, line): 
     for cmd in CMD_LIST:
