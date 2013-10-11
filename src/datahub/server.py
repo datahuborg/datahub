@@ -80,6 +80,7 @@ class DataHubHandler:
     except Exception, e:
       raise DHException(message=str(e))
 
+
 handler = DataHubHandler()
   
 processor = DataHub.Processor(handler)
@@ -87,7 +88,8 @@ transport = TSocket.TServerSocket('localhost', 9000)
 tfactory = TTransport.TBufferedTransportFactory()
 pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 
-server = TServer.TThreadedServer(processor, transport, tfactory, pfactory)
+server = TServer.TThreadedServer(
+    processor, transport, tfactory, pfactory)
 
 print 'Starting DataHub Server'
 server.serve()
