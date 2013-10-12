@@ -75,7 +75,8 @@ class DatahubTerminal(cmd2.Cmd):
   @authenticate()
   def default(self, line):
     try:      
-      res = self.client.execute_sql(con=self.con, query=line, query_params=None)
+      res = self.client.execute_sql(
+          con=self.con, query=line, query_params=None)
       self.print_result(res)
     except Exception, e:
       self.print_line('error: %s' % (e.message))
@@ -85,11 +86,13 @@ class DatahubTerminal(cmd2.Cmd):
 
   def print_result(self, res):
     if res.row_count >= 0:
-      self.print_line('%s' % ('\t'.join(res.column_names)))
+      col_names = [
+          col_spec.column_name for col_spec in res.table_spec.column_specs]
+      self.print_line('%s' % ('\t'.join(col_names)))
       self.print_line('%s' % (''.join(
-          ['------------' for i in range(0, len(res.column_names))])))
-      for t in res.table.tuples:
-        self.print_line('%s' % ('\t'.join([c.value for c in t.cells])))
+          ['------------' for i in range(0, len(col_names))])))
+      for row in res.table_data.rows:
+        self.print_line('%s' % ('\t'.join([c.value for c in row.cells])))
 
       self.print_line('')
       self.print_line('%s rows returned' % (res.row_count))

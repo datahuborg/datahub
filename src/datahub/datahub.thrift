@@ -9,59 +9,122 @@
 
 namespace py datahub
 
+// DataHub constants
 const double VERSION = 1.0
 
+
+// DataHub Generic Exception
 exception DHException {
-  1: i32 errorCode,
-  2: string message,
-  3: string details
+  1: optional i32 errorCode,
+  2: optional string message,
+  3: optional string details
 }
 
+
+// DataHub Connection Abstraction
 struct DHDatabase {
-  1: string url
-  2: string name 
+  1: optional string url
+  2: optional string name 
 }
 
 struct DHConnectionParams {
-  1: string user,
-  2: string password,
-  3: DHDatabase database
+  1: optional string user,
+  2: optional string password,
+  3: optional DHDatabase database
 }
 
 struct DHConnection {
-  1: string id,
-  2: string user,
-  3: DHDatabase database
+  1: optional string id,
+  2: optional string user,
+  3: optional DHDatabase database
 }
 
-struct DHTableSpec{
-  1: list <string> column_names,
-  2: list <string> column_types
+ 
+// DataHub Table Specification Abstraction
+enum DHType {
+  Boolen,
+  Integer,
+  Double,
+  String,
+  Binary,
+  Date,
+  DateTime,
+  TimesSamp
 }
 
+struct DHIndex {
+  1: optional bool primary,
+  2: optional bool unique,
+  3: optional bool btree_index,
+  4: optional bool fulltext_index
+}
+
+union DHOrder {
+  1: optional bool ascending,
+  2: optional bool descending
+}
+
+union DHDefault {
+  1: optional binary value,
+  2: optional bool null ,
+  3: optional bool current_timestamp
+}
+
+struct DHColumnSpec {
+  1: optional i32 id,
+  2: optional i32 version_number,
+  3: optional string column_name,
+  4: optional DHType column_type,
+  5: optional i32 length,
+  6: optional DHDefault default_val,
+  7: optional list <DHIndex> index,
+  8: optional bool null_allowed,
+  9: optional bool auto_increment,
+  10: optional DHOrder order
+}
+
+struct DHTableSpec {
+  1: optional i32 id,
+  2: optional i32 version_number,
+  3: optional list <DHColumnSpec> column_specs,
+}
+
+
+// DataHub Table Abstraction
 struct DHCell {
-  1: binary value
+  1: optional binary value
 }
 
 struct DHRow {
-  1: i32 id,
-  2: list <DHCell> cells,
-  3: i32 version_number
+  1: optional i32 id,
+  2: optional i32 version_number,
+  3: optional list <DHCell> cells,
+}
+
+struct DHTableData {
+  1: optional i32 id,
+  2: optional i32 version_number,
+  3: optional list <DHRow> rows
 }
 
 struct DHTable {
-  1: i32 id,
-  2: DHTableSpec table_spec,
-  3: list <DHRow> tuples,
-  4: i32 version_number  
+  1: optional i32 id,
+  2: optional i32 version_number 
+  3: optional DHTableSpec table_spec,
+  4: optional DHTableData table_data, 
 }
 
+
+// DataHub Query Result
 struct DHQueryResult {
-  1: bool status,
-  2: i32 row_count,
-  3: DHTable table,
+  1: required bool status,
+  2: optional i32 error_code,
+  3: optional i32 row_count,
+  4: optional DHTable table,
 }
 
+
+// DataHub service APIs
 service DataHub {
   double get_version()
   DHConnection connect(1:DHConnectionParams con_params)
