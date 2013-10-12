@@ -19,7 +19,7 @@ enum DHType {
   Boolean,
   Integer,
   Double,
-  String,
+  Text,
   Binary,
   Date,
   DateTime,

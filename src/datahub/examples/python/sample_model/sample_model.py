@@ -10,9 +10,13 @@ from datahub.constants import *
 Sample python code for using DataHub ORMs
 '''
 
-class Faculty:
-  id = DHField(type=DHType.Boolean)
-  name = DHField(type=DHType.String)
+Faculty = DHSchema(
+    name = 'faculty',
+    fields = [
+        DHField(name='id', type=DHType.Boolean),
+        DHField(name='name', type=DHType.Text)
+    ]
+  )
 
-f = Faculty()
-print f.id, f.name
+
+print Faculty
