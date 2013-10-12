@@ -34,12 +34,26 @@ struct DHConnection {
   3: DHDatabase database
 }
 
+struct DHCell {
+  1: binary value
+}
+
+struct DHRow {
+  1: list <DHCell> cells,
+  2: i32 version_number
+}
+
+struct DHTable {
+  1: list <DHRow> tuples,
+  2: i32 version_number  
+}
+
 struct DHQueryResult {
   1: bool status,
   2: i32 row_count,
   3: list <string> column_types,
   4: list <string> column_names,
-  5: list <list <string>> tuples,
+  5: DHTable table,
 }
 
 service DataHub {

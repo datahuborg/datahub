@@ -83,6 +83,9 @@ def test():
   print client.list_tables(con=con)
   print client.execute_sql(con=con, query='create table person(id integer, name varchar(20))')
   print client.list_tables(con=con)
+  print client.execute_sql(con=con, query='select * from person')
+  print client.execute_sql(con=con, query="insert into person values(1, 'anant')")
+  print client.execute_sql(con=con, query='select * from person')
 
 if __name__ == '__main__':
   test()

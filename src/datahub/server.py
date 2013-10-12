@@ -17,12 +17,20 @@ DataHub Server
 '''
 
 def construct_query_result(res):
+  tuples = []
+  for t in res['tuples']:
+    tuples.append(
+        DHRow(
+          cells=[DHCell(value=bytes(val)) for val in t]
+        )
+      )
+
   query_result = DHQueryResult(
       status = res['status'],
       row_count = res['row_count'],
       column_types = res['column_types'],
       column_names = res['column_names'],
-      tuples = res['tuples'])
+      table = DHTable(tuples=tuples))
 
   return query_result
 
