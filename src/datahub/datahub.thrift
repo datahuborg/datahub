@@ -39,13 +39,15 @@ struct DHCell {
 }
 
 struct DHRow {
-  1: list <DHCell> cells,
-  2: i32 version_number
+  1: i32 id,
+  2: list <DHCell> cells,
+  3: i32 version_number
 }
 
 struct DHTable {
-  1: list <DHRow> tuples,
-  2: i32 version_number  
+  1: i32 id,
+  2: list <DHRow> tuples,
+  3: i32 version_number  
 }
 
 struct DHQueryResult {

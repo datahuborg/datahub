@@ -88,8 +88,8 @@ class DatahubTerminal(cmd2.Cmd):
       self.print_line('%s' % ('\t'.join(res.column_names)))
       self.print_line('%s' % (''.join(
           ['------------' for i in range(0, len(res.column_names))])))
-      for t in res.tuples:
-        self.print_line('%s' % ('\t'.join(t)))
+      for t in res.table.tuples:
+        self.print_line('%s' % ('\t'.join([c.value for c in t.cells])))
 
       self.print_line('')
       self.print_line('%s rows returned' % (res.row_count))

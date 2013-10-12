@@ -37,8 +37,7 @@ class PGBackend:
 
     try:
       tuples = c.fetchall()
-      for t in tuples:
-        result['tuples'].append([str(k) for k in t])
+      result['tuples'] = [list(t) for t in tuples]
     except:
       pass
 
