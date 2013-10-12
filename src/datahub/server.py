@@ -22,14 +22,14 @@ def construct_query_result(res):
           cells=[DHCell(value=bytes(val)) for val in t]
               ) for t in res['tuples']]
 
-  column_spec = DHColumnSpec(
+  table_spec = DHTableSpec(
       column_names = res['column_names'],
       column_types = res['column_types'])
 
   query_result = DHQueryResult(
       status = res['status'],
       row_count = res['row_count'],
-      table = DHTable(column_spec=column_spec, tuples=tuples))
+      table = DHTable(table_spec=table_spec, tuples=tuples))
 
   return query_result
 

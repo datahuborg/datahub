@@ -34,7 +34,7 @@ struct DHConnection {
   3: DHDatabase database
 }
 
-struct DHColumnSpec{
+struct DHTableSpec{
   1: list <string> column_names,
   2: list <string> column_types
 }
@@ -51,7 +51,7 @@ struct DHRow {
 
 struct DHTable {
   1: i32 id,
-  2: DHColumnSpec column_spec,
+  2: DHTableSpec table_spec,
   3: list <DHRow> tuples,
   4: i32 version_number  
 }
