@@ -17,23 +17,26 @@ DataHub Server
 '''
 
 def construct_query_result(res):
-  table_data = DHTableData(rows=[
+  table = DHTable(rows=[
       DHRow(
           cells=[DHCell(value=bytes(val)) for val in t]
       ) for t in res['tuples']
   ])
 
-  table_schema = DHTableSchema(column_specs=[
-      DHColumnSpec(
-          column_name=res['column_names'][i],
-          column_type=DHType.Binary
+  schema = DHSchema(fields=[
+      DHField(
+          name=res['column_names'][i],
+          type=DHType.Binary
       ) for i in range(0, len(res['column_names']))
   ])
 
   query_result = DHQueryResult(
-      status = res['status'],
-      row_count = res['row_count'],
-      table = DHTable(table_schema=table_schema, table_data=table_data))
+      status=res['status'],
+      row_count=res['row_count'],
+      data=DHData(
+          table=table, schema=schema
+      )
+  )
 
   return query_result
 

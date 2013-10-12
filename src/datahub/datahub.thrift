@@ -16,7 +16,7 @@ const double VERSION = 0.1
 
 /* DataHub Table Schema */
 enum DHType {
-  Boolen,
+  Boolean,
   Integer,
   Double,
   String,
@@ -44,11 +44,11 @@ union DHDefault {
   3: optional bool set_current_timestamp
 }
 
-struct DHColumnSpec {
+struct DHField {
   1: optional i32 id,
   2: optional i32 version_number,
-  3: optional string column_name,
-  4: optional DHType column_type,
+  3: optional string name,
+  4: optional DHType type,
   5: optional i32 length,
   6: optional DHDefault default_val,
   7: optional list <DHIndex> indexes,
@@ -57,11 +57,11 @@ struct DHColumnSpec {
   10: optional DHOrder order
 }
 
-struct DHTableSchema {
+struct DHSchema {
   1: optional i32 id,
   2: optional i32 version_number,
   3: optional string name,
-  4: optional list <DHColumnSpec> column_specs,
+  4: optional list <DHField> fields,
 }
 
 
@@ -76,17 +76,15 @@ struct DHRow {
   3: optional list <DHCell> cells,
 }
 
-struct DHTableData {
+struct DHTable {
   1: optional i32 id,
   2: optional i32 version_number,
   3: optional list <DHRow> rows
 }
 
-struct DHTable {
-  1: optional i32 id,
-  2: optional i32 version_number 
-  3: optional DHTableSchema table_schema,
-  4: optional DHTableData table_data, 
+struct DHData {
+  1: optional DHSchema schema,
+  2: optional DHTable table, 
 }
 
 
@@ -95,7 +93,7 @@ struct DHQueryResult {
   1: required bool status,
   2: optional i32 error_code,
   3: optional i32 row_count,
-  4: optional DHTable table,
+  4: optional DHData data,
 }
 
 
