@@ -76,18 +76,15 @@ def test():
   except:
     pass
 
-  backend.execute_sql('create database test')
+  print backend.execute_sql('create database test')
   print  backend.list_databases()
   backend = PGBackend(db_name='test')
   print backend.list_tables()
-  backend.execute_sql('create table person(id integer, name varchar(20))')
+  print backend.execute_sql('create table person(id integer, name varchar(20))')
   print backend.list_tables()
-  res = backend.execute_sql('select * from person')
-  print res
-  res = backend.execute_sql("insert into person values(1, 'anant')")
-  print res
-  res = backend.execute_sql('select * from person')
-  print res
+  print backend.execute_sql('select * from person')
+  print backend.execute_sql("insert into person values(1, 'anant')")
+  print backend.execute_sql('select * from person')
 
 
 if __name__ == '__main__':
