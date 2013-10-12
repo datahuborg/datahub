@@ -21,34 +21,30 @@ print client.list_databases(con=con)
 
 # delete if database named 'test' already exists
 try:
-  print client.execute_sql(con=con, query='drop database test')
+  print client.execute_sql(con=con, query=''' drop database test ''')
   print client.list_databases(con=con)
 except Exception, e:
   print e.message
   
-# create a database named test
-print client.execute_sql(con=con, query='create database test')
+# create a database named 'test'
+print client.execute_sql(con=con, query=''' create database test ''')
 print client.list_databases(con=con)
 
 # connect to the database 'test' and open the database
 database = DHDatabase(name='test')
 con = client.open_database(con=con, database=database)
 
-# create a table named person
+# create a table named 'person'
 print client.list_tables(con=con)
-print client.execute_sql(con=con, query='create table person(id integer, name varchar(20))')
+print client.execute_sql(con=con,
+    query=''' create table person (id integer, name varchar(20)) ''')
 print client.list_tables(con=con)
 
 # insert/delete/update records
-print client.execute_sql(con=con, query="""insert into person values(1, 'anant')""")
-print client.execute_sql(con=con, query="""insert into person values(2, 'david')""")
-print client.execute_sql(con=con, query="""insert into person values(3, 'sam')""")
-print client.execute_sql(con=con, query='select * from person')
-
-try:
-  database = DHDatabase(name='postgres')
-  con = client.open_database(con=con, database=database)
-  print client.execute_sql(con=con, query='drop database test')
-  print client.list_databases(con=con)
-except Exception, e:
-  print e.message
+print client.execute_sql(con=con,
+    query=''' insert into person values (1, 'anant') ''')
+print client.execute_sql(con=con,
+    query=''' insert into person values (2, 'david') ''')
+print client.execute_sql(con=con,
+    query=''' insert into person values (3, 'sam') ''')
+print client.execute_sql(con=con, query=''' select * from person ''')

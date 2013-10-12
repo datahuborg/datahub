@@ -32,20 +32,23 @@ def test():
   print  con.list_databases()
 
   try:
-    print con.execute_sql('drop database test')
+    print con.execute_sql(''' drop database test ''')
     print  con.list_databases()
   except:
     pass
 
-  print con.execute_sql('create database test')
+  print con.execute_sql(''' create database test ''')
   print  con.list_databases()
   con = Connection(db_name='test')
   print con.list_tables()
-  print con.execute_sql('create table person(id integer, name varchar(20))')
+  print con.execute_sql(
+      ''' create table person (id integer, name varchar(20)) ''')
+  con = Connection(db_name='test')
   print con.list_tables()
-  print con.execute_sql('select * from person')
-  print con.execute_sql("insert into person values(1, 'anant')") 
-  print con.execute_sql('select * from person')
+  print con.execute_sql(''' select * from person ''')
+  print con.execute_sql(''' insert into person values (1, 'anant') ''')
+  con = Connection(db_name='test')
+  print con.execute_sql(''' select * from person ''')
 
 
 if __name__ == '__main__':

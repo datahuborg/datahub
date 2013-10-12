@@ -70,22 +70,24 @@ def test():
   print client.list_databases(con=con)
 
   try:
-    print client.execute_sql(con=con, query='drop database test')
+    print client.execute_sql(con=con, query=''' drop database test ''')
     print client.list_databases(con=con)
   except Exception, e:
     print e.message
 
-  print client.execute_sql(con=con, query='create database test')
+  print client.execute_sql(con=con, query=''' create database test ''')
   print client.list_databases(con=con)
 
   database = DHDatabase(name='test')
   con = client.open_database(con=con, database=database)
   print client.list_tables(con=con)
-  print client.execute_sql(con=con, query='create table person(id integer, name varchar(20))')
+  print client.execute_sql(con=con,
+      query=''' create table person (id integer, name varchar(20)) ''')
   print client.list_tables(con=con)
-  print client.execute_sql(con=con, query='select * from person')
-  print client.execute_sql(con=con, query="insert into person values(1, 'anant')")
-  print client.execute_sql(con=con, query='select * from person')
+  print client.execute_sql(con=con, query=''' select * from person ''')
+  print client.execute_sql(con=con,
+      query=''' insert into person values (1, 'anant') ''')
+  print client.execute_sql(con=con, query=''' select * from person ''')
 
 if __name__ == '__main__':
   test()
