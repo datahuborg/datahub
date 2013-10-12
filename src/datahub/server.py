@@ -23,7 +23,7 @@ def construct_query_result(res):
       ) for t in res['tuples']
   ])
 
-  table_spec = DHTableSpec(column_specs=[
+  table_schema = DHTableSchema(column_specs=[
       DHColumnSpec(
           column_name=res['column_names'][i],
           column_type=DHType.Binary
@@ -33,7 +33,7 @@ def construct_query_result(res):
   query_result = DHQueryResult(
       status = res['status'],
       row_count = res['row_count'],
-      table = DHTable(table_spec=table_spec, table_data=table_data))
+      table = DHTable(table_schema=table_schema, table_data=table_data))
 
   return query_result
 

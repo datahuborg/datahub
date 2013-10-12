@@ -40,7 +40,7 @@ struct DHConnection {
 }
 
  
-// DataHub Table Specification Abstraction
+// DataHub Schema
 enum DHType {
   Boolen,
   Integer,
@@ -83,7 +83,7 @@ struct DHColumnSpec {
   10: optional DHOrder order
 }
 
-struct DHTableSpec {
+struct DHTableSchema {
   1: optional i32 id,
   2: optional i32 version_number,
   3: optional list <DHColumnSpec> column_specs,
@@ -110,7 +110,7 @@ struct DHTableData {
 struct DHTable {
   1: optional i32 id,
   2: optional i32 version_number 
-  3: optional DHTableSpec table_spec,
+  3: optional DHTableSchema table_schema,
   4: optional DHTableData table_data, 
 }
 

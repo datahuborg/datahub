@@ -87,7 +87,7 @@ class DatahubTerminal(cmd2.Cmd):
   def print_result(self, res):
     if res.row_count >= 0:
       col_names = [col_spec.column_name
-          for col_spec in res.table.table_spec.column_specs]
+          for col_spec in res.table.table_schema.column_specs]
       self.print_line('%s' % ('\t'.join(col_names)))
       self.print_line('%s' % (''.join(
           ['------------' for i in range(0, len(col_names))])))
