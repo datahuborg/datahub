@@ -40,7 +40,7 @@ struct DHConnection {
 }
 
  
-// DataHub Schema
+// DataHub Table Schema
 enum DHType {
   Boolen,
   Integer,
@@ -90,7 +90,7 @@ struct DHTableSchema {
 }
 
 
-// DataHub Table Abstraction
+// DataHub Table
 struct DHCell {
   1: optional binary value
 }
