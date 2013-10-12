@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-from datahub.constants import *
 from client.python.dh_client import DataHubClient
+from datahub.constants import *
 
 '''
 @author: anant bhardwaj
