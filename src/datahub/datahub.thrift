@@ -40,8 +40,8 @@ union DHOrder {
 
 union DHDefault {
   1: optional binary value,
-  2: optional bool null ,
-  3: optional bool current_timestamp
+  2: optional bool set_null,
+  3: optional bool set_current_timestamp
 }
 
 struct DHColumnSpec {
