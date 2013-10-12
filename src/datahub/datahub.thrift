@@ -51,7 +51,7 @@ struct DHColumnSpec {
   4: optional DHType column_type,
   5: optional i32 length,
   6: optional DHDefault default_val,
-  7: optional list <DHIndex> index,
+  7: optional list <DHIndex> indexes,
   8: optional bool null_allowed,
   9: optional bool auto_increment,
   10: optional DHOrder order
