@@ -9,38 +9,12 @@
 
 namespace py datahub
 
-// DataHub constants
-const double VERSION = 1.0
+
+/* DataHub constants */
+const double VERSION = 0.1
 
 
-// DataHub Generic Exception
-exception DHException {
-  1: optional i32 errorCode,
-  2: optional string message,
-  3: optional string details
-}
-
-
-// DataHub Connection Abstraction
-struct DHDatabase {
-  1: optional string url
-  2: optional string name 
-}
-
-struct DHConnectionParams {
-  1: optional string user,
-  2: optional string password,
-  3: optional DHDatabase database
-}
-
-struct DHConnection {
-  1: optional string id,
-  2: optional string user,
-  3: optional DHDatabase database
-}
-
- 
-// DataHub Table Schema
+/* DataHub Table Schema */
 enum DHType {
   Boolen,
   Integer,
@@ -90,7 +64,7 @@ struct DHTableSchema {
 }
 
 
-// DataHub Table
+/* DataHub Table */
 struct DHCell {
   1: optional binary value
 }
@@ -115,7 +89,7 @@ struct DHTable {
 }
 
 
-// DataHub Query Result
+/* DataHub Query Result */
 struct DHQueryResult {
   1: required bool status,
   2: optional i32 error_code,
@@ -124,7 +98,35 @@ struct DHQueryResult {
 }
 
 
-// DataHub service APIs
+/* DataHub Connection */
+struct DHDatabase {
+  1: optional string url
+  2: optional string name 
+}
+
+struct DHConnectionParams {
+  1: optional string user,
+  2: optional string password,
+  3: optional DHDatabase database
+}
+
+struct DHConnection {
+  1: optional string id,
+  2: optional string user,
+  3: optional DHDatabase database
+}
+
+
+/* DataHub Exceptions */
+// Generic Exception
+exception DHException {
+  1: optional i32 errorCode,
+  2: optional string message,
+  3: optional string details
+}
+
+
+/* DataHub service APIs */
 service DataHub {
   double get_version()
   DHConnection connect(1:DHConnectionParams con_params)
