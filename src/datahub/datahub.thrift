@@ -60,7 +60,8 @@ struct DHColumnSpec {
 struct DHTableSchema {
   1: optional i32 id,
   2: optional i32 version_number,
-  3: optional list <DHColumnSpec> column_specs,
+  3: optional string name,
+  4: optional list <DHColumnSpec> column_specs,
 }
 
 
