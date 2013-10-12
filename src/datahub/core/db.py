@@ -1,69 +1,30 @@
 import psycopg2
 import re
 
+from backend.pg import PGBackend
+
 '''
 @author: anant bhardwaj
 @date: Oct 3, 2013
 
-DataHub internal APIs for raw database (postgres)
+DataHub DB wrapper for backends (only postgres implemented)
 '''
 
-kCommitTokens = ['create', 'update', 'alter', 'delete', 'insert', 'drop']
-
 class Connection:
-  def __init__(
-      self, user="postgres", password="postgres",
-      host='localhost', port=5432, db_name='postgres'):
-
-    self.connection = psycopg2.connect(
-        user=user, password=password, host=host, port=port, database=db_name)
+  def __init__(self, db_name=None):
+    self.backend = PGBackend(db_name=db_name)
 
   def execute_sql(self, query, params=None):
-    result = {
-        'status': False,
-        'row_count': 0,
-        'tuples': [],
-        'column_names': [],
-        'column_types': []
-    }
-
-    if query.lower().startswith(
-        'create database') or query.lower().startswith('drop database'):
-      self.connection.set_isolation_level(
-          psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-
-    c = self.connection.cursor()
-    c.execute(query, params)
-
-    try:
-      tuples = c.fetchall()
-      for t in tuples:
-        result['tuples'].append([str(k) for k in t])
-    except:
-      pass
-
-    result['status'] = True
-    result['row_count'] = c.rowcount
-    if c.description:
-      result['column_names'] = [col[0] for col in c.description]
-
-    tokens = query.split(' ', 2)
-    if tokens[0] in kCommitTokens:
-      self.connection.commit()
-
-    c.close()
-    return result
+    return self.backend.execute_sql(query, params)
 
   def list_databases(self):
-    s = "SELECT datname FROM pg_catalog.pg_database WHERE NOT datistemplate"
-    return self.execute_sql(s)
+    return self.backend.list_databases()
 
   def list_tables(self):
-    s = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
-    return self.execute_sql(s);
+    return self.backend.list_tables()
 
   def close(self):    
-    self.connection.close()
+    self.backend.clos()
 
 
 def test():
