@@ -49,7 +49,7 @@ enum DHType {
   Binary,
   Date,
   DateTime,
-  TimesSamp
+  TimeStamp
 }
 
 struct DHIndex {
