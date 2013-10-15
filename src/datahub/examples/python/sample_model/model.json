@@ -1,20 +1,20 @@
 [
 
-{
- "model": "Faculty",
- "fields": {
-		"id": {"type": "integer"},
-		"name": { "type": "text"}
-	}
-},
+  {
+  "model": "Faculty",
+    "fields": {
+      "id": {"type": "integer"},
+      "name": { "type": "text"}
+    }
+  },
 
-{
+  {
   "model": "Course",
-  "fields": {
-    "id": {"type": "integer"},
-    "name": {"type": "text"},
-    "faculty": {"type": "foreign_key", "table": "Faculty", "field": "id"}
+    "fields": {
+      "id": {"type": "integer"},
+      "name": {"type": "text"},
+      "faculty": {"type": "foreign_key", "table": "Faculty", "field": "id"}
+    }
   }
-}
 
 ]
