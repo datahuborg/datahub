@@ -1,0 +1,13 @@
+{
+	"Faculty": {
+		"id": {"type": "i32"},
+		"name": { "type": "string" }
+	},
+
+  "Course": {
+    "id": {"type": "i32"},
+    "name": {"type": "string" },
+    "faculty": {"type": "Faculty"}
+  }
+
+}
