@@ -3,17 +3,17 @@
 {
  "model": "Faculty",
  "fields": {
-		"id": {"type": "i32"},
-		"name": { "type": "string"}
+		"id": {"type": "integer"},
+		"name": { "type": "text"}
 	}
 },
 
 {
   "model": "Course",
   "fields": {
-    "id": {"type": "i32"},
-    "name": {"type": "string"},
-    "faculty": {"type": "Faculty"}
+    "id": {"type": "integer"},
+    "name": {"type": "text"},
+    "faculty": {"type": "foreign_key", "table": "Faculty", "field": "id"}
   }
 }
 
