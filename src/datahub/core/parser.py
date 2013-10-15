@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import subprocess
 
 from collections import OrderedDict
 
@@ -108,9 +109,15 @@ def parse(in_file, write_to_file=False):
     sql_out += ");\n"
   
   if write_to_file:
-    out_f = open(os.path.splitext(in_file)[0] + '.thrift', 'w+')
+    out_f_name = os.path.abspath(os.path.splitext(in_file)[0] + '.thrift')
+    out_f = open(out_f_name, 'w+')
     out_f.write(thrift_out)
     out_f.close()
+
+    cmd = ["thrift --gen py -o %s %s" % (
+        os.path.dirname(out_f_name), out_f_name)]
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell = True)
+    out, err = p.communicate()
 
   return thrift_out, sql_out
   
