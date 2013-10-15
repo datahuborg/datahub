@@ -70,7 +70,8 @@ def parse(in_file, write_to_file=False):
     table_map[table] = {}
     thrift_out += "struct %s {\n" % (table)
     sql_out += "CREATE TABLE %s (" % (table)
-    num_fields = len(t['fields'])  
+    num_fields = len(t['fields'])
+
     for field in t['fields']:
       field_type = t['fields'][field]['type']
       if field_type not in allowed_type:

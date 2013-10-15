@@ -44,6 +44,13 @@ union DHDefault {
   3: optional bool set_current_timestamp
 }
 
+struct DHForeignKey {
+  1: optional i32 id,
+  2: optional i32 version_number,
+  3: optional string table_name,
+  4: optional string field_name, 
+}
+
 struct DHField {
   1: optional i32 id,
   2: optional i32 version_number,
@@ -54,7 +61,8 @@ struct DHField {
   7: optional list <DHIndex> indexes,
   8: optional bool null_allowed,
   9: optional bool auto_increment,
-  10: optional DHOrder order
+  10: optional DHOrder order,
+  11: optional DHForeignKey reference
 }
 
 struct DHSchema {
