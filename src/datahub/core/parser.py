@@ -58,7 +58,7 @@ sql_map = {
   }
 
 
-def parse(in_file, generate_class=False):
+def parse(in_file, generate_class=False, lang='py'):
   in_f = open(in_file).read()
   data = json.loads(in_f, object_pairs_hook=OrderedDict)
   thrift_out = ''
@@ -116,7 +116,7 @@ def parse(in_file, generate_class=False):
     out_f.write(thrift_out)
     out_f.close()
 
-    cmd = ["thrift --gen py -o %s %s" % (
+    cmd = ["thrift --gen %s -o %s %s" % (lang,
         os.path.dirname(out_f_name), out_f_name)]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell = True)
     out, err = p.communicate()
@@ -125,7 +125,7 @@ def parse(in_file, generate_class=False):
   
 
 def test():
-  thrift_out, sql_out = parse(sys.argv[1], generate_class=True)
+  thrift_out, sql_out = parse(sys.argv[1], generate_class=True, lang='py')
   print thrift_out
   print sql_out
 

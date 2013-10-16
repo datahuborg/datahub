@@ -61,6 +61,12 @@ class DataHubClient:
     self.transport.close()
     return res
 
+  def load(self, con, url):
+    self.transport.open()
+    res = self.client.load(con, url)
+    self.transport.close()
+    return res
+
 
 def test():
   client = DataHubClient()
@@ -88,6 +94,7 @@ def test():
   print client.execute_sql(con=con,
       query=''' insert into person values (1, 'anant') ''')
   print client.execute_sql(con=con, query=''' select * from person ''')
+  print client.load(con=con, url='test.person')
 
 if __name__ == '__main__':
   test()

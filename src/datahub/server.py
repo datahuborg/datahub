@@ -93,6 +93,15 @@ class DataHubHandler:
     except Exception, e:
       raise DHException(message=str(e))
 
+  def load(self, dh_con, url):
+    db_name, table_name = url.split('.')
+    try:
+      con = Connection(db_name=db_name)
+      res = con.execute_sql('SELECT * from %s' % (table_name))
+      return construct_query_result(res)
+    except Exception, e:
+      raise DHException(message=str(e))
+
 
 handler = DataHubHandler()
   
