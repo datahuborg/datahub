@@ -71,7 +71,7 @@ class DataHubClient:
 def test():
   client = DataHubClient()
   print client.get_version()
-  con_params = DHConnectionParams(database='postgres')
+  con_params = DHConnectionParams(database=DHDatabase(name='postgres'))
   con = client.connect(con_params=con_params)
   print client.list_databases(con=con)
 
@@ -85,7 +85,7 @@ def test():
   print client.list_databases(con=con)
 
   database = DHDatabase(name='test')
-  con = client.open_database(con=con, database=database)
+  con = client.open_database(con=con, database=DHDatabase(name='postgres'))
   print client.list_tables(con=con)
   print client.execute_sql(con=con,
       query=''' create table person (id integer, name varchar(20)) ''')
@@ -94,7 +94,6 @@ def test():
   print client.execute_sql(con=con,
       query=''' insert into person values (1, 'anant') ''')
   print client.execute_sql(con=con, query=''' select * from person ''')
-  print client.load(con=con, url='test.person')
 
 if __name__ == '__main__':
   test()
