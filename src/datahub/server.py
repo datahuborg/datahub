@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import sys
 sys.path.append('./gen-py')
 
@@ -106,7 +107,7 @@ class DataHubHandler:
 handler = DataHubHandler()
   
 processor = DataHub.Processor(handler)
-transport = TSocket.TServerSocket('localhost', 9000)
+transport = TSocket.TServerSocket('0.0.0.0', 9000)
 tfactory = TTransport.TBufferedTransportFactory()
 pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 

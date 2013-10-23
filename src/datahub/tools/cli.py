@@ -40,7 +40,7 @@ class DatahubTerminal(cmd2.Cmd):
   def __init__(self):
     cmd2.Cmd.__init__(self, completekey='tab')
     self.client = DataHubClient()
-    con_params = DHConnectionParams(user=None, password=None, database=None)
+    con_params = DHConnectionParams(database='postgres')
     self.con = self.client.connect(con_params)
     self.prompt = "datahub> "
 

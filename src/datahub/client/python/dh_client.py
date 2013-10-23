@@ -18,7 +18,7 @@ DataHub Client (Python)
 class DataHubClient:
   def __init__(self):
     try:
-      transport = TSocket.TSocket("localhost", 9000)
+      transport = TSocket.TSocket("datahub.csail.mit.edu", 9000)
       self.transport = TTransport.TBufferedTransport(transport)
       protocol = TBinaryProtocol.TBinaryProtocol(self.transport)
       self.client = DataHub.Client(protocol)
@@ -71,7 +71,7 @@ class DataHubClient:
 def test():
   client = DataHubClient()
   print client.get_version()
-  con_params = DHConnectionParams(user=None, password=None, database=None)
+  con_params = DHConnectionParams(database='postgres')
   con = client.connect(con_params=con_params)
   print client.list_databases(con=con)
 
