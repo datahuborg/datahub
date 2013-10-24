@@ -2,7 +2,7 @@
 import sys
 sys.path.append('./gen-py')
 
-from core.db import *
+from core.db.connection import *
 from datahub import DataHub
 from datahub.constants import *
 from thrift.protocol import TBinaryProtocol
