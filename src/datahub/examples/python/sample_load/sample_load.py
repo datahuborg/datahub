@@ -13,10 +13,10 @@ Sample python code accesing DataHub APIs
 
 # conect to DataHub
 client = DataHubClient()
-con_params = DHConnectionParams(user=None, password=None, database=None)
+con_params = DHConnectionParams(user=None, password=None, database=DHDatabase(name='postgres'))
 con = client.connect(con_params=con_params)
 
-result = client.load(con=con, url='test.person')
+result = client.load(con=con, url='demo.person')
 
 for row in result.data.table.rows:
   print '\t'.join([c.value for c in row.cells])
