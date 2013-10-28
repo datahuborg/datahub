@@ -1,11 +1,13 @@
 #!/usr/bin/python
 import cmd2
+import getpass
 import os
 import shlex
 import sys
 
 from datahub.constants import *
 from client.python.dh_client import DataHubClient
+from optparse import OptionParser
 
 '''
 @author: anant bhardwaj
@@ -20,31 +22,16 @@ kCmdList = [
     'USE <database-name>'
 ]
 
-def authenticate(login_required=True):
-  def response(f):
-    def print_response(self, args):
-      # TODO: authentication code here
-      try:
-        return f(self, args)
-
-      except Exception, e:
-          self.print_line('error: %s' % str(e))
-
-    print_response.__doc__ = f.__doc__
-    return print_response        
-
-  return response
-
 
 class DatahubTerminal(cmd2.Cmd):
-  def __init__(self):
+  def __init__(self, user=None, password=None, database=None,
+               host=None, port=None):
     cmd2.Cmd.__init__(self, completekey='tab')
     self.client = DataHubClient()
     con_params = DHConnectionParams(database=DHDatabase(name='postgres'))
     self.con = self.client.connect(con_params)
     self.prompt = "datahub> "
 
-  @authenticate()
   def do_show(self, line):
     try:
       tokens = line.split()
@@ -61,7 +48,6 @@ class DatahubTerminal(cmd2.Cmd):
     except Exception, e:
       self.print_line('error: %s' % (e.message))
 
-  @authenticate()
   def do_use(self, line):
     try:
       tokens = line.split()
@@ -72,7 +58,6 @@ class DatahubTerminal(cmd2.Cmd):
     except Exception, e:
       self.print_line('error: %s' % (e.message))
 
-  @authenticate()
   def default(self, line):
     try:      
       res = self.client.execute_sql(
@@ -112,8 +97,31 @@ class DatahubTerminal(cmd2.Cmd):
 
 
 def main():
-  datahub_terminal = DatahubTerminal()
+  usage = "--user <user-name> --database <database-name> [--host <host-name>] [--port <port>]"
+  parser = OptionParser()
+  parser.set_usage(usage)
+  parser.add_option("-u", "--user", dest="user", help="DataHub username")
+  parser.add_option("-H", "--host", dest="host", help="DataHub server hostname")
+  parser.add_option("-p", "--port", dest="port", help="DataHub server port")
+  parser.add_option("-d", "--database", dest="database", help="DataHub database")
+  (options, arg_values) = parser.parse_args()
+
+  if not (options.user and options.database):
+    parser.print_usage()
+    sys.exit(1)
+
+  parser.destroy()
+  password = getpass.getpass('DataHub password for %s: ' %(options.user))
+  datahub_terminal = DatahubTerminal(
+      user=options.user,
+      password=password,
+      database=options.database,
+      host=options.host,
+      port=options.port)
+
+  sys.argv = sys.argv[:1]
   datahub_terminal.cmdloop()
+
 
 if __name__ == '__main__':
   main()

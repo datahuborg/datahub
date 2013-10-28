@@ -16,9 +16,9 @@ DataHub Client (Python)
 '''
 
 class DataHubClient:
-  def __init__(self):
+  def __init__(self, host='datahub-experimental.csail.mit.edu', port=9000):
     try:
-      transport = TSocket.TSocket("datahub.csail.mit.edu", 9000)
+      transport = TSocket.TSocket(host, port)
       self.transport = TTransport.TBufferedTransport(transport)
       protocol = TBinaryProtocol.TBinaryProtocol(self.transport)
       self.client = DataHub.Client(protocol)
