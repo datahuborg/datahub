@@ -29,7 +29,7 @@ class DatahubTerminal(cmd2.Cmd):
     parser = OptionParser()
     parser.set_usage(usage)
     parser.add_option("-u", "--user", dest="user", help="DataHub username")
-    parser.add_option("-H", "--host", dest="host", help="DataHub server hostname", default="datahub-experimental.csail.mit.edu'")
+    parser.add_option("-H", "--host", dest="host", help="DataHub server hostname", default="datahub-experimental.csail.mit.edu")
     parser.add_option("-p", "--port", dest="port", help="DataHub server port", type="int", default=9000)
     parser.add_option("-d", "--database", dest="database", help="DataHub database")
     (options, arg_values) = parser.parse_args()
