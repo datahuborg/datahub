@@ -152,8 +152,8 @@ button, input[type="button"], input[type="submit"]{
 	font-size:1em;
 	background: #000; /*3D7AA6;*/
 	margin-bottom: 0.1em;
-	color: #FFF;
-	border-bottom: 1px solid #333;
+	color: #F6F6F6;
+	border-bottom: 1px solid #ccc;
 	width: 100%;
 	z-index: 100;
   padding-left:1.5em;
