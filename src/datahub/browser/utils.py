@@ -6,7 +6,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 
-kKey = 'confer'
+kKey = 'datahub'
 
 def encrypt_text (plain_text):
   key = hashlib.sha256(kKey).digest()
