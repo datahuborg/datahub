@@ -8,7 +8,7 @@
 <form method="POST" action="/settings">
 	{% csrf_token %}
 	<input type="hidden" name="redirect_url" value="{{redirect_url}}" />
-	<h3>Confer Account Settings</h3>
+	<h3>Datahub Account Settings</h3>
 	<hr />
 	<div id="error">
 		{% for error in errors %}<span class="error">{{error}}</span><br />

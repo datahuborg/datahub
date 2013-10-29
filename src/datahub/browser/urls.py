@@ -2,9 +2,14 @@ from django.conf.urls import patterns, include, url
 import views
 
 urlpatterns = patterns('',
-     url(r'^logout', 'browser.views.logout'),
-     url(r'^login', 'browser.views.login'),
-     url(r'^register', 'browser.views.register'),
+     url(r'^login', 'browser.auth.login'),
+    url(r'^register', 'browser.auth.register'),
+    url(r'^logout', 'browser.auth.logout'),
+
+    url(r'^forgot', 'browser.auth.forgot'),
+    url(r'^reset/(\w+)', 'browser.auth.reset'),
+    url(r'^settings', 'browser.auth.settings'),
+
      url(r'^new_database/(\w+)$', 'browser.views.new_database_form'),
      url(r'^new_database/(\w+)/(\w+)$', 'browser.views.new_database'),
      url(r'^$', 'browser.views.user'),
