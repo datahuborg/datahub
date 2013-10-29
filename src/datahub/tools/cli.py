@@ -43,7 +43,13 @@ class DatahubTerminal(cmd2.Cmd):
     cmd2.Cmd.__init__(self, completekey='tab')
     self.client = DataHubClient(host=options.host, port=options.port)
     try:
-      con_params = DHConnectionParams(database=DHDatabase(name=options.database))
+      database = None
+      if options.database:
+        database=DHDatabase(name=options.database)
+      con_params = DHConnectionParams(
+          user=options.user,
+          password=options.password,
+          database=database)
       self.con = self.client.connect(con_params)
       self.prompt = "datahub> "
     except Exception, e:

@@ -71,7 +71,7 @@ class DataHubClient:
 def test():
   client = DataHubClient(host='datahub-experimental.csail.mit.edu', port=9000)
   print client.get_version()
-  con_params = DHConnectionParams(database=DHDatabase(name='postgres'))
+  con_params = DHConnectionParams(user='postgres', password='postgres')
   con = client.connect(con_params=con_params)
   print client.list_databases(con=con)
 
@@ -85,7 +85,9 @@ def test():
   print client.list_databases(con=con)
 
   database = DHDatabase(name='test')
-  con = client.open_database(con=con, database=DHDatabase(name='test'))
+  con = client.open_database(
+      con=con,
+      database=DHDatabase(name='test'))
   print client.list_tables(con=con)
   print client.execute_sql(con=con,
       query=''' create table person (id integer, name varchar(20)) ''')
