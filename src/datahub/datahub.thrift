@@ -138,7 +138,7 @@ service DataHub {
   double get_version()
   DHConnection connect(1:DHConnectionParams con_params)
       throws (1: DHException ex)
-  DHConnection open_database(1:DHConnection con, 2:DHDatabase database)
+  DHConnection open_database(1:DHConnection con, 2:DHConnectionParams con_params)
       throws (1: DHException ex)
   DHQueryResult list_databases(1:DHConnection con)
       throws (1: DHException ex)

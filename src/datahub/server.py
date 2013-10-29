@@ -54,7 +54,6 @@ class DataHubHandler:
   def connect(self, dh_con_params):  
     try:
       dh_database = DHDatabase()
-
       if dh_con_params.database:
         dh_database.name = dh_con_params.database.name
 
@@ -68,26 +67,14 @@ class DataHubHandler:
       dh_con = DHConnection(user=dh_con_params.user, database=dh_database)
       return dh_con
     except Exception, e:
-      print e.message
       raise DHException(message=str(e))
     
-  def open_database(self, dh_con, dh_db):  
-    try:
-      con = self.sessions[dh_con.user]
-      con = Connection(user=dh_con.user, password=con.password, db_name=dh_db.name)
-      dh_con.database = dh_db
-      return dh_con
-    except Exception, e:
-      print e.message
-      raise DHException(message=str(e))
-
   def list_databases(self, dh_con):
     try:
       con = self.sessions[dh_con.user]
       res = con.list_databases()
       return construct_query_result(res)
     except Exception, e:
-      print e.message
       raise DHException(message=str(e))
 
   def list_tables(self, dh_con):
@@ -96,7 +83,6 @@ class DataHubHandler:
       res = con.list_tables()
       return construct_query_result(res)
     except Exception, e:
-      print e.message
       raise DHException(message=str(e))
 
   def execute_sql(self, dh_con, query, query_params=None):
@@ -115,7 +101,6 @@ class DataHubHandler:
       res = con.execute_sql('SELECT * from %s' % (table_name))
       return construct_query_result(res)
     except Exception, e:
-      print e.message
       raise DHException(message=str(e))
 
 
