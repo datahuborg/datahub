@@ -6,31 +6,6 @@ Datahub Models
 @author: Anant Bhardwaj
 @date: Mar 21, 2013
 '''
-class Type:
-	Boolean=1
-	Char=2
-
-class Value:
-	val = None
-
-class Field()
-	Type type
-	Value val
-	bool is_pr
-	bol is_au
-	int max_len
-
-class IntegerField(Field):
-	def __init__():
-		super.primary_key = True
-
-
-
-class Model:
-	Filed f = []
-
-
-
 
 class User(models.Model):
 	id = models.AutoField(primary_key=True)

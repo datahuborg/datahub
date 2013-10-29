@@ -23,7 +23,7 @@ def user(request, username=None):
 			res = engine.main.list_databases(username)
 			return render_to_response("user.html", {'username': username, 'db_names':res['db_names']})
 		else:
-			user = request.session[SESSION_KEY]
+			user = request.session[kLogIn]
 			return HttpResponseRedirect(user)
 	except KeyError:
 		return HttpResponseRedirect('/login')
