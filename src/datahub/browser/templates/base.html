@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>{% block title %}DataHub{% endblock %}</title>
+	<link rel="stylesheet" type="text/css" href="/static/css/main.css" />
+	<link type="text/css" rel="stylesheet" href="/static/css/third-party/jquery.dropdown.css" />	
+	<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>	
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js"></script>
+	<script type="text/javascript" src="/static/javascript/third-party/csrf.min.js"></script>
+	<script type="text/javascript" src="/static/javascript/third-party/jquery.dropdown.js"></script>
+	<script type="text/javascript" src="/static/javascript/third-party/jquery.csv-0.71.js"></script>
+	<script type="text/javascript" src="/static/javascript/third-party/cufon-yui.js" type="text/javascript"></script>
+	<script type="text/javascript" src="/static/javascript/third-party/droid-sans.fonts.js" type="text/javascript"></script>
+	<script type="text/javascript" src="/static/javascript/third-party/noty/jquery.noty.js"></script>
+	<script type="text/javascript" src="/static/javascript/third-party/noty/layouts/topRight.js"></script>
+	<script type="text/javascript" src="/static/javascript/third-party/noty/themes/default.js"></script>
+	<script type="text/javascript" src="/static/javascript/third-party/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="/static/javascript/third-party/tiny_mce/tiny_mce.js"></script>
+	<script type="text/javascript" src="/static/javascript/main.js"></script>
+	<script type="text/javascript">
+	   Cufon.set('fontSize', '54px').replace('#logo', { fontFamily: 'Droid Sans Bold' });
+	</script>
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+
+<body>
+	<div id="dropdown-nav" class="dropdown-menu has-tip">
+	    <ul>
+	        <li><a href="/settings">Account Settings</a></li>
+	        <li class="divider"></li>
+	        <li><a href="/logout">Logout</a></li>
+	    </ul>
+	</div>
+	<div id="header">
+		<div id="wrap">
+		<span id="headlink-left">
+		{% block headlink-left %}<a id="logo" href="/">CONFER</a>{% endblock %}
+		</span>
+		<span id="headlink-right">
+		{% block headlink-right %}{% endblock %}
+		</span>
+		</div>
+	</div>
+	<div id="page">
+	{% block content %}{% endblock %}
+	</div>
+</body>
+</html>

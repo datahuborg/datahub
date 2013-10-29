@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block headlink-right %}
+ <a href="#" data-dropdown="#dropdown-nav">{{ username }} ▾ </a>
+{% endblock %}
+{% block content %}
+
+
+<div id="content">
+	<h2><a href=/{{username}}>{{username}}</a> - <a href=/{{username}}/{{db_name}}>{{db_name}}</a> - {{table_name}}</h2>
+	<hr />
+	<h3><span class="gray">Displaying Table:</span> <span class="strong">{{table_name}}</span></h3>
+	<br />
+	<table id="databases">
+		<thead>
+		<tr>
+			<th>Name</th>
+			<th>Description</th>
+		</tr>
+		</thead>
+		<tbody>
+		
+				<tr>
+				<td class="strong">record1</td><td class="gray">Record 1</td>
+				</tr>
+		
+	</tbody>
+	</table>
+</div>
+{% endblock %}
+
+
+
+
+

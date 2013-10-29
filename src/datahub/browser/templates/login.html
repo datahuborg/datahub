@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block headlink-right %}
+<a class="button" href="/register">Create a New Account</a>
+{% endblock %}
+{% block content %}
+<form method="POST" action="/login">
+	{% csrf_token %}
+	<h3>DataHub Login</h3>
+	<hr />
+	<label for="username">Username</label><br />
+	<input type="text" name="username" id="username" value="demo" /><br /><br />
+	<label for="password">Password</label><br />
+	<input type="password" name="password" id="password" value="demo" /><br /><br />
+	<input type="submit" value="Log In" />
+</form>
+{% endblock %}

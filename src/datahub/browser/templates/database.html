@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block headlink-right %}
+ <a href="#" data-dropdown="#dropdown-nav">{{ username }} ▾ </a>
+{% endblock %}
+{% block content %}
+
+
+<script type="text/javascript">
+
+	function load_table (table_name) {
+		window.location.href = "/{{username}}/{{db_name}}/" + table_name;
+	}
+
+	function create_table(){
+		window.location.href="/new_table/{{username}}/{{db_name}}";
+	}
+
+
+	$(document).ready(function(){	
+
+		var tables = $('#tables').dataTable({
+			"sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
+			"bPaginate": false,
+			"bFilter": true,
+			"sWidth": "100%",
+			"aoColumns": [                 
+				{"sWidth": "50%"},
+				{"sWidth": "50%"},
+			]
+			
+		});
+
+	});
+</script>
+
+
+<div id="content">
+	<h2><a class="link" href=/{{username}}>{{username}}</a> / <a class = "link" href=/{{username}}/{{db_name}}>{{db_name}}</a></h2>
+	<hr />
+	<button type="button" id="btn-create-table" onclick="create_table();">Create a New Table</button>
+	<br />
+	<br />
+	<h3><span class="gray">Public Tables</span></h3>
+	<br />
+	<table id="tables">
+		<thead>
+		<tr>
+			<th>Name</th>
+			<th>Description</th>
+		</tr>
+		</thead>
+		<tbody>
+		{% for table_name in table_names %}
+				<tr onclick='load_table("{{table_name}}")'>
+				<td class="strong">{{table_name}}</td><td class="gray">Table</td>
+				</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}
+
+
+
+
+

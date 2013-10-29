@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block headlink-right %}
+ <a href="#" data-dropdown="#dropdown-nav">{{ username }} ▾ </a>
+{% endblock %}
+{% block content %}
+
+<script type="text/javascript">
+$(document).ready(function(){
+
+	var create_db = function(){
+		var db_name = $('#db-name').val();
+		window.location.href = window.location.href="/new_database/{{username}}/"+db_name;	    
+	}
+
+	$("#btn-create-db").click(create_db);
+
+});
+</script>
+
+<div id="content">
+	<h2>Create a New Database</h2>
+	<hr />
+	<br />
+	<br />
+	<table>
+		<tr>
+			<td>
+				<span class="gray strong">Owner: </span>
+			</td>
+			<td style="padding-left:20px;">
+				<span class="strong">{{username}}</span>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<span class="gray strong">Name of the new database: </span>
+			</td>
+			<td style="padding-left:20px;">
+				<input type="text" id="db-name" />
+			</td>
+		</tr>
+	</table>
+	 <br />
+	 <br />
+	<button type="button" id="btn-create-db" style="margin-left:0px;">Create Database</button>
+	<br />
+	<br />
+</div>
+{% endblock %}

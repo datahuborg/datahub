@@ -91,7 +91,7 @@ def test():
   print backend.execute_sql(''' select * from person ''')
   print backend.execute_sql(''' insert into person values (1, 'anant') ''')
   backend = PGBackend(db_name='test')
-  print backend.execute_sql(''' select * from person ''')
+  print backend.execute_sql(''' select * from person where id = %s''', (1,))
 
 
 if __name__ == '__main__':

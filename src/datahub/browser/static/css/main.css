@@ -1,0 +1,101 @@
+/*
+@author: Anant Bhardwaj
+@date: 08/11/2012
+*/
+
+
+
+
+
+
+#content{
+	margin-top: 20px;
+	padding-right: 20px;
+	padding-top: 20px;
+	padding-left: 20px;
+	padding-bottom: 20px;
+	background-color: #FFF;
+	box-shadow: 1px 0px 10px #666;
+	margin-bottom: 50px;
+}
+
+#content .dataTables_wrapper{
+	bottom:0px; 
+	overflow:auto; 
+	border-top: #ccc solid 1px;
+}
+
+
+
+
+
+
+
+
+
+
+table.dataTable{
+	width:100%;
+	border-spacing:0;
+	border: #ccc solid 1px;
+}
+
+table.dataTable thead tr th {
+	color: #333;
+	font-weight: bold;
+	text-shadow: 1px 1px 1px #fff;
+	padding: 10px 15px;
+	background: #D7ECFA;
+	border-bottom: #ccc solid 1px;
+	text-align:left;
+}
+
+
+
+table.dataTable tbody tr td {
+	padding: 10px;
+	border-bottom: #ccc solid 1px; 
+	vertical-align: middle;
+}
+
+table.dataTable tbody tr:hover td {
+	background: #f0f4f9;
+}
+
+
+table.dataTable tbody tr:hover{
+	cursor:pointer;
+}
+	
+.dataTables_scroll {
+	border: #ccc solid 1px;
+}
+	
+.dataTables_filter {
+	background: #f6f6f6;
+	padding: 10px;
+	border-left: #ccc solid 1px;
+	border-right: #ccc solid 1px;
+	font-weight: bold;
+}
+
+
+
+.dataTables_wrapper .bottom {
+	background: #f6f6f6;
+	padding: 10px;
+	border: #ccc solid 1px;
+	color: #999;
+	}
+
+
+#table-input {
+	display: block;
+	height: 200px;
+	margin-left: 0px;
+	margin-top: 10px;
+	width: 100%;
+	resize: vertical;
+}
+
+
