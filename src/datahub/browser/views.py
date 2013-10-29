@@ -1,6 +1,7 @@
 import json, sys, re, hashlib, smtplib, base64, urllib, os
 
 from auth import *
+from core.account import manager
 from django.http import *
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
@@ -20,7 +21,7 @@ Datahub Web Handler
 def user(request, username=None):
 	try:
 		if(username):
-			res = engine.main.list_databases(username)
+			res = manager.list_databases(username)
 			return render_to_response("user.html", {'username': username, 'db_names':res['db_names']})
 		else:
 			user = request.session[kLogIn]
@@ -34,13 +35,13 @@ def new_database_form(request, username):
 
 @login_required
 def new_database(request, username, db_name):
-	engine.main.create_database(username, db_name)
+	manager.create_database(username, db_name)
 	return HttpResponseRedirect("/"+username)
 
 @login_required
 def database(request, username, db_name):
 	try:
-		res = engine.main.list_tables(db_name)
+		res = manager.list_tables(db_name)
 		return render_to_response("database.html", {'username': username, 'db_name':db_name, 'table_names':res['table_names']})
 	except Exception, e:
 		return HttpResponse(request_error, mimetype="application/json")
