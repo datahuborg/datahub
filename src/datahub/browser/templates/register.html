@@ -1,20 +1,28 @@
-{% extends "base.html" %}
-{% block headlink-right %}
-<a class="button" href="/login">Sign In</a>
+{% extends "login-layout.html" %}
+{% block links %}
+<a class="button" href="/login?redirect_url={{redirect_url}}">Log In</a>
 {% endblock %}
 {% block content %}
-<form method="POST" action="/register">
+<form method="POST" action="/register" autocomplete="off">
 	{% csrf_token %}
-	<h3>Create a new DataHub account</h3>
+	<input type="hidden" name="redirect_url" value="{{redirect_url}}" />
+	<h3>Create a new account</h3>
 	<hr />
-	<label for="username">Username</label><br />
-	<input type="text" name="username" id="username" /><br /><br />
+	<div id="error">
+		{% for error in errors %}<span class="error">{{error}}</span><br /> 
+        {% endfor %}
+        <br />
+    </div>
 	<label for="email">Email Address</label><br />
-	<input type="text" name="email" id="email" /><br /><br />
+	<input type="text" name="email" id="email" placeholder="Your email address"/><br /><br />
+	<label for="f_name">First Name</label><br />
+	<input type="text" name="f_name" id="f_name" placeholder="Your first name"/><br /><br />
+	<label for="l_name">Last Name</label><br />
+	<input type="text" name="l_name" id="l_name" placeholder="Your last name"/><br /><br />
 	<label for="password">Password</label><br />
-	<input type="password" name="password" id="password" /><br /><br />
+	<input type="password" name="password" id="password" placeholder="Enter your password"/><br /><br />
 	<label for="password2">Confirm Password</label><br />
-	<input type="password" name="password2" id="password2" /><br /><br />
-	<input type="submit" value="Register" />
+	<input type="password" name="password2" id="password2" placeholder="Enter password again"/><br /><br />
+	<input type="submit" class="button" value="Register" />
 </form>
 {% endblock %}

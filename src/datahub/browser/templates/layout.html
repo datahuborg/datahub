@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<!--
+@author: Anant Bhardwaj
+@date: Feb 12, 2012
+
+DataHub Template Layout
+-->
+{% block html %}
+<html>
+{% endblock %}
+<head>
+<title>DataHub</title>
+<meta charset="utf-8">
+
+<meta name="HandheldFriendly" content="true" />
+<meta name="viewport" content="initial-scale=1.0 user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+
+<link rel="stylesheet" type="text/css" href="/static/css/datahub.css" />
+<link href="/static/css/third-party/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="/static/javascript/third-party/jquery.min.js"></script>	
+<script type="text/javascript" src="/static/javascript/third-party/jquery-ui.js"></script>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<div id="header">
+	<div id="wrap">  
+		<span id="headlink-left">
+			<a id="logo" href="/">DataHub</a>
+		</span>    
+		<span id="headlink-right">
+      {% block links %}
+			<span id="logged_in_name"></span> &nbsp;
+			<a class="button navitem" href="/logout">Log Out</a>
+      {% endblock %}
+		</span>
+	</div>
+</div>
+
+<div id="page">
+<div id="content">
+{% block content %}
+{% endblock %}
+{% block credits %}
+{% endblock %}
+
+
+
+{% block javascript %}
+{% endblock %}
+</body>
+</html>

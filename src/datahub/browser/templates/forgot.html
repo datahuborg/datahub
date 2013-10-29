@@ -1,0 +1,22 @@
+{% extends "login-layout.html" %}
+{% block links %}
+<a class="button" href="/login?redirect_url=/">Login</a>
+{% endblock %}
+{% block content %}
+<script type="text/javascript">
+</script>
+<form method="POST" action="/forgot">
+	{% csrf_token %}
+	<input type="hidden" name="redirect_url" value="{{redirect_url}}" />
+	<h3>Confer Reset Password</h3>
+	<hr />
+	<div id="error">
+		{% for error in errors %}<span class="error">{{error}}</span><br />
+        {% endfor %}
+        <br />
+    </div>
+	<label for="user_email">Enter the email address</label><br />
+	<input type="text" name="user_email" id="user_email" placeholder="Your email"/> <br />
+	<input type="submit" class="button" value="Send Reset Link" />
+</form>
+{% endblock %}

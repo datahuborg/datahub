@@ -1,0 +1,24 @@
+{% extends "login-layout.html" %}
+{% block links %}
+<a class="button" href="/">Home</a>
+{% endblock %}
+{% block content %}
+<script type="text/javascript">
+</script>
+<form method="POST" action="/settings">
+	{% csrf_token %}
+	<input type="hidden" name="redirect_url" value="{{redirect_url}}" />
+	<h3>Confer Account Settings</h3>
+	<hr />
+	<div id="error">
+		{% for error in errors %}<span class="error">{{error}}</span><br />
+        {% endfor %}
+        <br />
+    </div>
+	<input type="hidden" name="user_email" id="user_email" value="{{user_email}}" />
+	<label for="meetups_enabled">Meetup</label>
+	<input type="radio" name="meetups_enabled" value="enabled" {% if meetups_enabled %} checked="checked" {% endif %}> Enabled </input>
+	<input type="radio" name="meetups_enabled" value="disabled" {% if not meetups_enabled %} checked="checked" {% endif %} > Disabled </input> <br /><br />
+	<input type="submit" class="button" value="Save Settings" />
+</form>
+{% endblock %}

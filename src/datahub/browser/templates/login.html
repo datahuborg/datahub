@@ -1,16 +1,30 @@
-{% extends "base.html" %}
-{% block headlink-right %}
-<a class="button" href="/register">Create a New Account</a>
+{% extends "login-layout.html" %}
+{% block links %}
+<a class="button" href="/register?redirect_url={{redirect_url}}">Sign Up</a>
 {% endblock %}
 {% block content %}
+<script type="text/javascript">
+localStorage.removeItem('login_id')
+localStorage.removeItem('login_name')
+localStorage.removeItem('recommended')
+localStorage.removeItem('starred')
+localStorage.removeItem('user_recs')
+</script>
 <form method="POST" action="/login">
 	{% csrf_token %}
+	<input type="hidden" name="redirect_url" value="{{redirect_url}}" />
 	<h3>DataHub Login</h3>
 	<hr />
-	<label for="username">Username</label><br />
-	<input type="text" name="username" id="username" value="demo" /><br /><br />
+	<div id="error">
+		{% for error in errors %}<span class="error">{{error}}</span><br />
+        {% endfor %}
+        <br />
+    </div>
+	<label for="username">DataHub ID</label><br />
+	<input type="text" name="login_email" id="login_email" placeholder="Your email address"/><br /><br />
 	<label for="password">Password</label><br />
-	<input type="password" name="password" id="password" value="demo" /><br /><br />
-	<input type="submit" value="Log In" />
+	<input type="password" name="login_password" id="login_password" placeholder="Your password"/><br /><br />
+	<input class="button" type="submit" value="Log In"/>
+  <a class="button" href="/forgot">Forgot Password</a>
 </form>
 {% endblock %}

@@ -1,0 +1,20 @@
+{% extends "login-layout.html" %}
+{% block links %}
+<a class="button" href="/">Home</a>
+{% endblock %}
+{% block content %}
+<script type="text/javascript">
+</script>
+<form method="POST" action="/reset">
+	{% csrf_token %}
+	<input type="hidden" name="redirect_url" value="{{redirect_url}}" />
+	<h3>{{msg_title}}</h3>
+	<hr />
+	<div id="msg">
+    {% for error in errors %}<span class="error">{{error}}</span><br />
+    {% endfor %}
+    <br />
+		{{msg_body}}
+  </div>
+</form>
+{% endblock %}
