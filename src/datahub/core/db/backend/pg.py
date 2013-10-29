@@ -12,8 +12,7 @@ kCommitTokens = ['create', 'update', 'alter', 'delete', 'insert', 'drop']
 
 class PGBackend:
   def __init__(
-      self, user='postgres', password='postgres',
-      host='localhost', port=5432, db_name='postgres'):
+      self, user, password, host='localhost', port=5432, db_name=None):
 
     self.connection = psycopg2.connect(
         user=user, password=password, host=host, port=port, database=db_name)
@@ -71,7 +70,7 @@ class PGBackend:
 
 
 def test():
-  backend = PGBackend()
+  backend = PGBackend(user='postgres', password='postgres')
   print  backend.list_databases()
 
   try:
@@ -82,15 +81,15 @@ def test():
 
   print backend.execute_sql(''' create database test ''')
   print  backend.list_databases()
-  backend = PGBackend(db_name='test')
+  backend = PGBackend(user='postgres', password='postgres', db_name='test')
   print backend.list_tables()
   print backend.execute_sql(
       ''' create table person (id integer, name varchar(20)) ''')
-  backend = PGBackend(db_name='test')
+  backend = PGBackend(user='postgres', password='postgres', db_name='test')
   print backend.list_tables()
   print backend.execute_sql(''' select * from person ''')
   print backend.execute_sql(''' insert into person values (1, 'anant') ''')
-  backend = PGBackend(db_name='test')
+  backend = PGBackend(user='postgres', password='postgres', db_name='test')
   print backend.execute_sql(''' select * from person where id = %s''', (1,))
 
 

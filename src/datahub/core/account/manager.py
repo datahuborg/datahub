@@ -47,7 +47,7 @@ def create_database(username, db_name):
 		dbname = user.username + '_' + db_name
 		con = Connection();
 		con.create_database(dbname)
-		db = Database(owner = user, db_name = dbname)		
+		db = Database(owner = user, name = dbname)		
 		db.save()
 		res['status'] = True				
 	except:

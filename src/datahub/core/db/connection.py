@@ -11,8 +11,11 @@ DataHub DB wrapper for backends (only postgres implemented)
 '''
 
 class Connection:
-  def __init__(self, db_name='postgres'):
-    self.backend = PGBackend(db_name=db_name)
+  def __init__(self, user, password, db_name=None):
+    self.user = user
+    self.password = password
+    self.db_name = db_name
+    self.backend = PGBackend(user, password, db_name=db_name)
 
   def execute_sql(self, query, params=None):
     return self.backend.execute_sql(query, params)
@@ -28,7 +31,7 @@ class Connection:
 
 
 def test():
-  con = Connection()
+  con = Connection(user='postgres', password='postgres')
   print  con.list_databases()
 
   try:
@@ -39,15 +42,15 @@ def test():
 
   print con.execute_sql(''' create database test ''')
   print  con.list_databases()
-  con = Connection(db_name='test')
+  con = Connection(user='postgres', password='postgres', db_name='test')
   print con.list_tables()
   print con.execute_sql(
       ''' create table person (id integer, name varchar(20)) ''')
-  con = Connection(db_name='test')
+  con = Connection(user='postgres', password='postgres', db_name='test')
   print con.list_tables()
   print con.execute_sql(''' select * from person ''')
   print con.execute_sql(''' insert into person values (1, 'anant') ''')
-  con = Connection(db_name='test')
+  con = Connection(user='postgres', password='postgres', db_name='test')
   print con.execute_sql(''' select * from person ''')
 
 

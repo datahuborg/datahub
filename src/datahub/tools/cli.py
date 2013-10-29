@@ -25,7 +25,7 @@ kCmdList = [
 
 class DatahubTerminal(cmd2.Cmd):
   def __init__(self):
-    usage = "--user <user-name> --database <database-name> [--host <host-name>] [--port <port>]"
+    usage = "--user <user-name> [--database <database-name>] [--host <host-name>] [--port <port>]"
     parser = OptionParser()
     parser.set_usage(usage)
     parser.add_option("-u", "--user", dest="user", help="DataHub username")
@@ -34,7 +34,7 @@ class DatahubTerminal(cmd2.Cmd):
     parser.add_option("-d", "--database", dest="database", help="DataHub database")
     (options, arg_values) = parser.parse_args()
 
-    if not (options.user and options.database):
+    if not options.user:
       parser.print_usage()
       sys.exit(1)
 

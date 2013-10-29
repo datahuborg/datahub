@@ -45,6 +45,7 @@ def construct_query_result(res):
 
 class DataHubHandler:
   def __init__(self):
+    self.sessions={}
     pass
 
   def get_version(self):
@@ -57,15 +58,22 @@ class DataHubHandler:
       if dh_con_params.database:
         dh_database.name = dh_con_params.database.name
 
-      con = Connection(db_name=dh_database.name)
-      dh_con = DHConnection(database=dh_database)
+      con = Connection(
+          user=dh_con_params.user,
+          password=dh_con_params.password,
+          db_name=dh_database.name)
+
+      # hack for access control -- implement proper session management later
+      self.sessions[dh_con_params.user] = con
+      dh_con = DHConnection(user=dh_con_params.user, database=dh_database)
       return dh_con
     except Exception, e:
       raise DHException(message=str(e))
     
   def open_database(self, dh_con, dh_db):  
     try:
-      con = Connection(db_name=dh_db.name)
+      con = self.sessions[dh_con.user]
+      con = Connection(user=dh_con.user, password=con.password, db_name=dh_db.name)
       dh_con.database = dh_db
       return dh_con
     except Exception, e:
@@ -73,7 +81,7 @@ class DataHubHandler:
 
   def list_databases(self, dh_con):
     try:
-      con = Connection(db_name=dh_con.database.name)
+      con = self.sessions[dh_con.user]
       res = con.list_databases()
       return construct_query_result(res)
     except Exception, e:
@@ -81,7 +89,7 @@ class DataHubHandler:
 
   def list_tables(self, dh_con):
     try:
-      con = Connection(db_name=dh_con.database.name)
+      con = self.sessions[dh_con.user]
       res = con.list_tables()
       return construct_query_result(res)
     except Exception, e:
@@ -89,7 +97,7 @@ class DataHubHandler:
 
   def execute_sql(self, dh_con, query, query_params=None):
     try:
-      con = Connection(db_name=dh_con.database.name)
+      con = self.sessions[dh_con.user]
       res = con.execute_sql(query, query_params)
       return construct_query_result(res)
     except Exception, e:
@@ -98,7 +106,7 @@ class DataHubHandler:
   def load(self, dh_con, url):
     db_name, table_name = url.split('.')
     try:
-      con = Connection(db_name=db_name)
+      con = self.sessions[dh_con.user]
       res = con.execute_sql('SELECT * from %s' % (table_name))
       return construct_query_result(res)
     except Exception, e:
