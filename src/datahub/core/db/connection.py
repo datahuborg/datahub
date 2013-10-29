@@ -12,9 +12,6 @@ DataHub DB wrapper for backends (only postgres implemented)
 
 class Connection:
   def __init__(self, user, password, db_name=None):
-    self.user = user
-    self.password = password
-    self.db_name = db_name
     self.backend = PGBackend(user, password, db_name=db_name)
 
   def execute_sql(self, query, params=None):

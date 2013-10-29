@@ -87,7 +87,7 @@ def test():
   database = DHDatabase(name='test')
   con = client.open_database(
       con=con,
-      database=DHDatabase(name='test'))
+      database=database)
   print client.list_tables(con=con)
   print client.execute_sql(con=con,
       query=''' create table person (id integer, name varchar(20)) ''')
