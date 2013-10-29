@@ -16,7 +16,7 @@ from django.utils.http import urlquote_plus
 Datahub Web Handler
 '''
 
-
+@login_required
 def user(request, username=None):
 	try:
 		if(username):
@@ -32,12 +32,12 @@ def user(request, username=None):
 def new_database_form(request, username):
 	return render_to_response("new_database.html", {'username': username})
 
-
+@login_required
 def new_database(request, username, db_name):
 	engine.main.create_database(username, db_name)
 	return HttpResponseRedirect("/"+username)
 
-
+@login_required
 def database(request, username, db_name):
 	try:
 		res = engine.main.list_tables(db_name)
@@ -45,7 +45,7 @@ def database(request, username, db_name):
 	except Exception, e:
 		return HttpResponse(request_error, mimetype="application/json")
 
-
+@login_required
 def table(request, username, db_name, table_name):
 	try:
 		return render_to_response("table.html", {'username': username, 'db_name':db_name, 'table_name':table_name})

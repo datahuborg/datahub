@@ -11,6 +11,7 @@ class User(models.Model):
 	id = models.AutoField(primary_key=True)
 	email = models.CharField(max_length=100, unique = True)
 	username = models.CharField(max_length=50, unique = True)
+	name = models.CharField(max_length=200)
 	password = models.CharField(max_length=50)
 	active = models.BooleanField(default=True)
 	def __unicode__(self):

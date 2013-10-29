@@ -8,6 +8,7 @@ from django.core.validators import email_re
 from django.db.utils import IntegrityError
 from django.utils.http import urlquote_plus
 from schema.models import *
+from browser.utils import *
 
 
 '''
@@ -19,6 +20,14 @@ kLogIn = "SESSION_LOGIN"
 kName = "SESSION_NAME"
 
 
+def is_valid_username (username):
+  try:
+    if len(username) >3 and re.match(r'\w+', username).group() == username:
+      return True
+  except:
+    pass
+
+  return False
 
 def login_required (f):
     def wrap (request, *args, **kwargs):
@@ -58,21 +67,30 @@ def login (request):
     	errors = []
     	if('redirect_url' in request.POST.keys()):
     		redirect_url = request.POST['redirect_url']
+        email = None
         try:
-            login_email = request.POST["login_email"].lower()
+            login_id = request.POST["login_id"].lower()
             login_password = hashlib.sha1(request.POST["login_password"]).hexdigest()
-            user = User.objects.get(email=login_email, password=login_password)
+            email = email_re.match(login_id.lower().strip())
+            user = None
+            if email:
+              user = User.objects.get(email=login_id, password=login_password)
+            else:
+              user = User.objects.get(username=login_id, password=login_password)
+
             request.session.flush()
-            request.session[kLogIn] = user.email
-            request.session[kName] = user.f_name
+            request.session[kLogIn] = user.username
             return HttpResponseRedirect(redirect_url)
         except User.DoesNotExist:
-        	try:
-        		User.objects.get(email=login_email)
-        		errors.append('Wrong password.')
-        	except User.DoesNotExist:
-        		errors.append("Couldn't locate account with email address: %s" %(login_email))
-        	return login_form(request, redirect_url = redirect_url, errors = errors) 
+          try:
+            if email:
+              User.objects.get(email=login_id)
+            else:
+              User.objects.get(username=login_id)
+            errors.append('Wrong password.')
+          except User.DoesNotExist:
+            errors.append("Couldn't locate account with login id: %s" %(login_id))
+          return login_form(request, redirect_url = redirect_url, errors = errors) 
         except:
             errors.append('Login failed.')
             return login_form(request, redirect_url = redirect_url, errors = errors)          
@@ -88,42 +106,41 @@ def register (request):
         try:
             error = False
             if('redirect_url' in request.POST.keys()):
-				redirect_url = request.POST['redirect_url']
+              redirect_url = request.POST['redirect_url']
+            username = request.POST["username"].lower()
             email = request.POST["email"].lower()
             password = request.POST["password"]
-            password2 = request.POST["password2"]
-            f_name = request.POST["f_name"]
-            l_name = request.POST["l_name"]
+      
             if(email_re.match(email.strip()) == None):
             	errors.append("Invalid Email.")
             	error = True
-            if(f_name.strip() == ""):
-            	errors.append("Empty First Name.")
-            	error = True
-            if(l_name.strip() == ""):
-            	errors.append("Empty Last Name.")
-            	error = True
+            if(not is_valid_username(username)):
+              errors.append("Invalid Username.")
+              error = True
             if(password == ""):
             	errors.append("Empty Password.")
             	error = True
-            if(password2 != password):
-            	errors.append("Password and Confirm Password don't match.")
-            	error = True
+
+            try:
+              user = User.objects.get(username=username)
+              errors.append("Username already taken.")
+              error = True
+            except User.DoesNotExist:
+              pass
 
             if(error):
             	return register_form(request, redirect_url = redirect_url, errors = errors)
             hashed_password = hashlib.sha1(password).hexdigest()
-            user = User(email=email, password=hashed_password, f_name=f_name, l_name=l_name)
+            user = User(username=username, email=email, password=hashed_password)
             user.save()
             request.session.flush()
-            request.session[kLogIn] = user.email
-            request.session[kName] = user.f_name
+            request.session[kLogIn] = user.username
             return HttpResponseRedirect(redirect_url)
         except IntegrityError:
-            errors.append("Account already exists. Please Log In.")
+            errors.append("Account with the email address %s already exists. Please Log In." %(email))
             return register_form(request, redirect_url = redirect_url, errors = errors)
-        except:
-            errors.append("Some error happened while trying to create an account. Please try again.")
+        except Exception, e:
+            errors.append(e.message)
             return register_form(request, redirect_url = redirect_url, errors = errors)
     else:
         return register_form(request, redirect_url = redirect_url)
@@ -133,8 +150,6 @@ def logout (request):
     request.session.flush()
     if kLogIn in request.session.keys():
     	del request.session[kLogIn]
-    if kName in request.session.keys():
-    	del request.session[kName]
     return HttpResponseRedirect('/')
 
 
@@ -142,9 +157,15 @@ def forgot (request):
   if request.method == "POST":
     errors = []
     try:
-      user_email = request.POST["user_email"].lower()
-      User.objects.get(email=user_email)
-
+      login_id = request.POST["login_id"].lower()
+      email = email_re.match(login_id.lower().strip())
+      user = None
+      if email:
+        user = User.objects.get(email=login_id)
+      else:
+        user = User.objects.get(username=login_id)
+      
+      user_email = user.email
       decrypted_email = encrypt_text(user_email)
 
       subject = "DataHub Password Reset"
@@ -170,11 +191,11 @@ def forgot (request):
 
     except User.DoesNotExist:
       errors.append(
-          "Invalid Email Address.")
-    except:
+          "Invalid Username / Email Address.")
+    except Exception, e:
       errors.append(
-          "Some unknown error happened."
-          "Please try again or send an email to datahub@csail.mit.edu.")
+          "Some unknown error happened: %s"
+          "Please report it to datahub@csail.mit.edu." %(e.message))
     
     c = {'errors': errors} 
     c.update(csrf(request))
