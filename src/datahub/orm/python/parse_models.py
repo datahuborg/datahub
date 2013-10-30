@@ -1,19 +1,24 @@
+import sys
 import pyclbr # Module to get classes from files
 
 """
 @author: Jesika Haria 
+@date: October 30, 2013
+
+ORM Parser (Python)
 """
 
-# Figure out how to do imports
-from sample_models import *
-
-# Get name of file without .py from sys args 
-filename = 'sample_models'
+# Imports - should go in helper function
+importStatement = 'from '
+filename = sys.argv[1].split('.')[0]
+print 'filename is ', filename
+importStatement += filename + ' import *'
+exec(importStatement) #from sample_models import *
 
 # String to be generated: create table person (id integer, name varchar(20))
 query = ''
 
-classList = pyclbr.readmodule('sample_models').keys() # Get list of all classes defined as strings
+classList = pyclbr.readmodule(filename).keys() # Get list of all classes defined as strings
 print 'classList ', classList 
 
 for classItem in classList:
