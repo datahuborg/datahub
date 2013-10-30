@@ -14,8 +14,12 @@ class PGBackend:
   def __init__(
       self, user, password, host='localhost', port=5432, db_name=None):
 
-    self.connection = psycopg2.connect(
-        user=user, password=password, host=host, port=port, database=db_name)
+    if db_name:
+      self.connection = psycopg2.connect(
+          user=user, password=password, host=host, port=port)
+    else:
+      self.connection = psycopg2.connect(
+          user=user, password=password, host=host, port=port, database=db_name)
 
   def execute_sql(self, query, params=None):
     result = {
