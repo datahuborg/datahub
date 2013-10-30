@@ -1,0 +1,7 @@
+classList  ['Person']
+objectClass  <class 'sample_models.Person'>
+classAttrs  ['name']
+objAttr  <models.CharField object at 0x104311d10>
+True
+fieldAttrs  ['max_length']
+fieldAttr  40
