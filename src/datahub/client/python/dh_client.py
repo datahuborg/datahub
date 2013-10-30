@@ -63,7 +63,7 @@ class DataHubClient:
 
 
 def test():
-  client = DataHubClient(host='localhost', port=9000)
+  client = DataHubClient(host='datahub-experimental.csail.mit.edu', port=9000)
   print client.get_version()
   con_params = DHConnectionParams(user='postgres', password='postgres')
   con = client.connect(con_params=con_params)
