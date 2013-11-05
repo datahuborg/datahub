@@ -9,16 +9,21 @@
 	<h3>Create a new account</h3>
 	<hr />
 	<div id="error">
-		{% for error in errors %}<span class="error">{{error}}</span><br /> 
+		{% for error in errors %}<span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br /> 
         {% endfor %}
         <br />
     </div>
 	<label for="username">Username</label><br />
-	<input type="text" name="username" id="email" placeholder="Pick a username"/><br /><br />
+	<input type="text" name="username" id="username" placeholder="Pick a username" {% if values.username %}value="{{values.username}}"{% endif %}/><br /><br />
 	<label for="email">Email Address</label><br />
-	<input type="text" name="email" id="email" placeholder="Your email address"/><br /><br />
+	<input type="text" name="email" id="email" placeholder="Your email address" {% if values.email %}value="{{values.email}}"{% endif %}/><br /><br />
 	<label for="password">Password</label><br />
-	<input type="password" name="password" id="password" placeholder="Create a password"/><br /><br />
+	<input type="password" name="password" id="password" placeholder="Create a password" {% if values.password %}value="{{values.password}}"{% endif %}/><br /><br />
 	<input type="submit" class="button" value="Sign up for DataHub" />
+	<br />
+	<br />
+	<div>
+		Already have an account? <a class="blue bold" href="/login?redirect_url={{redirect_url}}">Log in</a>
+	</div>
 </form>
 {% endblock %}

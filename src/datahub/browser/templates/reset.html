@@ -8,10 +8,10 @@
 <form method="POST" action="/reset/{{encrypted_email}}">
 	{% csrf_token %}
 	<input type="hidden" name="redirect_url" value="{{redirect_url}}" />
-	<h3>Confer Reset Password</h3>
+	<h3>DataHub Reset Password</h3>
 	<hr />
 	<div id="error">
-		{% for error in errors %}<span class="error">{{error}}</span><br />
+		{% for error in errors %}<span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
         {% endfor %}
         <br />
     </div>

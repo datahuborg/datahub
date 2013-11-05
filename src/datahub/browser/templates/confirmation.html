@@ -11,10 +11,10 @@
 	<h3>{{msg_title}}</h3>
 	<hr />
 	<div id="msg">
-    {% for error in errors %}<span class="error">{{error}}</span><br />
+    {% for error in errors %}<span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
     {% endfor %}
     <br />
-		{{msg_body}}
+		{% autoescape off %}{{msg_body}}{% endautoescape %}
   </div>
 </form>
 {% endblock %}

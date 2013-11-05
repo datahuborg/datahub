@@ -1,6 +1,6 @@
 {% extends "login-layout.html" %}
 {% block links %}
-<a class="button" href="/login?redirect_url=/">Login</a>
+<a class="button" href="/login?redirect_url=/">Log In</a>
 {% endblock %}
 {% block content %}
 <script type="text/javascript">
@@ -11,12 +11,12 @@
 	<h3>DataHub Reset Password</h3>
 	<hr />
 	<div id="error">
-		{% for error in errors %}<span class="error">{{error}}</span><br />
+		{% for error in errors %}<span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
         {% endfor %}
         <br />
     </div>
-	<label for="login_id">Username or Email</label><br />
-	<input type="text" name="login_id" id="login_id" placeholder="Username or email"/> <br />
+	<label for="email">Enter the email address</label><br />
+	<input type="text" name="email" id="email" placeholder="Your email" {% if values.email %}value="{{values.email}}"{% endif %}/> <br />
 	<input type="submit" class="button" value="Send Reset Link" />
 </form>
 {% endblock %}
