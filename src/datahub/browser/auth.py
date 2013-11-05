@@ -177,13 +177,13 @@ def register (request):
       msg_body = '''
       Dear %s,
 
-      Thanks for registering to Confer. 
+      Thanks for registering to DataHub. 
 
-      Please click the link below to start using Confer:
+      Please click the link below to start using DataHub:
 
       http://datahub.csail.mit.edu/verify/%s
 
-      ''' % (user.username, encrypted_email)
+      ''' % (user.email, encrypted_email)
 
       pool.apply_async(send_email, [user.email, subject, msg_body])
 
@@ -272,7 +272,7 @@ def verify (request, encrypted_email):
     user_email = decrypt_text(encrypted_email)
     user = User.objects.get(email=user_email)
     c.update({
-        'msg_body': 'Thanks for verifying your email address! <a class= "blue bold" href="/home">Click Here</a> to start using DataHub.'
+        'msg_body': 'Thanks for verifying your email address! <a class= "blue bold" href="/%s">Click Here</a> to start using DataHub.' %(user.username)
     })
     clear_session(request)
     request.session[kEmail] = user.email
