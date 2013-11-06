@@ -22,21 +22,24 @@ classList = pyclbr.readmodule(filename).keys() # Get list of all classes defined
 print 'classList ', classList 
 
 for classItem in classList:
-  query += 'create table '
+  # Create the table
+  query += 'CREATE TABLE '
   query += classItem + '('
 
-  objectClass = eval(classItem) # get the class defined
+  # Get the class defined 
+  objectClass = eval(classItem)
   print 'objectClass ', objectClass
   classAttrs = [attr for attr in dir(objectClass) if not callable(attr) and not attr.startswith("__")]
   print 'classAttrs ', classAttrs
 
+  # Iterate over class attributes (fields)
   for attrString in classAttrs:
     query += attrString + ' '
 
     objAttr = getattr(objectClass, attrString)
     print 'objAttr ', objAttr
     
-    # This should go in a helper function
+    # Parse by field
     if objAttr.__class__.__name__ == 'CharField':
       query += 'varchar('
     elif objAttr.__class__.__name__ == 'IntegerField':
@@ -45,18 +48,34 @@ for classItem in classList:
       query += 'datetime '
     elif objAttr.__class__.__name__ == 'BooleanField':
       query += 'boolean '
+    elif objAttr.__class__.__name__ == 'ForeignKey':
+      query += str(getattr(objAttr, 'type_val')) + ' ' 
+      query += 'REFERENCES '
+      query += str(getattr(objAttr, 'pointer_to'))
 
+    # FInd attributes for each field
     fieldAttrs = [attr for attr in dir(objAttr) if not callable(attr) and not attr.startswith("__")]
     print 'fieldAttrs ', fieldAttrs
 
+    # Need to do size attribute first in the query
+    if 'size' in fieldAttrs and objAttr.__class__.__name__ == 'CharField': 
+      query += str(getattr(objAttr, 'size'))+') '
+
+    
+    # Add extra information about special field attributes
     for fieldAttrString in fieldAttrs:
       fieldAttr = getattr(objAttr, fieldAttrString)
       print 'fieldAttr ', fieldAttr
-      if fieldAttrString == 'size':
-        query += str(fieldAttr)+')'
+      if fieldAttrString == 'primary_key' and fieldAttr == True: 
+        query += 'SERIAL PRIMARY KEY'
+      elif fieldAttrString == 'not_null' and fieldAttr == True:
+        query += 'NOT NULL'
+      elif fieldAttrString == 'unique' and fieldAttr == True:
+        query += 'UNIQUE'
 
     if classAttrs.index(attrString) != len(classAttrs)-1:
       query += ', '  
+
   query += '); '
 
 
