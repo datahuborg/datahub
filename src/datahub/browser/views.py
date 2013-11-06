@@ -24,7 +24,7 @@ def user(request, username=None):
 			res = manager.list_databases(username)
 			return render_to_response("user.html", {'username': username, 'db_names':res['db_names']})
 		else:
-			user = request.session[kLogIn]
+			user = request.session[kUsername]
 			return HttpResponseRedirect(user)
 	except KeyError:
 		return HttpResponseRedirect('/login')
