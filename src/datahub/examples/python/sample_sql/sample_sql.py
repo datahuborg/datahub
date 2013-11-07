@@ -12,8 +12,8 @@ Sample python code accesing DataHub APIs
 
 
 # conect to DataHub
-client = DataHubClient()
-con_params = DHConnectionParams(user=None, password=None, database=None)
+client = DataHubClient('localhost', 9000)
+con_params = DHConnectionParams(user='postgres', password='postgres')
 con = client.connect(con_params=con_params)
 
 # list databases
@@ -32,7 +32,8 @@ print client.list_databases(con=con)
 
 # connect to the database 'test' and open the database
 database = DHDatabase(name='test')
-con = client.open_database(con=con, database=database)
+con_params.database = DHDatabase(name='test')
+con = client.connect(con_params)
 
 # create a table named 'person'
 print client.list_tables(con=con)
