@@ -12,7 +12,7 @@ Sample python code accesing DataHub APIs
 
 
 # conect to DataHub
-client = DataHubClient('localhost', 9000)
+client = DataHubClient('datahub-experimental.csail.mit.edu', 9000)
 con_params = DHConnectionParams(user='postgres', password='postgres')
 con = client.connect(con_params=con_params)
 
