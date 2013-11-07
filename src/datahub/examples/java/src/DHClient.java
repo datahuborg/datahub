@@ -7,23 +7,31 @@ import org.apache.thrift.transport.TSSLTransportFactory.TSSLTransportParameters;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 
+/** 
+ * Sample DataHub Java Client
+ * 
+ * @author anantb
+ * @date 11/07/2013
+ * 
+ */
+
 public class DHClient {
   public static void main(String [] args) {
     try {
-      TTransport transport = new TSocket("datahub-experimental.csail.mit.edu", 9000);
+      TTransport transport = new TSocket(
+		  "datahub-experimental.csail.mit.edu", 9000);
       transport.open();
-
+	  
       TProtocol protocol = new  TBinaryProtocol(transport);
       DataHub.Client client = new DataHub.Client(protocol);
+	  
       System.out.println(client.get_version());
-
-
+	  
       transport.close();
     } catch(Exception e) {
       e.printStackTrace();
     }
-
-   
+ 
   }
 
 }
