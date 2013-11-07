@@ -29,12 +29,9 @@ class PGBackend:
         'column_names': [],
         'column_types': []
     }
-
-    if query.lower().strip().startswith(
-        'create database') or query.lower().strip().startswith(
-            'drop database'):
-      self.connection.set_isolation_level(
-          psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+    
+    self.connection.set_isolation_level(
+        psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
     c = self.connection.cursor()
     c.execute(query.strip(), params)
@@ -51,8 +48,6 @@ class PGBackend:
       result['column_names'] = [col[0] for col in c.description]
 
     tokens = query.strip().split(' ', 2)
-    if tokens[0].lower() in kCommitTokens:
-      self.connection.commit()
 
     c.close()
     return result

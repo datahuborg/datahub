@@ -32,25 +32,26 @@ class DatahubTerminal(cmd2.Cmd):
     parser.add_option("-H", "--host", dest="host", help="DataHub server hostname", default="datahub-experimental.csail.mit.edu")
     parser.add_option("-p", "--port", dest="port", help="DataHub server port", type="int", default=9000)
     parser.add_option("-d", "--database", dest="database", help="DataHub database")
-    (self.options, self.arg_values) = parser.parse_args()
+    (options, args) = parser.parse_args()
 
-    if not self.options.user:
+    if not options.user:
       parser.print_usage()
       sys.exit(1)
 
     parser.destroy()
-    self.password = getpass.getpass('DataHub password for %s: ' %(self.options.user))
+    password = getpass.getpass('DataHub password for %s: ' %(options.user))
     cmd2.Cmd.__init__(self, completekey='tab')
-    self.client = DataHubClient(host=self.options.host, port=self.options.port)
+    self.client = DataHubClient(host=options.host, port=options.port)
     try:
       database = None
-      if self.options.database:
-        database=DHDatabase(name=self.options.database)
-      con_params = DHConnectionParams(
-          user=self.options.user,
-          password=self.password,
+      if options.database:
+        database=DHDatabase(name=options.database)
+
+      self.con_params = DHConnectionParams(
+          user=options.user,
+          password=password,
           database=database)
-      self.con = self.client.connect(con_params)
+      self.con = self.client.connect(self.con_params)
       self.prompt = "datahub> "
     except Exception, e:
       self.print_line('error: %s' % (e.message))
@@ -77,11 +78,8 @@ class DatahubTerminal(cmd2.Cmd):
       tokens = line.split()
       tokens = map(lambda x: x.strip(), tokens)
       database = DHDatabase(name=tokens[0])
-      con_params = DHConnectionParams(
-          user=self.options.user,
-          password=self.password,
-          database=database)
-      self.con =  self.client.connect(con_params)
+      self.con_params.database = database
+      self.con =  self.client.connect(self.con_params)
       self.print_line('%s' % ('success'))
     except Exception, e:
       self.print_line('error: %s' % (e.message))
