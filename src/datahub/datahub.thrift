@@ -8,6 +8,7 @@
  */
 
 namespace py datahub
+namespace java datahub
 
 
 /* DataHub constants */
