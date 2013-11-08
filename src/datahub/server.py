@@ -1,8 +1,4 @@
 #!/usr/bin/python
-import os
-import sys
-sys.path.append('./gen-py')
-
 from core.db.connection import *
 from datahub import DataHub
 from datahub.constants import *
