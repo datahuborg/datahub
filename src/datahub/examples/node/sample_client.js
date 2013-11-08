@@ -2,12 +2,12 @@
 @author: anant bhardwaj
 @date: Oct 11, 2013
 
-Sample javascript code accesing DataHub APIs
+Sample nodejs code accesing DataHub APIs
 */
 
 var thrift = require('thrift'),
-  DataHub = require('./gen-nodejs/DataHub.js'),
-  ttypes = require('./gen-nodejs/datahub_types.js'),
+  DataHub = require('DataHub.js'),
+  ttypes = require('datahub_types.js'),
   connection = thrift.createConnection(
     'datahub-experimental.csail.mit.edu',
     9000, {
