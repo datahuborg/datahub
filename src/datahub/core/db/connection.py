@@ -17,14 +17,29 @@ class Connection:
   def execute_sql(self, query, params=None):
     return self.backend.execute_sql(query, params)
 
-  def list_databases(self):
-    return self.backend.list_databases()
-
   def list_tables(self):
     return self.backend.list_tables()
 
   def close(self):    
-    self.backend.clos()
+    self.backend.close()
+
+  '''
+  The following methods run in superuser mode
+  '''
+  @staticmethod
+  def list_databases(username):
+    s_backend = PGBackend(user='postgres', password='postgres')
+    return s_backend.list_databases(username)
+
+  @staticmethod
+  def create_user(username, password):
+    s_backend = PGBackend(user='postgres', password='postgres')
+    return s_backend.create_user(username, password)
+
+  @staticmethod
+  def change_password(username, password):
+    s_backend = PGBackend(user='postgres', password='postgres')
+    return s_backend.change_password(username, password)
 
 
 def test():

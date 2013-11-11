@@ -67,8 +67,7 @@ class DataHubHandler:
     
   def list_databases(self, dh_con):
     try:
-      con = self.sessions[dh_con.user]
-      res = con.list_databases()
+      res = Connection.list_databases(username=dh_con.user)
       return construct_query_result(res)
     except Exception, e:
       raise DHException(message=str(e))
