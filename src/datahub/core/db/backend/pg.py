@@ -14,6 +14,11 @@ class PGBackend:
   def __init__(
       self, user, password, host='localhost', port=5432, db_name=None):
 
+    self.user = user
+    self.password = password
+    self.host = host
+    self.port = port
+
     if db_name:
       self.connection = psycopg2.connect(
           user=user, password=password, host=host, port=port, database=db_name)
@@ -53,8 +58,10 @@ class PGBackend:
     return result
 
   def list_databases(self):
-    s = ''' SELECT datname FROM pg_catalog.pg_database
-        WHERE NOT datistemplate '''
+    s = ''' SELECT datname
+        FROM pg_database JOIN pg_authid 
+        ON pg_database.datdba = pg_authid.oid
+        WHERE rolname = '%s' ''' %(self.user)
 
     return self.execute_sql(s)
 
