@@ -26,7 +26,11 @@ class PGBackend:
       self.connection = psycopg2.connect(
           user=user, password=password, host=host, port=port)
 
-  def execute_sql(self, query, params=None):
+    self.connection.set_isolation_level(
+        psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+
+
+  def execute_sql(self, query, params=None, superuser=False):
     result = {
         'status': False,
         'row_count': 0,
@@ -34,11 +38,14 @@ class PGBackend:
         'column_names': [],
         'column_types': []
     }
-    
-    self.connection.set_isolation_level(
-        psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
-    c = self.connection.cursor()
+    conn = self.connection 
+
+    if superuser:
+      conn = psycopg2.connect(
+          user='postgres', password='postgres', host='localhost', port=5432)
+
+    c = conn.cursor()
     c.execute(query.strip(), params)
 
     try:
@@ -55,6 +62,10 @@ class PGBackend:
     tokens = query.strip().split(' ', 2)
 
     c.close()
+
+    if superuser:
+      conn.close()
+
     return result
 
   def list_databases(self):
@@ -63,7 +74,7 @@ class PGBackend:
         ON pg_database.datdba = pg_authid.oid
         WHERE rolname = '%s' ''' %(self.user)
 
-    return self.execute_sql(s)
+    return self.execute_sql(s, superuser=True)
 
   def list_tables(self):
     s = ''' SELECT table_name FROM information_schema.tables
