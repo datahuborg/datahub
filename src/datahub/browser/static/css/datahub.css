@@ -331,3 +331,7 @@ table.dataTable tbody tr td {
 	padding: 10px;
 	font-weight: bold;
 }
+
+.dataTables_filter input[type="text"] {
+  width:70%;
+}
