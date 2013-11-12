@@ -169,7 +169,7 @@ def register (request):
       user.save()
 
       try:
-        manager.create_user(username=username, password=password)
+        manager.create_user(username=username, password=hashed_password)
       except:
         pass
 

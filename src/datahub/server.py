@@ -1,4 +1,6 @@
 #!/usr/bin/python
+import hashlib
+
 from core.db.connection import *
 from datahub import DataHub
 from datahub.constants import *
@@ -55,7 +57,7 @@ class DataHubHandler:
 
       con = Connection(
           user=dh_con_params.user,
-          password=dh_con_params.password,
+          password=hashlib.sha1(dh_con_params.password).hexdigest()
           db_name=dh_database.name)
 
       # hack for access control -- implement proper session management later
