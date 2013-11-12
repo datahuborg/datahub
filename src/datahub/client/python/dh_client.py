@@ -43,9 +43,9 @@ class DataHubClient:
     self.transport.close()
     return res
 
-  def list_tables(self, con):
+  def list_tables(self, con, repo):
     self.transport.open()
-    res = self.client.list_tables(con)
+    res = self.client.list_tables(con, repo)
     self.transport.close()
     return res
 
@@ -78,13 +78,10 @@ def test():
   print client.execute_sql(con=con, query=''' create schema test ''')
   print client.list_databases(con=con)
 
-  con_params.repo = 'test'
-  con = client.connect(con_params=con_params)
-
-  print client.list_tables(con=con)
+  print client.list_tables(con=con, repo='test')
   print client.execute_sql(con=con,
       query=''' create table person (id integer, name varchar(20)) ''')
-  print client.list_tables(con=con)
+  print client.list_tables(con=con, repo='test')
   print client.execute_sql(con=con, query=''' select * from person ''')
   print client.execute_sql(con=con,
       query=''' insert into person values (1, 'anant') ''')
