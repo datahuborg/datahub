@@ -17,8 +17,10 @@ datahub cli interface
 '''
 kCmdList = [
     '** Any SQL Query **',
+    'mkrepo <repo-name> \t -- to create a new repository',
     'ls \t\t\t -- to list repositories',
-    'ls <repo-name> \t -- to list tables in a repository',
+    'ls <repo-name> \t\t -- to list tables in a repository',
+    'rm <repo-name> \t\t -- to remove a repository',
 ]
 
 
@@ -123,7 +125,7 @@ class DatahubTerminal(cmd2.Cmd):
       self.print_line('%s' % ('success' if res.status else 'error'))
 
   def do_help(self, line): 
-    for cmd in CMD_LIST:
+    for cmd in kCmdList:
       self.print_line(cmd)
 
   def print_line(self, line):
