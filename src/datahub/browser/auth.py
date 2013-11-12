@@ -167,7 +167,6 @@ def register (request):
           manager.create_user(username=username, password=hashed_password)
         except Exception, e:
           errors.append(str(e))
-          error = True
 
       if(error):
         return register_form(request, redirect_url = urllib.quote_plus(redirect_url), errors = errors)
