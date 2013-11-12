@@ -205,8 +205,6 @@ button, .button, input[type="button"], input[type="submit"]{
 }
 
 #content{
-	margin-top: 1.5em;
-	margin-bottom: 3.5em;
 	padding: 1.5em;
 	background-color: #FFF;
 }
