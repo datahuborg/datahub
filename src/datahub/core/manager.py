@@ -37,7 +37,6 @@ def list_tables(username, repo):
       password=user.password,
       db_name=username)
   res = con.list_tables(schema=repo)
-  print res
   return res
 
 def execute_sql(username, query, params=None):
