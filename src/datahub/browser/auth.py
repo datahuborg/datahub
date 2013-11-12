@@ -12,6 +12,7 @@ from multiprocessing import Pool
 
 from schema.models import *
 from browser.utils import *
+from core.db import account_manager as manager
 
 p = os.path.abspath(os.path.dirname(__file__))
 if(os.path.abspath(p+"/..") not in sys.path):
@@ -166,6 +167,12 @@ def register (request):
       hashed_password = hashlib.sha1(password).hexdigest()
       user = User(username=username, email=email, password=hashed_password)
       user.save()
+
+      try:
+        manager.create_user(username=username, password=password)
+      except:
+        pass
+
       clear_session(request)
       request.session[kEmail] = user.email
       request.session[kUsername] = user.username
@@ -193,8 +200,8 @@ def register (request):
           'Account with the email address %s already exists. Please <a class="blue bold" href="/login?login_email=%s">Log In</a>.'
           % (email, urllib.quote_plus(email)))
       return register_form(request, redirect_url = urllib.quote_plus(redirect_url), errors = errors)
-    except:
-      errors.append("Some error happened while trying to create an account. Please try again.")
+    except Exception, e:
+      errors.append("Error %s." %(str(e)))
       return register_form(request, redirect_url = urllib.quote_plus(redirect_url), errors = errors)
   else:
       return register_form(request, redirect_url = urllib.quote_plus(redirect_url))

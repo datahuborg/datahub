@@ -77,13 +77,13 @@ class PGBackend:
   def create_user(self, username, password):
     s = ''' CREATE ROLE %s WITH LOGIN
         CREATEDB PASSWORD '%s' 
-        ''' %(self.user, self.password)
+        ''' %(username, password)
 
     return self.execute_sql(s)
 
   def chnage_password(self, username, password):
     s = ''' ALTER ROLE %s WITH PASSWORD '%s' 
-        ''' %(self.user, self.password)
+        ''' %(username, password)
 
     return self.execute_sql(s)
 

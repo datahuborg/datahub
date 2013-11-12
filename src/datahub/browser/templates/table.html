@@ -4,17 +4,45 @@
 {% endblock %}
 {% block content %}
 
+<script type="text/javascript">
+
+	function load_table (table_name) {
+		window.location.href = "/{{username}}/{{db_name}}/" + table_name;
+	}
+
+	$(document).ready(function(){	
+
+		var table_data = $('#table_data').dataTable({
+			"sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
+			"bPaginate": false,
+			"bFilter": true,
+			"sWidth": "100%"			
+		});
+
+	});
+</script>
 
 <div id="content">
-	<h2><a href=/{{username}}>{{username}}</a> - <a href=/{{username}}/{{db_name}}>{{db_name}}</a> - {{table_name}}</h2>
-	<table id="databases">
+	<a href=/{{username}}>{{username}}</a> - <a href=/{{username}}/{{db_name}}>{{db_name}}</a> - {{table_name}}
+	<br />
+	<br />
+	<table id="table_data">
 		<thead>
 		<tr>
-			<th>Name</th>
-			<th>Description</th>
+			{% for column_name in column_names %}
+			<th>{{column_name}}</th>
+			{% endfor %}
 		</tr>
 		</thead>
-	</tbody>
+		<tbody>
+		{% for tuple in tuples %}
+		<tr>
+			{% for t in tuple %}
+				<td class="strong">{{t}}</td>
+			{% endfor %}
+		</tr>
+		{% endfor %}
+		</tbody>
 	</table>
 </div>
 {% endblock %}
