@@ -46,7 +46,9 @@ def repo(request, username, repo):
 @login_required
 def table(request, username, repo, table):
 	try:
-		res = manager.execute_sql('SELECT * from %s.%s.%s' %(username, repo, table))
+		res = manager.execute_sql(
+				username=username,
+				query='SELECT * from %s.%s.%s' %(username, repo, table))
 		column_names = res['column_names']
 		tuples = res['tuples']
 		return render_to_response("table.html", {
