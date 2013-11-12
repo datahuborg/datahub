@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+{% block headlink-right %}
+ <a href="#" data-dropdown="#dropdown-nav">{{ username }} ▾ </a>
+{% endblock %}
+{% block content %}
+
+
+<script type="text/javascript">
+
+	function load_table (table) {
+		window.location.href = "/{{username}}/{{repo}}/" + table;
+	}
+
+	$(document).ready(function(){
+		var tables = $('#tables').dataTable({
+			"sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
+			"bPaginate": false,
+			"bFilter": true,
+			"sWidth": "100%"			
+		});
+	});
+</script>
+
+
+<div id="content">
+	<a class="blue bold" href=/{{username}}>{{username}}</a> . <a class = "blue bold" href=/{{username}}/{{repo}}>{{repo}}</a>
+	<br />
+	<br />
+	<table id="tables">
+		<thead>
+		<tr>
+			<th>All Tables</th>
+		</tr>
+		</thead>
+		<tbody>
+		{% for table in tables %}
+		<tr>
+			<td class="blue link" onclick='load_table("{{table}}")'>{{table}}</td>
+		</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}
+
+
+
+
+

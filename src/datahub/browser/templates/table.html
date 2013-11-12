@@ -6,12 +6,7 @@
 
 <script type="text/javascript">
 
-	function load_table (table_name) {
-		window.location.href = "/{{username}}/{{db_name}}/" + table_name;
-	}
-
-	$(document).ready(function(){	
-
+	$(document).ready(function() {	
 		var table_data = $('#table_data').dataTable({
 			"sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
 			"bPaginate": false,
@@ -23,7 +18,9 @@
 </script>
 
 <div id="content">
-	<a href=/{{username}}>{{username}}</a> - <a href=/{{username}}/{{db_name}}>{{db_name}}</a> - {{table_name}}
+	<a class="blue bold" href="/{{username}}">{{username}}</a> . 
+	<a class="blue bold" href="/{{username}}/{{repo}}">{{repo}}</a> . 
+	<a class="blue bold" href="/{{username}}/{{repo}}/{{table}}">{{table}}</a>
 	<br />
 	<br />
 	<table id="table_data">

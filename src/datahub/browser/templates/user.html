@@ -7,8 +7,8 @@
 
 <script type="text/javascript">
 
-	function load_db (db_name) {
-		window.location.href = "/{{username}}/" + db_name;
+	function load_repo (repo) {
+		window.location.href = "/{{username}}/" + repo;
 	}
 
 	function create_db(){
@@ -17,16 +17,11 @@
 
 	$(document).ready(function(){	
 
-		var databases = $('#databases').dataTable({
+		var repos = $('#repos').dataTable({
 			"sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
 			"bPaginate": false,
 			"bFilter": true,
-			"sWidth": "100%",
-			"aoColumns": [                 
-				{"sWidth": "50%"},
-				{"sWidth": "50%"},
-			]
-			
+			"sWidth": "100%"			
 		});
 
 	});
@@ -34,19 +29,19 @@
 
 
 <div id="content">
-	<h3><span class="gray">Databases</span></h3>
+	<a class="blue bold" href=/{{username}}>{{username}}</a>
 	<br />
-	<table id="databases">
+	<br />
+	<table id="repos">
 		<thead>
 		<tr>
-			<th>Database Name</th>
-			<th>Description</th>
+			<th>All Repositories</th>
 		</tr>
 		</thead>
 		<tbody>
-			{% for db_name in db_names %}
-				<tr onclick='load_db("{{db_name}}")'>
-				<td class="strong">{{db_name}}</td><td class="gray">Database</td>
+			{% for repo in repos %}
+				<tr>
+				<td class="blue link" onclick='load_repo("{{repo}}")'>{{repo}}</td>
 				</tr>
 			{% endfor %}		
 		</tbody>
