@@ -57,7 +57,7 @@ class DataHubHandler:
 
       con = Connection(
           user=dh_con_params.user,
-          password=hashlib.sha1(dh_con_params.password).hexdigest()
+          password=hashlib.sha1(dh_con_params.password).hexdigest(),
           db_name=dh_database.name)
 
       # hack for access control -- implement proper session management later
