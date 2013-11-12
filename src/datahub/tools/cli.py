@@ -63,10 +63,43 @@ class DatahubTerminal(cmd2.Cmd):
     except Exception, e:
       self.print_line('error: %s' % (e.message))
 
+  def do_mkrepo(self, line):
+    try:
+      repo = line.strip()
+      if repo != '':
+        res = self.client.execute_sql(
+            con=self.con,
+            query = 'CREATE SCHEMA %s' %(repo),
+            query_params = None)
+        self.print_result(res)
+      else:
+        self.print_line("invalid repo name: '%s'" % (repo))
+
+    except Exception, e:
+      self.print_line('error: %s' % (e.message))
+
+  def do_rm(self, line):
+    try:
+      repo = line.strip()
+      if repo != '':
+        res = self.client.execute_sql(
+            con=self.con,
+            query = 'DROP SCHEMA %s' %(repo),
+            query_params = None)
+        self.print_result(res)
+      else:
+        self.print_line("invalid repo name: '%s'" % (repo))
+
+    except Exception, e:
+      self.print_line('error: %s' % (e.message))
+
+
   def default(self, line):
     try:      
       res = self.client.execute_sql(
-          con=self.con, query=line, query_params=None)
+          con=self.con,
+          query=line,
+          query_params=None)
       self.print_result(res)
     except Exception, e:
       self.print_line('error: %s' % (e.message))
