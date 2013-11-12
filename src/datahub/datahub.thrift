@@ -8,7 +8,6 @@
  */
 
 namespace cpp datahub
-namespace d datahub
 namespace java datahub
 namespace php datahub
 namespace perl datahub
