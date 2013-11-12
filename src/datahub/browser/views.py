@@ -1,7 +1,7 @@
 import json, sys, re, hashlib, smtplib, base64, urllib, os
 
 from auth import *
-from core.account import manager
+from core.db import account_manager as manager
 from django.http import *
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
