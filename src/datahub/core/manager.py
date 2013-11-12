@@ -19,6 +19,10 @@ def list_databases(username):
 	res = Connection.list_databases(username=username)
 	return res
 
+def list_repos(username):
+  res = Connection.list_databases(username=username)
+  return res
+
 def list_tables(username, db_name):
   user = User.objects.get(username=username)
   con = Connection(

@@ -20,7 +20,7 @@ Datahub Web Handler
 def user(request, username=None):
 	try:
 		if(username):
-			res = manager.list_databases(username)
+			res = manager.list_repos(username)
 			repos = [t[0] for t in res['tuples']]
 			return render_to_response("user.html", {
 					'username': username,
