@@ -112,21 +112,16 @@ struct DHQueryResult {
 
 
 /* DataHub Connection */
-struct DHDatabase {
-  1: optional string url
-  2: optional string name 
-}
-
 struct DHConnectionParams {
   1: optional string user,
   2: optional string password,
-  3: optional DHDatabase database
+  3: optional string repo
 }
 
 struct DHConnection {
   1: optional string id,
   2: optional string user,
-  3: optional DHDatabase database
+  3: optional string repo
 }
 
 
@@ -144,9 +139,7 @@ service DataHub {
   double get_version()
   DHConnection connect(1: DHConnectionParams con_params)
       throws (1: DHException ex)
-  DHConnection open_database(1: DHConnection con, 2:DHConnectionParams con_params)
-      throws (1: DHException ex)
-  DHQueryResult list_databases(1: DHConnection con)
+  DHQueryResult list_repos(1: DHConnection con)
       throws (1: DHException ex)
   DHQueryResult list_tables(1: DHConnection con) throws (1: DHException ex)
   DHQueryResult execute_sql(1: DHConnection con, 2: string query,

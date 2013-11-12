@@ -1,7 +1,9 @@
 #!/usr/bin/python
 import hashlib
 
+from core import manager
 from core.db.connection import *
+
 from datahub import DataHub
 from datahub.constants import *
 from thrift.protocol import TBinaryProtocol
@@ -51,50 +53,45 @@ class DataHubHandler:
 
   def connect(self, dh_con_params):  
     try:
-      dh_database = DHDatabase()
-      if dh_con_params.database:
-        dh_database.name = dh_con_params.database.name
+      dh_repo = None
+      if dh_con_params.repo:
+        dh_repo = dh_con_params.repo
 
       con = Connection(
           user=dh_con_params.user,
           password=hashlib.sha1(dh_con_params.password).hexdigest(),
-          db_name=dh_database.name)
+          db_name=dh_con_params.user)
 
-      # hack for access control -- implement proper session management later
-      self.sessions[dh_con_params.user] = con
-      dh_con = DHConnection(user=dh_con_params.user, database=dh_database)
+      dh_con = DHConnection(user=dh_con_params.user, repo=dh_repo)
       return dh_con
     except Exception, e:
       raise DHException(message=str(e))
     
-  def list_databases(self, dh_con):
+  def list_repos(self, dh_con):
     try:
-      res = Connection.list_databases(username=dh_con.user)
+      res = manager.list_repos(username=dh_con.user)
       return construct_query_result(res)
     except Exception, e:
       raise DHException(message=str(e))
 
   def list_tables(self, dh_con):
     try:
-      con = self.sessions[dh_con.user]
-      res = con.list_tables()
+      res = manager.list_tables(dh_con.user, dh_con.repo)
       return construct_query_result(res)
     except Exception, e:
       raise DHException(message=str(e))
 
   def execute_sql(self, dh_con, query, query_params=None):
     try:
-      con = self.sessions[dh_con.user]
-      res = con.execute_sql(query, query_params)
+      res = manager.execute_sql(dh_con.user, query, query_params)
       return construct_query_result(res)
     except Exception, e:
       raise DHException(message=str(e))
 
   def load(self, dh_con, url):
-    db_name, table_name = url.split('.')
     try:
-      con = self.sessions[dh_con.user]
-      res = con.execute_sql('SELECT * from %s' % (table_name))
+      qry = 'SELECT * from %s' % (url)
+      res = manager.execute_sql(dh_con.user, qry)
       return construct_query_result(res)
     except Exception, e:
       raise DHException(message=str(e))

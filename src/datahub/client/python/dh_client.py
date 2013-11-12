@@ -37,7 +37,7 @@ class DataHubClient:
     self.transport.close()
     return con
 
-  def list_databases(self, con):
+  def list_repos(self, con):
     self.transport.open()
     res = self.client.list_databases(con)
     self.transport.close()
@@ -67,18 +67,18 @@ def test():
   print client.get_version()
   con_params = DHConnectionParams(user='postgres', password='postgres')
   con = client.connect(con_params=con_params)
-  print client.list_databases(con=con)
+  print client.list_repos(con=con)
 
   try:
-    print client.execute_sql(con=con, query=''' drop database test ''')
+    print client.execute_sql(con=con, query=''' drop schema test ''')
     print client.list_databases(con=con)
   except Exception, e:
     print e.message
 
-  print client.execute_sql(con=con, query=''' create database test ''')
+  print client.execute_sql(con=con, query=''' create schema test ''')
   print client.list_databases(con=con)
 
-  con_params.database = DHDatabase(name='test')
+  con_params.repo = 'test'
   con = client.connect(con_params=con_params)
 
   print client.list_tables(con=con)
