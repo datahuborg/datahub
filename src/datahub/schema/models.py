@@ -21,31 +21,5 @@ class User(models.Model):
 		db_table = "users"
 
 
-class Database(models.Model):
-	id = models.AutoField(primary_key=True)
-	name = models.CharField(max_length=50, unique = True)
-	owner = models.ForeignKey('User')
-	timestamp = models.DateTimeField(auto_now=True)
-	def __unicode__(self):
-		return self.name
-
-	class Meta:
-		db_table = "databases"
-
-
-class Table(models.Model):
-	id = models.AutoField(primary_key=True)
-	name = models.CharField(max_length=100)
-	schema = models.TextField()
-	version = models.IntegerField()
-	database = models.ForeignKey('Database')
-	timestamp = models.DateTimeField(auto_now=True)
-	def __unicode__(self):
-		return self.name
-
-	class Meta:
-		db_table = "tables"
-
-
 
 
