@@ -141,7 +141,7 @@ service DataHub {
       throws (1: DHException ex)
   DHQueryResult list_repos(1: DHConnection con)
       throws (1: DHException ex)
-  DHQueryResult list_tables(1: DHConnection con) throws (1: DHException ex)
+  DHQueryResult list_tables(1: DHConnection con, 2: string repo) throws (1: DHException ex)
   DHQueryResult execute_sql(1: DHConnection con, 2: string query,
       3: list <string> query_params) throws (1: DHException ex)
 

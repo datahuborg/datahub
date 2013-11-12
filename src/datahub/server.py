@@ -53,16 +53,12 @@ class DataHubHandler:
 
   def connect(self, dh_con_params):  
     try:
-      dh_repo = None
-      if dh_con_params.repo:
-        dh_repo = dh_con_params.repo
-
       con = Connection(
           user=dh_con_params.user,
           password=hashlib.sha1(dh_con_params.password).hexdigest(),
           db_name=dh_con_params.user)
 
-      dh_con = DHConnection(user=dh_con_params.user, repo=dh_repo)
+      dh_con = DHConnection(user=dh_con_params.user)
       return dh_con
     except Exception, e:
       raise DHException(message=str(e))
@@ -74,9 +70,9 @@ class DataHubHandler:
     except Exception, e:
       raise DHException(message=str(e))
 
-  def list_tables(self, dh_con):
+  def list_tables(self, dh_con, repo):
     try:
-      res = manager.list_tables(dh_con.user, dh_con.repo)
+      res = manager.list_tables(dh_con.user, repo)
       return construct_query_result(res)
     except Exception, e:
       raise DHException(message=str(e))

@@ -17,21 +17,19 @@ datahub cli interface
 '''
 kCmdList = [
     '** Any SQL Query **',
-    'SHOW DATABASES',
-    'SHOW TABLES',
-    'USE <database-name>'
+    'ls \t\t\t -- to list repositories',
+    'ls <repo-name> \t -- to list tables in a repository',
 ]
 
 
 class DatahubTerminal(cmd2.Cmd):
   def __init__(self):
-    usage = "--user <user-name> [--database <database-name>] [--host <host-name>] [--port <port>]"
+    usage = "--user <user-name> [--host <host-name>] [--port <port>]"
     parser = OptionParser()
     parser.set_usage(usage)
     parser.add_option("-u", "--user", dest="user", help="DataHub username")
     parser.add_option("-H", "--host", dest="host", help="DataHub server hostname", default="datahub-experimental.csail.mit.edu")
     parser.add_option("-p", "--port", dest="port", help="DataHub server port", type="int", default=9000)
-    parser.add_option("-d", "--database", dest="database", help="DataHub database")
     (options, args) = parser.parse_args()
 
     if not options.user:
@@ -43,57 +41,32 @@ class DatahubTerminal(cmd2.Cmd):
     cmd2.Cmd.__init__(self, completekey='tab')
     self.client = DataHubClient(host=options.host, port=options.port)
     try:
-      database = None
-      if options.database:
-        database=DHDatabase(name=options.database)
-
       self.con_params = DHConnectionParams(
           user=options.user,
-          password=password,
-          database=database)
+          password=password)
       self.con = self.client.connect(self.con_params)
       self.prompt = "datahub> "
     except Exception, e:
       self.print_line('error: %s' % (e.message))
       sys.exit(1)
 
-  def do_show(self, line):
+  def do_ls(self, line):
     try:
-      tokens = line.split()
-      tokens = map(lambda x: x.strip(), tokens)
-      if tokens[0].lower() == 'databases':
-        res = self.client.list_databases(self.con)
+      repo = line.strip()
+      if repo and repo != '':
+        self.client.list_tables(con=self.con, repo=repo)
+      else
+        res = self.client.list_repos(self.con)
         self.print_result(res)
-      elif tokens[0].lower() == 'tables' and self.con.database.name: 
-        res = self.client.list_tables(con=self.con)
-        self.print_result(res)
-      else:
-        self.print_line('error: not connected to any database')
 
-    except Exception, e:
-      self.print_line('error: %s' % (e.message))
-
-  def do_use(self, line):
-    try:
-      tokens = line.split()
-      tokens = map(lambda x: x.strip(), tokens)
-      database = DHDatabase(name=tokens[0])
-      self.con_params.database = database
-      self.con =  self.client.connect(self.con_params)
-      self.print_line('%s' % ('success'))
     except Exception, e:
       self.print_line('error: %s' % (e.message))
 
   def default(self, line):
-    try:
-      
-      if self.con.database.name:   
-        res = self.client.execute_sql(
-            con=self.con, query=line, query_params=None)
-        self.print_result(res)
-      else:
-        self.print_line('error: not connected to any database')
-
+    try:      
+      res = self.client.execute_sql(
+          con=self.con, query=line, query_params=None)
+      self.print_result(res)
     except Exception, e:
       self.print_line('error: %s' % (e.message))
 

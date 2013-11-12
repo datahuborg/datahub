@@ -35,7 +35,7 @@ def list_tables(username, repo):
   con = Connection(
       user=username,
       password=user.password,
-      db_name=db_name)
+      db_name=username)
   res = con.list_tables(repo=repo)
   return res
 
