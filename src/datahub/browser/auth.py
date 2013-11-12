@@ -12,7 +12,7 @@ from multiprocessing import Pool
 
 from schema.models import *
 from browser.utils import *
-from core.db import account_manager as manager
+from core import manager
 
 p = os.path.abspath(os.path.dirname(__file__))
 if(os.path.abspath(p+"/..") not in sys.path):

@@ -1,5 +1,6 @@
 import psycopg2
 import re
+from config.settings import *
 
 '''
 @author: anant bhardwaj
@@ -7,10 +8,12 @@ import re
 
 DataHub internal APIs for postgres database
 '''
+host = DATABASES['default']['HOST']
+port = 5432 if DATABASES['default']['PORT'] == '' else int(DATABASES['default']['PORT'])
 
 class PGBackend:
   def __init__(
-      self, user, password, host='localhost', port=5432, db_name=None):
+      self, user, password, host=host, port=port, db_name=None):
 
     self.user = user
     self.password = password
