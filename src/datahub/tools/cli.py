@@ -85,10 +85,15 @@ class DatahubTerminal(cmd2.Cmd):
       self.print_line('error: %s' % (e.message))
 
   def default(self, line):
-    try:      
-      res = self.client.execute_sql(
-          con=self.con, query=line, query_params=None)
-      self.print_result(res)
+    try:
+      
+      if self.con.database.name:   
+        res = self.client.execute_sql(
+            con=self.con, query=line, query_params=None)
+        self.print_result(res)
+      else:
+        self.print_line('error: not connected to any database')
+
     except Exception, e:
       self.print_line('error: %s' % (e.message))
 
