@@ -161,6 +161,7 @@ def register (request):
       except User.DoesNotExist:
         pass
 
+      hashed_password = hashlib.sha1(password).hexdigest()
       try:
         manager.create_user(username=username, password=hashed_password)
       except Exception, e:
@@ -170,7 +171,6 @@ def register (request):
       if(error):
         return register_form(request, redirect_url = urllib.quote_plus(redirect_url), errors = errors)
 
-      hashed_password = hashlib.sha1(password).hexdigest()
       user = User(username=username, email=email, password=hashed_password)
       user.save()
 
