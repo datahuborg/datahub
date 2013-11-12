@@ -65,7 +65,7 @@ class PGBackend:
 
     return self.execute_sql(s);
 
-  def list_schemas(self, schema='public'):
+  def list_schemas(self):
     s = ''' SELECT schema_name FROM information_schema.schemata
         WHERE schema_owner = '%s' ''' %(self.user)
 
