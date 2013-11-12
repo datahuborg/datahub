@@ -37,7 +37,7 @@ class Connection:
   @staticmethod
   def create_user(username, password):
     s_backend = PGBackend(user='postgres', password='postgres')
-    s_backend.execute_sql('create database %s' %(username))
+    s_backend.execute_sql('CREATE DATABASE %s WITH OWNER=%s' %(username, username))
     return s_backend.create_user(username, password)
 
   @staticmethod
