@@ -54,7 +54,8 @@ class DatahubTerminal(cmd2.Cmd):
     try:
       repo = line.strip()
       if repo != '':
-        self.client.list_tables(con=self.con, repo=repo)
+        res = self.client.list_tables(con=self.con, repo=repo)
+        self.print_result(res)
       else:
         res = self.client.list_repos(self.con)
         self.print_result(res)

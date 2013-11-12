@@ -60,12 +60,12 @@ class PGBackend:
     return result
 
   def list_tables(self, schema='public'):
-    s = ''' SELECT table_name FROM information_schema.tables
+    s = ''' SELECT table_name as table FROM information_schema.tables
         WHERE table_schema = '%s' ''' %(schema)
     return self.execute_sql(s)
 
   def list_schemas(self):
-    s = ''' SELECT schema_name FROM information_schema.schemata
+    s = ''' SELECT schema_name as repository FROM information_schema.schemata
         WHERE schema_owner = '%s' ''' %(self.user)
     return self.execute_sql(s)
 
