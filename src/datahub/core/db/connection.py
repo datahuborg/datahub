@@ -17,8 +17,8 @@ class Connection:
   def execute_sql(self, query, params=None):
     return self.backend.execute_sql(query, params)
 
-  def list_tables(self, repo):
-    return self.backend.list_tables(schema=repo)
+  def list_tables(self, schema):
+    return self.backend.list_tables(schema=schema)
 
   def list_schemas(self):
     return self.backend.list_schemas()

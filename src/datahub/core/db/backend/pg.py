@@ -62,14 +62,12 @@ class PGBackend:
   def list_tables(self, schema='public'):
     s = ''' SELECT table_name FROM information_schema.tables
         WHERE table_schema = '%s' ''' %(schema)
-
-    return self.execute_sql(s);
+    return self.execute_sql(s)
 
   def list_schemas(self):
     s = ''' SELECT schema_name FROM information_schema.schemata
         WHERE schema_owner = '%s' ''' %(self.user)
-
-    return self.execute_sql(s);
+    return self.execute_sql(s)
 
   '''
   The following methods run in superuser mode
