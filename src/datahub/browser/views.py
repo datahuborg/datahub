@@ -19,7 +19,7 @@ Datahub Web Handler
 def home(request):
   try:
     user = request.session[kUsername]
-    return HttpResponseRedirect(user)
+    return HttpResponseRedirect('/%s' %(user))
   except KeyError:
     return HttpResponseRedirect('/login')
   except Exception, e:
