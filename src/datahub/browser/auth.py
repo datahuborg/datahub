@@ -362,15 +362,13 @@ def reset (request, encrypted_email):
     return render_to_response('confirmation.html', c)
 
 def get_login(request):
-  email = None
-  username = ''
+  login = None
   try:
-    email = request.session[kEmail]
-    username = request.session[kUsername]
+    login = request.session[kUsername]
   except:
     pass
 
-  return [email, username]
+  return login
 
 
 

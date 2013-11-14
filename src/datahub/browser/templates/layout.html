@@ -17,23 +17,36 @@ DataHub Template Layout
 <meta name="apple-mobile-web-app-capable" content="yes" />
 
 <link rel="stylesheet" type="text/css" href="/static/css/datahub.css" />
-<link href="/static/css/third-party/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" type="text/css" href="/static/css/third-party/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" href="/static/css/third-party/jquery.dropdown.css"/>
+
 <script type="text/javascript" src="/static/javascript/third-party/jquery.min.js"></script>	
 <script type="text/javascript" src="/static/javascript/third-party/jquery-ui.js"></script>
 <script type="text/javascript" src="/static/javascript/third-party/jquery.dataTables.min.js"></script>	
+<script type="text/javascript" src="/static/javascript/third-party/jquery.dropdown.js"></script>	
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
 <body>
+	<div id="dropdown-nav" class="dropdown-menu has-tip">
+	    <ul>
+	        <li><a href="/">Home</a></li>
+	        <li class="divider"></li>
+	        <li><a href="/logout">Log out</a></li>
+	    </ul>
+	</div>
 <div id="header">
 	<div id="wrap">  
 		<span id="headlink-left">
 			<a id="logo" href="/">DataHub</a>
 		</span>    
 		<span id="headlink-right">
-      {% block links %}
-			<span id="logged_in_name"></span> &nbsp;
-			<a class="blue bold navitem" href="/logout">Log Out</a>
+      {% block headlink-right %}
+	  {% if login %}
+	   <a href="/" class="blue bold navitem" data-dropdown="#dropdown-nav">{{ login }} ▾ </a>
+	  {% else %}
+	  <a class="blue bold navitem" href="/login">Log In</a>
+	  {% endif %}			
       {% endblock %}
 		</span>
 	</div>

@@ -15,13 +15,15 @@ from django.utils.http import urlquote_plus
 
 Datahub Web Handler
 '''
+
 @login_required
 def home(request):
   try:
-    user = request.session[kUsername]
-    return HttpResponseRedirect('/%s' %(user))
-  except KeyError:
-    return HttpResponseRedirect('/login')
+    login = get_login(request)
+    if login:
+      return HttpResponseRedirect('/%s' %(login))
+    else:
+      return HttpResponseRedirect('/login')
   except Exception, e:
     return HttpResponse(
         {'error': str(e)},
@@ -33,6 +35,7 @@ def user(request, username):
       res = manager.list_repos(username)
       repos = [t[0] for t in res['tuples']]
       return render_to_response("user.html", {
+          'login': get_login(request),
           'username': username,
           'repos': repos})      
   except Exception, e:
@@ -45,6 +48,7 @@ def repo(request, username, repo):
     res = manager.list_tables(username, repo)
     tables = [t[0] for t in res['tuples']]
     return render_to_response("repo.html", {
+        'login': get_login(request),
         'username': username,
         'repo': repo,
         'tables': tables})
@@ -61,6 +65,7 @@ def table(request, username, repo, table):
     column_names = res['column_names']
     tuples = res['tuples']
     return render_to_response("table.html", {
+        'login': get_login(request),
         'username': username,
         'repo': repo,
         'table': table,
