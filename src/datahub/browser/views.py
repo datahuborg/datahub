@@ -15,50 +15,61 @@ from django.utils.http import urlquote_plus
 
 Datahub Web Handler
 '''
-
 @login_required
-def user(request, username=None):
-	try:
-		if(username):
-			res = manager.list_repos(username)
-			repos = [t[0] for t in res['tuples']]
-			return render_to_response("user.html", {
-					'username': username,
-					'repos': repos})
-		else:
-			user = request.session[kUsername]
-			return HttpResponseRedirect(user)
-	except KeyError:
-		return HttpResponseRedirect('/login')
+def home(request):
+  try:
+    user = request.session[kUsername]
+    return HttpResponseRedirect(user)
+  except KeyError:
+    return HttpResponseRedirect('/login')
+  except Exception, e:
+    return HttpResponse(
+        {'error': str(e)},
+        mimetype="application/json")
 
-@login_required
+def user(request, username):
+  try:
+    if(username):
+      res = manager.list_repos(username)
+      repos = [t[0] for t in res['tuples']]
+      return render_to_response("user.html", {
+          'username': username,
+          'repos': repos})      
+  except Exception, e:
+    return HttpResponse(
+        {'error': str(e)},
+        mimetype="application/json")
+
 def repo(request, username, repo):
-	try:
-		res = manager.list_tables(username, repo)
-		tables = [t[0] for t in res['tuples']]
-		return render_to_response("repo.html", {
-				'username': username,
-				'repo': repo,
-				'tables': tables})
-	except Exception, e:
-		return HttpResponse({'error': str(e)}, mimetype="application/json")
+  try:
+    res = manager.list_tables(username, repo)
+    tables = [t[0] for t in res['tuples']]
+    return render_to_response("repo.html", {
+        'username': username,
+        'repo': repo,
+        'tables': tables})
+  except Exception, e:
+    return HttpResponse(
+        {'error': str(e)},
+        mimetype="application/json")
 
-@login_required
 def table(request, username, repo, table):
-	try:
-		res = manager.execute_sql(
-				username=username,
-				query='SELECT * from %s.%s.%s' %(username, repo, table))
-		column_names = res['column_names']
-		tuples = res['tuples']
-		return render_to_response("table.html", {
-				'username': username,
-				'repo': repo,
-				'table': table,
-				'column_names': column_names,
-				'tuples': tuples})
-	except Exception, e:
-		return HttpResponse({'error': str(e)}, mimetype="application/json")
+  try:
+    res = manager.execute_sql(
+        username=username,
+        query='SELECT * from %s.%s.%s' %(username, repo, table))
+    column_names = res['column_names']
+    tuples = res['tuples']
+    return render_to_response("table.html", {
+        'username': username,
+        'repo': repo,
+        'table': table,
+        'column_names': column_names,
+        'tuples': tuples})
+  except Exception, e:
+    return HttpResponse(
+        {'error': str(e)},
+        mimetype="application/json")
 
 
 
