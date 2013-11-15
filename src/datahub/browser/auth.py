@@ -349,7 +349,9 @@ def reset (request, encrypted_email):
         user.save()
         c = {
           'msg_title': 'DataHub Reset Password',
-          'msg_body': 'Your password has been changed successfully.'
+          'msg_body': 'Your password has been changed successfully.<br />'
+                      '<a href="/login" class="blue bold">Click Here</a>'
+                      ' to log in.'
         } 
         c.update(csrf(request))
         return render_to_response('confirmation.html', c)
