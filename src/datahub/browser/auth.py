@@ -319,6 +319,19 @@ def reset (request, encrypted_email):
         errors.append("Password and Confirm Password don't match.")
         error = True
 
+      if not error:
+        hashed_password = hashlib.sha1(password).hexdigest()
+        try:
+          manager.create_user(username=username, password=hashed_password)
+        except Exception, e:
+          pass
+
+        try:
+          manager.change_password(username=username, password=hashed_password)
+        except Exception, e:
+          errors.append(str(e))
+          error = True
+
       if error:
         c = {
           'user_email': user_email,
