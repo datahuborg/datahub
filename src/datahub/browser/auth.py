@@ -168,6 +168,12 @@ def register (request):
         except Exception, e:
           errors.append(str(e))
 
+        try:
+          manager.change_password(username=username, password=hashed_password)
+        except Exception, e:
+          errors.append(str(e))
+          error = True
+
       if(error):
         return register_form(request, redirect_url = urllib.quote_plus(redirect_url), errors = errors)
 

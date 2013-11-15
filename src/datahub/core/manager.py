@@ -48,6 +48,11 @@ def create_user(username, password):
       username=username, password=password)
   return res
 
+def change_password(username, password):
+  res = Connection.change_password(
+      username=username, password=password)
+  return res
+
 def list_databases(username):
   res = Connection.list_databases(username=username)
   return res
