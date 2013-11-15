@@ -321,13 +321,14 @@ def reset (request, encrypted_email):
 
       if not error:
         hashed_password = hashlib.sha1(password).hexdigest()
+        user = User.objects.get(email=user_email)
         try:
-          manager.create_user(username=username, password=hashed_password)
+          manager.create_user(username=user.username, password=hashed_password)
         except Exception, e:
           pass
 
         try:
-          manager.change_password(username=username, password=hashed_password)
+          manager.change_password(username=user.username, password=hashed_password)
         except Exception, e:
           errors.append(str(e))
           error = True
