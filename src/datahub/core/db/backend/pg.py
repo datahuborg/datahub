@@ -88,7 +88,7 @@ class PGBackend:
 
     return self.execute_sql(s)
 
-  def chnage_password(self, username, password):
+  def change_password(self, username, password):
     s = ''' ALTER ROLE %s WITH PASSWORD '%s' 
         ''' %(username, password)
 

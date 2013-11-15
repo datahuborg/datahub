@@ -166,7 +166,7 @@ def register (request):
         try:
           manager.create_user(username=username, password=hashed_password)
         except Exception, e:
-          errors.append(str(e))
+          pass
 
         try:
           manager.change_password(username=username, password=hashed_password)
