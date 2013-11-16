@@ -22,10 +22,7 @@ DataHub Home
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
-</head>
-
-<body>
-	<style>
+<style>
 	@font-face {
 	  font-family: 'Cantora One';
 	  font-style: normal;
@@ -33,17 +30,40 @@ DataHub Home
 	  src: local('Cantora One'), local('CantoraOne-Regular'), url(/static/fonts/cantoraone.woff) format('woff');
 	}
 
-	body, #content{
-		background-color:#000;
-		color: #FFF;
+	body{
+		position: relative;
+		top: 0;
+		bottom: 0;
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		height: 100%;
+		background-color: #34495e;
+	}
+
+	
+	
+	#home-page{
+		position: absolute;
+		margin: 0;
+		padding: 0;
+		top: 5em;
+		bottom: 5em;
+		left:0;
+		right: 0;
+		width: 100%;
+		max-width: 100%;
+		background-color:#FFF;
+		color: #000;
 		text-align:center;
 		vertical-align:middle;
 	}
-	
-	#page{
-		top: 0;
+
+	#home-content {
+		position: absolute;
+		margin-top: -9em;
 		top:50%;
-		margin-top:-10em;
+		width: 100%;
 	}
 
 
@@ -53,7 +73,6 @@ DataHub Home
 		padding-top: 1em;
 		font-size: 3em;
 		font-weight: 400;
-		color: #FFF;
 	}
 	.subheading{
 		margin-top: 0;
@@ -61,12 +80,14 @@ DataHub Home
 		font-size: 1em;
 		font-weight: normal;
 		font-style:italic;
-		color: #FFF;
 	}
-	</style>
-	
-	<div id="page">
-	<div id="content">
+</style>
+
+</head>
+
+<body>	
+	<div id="home-page">
+	<div id="home-content">
 		<div class="heading">DataHub</div>
 		<div class="subheading">A better place to organize your data.</div>
 		<br />
