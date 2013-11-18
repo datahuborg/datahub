@@ -111,7 +111,7 @@ input[type="text"], input[type="password"], select{
 }
 
 button, .button, input[type="button"], input[type="submit"]{
-  background-color: #F6F6F6; 
+  background-color: #E9E581; 
   font-size: 1em;
 	padding:0.4em 0.7em;
 	border-radius: 0.3em;
@@ -132,7 +132,7 @@ button, .button, input[type="button"], input[type="submit"]{
 
 .button:hover{
   color: #2B2B2B;
-  background-color: #E9E581; /*#00C8ED;*/
+  background-color: #E9E500; /*#00C8ED;*/
 }
 
 
@@ -140,12 +140,15 @@ button, .button, input[type="button"], input[type="submit"]{
 	margin:0 auto;
 	position: fixed;
 	top:0;
-	height: 2.5em;
+	height: 3em;
 	font-size:1em;
-	background: #F9F9F9; /*3D7AA6;*/
+	background-color: #f3f3f3; /*3D7AA6;*/
+  background-image: linear-gradient(#f9f9f9, #f3f3f3);
+  background-repeat: repeat-x;
 	margin-bottom: 0.1em;
+  text-shadow: 0 1px 0 #fff;
+  border-bottom: 1px solid #e5e5e5;
 	color: #000;
-	border-bottom: 1px solid #ccc;
 	width: 100%;
 	z-index: 100;
   padding-left:1.5em;
@@ -157,7 +160,6 @@ button, .button, input[type="button"], input[type="submit"]{
 	padding: 0;
 	width: 100%;
 	max-width: 1024px;
-	/*min-width: 600px;*/
 }
 
 .mobile-nav{
@@ -166,19 +168,18 @@ button, .button, input[type="button"], input[type="submit"]{
 
 #headlink-right{
 	position:absolute;
-	top: 0.6em;
+	top: 50%;
+  margin-top: -0.35em;
 	right: 0.7em;
 	color: #000;
   margin-right: 1.5em;
 }
 
 
-
 #headlink-left a#logo{
+  margin-top: 0.1em;
   text-decoration: none;
   color: #000;
-  width: 7em;
-  height: 1.2em;
   display: inline-block;
 }
 
