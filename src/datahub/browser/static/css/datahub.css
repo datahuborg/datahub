@@ -111,7 +111,7 @@ input[type="text"], input[type="password"], select{
 }
 
 button, .button, input[type="button"], input[type="submit"]{
-  background-color: #E9E581; 
+  background-color: #F6F6F6; 
   font-size: 1em;
 	padding:0.4em 0.7em;
 	border-radius: 0.3em;
@@ -132,7 +132,7 @@ button, .button, input[type="button"], input[type="submit"]{
 
 .button:hover{
   color: #2B2B2B;
-  background-color: #E9E500; /*#00C8ED;*/
+  background-color: #E9E581; /*#00C8ED;*/
 }
 
 
