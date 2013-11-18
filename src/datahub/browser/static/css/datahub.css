@@ -146,7 +146,6 @@ button, .button, input[type="button"], input[type="submit"]{
   background-image: linear-gradient(#f9f9f9, #f3f3f3);
   background-repeat: repeat-x;
 	margin-bottom: 0.1em;
-  text-shadow: 0 1px 0 #fff;
   border-bottom: 1px solid #e5e5e5;
 	color: #000;
 	width: 100%;
