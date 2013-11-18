@@ -38,7 +38,11 @@ DataHub Home
 		padding: 0;
 		width: 100%;
 		height: 100%;
-		background-color: #34495e;
+		background-color: #FFF;
+	}
+
+	#header {
+		height: 5em;
 	}
 
 	
@@ -53,27 +57,34 @@ DataHub Home
 		right: 0;
 		width: 100%;
 		max-width: 100%;
-		background-color:#FFF;
-		color: #000;
+		background-color:#000;
+		color: #FFF;
 		text-align:center;
 		vertical-align:middle;
 	}
 
 	#home-content {
 		position: absolute;
-		margin-top: -9em;
+		margin-top: -5em;
 		top:50%;
 		width: 100%;
 	}
 
-
 	.heading{
-		font-family: 'Cantora One', cursive;
+		margin: 0 auto;
 		margin-top: 0;
 		padding-top: 1em;
-		font-size: 3em;
+		font-size: 1.3em;
 		font-weight: 400;
+		width: 1024px;
+		color: #E9E581;
 	}
+
+	#wrap {
+		top: 50%;
+		margin-top: -1.4em;
+	}
+
 	.subheading{
 		margin-top: 0;
 		padding-top: 1em;
@@ -85,15 +96,24 @@ DataHub Home
 
 </head>
 
-<body>	
+<body>
+	<div id="header">
+		<div id="wrap">
+			<span id="headlink-left">
+				<a id="logo" href="/">DataHub</a>
+			</span>
+			<span id="headlink-right">
+				<a class="button" href="/login">Log In</a>
+			</span>
+		</div>
+	</div>
 	<div id="home-page">
 	<div id="home-content">
-		<div class="heading">DataHub</div>
-		<div class="subheading">A better place to organize your data.</div>
+		<div class="heading">DataHub is a (GitHub like) hosted platform for organizing, managing, sharing, collaborating, and making sense of data.</div>
 		<br />
 		<br />
 		<div>
-		<a class="button" href="/register">Sign up to DataHub</a>
+		<a class="button" href="/register">Sign up for DataHub</a>
 		</div>
 		<br />
 	</div>
