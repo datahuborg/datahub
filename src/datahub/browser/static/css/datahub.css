@@ -111,13 +111,14 @@ input[type="text"], input[type="password"], select{
 }
 
 button, .button, input[type="button"], input[type="submit"]{
-  background-color: #F6F6F6; 
+  background-color: #4285f4;
   font-size: 1em;
 	padding:0.4em 0.7em;
-	border-radius: 0.3em;
-  border: 1px solid #2B2B2B;
+	border-radius: 0.25em;
+  border: 1px solid #3079ed;
   text-decoration: none;
-  color: #2B2B2B;
+  color: #FFF !important;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#4387fd,endColorstr=#4683ea,GradientType=1);
   cursor: pointer;
 }
 
@@ -131,8 +132,7 @@ button, .button, input[type="button"], input[type="submit"]{
 
 
 .button:hover{
-  color: #2B2B2B;
-  background-color: #E9E581; /*#00C8ED;*/
+  background-color: #3079ed; /*#00C8ED;*/
 }
 
 
