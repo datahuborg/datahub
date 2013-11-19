@@ -362,3 +362,18 @@ table.dataTable tbody tr td {
   overflow-y: scroll !important;
   box-shadow: 0px 5px 20px #333;
 }
+
+#welcome {
+  margin:0 auto;
+  background-color:#000;
+  border-radius: 1.5em;
+  color: #FFF;
+  padding:3em;
+  padding-bottom: 4em;
+  text-align:center;
+  box-shadow: 0px 5px 5px #eee;
+}
+
+
+
+

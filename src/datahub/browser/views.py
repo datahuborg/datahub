@@ -33,7 +33,7 @@ def home(request):
     if login:
       return HttpResponseRedirect('/%s' %(login))
     else:
-      return HttpResponseRedirect('/console')
+      return render_to_response("home.html")
   except Exception, e:
     return HttpResponse(
         json.dumps(
