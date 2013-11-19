@@ -65,6 +65,13 @@ function print_result (res, term) {
 }
 
 $(document).ready(function($) {
+	var kCmdList = [
+	    '** Any SQL Query **',
+	    'mkrepo &lt;repo-name&gt; \t -- to create a new repository',
+	    'ls \t\t\t -- to list repositories',
+	    'ls &lt;repo-name&gt; \t\t -- to list tables in a repository',
+	    'rm &lt;repo-name&gt; \t\t -- to remove a repository',
+	]
 	var login = '{{login}}'
 	var transport = new Thrift.Transport("http://datahub-experimental.csail.mit.edu/api");
 	var protocol = new Thrift.Protocol(transport);
@@ -92,7 +99,11 @@ $(document).ready(function($) {
 				res = client.list_tables(con, args[1])
 			else
 	    		res = client.list_repos(con)
-			print_result(res, term)    
+			print_result(res, term)   
+	    } else if (cmd.startsWith('help')) {
+			for (var cmd in kCmdList) {
+				term.echo(kCmdList[cmd])
+			}
 	    } else {
 	    	res = client.execute_sql(con, cmd);
 	      	print_result(res, term) 
