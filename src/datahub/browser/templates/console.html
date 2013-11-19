@@ -1,4 +1,12 @@
 {% extends "layout.html" %}
+{% block headlink-right %}
+{% if login %}
+ <a href="/" class="blue bold navitem" data-dropdown="#dropdown-nav">{{ login }} ▾ </a>
+{% else %}
+<a class="button" href="/register">Sign up for DataHub</a>
+{% endif %}			
+{% endblock %}
+
 {% block content %}
 <div id="content">
 <div id="dh-console-container">

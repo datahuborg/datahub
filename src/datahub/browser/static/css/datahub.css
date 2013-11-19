@@ -336,17 +336,17 @@ table.dataTable tbody tr td {
 
 #dh-console-container {
   margin: 0 auto;
-  padding-top: 5em;
-  padding-bottom: 5em;
+  padding-top: 1em;
+  padding-bottom: 1em;
   position: relative;
 }
 
 #dh-console {
   margin: 0 auto;
-  width: 600px;
+  width: 850px;
   color: #E9E581;
   background-color: #000;
   border-radius: 0.5em;
-  height: 30em;
+  height: 40em;
   overflow-y: scroll !important;
 }

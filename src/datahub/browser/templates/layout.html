@@ -45,13 +45,13 @@ DataHub Template Layout
 			<a id="logo" href="/">DataHub</a>
 		</span>    
 		<span id="headlink-right">
-      {% block headlink-right %}
+    {% block headlink-right %}
 	  {% if login %}
 	   <a href="/" class="blue bold navitem" data-dropdown="#dropdown-nav">{{ login }} ▾ </a>
 	  {% else %}
 	  <a class="button" href="/login">Log In</a>
 	  {% endif %}			
-      {% endblock %}
+    {% endblock %}
 		</span>
 	</div>
 </div>
