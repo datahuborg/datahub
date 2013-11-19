@@ -45,18 +45,19 @@ def console(request):
   return render_to_response("console.html", {
     'login': get_login(request)})
 
+
 @csrf_exempt
 def api(request):
   try:
-    print request.body
     iprot = TJSONProtocol(
         TMemoryBuffer(request.body))
     oprot = TJSONProtocol(TMemoryBuffer())
     processor.process(iprot, oprot)
-    print oprot.trans.getvalue()
-    return HttpResponse(
+    resp = HttpResponse(
         oprot.trans.getvalue(),
         mimetype="application/json")
+    resp['Access-Control-Allow-Origin'] = "*"
+    return resp
   except Exception, e:
     print str(e)
     return HttpResponse(
