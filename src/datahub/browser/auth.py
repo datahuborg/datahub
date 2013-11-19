@@ -12,11 +12,9 @@ from multiprocessing import Pool
 
 from schema.models import *
 from browser.utils import *
-from core import manager
+from core.db import manager
 
 p = os.path.abspath(os.path.dirname(__file__))
-if(os.path.abspath(p+"/..") not in sys.path):
-  sys.path.append(os.path.abspath(p+"/.."))
 
 
 '''
