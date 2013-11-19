@@ -1,0 +1,34 @@
+<html>
+<head>
+	<title>Sample DataHub HTML</title>
+  <script type="text/javascript" src="http://datahub-experimental.csail.mit.edu/static/javascript/third-party/jquery.min.js"></script> 
+  <script type="text/javascript" src="http://datahub-experimental.csail.mit.edu/static/javascript/third-party/thrift.js"></script>
+  <script type="text/javascript" src="http://datahub-experimental.csail.mit.edu/static/javascript/datahub/datahub_types.js"></script>
+  <script type="text/javascript" src="http://datahub-experimental.csail.mit.edu/static/javascript/datahub/DataHub.js"></script>
+
+</head>
+<body>
+
+</body>
+</html>
+
+
+<script type="text/javascript">
+
+/**
+@author: anant bhardwaj
+@date: Oct 11, 2013
+
+Sample javascript code accesing DataHub APIs
+*/
+
+
+transport = new Thrift.Transport("http://datahub-experimental.csail.mit.edu/api"),
+protocol = new Thrift.Protocol(transport),
+client = new DataHubClient(protocol),
+con_params = new DHConnectionParams({'user': 'anantb', 'password': 'anant'}),
+con = client.connect(con_params),
+res = client.execute_sql(con, 'select * from samsung.employee');
+$(body).html(res)
+
+</script>
