@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     url(r'^verify/(\w+)', 'browser.auth.verify'),
 
     url(r'^$', 'browser.views.home'),
+    url(r'^console$', 'browser.views.console'),
     url(r'^(\w+)/(\w+)/(\w+)$', 'browser.views.table'),
     url(r'^(\w+)/(\w+)', 'browser.views.repo'),
     url(r'^(\w+)', 'browser.views.user')

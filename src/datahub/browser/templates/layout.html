@@ -19,11 +19,14 @@ DataHub Template Layout
 <link rel="stylesheet" type="text/css" href="/static/css/datahub.css" />
 <link rel="stylesheet" type="text/css" href="/static/css/third-party/jquery-ui.css"/>
 <link rel="stylesheet" type="text/css" href="/static/css/third-party/jquery.dropdown.css"/>
+<link rel="stylesheet" type="text/css" href="/static/css/third-party/jquery.terminal.css" />
 
 <script type="text/javascript" src="/static/javascript/third-party/jquery.min.js"></script>	
 <script type="text/javascript" src="/static/javascript/third-party/jquery-ui.js"></script>
 <script type="text/javascript" src="/static/javascript/third-party/jquery.dataTables.min.js"></script>	
-<script type="text/javascript" src="/static/javascript/third-party/jquery.dropdown.js"></script>	
+<script type="text/javascript" src="/static/javascript/third-party/jquery.dropdown.js"></script>
+<script type="text/javascript" src="/static/javascript/third-party/jquery.mousewheel-min.js"></script>
+<script type="text/javascript" src="/static/javascript/third-party/jquery.terminal-min.js"></script>
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
@@ -31,6 +34,7 @@ DataHub Template Layout
 	<div id="dropdown-nav" class="dropdown-menu has-tip">
 	    <ul>
 	        <li><a href="/">Home</a></li>
+			<li><a href="/console">Console</a></li>
 	        <li class="divider"></li>
 	        <li><a href="/logout">Log out</a></li>
 	    </ul>
@@ -45,7 +49,7 @@ DataHub Template Layout
 	  {% if login %}
 	   <a href="/" class="blue bold navitem" data-dropdown="#dropdown-nav">{{ login }} ▾ </a>
 	  {% else %}
-	  <a class="blue bold navitem" href="/login">Log In</a>
+	  <a class="button" href="/login">Log In</a>
 	  {% endif %}			
       {% endblock %}
 		</span>

@@ -333,3 +333,20 @@ table.dataTable tbody tr td {
 .dataTables_filter input[type="text"] {
   width:70%;
 }
+
+#dh-console-container {
+  margin: 0 auto;
+  padding-top: 5em;
+  padding-bottom: 5em;
+  position: relative;
+}
+
+#dh-console {
+  margin: 0 auto;
+  width: 600px;
+  color: #E9E581;
+  background-color: #000;
+  border-radius: 0.5em;
+  height: 30em;
+  overflow-y: scroll !important;
+}

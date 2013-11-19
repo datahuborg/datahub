@@ -22,12 +22,18 @@ def home(request):
     if login:
       return HttpResponseRedirect('/%s' %(login))
     else:
-      return render_to_response('home.html')
+      return HttpResponseRedirect('/console')
   except Exception, e:
     print str(e)
     return HttpResponse(
         {'error': str(e)},
         mimetype="application/json")
+
+
+def console(request):
+  return render_to_response("console.html", {
+    'login': get_login(request)})    
+
 
 def user(request, username):
   try:
