@@ -349,4 +349,5 @@ table.dataTable tbody tr td {
   border-radius: 0.5em;
   height: 40em;
   overflow-y: scroll !important;
+  box-shadow: 0px 5px 20px #333;
 }
