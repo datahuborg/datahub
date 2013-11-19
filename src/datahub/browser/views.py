@@ -1,6 +1,10 @@
 import json, sys, re, hashlib, smtplib, base64, urllib, os
 
 from auth import *
+
+from core.handler import DataHubHandler
+from datahub import DataHub
+
 from django.http import *
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
@@ -9,12 +13,19 @@ from django.core.validators import email_re
 from django.db.utils import IntegrityError
 from django.utils.http import urlquote_plus
 
+from thrift.protocol.TJSONProtocol import TJSONProtocol
+from thrift.transport import TTransport
+from thrift.transport.TTransport import TMemoryBuffer
+
 '''
 @author: Anant Bhardwaj
 @date: Mar 21, 2013
 
 Datahub Web Handler
 '''
+
+handler = DataHubHandler()
+processor = DataHub.Processor(handler)
 
 def home(request):
   try:
@@ -24,15 +35,34 @@ def home(request):
     else:
       return HttpResponseRedirect('/console')
   except Exception, e:
-    print str(e)
     return HttpResponse(
-        {'error': str(e)},
+        json.dumps(
+          {'error': str(e)}),
         mimetype="application/json")
 
 
 def console(request):
   return render_to_response("console.html", {
-    'login': get_login(request)})    
+    'login': get_login(request)})
+
+@csrf_exempt
+def api(request):
+  try:
+    print request.body
+    iprot = TJSONProtocol(
+        TMemoryBuffer(request.body))
+    oprot = TJSONProtocol(TMemoryBuffer())
+    processor.process(iprot, oprot)
+    print oprot.trans.getvalue()
+    return HttpResponse(
+        oprot.trans.getvalue(),
+        mimetype="application/json")
+  except Exception, e:
+    print str(e)
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
 
 
 def user(request, username):
@@ -46,7 +76,8 @@ def user(request, username):
           'repos': repos})      
   except Exception, e:
     return HttpResponse(
-        {'error': str(e)},
+        json.dumps(
+          {'error': str(e)}),
         mimetype="application/json")
 
 def repo(request, username, repo):
@@ -60,7 +91,8 @@ def repo(request, username, repo):
         'tables': tables})
   except Exception, e:
     return HttpResponse(
-        {'error': str(e)},
+        json.dumps(
+          {'error': str(e)}),
         mimetype="application/json")
 
 def table(request, username, repo, table):
@@ -79,7 +111,8 @@ def table(request, username, repo, table):
         'tuples': tuples})
   except Exception, e:
     return HttpResponse(
-        {'error': str(e)},
+        json.dumps(
+          {'error': str(e)}),
         mimetype="application/json")
 
 
