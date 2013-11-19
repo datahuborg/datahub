@@ -51,7 +51,6 @@ hr{
 }
 
 a:link, a:visited {
-  color: #000;
   text-decoration:none; 
 }
 
@@ -118,8 +117,16 @@ button, .button, input[type="button"], input[type="submit"]{
   border: 1px solid #3079ed;
   text-decoration: none;
   color: #FFF !important;
+  box-shadow: 0 0 5px rgba(0,0,0,0.05);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#4387fd,endColorstr=#4683ea,GradientType=1);
   cursor: pointer;
+}
+
+.button.inactive {
+  background-color: #f6f6f6;
+  border: 1px solid #ccc;
+  border-bottom-color: #c5c5c5;
+  color: #000 !important;
 }
 
 .blue {
@@ -132,7 +139,11 @@ button, .button, input[type="button"], input[type="submit"]{
 
 
 .button:hover{
-  background-color: #3079ed; /*#00C8ED;*/
+  background-color: #3079ed;
+}
+
+.button.inactive:hover{
+  background-color: #e6e6e6;
 }
 
 

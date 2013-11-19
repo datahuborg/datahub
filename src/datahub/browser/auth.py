@@ -204,8 +204,8 @@ def register (request):
       return HttpResponseRedirect(redirect_url)
     except IntegrityError:
       errors.append(
-          'Account with the email address %s already exists. Please <a class="blue bold" href="/login?login_email=%s">Log In</a>.'
-          % (email, urllib.quote_plus(email)))
+          'Account with the email address <a href="mailto:%s">%s</a> already exists.<br /> <br />Please <a class="blue bold" href="/login?login_email=%s">Sign In</a>.'
+          % (email, email, urllib.quote_plus(email)))
       return register_form(request, redirect_url = urllib.quote_plus(redirect_url), errors = errors)
     except Exception, e:
       errors.append("Error %s." %(str(e)))
@@ -226,7 +226,7 @@ def logout (request):
   clear_session(request)
   c = {
     'msg_title': 'Thank you for using DataHub!',
-    'msg_body': 'Your have been logged out.<br /><br /><ul><li><a class= "blue bold" href="/login">Click Here</a> to log in again.</li></ul>'
+    'msg_body': 'Your have been logged out.<br /><br /><ul><li><a class= "blue bold" href="/login">Click Here</a> to sign in again.</li></ul>'
   } 
   c.update(csrf(request))
   return render_to_response('confirmation.html', c)
@@ -286,7 +286,7 @@ def verify (request, encrypted_email):
     user_email = decrypt_text(encrypted_email)
     user = User.objects.get(email=user_email)
     c.update({
-        'msg_body': 'Thanks for verifying your email address! <a class= "blue bold" href="/%s">Click Here</a> to start using DataHub.' %(user.username)
+        'msg_body': 'Thanks for verifying your email address!<br /> <br /><a class= "blue bold" href="/%s">Click Here</a> to start using DataHub.' %(user.username)
     })
     clear_session(request)
     request.session[kEmail] = user.email
@@ -349,9 +349,9 @@ def reset (request, encrypted_email):
         user.save()
         c = {
           'msg_title': 'DataHub Reset Password',
-          'msg_body': 'Your password has been changed successfully.<br />'
+          'msg_body': 'Your password has been changed successfully.<br /> <br />'
                       '<a href="/login" class="blue bold">Click Here</a>'
-                      ' to log in.'
+                      ' to sign in.'
         } 
         c.update(csrf(request))
         return render_to_response('confirmation.html', c)
