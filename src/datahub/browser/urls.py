@@ -16,8 +16,8 @@ urlpatterns = patterns('',
     url(r'^console$', 'browser.views.console'),
     url(r'^console/$', 'browser.views.console'),
 
-    url(r'^api$', 'browser.views.api'),
-    url(r'^api/$', 'browser.views.api'),
+    url(r'^service$', 'browser.views.service'),
+    url(r'^service/$', 'browser.views.service'),
 
     url(r'^browse/(\w+)/(\w+)/(\w+)$', 'browser.views.table'),
     url(r'^browse/(\w+)/(\w+)/(\w+)/$', 'browser.views.table'),

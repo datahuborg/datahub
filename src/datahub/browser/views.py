@@ -48,7 +48,7 @@ def console(request):
 
 
 @csrf_exempt
-def api(request):
+def service(request):
   try:
     iprot = TJSONProtocol(
         TMemoryBuffer(request.body))

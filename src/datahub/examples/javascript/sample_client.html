@@ -25,7 +25,7 @@ You can put this code in Chrome Console too.
 */
 
 
-transport = new Thrift.Transport("http://datahub-experimental.csail.mit.edu/api"),
+transport = new Thrift.Transport("http://datahub-experimental.csail.mit.edu/service"),
 protocol = new Thrift.Protocol(transport),
 client = new DataHubClient(protocol),
 con_params = new DHConnectionParams({'user': 'anantb', 'password': 'anant'}),
