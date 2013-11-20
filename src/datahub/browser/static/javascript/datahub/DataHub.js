@@ -214,6 +214,145 @@ DataHub_connect_result.prototype.write = function(output) {
   return;
 };
 
+DataHub_create_repo_args = function(args) {
+  this.con = null;
+  this.repo = null;
+  if (args) {
+    if (args.con !== undefined) {
+      this.con = args.con;
+    }
+    if (args.repo !== undefined) {
+      this.repo = args.repo;
+    }
+  }
+};
+DataHub_create_repo_args.prototype = {};
+DataHub_create_repo_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.con = new DHConnection();
+        this.con.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.repo = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+DataHub_create_repo_args.prototype.write = function(output) {
+  output.writeStructBegin('DataHub_create_repo_args');
+  if (this.con !== null && this.con !== undefined) {
+    output.writeFieldBegin('con', Thrift.Type.STRUCT, 1);
+    this.con.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.repo !== null && this.repo !== undefined) {
+    output.writeFieldBegin('repo', Thrift.Type.STRING, 2);
+    output.writeString(this.repo);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+DataHub_create_repo_result = function(args) {
+  this.success = null;
+  this.ex = null;
+  if (args instanceof DHException) {
+    this.ex = args;
+    return;
+  }
+  if (args) {
+    if (args.success !== undefined) {
+      this.success = args.success;
+    }
+    if (args.ex !== undefined) {
+      this.ex = args.ex;
+    }
+  }
+};
+DataHub_create_repo_result.prototype = {};
+DataHub_create_repo_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.success = new DHQueryResult();
+        this.success.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.ex = new DHException();
+        this.ex.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+DataHub_create_repo_result.prototype.write = function(output) {
+  output.writeStructBegin('DataHub_create_repo_result');
+  if (this.success !== null && this.success !== undefined) {
+    output.writeFieldBegin('success', Thrift.Type.STRUCT, 0);
+    this.success.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.ex !== null && this.ex !== undefined) {
+    output.writeFieldBegin('ex', Thrift.Type.STRUCT, 1);
+    this.ex.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 DataHub_list_repos_args = function(args) {
   this.con = null;
   if (args) {
@@ -325,6 +464,161 @@ DataHub_list_repos_result.prototype.read = function(input) {
 
 DataHub_list_repos_result.prototype.write = function(output) {
   output.writeStructBegin('DataHub_list_repos_result');
+  if (this.success !== null && this.success !== undefined) {
+    output.writeFieldBegin('success', Thrift.Type.STRUCT, 0);
+    this.success.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.ex !== null && this.ex !== undefined) {
+    output.writeFieldBegin('ex', Thrift.Type.STRUCT, 1);
+    this.ex.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+DataHub_delete_repo_args = function(args) {
+  this.con = null;
+  this.repo = null;
+  this.force = null;
+  if (args) {
+    if (args.con !== undefined) {
+      this.con = args.con;
+    }
+    if (args.repo !== undefined) {
+      this.repo = args.repo;
+    }
+    if (args.force !== undefined) {
+      this.force = args.force;
+    }
+  }
+};
+DataHub_delete_repo_args.prototype = {};
+DataHub_delete_repo_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.con = new DHConnection();
+        this.con.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.repo = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.BOOL) {
+        this.force = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+DataHub_delete_repo_args.prototype.write = function(output) {
+  output.writeStructBegin('DataHub_delete_repo_args');
+  if (this.con !== null && this.con !== undefined) {
+    output.writeFieldBegin('con', Thrift.Type.STRUCT, 1);
+    this.con.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.repo !== null && this.repo !== undefined) {
+    output.writeFieldBegin('repo', Thrift.Type.STRING, 2);
+    output.writeString(this.repo);
+    output.writeFieldEnd();
+  }
+  if (this.force !== null && this.force !== undefined) {
+    output.writeFieldBegin('force', Thrift.Type.BOOL, 3);
+    output.writeBool(this.force);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+DataHub_delete_repo_result = function(args) {
+  this.success = null;
+  this.ex = null;
+  if (args instanceof DHException) {
+    this.ex = args;
+    return;
+  }
+  if (args) {
+    if (args.success !== undefined) {
+      this.success = args.success;
+    }
+    if (args.ex !== undefined) {
+      this.ex = args.ex;
+    }
+  }
+};
+DataHub_delete_repo_result.prototype = {};
+DataHub_delete_repo_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.success = new DHQueryResult();
+        this.success.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.ex = new DHException();
+        this.ex.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+DataHub_delete_repo_result.prototype.write = function(output) {
+  output.writeStructBegin('DataHub_delete_repo_result');
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.STRUCT, 0);
     this.success.write(output);
@@ -464,6 +758,145 @@ DataHub_list_tables_result.prototype.read = function(input) {
 
 DataHub_list_tables_result.prototype.write = function(output) {
   output.writeStructBegin('DataHub_list_tables_result');
+  if (this.success !== null && this.success !== undefined) {
+    output.writeFieldBegin('success', Thrift.Type.STRUCT, 0);
+    this.success.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.ex !== null && this.ex !== undefined) {
+    output.writeFieldBegin('ex', Thrift.Type.STRUCT, 1);
+    this.ex.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+DataHub_desc_table_args = function(args) {
+  this.con = null;
+  this.table = null;
+  if (args) {
+    if (args.con !== undefined) {
+      this.con = args.con;
+    }
+    if (args.table !== undefined) {
+      this.table = args.table;
+    }
+  }
+};
+DataHub_desc_table_args.prototype = {};
+DataHub_desc_table_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.con = new DHConnection();
+        this.con.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.table = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+DataHub_desc_table_args.prototype.write = function(output) {
+  output.writeStructBegin('DataHub_desc_table_args');
+  if (this.con !== null && this.con !== undefined) {
+    output.writeFieldBegin('con', Thrift.Type.STRUCT, 1);
+    this.con.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.table !== null && this.table !== undefined) {
+    output.writeFieldBegin('table', Thrift.Type.STRING, 2);
+    output.writeString(this.table);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+DataHub_desc_table_result = function(args) {
+  this.success = null;
+  this.ex = null;
+  if (args instanceof DHException) {
+    this.ex = args;
+    return;
+  }
+  if (args) {
+    if (args.success !== undefined) {
+      this.success = args.success;
+    }
+    if (args.ex !== undefined) {
+      this.ex = args.ex;
+    }
+  }
+};
+DataHub_desc_table_result.prototype = {};
+DataHub_desc_table_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.success = new DHQueryResult();
+        this.success.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.ex = new DHException();
+        this.ex.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+DataHub_desc_table_result.prototype.write = function(output) {
+  output.writeStructBegin('DataHub_desc_table_result');
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.STRUCT, 0);
     this.success.write(output);
@@ -871,6 +1304,44 @@ DataHubClient.prototype.recv_connect = function() {
   }
   throw 'connect failed: unknown result';
 };
+DataHubClient.prototype.create_repo = function(con, repo) {
+  this.send_create_repo(con, repo);
+  return this.recv_create_repo();
+};
+
+DataHubClient.prototype.send_create_repo = function(con, repo) {
+  this.output.writeMessageBegin('create_repo', Thrift.MessageType.CALL, this.seqid);
+  var args = new DataHub_create_repo_args();
+  args.con = con;
+  args.repo = repo;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  return this.output.getTransport().flush();
+};
+
+DataHubClient.prototype.recv_create_repo = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new DataHub_create_repo_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  if (null !== result.ex) {
+    throw result.ex;
+  }
+  if (null !== result.success) {
+    return result.success;
+  }
+  throw 'create_repo failed: unknown result';
+};
 DataHubClient.prototype.list_repos = function(con) {
   this.send_list_repos(con);
   return this.recv_list_repos();
@@ -907,6 +1378,45 @@ DataHubClient.prototype.recv_list_repos = function() {
     return result.success;
   }
   throw 'list_repos failed: unknown result';
+};
+DataHubClient.prototype.delete_repo = function(con, repo, force) {
+  this.send_delete_repo(con, repo, force);
+  return this.recv_delete_repo();
+};
+
+DataHubClient.prototype.send_delete_repo = function(con, repo, force) {
+  this.output.writeMessageBegin('delete_repo', Thrift.MessageType.CALL, this.seqid);
+  var args = new DataHub_delete_repo_args();
+  args.con = con;
+  args.repo = repo;
+  args.force = force;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  return this.output.getTransport().flush();
+};
+
+DataHubClient.prototype.recv_delete_repo = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new DataHub_delete_repo_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  if (null !== result.ex) {
+    throw result.ex;
+  }
+  if (null !== result.success) {
+    return result.success;
+  }
+  throw 'delete_repo failed: unknown result';
 };
 DataHubClient.prototype.list_tables = function(con, repo) {
   this.send_list_tables(con, repo);
@@ -945,6 +1455,44 @@ DataHubClient.prototype.recv_list_tables = function() {
     return result.success;
   }
   throw 'list_tables failed: unknown result';
+};
+DataHubClient.prototype.desc_table = function(con, table) {
+  this.send_desc_table(con, table);
+  return this.recv_desc_table();
+};
+
+DataHubClient.prototype.send_desc_table = function(con, table) {
+  this.output.writeMessageBegin('desc_table', Thrift.MessageType.CALL, this.seqid);
+  var args = new DataHub_desc_table_args();
+  args.con = con;
+  args.table = table;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  return this.output.getTransport().flush();
+};
+
+DataHubClient.prototype.recv_desc_table = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new DataHub_desc_table_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  if (null !== result.ex) {
+    throw result.ex;
+  }
+  if (null !== result.success) {
+    return result.success;
+  }
+  throw 'desc_table failed: unknown result';
 };
 DataHubClient.prototype.execute_sql = function(con, query, query_params) {
   this.send_execute_sql(con, query, query_params);
