@@ -55,8 +55,15 @@ class PGBackend:
     return self.execute_sql(query)
 
   def desc_table(self, table):
+    tokens = table.split('.')
+    if len(tokens) < 2:
+      raise NameError (
+          "can't resolve the name: '%s'.\n"
+          "HINT: use <repo-name>.<table-name> " %(table))
     query = ''' SELECT column_name as field_name, data_type as field_type
-        from information_schema.columns where table_name = '%s' ''' %(table)
+        from information_schema.columns
+        where table_name = '%s'
+        and schema_name = '%s' ''' %(table[-1], table[-2])
     return self.execute_sql(query)
 
   def execute_sql(self, query, params=None):
