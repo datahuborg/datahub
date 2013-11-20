@@ -85,6 +85,10 @@ $(document).ready(function($) {
       try{
         var cmd = $.trim(command.toLowerCase())
 
+        if (cmd == ''){
+          return
+        }
+
         if (cmd.startsWith('mkrepo')) {
           var args = cmd.split(' ', 2)
           if (args.length > 1) {
