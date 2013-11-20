@@ -40,7 +40,7 @@ class PGBackend:
     return self.execute_sql(query)
 
   def delete_repo(self, repo, force=False):
-    query = ''' DROP SCHEMA %s ''' %(repo)
+    query = ''' DROP SCHEMA %s %s''' %(repo, 'CASCADE' if force else '')
     return self.execute_sql(query)
 
   def list_tables(self, repo):
@@ -56,7 +56,7 @@ class PGBackend:
 
   def desc_table(self, table):
     query = ''' SELECT column_name as field_name, data_type as field_type
-        from INFORMATION_SCHEMA.COLUMNS where table_name = '%s' ''' %(table)
+        from information_schema.columns where table_name = '%s' ''' %(table)
     return self.execute_sql(query)
 
   def execute_sql(self, query, params=None):
