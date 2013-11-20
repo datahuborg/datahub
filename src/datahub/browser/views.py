@@ -41,6 +41,7 @@ def home(request):
         mimetype="application/json")
 
 
+@login_required
 def console(request):
   return render_to_response("console.html", {
     'login': get_login(request)})
