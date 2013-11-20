@@ -50,8 +50,7 @@ class DataHubHandler:
     try:
       con = Connection(
           user=dh_con_params.user,
-          password=hashlib.sha1(dh_con_params.password).hexdigest(),
-          db_name=dh_con_params.user)
+          password=hashlib.sha1(dh_con_params.password).hexdigest())
 
       dh_con = DHConnection(user=dh_con_params.user)
       return dh_con
