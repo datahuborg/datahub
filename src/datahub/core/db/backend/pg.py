@@ -63,7 +63,7 @@ class PGBackend:
     query = ''' SELECT column_name as field_name, data_type as field_type
         from information_schema.columns
         where table_name = '%s'
-        and schema_name = '%s' ''' %(table[-1], table[-2])
+        and table_schema = '%s' ''' %(table[-1], table[-2])
     return self.execute_sql(query)
 
   def execute_sql(self, query, params=None):
