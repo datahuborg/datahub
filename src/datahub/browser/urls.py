@@ -12,9 +12,19 @@ urlpatterns = patterns('',
     url(r'^verify/(\w+)', 'browser.auth.verify'),
 
     url(r'^$', 'browser.views.home'),
+
     url(r'^console$', 'browser.views.console'),
+    url(r'^console/$', 'browser.views.console'),
+
     url(r'^api$', 'browser.views.api'),
-    url(r'^(\w+)/(\w+)/(\w+)$', 'browser.views.table'),
-    url(r'^(\w+)/(\w+)', 'browser.views.repo'),
-    url(r'^(\w+)', 'browser.views.user')
+    url(r'^api/$', 'browser.views.api'),
+
+    url(r'^browse/(\w+)/(\w+)/(\w+)$', 'browser.views.table'),
+    url(r'^browse/(\w+)/(\w+)/(\w+)/$', 'browser.views.table'),
+
+    url(r'^browse/(\w+)/(\w+)$', 'browser.views.repo'),
+    url(r'^browse/(\w+)/(\w+)/$', 'browser.views.repo'),
+
+    url(r'^browse/(\w+)$', 'browser.views.user')
+    url(r'^browse/(\w+)/$', 'browser.views.user')
 )
