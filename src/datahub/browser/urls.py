@@ -25,6 +25,6 @@ urlpatterns = patterns('',
     url(r'^browse/(\w+)/(\w+)$', 'browser.views.repo'),
     url(r'^browse/(\w+)/(\w+)/$', 'browser.views.repo'),
 
-    url(r'^browse/(\w+)$', 'browser.views.user')
+    url(r'^browse/(\w+)$', 'browser.views.user'),
     url(r'^browse/(\w+)/$', 'browser.views.user')
 )
