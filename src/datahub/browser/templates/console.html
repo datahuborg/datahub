@@ -40,27 +40,31 @@ function print_result (res, term) {
   if (res.row_count >= 0) {
     var col_names = []
     var separator = []
+    
     for (var field in res.data.schema.fields) {
       col_names.push(res.data.schema.fields[field].name)
       separator.push('------------')
-    }      
-      term.echo(col_names.join('\t'))
+    }
+
+    term.echo(col_names.join('\t'))
     term.echo(separator.join(''))
-      for (var row in res.data.table.rows) {
+
+    for (var row in res.data.table.rows) {
       values = []
       for (var c in res.data.table.rows[row].cells) {
         values.push(res.data.table.rows[row].cells[c].value)
       }
-          term.echo(values.join('\t'))
+      term.echo(values.join('\t'))
     }
-      term.echo('')
-      term.echo(res.row_count + ' rows returned')
+
+    term.echo('')
+    term.echo(res.row_count + ' rows returned')
   } else {
-        if (res.status) {
-        term.echo('success')
-      } else {
-        term.echo('error')
-      }
+    if (res.status) {
+      term.echo('success')
+    } else {
+      term.echo('error')
+    }
   }
 }
 
