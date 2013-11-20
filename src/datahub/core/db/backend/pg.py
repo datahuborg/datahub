@@ -43,15 +43,15 @@ class PGBackend:
     query = ''' DROP SCHEMA %s ''' %(repo)
     return self.execute_sql(query)
 
-  def list_tables(self, schema):
+  def list_tables(self, repo):
     res = self.list_schemas()
 
     all_schemas = [t[0] for t in res['tuples']]
     if schema not in all_schemas:
-      raise LookupError('Invalid Repository Name: %s' %(schema))
+      raise LookupError('invalid repository name: %s' %(repo))
 
     query = ''' SELECT table_name as table FROM information_schema.tables
-        WHERE table_schema = '%s' ''' %(schema)
+        WHERE table_schema = '%s' ''' %(repo)
     return self.execute_sql(query)
 
   def desc_table(self, table):
