@@ -68,9 +68,10 @@ $(document).ready(function($) {
   var kCmdList = [
       '** Any SQL Query **',
       'mkrepo &lt;repo-name&gt; \t -- to create a new repository',
+      'rm &lt;repo-name [-f]&gt; \t\t -- to remove a repository',
       'ls \t\t\t\t\t -- to list repositories',
       'ls &lt;repo-name&gt; \t\t -- to list tables in a repository',
-      'rm &lt;repo-name&gt; \t\t -- to remove a repository',
+      'desc &lt;table-name&gt; \t\t -- to print schema info of a table'
   ]
 
   var login = '{{login}}'
@@ -93,16 +94,20 @@ $(document).ready(function($) {
           term.echo ('HELP: mkrepo &lt;repo-name&gt;')
         }      
       } else if (cmd.startsWith('rm')) {
-        var args = cmd.split(' ', 2)
+        var args = cmd.split(' ', 3)
         if (args.length > 1) {
-          res = client.delete_repo(con, args[1], false)
+          force = false
+          if (args.length == 3 && args[2] == '-f') {
+            force = true
+          }
+          res = client.delete_repo(con, args[1], force)
           print_result(res, term)
         } else {
-          term.echo ('HELP: rm &lt;repo-name&gt;')
+          term.echo ('HELP: rm &lt;repo-name [-f]&gt;')
         }  
       } else if (cmd.startsWith('desc')) {
+        var args = cmd.split(' ', 2)
         if (args.length > 1) {
-          var args = cmd.split(' ', 2)
           res = client.desc_table(con, args[1])
           print_result(res, term)
         } else {
