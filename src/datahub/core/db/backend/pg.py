@@ -62,7 +62,7 @@ class PGBackend:
   def list_tables(self, schema):
     res = self.list_schemas()
 
-    if not schema in res['tuples']:
+    if schema not in res['tuples']:
       raise LookupError('Invalid Repository Name: %s' %(schema))
 
     s = ''' SELECT table_name as table FROM information_schema.tables
