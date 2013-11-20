@@ -59,7 +59,12 @@ class PGBackend:
     c.close()
     return result
 
-  def list_tables(self, schema='public'):
+  def list_tables(self, schema):
+    res = self.list_schemas()
+
+    if not schema in res['tuples']:
+      raise LookupError('Invalid Repository Name: %s' %(schema))
+
     s = ''' SELECT table_name as table FROM information_schema.tables
         WHERE table_schema = '%s' ''' %(schema)
     return self.execute_sql(s)
