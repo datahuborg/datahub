@@ -40,7 +40,7 @@ function print_result (res, term) {
   if (res.row_count >= 0) {
     var col_names = []
     var separator = []
-    
+
     for (var field in res.data.schema.fields) {
       col_names.push(res.data.schema.fields[field].name)
       separator.push('------------')
