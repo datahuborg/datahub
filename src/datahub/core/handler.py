@@ -57,7 +57,14 @@ class DataHubHandler:
       return dh_con
     except Exception, e:
       raise DHException(message=str(e))
-    
+  
+  def create_repo(self, dh_con, repo):
+    try:
+      res = manager.create_repo(username=dh_con.user, repo=repo)
+      return construct_query_result(res)
+    except Exception, e:
+      raise DHException(message=str(e))
+
   def list_repos(self, dh_con):
     try:
       res = manager.list_repos(username=dh_con.user)
@@ -65,24 +72,39 @@ class DataHubHandler:
     except Exception, e:
       raise DHException(message=str(e))
 
+  def delete_repo(self, dh_con, repo):
+    try:
+      res = manager.delete_repo(username=dh_con.user, repo=repo)
+      return construct_query_result(res)
+    except Exception, e:
+      raise DHException(message=str(e))
+
   def list_tables(self, dh_con, repo):
     try:
-      res = manager.list_tables(dh_con.user, repo)
+      res = manager.list_tables(username=dh_con.user, repo=repo)
+      return construct_query_result(res)
+    except Exception, e:
+      raise DHException(message=str(e))
+
+  def desc_table(self, dh_con, table):
+    try:
+      res = manager.desc_table(username=dh_con.user, table=table)
       return construct_query_result(res)
     except Exception, e:
       raise DHException(message=str(e))
 
   def execute_sql(self, dh_con, query, query_params=None):
     try:
-      res = manager.execute_sql(dh_con.user, query, query_params)
+      res = manager.execute_sql(
+          username=dh_con.user, query=query, params=query_params)
       return construct_query_result(res)
     except Exception, e:
       raise DHException(message=str(e))
 
   def load(self, dh_con, url):
     try:
-      qry = 'SELECT * from %s' % (url)
-      res = manager.execute_sql(dh_con.user, qry)
+      query = 'SELECT * from %s' % (url)
+      res = manager.execute_sql(username=dh_con.user, query=query)
       return construct_query_result(res)
     except Exception, e:
       raise DHException(message=str(e))

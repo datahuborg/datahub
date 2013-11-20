@@ -136,13 +136,28 @@ exception DHException {
 /* DataHub service APIs */
 service DataHub {
   double get_version()
-  DHConnection connect(1: DHConnectionParams con_params)
+
+  DHConnection connect (1: DHConnectionParams con_params)
       throws (1: DHException ex)
+
+  DHQueryResult create_repo (1: DHConnection con, 2: string repo) throws (
+      1: DHException ex)
+
   DHQueryResult list_repos(1: DHConnection con)
       throws (1: DHException ex)
-  DHQueryResult list_tables(1: DHConnection con, 2: string repo) throws (1: DHException ex)
-  DHQueryResult execute_sql(1: DHConnection con, 2: string query,
+
+  DHQueryResult delete_repo (1: DHConnection con, 2: string repo,
+      3: bool force) throws (1: DHException ex)
+
+  DHQueryResult list_tables (1: DHConnection con, 2: string repo) throws (
+      1: DHException ex)
+
+  DHQueryResult desc_table (1: DHConnection con, 2: string table) throws (
+      1: DHException ex)
+
+  DHQueryResult execute_sql (1: DHConnection con, 2: string query,
       3: list <string> query_params) throws (1: DHException ex)
 
-  DHQueryResult load(1:DHConnection con, 2: string url) throws (1: DHException ex)
+  DHQueryResult load (1:DHConnection con, 2: string url) throws (
+      1: DHException ex)
 }

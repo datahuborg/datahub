@@ -4,7 +4,7 @@
  <a href="/" class="blue bold navitem" data-dropdown="#dropdown-nav">{{ login }} ▾ </a>
 {% else %}
 <a class="button" href="/register">Sign up</a>&nbsp;&nbsp;<a class="button inactive" href="/login">Sign in</a>
-{% endif %}			
+{% endif %}     
 {% endblock %}
 
 {% block content %}
@@ -26,7 +26,7 @@
 </div>
 </div>
 </div>
-	
+  
 <script type="text/javascript">
 
 if (typeof String.prototype.startsWith != 'function') {
@@ -37,81 +37,98 @@ if (typeof String.prototype.startsWith != 'function') {
 }
 
 function print_result (res, term) {
-	if (res.row_count >= 0) {
-		var col_names = []
-		var separator = []
-		for (var field in res.data.schema.fields) {
-			col_names.push(res.data.schema.fields[field].name)
-			separator.push('------------')
-		}	     
-	    term.echo(col_names.join('\t'))
-		term.echo(separator.join(''))
-	    for (var row in res.data.table.rows) {
-			values = []
-			for (var c in res.data.table.rows[row].cells) {
-				values.push(res.data.table.rows[row].cells[c].value)
-			}
-	       	term.echo(values.join('\t'))
-		}
-	    term.echo('')
-	  	term.echo(res.row_count + ' rows returned')
-	} else {
-	      if (res.status) {
-			  term.echo('success')
-		  } else {
-		  	term.echo('error')
-		  }
-	}
+  if (res.row_count >= 0) {
+    var col_names = []
+    var separator = []
+    for (var field in res.data.schema.fields) {
+      col_names.push(res.data.schema.fields[field].name)
+      separator.push('------------')
+    }      
+      term.echo(col_names.join('\t'))
+    term.echo(separator.join(''))
+      for (var row in res.data.table.rows) {
+      values = []
+      for (var c in res.data.table.rows[row].cells) {
+        values.push(res.data.table.rows[row].cells[c].value)
+      }
+          term.echo(values.join('\t'))
+    }
+      term.echo('')
+      term.echo(res.row_count + ' rows returned')
+  } else {
+        if (res.status) {
+        term.echo('success')
+      } else {
+        term.echo('error')
+      }
+  }
 }
 
 $(document).ready(function($) {
-	var kCmdList = [
-	    '** Any SQL Query **',
-	    'mkrepo &lt;repo-name&gt; \t -- to create a new repository',
-	    'ls \t\t\t\t\t -- to list repositories',
-	    'ls &lt;repo-name&gt; \t\t -- to list tables in a repository',
-	    'rm &lt;repo-name&gt; \t\t -- to remove a repository',
-	]
-	var login = '{{login}}'
-	var transport = new Thrift.Transport("http://datahub-experimental.csail.mit.edu/api");
-	var protocol = new Thrift.Protocol(transport);
-	var client = new DataHubClient(protocol);
-	var con = new DHConnection({'user':login})
-	$('#dh-console').terminal(
-		function(command, term) {
-			var cmd = $.trim(command.toLowerCase())
-	    if (cmd.startsWith('mkrepo')) {
-			var args = cmd.split(' ', 2)
-			if (args.length > 1) {
-	    		res = client.execute_sql(con, 'CREATE SCHEMA ' + args[1])
-				print_result(res, term)
-			} else {
-				term.echo ('HELP: mkrepo &lt;repo-name&gt;')
-			}      
-	    } else if (cmd.startsWith('rm')) {
-			var args = cmd.split(' ', 2)
-	    	res = client.execute_sql(con, 'DROP SCHEMA ' + args[1])
-			print_result(res, term)   
-	    } else if (cmd.startsWith('ls')) {
-			var args = cmd.split(' ', 2)
-			res = null
-			if (args.length > 1)
-				res = client.list_tables(con, args[1])
-			else
-	    		res = client.list_repos(con)
-			print_result(res, term)   
-	    } else if (cmd.startsWith('help')) {
-			for (var cmd in kCmdList) {
-				term.echo(kCmdList[cmd])
-			}
-	    } else {
-	    	res = client.execute_sql(con, cmd);
-	      	print_result(res, term) 
-	    }
-		}, { 
-			prompt: 'datahub> ',
-			greetings: 'Welcome to DataHub!'}
-	);
+  var kCmdList = [
+      '** Any SQL Query **',
+      'mkrepo &lt;repo-name&gt; \t -- to create a new repository',
+      'ls \t\t\t\t\t -- to list repositories',
+      'ls &lt;repo-name&gt; \t\t -- to list tables in a repository',
+      'rm &lt;repo-name&gt; \t\t -- to remove a repository',
+  ]
+
+  var login = '{{login}}'
+  var transport = new Thrift.Transport("http://datahub-experimental.csail.mit.edu/api");
+  var protocol = new Thrift.Protocol(transport);
+  var client = new DataHubClient(protocol);
+  var con = new DHConnection({'user':login})
+
+  $('#dh-console').terminal(
+    function (command, term) {
+
+      var cmd = $.trim(command.toLowerCase())
+
+      if (cmd.startsWith('mkrepo')) {
+        var args = cmd.split(' ', 2)
+        if (args.length > 1) {
+          res = client.create_repo(con, args[1])
+          print_result(res, term)
+        } else {
+          term.echo ('HELP: mkrepo &lt;repo-name&gt;')
+        }      
+      } else if (cmd.startsWith('rm')) {
+        if (args.length > 1) {
+          var args = cmd.split(' ', 2)
+          res = client.delete_repo(con, args[1], false)
+          print_result(res, term)
+        } else {
+          term.echo ('HELP: rm &lt;repo-name&gt;')
+        }  
+      } else if (cmd.startsWith('desc')) {
+        if (args.length > 1) {
+          var args = cmd.split(' ', 2)
+          res = client.desc_table(con, args[1])
+          print_result(res, term)
+        } else {
+          term.echo ('HELP: desc &lt;table-name&gt;')
+        }        
+      } else if (cmd.startsWith('ls')) {
+        var args = cmd.split(' ', 2)
+        res = null
+        if (args.length > 1) {
+          res = client.list_tables(con, args[1])
+        } else {
+          res = client.list_repos(con)
+        }
+        print_result(res, term)   
+      } else if (cmd.startsWith('help')) {
+        for (var cmd in kCmdList) {
+          term.echo(kCmdList[cmd])
+        }
+      } else {
+        res = client.execute_sql(con, cmd);
+        print_result(res, term) 
+      }
+    }, { 
+      prompt: 'datahub> ',
+      greetings: 'Welcome to DataHub!'}
+  );
   
 });
 
