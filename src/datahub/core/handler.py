@@ -72,9 +72,10 @@ class DataHubHandler:
     except Exception, e:
       raise DHException(message=str(e))
 
-  def delete_repo(self, dh_con, repo):
+  def delete_repo(self, dh_con, repo, force):
     try:
-      res = manager.delete_repo(username=dh_con.user, repo=repo)
+      res = manager.delete_repo(
+          username=dh_con.user, repo=repo, force=force)
       return construct_query_result(res)
     except Exception, e:
       raise DHException(message=str(e))

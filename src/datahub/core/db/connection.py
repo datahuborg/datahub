@@ -20,8 +20,8 @@ class Connection:
   def list_repos(self):
     return self.backend.list_repos()
 
-  def delete_repo(self, repo):
-    return self.backend.delete_repo(repo=repo)
+  def delete_repo(self, repo, force=False):
+    return self.backend.delete_repo(repo=repo, force=force)
 
   def list_tables(self, repo):
     return self.backend.list_tables(repo=repo)

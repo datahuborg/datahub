@@ -26,12 +26,12 @@ def list_repos(username):
   res = con.list_repos()
   return res
 
-def delete_repo(username, repo):
+def delete_repo(username, repo, force):
   user = User.objects.get(username=username)
   con = Connection(
       user=username,
       password=user.password)
-  return con.delete_repo(repo=repo)
+  return con.delete_repo(repo=repo, force=force)
 
 def list_tables(username, repo):
   user = User.objects.get(username=username)

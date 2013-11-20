@@ -39,7 +39,7 @@ class PGBackend:
         WHERE schema_owner = '%s' ''' %(self.user)
     return self.execute_sql(query)
 
-  def delete_repo(self, repo):
+  def delete_repo(self, repo, force=False):
     query = ''' DROP SCHEMA %s ''' %(repo)
     return self.execute_sql(query)
 
