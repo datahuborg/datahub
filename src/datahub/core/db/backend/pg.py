@@ -44,10 +44,10 @@ class PGBackend:
     return self.execute_sql(query)
 
   def list_tables(self, repo):
-    res = self.list_schemas()
+    res = self.list_repos()
 
-    all_schemas = [t[0] for t in res['tuples']]
-    if schema not in all_schemas:
+    all_repos = [t[0] for t in res['tuples']]
+    if repo not in all_repos:
       raise LookupError('invalid repository name: %s' %(repo))
 
     query = ''' SELECT table_name as table FROM information_schema.tables
