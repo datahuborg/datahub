@@ -11,7 +11,7 @@ Datahub DB Manager
 @author: Anant Bhardwaj
 @date: Mar 21, 2013
 '''
-def create_repo(self, username, repo):
+def create_repo(username, repo):
   user = User.objects.get(username=username)
   con = Connection(
       user=username,
@@ -26,7 +26,7 @@ def list_repos(username):
   res = con.list_repos()
   return res
 
-def delete_repo(self, username, repo):
+def delete_repo(username, repo):
   user = User.objects.get(username=username)
   con = Connection(
       user=username,
