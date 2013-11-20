@@ -82,53 +82,56 @@ $(document).ready(function($) {
 
   $('#dh-console').terminal(
     function (command, term) {
+      try{
+        var cmd = $.trim(command.toLowerCase())
 
-      var cmd = $.trim(command.toLowerCase())
-
-      if (cmd.startsWith('mkrepo')) {
-        var args = cmd.split(' ', 2)
-        if (args.length > 1) {
-          res = client.create_repo(con, args[1])
-          print_result(res, term)
-        } else {
-          term.echo ('HELP: mkrepo &lt;repo-name&gt;')
-        }      
-      } else if (cmd.startsWith('rm')) {
-        var args = cmd.split(' ', 3)
-        if (args.length > 1) {
-          force = false
-          if (args.length == 3 && args[2] == '-f') {
-            force = true
+        if (cmd.startsWith('mkrepo')) {
+          var args = cmd.split(' ', 2)
+          if (args.length > 1) {
+            res = client.create_repo(con, args[1])
+            print_result(res, term)
+          } else {
+            term.error ('HELP: mkrepo &lt;repo-name&gt;')
+          }      
+        } else if (cmd.startsWith('rm')) {
+          var args = cmd.split(' ', 3)
+          if (args.length > 1) {
+            force = false
+            if (args.length == 3 && args[2] == '-f') {
+              force = true
+            }
+            res = client.delete_repo(con, args[1], force)
+            print_result(res, term)
+          } else {
+            term.error ('HELP: rm &lt;repo-name&gt; [-f]')
+          }  
+        } else if (cmd.startsWith('desc')) {
+          var args = cmd.split(' ', 2)
+          if (args.length > 1) {
+            res = client.desc_table(con, args[1])
+            print_result(res, term)
+          } else {
+            term.error ('HELP: desc &lt;table-name&gt;')
+          }        
+        } else if (cmd.startsWith('ls')) {
+          var args = cmd.split(' ', 2)
+          res = null
+          if (args.length > 1) {
+            res = client.list_tables(con, args[1])
+          } else {
+            res = client.list_repos(con)
           }
-          res = client.delete_repo(con, args[1], force)
-          print_result(res, term)
+          print_result(res, term)   
+        } else if (cmd.startsWith('help')) {
+          for (var cmd in kCmdList) {
+            term.echo(kCmdList[cmd])
+          }
         } else {
-          term.echo ('HELP: rm &lt;repo-name [-f]&gt;')
-        }  
-      } else if (cmd.startsWith('desc')) {
-        var args = cmd.split(' ', 2)
-        if (args.length > 1) {
-          res = client.desc_table(con, args[1])
-          print_result(res, term)
-        } else {
-          term.echo ('HELP: desc &lt;table-name&gt;')
-        }        
-      } else if (cmd.startsWith('ls')) {
-        var args = cmd.split(' ', 2)
-        res = null
-        if (args.length > 1) {
-          res = client.list_tables(con, args[1])
-        } else {
-          res = client.list_repos(con)
+          res = client.execute_sql(con, cmd);
+          print_result(res, term) 
         }
-        print_result(res, term)   
-      } else if (cmd.startsWith('help')) {
-        for (var cmd in kCmdList) {
-          term.echo(kCmdList[cmd])
-        }
-      } else {
-        res = client.execute_sql(con, cmd);
-        print_result(res, term) 
+      }catch(error){
+        term.error(error.message);
       }
     }, { 
       prompt: 'datahub> ',
