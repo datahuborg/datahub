@@ -1,6 +1,8 @@
 package DataHubAccount;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.thrift.TException;
@@ -114,7 +116,7 @@ public class DataHubClient {
 		return false;
 	}
 	public void createDatabase(Database db) throws Exception{
-		String query = "create database "+Resources.sqlEscape(db.getDatabaseName());
+		String query = "create schema "+Resources.sqlEscape(db.getDatabaseName());
 		if(!databaseExists(db)){
 			try{
 				client.execute_sql(this.currentConnection, query, null);
@@ -126,7 +128,7 @@ public class DataHubClient {
 		}
 	}
 	public void dropDatabase(Database db) throws Exception{
-		String query = "drop database "+Resources.sqlEscape(db.getDatabaseName());
+		String query = "drop schema "+Resources.sqlEscape(db.getDatabaseName());
 		if(databaseExists(db)){
 			try{
 				client.execute_sql(this.currentConnection, query, null);
@@ -148,9 +150,11 @@ public class DataHubClient {
 	}
 	private void detectSchemaDifferences(Database db) throws DHException, TException{
 		DHQueryResult dbSchema = getDatabaseSchema(db);
-		
+		//need to verify names of tables
+		//need to verify names of columns and column data types
 		Field[] fields = db.getClass().getFields();
 		for(Field f:fields){
+
 		}
 	}
 }

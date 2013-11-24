@@ -33,7 +33,7 @@ public class DataHubClientTests {
 	}
 	@Test
 	public void testExists() throws Exception {
-		Database bdb1 = new Database("test1");
+		Database bdb1 = new Database("test");
 		Database bdb2 = new Database("test2");
 		assertEquals(true, test_dhc.databaseExists(bdb1));
 		assertEquals(false, test_dhc.databaseExists(bdb2));
@@ -49,7 +49,7 @@ public class DataHubClientTests {
 	}
 	@Test
 	public void testGetSchema(){
-		Database bdb1 = new Database("postgres");
+		Database bdb1 = new Database("test");
 		try {
 			test_dhc.updateSchema(bdb1);
 		} catch(Exception e){

@@ -21,4 +21,10 @@ public class Model{
 	}
 	public void destroy(){
 	}
+	public static void dhQueryToObject(){
+		
+	}
+	public static void dhSchemaToModelClass(){
+		//do direct name mapping
+	}
 }
