@@ -38,7 +38,6 @@ DataHub Template Layout
 	<div id="dropdown-nav" class="dropdown-menu has-tip">
 	    <ul>
 	        <li><a href="/">Home</a></li>
-			<li><a href="/console">Console</a></li>
 	        <li class="divider"></li>
 	        <li><a href="/logout">Log out</a></li>
 	    </ul>
@@ -50,8 +49,11 @@ DataHub Template Layout
 		</span>    
 		<span id="headlink-right">
     {% block headlink-right %}
+	
 	  {% if login %}
-	   <a href="/" class="blue bold navitem" data-dropdown="#dropdown-nav">{{ login }} ▾ </a>
+	   <a href="/" class="blue bold navitem">{{ login }}</a> &nbsp; &nbsp;
+	   <a class="console-icon" href="/console" title="DataHub Console"></a>
+	   <a class="logout-icon" href="/logout" title="Log out"></a>
 	  {% else %}
 	  <a class="button" href="/login">Log In</a>
 	  {% endif %}			
