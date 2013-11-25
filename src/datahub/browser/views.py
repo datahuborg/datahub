@@ -46,6 +46,11 @@ def console(request):
   return render_to_response("console.html", {
     'login': get_login(request)})
 
+@login_required
+def visualize(request):
+  return render_to_response("visualize.html", {
+    'login': get_login(request)})
+
 
 @csrf_exempt
 def service(request):

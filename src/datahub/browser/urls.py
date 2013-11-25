@@ -16,6 +16,9 @@ urlpatterns = patterns('',
     url(r'^console$', 'browser.views.console'),
     url(r'^console/$', 'browser.views.console'),
 
+    url(r'^visualize$', 'browser.views.visualize'),
+    url(r'^visualize/$', 'browser.views.visualize'),
+
     url(r'^service$', 'browser.views.service'),
     url(r'^service/$', 'browser.views.service'),
 
