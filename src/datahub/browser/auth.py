@@ -193,9 +193,13 @@ def register (request):
 
       Please click the link below to start using DataHub:
 
-      http://datahub.csail.mit.edu/verify/%s
+      %s://%s/verify/%s
 
-      ''' % (user.email, encrypted_email)
+      ''' % (
+          user.email,
+          'https' if request.is_secure() else 'http',
+          request.get_host(),          
+          encrypted_email)
 
       pool.apply_async(send_email, [user.email, subject, msg_body])
 
@@ -235,7 +239,7 @@ def forgot (request):
     errors = []
     try:
       user_email = request.POST["email"].lower()
-      User.objects.get(email=user_email)
+      user = User.objects.get(email=user_email)
 
       encrypted_email = encrypt_text(user_email)
 
@@ -246,9 +250,13 @@ def forgot (request):
 
       Please click the link below to reset your DataHub password:
 
-      http://datahub.csail.mit.edu/reset/%s
+      %s://%s/reset/%s
 
-      ''' % (user_email, encrypted_email)
+      ''' % (
+          user.email,
+          'https' if request.is_secure() else 'http',
+          request.get_host(), 
+          encrypted_email)
 
       pool.apply_async(send_email, [user_email, subject, msg_body])
 
@@ -263,11 +271,11 @@ def forgot (request):
     except User.DoesNotExist:
       errors.append(
           "Invalid Email Address.")
-    except:
+    except Exception, e:
       errors.append(
-          'Some unknown error happened.'
+          'Error: %s.'
           'Please try again or send an email to '
-          '<a href="mailto:datahub@csail.mit.edu">datahub@csail.mit.edu</a>.')
+          '<a href="mailto:datahub@csail.mit.edu">datahub@csail.mit.edu</a>.' %(str(e)))
     
     c = {'errors': errors, 'values': request.POST} 
     c.update(csrf(request))
@@ -284,7 +292,7 @@ def verify (request, encrypted_email):
     user_email = decrypt_text(encrypted_email)
     user = User.objects.get(email=user_email)
     c.update({
-        'msg_body': 'Thanks for verifying your email address!<br /> <br /><a class= "blue bold" href="/%s">Click Here</a> to start using DataHub.' %(user.username)
+        'msg_body': 'Thanks for verifying your email address!<br /> <br /><a class= "blue bold" href="/">Click Here</a> to start using DataHub.'
     })
     clear_session(request)
     request.session[kEmail] = user.email
