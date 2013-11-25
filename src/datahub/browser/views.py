@@ -51,6 +51,11 @@ def visualize(request):
   return render_to_response("visualize.html", {
     'login': get_login(request)})
 
+@login_required
+def newrepo(request):
+  return render_to_response("newrepo.html", {
+    'login': get_login(request)})
+
 
 @csrf_exempt
 def service(request):

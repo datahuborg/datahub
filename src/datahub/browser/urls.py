@@ -19,6 +19,9 @@ urlpatterns = patterns('',
     url(r'^visualize$', 'browser.views.visualize'),
     url(r'^visualize/$', 'browser.views.visualize'),
 
+    url(r'^newrepo$', 'browser.views.newrepo'),
+    url(r'^newrepo/$', 'browser.views.newrepo'),
+
     url(r'^service$', 'browser.views.service'),
     url(r'^service/$', 'browser.views.service'),
 
