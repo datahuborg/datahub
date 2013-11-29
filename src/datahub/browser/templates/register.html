@@ -1,5 +1,6 @@
 {% extends "login-layout.html" %}
-{% block links %}
+{% block headlink-right %}
+<a class="button inactive" href="/login">Sign in</a>		
 {% endblock %}
 {% block content %}
 <form method="POST" action="/register" autocomplete="off">
@@ -22,7 +23,7 @@
 	<br />
 	<br />
 	<div>
-		Already have an account? <a class="blue bold" href="/login?redirect_url={{redirect_url}}">Log in</a>
+		Already have an account? <a class="blue bold" href="/login?redirect_url={{redirect_url}}">Sign in</a>
 	</div>
 </form>
 {% endblock %}

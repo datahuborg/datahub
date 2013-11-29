@@ -4,12 +4,9 @@
 <script type="text/javascript">
 
 	function load_repo (repo) {
-		window.location.href = "/{{username}}/" + repo;
+		window.location.href = "/browse/{{username}}/" + repo;
 	}
 
-	function create_db(){
-		window.location.href="/new_database/{{username}}";
-	}
 
 	$(document).ready(function(){	
 
@@ -27,7 +24,7 @@
 
 
 <div id="content">
-	<a class="blue bold" href=/{{username}}>{{username}}</a>
+	<a class="blue bold" href=/browse/{{username}}>{{username}}</a>
 	<br />
 	<br />
 	<table id="repos">

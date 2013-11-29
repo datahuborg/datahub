@@ -12,7 +12,25 @@ urlpatterns = patterns('',
     url(r'^verify/(\w+)', 'browser.auth.verify'),
 
     url(r'^$', 'browser.views.home'),
-    url(r'^(\w+)/(\w+)/(\w+)$', 'browser.views.table'),
-    url(r'^(\w+)/(\w+)', 'browser.views.repo'),
-    url(r'^(\w+)', 'browser.views.user')
+
+    url(r'^console$', 'browser.views.console'),
+    url(r'^console/$', 'browser.views.console'),
+
+    url(r'^visualize$', 'browser.views.visualize'),
+    url(r'^visualize/$', 'browser.views.visualize'),
+
+    url(r'^newrepo$', 'browser.views.newrepo'),
+    url(r'^newrepo/$', 'browser.views.newrepo'),
+
+    url(r'^service$', 'browser.views.service'),
+    url(r'^service/$', 'browser.views.service'),
+
+    url(r'^browse/(\w+)/(\w+)/(\w+)$', 'browser.views.table'),
+    url(r'^browse/(\w+)/(\w+)/(\w+)/$', 'browser.views.table'),
+
+    url(r'^browse/(\w+)/(\w+)$', 'browser.views.repo'),
+    url(r'^browse/(\w+)/(\w+)/$', 'browser.views.repo'),
+
+    url(r'^browse/(\w+)$', 'browser.views.user'),
+    url(r'^browse/(\w+)/$', 'browser.views.user')
 )

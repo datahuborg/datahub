@@ -17,13 +17,20 @@ DataHub Template Layout
 <meta name="apple-mobile-web-app-capable" content="yes" />
 
 <link rel="stylesheet" type="text/css" href="/static/css/datahub.css" />
-<link rel="stylesheet" type="text/css" href="/static/css/third-party/jquery-ui.css"/>
-<link rel="stylesheet" type="text/css" href="/static/css/third-party/jquery.dropdown.css"/>
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-ui/css/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-dropdown/css/jquery.dropdown.css"/>
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-terminal/css/jquery.terminal.css" />
 
-<script type="text/javascript" src="/static/javascript/third-party/jquery.min.js"></script>	
-<script type="text/javascript" src="/static/javascript/third-party/jquery-ui.js"></script>
-<script type="text/javascript" src="/static/javascript/third-party/jquery.dataTables.min.js"></script>	
-<script type="text/javascript" src="/static/javascript/third-party/jquery.dropdown.js"></script>	
+<script type="text/javascript" src="/static/lib/jquery/jquery.min.js"></script>	
+<script type="text/javascript" src="/static/lib/jquery-ui/jquery-ui.js"></script>
+<script type="text/javascript" src="/static/lib/jquery-datatables/jquery.dataTables.min.js"></script>	
+<script type="text/javascript" src="/static/lib/jquery-dropdown/jquery.dropdown.js"></script>
+<script type="text/javascript" src="/static/lib/jquery-mousewheel/jquery.mousewheel-min.js"></script>
+<script type="text/javascript" src="/static/lib/jquery-terminal/jquery.terminal-min.js"></script>
+
+<script type="text/javascript" src="/static/lib/thrift/thrift.js"></script>
+<script type="text/javascript" src="/static/lib/datahub/datahub_types.js"></script>
+<script type="text/javascript" src="/static/lib/datahub/DataHub.js"></script>
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
@@ -41,13 +48,18 @@ DataHub Template Layout
 			<a id="logo" href="/">DataHub</a>
 		</span>    
 		<span id="headlink-right">
-      {% block headlink-right %}
+    {% block headlink-right %}
+	
 	  {% if login %}
-	   <a href="/" class="blue bold navitem" data-dropdown="#dropdown-nav">{{ login }} ▾ </a>
+	   <a href="/" class="blue bold navitem">{{ login }}</a> &nbsp; &nbsp;
+	   <a class="newrepo-icon" href="/newrepo" title="New Repository"></a>
+	   <a class="console-icon" href="/console" title="DataHub Console"></a>
+	   <a class="visualize-icon" href="/visualize" title="Visualize"></a>
+	   <a class="logout-icon" href="/logout" title="Log out"></a>
 	  {% else %}
-	  <a class="blue bold navitem" href="/login">Log In</a>
+	  <a class="button" href="/login">Log In</a>
 	  {% endif %}			
-      {% endblock %}
+    {% endblock %}
 		</span>
 	</div>
 </div>

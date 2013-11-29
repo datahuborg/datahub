@@ -5,8 +5,14 @@ import os
 import shlex
 import sys
 
+from datahub import DataHub
 from datahub.constants import *
-from client.python.dh_client import DataHubClient
+
+from thrift import Thrift
+from thrift.protocol import TBinaryProtocol
+from thrift.transport import TSocket
+from thrift.transport import TTransport
+
 from optparse import OptionParser
 
 '''
@@ -41,7 +47,11 @@ class DatahubTerminal(cmd2.Cmd):
     parser.destroy()
     password = getpass.getpass('DataHub password for %s: ' %(options.user))
     cmd2.Cmd.__init__(self, completekey='tab')
-    self.client = DataHubClient(host=options.host, port=options.port)
+    transport = TSocket.TSocket(options.host, options.port)
+    self.transport = TTransport.TBufferedTransport(transport)
+    protocol = TBinaryProtocol.TBinaryProtocol(self.transport)
+    self.client = DataHub.Client(protocol)
+    self.transport.open()
     try:
       self.con_params = DHConnectionParams(
           user=options.user,
@@ -107,6 +117,7 @@ class DatahubTerminal(cmd2.Cmd):
       self.print_line('error: %s' % (e.message))
 
   def do_exit(self, line):
+    self.transport.close()
     return True
 
   def print_result(self, res):
