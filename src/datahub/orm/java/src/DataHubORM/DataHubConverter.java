@@ -45,10 +45,4 @@ public class DataHubConverter {
 		}
 		return DHType.Binary;
 	}
-	public static void dhQueryToObject(){
-		
-	}
-	public static void dhTableToModelClass(){
-		//do direct name mapping
-	}
 }

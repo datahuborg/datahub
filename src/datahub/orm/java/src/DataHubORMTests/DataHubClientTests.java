@@ -51,7 +51,7 @@ public class DataHubClientTests {
 	public void testGetSchema(){
 		Database bdb1 = new Database("test");
 		try {
-			test_dhc.updateSchema(bdb1);
+			System.out.println(test_dhc.getDatabaseSchema(bdb1));
 		} catch(Exception e){
 			e.printStackTrace();
 		}

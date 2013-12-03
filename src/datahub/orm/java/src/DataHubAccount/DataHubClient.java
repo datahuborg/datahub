@@ -144,17 +144,11 @@ public class DataHubClient {
 	public void updateSchema(Database db) throws DHException, TException{
 		detectSchemaDifferences(db);
 	}
-	private DHQueryResult getDatabaseSchema(Database db) throws DHException, TException{
+	public DHQueryResult getDatabaseSchema(Database db) throws DHException, TException{
 		DHConnection dhc = client.connect(getConnectionParams());
 		return client.list_tables(dhc, db.getDatabaseName());
 	}
 	private void detectSchemaDifferences(Database db) throws DHException, TException{
 		DHQueryResult dbSchema = getDatabaseSchema(db);
-		//need to verify names of tables
-		//need to verify names of columns and column data types
-		Field[] fields = db.getClass().getFields();
-		for(Field f:fields){
-
-		}
 	}
 }

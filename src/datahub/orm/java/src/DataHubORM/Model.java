@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 public class Model{
 	
+	public String tableName;
+	
 	public int id;
 	
 	public static Model findOne(){
