@@ -6,20 +6,15 @@ import DataHubAccount.DataHubClient;
 
 public class Database {
 	
-	//Initially assume all models are from only one database
-	
-	//every database will have this to store config information
-	public Model DataHubBasicInfo;
-	
-	public String dbName;
+	public static String dbName;
 	
 	private DataHubClient dhc;
 	
-	public Database(String dbName){
-		this.dbName = dbName;
+	public Database(){
+		
 	}
-	public Database(String dbName, DataHubClient dhc) throws Exception{
-		this.dbName = dbName;
+	
+	public Database(DataHubClient dhc) throws Exception{
 		this.dhc = dhc;
 		initialize();
 	}

@@ -31,10 +31,10 @@ public class DataHubClientTests {
 	public void tearDown(){
 		test_dhc.disconnect();
 	}
-	@Test
+	/*@Test
 	public void testExists() throws Exception {
-		Database bdb1 = new Database("test");
-		Database bdb2 = new Database("test2");
+		TestDatabase bdb1 = new TestDatabase();
+		TestDatabase bdb2 = new TestDatabase("test2");
 		assertEquals(true, test_dhc.databaseExists(bdb1));
 		assertEquals(false, test_dhc.databaseExists(bdb2));
 	}
@@ -55,6 +55,6 @@ public class DataHubClientTests {
 		} catch(Exception e){
 			e.printStackTrace();
 		}
-	}
+	}*/
 
 }
