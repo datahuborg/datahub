@@ -80,7 +80,9 @@ public class DataHubClientTests {
 			//System.out.println(test_dhc.getDatabaseSchema().data.schema.fields);
 			db.connect();
 			System.out.println(db.test.findAll().get(0).name);
+			System.out.println(db.test.findAll().get(0).description);
 			System.out.println(db.test.findAll().get(1).name);
+			System.out.println(db.test.findAll().get(1).description);
 		}catch(Exception e){
 			e.printStackTrace();
 		}

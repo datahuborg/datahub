@@ -19,7 +19,7 @@ public class Resources {
 			Field f = object.getClass().getField(fieldName);
 			f.set(object, convert(value,f.getType()));
 		}catch(Exception e){
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 	public static <T> T fieldToInstance(Field f){

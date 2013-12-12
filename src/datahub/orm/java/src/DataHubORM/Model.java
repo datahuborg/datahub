@@ -1,5 +1,6 @@
 package DataHubORM;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +34,6 @@ public class Model<T>{
 	}
 	public void save(){
 	}
-	public void update(){
-	}
 	public void destroy(){
 	}
 	public ArrayList<T> findAll(){
@@ -64,7 +63,14 @@ public class Model<T>{
 				DHField f = fields.get(j);
 				DHCell v = row.getCells().get(j);
 				//maybe move this somewhere
-				Resources.setField(newObj, f.name, v.value);
+				try{
+					Field f1 = this.getClass().getField(f.name);
+					if(f1.isAnnotationPresent(column.class)){
+						Resources.setField(newObj, f.name, v.value);
+					}
+				}catch(Exception e){
+					
+				}
 			}
 			output.add(newObj);
 		}
