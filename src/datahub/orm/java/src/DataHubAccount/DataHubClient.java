@@ -37,7 +37,9 @@ public class DataHubClient {
 	private Client client;
 	private TSocket socket;
 	private Database database;
-	private boolean connectedToDB = false;
+	private boolean connectedToDB;
+	//possibly add support for  connection to many databases
+	//arraylist of datahum  clients
 	public DataHubClient(DataHubAccount dha){
 		this.dha = dha;
 	}
@@ -54,101 +56,53 @@ public class DataHubClient {
 	private TSocket getConnectionSocket(){
 		return new TSocket(Constants.SERVER_ADDR_ROOT,Constants.SERVER_ADDR_PORT);
 	}
-	private DHConnectionParams getConnectionParams(){
+	private DHConnectionParams getConnectionParams(Database db){
 		DHConnectionParams dhcp = new DHConnectionParams();
 		dhcp.setFieldValue(_Fields.USER, dha.getUser().getPassword());
 		dhcp.setFieldValue(_Fields.PASSWORD, dha.getApiKey());
+		dhcp.setFieldValue(_Fields.REPO, db.getDatabaseName());
 		return dhcp;
 	}
-	public void connect() throws DHException, TException{
+	public void connect(Database db) throws DHException, TException{
 		TSocket newSocket = getConnectionSocket();
 		socket = newSocket;
 		socket.open();
 		TBinaryProtocol bp = new TBinaryProtocol(socket);
-		DHConnectionParams dhcp = getConnectionParams();
 		client = new DataHub.Client(bp);
+		database = db;
+		DHConnectionParams dhcp = getConnectionParams(database);
 		currentConnection = client.connect(dhcp);
-		connectedToDB = false;
-	}
-	public void connectToDatabase(Database database) throws Exception{
-		//fix server spec so list database only returns databases allocated to specific user
-		if(databaseExists(database)){
-			DHConnection connection = client.connect(getConnectionParams());
-			connection.validate();
-			currentConnection = connection;
-			connectedToDB = true;
-			this.database = database;
-		}else{
-			throw new Exception("Database does not exist!");
-		}
+		connectedToDB = true;
 	}
 	public void disconnect(){
-		socket.close();
-		client = null;
-		currentConnection = null;
-		connectedToDB = false;
-	}
-	public Boolean databaseExists(Database database) throws DHException, TException{
-		//String query = "select datname from datahub where datname = "+database.getDatabaseName();
-		//TODO: replace with SQL query to server to check for DB so there is no need to send
-		//all databases to the client
-		DHQueryResult dhqr = client.list_repos(currentConnection);
-		DHData data = dhqr.data;
-		DHTable table = data.table;
-		DHSchema schema = data.schema;
-		List<DHField> fields = schema.fields;
-		List<DHRow> rows = table.rows;
-		int nameInd = 0;
-		for(int i = 0; i < fields.size(); i++){
-			DHField field = fields.get(i);
-			if(field.getName() == Constants.SERVER_DB_CHECK_FIELD_NAME){
-				nameInd =  i;
-				break;
-			}
-		}
-		for(DHRow row:rows){
-			DHCell cell = row.cells.get(nameInd);
-			String db_name = new String(cell.getValue());
-			if(db_name.equals(database.getDatabaseName())){
-				return true;
-			}
-		}
-		return false;
-	}
-	public void createDatabase(Database db) throws Exception{
-		String query = "create schema "+Resources.sqlEscape(db.getDatabaseName());
-		if(!databaseExists(db)){
-			try{
-				client.execute_sql(this.currentConnection, query, null);
-			}catch(Exception e){
-				throw new Exception("Could not create database! Error: "+e.getMessage());
-			}
-		}else{
-			throw new Exception("Database already exists!");
-		}
-	}
-	public void dropDatabase(Database db) throws Exception{
-		String query = "drop schema "+Resources.sqlEscape(db.getDatabaseName());
-		if(databaseExists(db)){
-			try{
-				client.execute_sql(this.currentConnection, query, null);
-			}catch(Exception e){
-				throw new Exception("Could not create database! Error: "+e.getMessage());
-			}
-		}else{
-			throw new Exception("Database does not exist!");
+		if(connectedToDB){
+			socket.close();
+			client = null;
+			currentConnection = null;
+			connectedToDB = false;
 		}
 	}
 	//TODO:possible security issue with unauthorized manipulation of client cause propagating changes to 
 	//server that destroy database
 	public void updateSchema(Database db) throws DHException, TException{
-		detectSchemaDifferences(db);
+		detectSchemaDifferences();
 	}
-	public DHQueryResult getDatabaseSchema(Database db) throws DHException, TException{
-		DHConnection dhc = client.connect(getConnectionParams());
-		return client.list_tables(dhc, db.getDatabaseName());
+	public DHQueryResult getDatabaseSchema() throws DHException, TException{
+		return client.list_tables(currentConnection, this.database.getDatabaseName());
 	}
-	private void detectSchemaDifferences(Database db) throws DHException, TException{
-		DHQueryResult dbSchema = getDatabaseSchema(db);
+	private void detectSchemaDifferences() throws DHException, TException{
+		DHQueryResult dbSchema = getDatabaseSchema();
+		DHData data = dbSchema.getData();
+		DHSchema schema = data.getSchema();
+		DHTable table  = data.getTable();
+	}
+	public DHQueryResult dbQuery(String query){
+		DHQueryResult out = null;
+		try{
+			out = this.client.execute_sql(this.currentConnection, query, null);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return out;
 	}
 }

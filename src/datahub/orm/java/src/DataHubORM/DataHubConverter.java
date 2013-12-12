@@ -4,19 +4,28 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
+import javax.print.DocFlavor.STRING;
+
+import Annotations.column;
+import Annotations.table;
 import DataHubResources.Constants;
 
 import datahub.DHType;
 
 public class DataHubConverter {
 
-	public static ArrayList<HashMap<String,ArrayList<HashMap<String,String>>>> convertDBToSchema(Database db){
-		ArrayList<HashMap<String,ArrayList<HashMap<String,String>>>> out = new ArrayList<HashMap<String,ArrayList<HashMap<String,String>>>> ();
+	public static ArrayList<HashMap<String,HashMap<String,DHType>>> convertDBToSchema(Database db){
+		ArrayList<HashMap<String,HashMap<String,DHType>>> out = new ArrayList<HashMap<String,HashMap<String,DHType>>>();
+		ArrayList<Field> models = findModels(db);
+		for(Field model: models){
+			out.add(extractDataFromClass(model));
+		}
 		return out;
 	}
-	public static <T extends Database> ArrayList<Field> findModels(T db){
+	public static ArrayList<Field> findModels(Database db){
 		Field[] dbFields = db.getClass().getFields();
 		ArrayList<Field> modelFields = new ArrayList<Field>();
 		for(Field f:dbFields){
@@ -30,20 +39,38 @@ public class DataHubConverter {
 		}
 		return modelFields;
 	}
-	public static HashMap<String,HashMap<String,DHType>> extractDataFromClass(Class<? extends Model> model){
+	public static HashMap<String,HashMap<String,DHType>> extractDataFromClass(Field model){
+		
+		//TODO: do model type checks here
+		
+		//output hashmaps
 		HashMap<String,HashMap<String,DHType>> output = new HashMap<String,HashMap<String,DHType>>();
 		HashMap<String,DHType> fieldsDHType = new HashMap<String,DHType>();
-		Field[] fields = model.getFields();
-		String tableName = "Lol";
+		
+		//model fields
+		Field[] fields = model.getClass().getDeclaredFields();
+		
+		//table annotation detection
+		int tableCount = 0;
+		String tableName = "";
+		
+		//iterate over all fields
 		for(Field f:fields){
-			if(f.getType().equals(Column.class)){
-				//f.getGenericType()
-				fieldsDHType.put(f.getName(), javaTypeToDHType(f.getGenericType()));
+			//check for column annotation
+			if(f.isAnnotationPresent(column.class)){
+				fieldsDHType.put(f.getName(), javaTypeToDHType(f.getType()));
 			}
-			if(f.getName().equals(Constants.MODEL_TABLE_NAME_ATTRIBUTE)){
+			//check for table annotation
+			if(f.isAnnotationPresent(table.class)){
 				try {
 					if(f.get(null) != null){
+						
+						//update table information
 						tableName = f.get(null).toString();
+						tableCount++;
+						if(tableCount > 1){
+							throw new Exception("Too many tables!");
+						}
 					}
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -51,6 +78,7 @@ public class DataHubConverter {
 				}
 			}
 		}
+		//ensure table exists before returning anything
 		if(tableName != null){
 			output.put(tableName, fieldsDHType);
 		}
@@ -58,11 +86,14 @@ public class DataHubConverter {
 	}
 	public static DHType javaTypeToDHType(Type t){
 		try{
-			if(t.equals(Constants.class.getField(Constants.integerColumnName).getGenericType())){
+			if(t.equals(Integer.TYPE)){
 				return DHType.Integer;
 			}
-			if(t.equals(Constants.class.getField(Constants.integerColumnName).getGenericType())){
+			if(t.equals(Boolean.TYPE)){
 				return DHType.Boolean;
+			}
+			if(t.equals(String.class)){
+				return DHType.Text;
 			}
 		}catch(Exception e){
 			
