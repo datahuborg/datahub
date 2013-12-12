@@ -2,6 +2,7 @@ package DataHubResources;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
 
 import DataHubORM.DataHubConverter;
 
@@ -31,7 +32,7 @@ public class Resources {
 	}
 	public static Object convert(Object c, Type t){
 		if(t.equals(String.class)){
-			return Byte.toString(c);
+			return new String(((ByteBuffer) c).array());
 		}
 		return c;
 	}
