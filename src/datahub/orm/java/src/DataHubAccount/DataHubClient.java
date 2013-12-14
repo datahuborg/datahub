@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TJSONProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransportException;
 
@@ -68,6 +69,7 @@ public class DataHubClient {
 		socket = newSocket;
 		socket.open();
 		TBinaryProtocol bp = new TBinaryProtocol(socket);
+		//TJSONProtocol jp = new TJSONProtocol(socket);
 		client = new DataHub.Client(bp);
 		database = db;
 		DHConnectionParams dhcp = getConnectionParams(database);

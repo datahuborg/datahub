@@ -2,6 +2,7 @@ package DataHubResources;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
 import DataHubORM.DataHubConverter;
@@ -33,6 +34,10 @@ public class Resources {
 	public static Object convert(Object c, Type t){
 		if(t.equals(String.class)){
 			return new String(((ByteBuffer) c).array());
+		}
+		if(t.equals(Integer.TYPE)){
+			int result = new BigInteger(((ByteBuffer) c).array()).intValue();
+			return result;
 		}
 		return c;
 	}

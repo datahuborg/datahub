@@ -2,6 +2,7 @@ package DataHubORMTests;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import org.apache.thrift.TException;
@@ -73,16 +74,21 @@ public class DataHubClientTests {
 	public void testGetSchema(){
 		TestDatabase db = new TestDatabase();
 		db.setDataHubAccount(this.test_dha);
-		TestModel m = new TestModel();
 		try{
 			//test_dhc.connect(bdb1);
 			//System.out.println(test_dhc.getDatabaseSchema());
 			//System.out.println(test_dhc.getDatabaseSchema().data.schema.fields);
 			db.connect();
-			System.out.println(db.test.findAll().get(0).name);
-			System.out.println(db.test.findAll().get(0).description);
-			System.out.println(db.test.findAll().get(1).name);
-			System.out.println(db.test.findAll().get(1).description);
+			ArrayList<TestModel> results = db.test.findAll();
+			for(TestModel m1: results){
+				System.out.println(m1.id);
+				System.out.println(m1.name);
+				System.out.println(m1.description);
+				System.out.println(m1.findAll());
+				System.out.println(m1.generateSQLRep());
+				m1.description = "lol";
+				m1.save();
+			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}

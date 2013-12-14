@@ -21,7 +21,7 @@ public class DataHubConverter {
 		ArrayList<HashMap<String,HashMap<String,DHType>>> out = new ArrayList<HashMap<String,HashMap<String,DHType>>>();
 		ArrayList<Field> models = findModels(db);
 		for(Field model: models){
-			out.add(extractDataFromClass(model));
+			out.add(extractDataFromClass(model.getClass()));
 		}
 		return out;
 	}
@@ -39,7 +39,7 @@ public class DataHubConverter {
 		}
 		return modelFields;
 	}
-	public static HashMap<String,HashMap<String,DHType>> extractDataFromClass(Field model){
+	public static HashMap<String,HashMap<String,DHType>> extractDataFromClass(Class model){
 		
 		//TODO: do model type checks here
 		
@@ -48,11 +48,11 @@ public class DataHubConverter {
 		HashMap<String,DHType> fieldsDHType = new HashMap<String,DHType>();
 		
 		//model fields
-		Field[] fields = model.getClass().getDeclaredFields();
+		Field[] fields = model.getDeclaredFields();
 		
 		//table annotation detection
 		int tableCount = 0;
-		String tableName = "";
+		String tableName = null;
 		
 		//iterate over all fields
 		for(Field f:fields){
@@ -60,28 +60,26 @@ public class DataHubConverter {
 			if(f.isAnnotationPresent(column.class)){
 				fieldsDHType.put(f.getName(), javaTypeToDHType(f.getType()));
 			}
-			//check for table annotation
-			if(f.isAnnotationPresent(table.class)){
-				try {
-					if(f.get(null) != null){
-						
-						//update table information
-						tableName = f.get(null).toString();
-						tableCount++;
-						if(tableCount > 1){
-							throw new Exception("Too many tables!");
-						}
-					}
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+		}
+		//check for table annotation
+		if(model.isAnnotationPresent(table.class)){
+			try {
+				//update table information
+				tableName = ((table) model.getAnnotation(table.class)).name();
+				tableCount++;
+				if(tableCount > 1){
+					throw new Exception("Too many tables!");
 				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		//ensure table exists before returning anything
 		if(tableName != null){
 			output.put(tableName, fieldsDHType);
 		}
+		//System.out.println(output);
 		return output;
 	}
 	public static DHType javaTypeToDHType(Type t){
