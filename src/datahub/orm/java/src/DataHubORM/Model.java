@@ -25,7 +25,7 @@ public class Model<T extends Model>{
 	
 	private Database db;
 	
-	@column
+	@column(name="")
 	public int id;
 
 	public Model(){
@@ -37,14 +37,20 @@ public class Model<T extends Model>{
 	public void save(){
 		try{
 			String query = "";
-			if(this.getId() == 0){
-				query = "INSET INTO "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.getId();
+			//fix this
+			if(this.getId() <= 0){
+				//query = "INSET INTO "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.getId();
+				query = "INSERT INTO "+this.getCompleteTableName()+"(name,description) VALUES('lol','hi')";
+				this.db.dbQuery(query);
+				this.updateModel();
+				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.getId();
 			}else{
 				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.getId();
 			}
+			System.out.println(query);
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
 			DHQueryResult dhqr = this.db.dbQuery(query);
-			updateModel();
+			//updateModel();
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -144,25 +150,27 @@ public class Model<T extends Model>{
 		DHData data = dhqr.getData();
 		DHSchema schema = data.getSchema();
 		DHTable table  = data.getTable();
-		DHRow row = table.rows.get(rowNumber);
-		List<DHField> fields = schema.getFields();
-		for(int j = 0; j < fields.size(); j++){
-			DHField f = fields.get(j);
-			DHCell v = row.getCells().get(j);
-			
-			//set internal id
-			if(f.name.equals("id")){
-				setId((int)Resources.convert(v.value, Integer.TYPE));
-			}
-			//maybe move this somewhere
-			try{
-				Field f1 = this.getClass().getField(f.name);
+		if(table.rows.size() > 0){
+			DHRow row = table.rows.get(rowNumber);
+			List<DHField> fields = schema.getFields();
+			for(int j = 0; j < fields.size(); j++){
+				DHField f = fields.get(j);
+				DHCell v = row.getCells().get(j);
 				
-				if(f1.isAnnotationPresent(column.class)){
-					Resources.setField(objectToUpdate, f.name, v.value);
+				//set internal id
+				if(f.name.equals("id")){
+					setId((int)Resources.convert(v.value, Integer.TYPE));
 				}
-			}catch(Exception e){
-				
+				//maybe move this somewhere
+				try{
+					Field f1 = this.getClass().getField(f.name);
+					
+					if(f1.isAnnotationPresent(column.class)){
+						Resources.setField(objectToUpdate, f.name, v.value);
+					}
+				}catch(Exception e){
+					
+				}
 			}
 		}
 	}

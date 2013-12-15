@@ -79,6 +79,13 @@ public class DataHubClientTests {
 			//System.out.println(test_dhc.getDatabaseSchema());
 			//System.out.println(test_dhc.getDatabaseSchema().data.schema.fields);
 			db.connect();
+			for(int i=0; i<10; i++){
+				TestModel t = new TestModel();
+				t.setDatabase(db);
+				t.name = i+"";
+				t.description = i+"s description";
+				t.save();
+			}
 			ArrayList<TestModel> results = db.test.findAll();
 			for(TestModel m1: results){
 				System.out.println(m1.id);
@@ -88,6 +95,7 @@ public class DataHubClientTests {
 				System.out.println(m1.generateSQLRep());
 				m1.description = "lol";
 				m1.save();
+				m1.destroy();
 			}
 		}catch(Exception e){
 			e.printStackTrace();
