@@ -3,6 +3,9 @@ package DataHubORM;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
+import org.apache.thrift.TException;
+
+import datahub.DHException;
 import datahub.DHQueryResult;
 
 import Annotations.database;
@@ -18,9 +21,13 @@ public abstract class Database {
 	public void setDataHubAccount(DataHubAccount dha){
 		this.dhc = new DataHubClient(dha);
 	}
-	public void connect() throws Exception{
-		dhc.connect(this);
-		//dhc.updateSchema(this);
+	public void connect() throws DataHubException{
+		try {
+			dhc.connect(this);
+		} catch (Exception e){
+			//fix this
+			throw new DataHubException();
+		}
 		instantiateAndSetup();
 	}
 	private void instantiateAndSetup(){

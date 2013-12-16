@@ -21,7 +21,7 @@ public class DataHubConverter {
 		ArrayList<HashMap<String,HashMap<String,DHType>>> out = new ArrayList<HashMap<String,HashMap<String,DHType>>>();
 		ArrayList<Field> models = findModels(db);
 		for(Field model: models){
-			out.add(extractDataFromClass(model.getClass()));
+			out.add(extractDataFromClass(model.getType()));
 		}
 		return out;
 	}
@@ -34,7 +34,7 @@ public class DataHubConverter {
 					modelFields.add(f);
 				}
 			}catch(Exception e){
-				
+				//e.printStackTrace();
 			}
 		}
 		return modelFields;
@@ -79,7 +79,6 @@ public class DataHubConverter {
 		if(tableName != null){
 			output.put(tableName, fieldsDHType);
 		}
-		//System.out.println(output);
 		return output;
 	}
 	public static DHType javaTypeToDHType(Type t){

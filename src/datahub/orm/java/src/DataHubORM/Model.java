@@ -23,70 +23,94 @@ import DataHubResources.Resources;
 @table(name="")
 public class Model<T extends Model>{
 	
-	private Database db;
+	private static Database db;
 	
-	@column(name="")
+	@column(name="id")
 	public int id;
 
 	public Model(){
-		
+		this.id = 0;
 	}
-	public void setDatabase(Database db){
-		this.db = db;
+	public static void setDatabase(Database db){
+		Model.db = db;
+	}
+	public static Database getDatabase(){
+		return db;
 	}
 	public void save(){
 		try{
 			String query = "";
 			//fix this
-			if(this.getId() <= 0){
-				//query = "INSET INTO "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.getId();
-				query = "INSERT INTO "+this.getCompleteTableName()+"(name,description) VALUES('lol','hi')";
-				this.db.dbQuery(query);
-				this.updateModel();
-				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.getId();
+			if(this.id <= 0){
+				query = "INSERT INTO "+this.getCompleteTableName()+"("+this.getFieldNames()+")"+" VALUES( "+getFieldValues()+")";
+				System.out.println(query);
 			}else{
-				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.getId();
+				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.id;
 			}
-			System.out.println(query);
-			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
-			DHQueryResult dhqr = this.db.dbQuery(query);
-			//updateModel();
+			DHQueryResult dhqr = db.dbQuery(query);
+			updateModel();
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 	public void destroy(){
 		try{
-			String query = "DELETE FROM "+this.getCompleteTableName()+" WHERE "+"id="+this.getId();
+			String query = "DELETE FROM "+this.getCompleteTableName()+" WHERE "+"id="+this.id;
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
-			this.db.dbQuery(query);
+			System.out.println(query);
+			db.dbQuery(query);
 			//possibly garbage collect object
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
-	public ArrayList<T> findAll(){
-		
+	public ArrayList<T> all(){
+		String query = "select * FROM "+this.getCompleteTableName();
+		return query(query);
+	}
+	public ArrayList<T> findAll(HashMap<String,Object> params){
+		String query = "select * FROM "+this.getCompleteTableName()+" WHERE "+ queryToSQL(params);
+		return query(query);
+	}
+	public T findOne(HashMap<String,Object> params){
+		String query = "select * FROM "+this.getCompleteTableName()+" WHERE "+ queryToSQL(params) +" LIMIT 1";
+		if(query(query).size() > 0){
+			return query(query).get(0);
+		}
+		return null; 
+	}
+	private ArrayList<T> query(String query){
+		ArrayList<T> output = new ArrayList<T>();
 		//non-static implementation (should be static though)
 		//get table name
 		//get model class name
 		//make query to datahub and create new instances 
-		ArrayList<T> output = new ArrayList<T>();
 		try{
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
-			output = dhQueryToModel(this.db.dbQuery("select * FROM "+this.getCompleteTableName()));
+			output = dhQueryToModel(db.dbQuery(query));
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 		return output;
 	}
-	private void setId(int id){
-		this.id = id;
+	private String queryToSQL(HashMap<String,Object> query){
+		String out = "";
+		int counter = 0;
+		int size = query.keySet().size();
+		for(String field:query.keySet()){
+			counter++;
+			if(Resources.hasField(this.getClass(), field)){
+				String val = Resources.objectToSQL(query.get(field));
+				out+=field+"="+val;
+				if(counter < size){
+					out+=",";
+				}
+			}			
+		}
+		return out;
 	}
-	private int getId(){
-		return id-48;
-	}
-	public String generateSQLRep(){
+	private String generateSQLRep(){
 		String out ="";
 		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
 		HashMap<String,DHType> currentModel = models.get(this.getTableName());
@@ -95,17 +119,7 @@ public class Model<T extends Model>{
 		for(String field:currentModel.keySet()){
 			counter++;
 			if(field!="id"){
-				String val = "";
-				try{
-					Object o = this.getClass().getField(field).get(this);
-					if(o.getClass().equals(String.class)){
-						val = "'"+o.toString()+"'";
-					}else{
-						val = o.toString();
-					}
-				}catch(Exception e){
-					
-				}
+				String val = Resources.getFieldStringRep(this,field);
 				out+=field+"="+val;
 				if(counter < size){
 					out+=",";
@@ -114,14 +128,34 @@ public class Model<T extends Model>{
 		}
 		return out;
 	}
-	public String getFieldNames(){
+	private String getFieldNames(){
 		String out ="";
 		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
 		HashMap<String,DHType> currentModel = models.get(this.getTableName());
+		int counter = 0;
+		int size = currentModel.keySet().size();
+		for(String field:currentModel.keySet()){
+			counter++;
+			out+=field;
+			if(counter < size){
+				out+=",";
+			}
+		}
 		return out;
 	}
-	public String getFieldValues(){
+	private String getFieldValues(){
 		String out ="";
+		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
+		HashMap<String,DHType> currentModel = models.get(this.getTableName());
+		int counter = 0;
+		int size = currentModel.keySet().size();
+		for(String field:currentModel.keySet()){
+			counter++;
+			out+=Resources.getFieldStringRep(this,field);;
+			if(counter < size){
+				out+=",";
+			}
+		}
 		return out;
 	}
 	private ArrayList<T> dhQueryToModel(DHQueryResult dhqr) throws InstantiationException, IllegalAccessException{
@@ -134,7 +168,6 @@ public class Model<T extends Model>{
 		DHTable table  = data.getTable();
 		for(int i = 0; i < table.rows.size(); i++){
 			T newObj = newInstance();
-			newObj.setDatabase(this.db);
 			updateNewModel(dhqr, i,newObj);
 			output.add(newObj);
 		}
@@ -142,7 +175,7 @@ public class Model<T extends Model>{
 	}
 	private void updateModel(){
 		//worry about casting issues here
-		String query = "SELECT * FROM "+ this.getCompleteTableName()+" WHERE  id="+this.getId();
+		String query = "SELECT * FROM "+ this.getCompleteTableName()+" WHERE  id="+this.id;
 		DHQueryResult dhqr = this.db.dbQuery(query);
 		updateNewModel(dhqr,0,(T)this);
 	}
@@ -156,15 +189,11 @@ public class Model<T extends Model>{
 			for(int j = 0; j < fields.size(); j++){
 				DHField f = fields.get(j);
 				DHCell v = row.getCells().get(j);
-				
-				//set internal id
-				if(f.name.equals("id")){
-					setId((int)Resources.convert(v.value, Integer.TYPE));
-				}
-				//maybe move this somewhere
 				try{
 					Field f1 = this.getClass().getField(f.name);
-					
+					if(f.name.equals("id")){
+						objectToUpdate.id = (int)Resources.convert(v.value, Integer.TYPE);
+					}
 					if(f1.isAnnotationPresent(column.class)){
 						Resources.setField(objectToUpdate, f.name, v.value);
 					}
@@ -173,11 +202,6 @@ public class Model<T extends Model>{
 				}
 			}
 		}
-	}
-	public T test() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, InstantiationException{
-		T obj = newInstance();
-		Resources.setField(obj, "name", "david");
-		return obj;
 	}
 	private T newInstance() throws InstantiationException, IllegalAccessException{
 		return (T) getClass().newInstance();

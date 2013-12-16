@@ -23,6 +23,16 @@ public class Resources {
 			//e.printStackTrace();
 		}
 	}
+	public static boolean hasField(Class c, String field){
+		boolean out =  false;
+		try{
+			c.getField(field);
+			out = true;
+		}catch(Exception e){
+			
+		}
+		return out;
+	}
 	public static <T> T fieldToInstance(Field f){
 		try{
 			return (T) f.getType().newInstance();
@@ -31,12 +41,31 @@ public class Resources {
 			return null;
 		}
 	}
+	public static String getFieldStringRep(Object o, String field){
+		String out = "";
+		try{
+			Object o1 = o.getClass().getField(field).get(o);
+			out=objectToSQL(o1);
+		}catch(Exception e){
+			
+		}
+		return out;
+	}
+	public static String objectToSQL(Object o1){
+		String out = "";
+		if(o1.getClass().equals(String.class)){
+			out = "'"+o1.toString()+"'";
+		}else{
+			out = o1.toString();
+		}
+		return out;
+	}
 	public static Object convert(Object c, Type t){
 		if(t.equals(String.class)){
 			return new String(((ByteBuffer) c).array());
 		}
 		if(t.equals(Integer.TYPE)){
-			int result = new BigInteger(((ByteBuffer) c).array()).intValue();
+			int result = Integer.parseInt(new String(((ByteBuffer) c).array()));
 			return result;
 		}
 		return c;

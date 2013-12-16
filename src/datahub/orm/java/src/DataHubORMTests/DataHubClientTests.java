@@ -3,6 +3,7 @@ package DataHubORMTests;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import org.apache.thrift.TException;
@@ -75,27 +76,27 @@ public class DataHubClientTests {
 		TestDatabase db = new TestDatabase();
 		db.setDataHubAccount(this.test_dha);
 		try{
-			//test_dhc.connect(bdb1);
-			//System.out.println(test_dhc.getDatabaseSchema());
-			//System.out.println(test_dhc.getDatabaseSchema().data.schema.fields);
 			db.connect();
-			for(int i=0; i<10; i++){
+			TestModel.setDatabase(db);
+			/*for(int i=0; i<10; i++){
 				TestModel t = new TestModel();
-				t.setDatabase(db);
 				t.name = i+"";
 				t.description = i+"s description";
 				t.save();
-			}
-			ArrayList<TestModel> results = db.test.findAll();
+			}*/
+			//ArrayList<TestModel> results = db.test.findAll();
+			HashMap<String, Object> params = new HashMap<String,Object>();
+			params.put("name", "f");
+			ArrayList<TestModel> results = db.test.findAll(params);
 			for(TestModel m1: results){
-				System.out.println(m1.id);
-				System.out.println(m1.name);
+				System.out.println("id"+m1.id);
+				System.out.println("name"+m1.name);
 				System.out.println(m1.description);
-				System.out.println(m1.findAll());
-				System.out.println(m1.generateSQLRep());
-				m1.description = "lol";
-				m1.save();
-				m1.destroy();
+				//System.out.println(m1.findAll());
+				//System.out.println(m1.generateSQLRep());
+				//m1.description = "lol";
+				//m1.save();
+				//m1.destroy();
 			}
 		}catch(Exception e){
 			e.printStackTrace();
