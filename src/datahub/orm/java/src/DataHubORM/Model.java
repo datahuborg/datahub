@@ -48,6 +48,7 @@ public class Model<T extends Model>{
 				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.id;
 			}
 			DHQueryResult dhqr = db.dbQuery(query);
+			//System.out.println(dhqr);
 			updateModel();
 		}catch(Exception e){
 			e.printStackTrace();
@@ -111,6 +112,9 @@ public class Model<T extends Model>{
 		return out;
 	}
 	private String generateSQLRep(){
+		return generateSQLRep(",");
+	}
+	private String generateSQLRep(String linkSymbol){
 		String out ="";
 		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
 		HashMap<String,DHType> currentModel = models.get(this.getTableName());
@@ -122,7 +126,7 @@ public class Model<T extends Model>{
 				String val = Resources.getFieldStringRep(this,field);
 				out+=field+"="+val;
 				if(counter < size){
-					out+=",";
+					out+=" "+linkSymbol+" ";
 				}
 			}
 		}
@@ -174,8 +178,8 @@ public class Model<T extends Model>{
 		return output;
 	}
 	private void updateModel(){
-		//worry about casting issues here
-		String query = "SELECT * FROM "+ this.getCompleteTableName()+" WHERE  id="+this.id;
+		//TODO:VERY BIG ISSUE HERE, need to get id somehow, not sure how though
+		String query = "SELECT * FROM "+ this.getCompleteTableName()+" WHERE "+generateSQLRep("AND");
 		DHQueryResult dhqr = this.db.dbQuery(query);
 		updateNewModel(dhqr,0,(T)this);
 	}

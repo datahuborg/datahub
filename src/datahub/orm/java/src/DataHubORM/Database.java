@@ -30,6 +30,9 @@ public abstract class Database {
 		}
 		instantiateAndSetup();
 	}
+	public void disconnect(){
+		dhc.disconnect();
+	}
 	private void instantiateAndSetup(){
 		ArrayList<Field> fields = DataHubConverter.findModels(this);
 		for(Field f:fields){

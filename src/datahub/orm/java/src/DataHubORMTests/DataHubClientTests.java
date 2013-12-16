@@ -27,34 +27,88 @@ import DataHubORM.Database;
 public class DataHubClientTests {
 	public DataHubAccount test_dha;
 	public DataHubClient test_dhc;
-	
+	public TestDatabase db;
 	@Before
 	public void setUp() throws DHException, TException{
 		test_dha = new DataHubAccount("dggoeh1", new DataHubUser("dggoeh1@mit.edu","dggoeh1"));
 		test_dhc = new DataHubClient(test_dha);
+		TestDatabase db = new TestDatabase();
+		db.setDataHubAccount(this.test_dha);
+		try{
+			db.connect();
+			this.db = db;
+			TestModel.setDatabase(db);
+		}catch(Exception e){
+			
+		}
 	}
 	
 	@After
 	public void tearDown(){
-		test_dhc.disconnect();
+		db.disconnect();
 	}
-	/*@Test
-	public void testExists() throws Exception {
-		TestDatabase bdb1 = new TestDatabase();
-		TestDatabase bdb2 = new TestDatabase("test2");
-		assertEquals(true, test_dhc.databaseExists(bdb1));
-		assertEquals(false, test_dhc.databaseExists(bdb2));
+	
+	@Test
+	public void testCreateAndDelete(){
+		Random generator = new Random();
+		String name = "test"+Math.abs(generator.nextInt());
+		String description = "test row";
+		TestModel t = new TestModel();
+		t.name = name;
+		t.description = description;
+		t.save();
+		assertEquals(t.id!=0,true);
+		
+		HashMap<String, Object> params = new HashMap<String,Object>();
+		params.put("name", name);
+		TestModel t1 = this.db.test.findOne(params);
+		assertEquals(t1!=null,true);
+		assertEquals(t1.name,t.name);
+		assertEquals(t1.description,t.description);
+		
+		
+		t.destroy();
+		TestModel t2 = this.db.test.findOne(params);
+		assertEquals(t2==null,true);
 	}
 	@Test
-	public void testCreateAndDropDB() throws Exception{
+	public void testSave(){
 		Random generator = new Random();
-		Database bdb = new Database("test"+Math.abs(generator.nextInt()));
-		test_dhc.createDatabase(bdb);
-		assertEquals(true, test_dhc.databaseExists(bdb));
-		test_dhc.dropDatabase(bdb);
-		assertEquals(false, test_dhc.databaseExists(bdb));
-	}*/
-	//@Test
+		String name = "test"+Math.abs(generator.nextInt());
+		String description = "test row";
+		TestModel t = new TestModel();
+		t.name = name;
+		t.description = description;
+		t.save();
+		assertEquals(t.id!=0,true);
+		
+		int id = t.id;
+		HashMap<String, Object> params = new HashMap<String,Object>();
+		params.put("id", id);
+		
+		//verify creation
+		TestModel t1 = this.db.test.findOne(params);
+		assertEquals(t1!=null,true);
+		assertEquals(t1.name,t.name);
+		assertEquals(t1.description,t.description);
+		
+		//change stuff
+		String newName = "lol";
+		t.name = "lol";
+		t.description = "he-llo-o";
+		t.save();
+
+		TestModel t2 = this.db.test.findOne(params);
+		assertEquals(t2!=null,true);
+		assertEquals(t2.name,t.name);
+		assertEquals(t2.description,t.description);
+		
+		t.destroy();
+		TestModel t3 = this.db.test.findOne(params);
+		assertEquals(t3==null,true);
+	}
+
+	@Test
 	public void basicTest(){
       TTransport transport = new TSocket(
                  "datahub-experimental.csail.mit.edu", 9000);
