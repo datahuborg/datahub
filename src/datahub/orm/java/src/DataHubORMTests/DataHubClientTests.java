@@ -37,7 +37,6 @@ public class DataHubClientTests {
 		try{
 			db.connect();
 			this.db = db;
-			TestModel.setDatabase(db);
 		}catch(Exception e){
 			
 		}

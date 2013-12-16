@@ -38,6 +38,7 @@ public abstract class Database {
 		for(Field f:fields){
 			Resources.setField(this,f.getName(), Resources.fieldToInstance(f));
 			try{
+				//TODO: somehow make this static
 				((Model) f.get(this)).setDatabase(this);
 			}catch(Exception e){
 				e.printStackTrace();
