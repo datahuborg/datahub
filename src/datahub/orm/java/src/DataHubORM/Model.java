@@ -1,8 +1,10 @@
 package DataHubORM;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import datahub.DHCell;
@@ -31,8 +33,14 @@ public class Model<T extends Model>{
 	public Model(){
 		this.id = 0;
 	}
-	public static void setDatabase(Database db){
-		Model.db = db;
+	public static void setDatabase(Database database) throws DataHubException{
+		//TODO: figure out why this is getting set more than once
+		db=database;
+		/*if(db == null){
+			db = database;
+		}else{
+			//throw new DataHubException();
+		}*/
 	}
 	public static Database getDatabase(){
 		return db;
@@ -43,7 +51,7 @@ public class Model<T extends Model>{
 			//fix this
 			if(this.id <= 0){
 				query = "INSERT INTO "+this.getCompleteTableName()+"("+this.getFieldNames()+")"+" VALUES( "+getFieldValues()+")";
-				System.out.println(query);
+				//System.out.println(query);
 			}else{
 				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.id;
 			}
@@ -58,7 +66,7 @@ public class Model<T extends Model>{
 		try{
 			String query = "DELETE FROM "+this.getCompleteTableName()+" WHERE "+"id="+this.id;
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
-			System.out.println(query);
+			//System.out.println(query);
 			db.dbQuery(query);
 			//possibly garbage collect object
 		}catch(Exception e){
@@ -96,71 +104,54 @@ public class Model<T extends Model>{
 		return output;
 	}
 	private String queryToSQL(HashMap<String,Object> query){
-		String out = "";
-		int counter = 0;
-		int size = query.keySet().size();
+		ArrayList<String> keyVal = new ArrayList<String>();
 		for(String field:query.keySet()){
-			counter++;
 			if(Resources.hasField(this.getClass(), field)){
 				String val = Resources.objectToSQL(query.get(field));
-				out+=field+"="+val;
-				if(counter < size){
-					out+=",";
-				}
+				keyVal.add(field+"="+val);
 			}			
 		}
-		return out;
+		return converToSQLAndConcatenate(keyVal,"AND");
 	}
 	private String generateSQLRep(){
 		return generateSQLRep(",");
 	}
 	private String generateSQLRep(String linkSymbol){
-		String out ="";
 		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
 		HashMap<String,DHType> currentModel = models.get(this.getTableName());
-		int counter = 0;
-		int size = currentModel.keySet().size();
+		ArrayList<String> fieldData = new ArrayList<String>();
 		for(String field:currentModel.keySet()){
-			counter++;
 			if(field!="id"){
 				String val = Resources.getFieldStringRep(this,field);
-				out+=field+"="+val;
-				if(counter < size){
-					out+=" "+linkSymbol+" ";
-				}
+				fieldData.add(val);
+			}
+		}
+		return converToSQLAndConcatenate(fieldData,linkSymbol);
+	}
+	private <Q> String converToSQLAndConcatenate(Iterable<Q> i, String linkSymbol){
+		String out = "";
+		for(Q object: i){
+			String objStr = Resources.objectToSQL(i);
+			out+=objStr;
+			if(i.iterator().hasNext()){
+				out+=" "+linkSymbol+" ";
 			}
 		}
 		return out;
 	}
 	private String getFieldNames(){
-		String out ="";
 		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
 		HashMap<String,DHType> currentModel = models.get(this.getTableName());
-		int counter = 0;
-		int size = currentModel.keySet().size();
-		for(String field:currentModel.keySet()){
-			counter++;
-			out+=field;
-			if(counter < size){
-				out+=",";
-			}
-		}
-		return out;
+		return converToSQLAndConcatenate(currentModel.keySet(),",");
 	}
 	private String getFieldValues(){
-		String out ="";
 		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
 		HashMap<String,DHType> currentModel = models.get(this.getTableName());
-		int counter = 0;
-		int size = currentModel.keySet().size();
+		ArrayList<String> fieldData = new ArrayList<String>();
 		for(String field:currentModel.keySet()){
-			counter++;
-			out+=Resources.getFieldStringRep(this,field);;
-			if(counter < size){
-				out+=",";
-			}
+			fieldData.add(Resources.getFieldStringRep(this,field));
 		}
-		return out;
+		return converToSQLAndConcatenate(fieldData,",");
 	}
 	private ArrayList<T> dhQueryToModel(DHQueryResult dhqr) throws InstantiationException, IllegalAccessException{
 		ArrayList<T> output = new ArrayList<T>();
@@ -187,6 +178,12 @@ public class Model<T extends Model>{
 		DHData data = dhqr.getData();
 		DHSchema schema = data.getSchema();
 		DHTable table  = data.getTable();
+		HashMap<String,String> columnToField = new HashMap<String,String>();
+		for(Field f: this.getClass().getDeclaredFields()){
+			if(f.isAnnotationPresent(column.class)){
+				columnToField.put(f.getAnnotation(column.class).name(), f.getName());
+			}
+		}
 		if(table.rows.size() > 0){
 			DHRow row = table.rows.get(rowNumber);
 			List<DHField> fields = schema.getFields();
@@ -194,11 +191,15 @@ public class Model<T extends Model>{
 				DHField f = fields.get(j);
 				DHCell v = row.getCells().get(j);
 				try{
-					Field f1 = this.getClass().getField(f.name);
-					if(f.name.equals("id")){
-						objectToUpdate.id = (int)Resources.convert(v.value, Integer.TYPE);
-					}
-					if(f1.isAnnotationPresent(column.class)){
+					//TODO: change from getting field name directly to getting annotations
+					//from annotation get field
+					if(columnToField.containsKey(f.name)){
+						String fieldName = columnToField.get(f.name);
+						Field f1 = this.getClass().getField(fieldName);
+						//specifically set id
+						if(f.name.equals("id")){
+							objectToUpdate.id = (int)Resources.convert(v.value, Integer.TYPE);
+						}
 						Resources.setField(objectToUpdate, f.name, v.value);
 					}
 				}catch(Exception e){

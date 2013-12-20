@@ -93,14 +93,15 @@ public class DataHubClientTests {
 		
 		//change stuff
 		String newName = "lol";
+		String newDescription = "he-llo-o";
 		t.name = "lol";
 		t.description = "he-llo-o";
 		t.save();
 
 		TestModel t2 = this.db.test.findOne(params);
 		assertEquals(t2!=null,true);
-		assertEquals(t2.name,t.name);
-		assertEquals(t2.description,t.description);
+		assertEquals(t2.name,newName);
+		assertEquals(t2.description,newDescription);
 		
 		t.destroy();
 		TestModel t3 = this.db.test.findOne(params);

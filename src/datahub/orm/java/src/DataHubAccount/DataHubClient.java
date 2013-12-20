@@ -32,7 +32,7 @@ import DataHubResources.Resources;
 //TODO: convert all exceptions to datahub exceptions
 //each user should have datahub table so that we know which databases are currently allocated to user
 //actual database names should have username as prefix so unique
-public class DataHubClient {
+public class DataHubClient{
 	private DataHubAccount dha;
 	private DHConnection currentConnection;
 	private Client client;
