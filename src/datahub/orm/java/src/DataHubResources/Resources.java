@@ -45,7 +45,7 @@ public class Resources {
 		String out = "";
 		try{
 			Object o1 = o.getClass().getField(field).get(o);
-			out=objectToSQL(o1);
+			out=o1.toString();
 		}catch(Exception e){
 			
 		}

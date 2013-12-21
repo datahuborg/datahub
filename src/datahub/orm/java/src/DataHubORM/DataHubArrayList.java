@@ -33,4 +33,5 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 			this.currentModel = m;
 		}
 	}
+	//add query this set methods
 }

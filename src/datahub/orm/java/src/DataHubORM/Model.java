@@ -111,7 +111,7 @@ public class Model<T extends Model>{
 				keyVal.add(field+"="+val);
 			}			
 		}
-		return converToSQLAndConcatenate(keyVal,"AND");
+		return concatenate(keyVal,"AND");
 	}
 	private String generateSQLRep(){
 		return generateSQLRep(",");
@@ -123,26 +123,35 @@ public class Model<T extends Model>{
 		for(String field:currentModel.keySet()){
 			if(field!="id"){
 				String val = Resources.getFieldStringRep(this,field);
-				fieldData.add(val);
+				String entry = field+"="+Resources.objectToSQL(val);
+				fieldData.add(entry);
 			}
 		}
-		return converToSQLAndConcatenate(fieldData,linkSymbol);
+		return concatenate(fieldData,linkSymbol);
 	}
-	private <Q> String converToSQLAndConcatenate(Iterable<Q> i, String linkSymbol){
+	private <Q> String concatenate(Iterable<Q> i, String linkSymbol){
 		String out = "";
-		for(Q object: i){
-			String objStr = Resources.objectToSQL(i);
-			out+=objStr;
-			if(i.iterator().hasNext()){
+		Iterator<Q> p = i.iterator();
+		while(p.hasNext()){
+			out+=p.next().toString();
+			if(p.hasNext()){
 				out+=" "+linkSymbol+" ";
 			}
 		}
 		return out;
 	}
+	private <Q> String converToSQLAndConcatenate(Iterable<Q> i, String linkSymbol){
+		ArrayList<String> sqlVersions = new ArrayList<String>();
+		for(Q object: i){
+			String objStr = Resources.objectToSQL(object);
+			sqlVersions.add(objStr);
+		}
+		return concatenate(sqlVersions,linkSymbol);
+	}
 	private String getFieldNames(){
 		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
 		HashMap<String,DHType> currentModel = models.get(this.getTableName());
-		return converToSQLAndConcatenate(currentModel.keySet(),",");
+		return concatenate(currentModel.keySet(),",");
 	}
 	private String getFieldValues(){
 		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
@@ -171,7 +180,9 @@ public class Model<T extends Model>{
 	private void updateModel(){
 		//TODO:VERY BIG ISSUE HERE, need to get id somehow, not sure how though
 		String query = "SELECT * FROM "+ this.getCompleteTableName()+" WHERE "+generateSQLRep("AND");
+		//System.out.println(query);
 		DHQueryResult dhqr = this.db.dbQuery(query);
+		//System.out.println(dhqr);
 		updateNewModel(dhqr,0,(T)this);
 	}
 	private void updateNewModel(DHQueryResult dhqr, int rowNumber, T objectToUpdate){
@@ -179,7 +190,8 @@ public class Model<T extends Model>{
 		DHSchema schema = data.getSchema();
 		DHTable table  = data.getTable();
 		HashMap<String,String> columnToField = new HashMap<String,String>();
-		for(Field f: this.getClass().getDeclaredFields()){
+		//TODO: ID issues
+		for(Field f: this.getClass().getFields()){
 			if(f.isAnnotationPresent(column.class)){
 				columnToField.put(f.getAnnotation(column.class).name(), f.getName());
 			}
@@ -195,12 +207,12 @@ public class Model<T extends Model>{
 					//from annotation get field
 					if(columnToField.containsKey(f.name)){
 						String fieldName = columnToField.get(f.name);
-						Field f1 = this.getClass().getField(fieldName);
+						//Field f1 = this.getClass().getField(fieldName);
 						//specifically set id
 						if(f.name.equals("id")){
 							objectToUpdate.id = (int)Resources.convert(v.value, Integer.TYPE);
 						}
-						Resources.setField(objectToUpdate, f.name, v.value);
+						Resources.setField(objectToUpdate, fieldName, v.value);
 					}
 				}catch(Exception e){
 					
