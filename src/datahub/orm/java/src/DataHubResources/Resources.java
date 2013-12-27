@@ -33,6 +33,15 @@ public class Resources {
 		}
 		return out;
 	}
+	public static Field getField(Class c, String field){
+		Field out =  null;
+		try{
+			out = c.getField(field);
+		}catch(Exception e){
+			
+		}
+		return out;
+	}
 	public static <T> T fieldToInstance(Field f){
 		try{
 			return (T) f.getType().newInstance();

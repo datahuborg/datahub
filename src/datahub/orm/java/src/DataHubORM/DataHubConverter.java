@@ -10,6 +10,7 @@ import java.util.HashMap;
 import javax.print.DocFlavor.STRING;
 
 import Annotations.column;
+import Annotations.column.Index;
 import Annotations.table;
 import DataHubResources.Constants;
 
@@ -29,15 +30,23 @@ public class DataHubConverter {
 		Field[] dbFields = db.getClass().getFields();
 		ArrayList<Field> modelFields = new ArrayList<Field>();
 		for(Field f:dbFields){
-			try{
-				if(f.getType().equals(Model.class) || f.getType().asSubclass(Model.class) != null){
-					modelFields.add(f);
-				}
-			}catch(Exception e){
-				//e.printStackTrace();
+			//get type which is type of object held in field not Field Class
+			if(isModelSubclass(f.getType())){
+				modelFields.add(f);
 			}
+
 		}
 		return modelFields;
+	}
+	public static boolean isModelSubclass(Class c){
+		try{
+			if(c.equals(Model.class) || c.asSubclass(Model.class) != null){
+				return true;
+			}
+		}catch(Exception e){
+			//e.printStackTrace();
+		}
+		return false;
 	}
 	public static HashMap<String,HashMap<String,DHType>> extractDataFromClass(Class model){
 		
@@ -57,7 +66,7 @@ public class DataHubConverter {
 		//iterate over all fields
 		for(Field f:fields){
 			//check for column annotation
-			if(f.isAnnotationPresent(column.class)){
+			if(hasColumnBasic(f)){
 				fieldsDHType.put(f.getName(), javaTypeToDHType(f.getType()));
 			}
 		}
@@ -80,6 +89,12 @@ public class DataHubConverter {
 			output.put(tableName, fieldsDHType);
 		}
 		return output;
+	}
+	public static boolean hasColumnBasic(Field f){
+		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).Index() != Index.LinkedSet){
+			return true;
+		}
+		return false;
 	}
 	public static DHType javaTypeToDHType(Type t){
 		try{

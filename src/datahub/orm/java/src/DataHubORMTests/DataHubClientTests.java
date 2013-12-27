@@ -47,7 +47,7 @@ public class DataHubClientTests {
 		db.disconnect();
 	}
 	
-	@Test
+	//@Test
 	public void testCreateAndDelete(){
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -70,7 +70,7 @@ public class DataHubClientTests {
 		TestModel t2 = this.db.test.findOne(params);
 		assertEquals(t2==null,true);
 	}
-	@Test
+	//@Test
 	public void testSave(){
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -108,7 +108,7 @@ public class DataHubClientTests {
 		assertEquals(t3==null,true);
 	}
 
-	@Test
+	//@Test
 	public void basicTest(){
       TTransport transport = new TSocket(
                  "datahub-experimental.csail.mit.edu", 9000);
@@ -140,7 +140,7 @@ public class DataHubClientTests {
 			}*/
 			//ArrayList<TestModel> results = db.test.findAll();
 			HashMap<String, Object> params = new HashMap<String,Object>();
-			params.put("name", "f");
+			params.put("id", "477");
 			ArrayList<TestModel> results = db.test.findAll(params);
 			for(TestModel m1: results){
 				System.out.println("id"+m1.id);

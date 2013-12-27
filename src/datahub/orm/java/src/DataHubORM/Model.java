@@ -2,6 +2,7 @@ package DataHubORM;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,6 +18,7 @@ import datahub.DHTable;
 import datahub.DHType;
 
 import Annotations.column;
+import Annotations.column.Index;
 import Annotations.database;
 import Annotations.table;
 import DataHubORMTests.TestModel;
@@ -96,6 +98,7 @@ public class Model<T extends Model>{
 		//make query to datahub and create new instances 
 		try{
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
+			System.out.println(db.dbQuery(query));
 			output = dhQueryToModel(db.dbQuery(query));
 			
 		}catch(Exception e){
@@ -103,10 +106,22 @@ public class Model<T extends Model>{
 		}
 		return output;
 	}
+	private boolean hasFieldAndColumnBasic(String name){
+		boolean out = false;
+		try{
+			Field f = this.getClass().getField(name);
+			if(DataHubConverter.hasColumnBasic(f)){
+				out= true;
+			}
+		}catch(Exception e){
+			
+		}
+		return out;
+	}
 	private String queryToSQL(HashMap<String,Object> query){
 		ArrayList<String> keyVal = new ArrayList<String>();
 		for(String field:query.keySet()){
-			if(Resources.hasField(this.getClass(), field)){
+			if(hasFieldAndColumnBasic(field)){//also check if has column annotation
 				String val = Resources.objectToSQL(query.get(field));
 				keyVal.add(field+"="+val);
 			}			
@@ -189,33 +204,37 @@ public class Model<T extends Model>{
 		DHData data = dhqr.getData();
 		DHSchema schema = data.getSchema();
 		DHTable table  = data.getTable();
-		HashMap<String,String> columnToField = new HashMap<String,String>();
+		HashMap<String,DHCell> fieldsToDHCell = new HashMap<String,DHCell>();
 		//TODO: ID issues
-		for(Field f: this.getClass().getFields()){
-			if(f.isAnnotationPresent(column.class)){
-				columnToField.put(f.getAnnotation(column.class).name(), f.getName());
-			}
-		}
 		if(table.rows.size() > 0){
 			DHRow row = table.rows.get(rowNumber);
 			List<DHField> fields = schema.getFields();
 			for(int j = 0; j < fields.size(); j++){
 				DHField f = fields.get(j);
 				DHCell v = row.getCells().get(j);
-				try{
-					//TODO: change from getting field name directly to getting annotations
-					//from annotation get field
-					if(columnToField.containsKey(f.name)){
-						String fieldName = columnToField.get(f.name);
-						//Field f1 = this.getClass().getField(fieldName);
-						//specifically set id
-						if(f.name.equals("id")){
-							objectToUpdate.id = (int)Resources.convert(v.value, Integer.TYPE);
-						}
-						Resources.setField(objectToUpdate, fieldName, v.value);
+				fieldsToDHCell.put(f.name, v);
+			}
+		}
+		for(Field f1:this.getClass().getFields()){
+			if(f1.isAnnotationPresent(column.class)){
+				column c = f1.getAnnotation(column.class);
+				if(c.Index() == Index.None){
+					if(fieldsToDHCell.containsKey(c.name())){
+						DHCell cell = fieldsToDHCell.get(c.name());
+						Resources.setField(objectToUpdate, c.name(), cell.value);
 					}
-				}catch(Exception e){
-					
+				}
+				if(c.Index() == Index.LinkedSet){
+					if(fieldsToDHCell.containsKey(c.name())){
+						DHCell cell = fieldsToDHCell.get(c.name());
+						Type t = f1.getGenericType();
+						Class listClass = t.getClass();
+						//perhaps check for datahub arraylist class
+						if(DataHubConverter.isModelSubclass(listClass)){
+							//join on table provided by class 
+							Resources.setField(objectToUpdate, c.name(),null);
+						}
+					}
 				}
 			}
 		}
