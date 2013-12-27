@@ -48,6 +48,16 @@ public class DataHubConverter {
 		}
 		return false;
 	}
+	public static boolean isDataHubArrayListSubclass(Class c){
+		try{
+			if(c.equals(DataHubArrayList.class) || c.asSubclass(DataHubArrayList.class) != null){
+				return true;
+			}
+		}catch(Exception e){
+			//e.printStackTrace();
+		}
+		return false;
+	}
 	public static HashMap<String,HashMap<String,DHType>> extractDataFromClass(Class model){
 		
 		//TODO: do model type checks here

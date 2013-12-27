@@ -1,4 +1,4 @@
-package DataHubAccount;
+package DataHubORM;
 
 import java.util.List;
 
@@ -12,7 +12,6 @@ import datahub.DHQueryResult;
 import datahub.DHRow;
 import datahub.DHSchema;
 import datahub.DHTable;
-import DataHubORM.Database;
 import DataHubResources.Constants;
 import DataHubResources.Resources;
 

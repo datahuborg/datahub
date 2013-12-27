@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 
 import DataHubORM.DataHubConverter;
 
@@ -11,6 +12,17 @@ import datahub.DHType;
 
 public class Resources {
 	
+	public static <Q> String concatenate(Iterable<Q> i, String linkSymbol){
+		String out = "";
+		Iterator<Q> p = i.iterator();
+		while(p.hasNext()){
+			out+=p.next().toString();
+			if(p.hasNext()){
+				out+=" "+linkSymbol+" ";
+			}
+		}
+		return out;
+	}
 	//TODO:implement SQL escape
 	public static String sqlEscape(String query){
 		return query;

@@ -16,6 +16,6 @@ public class TestModel extends Model<TestModel> {
 	public String description;
 	
 	@column(Index=Index.LinkedSet)
-	public DataHubArrayList<DeviceModel> devices;
+	public DevicesDataHubArrayList devices;
 
 }

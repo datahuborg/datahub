@@ -20,18 +20,15 @@ import datahub.DHException;
 import datahub.DataHub;
 
 import DataHubAccount.DataHubAccount;
-import DataHubAccount.DataHubClient;
 import DataHubAccount.DataHubUser;
 import DataHubORM.Database;
 
 public class DataHubClientTests {
 	public DataHubAccount test_dha;
-	public DataHubClient test_dhc;
 	public TestDatabase db;
 	@Before
 	public void setUp() throws DHException, TException{
 		test_dha = new DataHubAccount("dggoeh1", new DataHubUser("dggoeh1@mit.edu","dggoeh1"));
-		test_dhc = new DataHubClient(test_dha);
 		TestDatabase db = new TestDatabase();
 		db.setDataHubAccount(this.test_dha);
 		try{
@@ -146,6 +143,10 @@ public class DataHubClientTests {
 				System.out.println("id"+m1.id);
 				System.out.println("name"+m1.name);
 				System.out.println(m1.description);
+				System.out.println(m1.devices);
+				for(DeviceModel d:m1.devices){
+					System.out.println("code"+d.code);
+				}
 				//System.out.println(m1.findAll());
 				//System.out.println(m1.generateSQLRep());
 				//m1.description = "lol";

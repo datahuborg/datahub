@@ -1,4 +1,4 @@
-package DataHubAccount;
+package DataHubORM;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -25,14 +25,14 @@ import datahub.DataHub;
 import datahub.DHConnectionParams._Fields;
 import datahub.DataHub.Client;
 
-import DataHubORM.Database;
+import DataHubAccount.DataHubAccount;
 import DataHubResources.Constants;
 import DataHubResources.Resources;
 
 //TODO: convert all exceptions to datahub exceptions
 //each user should have datahub table so that we know which databases are currently allocated to user
 //actual database names should have username as prefix so unique
-public class DataHubClient{
+class DataHubClient{
 	private DataHubAccount dha;
 	private DHConnection currentConnection;
 	private Client client;
