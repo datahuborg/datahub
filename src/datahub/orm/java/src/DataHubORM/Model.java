@@ -70,7 +70,7 @@ public class Model<T extends Model>{
 			}else{
 				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.id;
 			}
-			DHQueryResult dhqr = getDatabase().dbQuery(query);
+			getDatabase().query(query, this.getClass());
 			//System.out.println(dhqr);
 			updateModel();
 		}catch(Exception e){
@@ -82,7 +82,7 @@ public class Model<T extends Model>{
 			String query = "DELETE FROM "+this.getCompleteTableName()+" WHERE "+"id="+this.id;
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
 			//System.out.println(query);
-			getDatabase().dbQuery(query);
+			getDatabase().query(query, this.getClass());
 			//possibly garbage collect object
 		}catch(Exception e){
 			e.printStackTrace();
@@ -125,10 +125,10 @@ public class Model<T extends Model>{
 		}
 		return Resources.concatenate(keyVal,"AND");
 	}
-	private String generateSQLRep(){
+	protected String generateSQLRep(){
 		return generateSQLRep(",");
 	}
-	private String generateSQLRep(String linkSymbol){
+	protected String generateSQLRep(String linkSymbol){
 		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
 		HashMap<String,DHType> currentModel = models.get(this.getTableName());
 		ArrayList<String> fieldData = new ArrayList<String>();
@@ -158,15 +158,10 @@ public class Model<T extends Model>{
 		for(String field:currentModel.keySet()){
 			fieldData.add(Resources.getFieldStringRep(this,field));
 		}
-		return getDatabase().converToSQLAndConcatenate(fieldData,",");
+		return Resources.converToSQLAndConcatenate(fieldData,",");
 	}
 	private void updateModel(){
-		//TODO:VERY BIG ISSUE HERE, need to get id somehow, not sure how though
-		String query = "SELECT * FROM "+ this.getCompleteTableName()+" WHERE "+generateSQLRep("AND");
-		//System.out.println(query);
-		DHQueryResult dhqr = getDatabase().dbQuery(query);
-		//System.out.println(dhqr);
-		getDatabase().updateNewModel(dhqr,0,(T)this);
+		getDatabase().updateModelObject(this);
 	}
 	private T newInstance() throws InstantiationException, IllegalAccessException{
 		return (T) getClass().newInstance();

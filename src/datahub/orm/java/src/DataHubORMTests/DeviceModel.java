@@ -2,6 +2,7 @@ package DataHubORMTests;
 
 import Annotations.column;
 import Annotations.column.Index;
+import Annotations.column.RelationType;
 import Annotations.table;
 import DataHubORM.Model;
 
@@ -11,6 +12,6 @@ public class DeviceModel extends Model<DeviceModel>{
 	@column(name="code")
 	public String code;
 	
-	@column(name="test_id",Index=Index.HasOne)
+	@column(name="test_id",RelationType=RelationType.BelongsTo)
 	public TestModel testModel;
 }

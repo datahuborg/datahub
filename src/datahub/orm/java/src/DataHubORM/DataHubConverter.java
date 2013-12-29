@@ -11,6 +11,7 @@ import javax.print.DocFlavor.STRING;
 
 import Annotations.column;
 import Annotations.column.Index;
+import Annotations.column.RelationType;
 import Annotations.table;
 import DataHubResources.Constants;
 
@@ -101,7 +102,7 @@ public class DataHubConverter {
 		return output;
 	}
 	public static boolean hasColumnBasic(Field f){
-		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).Index() != Index.HasMany){
+		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).RelationType() != RelationType.HasMany){
 			return true;
 		}
 		return false;

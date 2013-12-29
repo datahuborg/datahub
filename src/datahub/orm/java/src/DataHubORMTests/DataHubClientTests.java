@@ -146,6 +146,9 @@ public class DataHubClientTests {
 				System.out.println(m1.devices);
 				for(DeviceModel d:m1.devices){
 					System.out.println("code"+d.code);
+					System.out.println("testModel id"+d.testModel.id);
+					System.out.println("testModel name"+d.testModel.name);
+					System.out.println("testModel description"+d.testModel.description);
 				}
 				//System.out.println(m1.findAll());
 				//System.out.println(m1.generateSQLRep());
