@@ -28,6 +28,8 @@ public abstract class Database {
 
 	private DataHubClient dhc;
 	
+	private static int MAX_RECURSION_DEPTH = 2;
+	
 	public void setDataHubAccount(DataHubAccount dha){
 		this.dhc = new DataHubClient(dha);
 	}
@@ -73,7 +75,7 @@ public abstract class Database {
 		}
 		return Resources.concatenate(sqlVersions,linkSymbol);
 	}
-	protected <T extends Model> ArrayList<T> query(String query, T currentModel){
+	protected <T extends Model> ArrayList<T> query(String query, Class<T> modelClass){
 		ArrayList<T> output = new ArrayList<T>();
 		//non-static implementation (should be static though)
 		//get table name
@@ -83,14 +85,14 @@ public abstract class Database {
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
 			//System.out.println(query);
 			//System.out.println(this.dbQuery(query));
-			output = dhQueryToModel(this.dbQuery(query), currentModel);
+			output = dhQueryToModel(this.dbQuery(query), modelClass);
 			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 		return output;
 	}
-	protected <T extends Model> ArrayList<T> dhQueryToModel(DHQueryResult dhqr, T currentModel) throws InstantiationException, IllegalAccessException{
+	protected <T extends Model> ArrayList<T> dhQueryToModel(DHQueryResult dhqr, Class<T> modelClass) throws InstantiationException, IllegalAccessException{
 		ArrayList<T> output = new ArrayList<T>();
 		if(dhqr == null){
 			return output;
@@ -99,13 +101,17 @@ public abstract class Database {
 		DHSchema schema = data.getSchema();
 		DHTable table  = data.getTable();
 		for(int i = 0; i < table.rows.size(); i++){
-			T newObj = (T) currentModel.getClass().newInstance();
+			T newObj = (T) modelClass.newInstance();
 			updateNewModel(dhqr, i,newObj);
 			output.add(newObj);
 		}
 		return output;
 	}
 	protected <T extends Model> void updateNewModel(DHQueryResult dhqr, int rowNumber, T objectToUpdate){
+		String databaseName = this.getDatabaseName();
+		String tableName = objectToUpdate.getTableName();
+		String completeTableName = objectToUpdate.getCompleteTableName();
+		
 		DHData data = dhqr.getData();
 		DHSchema schema = data.getSchema();
 		DHTable table  = data.getTable();
@@ -134,7 +140,22 @@ public abstract class Database {
 						Resources.setField(objectToUpdate, c.name(), cell.value);
 					}
 				}
-				if(c.Index() == Index.LinkedSet){
+				if(c.Index() == Index.HasOne){
+					if(DataHubConverter.isModelSubclass(f1.getType())){
+						try{
+							Model m = (Model) f1.getType().newInstance();
+							String newCompleteTableName = m.getCompleteTableName();
+							String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+tableName+".id = "+objectToUpdate.id;
+							ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass());
+							if(newData.size() > 0){
+								Resources.setField(objectToUpdate, f1.getName(),newData.get(0));
+							}
+						}catch(Exception e){
+							
+						}
+					}
+				}
+				if(c.Index() == Index.HasMany){
 					DHCell cell = fieldsToDHCell.get(c.name());
 					Class<? extends DataHubArrayList> listClass = (Class<? extends DataHubArrayList>) f1.getType();
 					if(DataHubConverter.isDataHubArrayListSubclass(listClass)){

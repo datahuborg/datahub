@@ -11,6 +11,6 @@ public class DeviceModel extends Model<DeviceModel>{
 	@column(name="code")
 	public String code;
 	
-	@column(name="test_id",Index=Index.ForeignKey)
+	@column(name="test_id",Index=Index.HasOne)
 	public TestModel testModel;
 }

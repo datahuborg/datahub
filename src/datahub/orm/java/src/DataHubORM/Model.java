@@ -90,16 +90,16 @@ public class Model<T extends Model>{
 	}
 	public ArrayList<T> all(){
 		String query = "select * FROM "+this.getCompleteTableName();
-		return (ArrayList<T>) getDatabase().query(query, this);
+		return (ArrayList<T>) getDatabase().query(query, this.getClass());
 	}
 	public ArrayList<T> findAll(HashMap<String,Object> params){
 		String query = "select * FROM "+this.getCompleteTableName()+" WHERE "+ queryToSQL(params);
-		return (ArrayList<T>) getDatabase().query(query, this);
+		return (ArrayList<T>) getDatabase().query(query, this.getClass());
 	}
 	public T findOne(HashMap<String,Object> params){
 		String query = "select * FROM "+this.getCompleteTableName()+" WHERE "+ queryToSQL(params) +" LIMIT 1";
-		if(getDatabase().query(query,this).size() > 0){
-			return (T) getDatabase().query(query,this).get(0);
+		if(getDatabase().query(query,this.getClass()).size() > 0){
+			return (T) getDatabase().query(query,this.getClass()).get(0);
 		}
 		return null; 
 	}

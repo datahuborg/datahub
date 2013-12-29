@@ -8,6 +8,7 @@ import java.util.ArrayList;
 //setup currentModel during model creation
 public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 	
+	//TODO: throw exceptions if db not set or currentModel not set
 	private static Database db;
 	
 	private Model currentModel;
@@ -50,6 +51,9 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 			this.currentModel = m;
 		}
 	}
+	protected Class<T> getAssociatedModelClass(){
+		return ((Class<T>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+	}
 	//add query this set methods
 	public void populate(){
 		String tableName = currentModel.getCompleteTableName();
@@ -59,7 +63,7 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 			T newInstance = (T) ((Class)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
 			//TODO: fix select *
 			String query = "select "+"*"+" from "+tableName+", "+newInstance.getCompleteTableName()+" where "+tableName+".id = "+currentModel.id;
-			ArrayList<T> data = (ArrayList<T>) getDatabase().query(query, newInstance);
+			ArrayList<T> data = (ArrayList<T>) getDatabase().query(query, newInstance.getClass());
 			this.addAll(data);
 		}catch(Exception e){
 			e.printStackTrace();

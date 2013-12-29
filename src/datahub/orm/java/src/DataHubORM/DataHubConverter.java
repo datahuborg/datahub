@@ -101,7 +101,7 @@ public class DataHubConverter {
 		return output;
 	}
 	public static boolean hasColumnBasic(Field f){
-		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).Index() != Index.LinkedSet){
+		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).Index() != Index.HasMany){
 			return true;
 		}
 		return false;

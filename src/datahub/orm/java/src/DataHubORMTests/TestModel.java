@@ -15,7 +15,7 @@ public class TestModel extends Model<TestModel> {
 	@column(name="description") 
 	public String description;
 	
-	@column(Index=Index.LinkedSet)
+	@column(Index=Index.HasMany, name = "devices")
 	public DevicesDataHubArrayList devices;
 
 }

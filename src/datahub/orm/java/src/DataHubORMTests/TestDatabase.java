@@ -8,4 +8,6 @@ public class TestDatabase extends Database {
 	
 	public TestModel test;	
 	
+	public DeviceModel devices;
+	
 }
