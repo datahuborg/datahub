@@ -29,7 +29,7 @@ public abstract class Database {
 
 	private DataHubClient dhc;
 	
-	protected static int MAX_RECURSION_DEPTH = 4;
+	protected static int MAX_RECURSION_DEPTH = 3;
 	
 	public void setDataHubAccount(DataHubAccount dha){
 		this.dhc = new DataHubClient(dha);
@@ -69,6 +69,12 @@ public abstract class Database {
 		//System.out.println(query);
 		//System.out.println(dhc.dbQuery(query));
 		return dhc.dbQuery(query);
+	}
+	public <T extends Model>void createTable(T model){
+		
+	}
+	public <T extends Model>void insert(T model){
+		
 	}
 	public <T extends Model> void updateModelObject(T model){
 		//TODO:VERY BIG ISSUE HERE, need to get id somehow, not sure how though

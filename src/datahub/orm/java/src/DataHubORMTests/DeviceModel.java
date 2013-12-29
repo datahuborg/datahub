@@ -12,6 +12,7 @@ public class DeviceModel extends Model<DeviceModel>{
 	@column(name="code")
 	public String code;
 	
-	@column(name="test_id",RelationType=RelationType.BelongsTo)
+	//need to specify foreign key name that matches the foreign key in the corresponding belongs to relationship
+	@column(name="test_id",Index=Index.ForeignKey,RelationType=RelationType.BelongsTo)
 	public TestModel testModel;
 }

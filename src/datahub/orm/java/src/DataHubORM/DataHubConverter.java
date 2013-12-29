@@ -102,7 +102,7 @@ public class DataHubConverter {
 		return output;
 	}
 	public static boolean hasColumnBasic(Field f){
-		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).RelationType() != RelationType.HasMany){
+		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).RelationType() == RelationType.None){
 			return true;
 		}
 		return false;

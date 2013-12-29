@@ -145,11 +145,12 @@ public class Model<T extends Model>{
 		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
 		HashMap<String,DHType> currentModel = models.get(this.getTableName());
 		ArrayList<String> fields = new ArrayList<String>();
-		for(String oldField: currentModel.keySet()){
+		/*for(String oldField: currentModel.keySet()){
 			String newField = getTableName()+"."+oldField;
 			fields.add(newField);
 		}
-		return Resources.concatenate(fields,",");
+		return Resources.concatenate(fields,",");*/
+		return Resources.concatenate(currentModel.keySet(),",");
 	}
 	protected String getFieldValues(){
 		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());

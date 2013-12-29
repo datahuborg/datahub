@@ -2,6 +2,7 @@ package DataHubORM;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 //ArrayList to represent sets connected to a particular 
 //table via foreign key
@@ -15,6 +16,7 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 	
 	private String foreignKey;
 	
+	private HashMap<String,T> data;
 	
 	public static void setDatabase(Database database) throws DataHubException{
 		//TODO: figure out why this is getting set more than once
@@ -28,23 +30,45 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 	public static Database getDatabase(){
 		return db;
 	}
-	
+	//TODO:complete this
+	@Override
+	public boolean contains(Object o){
+		return false;
+	}
+	//TODO:fix this
+	private void addInternal(T data){
+		
+	}
+	//TODO:fix this
 	@Override
 	public boolean add(T data){
+		data.save();
+		//data needs to be saved before it can be added to the collection
 		//need to get class that contains this object
 		//need to get class of T and then do mappings based on table names
 		//check for column annotation and foreign key stuff
+		String associateTableName = data.getCompleteTableName();
+		String query = "UPDATE "+associateTableName+" SET "+this.foreignKey+"="+this.currentModel.id+" WHERE id="+data.id;
+		db.query(query, data.getClass());
 		return super.add(data);
 	}
 	
 	@Override
 	public boolean remove(Object o){
+		if(this.contains(o)){
+			Model m = (Model) o;
+			String associateTableName = m.getCompleteTableName();
+			String query = "UPDATE "+associateTableName+" SET "+this.foreignKey+"= NULL "+"WHERE id="+m.id;
+			db.query(query, m.getClass());
+		}
 		return super.remove(o);
 		
 	}
 	@Override
 	public void clear(){
-		super.clear();
+		for(Model m:this){
+			this.remove(m);
+		}
 	}
 	public void setCurrentModel(Model m) throws DataHubException{
 		//model can only be set once for life of the object to ensure consistency in operation
@@ -79,7 +103,7 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 			//TODO: fix select *
 			//String query = "select "+"*"+" from "+tableName+", "+newTableName+" where "+newTableName+"."+this.foreignKey+" = "+currentModel.id;
 			String query = "select "+"*"+" from "+newTableName+" where "+newTableName+"."+this.foreignKey+" = "+currentModel.id;
-			ArrayList<T> data = (ArrayList<T>) getDatabase().query(query, newInstance.getClass(),recursionDepthLimit-1);
+			ArrayList<T> data = (ArrayList<T>) getDatabase().query(query, newInstance.getClass(),recursionDepthLimit);
 			this.addAll(data);
 		}catch(Exception e){
 			e.printStackTrace();

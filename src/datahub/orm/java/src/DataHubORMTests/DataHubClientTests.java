@@ -144,12 +144,18 @@ public class DataHubClientTests {
 				System.out.println("name"+m1.name);
 				System.out.println(m1.description);
 				System.out.println(m1.devices);
-				for(DeviceModel d:m1.devices){
+				ArrayList<DeviceModel> devices1 = (ArrayList<DeviceModel>) m1.devices.clone();
+				for(DeviceModel d:devices1){
 					System.out.println("code"+d.code);
 					System.out.println("testModel id"+d.testModel.id);
 					System.out.println("testModel name"+d.testModel.name);
 					System.out.println("testModel description"+d.testModel.description);
+					m1.devices.remove(d);
+					
 				}
+				/*DeviceModel d1 = new DeviceModel();
+				d1.code = "f12a";
+				m1.devices.add(d1);*/
 				//System.out.println(m1.findAll());
 				//System.out.println(m1.generateSQLRep());
 				//m1.description = "lol";
