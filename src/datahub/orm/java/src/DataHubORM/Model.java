@@ -91,7 +91,6 @@ public class Model<T extends Model>{
 							if(c.RelationType() == RelationType.BelongsTo){
 								String associateTableName = this.getCompleteTableName();
 								String queryBelongsTo = "UPDATE "+associateTableName+" SET "+c.name()+"="+m.id+" WHERE id="+this.id;
-								System.out.println(queryBelongsTo);
 								db.query(queryBelongsTo, this.getClass());
 							}
 							if(c.RelationType() == RelationType.HasOne){

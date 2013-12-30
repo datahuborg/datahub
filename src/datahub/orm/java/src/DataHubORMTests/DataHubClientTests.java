@@ -138,6 +138,10 @@ public class DataHubClientTests {
 		assertEquals(d.testModel.equals(t1),true);
 		assertEquals(d.testModel.equals(t),false);
 		
+		d.destroy();
+		t1.destroy();
+		t.destroy();
+		
 	}
 	@Test
 	public void testHasManyAndBelongsTo(){
@@ -194,11 +198,11 @@ public class DataHubClientTests {
 					System.out.println("testModel name"+d.testModel.name);
 					System.out.println("testModel description"+d.testModel.description);
 					m1.devices.remove(d);
-					
 				}
-				DeviceModel d1 = new DeviceModel();
+				/*DeviceModel d1 = new DeviceModel();
 				d1.code = "f12a";
 				m1.devices.add(d1);
+				m1.save();*/
 				//System.out.println(m1.findAll());
 				//System.out.println(m1.generateSQLRep());
 				//m1.description = "lol";

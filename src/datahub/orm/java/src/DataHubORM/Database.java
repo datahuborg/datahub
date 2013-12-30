@@ -29,10 +29,10 @@ public abstract class Database {
 
 	private DataHubClient dhc;
 	
-	protected static int MAX_LOAD_RECURSION_DEPTH = 1;
+	protected static int MAX_LOAD_RECURSION_DEPTH = 3;
 	
 	//prevent do unnecessary saves
-	protected static int MAX_SAVE_RECURSION_DEPTH = 1;
+	protected static int MAX_SAVE_RECURSION_DEPTH = 2;
 	
 	public void setDataHubAccount(DataHubAccount dha){
 		this.dhc = new DataHubClient(dha);
