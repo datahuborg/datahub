@@ -19,6 +19,7 @@ import datahub.DHType;
 
 import Annotations.column;
 import Annotations.column.Index;
+import Annotations.column.RelationType;
 import Annotations.database;
 import Annotations.table;
 import DataHubORMTests.TestModel;
@@ -61,6 +62,12 @@ public class Model<T extends Model>{
 		return db;
 	}
 	public void save(){
+		this.save(Database.MAX_SAVE_RECURSION_DEPTH);
+	}
+	protected void save(int recursionDepthLimit){
+		if(recursionDepthLimit <= 0){
+			return;
+		}
 		try{
 			String query = "";
 			//fix this
@@ -71,8 +78,35 @@ public class Model<T extends Model>{
 				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.id;
 			}
 			getDatabase().query(query, this.getClass());
-			//System.out.println(dhqr);
+			updateModelId();
+			for(Field f:this.getClass().getFields()){
+				if(this.hasFieldAndColumnWithRelation(f.getName())){
+					Object o = f.get(this);
+					if(o != null){
+						if(DataHubConverter.isModelSubclass(f.getType())){
+							Model m = (Model) o;
+							m.save(recursionDepthLimit-1);
+							//TODO: fix this
+							column c = f.getAnnotation(column.class);
+							if(c.RelationType() == RelationType.BelongsTo){
+								String associateTableName = this.getCompleteTableName();
+								String queryBelongsTo = "UPDATE "+associateTableName+" SET "+c.name()+"="+m.id+" WHERE id="+this.id;
+								System.out.println(queryBelongsTo);
+								db.query(queryBelongsTo, this.getClass());
+							}
+							if(c.RelationType() == RelationType.HasOne){
+								//TODO:implement
+							}
+						}
+						if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
+							DataHubArrayList d = (DataHubArrayList) o;
+							d.save(recursionDepthLimit-1);
+						}
+					}
+				}
+			}
 			updateModel();
+			//System.out.println(dhqr);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -108,6 +142,18 @@ public class Model<T extends Model>{
 		try{
 			Field f = this.getClass().getField(name);
 			if(DataHubConverter.hasColumnBasic(f)){
+				out= true;
+			}
+		}catch(Exception e){
+			
+		}
+		return out;
+	}
+	private boolean hasFieldAndColumnWithRelation(String name){
+		boolean out = false;
+		try{
+			Field f = this.getClass().getField(name);
+			if(DataHubConverter.hasFieldAndColumnWithRelation(f)){
 				out= true;
 			}
 		}catch(Exception e){
@@ -164,6 +210,9 @@ public class Model<T extends Model>{
 	private void updateModel(){
 		getDatabase().updateModelObject(this);
 	}
+	private void updateModelId(){
+		getDatabase().updateModelId(this);
+	}
 	private T newInstance() throws InstantiationException, IllegalAccessException{
 		return (T) getClass().newInstance();
 	}
@@ -176,5 +225,21 @@ public class Model<T extends Model>{
 	}
 	public String getCompleteTableName(){
 		return getDatabase().getDatabaseName()+"."+this.getTableName();
+	}
+	
+	//required for arraylist to work
+	@Override
+	public boolean equals(Object o){
+		if(DataHubConverter.isModelSubclass(o.getClass())){
+			Model other = (Model) o;
+			String otherSQLRep = other.getCompleteTableName()+" "+other.generateSQLRep();
+			String thisSQLRep = this.getCompleteTableName()+" "+this.generateSQLRep();
+			//System.out.println(otherSQLRep);
+			//System.out.println(thisSQLRep);
+			if(thisSQLRep.equals(otherSQLRep)){
+				return true;
+			}
+		}
+		return false;
 	}
 }

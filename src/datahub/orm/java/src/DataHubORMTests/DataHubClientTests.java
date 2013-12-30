@@ -44,7 +44,7 @@ public class DataHubClientTests {
 		db.disconnect();
 	}
 	
-	//@Test
+	@Test
 	public void testCreateAndDelete(){
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -67,7 +67,7 @@ public class DataHubClientTests {
 		TestModel t2 = this.db.test.findOne(params);
 		assertEquals(t2==null,true);
 	}
-	//@Test
+	@Test
 	public void testSave(){
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -104,7 +104,50 @@ public class DataHubClientTests {
 		TestModel t3 = this.db.test.findOne(params);
 		assertEquals(t3==null,true);
 	}
+	@Test
+	public void testSave2ChangeObject(){
+		Random generator = new Random();
+		String name = "test"+Math.abs(generator.nextInt());
+		String description = "test row";
+		TestModel t = new TestModel();
+		t.name = name;
+		t.description = description;
+		t.save();
+		assertEquals(t.id!=0,true);
+		
+		String name1 = "test"+Math.abs(generator.nextInt());
+		String description1 = "test row";
+		TestModel t1 = new TestModel();
+		t1.name = name1;
+		t1.description = description1;
+		t1.save();
+		assertEquals(t1.id!=0,true);
 
+		String code = "test_code"+Math.abs(generator.nextInt());
+		DeviceModel d = new DeviceModel();
+		d.code = code;
+		d.testModel = t;
+		d.save();
+		assertEquals(d.id!=0,true);
+		
+		
+		assertEquals(d.testModel.equals(t),true);
+		
+		d.testModel = t1;
+		d.save();
+		assertEquals(d.testModel.equals(t1),true);
+		assertEquals(d.testModel.equals(t),false);
+		
+	}
+	@Test
+	public void testHasManyAndBelongsTo(){
+		
+	}
+	@Test
+	public void testHasOneAndBelongsTo(){
+		
+	}
+	
 	//@Test
 	public void basicTest(){
       TTransport transport = new TSocket(
@@ -153,9 +196,9 @@ public class DataHubClientTests {
 					m1.devices.remove(d);
 					
 				}
-				/*DeviceModel d1 = new DeviceModel();
+				DeviceModel d1 = new DeviceModel();
 				d1.code = "f12a";
-				m1.devices.add(d1);*/
+				m1.devices.add(d1);
 				//System.out.println(m1.findAll());
 				//System.out.println(m1.generateSQLRep());
 				//m1.description = "lol";

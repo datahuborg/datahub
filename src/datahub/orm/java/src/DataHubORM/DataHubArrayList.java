@@ -16,7 +16,14 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 	
 	private String foreignKey;
 	
-	private HashMap<String,T> data;
+	private ArrayList<T> tempAdd;
+	
+	private ArrayList<Model> tempRemove;
+	
+	public DataHubArrayList(){
+		tempAdd = new ArrayList<T>();
+		tempRemove = new ArrayList<Model>();
+	}
 	
 	public static void setDatabase(Database database) throws DataHubException{
 		//TODO: figure out why this is getting set more than once
@@ -30,19 +37,8 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 	public static Database getDatabase(){
 		return db;
 	}
-	//TODO:complete this
-	@Override
-	public boolean contains(Object o){
-		return false;
-	}
 	//TODO:fix this
-	private void addInternal(T data){
-		
-	}
-	//TODO:fix this
-	@Override
-	public boolean add(T data){
-		data.save();
+	private void addItemSQL(Model data){
 		//data needs to be saved before it can be added to the collection
 		//need to get class that contains this object
 		//need to get class of T and then do mappings based on table names
@@ -50,19 +46,30 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 		String associateTableName = data.getCompleteTableName();
 		String query = "UPDATE "+associateTableName+" SET "+this.foreignKey+"="+this.currentModel.id+" WHERE id="+data.id;
 		db.query(query, data.getClass());
-		return super.add(data);
+	}
+	private void removeItemSQL(Model data){
+		String associateTableName = data.getCompleteTableName();
+		String query = "UPDATE "+associateTableName+" SET "+this.foreignKey+"= NULL "+"WHERE id="+data.id;
+		db.query(query, data.getClass());
+	}
+	//TODO:fix this
+	@Override
+	public boolean add(T data){
+		if(!this.contains(data)){
+			this.tempAdd.add(data);
+			this.tempRemove.remove(data);
+			return super.add(data);
+		}
+		return false;
 	}
 	
 	@Override
 	public boolean remove(Object o){
-		if(this.contains(o)){
+		if(DataHubConverter.isModelSubclass(o.getClass())){
 			Model m = (Model) o;
-			String associateTableName = m.getCompleteTableName();
-			String query = "UPDATE "+associateTableName+" SET "+this.foreignKey+"= NULL "+"WHERE id="+m.id;
-			db.query(query, m.getClass());
+			return super.remove(o) && this.tempAdd.remove(o) && this.tempRemove.add(m);
 		}
-		return super.remove(o);
-		
+		return false;
 	}
 	@Override
 	public void clear(){
@@ -85,6 +92,30 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 		}else{
 			this.foreignKey = foreignKey;
 		}
+	}
+	public void populate(){
+		populate(Database.MAX_LOAD_RECURSION_DEPTH);
+	}
+	public void save(){
+		save(Database.MAX_SAVE_RECURSION_DEPTH);
+	}
+	protected void save(int recursionDepthLimit){
+		if(recursionDepthLimit == 0){
+			return;
+		}
+		for(Model element:this.tempAdd){
+			element.save(recursionDepthLimit);
+			this.addItemSQL(element);
+		}
+		for(Model element:this.tempRemove){
+			element.save(recursionDepthLimit);
+			this.removeItemSQL(element);
+		}
+		reset();
+	}
+	private void reset(){
+		this.tempAdd = new ArrayList<T>();
+		this.tempRemove = new ArrayList<Model>();
 	}
 	protected Class<T> getAssociatedModelClass(){
 		return ((Class<T>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
@@ -109,8 +140,5 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 			e.printStackTrace();
 		}
 		//currentModel.getDatabase().dbQuery(query)
-	}
-	public void populate(){
-		populate(Database.MAX_RECURSION_DEPTH);
 	}
 }

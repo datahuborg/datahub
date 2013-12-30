@@ -29,7 +29,10 @@ public abstract class Database {
 
 	private DataHubClient dhc;
 	
-	protected static int MAX_RECURSION_DEPTH = 3;
+	protected static int MAX_LOAD_RECURSION_DEPTH = 1;
+	
+	//prevent do unnecessary saves
+	protected static int MAX_SAVE_RECURSION_DEPTH = 1;
 	
 	public void setDataHubAccount(DataHubAccount dha){
 		this.dhc = new DataHubClient(dha);
@@ -81,13 +84,18 @@ public abstract class Database {
 		String query = "SELECT * FROM "+ model.getCompleteTableName()+" WHERE "+model.generateSQLRep("AND");
 		//System.out.println(query);
 		DHQueryResult dhqr = this.dbQuery(query);
-		updateNewModel(dhqr, 0, model, Database.MAX_RECURSION_DEPTH);
+		updateNewModel(dhqr, 0, model, Database.MAX_LOAD_RECURSION_DEPTH);
+	}
+	public <T extends Model> void updateModelId(T model){
+		String query = "SELECT * FROM "+ model.getCompleteTableName()+" WHERE "+model.generateSQLRep("AND");
+		DHQueryResult dhqr = this.dbQuery(query);
+		updateNewModel(dhqr, 0, model, Database.MAX_LOAD_RECURSION_DEPTH, true);
 	}
 	public <T extends Model> ArrayList<T> query(String query, Class<T> modelClass){
-		return query(query,modelClass,Database.MAX_RECURSION_DEPTH);
+		return query(query,modelClass,Database.MAX_LOAD_RECURSION_DEPTH);
 	}
 	protected <T extends Model> ArrayList<T> query(String query, Class<T> modelClass, int recursionDepthLimit){
-		if(recursionDepthLimit == 0){
+		if(recursionDepthLimit <= 0){
 			return null;
 		}
 		ArrayList<T> output = new ArrayList<T>();
@@ -122,6 +130,9 @@ public abstract class Database {
 		return output;
 	}
 	private <T extends Model> void updateNewModel(DHQueryResult dhqr, int rowNumber, T objectToUpdate, int recursionDepthLimit){
+		updateNewModel(dhqr, rowNumber, objectToUpdate, recursionDepthLimit, false);
+	}
+	private <T extends Model> void updateNewModel(DHQueryResult dhqr, int rowNumber, T objectToUpdate, int recursionDepthLimit, boolean idOnly){
 		String databaseName = this.getDatabaseName();
 		String tableName = objectToUpdate.getTableName();
 		String completeTableName = objectToUpdate.getCompleteTableName();
@@ -144,69 +155,69 @@ public abstract class Database {
 		//ensure id is set before anything
 		DHCell cell_id = fieldsToDHCell.get("id");
 		Resources.setField(objectToUpdate, "id", cell_id.value);
-		
-		for(Field f1:objectToUpdate.getClass().getFields()){
-			if(f1.isAnnotationPresent(column.class)){
-				column c = f1.getAnnotation(column.class);
-				if(c.RelationType() == RelationType.None){
-					if(fieldsToDHCell.containsKey(c.name())){
-						DHCell cell = fieldsToDHCell.get(c.name());
-						Resources.setField(objectToUpdate, c.name(), cell.value);
-					}
-				}
-				//TODO:Fix this
-				if(c.RelationType() == RelationType.HasOne){
-					if(DataHubConverter.isModelSubclass(f1.getType())){
-						try{
-							//TODO: object already in memory so can just re-use it instead of making new query
-							Model m = (Model) f1.getType().newInstance();
-							String newCompleteTableName = m.getCompleteTableName();
-							//String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+tableName+".id = "+objectToUpdate.id;
-							String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+completeTableName+".id = "+objectToUpdate.id;
-							System.out.println(query);
-							ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit);
-							if(newData.size() > 0){
-								Resources.setField(objectToUpdate, f1.getName(),newData.get(0));
-							}
-						}catch(Exception e){
-							
-						}
-					}
-				}
-				if(c.RelationType() == RelationType.BelongsTo){
-					if(DataHubConverter.isModelSubclass(f1.getType())){
-						try{
+		if(!idOnly){
+			for(Field f1:objectToUpdate.getClass().getFields()){
+				if(f1.isAnnotationPresent(column.class)){
+					column c = f1.getAnnotation(column.class);
+					if(c.RelationType() == RelationType.None){
+						if(fieldsToDHCell.containsKey(c.name())){
 							DHCell cell = fieldsToDHCell.get(c.name());
-							int modelObjectBelongsToId = (int) Resources.convert(cell.value, Integer.TYPE);
-							//TODO: object already in memory so can just re-use it instead of making new query
-							Model m = (Model) f1.getType().newInstance();
-							String newCompleteTableName = m.getCompleteTableName();
-							//String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+tableName+".id = "+objectToUpdate.id;
-							String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+".id = "+modelObjectBelongsToId;
-							System.out.println(query);
-							ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit);
-							if(newData.size() > 0){
-								Resources.setField(objectToUpdate, f1.getName(),newData.get(0));
-							}
-						}catch(Exception e){
-							
+							Resources.setField(objectToUpdate, c.name(), cell.value);
 						}
 					}
-				}
-				if(c.RelationType() == RelationType.HasMany){
-					Class<? extends DataHubArrayList> listClass = (Class<? extends DataHubArrayList>) f1.getType();
-					if(DataHubConverter.isDataHubArrayListSubclass(listClass)){
-						//fix this
-						//make sure id of this object is set before doing this
-						try{
-							DataHubArrayList d = (DataHubArrayList) listClass.newInstance();
-							d.setCurrentModel(objectToUpdate);
-							d.setDatabase(this);
-							d.setForeignKey(c.name());
-							d.populate(recursionDepthLimit);
-							Resources.setField(objectToUpdate, f1.getName(),d);
-						}catch(Exception e){
-							e.printStackTrace();
+					//TODO:Fix this
+					if(c.RelationType() == RelationType.HasOne){
+						if(DataHubConverter.isModelSubclass(f1.getType())){
+							try{
+								Model m = (Model) f1.getType().newInstance();
+								String newCompleteTableName = m.getCompleteTableName();
+								//String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+tableName+".id = "+objectToUpdate.id;
+								String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+completeTableName+".id = "+objectToUpdate.id;
+								System.out.println(query);
+								ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit);
+								if(newData.size() > 0){
+									Resources.setField(objectToUpdate, f1.getName(),newData.get(0));
+								}
+							}catch(Exception e){
+								
+							}
+						}
+					}
+					if(c.RelationType() == RelationType.BelongsTo){
+						if(DataHubConverter.isModelSubclass(f1.getType())){
+							try{
+								DHCell cell = fieldsToDHCell.get(c.name());
+								int modelObjectBelongsToId = (int) Resources.convert(cell.value, Integer.TYPE);
+								//TODO: object already in memory so can just re-use it instead of making new query
+								Model m = (Model) f1.getType().newInstance();
+								String newCompleteTableName = m.getCompleteTableName();
+								//String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+tableName+".id = "+objectToUpdate.id;
+								String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+".id = "+modelObjectBelongsToId;
+								System.out.println(query);
+								ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit);
+								if(newData.size() > 0){
+									Resources.setField(objectToUpdate, f1.getName(),newData.get(0));
+								}
+							}catch(Exception e){
+								
+							}
+						}
+					}
+					if(c.RelationType() == RelationType.HasMany){
+						Class<? extends DataHubArrayList> listClass = (Class<? extends DataHubArrayList>) f1.getType();
+						if(DataHubConverter.isDataHubArrayListSubclass(listClass)){
+							//fix this
+							//make sure id of this object is set before doing this
+							try{
+								DataHubArrayList d = (DataHubArrayList) listClass.newInstance();
+								d.setCurrentModel(objectToUpdate);
+								d.setDatabase(this);
+								d.setForeignKey(c.name());
+								d.populate(recursionDepthLimit);
+								Resources.setField(objectToUpdate, f1.getName(),d);
+							}catch(Exception e){
+								e.printStackTrace();
+							}
 						}
 					}
 				}

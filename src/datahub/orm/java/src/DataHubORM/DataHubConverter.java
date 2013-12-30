@@ -107,6 +107,12 @@ public class DataHubConverter {
 		}
 		return false;
 	}
+	public static boolean hasFieldAndColumnWithRelation(Field f){
+		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).RelationType() != RelationType.None){
+			return true;
+		}
+		return false;
+	}
 	public static DHType javaTypeToDHType(Type t){
 		try{
 			if(t.equals(Integer.TYPE)){
