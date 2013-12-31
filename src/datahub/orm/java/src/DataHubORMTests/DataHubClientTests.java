@@ -97,6 +97,7 @@ public class DataHubClientTests {
 
 		TestModel t2 = this.db.test.findOne(params);
 		assertEquals(t2!=null,true);
+		assertEquals(t2.id==t.id,true);
 		assertEquals(t2.name,newName);
 		assertEquals(t2.description,newDescription);
 		
@@ -199,7 +200,7 @@ public class DataHubClientTests {
 		
 	}
 	
-	//@Test
+	@Test
 	public void basicTest(){
       TTransport transport = new TSocket(
                  "datahub-experimental.csail.mit.edu", 9000);

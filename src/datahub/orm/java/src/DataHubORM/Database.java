@@ -26,14 +26,27 @@ import DataHubResources.Resources;
 
 @database(name="")
 public abstract class Database {
-
-	private DataHubClient dhc;
 	
 	protected static int MAX_LOAD_RECURSION_DEPTH = 3;
 	
 	//prevent do unnecessary saves
 	protected static int MAX_SAVE_RECURSION_DEPTH = 2;
 	
+	private DataHubClient dhc;
+	
+	private HashMap<String,Object> cache;
+	
+	public Database(){
+		this.cache = new HashMap<String,Object>();
+	}
+	protected void resetCacheEntry(String key){
+		if(cache.containsKey(key)){
+			cache.remove(key);
+		}
+	}
+	protected void resetCache(){
+		cache = new HashMap<String,Object>();
+	}
 	public void setDataHubAccount(DataHubAccount dha){
 		this.dhc = new DataHubClient(dha);
 	}
@@ -108,7 +121,6 @@ public abstract class Database {
 			//System.out.println(query);
 			//System.out.println(this.dbQuery(query));
 			output = dhQueryToModel(this.dbQuery(query), modelClass,recursionDepthLimit-1);
-			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -151,12 +163,18 @@ public abstract class Database {
 				fieldsToDHCell.put(f.name, v);
 			}
 		}
-		
-		//ensure id is set before anything
-		DHCell cell_id = fieldsToDHCell.get("id");
-		Resources.setField(objectToUpdate, "id", cell_id.value);
+		//TODO: ID issues
+		//ensure id is set before anything and only set the id if the object has an invalid id
+		if(!objectToUpdate.validId()){
+			DHCell cell_id = fieldsToDHCell.get("id");
+			Resources.setField(objectToUpdate, "id", cell_id.value);
+		}
 		if(!idOnly){
 			for(Field f1:objectToUpdate.getClass().getFields()){
+				//skip setting the id because it was set above
+				if(f1.getName().equals("id")){
+					continue;
+				}
 				if(f1.isAnnotationPresent(column.class)){
 					column c = f1.getAnnotation(column.class);
 					if(c.RelationType() == RelationType.None){
@@ -173,7 +191,6 @@ public abstract class Database {
 								String newCompleteTableName = m.getCompleteTableName();
 								//String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+tableName+".id = "+objectToUpdate.id;
 								String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+completeTableName+".id = "+objectToUpdate.id;
-								System.out.println(query);
 								ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit);
 								if(newData.size() > 0){
 									Resources.setField(objectToUpdate, f1.getName(),newData.get(0));
@@ -193,7 +210,7 @@ public abstract class Database {
 								String newCompleteTableName = m.getCompleteTableName();
 								//String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+tableName+".id = "+objectToUpdate.id;
 								String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+".id = "+modelObjectBelongsToId;
-								System.out.println(query);
+								//System.out.println(query);
 								ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit);
 								if(newData.size() > 0){
 									Resources.setField(objectToUpdate, f1.getName(),newData.get(0));

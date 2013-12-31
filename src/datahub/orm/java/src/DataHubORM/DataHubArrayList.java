@@ -141,6 +141,5 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		//currentModel.getDatabase().dbQuery(query)
 	}
 }

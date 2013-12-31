@@ -71,7 +71,7 @@ public class Model<T extends Model>{
 		try{
 			String query = "";
 			//fix this
-			if(this.id <= 0){
+			if(!this.validId()){
 				query = "INSERT INTO "+this.getCompleteTableName()+"("+this.getFieldNames()+")"+" VALUES( "+getFieldValues()+")";
 				//System.out.println(query);
 			}else{
@@ -105,6 +105,7 @@ public class Model<T extends Model>{
 				}
 			}
 			updateModel();
+			//System.out.println(this.id);
 			//System.out.println(dhqr);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -116,6 +117,8 @@ public class Model<T extends Model>{
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
 			//System.out.println(query);
 			getDatabase().query(query, this.getClass());
+			
+			//System.out.println(getDatabase().query("SELECT * FROM "+this.getCompleteTableName()+" WHERE "+"id="+this.id, this.getClass()));
 			//possibly garbage collect object
 		}catch(Exception e){
 			e.printStackTrace();
@@ -126,12 +129,16 @@ public class Model<T extends Model>{
 		return (ArrayList<T>) getDatabase().query(query, this.getClass());
 	}
 	public ArrayList<T> findAll(HashMap<String,Object> params){
+		//TODO: queryung by related object
 		String query = "select * FROM "+this.getCompleteTableName()+" WHERE "+ queryToSQL(params);
 		return (ArrayList<T>) getDatabase().query(query, this.getClass());
 	}
 	public T findOne(HashMap<String,Object> params){
+		//TODO: querying by related object
 		String query = "select * FROM "+this.getCompleteTableName()+" WHERE "+ queryToSQL(params) +" LIMIT 1";
-		if(getDatabase().query(query,this.getClass()).size() > 0){
+		ArrayList<T> data = (ArrayList<T>) getDatabase().query(query,this.getClass());
+		//System.out.println(data);
+		if(data.size() > 0){
 			return (T) getDatabase().query(query,this.getClass()).get(0);
 		}
 		return null; 
@@ -240,5 +247,15 @@ public class Model<T extends Model>{
 			}
 		}
 		return false;
+	}
+	@Override
+	public String toString(){
+		return this.getCompleteTableName()+"id="+this.id+this.generateSQLRep();
+	}
+	public boolean validId(){
+		if(this.id <= 0){
+			return false;
+		}
+		return true;
 	}
 }
