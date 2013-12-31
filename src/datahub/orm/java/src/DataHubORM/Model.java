@@ -231,8 +231,8 @@ public class Model<T extends Model>{
 	public boolean equals(Object o){
 		if(DataHubConverter.isModelSubclass(o.getClass())){
 			Model other = (Model) o;
-			String otherSQLRep = other.getCompleteTableName()+" "+other.generateSQLRep();
-			String thisSQLRep = this.getCompleteTableName()+" "+this.generateSQLRep();
+			String otherSQLRep = other.getCompleteTableName()+"id="+other.id+other.generateSQLRep();
+			String thisSQLRep = this.getCompleteTableName()+"id="+this.id+this.generateSQLRep();
 			//System.out.println(otherSQLRep);
 			//System.out.println(thisSQLRep);
 			if(thisSQLRep.equals(otherSQLRep)){

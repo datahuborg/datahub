@@ -67,7 +67,7 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 	public boolean remove(Object o){
 		if(DataHubConverter.isModelSubclass(o.getClass())){
 			Model m = (Model) o;
-			return super.remove(o) && this.tempAdd.remove(o) && this.tempRemove.add(m);
+			return this.tempRemove.add(m) && super.remove(o) && this.tempAdd.remove(o);
 		}
 		return false;
 	}
@@ -100,14 +100,16 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 		save(Database.MAX_SAVE_RECURSION_DEPTH);
 	}
 	protected void save(int recursionDepthLimit){
-		if(recursionDepthLimit == 0){
+		if(recursionDepthLimit <= 0){
 			return;
 		}
-		for(Model element:this.tempAdd){
+		ArrayList<Model> tempAddClone = (ArrayList<Model>) this.tempAdd.clone();
+		ArrayList<Model> tempRemoveClone = (ArrayList<Model>) this.tempRemove.clone();
+		for(Model element:tempAddClone){
 			element.save(recursionDepthLimit);
 			this.addItemSQL(element);
 		}
-		for(Model element:this.tempRemove){
+		for(Model element:tempRemoveClone){
 			element.save(recursionDepthLimit);
 			this.removeItemSQL(element);
 		}
@@ -122,7 +124,7 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 	}
 	//add query this set methods
 	protected void populate(int recursionDepthLimit){
-		if(recursionDepthLimit == 0){
+		if(recursionDepthLimit <= 0){
 			return;
 		}
 		String tableName = currentModel.getCompleteTableName();

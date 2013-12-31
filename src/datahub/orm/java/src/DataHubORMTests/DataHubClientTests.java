@@ -144,8 +144,55 @@ public class DataHubClientTests {
 		
 	}
 	@Test
-	public void testHasManyAndBelongsTo(){
+	public void testDataHubArrayList(){
+		Random generator = new Random();
+		String name = "test"+Math.abs(generator.nextInt());
+		String description = "test row";
+		TestModel t = new TestModel();
+		t.name = name;
+		t.description = description;
+		t.save();
+		assertEquals(t.id!=0,true);
 		
+		String code = "test_code"+Math.abs(generator.nextInt());
+		DeviceModel d = new DeviceModel();
+		d.code = code;
+		d.save();
+		assertEquals(d.id!=0,true);
+		
+		//add device
+		t.devices.add(d);
+		
+		
+		//did not save, make sure object has no devices
+		int id = t.id;
+		HashMap<String, Object> params = new HashMap<String,Object>();
+		params.put("id", id);
+		TestModel t1 = db.test.findOne(params);
+		
+		assertEquals(t1.devices.size()==0,true);
+		
+		
+		//now save and make sure object has one device
+		t.save();
+		TestModel t2 = db.test.findOne(params);
+		
+		assertEquals(t2.devices.size()==1,true);
+		
+		//now test remove
+		t.devices.remove(d);
+		TestModel t3 = db.test.findOne(params);
+		
+		assertEquals(t.devices.contains(d), false);
+		assertEquals(t3.devices.contains(d),true);
+		
+		t.save();
+		TestModel t4 = db.test.findOne(params);
+		
+		assertEquals(t4.devices.contains(d),false);
+		
+		//d.destroy();
+		//t.destroy();
 	}
 	@Test
 	public void testHasOneAndBelongsTo(){
