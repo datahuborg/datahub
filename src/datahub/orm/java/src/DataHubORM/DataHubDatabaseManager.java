@@ -15,7 +15,7 @@ import datahub.DHTable;
 import DataHubResources.Constants;
 import DataHubResources.Resources;
 
-public class DataHubClientManager {
+public class DataHubDatabaseManager {
 
 	/*public void createDatabase(Database db) throws Exception{
 		String query = "create schema "+Resources.sqlEscape(db.getDatabaseName());

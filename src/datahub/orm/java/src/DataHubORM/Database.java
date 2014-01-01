@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.thrift.TException;
 
@@ -34,10 +35,10 @@ public abstract class Database {
 	
 	private DataHubClient dhc;
 	
-	private HashMap<String,Object> cache;
+	private ConcurrentHashMap<String,Object> cache;
 	
 	public Database(){
-		this.cache = new HashMap<String,Object>();
+		this.cache = new ConcurrentHashMap<String,Object>();
 	}
 	protected void resetCacheEntry(String key){
 		if(cache.containsKey(key)){
@@ -45,7 +46,7 @@ public abstract class Database {
 		}
 	}
 	protected void resetCache(){
-		cache = new HashMap<String,Object>();
+		cache = new ConcurrentHashMap<String,Object>();
 	}
 	public void setDataHubAccount(DataHubAccount dha){
 		this.dhc = new DataHubClient(dha);
@@ -92,14 +93,14 @@ public abstract class Database {
 	public <T extends Model>void insert(T model){
 		
 	}
-	public <T extends Model> void updateModelObject(T model){
+	protected <T extends Model> void updateModelObject(T model){
 		//TODO:VERY BIG ISSUE HERE, need to get id somehow, not sure how though
 		String query = "SELECT * FROM "+ model.getCompleteTableName()+" WHERE "+model.generateSQLRep("AND");
 		//System.out.println(query);
 		DHQueryResult dhqr = this.dbQuery(query);
 		updateNewModel(dhqr, 0, model, Database.MAX_LOAD_RECURSION_DEPTH);
 	}
-	public <T extends Model> void updateModelId(T model){
+	protected <T extends Model> void updateModelId(T model){
 		String query = "SELECT * FROM "+ model.getCompleteTableName()+" WHERE "+model.generateSQLRep("AND");
 		DHQueryResult dhqr = this.dbQuery(query);
 		updateNewModel(dhqr, 0, model, Database.MAX_LOAD_RECURSION_DEPTH, true);
@@ -120,7 +121,16 @@ public abstract class Database {
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
 			//System.out.println(query);
 			//System.out.println(this.dbQuery(query));
-			output = dhQueryToModel(this.dbQuery(query), modelClass,recursionDepthLimit-1);
+			if(query.toLowerCase().contains("select") && cache.containsKey(query)){
+				output = (ArrayList<T>) cache.get(query);
+				System.out.println("RECURSION DEPTH: "+recursionDepthLimit);
+				System.out.println("cache hit "+query);
+				System.out.println(output);
+			}else{
+				output = dhQueryToModel(this.dbQuery(query), modelClass,recursionDepthLimit-1);
+				cache.put(query, output);
+				System.out.println("cache miss "+query );
+			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}

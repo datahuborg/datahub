@@ -190,6 +190,10 @@ public class DataHubClientTests {
 		t.save();
 		TestModel t4 = db.test.findOne(params);
 		
+		System.out.println("TESTMODEL");
+		System.out.println(t);
+		System.out.println("DEVICES");
+		System.out.println(t4.devices);
 		assertEquals(t4.devices.contains(d),false);
 		
 		//d.destroy();

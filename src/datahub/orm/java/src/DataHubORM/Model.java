@@ -33,7 +33,7 @@ public class Model<T extends Model>{
 	
 	@column(name="id")
 	public int id;
-	
+
 	public Model(){
 		this.id = 0;
 		for(Field f: this.getClass().getFields()){
@@ -62,7 +62,9 @@ public class Model<T extends Model>{
 		return db;
 	}
 	public void save(){
+		db.resetCache();
 		this.save(Database.MAX_SAVE_RECURSION_DEPTH);
+		db.resetCache();
 	}
 	protected void save(int recursionDepthLimit){
 		if(recursionDepthLimit <= 0){
@@ -77,8 +79,14 @@ public class Model<T extends Model>{
 			}else{
 				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.id;
 			}
+			
+			//just make query no recursion
 			getDatabase().query(query, this.getClass());
+			
+			//get new id
 			updateModelId();
+			
+			//recursively save all fields
 			for(Field f:this.getClass().getFields()){
 				if(this.hasFieldAndColumnWithRelation(f.getName())){
 					Object o = f.get(this);
@@ -113,11 +121,12 @@ public class Model<T extends Model>{
 	}
 	public void destroy(){
 		try{
+			db.resetCache();
 			String query = "DELETE FROM "+this.getCompleteTableName()+" WHERE "+"id="+this.id;
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
 			//System.out.println(query);
 			getDatabase().query(query, this.getClass());
-			
+			db.resetCache();
 			//System.out.println(getDatabase().query("SELECT * FROM "+this.getCompleteTableName()+" WHERE "+"id="+this.id, this.getClass()));
 			//possibly garbage collect object
 		}catch(Exception e){

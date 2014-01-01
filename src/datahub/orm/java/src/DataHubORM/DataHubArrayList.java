@@ -97,7 +97,9 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 		populate(Database.MAX_LOAD_RECURSION_DEPTH);
 	}
 	public void save(){
+		db.resetCache();
 		save(Database.MAX_SAVE_RECURSION_DEPTH);
+		db.resetCache();
 	}
 	protected void save(int recursionDepthLimit){
 		if(recursionDepthLimit <= 0){
