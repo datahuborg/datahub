@@ -7,20 +7,20 @@ import java.lang.annotation.RetentionPolicy;
 public @interface column {
 
 	public enum Index{ForeignKey,PrimaryKey,None}
-	public enum RelationType{
+	public enum AssociationType{
 		HasMany, 
 		HasOne, 
 		BelongsTo,
 		HasAndBelongsToMany,
 		None;
-		RelationType(){
+		AssociationType(){
 			
 		}
 	};
 	public enum RemovalOptions{CascadingDelete, None};
 	String name();
 	Index Index() default Index.None;
-	RelationType RelationType() default RelationType.None;
+	AssociationType RelationType() default AssociationType.None;
 	//specify whether it is primary key, foreign key, auto increment, etc.
 
 }

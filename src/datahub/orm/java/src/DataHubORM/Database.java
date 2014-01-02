@@ -19,7 +19,7 @@ import datahub.DHSchema;
 import datahub.DHTable;
 
 import Annotations.column;
-import Annotations.column.RelationType;
+import Annotations.column.AssociationType;
 import Annotations.database;
 import Annotations.column.Index;
 import DataHubAccount.DataHubAccount;
@@ -159,15 +159,19 @@ public abstract class Database {
 		DHSchema schema = data.getSchema();
 		DHTable table  = data.getTable();
 		HashMap<String,DHCell> fieldsToDHCell = new HashMap<String,DHCell>();
+		
+		//invalid conditions, terminate
+		if(table.rows.size() == 0){
+			return;
+		}
+		
 		//TODO: ID issues
-		if(table.rows.size() > 0){
-			DHRow row = table.rows.get(rowNumber);
-			List<DHField> fields = schema.getFields();
-			for(int j = 0; j < fields.size(); j++){
-				DHField f = fields.get(j);
-				DHCell v = row.getCells().get(j);
-				fieldsToDHCell.put(f.name, v);
-			}
+		DHRow row = table.rows.get(rowNumber);
+		List<DHField> fields = schema.getFields();
+		for(int j = 0; j < fields.size(); j++){
+			DHField f = fields.get(j);
+			DHCell v = row.getCells().get(j);
+			fieldsToDHCell.put(f.name, v);
 		}
 		//TODO: ID issues
 		//ensure id is set before anything and only set the id if the object has an invalid id
@@ -187,14 +191,14 @@ public abstract class Database {
 				}
 				if(f1.isAnnotationPresent(column.class)){
 					column c = f1.getAnnotation(column.class);
-					if(c.RelationType() == RelationType.None){
+					if(c.RelationType() == AssociationType.None){
 						if(fieldsToDHCell.containsKey(c.name())){
 							DHCell cell = fieldsToDHCell.get(c.name());
 							Resources.setField(objectToUpdate, c.name(), cell.value);
 						}
 					}
 					//TODO:Fix this
-					if(c.RelationType() == RelationType.HasOne){
+					if(c.RelationType() == AssociationType.HasOne){
 						if(DataHubConverter.isModelSubclass(f1.getType())){
 							try{
 								DHCell cell = fieldsToDHCell.get(c.name());
@@ -210,7 +214,7 @@ public abstract class Database {
 							}
 						}
 					}
-					if(c.RelationType() == RelationType.BelongsTo){
+					if(c.RelationType() == AssociationType.BelongsTo){
 						if(DataHubConverter.isModelSubclass(f1.getType())){
 							try{
 								DHCell cell = fieldsToDHCell.get(c.name());
@@ -230,7 +234,7 @@ public abstract class Database {
 							}
 						}
 					}
-					if(c.RelationType() == RelationType.HasMany){
+					if(c.RelationType() == AssociationType.HasMany){
 						Class<? extends DataHubArrayList> listClass = (Class<? extends DataHubArrayList>) f1.getType();
 						if(DataHubConverter.isDataHubArrayListSubclass(listClass)){
 							//fix this
@@ -248,7 +252,7 @@ public abstract class Database {
 						}
 					}
 					//TODO:fix this
-					if(c.RelationType() == RelationType.HasAndBelongsToMany){
+					if(c.RelationType() == AssociationType.HasAndBelongsToMany){
 						
 					}
 				}

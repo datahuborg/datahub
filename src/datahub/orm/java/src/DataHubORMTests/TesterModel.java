@@ -2,7 +2,7 @@ package DataHubORMTests;
 
 import Annotations.column;
 import Annotations.column.Index;
-import Annotations.column.RelationType;
+import Annotations.column.AssociationType;
 import Annotations.table;
 import DataHubORM.Model;
 
@@ -12,6 +12,6 @@ public class TesterModel extends Model<TesterModel> {
 	@column(name="tester_name")
 	public String testerName;
 	
-	@column(name="test_id",Index=Index.ForeignKey, RelationType=RelationType.BelongsTo)
+	@column(name="test_id",Index=Index.ForeignKey, RelationType=AssociationType.BelongsTo)
 	public TestModel test;
 }

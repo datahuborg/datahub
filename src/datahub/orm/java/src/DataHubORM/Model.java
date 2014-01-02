@@ -19,7 +19,7 @@ import datahub.DHType;
 
 import Annotations.column;
 import Annotations.column.Index;
-import Annotations.column.RelationType;
+import Annotations.column.AssociationType;
 import Annotations.database;
 import Annotations.table;
 import DataHubORMTests.TestModel;
@@ -98,12 +98,12 @@ public class Model<T extends Model>{
 							m.save(recursionDepthLimit-1);
 							//TODO: fix this
 							column c = f.getAnnotation(column.class);
-							if(c.RelationType() == RelationType.BelongsTo){
+							if(c.RelationType() == AssociationType.BelongsTo){
 								String associateTableName = this.getCompleteTableName();
 								String queryBelongsTo = "UPDATE "+associateTableName+" SET "+c.name()+"="+m.id+" WHERE id="+this.id;
 								getDatabase().query(queryBelongsTo);
 							}
-							if(c.RelationType() == RelationType.HasOne){
+							if(c.RelationType() == AssociationType.HasOne){
 								String associateTableName = m.getCompleteTableName();
 								String queryHasOne = "UPDATE "+associateTableName+" SET "+c.name()+"="+m.id+" WHERE id="+this.id;
 								getDatabase().query(queryHasOne);

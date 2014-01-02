@@ -232,8 +232,8 @@ public class DataHubClientTests {
 		assertEquals(tester1.test.equals(test1), true);
 		assertEquals(test1.tester.equals(tester1), true);
 		
-		
-		
+		tester.destroy();
+		t.destroy();
 		
 	}
 	

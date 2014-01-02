@@ -11,7 +11,7 @@ import javax.print.DocFlavor.STRING;
 
 import Annotations.column;
 import Annotations.column.Index;
-import Annotations.column.RelationType;
+import Annotations.column.AssociationType;
 import Annotations.table;
 import DataHubResources.Constants;
 
@@ -102,13 +102,13 @@ public class DataHubConverter {
 		return output;
 	}
 	public static boolean hasColumnBasic(Field f){
-		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).RelationType() == RelationType.None){
+		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).RelationType() == AssociationType.None){
 			return true;
 		}
 		return false;
 	}
 	public static boolean hasFieldAndColumnWithRelation(Field f){
-		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).RelationType() != RelationType.None){
+		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).RelationType() != AssociationType.None){
 			return true;
 		}
 		return false;
