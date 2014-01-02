@@ -32,7 +32,9 @@ public class DataHubClientTests {
 		TestDatabase db = new TestDatabase();
 		db.setDataHubAccount(this.test_dha);
 		try{
+			//System.out.println("connecting!");
 			db.connect();
+			//System.out.println("connected!");
 			this.db = db;
 		}catch(Exception e){
 			
@@ -190,17 +192,48 @@ public class DataHubClientTests {
 		t.save();
 		TestModel t4 = db.test.findOne(params);
 		
-		System.out.println("TESTMODEL");
-		System.out.println(t);
-		System.out.println("DEVICES");
-		System.out.println(t4.devices);
+		//System.out.println("TESTMODEL");
+		//System.out.println(t);
+		//System.out.println("DEVICES");
+		//System.out.println(t4.devices);
 		assertEquals(t4.devices.contains(d),false);
 		
-		//d.destroy();
-		//t.destroy();
+		d.destroy();
+		t.destroy();
 	}
 	@Test
 	public void testHasOneAndBelongsTo(){
+		Random generator = new Random();
+		String name = "test"+Math.abs(generator.nextInt());
+		String description = "test row";
+		TestModel t = new TestModel();
+		t.name = name;
+		t.description = description;
+		t.save();
+		
+		assertEquals(t.id!=0,true);
+		assertEquals(t.tester==null, true);
+		
+		String testername = "tester"+Math.abs(generator.nextInt());
+		TesterModel tester = new TesterModel();
+		tester.testerName = testername;
+		tester.test = t;
+		tester.save();
+		
+		assertEquals(tester.id!=0,true);
+		
+		HashMap<String,Object> testerParams = new HashMap<String,Object>();
+		testerParams.put("id", tester.id);
+		TesterModel tester1 = db.testers.findOne(testerParams);
+		HashMap<String,Object> testParams = new HashMap<String,Object>();
+		testerParams.put("id", t.id);
+		TestModel test1 = db.test.findOne(testerParams);
+		
+		assertEquals(tester1.test.equals(test1), true);
+		assertEquals(test1.tester.equals(tester1), true);
+		
+		
+		
 		
 	}
 	

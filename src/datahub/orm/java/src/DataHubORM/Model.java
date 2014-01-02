@@ -102,7 +102,9 @@ public class Model<T extends Model>{
 								db.query(queryBelongsTo, this.getClass());
 							}
 							if(c.RelationType() == RelationType.HasOne){
-								//TODO:implement
+								String associateTableName = m.getCompleteTableName();
+								String queryBelongsTo = "UPDATE "+associateTableName+" SET "+c.name()+"="+m.id+" WHERE id="+this.id;
+								db.query(queryBelongsTo, this.getClass());
 							}
 						}
 						if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
@@ -205,22 +207,16 @@ public class Model<T extends Model>{
 	protected String getFieldNames(){
 		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
 		HashMap<String,DHType> currentModel = models.get(this.getTableName());
-		ArrayList<String> fields = new ArrayList<String>();
-		/*for(String oldField: currentModel.keySet()){
-			String newField = getTableName()+"."+oldField;
-			fields.add(newField);
+		ArrayList<String> fieldData = new ArrayList<String>();
+		for(String field:currentModel.keySet()){
+			fieldData.add(Resources.getFieldStringRep(this,field));
 		}
-		return Resources.concatenate(fields,",");*/
 		return Resources.concatenate(currentModel.keySet(),",");
 	}
 	protected String getFieldValues(){
 		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
 		HashMap<String,DHType> currentModel = models.get(this.getTableName());
-		ArrayList<String> fieldData = new ArrayList<String>();
-		for(String field:currentModel.keySet()){
-			fieldData.add(Resources.getFieldStringRep(this,field));
-		}
-		return Resources.converToSQLAndConcatenate(fieldData,",");
+		return Resources.converToSQLAndConcatenate(currentModel.keySet(),",");
 	}
 	private void updateModel(){
 		getDatabase().updateModelObject(this);

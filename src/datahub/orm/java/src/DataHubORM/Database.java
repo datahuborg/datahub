@@ -123,13 +123,13 @@ public abstract class Database {
 			//System.out.println(this.dbQuery(query));
 			if(query.toLowerCase().contains("select") && cache.containsKey(query)){
 				output = (ArrayList<T>) cache.get(query);
-				System.out.println("RECURSION DEPTH: "+recursionDepthLimit);
-				System.out.println("cache hit "+query);
-				System.out.println(output);
+				//System.out.println("RECURSION DEPTH: "+recursionDepthLimit);
+				//System.out.println("cache hit "+query);
+				//System.out.println(output);
 			}else{
 				output = dhQueryToModel(this.dbQuery(query), modelClass,recursionDepthLimit-1);
 				cache.put(query, output);
-				System.out.println("cache miss "+query );
+				//System.out.println("cache miss "+query );
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -197,10 +197,11 @@ public abstract class Database {
 					if(c.RelationType() == RelationType.HasOne){
 						if(DataHubConverter.isModelSubclass(f1.getType())){
 							try{
+								DHCell cell = fieldsToDHCell.get(c.name());
+								int modelObjectBelongsToId = (int) Resources.convert(cell.value, Integer.TYPE);
 								Model m = (Model) f1.getType().newInstance();
 								String newCompleteTableName = m.getCompleteTableName();
-								//String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+tableName+".id = "+objectToUpdate.id;
-								String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+completeTableName+".id = "+objectToUpdate.id;
+								String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+"."+c.name()+"="+modelObjectBelongsToId+" LIMIT 1";
 								ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit);
 								if(newData.size() > 0){
 									Resources.setField(objectToUpdate, f1.getName(),newData.get(0));
@@ -219,7 +220,7 @@ public abstract class Database {
 								Model m = (Model) f1.getType().newInstance();
 								String newCompleteTableName = m.getCompleteTableName();
 								//String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+tableName+".id = "+objectToUpdate.id;
-								String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+".id = "+modelObjectBelongsToId;
+								String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+".id = "+modelObjectBelongsToId+" LIMIT 1";
 								//System.out.println(query);
 								ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit);
 								if(newData.size() > 0){
@@ -246,6 +247,10 @@ public abstract class Database {
 								e.printStackTrace();
 							}
 						}
+					}
+					//TODO:fix this
+					if(c.RelationType() == RelationType.HasAndBelongsToMany){
+						
 					}
 				}
 			}

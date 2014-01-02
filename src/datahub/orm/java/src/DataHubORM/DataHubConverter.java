@@ -35,7 +35,6 @@ public class DataHubConverter {
 			if(isModelSubclass(f.getType())){
 				modelFields.add(f);
 			}
-
 		}
 		return modelFields;
 	}
@@ -78,7 +77,8 @@ public class DataHubConverter {
 		for(Field f:fields){
 			//check for column annotation
 			if(hasColumnBasic(f)){
-				fieldsDHType.put(f.getName(), javaTypeToDHType(f.getType()));
+				column c = f.getAnnotation(column.class);
+				fieldsDHType.put(c.name(), javaTypeToDHType(f.getType()));
 			}
 		}
 		//check for table annotation

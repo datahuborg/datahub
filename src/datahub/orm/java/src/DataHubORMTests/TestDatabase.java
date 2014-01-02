@@ -10,4 +10,8 @@ public class TestDatabase extends Database {
 	
 	public DeviceModel devices;
 	
+	public UserModel users;
+	
+	public TesterModel testers;
+	
 }

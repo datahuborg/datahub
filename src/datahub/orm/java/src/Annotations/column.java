@@ -7,7 +7,17 @@ import java.lang.annotation.RetentionPolicy;
 public @interface column {
 
 	public enum Index{ForeignKey,PrimaryKey,None}
-	public enum RelationType{HasMany, HasOne, BelongsTo, ManyToMany, HasAndBelongsToMany, None};
+	public enum RelationType{
+		HasMany, 
+		HasOne, 
+		BelongsTo,
+		HasAndBelongsToMany,
+		None;
+		RelationType(){
+			
+		}
+	};
+	public enum RemovalOptions{CascadingDelete, None};
 	String name();
 	Index Index() default Index.None;
 	RelationType RelationType() default RelationType.None;

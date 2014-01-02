@@ -16,6 +16,9 @@ public class TestModel extends Model<TestModel> {
 	@column(name="description") 
 	public String description;
 	
+	@column(name="test_id",Index=Index.ForeignKey, RelationType=RelationType.HasOne)
+	public TesterModel tester;
+	
 	//need to specify foreign key name that matches the foreign key in the corresponding belongs to relationship
 	@column(name="test_id",Index=Index.ForeignKey,RelationType=RelationType.HasMany)
 	public DevicesDataHubArrayList devices;
