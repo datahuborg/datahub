@@ -87,39 +87,20 @@ public abstract class Database {
 		//System.out.println(dhc.dbQuery(query));
 		return dhc.dbQuery(query);
 	}
-	public <T extends Model>void createTable(T model){
-		
-	}
-	public <T extends Model>void insert(T model){
-		
-	}
-	protected <T extends Model> void updateModelObject(T model){
-		//TODO:VERY BIG ISSUE HERE, need to get id somehow, not sure how though
-		String query = "SELECT * FROM "+ model.getCompleteTableName()+" WHERE "+model.generateSQLRep("AND");
-		//System.out.println(query);
-		DHQueryResult dhqr = this.dbQuery(query);
-		updateNewModel(dhqr, 0, model, Database.MAX_LOAD_RECURSION_DEPTH);
-	}
-	protected <T extends Model> void updateModelId(T model){
-		String query = "SELECT * FROM "+ model.getCompleteTableName()+" WHERE "+model.generateSQLRep("AND");
-		DHQueryResult dhqr = this.dbQuery(query);
-		updateNewModel(dhqr, 0, model, Database.MAX_LOAD_RECURSION_DEPTH, true);
-	}
-	public <T extends Model> ArrayList<T> query(String query, Class<T> modelClass){
-		return query(query,modelClass,Database.MAX_LOAD_RECURSION_DEPTH);
+	protected void query(String query){
+		dhc.dbQuery(query);
 	}
 	protected <T extends Model> ArrayList<T> query(String query, Class<T> modelClass, int recursionDepthLimit){
-		if(recursionDepthLimit <= 0){
-			return null;
-		}
 		ArrayList<T> output = new ArrayList<T>();
+		if(recursionDepthLimit <= 0){
+			return output;
+		}
 		//non-static implementation (should be static though)
 		//get table name
 		//get model class name
 		//make query to datahub and create new instances 
 		try{
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
-			//System.out.println(query);
 			//System.out.println(this.dbQuery(query));
 			if(query.toLowerCase().contains("select") && cache.containsKey(query)){
 				output = (ArrayList<T>) cache.get(query);
@@ -135,6 +116,21 @@ public abstract class Database {
 			e.printStackTrace();
 		}
 		return output;
+	}
+	protected <T extends Model> void updateModelObject(T model){
+		//TODO:VERY BIG ISSUE HERE, need to get id somehow, not sure how though
+		String query = "SELECT * FROM "+ model.getCompleteTableName()+" WHERE "+model.generateSQLRep("AND");
+		//System.out.println(query);
+		DHQueryResult dhqr = this.dbQuery(query);
+		updateNewModel(dhqr, 0, model, Database.MAX_LOAD_RECURSION_DEPTH);
+	}
+	protected <T extends Model> void updateModelId(T model){
+		String query = "SELECT * FROM "+ model.getCompleteTableName()+" WHERE "+model.generateSQLRep("AND");
+		DHQueryResult dhqr = this.dbQuery(query);
+		updateNewModel(dhqr, 0, model, Database.MAX_LOAD_RECURSION_DEPTH, true);
+	}
+	public <T extends Model> ArrayList<T> query(String query, Class<T> modelClass){
+		return query(query,modelClass,Database.MAX_LOAD_RECURSION_DEPTH);
 	}
 	private <T extends Model> ArrayList<T> dhQueryToModel(DHQueryResult dhqr, Class<T> modelClass, int recursionDepthLimit) throws InstantiationException, IllegalAccessException{
 		ArrayList<T> output = new ArrayList<T>();
@@ -176,8 +172,12 @@ public abstract class Database {
 		//TODO: ID issues
 		//ensure id is set before anything and only set the id if the object has an invalid id
 		if(!objectToUpdate.validId()){
-			DHCell cell_id = fieldsToDHCell.get("id");
-			Resources.setField(objectToUpdate, "id", cell_id.value);
+			if(fieldsToDHCell.containsKey("id")){
+				DHCell cell_id = fieldsToDHCell.get("id");
+				Resources.setField(objectToUpdate, "id", cell_id.value);
+			}else{
+				//TODO: throw exception here
+			}
 		}
 		if(!idOnly){
 			for(Field f1:objectToUpdate.getClass().getFields()){
@@ -198,16 +198,15 @@ public abstract class Database {
 						if(DataHubConverter.isModelSubclass(f1.getType())){
 							try{
 								DHCell cell = fieldsToDHCell.get(c.name());
-								int modelObjectBelongsToId = (int) Resources.convert(cell.value, Integer.TYPE);
 								Model m = (Model) f1.getType().newInstance();
 								String newCompleteTableName = m.getCompleteTableName();
-								String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+"."+c.name()+"="+modelObjectBelongsToId+" LIMIT 1";
+								String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+"."+c.name()+"="+objectToUpdate.id+" LIMIT 1";
 								ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit);
 								if(newData.size() > 0){
 									Resources.setField(objectToUpdate, f1.getName(),newData.get(0));
 								}
 							}catch(Exception e){
-								
+								e.printStackTrace();
 							}
 						}
 					}

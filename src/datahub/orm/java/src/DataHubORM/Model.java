@@ -37,12 +37,14 @@ public class Model<T extends Model>{
 	public Model(){
 		this.id = 0;
 		for(Field f: this.getClass().getFields()){
-			if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
+			if(DataHubConverter.isDataHubArrayListSubclass(f.getType()) && f.isAnnotationPresent(column.class)){
 				try{
+					column c = f.getAnnotation(column.class);
 					DataHubArrayList d = (DataHubArrayList) f.getType().newInstance();
 					d.setCurrentModel(this);
+					d.setForeignKey(c.name());
 					d.setDatabase(db);
-					Resources.setField(this, f.getName(), f.getType().newInstance());
+					Resources.setField(this, f.getName(), d);
 				}catch(Exception e){
 					
 				}
@@ -81,7 +83,7 @@ public class Model<T extends Model>{
 			}
 			
 			//just make query no recursion
-			getDatabase().query(query, this.getClass());
+			getDatabase().query(query);
 			
 			//get new id
 			updateModelId();
@@ -99,12 +101,12 @@ public class Model<T extends Model>{
 							if(c.RelationType() == RelationType.BelongsTo){
 								String associateTableName = this.getCompleteTableName();
 								String queryBelongsTo = "UPDATE "+associateTableName+" SET "+c.name()+"="+m.id+" WHERE id="+this.id;
-								db.query(queryBelongsTo, this.getClass());
+								getDatabase().query(queryBelongsTo);
 							}
 							if(c.RelationType() == RelationType.HasOne){
 								String associateTableName = m.getCompleteTableName();
-								String queryBelongsTo = "UPDATE "+associateTableName+" SET "+c.name()+"="+m.id+" WHERE id="+this.id;
-								db.query(queryBelongsTo, this.getClass());
+								String queryHasOne = "UPDATE "+associateTableName+" SET "+c.name()+"="+m.id+" WHERE id="+this.id;
+								getDatabase().query(queryHasOne);
 							}
 						}
 						if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
@@ -207,16 +209,17 @@ public class Model<T extends Model>{
 	protected String getFieldNames(){
 		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
 		HashMap<String,DHType> currentModel = models.get(this.getTableName());
-		ArrayList<String> fieldData = new ArrayList<String>();
-		for(String field:currentModel.keySet()){
-			fieldData.add(Resources.getFieldStringRep(this,field));
-		}
 		return Resources.concatenate(currentModel.keySet(),",");
 	}
 	protected String getFieldValues(){
 		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
 		HashMap<String,DHType> currentModel = models.get(this.getTableName());
-		return Resources.converToSQLAndConcatenate(currentModel.keySet(),",");
+		ArrayList<String> fieldData = new ArrayList<String>();
+		for(String field: currentModel.keySet()){
+			String value = Resources.getFieldStringRep(this, field);
+			fieldData.add(value);
+		}
+		return Resources.converToSQLAndConcatenate(fieldData,",");
 	}
 	private void updateModel(){
 		getDatabase().updateModelObject(this);

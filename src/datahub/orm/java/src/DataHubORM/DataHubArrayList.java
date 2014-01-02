@@ -45,12 +45,12 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 		//check for column annotation and foreign key stuff
 		String associateTableName = data.getCompleteTableName();
 		String query = "UPDATE "+associateTableName+" SET "+this.foreignKey+"="+this.currentModel.id+" WHERE id="+data.id;
-		db.query(query, data.getClass());
+		db.query(query);
 	}
 	private void removeItemSQL(Model data){
 		String associateTableName = data.getCompleteTableName();
 		String query = "UPDATE "+associateTableName+" SET "+this.foreignKey+"= NULL "+"WHERE id="+data.id;
-		db.query(query, data.getClass());
+		db.query(query);
 	}
 	//TODO:fix this
 	@Override
