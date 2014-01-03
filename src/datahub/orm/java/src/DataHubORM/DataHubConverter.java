@@ -67,7 +67,7 @@ public class DataHubConverter {
 		HashMap<Field,DHType> fieldsDHType = new HashMap<Field,DHType>();
 		
 		//model fields
-		Field[] fields = model.getDeclaredFields();
+		Field[] fields = model.getFields();
 		
 		//table annotation detection
 		int tableCount = 0;
@@ -77,7 +77,6 @@ public class DataHubConverter {
 		for(Field f:fields){
 			//check for column annotation
 			if(hasColumnBasic(f)){
-				column c = f.getAnnotation(column.class);
 				fieldsDHType.put(f, javaTypeToDHType(f.getType()));
 			}
 		}
@@ -102,13 +101,13 @@ public class DataHubConverter {
 		return output;
 	}
 	public static boolean hasColumnBasic(Field f){
-		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).RelationType() == AssociationType.None){
+		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).AssociationType() == AssociationType.None){
 			return true;
 		}
 		return false;
 	}
 	public static boolean hasFieldAndColumnWithRelation(Field f){
-		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).RelationType() != AssociationType.None){
+		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).AssociationType() != AssociationType.None){
 			return true;
 		}
 		return false;

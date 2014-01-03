@@ -12,6 +12,6 @@ public class TesterModel extends Model<TesterModel> {
 	@column(name="tester_name")
 	public String testerName;
 	
-	@column(name="test_id",Index=Index.ForeignKey, RelationType=AssociationType.BelongsTo)
+	@column(name="test_id",Index=Index.ForeignKey, AssociationType=AssociationType.BelongsTo)
 	public TestModel test;
 }

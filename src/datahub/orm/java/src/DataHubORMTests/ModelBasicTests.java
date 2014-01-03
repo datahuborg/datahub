@@ -105,7 +105,7 @@ public class ModelBasicTests extends TestsMain{
 		TestModel t3 = this.db.test.findOne(params);
 		assertEquals(t3==null,true);
 	}
-	//@Test
+	@Test
 	public void testSave2ChangeObject(){
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -114,6 +114,7 @@ public class ModelBasicTests extends TestsMain{
 		t.name = name;
 		t.description = description;
 		t.save();
+		
 		assertEquals(t.id!=0,true);
 		
 		String name1 = "test"+Math.abs(generator.nextInt());
@@ -122,6 +123,7 @@ public class ModelBasicTests extends TestsMain{
 		t1.name = name1;
 		t1.description = description1;
 		t1.save();
+		
 		assertEquals(t1.id!=0,true);
 
 		String code = "test_code"+Math.abs(generator.nextInt());
@@ -129,17 +131,17 @@ public class ModelBasicTests extends TestsMain{
 		d.code = code;
 		d.testModel = t;
 		d.save();
+		
 		assertEquals(d.id!=0,true);
-		
-		
 		assertEquals(d.testModel.equals(t),true);
 		
-		//System.out.println(d.testModel);
+		System.out.println(d.testModel);
 		
 		d.testModel = t1;
 		d.save();
-		//System.out.println(t1);
-		//System.out.println(d.testModel);
+		
+		System.out.println(t1);
+		System.out.println(d.testModel);
 		
 		assertEquals(d.testModel.equals(t1),true);
 		assertEquals(d.testModel.equals(t),false);
@@ -204,7 +206,7 @@ public class ModelBasicTests extends TestsMain{
 		d.destroy();
 		t.destroy();
 	}
-	@Test
+	//@Test
 	public void testHasOneAndBelongsTo(){
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());

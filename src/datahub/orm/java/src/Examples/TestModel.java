@@ -16,11 +16,11 @@ public class TestModel extends Model<TestModel> {
 	@column(name="description") 
 	public String description;
 	
-	@column(name="test_id",Index=Index.ForeignKey, RelationType=AssociationType.HasOne)
+	@column(name="test_id",Index=Index.ForeignKey, AssociationType=AssociationType.HasOne)
 	public TesterModel tester;
 	
 	//need to specify foreign key name that matches the foreign key in the corresponding belongs to relationship
-	@column(name="test_id",Index=Index.ForeignKey,RelationType=AssociationType.HasMany)
+	@column(name="test_id",Index=Index.ForeignKey,AssociationType=AssociationType.HasMany)
 	public DevicesDataHubArrayList devices;
 
 }

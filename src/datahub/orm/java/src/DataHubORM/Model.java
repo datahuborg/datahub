@@ -53,12 +53,12 @@ public class Model<T extends Model>{
 	}
 	public static void setDatabase(Database database) throws DataHubException{
 		//TODO: figure out why this is getting set more than once
-		db=database;
-		/*if(db == null){
+		//db=database;
+		if(db == null){
 			db = database;
 		}else{
-			//throw new DataHubException();
-		}*/
+			throw new DataHubException("Database can only be set once for the model!");
+		}
 	}
 	public static Database getDatabase(){
 		return db;
@@ -76,7 +76,7 @@ public class Model<T extends Model>{
 			String query = "";
 			//fix this
 			if(!this.validId()){
-				query = "INSERT INTO "+this.getCompleteTableName()+"("+this.getTableFieldNames()+")"+" VALUES( "+getFieldValues()+")";
+				query = "INSERT INTO "+this.getCompleteTableName()+"("+this.getTableBasicFieldNames()+")"+" VALUES( "+getBasicFieldValues()+")";
 				//System.out.println(query);
 			}else{
 				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.id;
@@ -99,12 +99,13 @@ public class Model<T extends Model>{
 							m.save(recursionDepthLimit-1);
 							//TODO: fix this
 							column c = f.getAnnotation(column.class);
-							if(c.RelationType() == AssociationType.BelongsTo){
+							if(c.AssociationType() == AssociationType.BelongsTo){
+								//System.out.println("updating");
 								String associateTableName = this.getCompleteTableName();
 								String queryBelongsTo = "UPDATE "+associateTableName+" SET "+c.name()+"="+m.id+" WHERE id="+this.id;
 								getDatabase().query(queryBelongsTo);
 							}
-							if(c.RelationType() == AssociationType.HasOne){
+							if(c.AssociationType() == AssociationType.HasOne){
 								String associateTableName = m.getCompleteTableName();
 								String queryHasOne = "UPDATE "+associateTableName+" SET "+c.name()+"="+m.id+" WHERE id="+this.id;
 								getDatabase().query(queryHasOne);
@@ -203,36 +204,51 @@ public class Model<T extends Model>{
 		ArrayList<String> fieldData = new ArrayList<String>();
 		for(Field f:currentModel.keySet()){
 			column c = f.getAnnotation(column.class);
-			if(!c.name().equals("id")){
-				String val = Resources.getFieldStringRep(this,f.getName());
-				String entry = c.name()+"="+Resources.objectToSQL(val);
+			if(c.name().equals("id") && !this.validId()){
+				continue;
+			}
+			try{
+				Object o = f.get(this);
+				String entry = c.name()+"="+Resources.objectToSQL(o);
 				fieldData.add(entry);
+			}catch(Exception e){
+				
 			}
 		}
 		return Resources.concatenate(fieldData,linkSymbol);
 	}
-	protected String getTableFieldNames(){
+	protected String getTableBasicFieldNames(){
 		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
 		HashMap<Field,DHType> currentModel = models.get(this.getClass());
 		ArrayList<String> getFieldTableNames = new ArrayList<String>();
 		for(Field f: currentModel.keySet()){
 			column c = f.getAnnotation(column.class);
+			if(c.name().equals("id")){
+				continue;
+			}
 			getFieldTableNames.add(c.name());
 		}
 		return Resources.concatenate(getFieldTableNames,",");
 	}
-	protected String getFieldValues(){
+	protected String getBasicFieldValues(){
 		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
 		HashMap<Field,DHType> currentModel = models.get(this.getClass());
 		//System.out.println(this.getTableName());
 		//System.out.println(currentModel);
 		ArrayList<String> fieldData = new ArrayList<String>();
 		for(Field f: currentModel.keySet()){
+			column c = f.getAnnotation(column.class);
+			if(c.name().equals("id")){
+				continue;
+			}
 			String value = Resources.getFieldStringRep(this, f.getName());
 			//System.out.println(value);
 			fieldData.add(value);
 		}
 		return Resources.converToSQLAndConcatenate(fieldData,",");
+	}
+	public void refreshModel(){
+		updateModel();
 	}
 	private void updateModel(){
 		getDatabase().updateModelObject(this);
@@ -259,8 +275,8 @@ public class Model<T extends Model>{
 	public boolean equals(Object o){
 		if(DataHubConverter.isModelSubclass(o.getClass())){
 			Model other = (Model) o;
-			String otherSQLRep = other.getCompleteTableName()+"id="+other.id+other.generateSQLRep();
-			String thisSQLRep = this.getCompleteTableName()+"id="+this.id+this.generateSQLRep();
+			String otherSQLRep = other.getCompleteTableName()+other.generateSQLRep();
+			String thisSQLRep = this.getCompleteTableName()+this.generateSQLRep();
 			//System.out.println(otherSQLRep);
 			//System.out.println(thisSQLRep);
 			if(thisSQLRep.equals(otherSQLRep)){
@@ -271,7 +287,7 @@ public class Model<T extends Model>{
 	}
 	@Override
 	public String toString(){
-		return this.getCompleteTableName()+"id="+this.id+this.generateSQLRep();
+		return this.getCompleteTableName()+this.generateSQLRep();
 	}
 	public boolean validId(){
 		if(this.id <= 0){

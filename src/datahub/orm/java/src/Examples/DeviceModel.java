@@ -13,6 +13,6 @@ public class DeviceModel extends Model<DeviceModel>{
 	public String code;
 	
 	//need to specify foreign key name that matches the foreign key in the corresponding belongs to relationship
-	@column(name="test_id",Index=Index.ForeignKey,RelationType=AssociationType.BelongsTo)
+	@column(name="test_id",Index=Index.ForeignKey,AssociationType=AssociationType.BelongsTo)
 	public TestModel testModel;
 }

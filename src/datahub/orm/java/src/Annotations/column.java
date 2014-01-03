@@ -20,7 +20,7 @@ public @interface column {
 	public enum RemovalOptions{CascadingDelete, None};
 	String name();
 	Index Index() default Index.None;
-	AssociationType RelationType() default AssociationType.None;
+	AssociationType AssociationType() default AssociationType.None;
 	//specify whether it is primary key, foreign key, auto increment, etc.
 
 }
