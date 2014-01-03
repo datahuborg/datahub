@@ -43,7 +43,6 @@ public class Model<T extends Model>{
 					DataHubArrayList d = (DataHubArrayList) f.getType().newInstance();
 					d.setCurrentModel(this);
 					d.setForeignKey(c.name());
-					d.setDatabase(db);
 					Resources.setField(this, f.getName(), d);
 				}catch(Exception e){
 					
@@ -95,8 +94,6 @@ public class Model<T extends Model>{
 					if(o != null){
 						if(DataHubConverter.isModelSubclass(f.getType())){
 							Model m = (Model) o;
-							//System.out.println(m);
-							m.save(recursionDepthLimit-1);
 							//TODO: fix this
 							column c = f.getAnnotation(column.class);
 							if(c.AssociationType() == AssociationType.BelongsTo){
@@ -110,6 +107,8 @@ public class Model<T extends Model>{
 								String queryHasOne = "UPDATE "+associateTableName+" SET "+c.name()+"="+m.id+" WHERE id="+this.id;
 								getDatabase().query(queryHasOne);
 							}
+							//System.out.println(m);
+							m.save(recursionDepthLimit-1);
 						}
 						if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
 							DataHubArrayList d = (DataHubArrayList) o;

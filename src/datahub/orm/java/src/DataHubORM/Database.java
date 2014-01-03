@@ -67,6 +67,7 @@ public abstract class Database {
 		ArrayList<Field> fields = DataHubConverter.findModels(this);
 		try{
 			Model.setDatabase(this);
+			DataHubArrayList.setDatabase(this);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -202,9 +203,10 @@ public abstract class Database {
 				if(f1.isAnnotationPresent(column.class)){
 					column c = f1.getAnnotation(column.class);
 					if(c.AssociationType() == AssociationType.None){
+						//update primitive field
 						if(fieldsToDHCell.containsKey(c.name())){
 							DHCell cell = fieldsToDHCell.get(c.name());
-							Resources.setField(objectToUpdate, c.name(), cell.value);
+							Resources.setField(objectToUpdate, f1.getName(), cell.value);
 						}
 					}
 					//TODO:Fix this
