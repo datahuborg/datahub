@@ -1,4 +1,4 @@
-package DataHubORMTests;
+package Examples;
 
 import Annotations.database;
 import DataHubORM.Database;

@@ -19,8 +19,8 @@ import datahub.DHType;
 
 public class DataHubConverter {
 
-	public static ArrayList<HashMap<String,HashMap<String,DHType>>> convertDBToSchema(Database db){
-		ArrayList<HashMap<String,HashMap<String,DHType>>> out = new ArrayList<HashMap<String,HashMap<String,DHType>>>();
+	public static ArrayList<HashMap<Class,HashMap<Field,DHType>>> convertDBToSchema(Database db){
+		ArrayList<HashMap<Class,HashMap<Field,DHType>>> out = new ArrayList<HashMap<Class,HashMap<Field,DHType>>>();
 		ArrayList<Field> models = findModels(db);
 		for(Field model: models){
 			out.add(extractDataFromClass(model.getType()));
@@ -58,13 +58,13 @@ public class DataHubConverter {
 		}
 		return false;
 	}
-	public static HashMap<String,HashMap<String,DHType>> extractDataFromClass(Class model){
+	public static HashMap<Class,HashMap<Field,DHType>> extractDataFromClass(Class model){
 		
 		//TODO: do model type checks here
 		
 		//output hashmaps
-		HashMap<String,HashMap<String,DHType>> output = new HashMap<String,HashMap<String,DHType>>();
-		HashMap<String,DHType> fieldsDHType = new HashMap<String,DHType>();
+		HashMap<Class,HashMap<Field,DHType>> output = new HashMap<Class,HashMap<Field,DHType>>();
+		HashMap<Field,DHType> fieldsDHType = new HashMap<Field,DHType>();
 		
 		//model fields
 		Field[] fields = model.getDeclaredFields();
@@ -78,7 +78,7 @@ public class DataHubConverter {
 			//check for column annotation
 			if(hasColumnBasic(f)){
 				column c = f.getAnnotation(column.class);
-				fieldsDHType.put(c.name(), javaTypeToDHType(f.getType()));
+				fieldsDHType.put(f, javaTypeToDHType(f.getType()));
 			}
 		}
 		//check for table annotation
@@ -97,7 +97,7 @@ public class DataHubConverter {
 		}
 		//ensure table exists before returning anything
 		if(tableName != null){
-			output.put(tableName, fieldsDHType);
+			output.put(model, fieldsDHType);
 		}
 		return output;
 	}

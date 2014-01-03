@@ -93,7 +93,7 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 			this.foreignKey = foreignKey;
 		}
 	}
-	public void populate(){
+	public void populate() throws DataHubException{
 		populate(Database.MAX_LOAD_RECURSION_DEPTH);
 	}
 	public void save(){
@@ -108,11 +108,11 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 		ArrayList<Model> tempAddClone = (ArrayList<Model>) this.tempAdd.clone();
 		ArrayList<Model> tempRemoveClone = (ArrayList<Model>) this.tempRemove.clone();
 		for(Model element:tempAddClone){
-			element.save(recursionDepthLimit);
+			element.save(recursionDepthLimit-1);
 			this.addItemSQL(element);
 		}
 		for(Model element:tempRemoveClone){
-			element.save(recursionDepthLimit);
+			element.save(recursionDepthLimit-1);
 			this.removeItemSQL(element);
 		}
 		reset();
@@ -125,7 +125,10 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 		return ((Class<T>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
 	}
 	//add query this set methods
-	protected void populate(int recursionDepthLimit){
+	protected void populate(int recursionDepthLimit) throws DataHubException{
+		if(this.foreignKey == null || this.currentModel == null){
+			throw new DataHubException("Foreign Key and Current Model must be specified in DataHubArrayList");
+		}
 		if(recursionDepthLimit <= 0){
 			return;
 		}

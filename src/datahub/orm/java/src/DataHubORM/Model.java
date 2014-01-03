@@ -22,8 +22,8 @@ import Annotations.column.Index;
 import Annotations.column.AssociationType;
 import Annotations.database;
 import Annotations.table;
-import DataHubORMTests.TestModel;
 import DataHubResources.Resources;
+import Examples.TestModel;
 
 @table(name="")
 public class Model<T extends Model>{
@@ -76,7 +76,7 @@ public class Model<T extends Model>{
 			String query = "";
 			//fix this
 			if(!this.validId()){
-				query = "INSERT INTO "+this.getCompleteTableName()+"("+this.getFieldNames()+")"+" VALUES( "+getFieldValues()+")";
+				query = "INSERT INTO "+this.getCompleteTableName()+"("+this.getTableFieldNames()+")"+" VALUES( "+getFieldValues()+")";
 				//System.out.println(query);
 			}else{
 				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.id;
@@ -95,6 +95,7 @@ public class Model<T extends Model>{
 					if(o != null){
 						if(DataHubConverter.isModelSubclass(f.getType())){
 							Model m = (Model) o;
+							//System.out.println(m);
 							m.save(recursionDepthLimit-1);
 							//TODO: fix this
 							column c = f.getAnnotation(column.class);
@@ -117,8 +118,6 @@ public class Model<T extends Model>{
 				}
 			}
 			updateModel();
-			//System.out.println(this.id);
-			//System.out.println(dhqr);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -142,17 +141,22 @@ public class Model<T extends Model>{
 		return (ArrayList<T>) getDatabase().query(query, this.getClass());
 	}
 	public ArrayList<T> findAll(HashMap<String,Object> params){
+		if(params.size() == 0){
+			return new ArrayList<T>();
+		}
 		//TODO: queryung by related object
 		String query = "select * FROM "+this.getCompleteTableName()+" WHERE "+ queryToSQL(params);
 		return (ArrayList<T>) getDatabase().query(query, this.getClass());
 	}
 	public T findOne(HashMap<String,Object> params){
 		//TODO: querying by related object
-		String query = "select * FROM "+this.getCompleteTableName()+" WHERE "+ queryToSQL(params) +" LIMIT 1";
-		ArrayList<T> data = (ArrayList<T>) getDatabase().query(query,this.getClass());
-		//System.out.println(data);
-		if(data.size() > 0){
-			return (T) getDatabase().query(query,this.getClass()).get(0);
+		if(params.size() != 0){
+			String query = "select * FROM "+this.getCompleteTableName()+" WHERE "+ queryToSQL(params) +" LIMIT 1";
+			ArrayList<T> data = (ArrayList<T>) getDatabase().query(query,this.getClass());
+			//System.out.println(data);
+			if(data.size() > 0){
+				return (T) getDatabase().query(query,this.getClass()).get(0);
+			}
 		}
 		return null; 
 	}
@@ -194,29 +198,38 @@ public class Model<T extends Model>{
 		return generateSQLRep(",");
 	}
 	protected String generateSQLRep(String linkSymbol){
-		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
-		HashMap<String,DHType> currentModel = models.get(this.getTableName());
+		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
+		HashMap<Field,DHType> currentModel = models.get(this.getClass());
 		ArrayList<String> fieldData = new ArrayList<String>();
-		for(String field:currentModel.keySet()){
-			if(field!="id"){
-				String val = Resources.getFieldStringRep(this,field);
-				String entry = field+"="+Resources.objectToSQL(val);
+		for(Field f:currentModel.keySet()){
+			column c = f.getAnnotation(column.class);
+			if(!c.name().equals("id")){
+				String val = Resources.getFieldStringRep(this,f.getName());
+				String entry = c.name()+"="+Resources.objectToSQL(val);
 				fieldData.add(entry);
 			}
 		}
 		return Resources.concatenate(fieldData,linkSymbol);
 	}
-	protected String getFieldNames(){
-		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
-		HashMap<String,DHType> currentModel = models.get(this.getTableName());
-		return Resources.concatenate(currentModel.keySet(),",");
+	protected String getTableFieldNames(){
+		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
+		HashMap<Field,DHType> currentModel = models.get(this.getClass());
+		ArrayList<String> getFieldTableNames = new ArrayList<String>();
+		for(Field f: currentModel.keySet()){
+			column c = f.getAnnotation(column.class);
+			getFieldTableNames.add(c.name());
+		}
+		return Resources.concatenate(getFieldTableNames,",");
 	}
 	protected String getFieldValues(){
-		HashMap<String,HashMap<String,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
-		HashMap<String,DHType> currentModel = models.get(this.getTableName());
+		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
+		HashMap<Field,DHType> currentModel = models.get(this.getClass());
+		//System.out.println(this.getTableName());
+		//System.out.println(currentModel);
 		ArrayList<String> fieldData = new ArrayList<String>();
-		for(String field: currentModel.keySet()){
-			String value = Resources.getFieldStringRep(this, field);
+		for(Field f: currentModel.keySet()){
+			String value = Resources.getFieldStringRep(this, f.getName());
+			//System.out.println(value);
 			fieldData.add(value);
 		}
 		return Resources.converToSQLAndConcatenate(fieldData,",");

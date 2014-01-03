@@ -1,4 +1,4 @@
-package DataHubORMTests;
+package Examples;
 
 import DataHubORM.DataHubArrayList;
 import DataHubORM.DataHubConverter;

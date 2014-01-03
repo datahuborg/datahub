@@ -85,7 +85,17 @@ public abstract class Database {
 	private DHQueryResult dbQuery(String query){
 		//System.out.println(query);
 		//System.out.println(dhc.dbQuery(query));
-		return dhc.dbQuery(query);
+		if(query.toLowerCase().contains("select") && false){
+			if(cache.containsKey(query)){
+				return (DHQueryResult) cache.get(query);
+			}else{
+				DHQueryResult out = dhc.dbQuery(query);
+				cache.put(query, out);
+				return out;
+			}
+		}else{
+			return dhc.dbQuery(query);
+		}
 	}
 	protected void query(String query){
 		dhc.dbQuery(query);
@@ -102,16 +112,7 @@ public abstract class Database {
 		try{
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
 			//System.out.println(this.dbQuery(query));
-			if(query.toLowerCase().contains("select") && cache.containsKey(query)){
-				output = (ArrayList<T>) cache.get(query);
-				//System.out.println("RECURSION DEPTH: "+recursionDepthLimit);
-				//System.out.println("cache hit "+query);
-				//System.out.println(output);
-			}else{
-				output = dhQueryToModel(this.dbQuery(query), modelClass,recursionDepthLimit-1);
-				cache.put(query, output);
-				//System.out.println("cache miss "+query );
-			}
+			output = dhQueryToModel(this.dbQuery(query), modelClass,recursionDepthLimit-1);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
