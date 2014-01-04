@@ -45,7 +45,7 @@ import datahub.DHConnectionParams._Fields;
 
 public class ModelBasicTests extends TestsMain{
 	
-	//@Test
+	@Test
 	public void testCreateAndDelete() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -57,7 +57,7 @@ public class ModelBasicTests extends TestsMain{
 		assertEquals(t.id!=0,true);
 		
 		HashMap<String, Object> params = new HashMap<String,Object>();
-		params.put("name", name);
+		params.put("id", t.id);
 		TestModel t1 = this.db.test.findOne(params);
 		assertEquals(t1!=null,true);
 		assertEquals(t1.name,t.name);
@@ -66,9 +66,10 @@ public class ModelBasicTests extends TestsMain{
 		
 		t.destroy();
 		TestModel t2 = this.db.test.findOne(params);
+		
 		assertEquals(t2==null,true);
 	}
-	//@Test
+	@Test
 	public void testSave() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());

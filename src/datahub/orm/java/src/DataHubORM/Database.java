@@ -29,10 +29,10 @@ import DataHubResources.Resources;
 public abstract class Database {
 	//TODO: issue with stale objects on same system, could keep track of stale objects and update all of them
 	
-	protected static int MAX_LOAD_RECURSION_DEPTH = 3;
+	protected static int MAX_LOAD_RECURSION_DEPTH = 100;
 	
 	//prevent do unnecessary saves
-	protected static int MAX_SAVE_RECURSION_DEPTH = 2;
+	protected static int MAX_SAVE_RECURSION_DEPTH = 50;
 	
 	private DataHubClient dhc;
 	
@@ -65,7 +65,7 @@ public abstract class Database {
 		dhc.disconnect();
 	}
 	private void instantiateAndSetup(){
-		System.out.println("called");
+		//System.out.println("called");
 		ArrayList<Field> fields = DataHubConverter.findModels(this);
 		try{
 			Model.setDatabase(this);
@@ -98,7 +98,10 @@ public abstract class Database {
 	public static int missCount = 0;
 	private String filter(String tentative, ConcurrentHashMap<String,Object> obj){
 		for(String key:obj.keySet()){
+			//System.out.println("key"+key);
+			//System.out.println("tentative"+tentative);
 			if(key.contains(tentative) || tentative.contains(key)){
+				//System.out.println(key);
 				return key;
 			}
 		}
@@ -109,7 +112,6 @@ public abstract class Database {
 		//System.out.println(query);
 		//System.out.println(dhc.dbQuery(query));
 		if(query.toLowerCase().contains("select")){
-			String key = filter(query,cache);
 			if(cache.containsKey(query)){
 				hitCount+=1;
 				return (DHQueryResult) cache.get(query);

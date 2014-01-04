@@ -20,7 +20,10 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 	
 	private ArrayList<Model> tempRemove;
 	
-	public DataHubArrayList(){
+	public DataHubArrayList() throws DataHubException{
+		/*if(this.foreignKey == null || this.currentModel == null){
+			throw new DataHubException("DataHubArrayList must have a foreign key and current model specified!");
+		}*/
 		tempAdd = new ArrayList<T>();
 		tempRemove = new ArrayList<Model>();
 	}
@@ -98,21 +101,21 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 	}
 	public void save(){
 		db.resetCache();
-		save(Database.MAX_SAVE_RECURSION_DEPTH);
+		save(Database.MAX_SAVE_RECURSION_DEPTH, new ArrayList<Class>());
 		db.resetCache();
 	}
-	protected void save(int recursionDepthLimit){
+	protected void save(int recursionDepthLimit, ArrayList<Class> modelsAlreadySaved){
 		if(recursionDepthLimit <= 0){
 			return;
 		}
 		ArrayList<Model> tempAddClone = (ArrayList<Model>) this.tempAdd.clone();
 		ArrayList<Model> tempRemoveClone = (ArrayList<Model>) this.tempRemove.clone();
 		for(Model element:tempAddClone){
-			element.save(recursionDepthLimit-1);
+			element.save(recursionDepthLimit-1,modelsAlreadySaved);
 			this.addItemSQL(element);
 		}
 		for(Model element:tempRemoveClone){
-			element.save(recursionDepthLimit-1);
+			element.save(recursionDepthLimit-1,modelsAlreadySaved);
 			this.removeItemSQL(element);
 		}
 		reset();

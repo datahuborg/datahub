@@ -67,11 +67,14 @@ public class Model<T extends Model>{
 	}
 	public void save(){
 		db.resetCache();
-		this.save(Database.MAX_SAVE_RECURSION_DEPTH);
+		this.save(Database.MAX_SAVE_RECURSION_DEPTH, new ArrayList<Class>());
 		db.resetCache();
 	}
-	protected void save(int recursionDepthLimit){
-		if(recursionDepthLimit <= 0){
+	protected void save(int recursionDepthLimit,ArrayList<Class> modelsAlreadySaved){
+		//System.out.println(modelsAlreadySaved);
+		//System.out.println(this.getClass());
+		if(recursionDepthLimit <= 0 || modelsAlreadySaved.contains(this.getClass())){
+			System.out.println("broke"+modelsAlreadySaved.contains(this.getClass()));
 			return;
 		}
 		try{
@@ -80,11 +83,10 @@ public class Model<T extends Model>{
 			if(!this.validId()){
 				query = "INSERT INTO "+this.getCompleteTableName()+"("+this.getTableBasicFieldNames()+")"+" VALUES( "+getBasicFieldValues()+")";
 				//System.out.println(query);
-				getDatabase().query(query);
 			}else{
 				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.id;
 			}
-			System.out.println(query);
+			//System.out.println(query);
 			//just make query no recursion
 			getDatabase().query(query);
 			
@@ -92,6 +94,9 @@ public class Model<T extends Model>{
 				//get new id
 				updateModelId();
 			}
+			
+			//update already saved models
+			modelsAlreadySaved.add(this.getClass());
 			
 			//recursively save all fields
 			for(Field f:this.getClass().getFields()){
@@ -114,11 +119,12 @@ public class Model<T extends Model>{
 								getDatabase().query(queryHasOne);
 							}
 							//System.out.println(m);
-							m.save(recursionDepthLimit-1);
+							m.save(recursionDepthLimit-1,modelsAlreadySaved);
 						}
+						//has many relationship
 						if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
 							DataHubArrayList d = (DataHubArrayList) o;
-							d.save(recursionDepthLimit-1);
+							d.save(recursionDepthLimit-1,modelsAlreadySaved);
 						}
 					}
 				}
