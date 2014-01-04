@@ -135,13 +135,13 @@ public class ModelBasicTests extends TestsMain{
 		assertEquals(d.id!=0,true);
 		assertEquals(d.testModel.equals(t),true);
 		
-		System.out.println(d.testModel);
+		//System.out.println(d.testModel);
 		
 		d.testModel = t1;
 		d.save();
 		
-		System.out.println(t1);
-		System.out.println(d.testModel);
+		//System.out.println(t1);
+		//System.out.println(d.testModel);
 		
 		assertEquals(d.testModel.equals(t1),true);
 		assertEquals(d.testModel.equals(t),false);
@@ -150,8 +150,10 @@ public class ModelBasicTests extends TestsMain{
 		t1.destroy();
 		t.destroy();
 		
+		System.out.println("hits"+db.hitCount);
+		System.out.println("misses"+db.missCount);
 	}
-	//@Test
+	@Test
 	public void testDataHubArrayList(){
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -206,7 +208,7 @@ public class ModelBasicTests extends TestsMain{
 		d.destroy();
 		t.destroy();
 	}
-	//@Test
+	@Test
 	public void testHasOneAndBelongsTo(){
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -244,6 +246,8 @@ public class ModelBasicTests extends TestsMain{
 		tester.destroy();
 		t.destroy();
 		
+		System.out.println("hits"+db.hitCount);
+		System.out.println("misses"+db.missCount);
 	}
 
 }

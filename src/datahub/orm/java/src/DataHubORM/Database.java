@@ -27,6 +27,7 @@ import DataHubResources.Resources;
 
 @database(name="")
 public abstract class Database {
+	//TODO: issue with stale objects on same system, could keep track of stale objects and update all of them
 	
 	protected static int MAX_LOAD_RECURSION_DEPTH = 3;
 	
@@ -91,14 +92,31 @@ public abstract class Database {
 	public <T extends Model> ArrayList<T> select(T object, HashMap<String,Object> queryParams){
 		
 	}*/
-	
+	/*TO BE REMOVED*/
+	public static int hitCount = 0;
+	public static int missCount = 0;
+	private String filter(String tentative, ConcurrentHashMap<String,Object> obj){
+		for(String key:obj.keySet()){
+			if(key.contains(tentative) || tentative.contains(key)){
+				return key;
+			}
+		}
+		return null;
+	}
+	/*TO BE REMOVED*/
 	private DHQueryResult dbQuery(String query){
 		//System.out.println(query);
 		//System.out.println(dhc.dbQuery(query));
-		if(query.toLowerCase().contains("select") && false){
+		if(query.toLowerCase().contains("select")){
+			String key = filter(query,cache);
 			if(cache.containsKey(query)){
+				hitCount+=1;
 				return (DHQueryResult) cache.get(query);
 			}else{
+				//System.out.println(this.cache.keySet());
+				//System.out.println(query);
+				missCount+=1;
+				//System.out.println("network");
 				DHQueryResult out = dhc.dbQuery(query);
 				cache.put(query, out);
 				return out;
@@ -216,7 +234,7 @@ public abstract class Database {
 								DHCell cell = fieldsToDHCell.get(c.name());
 								Model m = (Model) f1.getType().newInstance();
 								String newCompleteTableName = m.getCompleteTableName();
-								String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+"."+c.name()+"="+objectToUpdate.id+" LIMIT 1";
+								String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+"."+c.name()+" = "+objectToUpdate.id+" LIMIT 1";
 								ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit);
 								if(newData.size() > 0){
 									Resources.setField(objectToUpdate, f1.getName(),newData.get(0));

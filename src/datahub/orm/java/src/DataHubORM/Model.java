@@ -53,10 +53,11 @@ public class Model<T extends Model>{
 	public static void setDatabase(Database database) throws DataHubException{
 		//TODO: figure out why this is getting set more than once
 		//db=database;
+		db = database;
 		if(db == null){
 			db = database;
 		}else{
-			throw new DataHubException("Database can only be set once for the model!");
+			//throw new DataHubException("Database can only be set once for the model!");
 		}
 	}
 	public static Database getDatabase(){
@@ -77,6 +78,7 @@ public class Model<T extends Model>{
 			if(!this.validId()){
 				query = "INSERT INTO "+this.getCompleteTableName()+"("+this.getTableBasicFieldNames()+")"+" VALUES( "+getBasicFieldValues()+")";
 				//System.out.println(query);
+				getDatabase().query(query);
 			}else{
 				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.id;
 			}
@@ -84,8 +86,10 @@ public class Model<T extends Model>{
 			//just make query no recursion
 			getDatabase().query(query);
 			
-			//get new id
-			updateModelId();
+			if(!this.validId()){
+				//get new id
+				updateModelId();
+			}
 			
 			//recursively save all fields
 			for(Field f:this.getClass().getFields()){
