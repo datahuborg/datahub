@@ -28,6 +28,7 @@ import org.junit.Test;
 
 import DataHubAccount.DataHubAccount;
 import DataHubAccount.DataHubUser;
+import DataHubORM.DataHubException;
 import Examples.DeviceModel;
 import Examples.TestModel;
 import Examples.TesterModel;
@@ -45,7 +46,7 @@ import datahub.DHConnectionParams._Fields;
 public class ModelBasicTests extends TestsMain{
 	
 	//@Test
-	public void testCreateAndDelete(){
+	public void testCreateAndDelete() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
 		String description = "test row";
@@ -68,7 +69,7 @@ public class ModelBasicTests extends TestsMain{
 		assertEquals(t2==null,true);
 	}
 	//@Test
-	public void testSave(){
+	public void testSave() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
 		String description = "test row";
@@ -106,7 +107,7 @@ public class ModelBasicTests extends TestsMain{
 		assertEquals(t3==null,true);
 	}
 	@Test
-	public void testSave2ChangeObject(){
+	public void testSave2ChangeObject() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
 		String description = "test row";
@@ -154,7 +155,7 @@ public class ModelBasicTests extends TestsMain{
 		System.out.println("misses"+db.missCount);
 	}
 	@Test
-	public void testDataHubArrayList(){
+	public void testDataHubArrayList() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
 		String description = "test row";
@@ -209,7 +210,7 @@ public class ModelBasicTests extends TestsMain{
 		t.destroy();
 	}
 	@Test
-	public void testHasOneAndBelongsTo(){
+	public void testHasOneAndBelongsTo() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
 		String description = "test row";

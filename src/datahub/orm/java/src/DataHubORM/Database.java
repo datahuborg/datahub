@@ -65,6 +65,7 @@ public abstract class Database {
 		dhc.disconnect();
 	}
 	private void instantiateAndSetup(){
+		System.out.println("called");
 		ArrayList<Field> fields = DataHubConverter.findModels(this);
 		try{
 			Model.setDatabase(this);

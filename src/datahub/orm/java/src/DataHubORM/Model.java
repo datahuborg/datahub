@@ -34,7 +34,10 @@ public class Model<T extends Model>{
 	@column(name="id")
 	public int id;
 
-	public Model(){
+	public Model() throws DataHubException{
+		if(db==null){
+			throw new DataHubException("Database for model class must be set before any models can be created!");
+		}
 		this.id = 0;
 		for(Field f: this.getClass().getFields()){
 			if(DataHubConverter.isDataHubArrayListSubclass(f.getType()) && f.isAnnotationPresent(column.class)){
@@ -52,13 +55,12 @@ public class Model<T extends Model>{
 	}
 	public static void setDatabase(Database database) throws DataHubException{
 		//TODO: figure out why this is getting set more than once
-		//db=database;
-		db = database;
-		if(db == null){
+		db=database;
+		/*if(db == null){
 			db = database;
 		}else{
-			//throw new DataHubException("Database can only be set once for the model!");
-		}
+			throw new DataHubException("Database can only be set once for the Model Class!");
+		}*/
 	}
 	public static Database getDatabase(){
 		return db;
@@ -82,7 +84,7 @@ public class Model<T extends Model>{
 			}else{
 				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.id;
 			}
-			
+			System.out.println(query);
 			//just make query no recursion
 			getDatabase().query(query);
 			
