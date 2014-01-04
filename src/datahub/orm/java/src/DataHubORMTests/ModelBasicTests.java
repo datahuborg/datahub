@@ -166,11 +166,13 @@ public class ModelBasicTests extends TestsMain{
 		t.save();
 		assertEquals(t.id!=0,true);
 		
+		
 		String code = "test_code"+Math.abs(generator.nextInt());
 		DeviceModel d = new DeviceModel();
 		d.code = code;
 		d.save();
 		assertEquals(d.id!=0,true);
+		
 		
 		//add device
 		t.devices.add(d);
@@ -183,7 +185,6 @@ public class ModelBasicTests extends TestsMain{
 		TestModel t1 = db.test.findOne(params);
 		
 		assertEquals(t1.devices.size()==0,true);
-		
 		
 		//now save and make sure object has one device
 		t.save();
@@ -209,6 +210,9 @@ public class ModelBasicTests extends TestsMain{
 		
 		d.destroy();
 		t.destroy();
+		
+		System.out.println("hits"+db.hitCount);
+		System.out.println("misses"+db.missCount);
 	}
 	@Test
 	public void testHasOneAndBelongsTo() throws DataHubException{

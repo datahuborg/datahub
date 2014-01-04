@@ -3,6 +3,7 @@ package DataHubORM;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 //ArrayList to represent sets connected to a particular 
 //table via foreign key
@@ -97,25 +98,23 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 		}
 	}
 	public void populate() throws DataHubException{
-		populate(Database.MAX_LOAD_RECURSION_DEPTH);
+		populate(Database.MAX_LOAD_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
 	}
 	public void save(){
-		db.resetCache();
-		save(Database.MAX_SAVE_RECURSION_DEPTH, new ArrayList<Class>());
-		db.resetCache();
+		save(Database.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ArrayList<Class>());
 	}
-	protected void save(int recursionDepthLimit, ArrayList<Class> modelsAlreadySaved){
+	protected void save(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved){
 		if(recursionDepthLimit <= 0){
 			return;
 		}
 		ArrayList<Model> tempAddClone = (ArrayList<Model>) this.tempAdd.clone();
 		ArrayList<Model> tempRemoveClone = (ArrayList<Model>) this.tempRemove.clone();
 		for(Model element:tempAddClone){
-			element.save(recursionDepthLimit-1,modelsAlreadySaved);
+			element.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
 			this.addItemSQL(element);
 		}
 		for(Model element:tempRemoveClone){
-			element.save(recursionDepthLimit-1,modelsAlreadySaved);
+			element.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
 			this.removeItemSQL(element);
 		}
 		reset();
@@ -128,7 +127,7 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 		return ((Class<T>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
 	}
 	//add query this set methods
-	protected void populate(int recursionDepthLimit) throws DataHubException{
+	protected void populate(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache) throws DataHubException{
 		if(this.foreignKey == null || this.currentModel == null){
 			throw new DataHubException("Foreign Key and Current Model must be specified in DataHubArrayList");
 		}
@@ -144,7 +143,7 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 			//TODO: fix select *
 			//String query = "select "+"*"+" from "+tableName+", "+newTableName+" where "+newTableName+"."+this.foreignKey+" = "+currentModel.id;
 			String query = "select "+"*"+" from "+newTableName+" where "+newTableName+"."+this.foreignKey+" = "+currentModel.id;
-			ArrayList<T> data = (ArrayList<T>) getDatabase().query(query, newInstance.getClass(),recursionDepthLimit);
+			ArrayList<T> data = (ArrayList<T>) getDatabase().query(query, newInstance.getClass(),recursionDepthLimit,localCache);
 			this.addAll(data);
 		}catch(Exception e){
 			e.printStackTrace();

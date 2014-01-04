@@ -18,8 +18,9 @@ import datahub.DHRow;
 import datahub.DHSchema;
 import datahub.DHTable;
 
+import Annotations.association;
+import Annotations.association.AssociationType;
 import Annotations.column;
-import Annotations.column.AssociationType;
 import Annotations.database;
 import Annotations.column.Index;
 import DataHubAccount.DataHubAccount;
@@ -29,25 +30,14 @@ import DataHubResources.Resources;
 public abstract class Database {
 	//TODO: issue with stale objects on same system, could keep track of stale objects and update all of them
 	
-	protected static int MAX_LOAD_RECURSION_DEPTH = 100;
+	protected static int MAX_LOAD_RECURSION_DEPTH = 50;
 	
 	//prevent do unnecessary saves
 	protected static int MAX_SAVE_RECURSION_DEPTH = 50;
 	
 	private DataHubClient dhc;
 	
-	private ConcurrentHashMap<String,Object> cache;
-	
 	public Database(){
-		this.cache = new ConcurrentHashMap<String,Object>();
-	}
-	protected void resetCacheEntry(String key){
-		if(cache.containsKey(key)){
-			cache.remove(key);
-		}
-	}
-	protected void resetCache(){
-		cache = new ConcurrentHashMap<String,Object>();
 	}
 	public void setDataHubAccount(DataHubAccount dha){
 		this.dhc = new DataHubClient(dha);
@@ -108,20 +98,21 @@ public abstract class Database {
 		return null;
 	}
 	/*TO BE REMOVED*/
-	private DHQueryResult dbQuery(String query){
+	private DHQueryResult dbQuery(String query, ConcurrentHashMap<String,Object> localCache){
 		//System.out.println(query);
 		//System.out.println(dhc.dbQuery(query));
 		if(query.toLowerCase().contains("select")){
-			if(cache.containsKey(query)){
+			if(localCache.containsKey(query)){
 				hitCount+=1;
-				return (DHQueryResult) cache.get(query);
+				return (DHQueryResult) localCache.get(query);
 			}else{
 				//System.out.println(this.cache.keySet());
 				//System.out.println(query);
 				missCount+=1;
+				//System.out.println(query);
 				//System.out.println("network");
 				DHQueryResult out = dhc.dbQuery(query);
-				cache.put(query, out);
+				localCache.put(query, out);
 				return out;
 			}
 		}else{
@@ -129,9 +120,9 @@ public abstract class Database {
 		}
 	}
 	protected void query(String query){
-		this.dbQuery(query);
+		this.dbQuery(query, new ConcurrentHashMap<String,Object>());
 	}
-	protected <T extends Model> ArrayList<T> query(String query, Class<T> modelClass, int recursionDepthLimit){
+	protected <T extends Model> ArrayList<T> query(String query, Class<T> modelClass, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
 		ArrayList<T> output = new ArrayList<T>();
 		if(recursionDepthLimit <= 0){
 			return output;
@@ -143,28 +134,28 @@ public abstract class Database {
 		try{
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
 			//System.out.println(this.dbQuery(query));
-			output = dhQueryToModel(this.dbQuery(query), modelClass,recursionDepthLimit-1);
+			output = dhQueryToModel(this.dbQuery(query, localCache), modelClass,recursionDepthLimit-1, localCache);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 		return output;
 	}
-	protected <T extends Model> void updateModelObject(T model){
+	protected <T extends Model> void updateModelObject(T model, int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache){
 		//TODO:VERY BIG ISSUE HERE, need to get id somehow, not sure how though
 		String query = "SELECT * FROM "+ model.getCompleteTableName()+" WHERE "+model.generateSQLRep("AND");
 		//System.out.println(query);
-		DHQueryResult dhqr = this.dbQuery(query);
-		updateNewModel(dhqr, 0, model, Database.MAX_LOAD_RECURSION_DEPTH);
+		DHQueryResult dhqr = this.dbQuery(query, localCache);
+		updateNewModel(dhqr, 0, model, recursionDepthLimit, localCache);
 	}
-	protected <T extends Model> void updateModelId(T model){
+	protected <T extends Model> void updateModelId(T model,int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
 		String query = "SELECT * FROM "+ model.getCompleteTableName()+" WHERE "+model.generateSQLRep("AND");
-		DHQueryResult dhqr = this.dbQuery(query);
-		updateNewModel(dhqr, 0, model, Database.MAX_LOAD_RECURSION_DEPTH, true);
+		DHQueryResult dhqr = this.dbQuery(query, localCache);
+		updateNewModel(dhqr, 0, model,recursionDepthLimit, localCache, true);
 	}
 	public <T extends Model> ArrayList<T> query(String query, Class<T> modelClass){
-		return query(query,modelClass,Database.MAX_LOAD_RECURSION_DEPTH);
+		return query(query,modelClass,Database.MAX_LOAD_RECURSION_DEPTH, new ConcurrentHashMap<String,Object> ());
 	}
-	private <T extends Model> ArrayList<T> dhQueryToModel(DHQueryResult dhqr, Class<T> modelClass, int recursionDepthLimit) throws InstantiationException, IllegalAccessException{
+	private <T extends Model> ArrayList<T> dhQueryToModel(DHQueryResult dhqr, Class<T> modelClass, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache) throws InstantiationException, IllegalAccessException{
 		ArrayList<T> output = new ArrayList<T>();
 		if(dhqr == null){
 			return output;
@@ -174,15 +165,15 @@ public abstract class Database {
 		DHTable table  = data.getTable();
 		for(int i = 0; i < table.rows.size(); i++){
 			T newObj = (T) modelClass.newInstance();
-			updateNewModel(dhqr, i,newObj,recursionDepthLimit);
+			updateNewModel(dhqr, i,newObj,recursionDepthLimit, localCache);
 			output.add(newObj);
 		}
 		return output;
 	}
-	private <T extends Model> void updateNewModel(DHQueryResult dhqr, int rowNumber, T objectToUpdate, int recursionDepthLimit){
-		updateNewModel(dhqr, rowNumber, objectToUpdate, recursionDepthLimit, false);
+	private <T extends Model> void updateNewModel(DHQueryResult dhqr, int rowNumber, T objectToUpdate, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
+		updateNewModel(dhqr, rowNumber, objectToUpdate, recursionDepthLimit, localCache, false);
 	}
-	private <T extends Model> void updateNewModel(DHQueryResult dhqr, int rowNumber, T objectToUpdate, int recursionDepthLimit, boolean idOnly){
+	private <T extends Model> void updateNewModel(DHQueryResult dhqr, int rowNumber, T objectToUpdate, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, boolean idOnly){
 		String databaseName = this.getDatabaseName();
 		String tableName = objectToUpdate.getTableName();
 		String completeTableName = objectToUpdate.getCompleteTableName();
@@ -223,22 +214,22 @@ public abstract class Database {
 				}
 				if(f1.isAnnotationPresent(column.class)){
 					column c = f1.getAnnotation(column.class);
-					if(c.AssociationType() == AssociationType.None){
-						//update primitive field
-						if(fieldsToDHCell.containsKey(c.name())){
-							DHCell cell = fieldsToDHCell.get(c.name());
-							Resources.setField(objectToUpdate, f1.getName(), cell.value);
-						}
+					if(fieldsToDHCell.containsKey(c.name())){
+						DHCell cell = fieldsToDHCell.get(c.name());
+						Resources.setField(objectToUpdate, f1.getName(), cell.value);
 					}
+				}
+				if(f1.isAnnotationPresent(association.class)){
+					association a = f1.getAnnotation(association.class);
 					//TODO:Fix this
-					if(c.AssociationType() == AssociationType.HasOne){
+					if(a.associationType() == AssociationType.HasOne){
 						if(DataHubConverter.isModelSubclass(f1.getType())){
 							try{
-								DHCell cell = fieldsToDHCell.get(c.name());
+								DHCell cell = fieldsToDHCell.get(a.table1ForeignKey());
 								Model m = (Model) f1.getType().newInstance();
 								String newCompleteTableName = m.getCompleteTableName();
-								String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+"."+c.name()+" = "+objectToUpdate.id+" LIMIT 1";
-								ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit);
+								String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+"."+a.table1ForeignKey()+" = "+objectToUpdate.id+" LIMIT 1";
+								ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit, localCache);
 								if(newData.size() > 0){
 									Resources.setField(objectToUpdate, f1.getName(),newData.get(0));
 								}
@@ -247,10 +238,10 @@ public abstract class Database {
 							}
 						}
 					}
-					if(c.AssociationType() == AssociationType.BelongsTo){
+					if(a.associationType() == AssociationType.BelongsTo){
 						if(DataHubConverter.isModelSubclass(f1.getType())){
 							try{
-								DHCell cell = fieldsToDHCell.get(c.name());
+								DHCell cell = fieldsToDHCell.get(a.table1ForeignKey());
 								int modelObjectBelongsToId = (int) Resources.convert(cell.value, Integer.TYPE);
 								//TODO: object already in memory so can just re-use it instead of making new query
 								Model m = (Model) f1.getType().newInstance();
@@ -258,7 +249,7 @@ public abstract class Database {
 								//String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+tableName+".id = "+objectToUpdate.id;
 								String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+".id = "+modelObjectBelongsToId+" LIMIT 1";
 								//System.out.println(query);
-								ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit);
+								ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit, localCache);
 								if(newData.size() > 0){
 									Resources.setField(objectToUpdate, f1.getName(),newData.get(0));
 								}
@@ -267,7 +258,7 @@ public abstract class Database {
 							}
 						}
 					}
-					if(c.AssociationType() == AssociationType.HasMany){
+					if(a.associationType() == AssociationType.HasMany){
 						Class<? extends DataHubArrayList> listClass = (Class<? extends DataHubArrayList>) f1.getType();
 						if(DataHubConverter.isDataHubArrayListSubclass(listClass)){
 							//fix this
@@ -275,9 +266,8 @@ public abstract class Database {
 							try{
 								DataHubArrayList d = (DataHubArrayList) listClass.newInstance();
 								d.setCurrentModel(objectToUpdate);
-								d.setDatabase(this);
-								d.setForeignKey(c.name());
-								d.populate(recursionDepthLimit);
+								d.setForeignKey(a.table1ForeignKey());
+								d.populate(recursionDepthLimit, localCache);
 								Resources.setField(objectToUpdate, f1.getName(),d);
 							}catch(Exception e){
 								e.printStackTrace();
@@ -285,7 +275,7 @@ public abstract class Database {
 						}
 					}
 					//TODO:fix this
-					if(c.AssociationType() == AssociationType.HasAndBelongsToMany){
+					if(a.associationType() == AssociationType.HasAndBelongsToMany){
 						
 					}
 				}

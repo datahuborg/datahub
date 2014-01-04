@@ -1,8 +1,9 @@
 package Examples;
 
+import Annotations.association;
 import Annotations.column;
+import Annotations.association.AssociationType;
 import Annotations.column.Index;
-import Annotations.column.AssociationType;
 import Annotations.table;
 import DataHubORM.DataHubException;
 import DataHubORM.Model;
@@ -19,6 +20,6 @@ public class DeviceModel extends Model<DeviceModel>{
 	public String code;
 	
 	//need to specify foreign key name that matches the foreign key in the corresponding belongs to relationship
-	@column(name="test_id",Index=Index.ForeignKey,AssociationType=AssociationType.BelongsTo)
+	@association(associationType = AssociationType.BelongsTo, table1ForeignKey = "test_id")
 	public TestModel testModel;
 }

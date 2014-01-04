@@ -9,9 +9,9 @@ import java.util.HashMap;
 
 import javax.print.DocFlavor.STRING;
 
+import Annotations.association;
 import Annotations.column;
 import Annotations.column.Index;
-import Annotations.column.AssociationType;
 import Annotations.table;
 import DataHubResources.Constants;
 
@@ -101,13 +101,13 @@ public class DataHubConverter {
 		return output;
 	}
 	public static boolean hasColumnBasic(Field f){
-		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).AssociationType() == AssociationType.None){
+		if(f.isAnnotationPresent(column.class)){
 			return true;
 		}
 		return false;
 	}
-	public static boolean hasFieldAndColumnWithRelation(Field f){
-		if(f.isAnnotationPresent(column.class) && f.getAnnotation(column.class).AssociationType() != AssociationType.None){
+	public static boolean hasAssociation(Field f){
+		if(f.isAnnotationPresent(association.class)){
 			return true;
 		}
 		return false;

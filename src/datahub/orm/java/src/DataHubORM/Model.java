@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import datahub.DHCell;
 import datahub.DHData;
@@ -17,9 +18,10 @@ import datahub.DHSchema;
 import datahub.DHTable;
 import datahub.DHType;
 
+import Annotations.association;
+import Annotations.association.AssociationType;
 import Annotations.column;
 import Annotations.column.Index;
-import Annotations.column.AssociationType;
 import Annotations.database;
 import Annotations.table;
 import DataHubResources.Resources;
@@ -66,15 +68,17 @@ public class Model<T extends Model>{
 		return db;
 	}
 	public void save(){
-		db.resetCache();
-		this.save(Database.MAX_SAVE_RECURSION_DEPTH, new ArrayList<Class>());
-		db.resetCache();
+		db.hitCount = 0;
+		db.missCount = 0;
+		//System.out.println("before save");
+		this.save(Database.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ArrayList<Class>());
+		//System.out.println("after save");
 	}
-	protected void save(int recursionDepthLimit,ArrayList<Class> modelsAlreadySaved){
+	protected void save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved){
 		//System.out.println(modelsAlreadySaved);
 		//System.out.println(this.getClass());
 		if(recursionDepthLimit <= 0 || modelsAlreadySaved.contains(this.getClass())){
-			System.out.println("broke"+modelsAlreadySaved.contains(this.getClass()));
+			//System.out.println("broke"+modelsAlreadySaved.contains(this.getClass()));
 			return;
 		}
 		try{
@@ -92,7 +96,7 @@ public class Model<T extends Model>{
 			
 			if(!this.validId()){
 				//get new id
-				updateModelId();
+				updateModelId(recursionDepthLimit,localCache);
 			}
 			
 			//update already saved models
@@ -100,48 +104,46 @@ public class Model<T extends Model>{
 			
 			//recursively save all fields
 			for(Field f:this.getClass().getFields()){
-				if(this.hasFieldAndColumnWithRelation(f.getName())){
+				if(this.hasAssociation(f.getName())){
 					Object o = f.get(this);
 					if(o != null){
 						if(DataHubConverter.isModelSubclass(f.getType())){
 							Model m = (Model) o;
 							//TODO: fix this
-							column c = f.getAnnotation(column.class);
-							if(c.AssociationType() == AssociationType.BelongsTo){
+							association a = f.getAnnotation(association.class);
+							if(a.associationType() == AssociationType.BelongsTo){
 								//System.out.println("updating");
 								String associateTableName = this.getCompleteTableName();
-								String queryBelongsTo = "UPDATE "+associateTableName+" SET "+c.name()+"="+m.id+" WHERE id="+this.id;
+								String queryBelongsTo = "UPDATE "+associateTableName+" SET "+a.table1ForeignKey()+"="+m.id+" WHERE id="+this.id;
 								getDatabase().query(queryBelongsTo);
 							}
-							if(c.AssociationType() == AssociationType.HasOne){
+							if(a.associationType() == AssociationType.HasOne){
 								String associateTableName = m.getCompleteTableName();
-								String queryHasOne = "UPDATE "+associateTableName+" SET "+c.name()+"="+m.id+" WHERE id="+this.id;
+								String queryHasOne = "UPDATE "+associateTableName+" SET "+a.table1ForeignKey()+"="+m.id+" WHERE id="+this.id;
 								getDatabase().query(queryHasOne);
 							}
 							//System.out.println(m);
-							m.save(recursionDepthLimit-1,modelsAlreadySaved);
+							m.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
 						}
 						//has many relationship
 						if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
 							DataHubArrayList d = (DataHubArrayList) o;
-							d.save(recursionDepthLimit-1,modelsAlreadySaved);
+							d.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
 						}
 					}
 				}
 			}
-			updateModel();
+			updateModel(recursionDepthLimit,localCache);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 	public void destroy(){
 		try{
-			db.resetCache();
 			String query = "DELETE FROM "+this.getCompleteTableName()+" WHERE "+"id="+this.id;
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
 			//System.out.println(query);
-			getDatabase().query(query, this.getClass());
-			db.resetCache();
+			getDatabase().query(query);
 			//System.out.println(getDatabase().query("SELECT * FROM "+this.getCompleteTableName()+" WHERE "+"id="+this.id, this.getClass()));
 			//possibly garbage collect object
 		}catch(Exception e){
@@ -184,11 +186,11 @@ public class Model<T extends Model>{
 		}
 		return out;
 	}
-	private boolean hasFieldAndColumnWithRelation(String name){
+	private boolean hasAssociation(String name){
 		boolean out = false;
 		try{
 			Field f = this.getClass().getField(name);
-			if(DataHubConverter.hasFieldAndColumnWithRelation(f)){
+			if(DataHubConverter.hasAssociation(f)){
 				out= true;
 			}
 		}catch(Exception e){
@@ -259,13 +261,13 @@ public class Model<T extends Model>{
 		return Resources.converToSQLAndConcatenate(fieldData,",");
 	}
 	public void refreshModel(){
-		updateModel();
+		updateModel(Database.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>());
 	}
-	private void updateModel(){
-		getDatabase().updateModelObject(this);
+	private void updateModel(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
+		getDatabase().updateModelObject(this,recursionDepthLimit,localCache);
 	}
-	private void updateModelId(){
-		getDatabase().updateModelId(this);
+	private void updateModelId(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
+		getDatabase().updateModelId(this,recursionDepthLimit,localCache);
 	}
 	private T newInstance() throws InstantiationException, IllegalAccessException{
 		return (T) getClass().newInstance();

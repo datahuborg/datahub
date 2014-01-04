@@ -5,22 +5,9 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface column {
-
-	public enum Index{ForeignKey,PrimaryKey,None}
-	public enum AssociationType{
-		HasMany, 
-		HasOne, 
-		BelongsTo,
-		HasAndBelongsToMany,
-		None;
-		AssociationType(){
-			
-		}
-	};
-	public enum RemovalOptions{CascadingDelete, None};
+	public enum Index{PrimaryKey,None}
 	String name();
-	Index Index() default Index.None;
-	AssociationType AssociationType() default AssociationType.None;
+	Index index() default Index.None;
 	//specify whether it is primary key, foreign key, auto increment, etc.
 
 }
