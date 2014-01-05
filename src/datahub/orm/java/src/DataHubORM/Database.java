@@ -30,10 +30,10 @@ import DataHubResources.Resources;
 public abstract class Database {
 	//TODO: issue with stale objects on same system, could keep track of stale objects and update all of them
 	
-	protected static int MAX_LOAD_RECURSION_DEPTH = 5;
+	protected static int MAX_LOAD_RECURSION_DEPTH = 1000;
 	
 	//prevent do unnecessary saves
-	protected static int MAX_SAVE_RECURSION_DEPTH = 3;
+	protected static int MAX_SAVE_RECURSION_DEPTH = 1000;
 	
 	private DataHubClient dhc;
 	

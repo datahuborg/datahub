@@ -68,10 +68,11 @@ public class Model<T extends Model>{
 		return db;
 	}
 	public void save(){
-		db.hitCount = 0;
-		db.missCount = 0;
+		//db.hitCount = 0;
+		//db.missCount = 0;
 		//System.out.println("before save");
 		this.save(Database.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ArrayList<Class>());
+		updateModel(Database.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>());
 		//System.out.println("after save");
 	}
 	protected void save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved){
@@ -133,7 +134,7 @@ public class Model<T extends Model>{
 					}
 				}
 			}
-			updateModel(recursionDepthLimit,localCache);
+			//updateModel(recursionDepthLimit,localCache);
 		}catch(Exception e){
 			e.printStackTrace();
 		}

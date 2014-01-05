@@ -305,6 +305,8 @@ public class ModelBasicTests extends TestsMain{
 		//t.destroy();
 		//u1.destroy();
 		
+		System.out.println("hits"+db.hitCount);
+		System.out.println("misses"+db.missCount);
 		
 	}
 
