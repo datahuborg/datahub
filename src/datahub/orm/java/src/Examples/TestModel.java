@@ -23,11 +23,14 @@ public class TestModel extends Model<TestModel> {
 	@column(name="description") 
 	public String description;
 	
-	@association(associationType = AssociationType.HasOne, table1ForeignKey = "test_id")
+	@association(associationType = AssociationType.HasOne, foreignKey = "test_id")
 	public TesterModel tester;
 	
 	//need to specify foreign key name that matches the foreign key in the corresponding belongs to relationship
-	@association(associationType = AssociationType.HasMany, table1ForeignKey = "test_id")
+	@association(associationType = AssociationType.HasMany, foreignKey = "test_id")
 	public DevicesDataHubArrayList devices;
+	
+	@association(associationType = AssociationType.HasAndBelongsToMany, linkingTable = "testuser", leftTableForeignKey = "test_id",rightTableForeignKey = "user_id", foreignKey = "test_id")
+	public UsersDataHubArrayList users;
 
 }

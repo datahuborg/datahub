@@ -30,10 +30,10 @@ import DataHubResources.Resources;
 public abstract class Database {
 	//TODO: issue with stale objects on same system, could keep track of stale objects and update all of them
 	
-	protected static int MAX_LOAD_RECURSION_DEPTH = 50;
+	protected static int MAX_LOAD_RECURSION_DEPTH = 5;
 	
 	//prevent do unnecessary saves
-	protected static int MAX_SAVE_RECURSION_DEPTH = 50;
+	protected static int MAX_SAVE_RECURSION_DEPTH = 3;
 	
 	private DataHubClient dhc;
 	
@@ -101,8 +101,9 @@ public abstract class Database {
 	private DHQueryResult dbQuery(String query, ConcurrentHashMap<String,Object> localCache){
 		//System.out.println(query);
 		//System.out.println(dhc.dbQuery(query));
-		if(query.toLowerCase().contains("select")){
+		if(query.toLowerCase().startsWith("select * from")){
 			if(localCache.containsKey(query)){
+				//System.out.println(query);
 				hitCount+=1;
 				return (DHQueryResult) localCache.get(query);
 			}else{
@@ -225,10 +226,10 @@ public abstract class Database {
 					if(a.associationType() == AssociationType.HasOne){
 						if(DataHubConverter.isModelSubclass(f1.getType())){
 							try{
-								DHCell cell = fieldsToDHCell.get(a.table1ForeignKey());
+								DHCell cell = fieldsToDHCell.get(a.foreignKey());
 								Model m = (Model) f1.getType().newInstance();
 								String newCompleteTableName = m.getCompleteTableName();
-								String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+"."+a.table1ForeignKey()+" = "+objectToUpdate.id+" LIMIT 1";
+								String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+"."+a.foreignKey()+" = "+objectToUpdate.id+" LIMIT 1";
 								ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit, localCache);
 								if(newData.size() > 0){
 									Resources.setField(objectToUpdate, f1.getName(),newData.get(0));
@@ -241,7 +242,7 @@ public abstract class Database {
 					if(a.associationType() == AssociationType.BelongsTo){
 						if(DataHubConverter.isModelSubclass(f1.getType())){
 							try{
-								DHCell cell = fieldsToDHCell.get(a.table1ForeignKey());
+								DHCell cell = fieldsToDHCell.get(a.foreignKey());
 								int modelObjectBelongsToId = (int) Resources.convert(cell.value, Integer.TYPE);
 								//TODO: object already in memory so can just re-use it instead of making new query
 								Model m = (Model) f1.getType().newInstance();
@@ -266,7 +267,7 @@ public abstract class Database {
 							try{
 								DataHubArrayList d = (DataHubArrayList) listClass.newInstance();
 								d.setCurrentModel(objectToUpdate);
-								d.setForeignKey(a.table1ForeignKey());
+								d.setAssociation(a);
 								d.populate(recursionDepthLimit, localCache);
 								Resources.setField(objectToUpdate, f1.getName(),d);
 							}catch(Exception e){
@@ -276,7 +277,20 @@ public abstract class Database {
 					}
 					//TODO:fix this
 					if(a.associationType() == AssociationType.HasAndBelongsToMany){
-						
+						Class<? extends DataHubArrayList> listClass = (Class<? extends DataHubArrayList>) f1.getType();
+						if(DataHubConverter.isDataHubArrayListSubclass(listClass)){
+							//fix this
+							//make sure id of this object is set before doing this
+							try{
+								DataHubArrayList d = (DataHubArrayList) listClass.newInstance();
+								d.setCurrentModel(objectToUpdate);
+								d.setAssociation(a);
+								d.populate(recursionDepthLimit, localCache);
+								Resources.setField(objectToUpdate, f1.getName(),d);
+							}catch(Exception e){
+								e.printStackTrace();
+							}
+						}
 					}
 				}
 			}

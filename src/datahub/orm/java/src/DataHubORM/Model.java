@@ -42,12 +42,12 @@ public class Model<T extends Model>{
 		}
 		this.id = 0;
 		for(Field f: this.getClass().getFields()){
-			if(DataHubConverter.isDataHubArrayListSubclass(f.getType()) && f.isAnnotationPresent(column.class)){
+			if(DataHubConverter.isDataHubArrayListSubclass(f.getType()) && DataHubConverter.hasAssociation(f)){
 				try{
-					column c = f.getAnnotation(column.class);
+					association a = f.getAnnotation(association.class);
 					DataHubArrayList d = (DataHubArrayList) f.getType().newInstance();
 					d.setCurrentModel(this);
-					d.setForeignKey(c.name());
+					d.setAssociation(a);
 					Resources.setField(this, f.getName(), d);
 				}catch(Exception e){
 					
@@ -114,12 +114,12 @@ public class Model<T extends Model>{
 							if(a.associationType() == AssociationType.BelongsTo){
 								//System.out.println("updating");
 								String associateTableName = this.getCompleteTableName();
-								String queryBelongsTo = "UPDATE "+associateTableName+" SET "+a.table1ForeignKey()+"="+m.id+" WHERE id="+this.id;
+								String queryBelongsTo = "UPDATE "+associateTableName+" SET "+a.foreignKey()+"="+m.id+" WHERE id="+this.id;
 								getDatabase().query(queryBelongsTo);
 							}
 							if(a.associationType() == AssociationType.HasOne){
 								String associateTableName = m.getCompleteTableName();
-								String queryHasOne = "UPDATE "+associateTableName+" SET "+a.table1ForeignKey()+"="+m.id+" WHERE id="+this.id;
+								String queryHasOne = "UPDATE "+associateTableName+" SET "+a.foreignKey()+"="+m.id+" WHERE id="+this.id;
 								getDatabase().query(queryHasOne);
 							}
 							//System.out.println(m);

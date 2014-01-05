@@ -20,6 +20,6 @@ public class DeviceModel extends Model<DeviceModel>{
 	public String code;
 	
 	//need to specify foreign key name that matches the foreign key in the corresponding belongs to relationship
-	@association(associationType = AssociationType.BelongsTo, table1ForeignKey = "test_id")
+	@association(associationType = AssociationType.BelongsTo, foreignKey = "test_id")
 	public TestModel testModel;
 }

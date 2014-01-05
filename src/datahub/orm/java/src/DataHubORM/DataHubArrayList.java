@@ -4,6 +4,8 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import Annotations.association;
+import Annotations.association.AssociationType;
 
 //ArrayList to represent sets connected to a particular 
 //table via foreign key
@@ -15,7 +17,7 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 	
 	private Model currentModel;
 	
-	private String foreignKey;
+	private association association;
 	
 	private ArrayList<T> tempAdd;
 	
@@ -42,18 +44,65 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 		return db;
 	}
 	//TODO:fix this
-	private void addItemSQL(Model data){
+	private void addItemSQL(Model data) throws DataHubException{
 		//data needs to be saved before it can be added to the collection
 		//need to get class that contains this object
 		//need to get class of T and then do mappings based on table names
 		//check for column annotation and foreign key stuff
 		String associateTableName = data.getCompleteTableName();
-		String query = "UPDATE "+associateTableName+" SET "+this.foreignKey+"="+this.currentModel.id+" WHERE id="+data.id;
+		String linkingTableName = db.getDatabaseName()+"."+this.association.linkingTable();
+		String query = "";
+		switch(this.association.associationType()){
+			case HasMany:
+				query = "update "+associateTableName+" set "+this.association.foreignKey()+"="+this.currentModel.id+" where id="+data.id;
+				break;
+			case HasAndBelongsToMany:
+				String update = "update "+linkingTableName+" set "+this.association.leftTableForeignKey()+"="+this.currentModel.id+" where "+this.association.rightTableForeignKey()+"="+data.id;
+				int leftVal;
+				int rightVal;
+				if(this.association.leftTableForeignKey().equals(this.association.foreignKey())){
+					leftVal = this.currentModel.id;
+					rightVal = data.id;
+				}else if(this.association.rightTableForeignKey().equals(this.association.foreignKey())){
+					rightVal = this.currentModel.id;
+					leftVal = data.id;
+				}else{
+					throw new DataHubException("For HABTM association, the foreign key must match either the left or the right key in the linking table!");
+				}
+				String insert = "insert into "+linkingTableName+"("+this.association.leftTableForeignKey()+","+this.association.rightTableForeignKey()+")"+
+						" select "+leftVal+","+rightVal+" where not exists (select 1 from "+linkingTableName+" where "+this.association.leftTableForeignKey()+"="+
+						leftVal+" AND "+this.association.rightTableForeignKey()+"="+rightVal+")";
+				query = update+";"+insert;
+				break;
+			default:
+				throw new DataHubException("Invalid association type for DataHubArrayList!");
+		}
 		db.query(query);
 	}
-	private void removeItemSQL(Model data){
+	private void removeItemSQL(Model data) throws DataHubException{
 		String associateTableName = data.getCompleteTableName();
-		String query = "UPDATE "+associateTableName+" SET "+this.foreignKey+"= NULL "+"WHERE id="+data.id;
+		String query = "";
+		switch(this.association.associationType()){
+			case HasMany:
+				query = "update "+associateTableName+" set "+this.association.foreignKey()+"= NULL "+"where id="+data.id;
+				break;
+			case HasAndBelongsToMany:
+				int leftVal;
+				int rightVal;
+				if(this.association.leftTableForeignKey().equals(this.association.foreignKey())){
+					leftVal = this.currentModel.id;
+					rightVal = data.id;
+				}else if(this.association.rightTableForeignKey().equals(this.association.foreignKey())){
+					rightVal = this.currentModel.id;
+					leftVal = data.id;
+				}else{
+					throw new DataHubException("For HABTM association, the foreign key must match either the left or the right key in the linking table!");
+				}
+				query = "delete from "+db.getDatabaseName()+"."+this.association.linkingTable()+" where "+this.association.leftTableForeignKey()+"="+leftVal+" AND "+this.association.rightTableForeignKey()+"="+rightVal;
+				break;
+			default:
+				throw new DataHubException("Invalid association type for DataHubArrayList!");
+		}
 		db.query(query);
 	}
 	//TODO:fix this
@@ -89,21 +138,21 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 			this.currentModel = m;
 		}
 	}
-	public void setForeignKey(String foreignKey) throws DataHubException{
+	public void setAssociation(association a) throws DataHubException{
 		//foreignkey can only be set once for life of the object to ensure consistency in operation
-		if(this.foreignKey != null){
-			throw new DataHubException("ForeignKey already set for DataHubArrayList");
+		if(this.association != null){
+			throw new DataHubException("Association already set for DataHubArrayList");
 		}else{
-			this.foreignKey = foreignKey;
+			this.association = a;
 		}
 	}
 	public void populate() throws DataHubException{
 		populate(Database.MAX_LOAD_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
 	}
-	public void save(){
+	public void save() throws DataHubException{
 		save(Database.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ArrayList<Class>());
 	}
-	protected void save(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved){
+	protected void save(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved) throws DataHubException{
 		if(recursionDepthLimit <= 0){
 			return;
 		}
@@ -128,7 +177,7 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 	}
 	//add query this set methods
 	protected void populate(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache) throws DataHubException{
-		if(this.foreignKey == null || this.currentModel == null){
+		if(this.association == null || this.currentModel == null){
 			throw new DataHubException("Foreign Key and Current Model must be specified in DataHubArrayList");
 		}
 		if(recursionDepthLimit <= 0){
@@ -142,7 +191,30 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 			String newTableName = newInstance.getCompleteTableName();
 			//TODO: fix select *
 			//String query = "select "+"*"+" from "+tableName+", "+newTableName+" where "+newTableName+"."+this.foreignKey+" = "+currentModel.id;
-			String query = "select "+"*"+" from "+newTableName+" where "+newTableName+"."+this.foreignKey+" = "+currentModel.id;
+			String query = "";
+			switch(this.association.associationType()){
+				case HasMany:
+					query = "select "+"*"+" from "+newTableName+" where "+newTableName+"."+this.association.foreignKey()+" = "+currentModel.id;
+					break;
+				case HasAndBelongsToMany:
+					String linkTableSelectKey;
+					String linkTableSearchKey;
+					if(this.association.leftTableForeignKey().equals(this.association.foreignKey())){
+						linkTableSelectKey = this.association.rightTableForeignKey();
+						linkTableSearchKey = this.association.leftTableForeignKey();
+					}else if(this.association.rightTableForeignKey().equals(this.association.foreignKey())){
+						linkTableSelectKey = this.association.leftTableForeignKey();
+						linkTableSearchKey = this.association.rightTableForeignKey();
+					}else{
+						throw new DataHubException("For HABTM association, the foreign key must match either the left or the right key in the linking table!");
+					}
+					String query1 = "select ("+linkTableSelectKey+") from "+db.getDatabaseName()+"."+this.association.linkingTable()+" where "+linkTableSearchKey+"="+this.currentModel.id;
+					query = "select * from "+newTableName+" where id in("+query1+")";
+					//System.out.println(query);
+					break;
+				default:
+					throw new DataHubException("Invalid association type for DataHubArrayList!");
+			}
 			ArrayList<T> data = (ArrayList<T>) getDatabase().query(query, newInstance.getClass(),recursionDepthLimit,localCache);
 			this.addAll(data);
 		}catch(Exception e){

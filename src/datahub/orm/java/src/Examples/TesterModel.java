@@ -19,6 +19,6 @@ public class TesterModel extends Model<TesterModel> {
 	@column(name="tester_name")
 	public String testerName;
 	
-	@association(associationType = AssociationType.BelongsTo, table1ForeignKey = "test_id")
+	@association(associationType = AssociationType.BelongsTo, foreignKey = "test_id")
 	public TestModel test;
 }

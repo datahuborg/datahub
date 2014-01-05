@@ -15,8 +15,9 @@ public @interface association {
 	};
 	AssociationType associationType();
 	String linkingTable() default "";
-	String table1ForeignKey();
-	String table2ForeignKey() default "";
+	String leftTableForeignKey() default ""; //used for HABTM
+	String rightTableForeignKey() default ""; //used for HABTM
+	String foreignKey();
 	RemovalOptions removalOption() default RemovalOptions.None;
 	
 }
