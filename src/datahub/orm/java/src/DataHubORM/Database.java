@@ -25,17 +25,23 @@ import Annotations.database;
 import Annotations.column.Index;
 import DataHubAccount.DataHubAccount;
 import DataHubResources.Resources;
+import DataHubUpdater.DataHubCache;
+import DataHubUpdater.DataHubConsistencySpecifier;
 
 @database(name="")
 public abstract class Database {
 	//TODO: issue with stale objects on same system, could keep track of stale objects and update all of them
 	
-	protected static int MAX_LOAD_RECURSION_DEPTH = 1000;
+	protected static int MAX_LOAD_RECURSION_DEPTH = 50;
 	
 	//prevent do unnecessary saves
-	protected static int MAX_SAVE_RECURSION_DEPTH = 1000;
+	protected static int MAX_SAVE_RECURSION_DEPTH = 50;
 	
 	private DataHubClient dhc;
+	
+	private DataHubCache dhcp;
+	
+	private DataHubConsistencySpecifier dhcs;
 	
 	public Database(){
 	}

@@ -46,7 +46,7 @@ import datahub.DHConnectionParams._Fields;
 
 public class ModelBasicTests extends TestsMain{
 	
-	//@Test
+	@Test
 	public void testCreateAndDelete() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -70,7 +70,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		assertEquals(t2==null,true);
 	}
-	//@Test
+	@Test
 	public void testSave() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -108,7 +108,7 @@ public class ModelBasicTests extends TestsMain{
 		TestModel t3 = this.db.test.findOne(params);
 		assertEquals(t3==null,true);
 	}
-	//@Test
+	@Test
 	public void testSave2ChangeObject() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -156,7 +156,7 @@ public class ModelBasicTests extends TestsMain{
 		System.out.println("hits"+db.hitCount);
 		System.out.println("misses"+db.missCount);
 	}
-	//@Test
+	@Test
 	public void testDataHubArrayList() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -215,7 +215,7 @@ public class ModelBasicTests extends TestsMain{
 		System.out.println("hits"+db.hitCount);
 		System.out.println("misses"+db.missCount);
 	}
-	//@Test
+	@Test
 	public void testHasOneAndBelongsTo() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -302,8 +302,8 @@ public class ModelBasicTests extends TestsMain{
 		System.out.println(t2.users);
 		System.out.println(u3.tests);
 		
-		//t.destroy();
-		//u1.destroy();
+		t.destroy();
+		u1.destroy();
 		
 		System.out.println("hits"+db.hitCount);
 		System.out.println("misses"+db.missCount);
