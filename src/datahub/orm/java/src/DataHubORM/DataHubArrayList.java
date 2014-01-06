@@ -209,6 +209,7 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 						throw new DataHubException("For HABTM association, the foreign key must match either the left or the right key in the linking table!");
 					}
 					String query1 = "select ("+linkTableSelectKey+") from "+db.getDatabaseName()+"."+this.association.linkingTable()+" where "+linkTableSearchKey+"="+this.currentModel.id;
+					//TODO:fix this
 					query = "select * from "+newTableName+" where id in("+query1+")";
 					//System.out.println(query);
 					break;

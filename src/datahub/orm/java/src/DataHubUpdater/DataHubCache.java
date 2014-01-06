@@ -8,6 +8,10 @@ public class DataHubCache{
 	
 	private int refreshInterval;
 	
+	public DataHubCache(){
+		this.freshnessLevel = FreshnessLevels.Fresh;
+	}
+	
 	public void setFreshnessLevel(FreshnessLevels f){
 		this.freshnessLevel = f;
 	}

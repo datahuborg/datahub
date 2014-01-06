@@ -46,7 +46,7 @@ import datahub.DHConnectionParams._Fields;
 
 public class ModelBasicTests extends TestsMain{
 	
-	@Test
+	//@Test
 	public void testCreateAndDelete() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -70,7 +70,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		assertEquals(t2==null,true);
 	}
-	@Test
+	//@Test
 	public void testSave() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -108,7 +108,7 @@ public class ModelBasicTests extends TestsMain{
 		TestModel t3 = this.db.test.findOne(params);
 		assertEquals(t3==null,true);
 	}
-	@Test
+	//@Test
 	public void testSave2ChangeObject() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -156,7 +156,7 @@ public class ModelBasicTests extends TestsMain{
 		System.out.println("hits"+db.hitCount);
 		System.out.println("misses"+db.missCount);
 	}
-	@Test
+	//@Test
 	public void testDataHubArrayList() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -215,7 +215,7 @@ public class ModelBasicTests extends TestsMain{
 		System.out.println("hits"+db.hitCount);
 		System.out.println("misses"+db.missCount);
 	}
-	@Test
+	//@Test
 	public void testHasOneAndBelongsTo() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -256,7 +256,7 @@ public class ModelBasicTests extends TestsMain{
 		System.out.println("hits"+db.hitCount);
 		System.out.println("misses"+db.missCount);
 	}
-	@Test
+	//@Test
 	public void HABTMTest() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -309,5 +309,85 @@ public class ModelBasicTests extends TestsMain{
 		System.out.println("misses"+db.missCount);
 		
 	}
-
+	@Test
+	public void testQueryByObject() throws DataHubException{
+		Random generator = new Random();
+		String name = "test"+Math.abs(generator.nextInt());
+		String description = "test row";
+		TestModel t = new TestModel();
+		t.name = name;
+		t.description = description;
+		t.save();
+		
+		String name1 = "test"+Math.abs(generator.nextInt());
+		String description1 = "test row123123";
+		TestModel t1 = new TestModel();
+		t1.name = name1;
+		t1.description = description1;
+		t1.save();
+		
+		assertEquals(t.id!=0,true);
+		assertEquals(t1.id!=0,true);
+		
+		UserModel u1 = new UserModel();
+		u1.username = "david";
+		u1.save();
+		
+		assertEquals(u1.id!=0,true);
+		
+		t.users.add(u1);
+		t1.users.add(u1);
+		t.save();
+		t1.save();
+		
+		TesterModel testerM = new TesterModel();
+		testerM.testerName="lol1234";
+		testerM.test = t;
+		testerM.save();
+		
+		assertEquals(testerM.id!=0,true);
+		
+		String code = "test_code"+Math.abs(generator.nextInt());
+		DeviceModel d = new DeviceModel();
+		d.code = code;
+		d.save();
+		
+		String code1 = "test_code1234"+Math.abs(generator.nextInt());
+		DeviceModel d1 = new DeviceModel();
+		d1.code = code1;
+		d1.save();
+		
+		assertEquals(d.id!=0,true);
+		assertEquals(d1.id!=0,true);
+		
+		t.devices.add(d);
+		t.devices.add(d1);
+		t.save();
+		
+		HashMap<String,Object> params = new HashMap<String,Object>();
+		params.put("tester", testerM);
+		TestModel test =db.test.findOne(params);
+		
+		HashMap<String,Object> params1 = new HashMap<String,Object>();
+		params1.put("test", t);
+		TesterModel tester = db.testers.findOne(params1);
+		
+		/*HashMap<String,Object> params2 = new HashMap<String,Object>();
+		params2.put("users", u1);
+		ArrayList<TestModel> tests = db.test.findAll(params2);
+		
+		System.out.println(tests);*/
+		
+		assert(tester.test.equals(test));
+		assert(test.tester.equals(tester));
+		
+		
+		d.destroy();
+		d1.destroy();
+		testerM.destroy();
+		u1.destroy();
+		t.destroy();
+		t1.destroy();
+		
+	}
 }

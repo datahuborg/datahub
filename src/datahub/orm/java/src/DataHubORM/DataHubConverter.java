@@ -23,7 +23,7 @@ public class DataHubConverter {
 		ArrayList<HashMap<Class,HashMap<Field,DHType>>> out = new ArrayList<HashMap<Class,HashMap<Field,DHType>>>();
 		ArrayList<Field> models = findModels(db);
 		for(Field model: models){
-			out.add(extractDataFromClass(model.getType()));
+			out.add(extractColumnBasicFromClass(model.getType()));
 		}
 		return out;
 	}
@@ -58,7 +58,13 @@ public class DataHubConverter {
 		}
 		return false;
 	}
-	public static HashMap<Class,HashMap<Field,DHType>> extractDataFromClass(Class model){
+	public static HashMap<Class,HashMap<Field,DHType>> extractColumnBasicFromClass(Class model){
+		return extractDataFromClass(model,true);
+	}
+	public static HashMap<Class,HashMap<Field,DHType>> extractAssociationsFromClass(Class model){
+		return extractDataFromClass(model,false);
+	}
+	public static HashMap<Class,HashMap<Field,DHType>> extractDataFromClass(Class model, boolean basic){
 		
 		//TODO: do model type checks here
 		
@@ -77,7 +83,16 @@ public class DataHubConverter {
 		for(Field f:fields){
 			//check for column annotation
 			if(hasColumnBasic(f)){
-				fieldsDHType.put(f, javaTypeToDHType(f.getType()));
+				if(basic){
+					fieldsDHType.put(f, javaTypeToDHType(f.getType()));
+					continue;
+				}
+			}
+			if(hasAssociation(f)){
+				if(!basic){
+					fieldsDHType.put(f, javaTypeToDHType(f.getType()));
+					continue;
+				}
 			}
 		}
 		//check for table annotation

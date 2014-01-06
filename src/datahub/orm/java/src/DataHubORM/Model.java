@@ -155,18 +155,23 @@ public class Model<T extends Model>{
 		String query = "select * FROM "+this.getCompleteTableName();
 		return (ArrayList<T>) getDatabase().query(query, this.getClass());
 	}
-	public ArrayList<T> findAll(HashMap<String,Object> params){
+	public ArrayList<T> findAll(HashMap<String,Object> params) throws DataHubException{
 		if(params.size() == 0){
 			return new ArrayList<T>();
 		}
-		//TODO: queryung by related object
-		String query = "select * FROM "+this.getCompleteTableName()+" WHERE "+ queryToSQL(params);
+		//TODO: querying by related object
+		//Ideas: 1) if we get a model object then see if there is an association between that object's class
+		//and this class 2) if so use the association type to do the appropriate queries 3) if not throw an
+		//invalid query exception because it does not make sense to query a model using a related object
+		//if there is no association
+		//String query = "select * FROM "+this.getCompleteTableName()+" WHERE "+ queryToSQL(params);
+		String query = queryToSQL(params);
 		return (ArrayList<T>) getDatabase().query(query, this.getClass());
 	}
-	public T findOne(HashMap<String,Object> params){
+	public T findOne(HashMap<String,Object> params) throws DataHubException{
 		//TODO: querying by related object
 		if(params.size() != 0){
-			String query = "select * FROM "+this.getCompleteTableName()+" WHERE "+ queryToSQL(params) +" LIMIT 1";
+			String query = queryToSQL(params) +" LIMIT 1";
 			ArrayList<T> data = (ArrayList<T>) getDatabase().query(query,this.getClass());
 			//System.out.println(data);
 			if(data.size() > 0){
@@ -199,7 +204,7 @@ public class Model<T extends Model>{
 		}
 		return out;
 	}
-	private String queryToSQL(HashMap<String,Object> query){
+	private String queryToSQL1(HashMap<String,Object> query){
 		ArrayList<String> keyVal = new ArrayList<String>();
 		for(String field:query.keySet()){
 			if(hasFieldAndColumnBasic(field)){//also check if has column annotation
@@ -209,11 +214,88 @@ public class Model<T extends Model>{
 		}
 		return Resources.concatenate(keyVal,"AND");
 	}
+	private String queryToSQL(HashMap<String,Object> query) throws DataHubException{
+		ArrayList<String> keyVal = new ArrayList<String>();
+		String tables = this.getCompleteTableName();
+		for(String field:query.keySet()){
+			if(hasFieldAndColumnBasic(field)){//also check if has column annotation
+				String val = Resources.objectToSQL(query.get(field));
+				keyVal.add(this.getCompleteTableName()+"."+field+"="+val);
+				continue;
+			}
+			Object o = query.get(field);
+			HashMap<Field,DHType> fields = DataHubConverter.extractAssociationsFromClass(this.getClass()).get(this.getClass());
+			Field match = null;
+			for(Field f: fields.keySet()){
+				if(DataHubConverter.isModelSubclass(f.getType())){
+					if(f.getType() == o.getClass()){
+						match = f;
+					}
+				}
+				//maybe
+				/*if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
+					
+				}*/
+			}
+			if(match!=null){
+				association a = match.getAnnotation(association.class);
+				Model m;
+				if(DataHubConverter.isModelSubclass(o.getClass())){
+					m = (Model) o;
+				}else{
+					//TODO:fix this
+					throw new DataHubException("Errror");
+				}
+				String newKey = "";
+				//System.out.println(a.associationType());
+				switch(a.associationType()){
+					case HasOne:
+						newKey = this.getCompleteTableName()+".id in(select "+a.foreignKey()+" from "+m.getCompleteTableName()+
+						" where "+m.getCompleteTableName()+".id="+m.id+")";
+						//System.out.println(newKey);
+						break;
+					case BelongsTo:
+						newKey = this.getCompleteTableName()+".id in(select "+this.getCompleteTableName()+".id from "+this.getCompleteTableName()+
+						" where "+this.getCompleteTableName()+"."+a.foreignKey()+"="+m.id+")";
+						break;
+					/*
+					case HasMany:
+						break;
+					case HasAndBelongsToMany:
+						String linkTableSelectKey;
+						String linkTableSearchKey;
+						if(a.leftTableForeignKey().equals(a.foreignKey())){
+							linkTableSelectKey = a.rightTableForeignKey();
+							linkTableSearchKey = a.leftTableForeignKey();
+						}else if(a.rightTableForeignKey().equals(a.foreignKey())){
+							linkTableSelectKey = a.leftTableForeignKey();
+							linkTableSearchKey = a.rightTableForeignKey();
+						}else{
+							throw new DataHubException("For HABTM association, the foreign key must match either the left or the right key in the linking table!");
+						}
+						String query1 = "select ("+linkTableSelectKey+") from "+db.getDatabaseName()+"."+a.linkingTable()+" where "+linkTableSearchKey+"="+this.id;
+						//TODO:fix this
+						newKey = this.getCompleteTableName()+".id in("+query1+")";
+						break;*/
+					default:
+						//throw exception
+						break;
+				}
+				keyVal.add(newKey);
+			}else{
+				throw new DataHubException("No association found in model being queried for "+o.getClass()+"! Cannot perform query!");
+			}
+		}
+		//check to see if tables is not null and whereclause is not null
+		String queryStr = "select * from "+tables+" where "+Resources.concatenate(keyVal,"AND");
+		//System.out.println(queryStr);
+		return queryStr;
+	}
 	protected String generateSQLRep(){
 		return generateSQLRep(",");
 	}
 	protected String generateSQLRep(String linkSymbol){
-		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
+		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractColumnBasicFromClass(this.getClass());
 		HashMap<Field,DHType> currentModel = models.get(this.getClass());
 		ArrayList<String> fieldData = new ArrayList<String>();
 		for(Field f:currentModel.keySet()){
@@ -232,7 +314,7 @@ public class Model<T extends Model>{
 		return Resources.concatenate(fieldData,linkSymbol);
 	}
 	protected String getTableBasicFieldNames(){
-		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
+		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractColumnBasicFromClass(this.getClass());
 		HashMap<Field,DHType> currentModel = models.get(this.getClass());
 		ArrayList<String> getFieldTableNames = new ArrayList<String>();
 		for(Field f: currentModel.keySet()){
@@ -245,7 +327,7 @@ public class Model<T extends Model>{
 		return Resources.concatenate(getFieldTableNames,",");
 	}
 	protected String getBasicFieldValues(){
-		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractDataFromClass(this.getClass());
+		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractColumnBasicFromClass(this.getClass());
 		HashMap<Field,DHType> currentModel = models.get(this.getClass());
 		//System.out.println(this.getTableName());
 		//System.out.println(currentModel);

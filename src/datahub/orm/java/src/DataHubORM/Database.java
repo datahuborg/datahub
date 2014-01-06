@@ -32,10 +32,10 @@ import DataHubUpdater.DataHubConsistencySpecifier;
 public abstract class Database {
 	//TODO: issue with stale objects on same system, could keep track of stale objects and update all of them
 	
-	protected static int MAX_LOAD_RECURSION_DEPTH = 50;
+	protected static int MAX_LOAD_RECURSION_DEPTH = 3;
 	
 	//prevent do unnecessary saves
-	protected static int MAX_SAVE_RECURSION_DEPTH = 50;
+	protected static int MAX_SAVE_RECURSION_DEPTH = 2;
 	
 	private DataHubClient dhc;
 	
@@ -44,9 +44,17 @@ public abstract class Database {
 	private DataHubConsistencySpecifier dhcs;
 	
 	public Database(){
+		this.dhcp = new DataHubCache();
+		this.dhcs = new DataHubConsistencySpecifier();
 	}
 	public void setDataHubAccount(DataHubAccount dha){
 		this.dhc = new DataHubClient(dha);
+	}
+	public void setCachingPolicy(DataHubCache dhcp){
+		this.dhcp = dhcp;
+	}
+	public void setConsistencyPolicy(DataHubConsistencySpecifier dhcs){
+		this.dhcs = dhcs;
 	}
 	public void connect() throws DataHubException{
 		try {
