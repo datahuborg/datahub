@@ -57,7 +57,6 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 				query = "update "+associateTableName+" set "+this.association.foreignKey()+"="+this.currentModel.id+" where id="+data.id;
 				break;
 			case HasAndBelongsToMany:
-				String update = "update "+linkingTableName+" set "+this.association.leftTableForeignKey()+"="+this.currentModel.id+" where "+this.association.rightTableForeignKey()+"="+data.id;
 				int leftVal;
 				int rightVal;
 				if(this.association.leftTableForeignKey().equals(this.association.foreignKey())){
@@ -69,10 +68,11 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 				}else{
 					throw new DataHubException("For HABTM association, the foreign key must match either the left or the right key in the linking table!");
 				}
+				//String update = "update "+linkingTableName+" set "+this.association.leftTableForeignKey()+"="+leftVal+" where "+this.association.rightTableForeignKey()+"="+rightVal;
 				String insert = "insert into "+linkingTableName+"("+this.association.leftTableForeignKey()+","+this.association.rightTableForeignKey()+")"+
 						" select "+leftVal+","+rightVal+" where not exists (select 1 from "+linkingTableName+" where "+this.association.leftTableForeignKey()+"="+
 						leftVal+" AND "+this.association.rightTableForeignKey()+"="+rightVal+")";
-				query = update+";"+insert;
+				query = insert;
 				break;
 			default:
 				throw new DataHubException("Invalid association type for DataHubArrayList!");
@@ -167,6 +167,7 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 			this.removeItemSQL(element);
 		}
 		reset();
+		
 	}
 	private void reset(){
 		this.tempAdd = new ArrayList<T>();

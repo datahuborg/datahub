@@ -46,7 +46,7 @@ import datahub.DHConnectionParams._Fields;
 
 public class ModelBasicTests extends TestsMain{
 	
-	//@Test
+	@Test
 	public void testCreateAndDelete() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -70,7 +70,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		assertEquals(t2==null,true);
 	}
-	//@Test
+	@Test
 	public void testSave() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -108,7 +108,7 @@ public class ModelBasicTests extends TestsMain{
 		TestModel t3 = this.db.test.findOne(params);
 		assertEquals(t3==null,true);
 	}
-	//@Test
+	@Test
 	public void testSave2ChangeObject() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -156,7 +156,7 @@ public class ModelBasicTests extends TestsMain{
 		System.out.println("hits"+db.hitCount);
 		System.out.println("misses"+db.missCount);
 	}
-	//@Test
+	@Test
 	public void testDataHubArrayList() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -215,7 +215,7 @@ public class ModelBasicTests extends TestsMain{
 		System.out.println("hits"+db.hitCount);
 		System.out.println("misses"+db.missCount);
 	}
-	//@Test
+	@Test
 	public void testHasOneAndBelongsTo() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -256,7 +256,7 @@ public class ModelBasicTests extends TestsMain{
 		System.out.println("hits"+db.hitCount);
 		System.out.println("misses"+db.missCount);
 	}
-	//@Test
+	@Test
 	public void HABTMTest() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -266,50 +266,140 @@ public class ModelBasicTests extends TestsMain{
 		t.description = description;
 		t.save();
 		
-		assertEquals(t.id!=0,true);
+		String name1 = "test"+Math.abs(generator.nextInt());
+		String description1 = "test row1234567";
+		TestModel t1 = new TestModel();
+		t1.name = name1;
+		t1.description = description1;
+		t1.save();
 		
 		UserModel u1 = new UserModel();
-		u1.username = "david";
+		u1.username = "david1";
 		u1.save();
 		
-		assertEquals(u1.id!=0,true);
+		UserModel u2 = new UserModel();
+		u2.username = "david2";
+		u2.save();
+		
+		UserModel u3 = new UserModel();
+		u3.username = "david3";
+		u3.save();
+		
 		
 		t.users.add(u1);
+		t.users.add(u2);
 		t.save();
 		
-		System.out.println(t.users);
+		t1.users.add(u2);
+		t1.users.add(u3);
+		t1.save();
+		
+		assertEquals(t.users.contains(u1), true);
+		assertEquals(t.users.contains(u2), true);
+		assertEquals(t.users.contains(u3), false);
+		assertEquals(t1.users.contains(u1), false);
+		assertEquals(t1.users.contains(u2), true);
+		assertEquals(t1.users.contains(u3), true);
 		
 		HashMap<String,Object> testparams = new HashMap<String,Object>();
 		testparams.put("id", t.id);
 		
-		HashMap<String,Object> userparams = new HashMap<String,Object>();
-		userparams.put("id", u1.id);
+		HashMap<String,Object> test1params = new HashMap<String,Object>();
+		test1params.put("id", t1.id);
 		
-		TestModel t1 = db.test.findOne(testparams);
-		UserModel u2 = db.users.findOne(userparams);
+		HashMap<String,Object> user1params = new HashMap<String,Object>();
+		user1params.put("id", u1.id);
 		
-		System.out.println(t1.users);
-		System.out.println(u2.tests);
+		HashMap<String,Object> user2params = new HashMap<String,Object>();
+		user2params.put("id", u2.id);
 		
-		t1.users.remove(u1);
+		HashMap<String,Object> user3params = new HashMap<String,Object>();
+		user3params.put("id", u3.id);
+		
+		TestModel refreshedT = db.test.findOne(testparams);
+		TestModel refreshedT1 = db.test.findOne(test1params);
+		
+		assertEquals(refreshedT.users.contains(u1), true);
+		assertEquals(refreshedT.users.contains(u2), true);
+		assertEquals(refreshedT.users.contains(u3), false);
+		assertEquals(refreshedT1.users.contains(u1), false);
+		assertEquals(refreshedT1.users.contains(u2), true);
+		assertEquals(refreshedT1.users.contains(u3), true);
+		
+		UserModel refreshedU1 = db.users.findOne(user1params);
+		UserModel refreshedU2 = db.users.findOne(user2params);
+		UserModel refreshedU3 = db.users.findOne(user3params);
+		
+		assertEquals(refreshedU1.tests.contains(t), true);
+		assertEquals(refreshedU1.tests.contains(t1), false);
+		assertEquals(refreshedU2.tests.contains(t), true);
+		assertEquals(refreshedU2.tests.contains(t1), true);
+		assertEquals(refreshedU3.tests.contains(t), false);
+		assertEquals(refreshedU3.tests.contains(t1), true);
+		
+		t.users.remove(u1);
+		t1.users.remove(u3);
+		t.save();
 		t1.save();
 		
-		System.out.println(t1.users);
+		TestModel refreshed1T = db.test.findOne(testparams);
+		TestModel refreshed1T1 = db.test.findOne(test1params);
 		
-		TestModel t2 = db.test.findOne(testparams);
-		UserModel u3 = db.users.findOne(userparams);
+		assertEquals(refreshed1T.users.contains(u1), false);
+		assertEquals(refreshed1T.users.contains(u2), true);
+		assertEquals(refreshed1T.users.contains(u3), false);
+		assertEquals(refreshed1T1.users.contains(u1), false);
+		assertEquals(refreshed1T1.users.contains(u2), true);
+		assertEquals(refreshed1T1.users.contains(u3), false);
 		
-		System.out.println(t2.users);
-		System.out.println(u3.tests);
+		UserModel refreshed1U1 = db.users.findOne(user1params);
+		UserModel refreshed1U2 = db.users.findOne(user2params);
+		UserModel refreshed1U3 = db.users.findOne(user3params);
+		
+		assertEquals(refreshed1U1.tests.contains(t), false);
+		assertEquals(refreshed1U1.tests.contains(t1), false);
+		assertEquals(refreshed1U2.tests.contains(t), true);
+		assertEquals(refreshed1U2.tests.contains(t1), true);
+		assertEquals(refreshed1U3.tests.contains(t), false);
+		assertEquals(refreshed1U3.tests.contains(t1), false);
+		
+		u2.tests.remove(t);
+		u2.tests.remove(t1);
+		u2.save();
+		
+		TestModel refreshed2T = db.test.findOne(testparams);
+		TestModel refreshed2T1 = db.test.findOne(test1params);
+		
+		assertEquals(refreshed2T.users.contains(u1), false);
+		assertEquals(refreshed2T.users.contains(u2), false);
+		assertEquals(refreshed2T.users.contains(u3), false);
+		assertEquals(refreshed2T1.users.contains(u1), false);
+		assertEquals(refreshed2T1.users.contains(u2), false);
+		assertEquals(refreshed2T1.users.contains(u3), false);
+		
+		UserModel refreshed2U1 = db.users.findOne(user1params);
+		UserModel refreshed2U2 = db.users.findOne(user2params);
+		UserModel refreshed2U3 = db.users.findOne(user3params);
+		
+		assertEquals(refreshed2U1.tests.contains(t), false);
+		assertEquals(refreshed2U1.tests.contains(t1), false);
+		assertEquals(refreshed2U2.tests.contains(t), false);
+		assertEquals(refreshed2U2.tests.contains(t1), false);
+		assertEquals(refreshed2U3.tests.contains(t), false);
+		assertEquals(refreshed2U3.tests.contains(t1), false);
+		
 		
 		t.destroy();
+		t1.destroy();
 		u1.destroy();
+		u2.destroy();
+		u3.destroy();
 		
 		System.out.println("hits"+db.hitCount);
 		System.out.println("misses"+db.missCount);
 		
 	}
-	@Test
+	//@Test
 	public void testQueryByObject() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -335,8 +425,9 @@ public class ModelBasicTests extends TestsMain{
 		
 		assertEquals(u1.id!=0,true);
 		
-		t.users.add(u1);
-		t1.users.add(u1);
+		//t.users.add(u1);
+		//t1.users.add(u1);
+		
 		t.save();
 		t1.save();
 		

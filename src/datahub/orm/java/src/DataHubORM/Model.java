@@ -126,7 +126,7 @@ public class Model<T extends Model>{
 							//System.out.println(m);
 							m.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
 						}
-						//has many relationship
+						//has many or HABTM relationship
 						if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
 							DataHubArrayList d = (DataHubArrayList) o;
 							d.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
@@ -147,6 +147,9 @@ public class Model<T extends Model>{
 			getDatabase().query(query);
 			//System.out.println(getDatabase().query("SELECT * FROM "+this.getCompleteTableName()+" WHERE "+"id="+this.id, this.getClass()));
 			//possibly garbage collect object
+			//recursively save all fields
+			
+			//TODO: supporty cascading delete, but doing it in table definition so that server does it
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -204,16 +207,6 @@ public class Model<T extends Model>{
 		}
 		return out;
 	}
-	private String queryToSQL1(HashMap<String,Object> query){
-		ArrayList<String> keyVal = new ArrayList<String>();
-		for(String field:query.keySet()){
-			if(hasFieldAndColumnBasic(field)){//also check if has column annotation
-				String val = Resources.objectToSQL(query.get(field));
-				keyVal.add(field+"="+val);
-			}			
-		}
-		return Resources.concatenate(keyVal,"AND");
-	}
 	private String queryToSQL(HashMap<String,Object> query) throws DataHubException{
 		ArrayList<String> keyVal = new ArrayList<String>();
 		String tables = this.getCompleteTableName();
@@ -232,10 +225,14 @@ public class Model<T extends Model>{
 						match = f;
 					}
 				}
-				//maybe
-				/*if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
+				//add part of query that searches for all records that have the desired object in their list of objects of that type
+				//i.e. a model has many users and you want to find all instances of the model that have the specified user in their lists
+				//when querying by object and the member type is a DataHubArrayList then provide a normal arraylist with a list
+				//of objects that would go into the DataHubArrayList for which you want to find a record whose DataHubArrayList
+				//contains those elements
+				if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
 					
-				}*/
+				}
 			}
 			if(match!=null){
 				association a = match.getAnnotation(association.class);
