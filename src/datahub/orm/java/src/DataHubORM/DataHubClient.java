@@ -101,10 +101,27 @@ class DataHubClient{
 		DHSchema schema = data.getSchema();
 		DHTable table  = data.getTable();
 	}
-	public DHQueryResult dbQuery(String query){
+	/*public DHQueryResult dbQuery(String query){
 		DHQueryResult out = null;
 		try{
 			out = this.client.execute_sql(this.currentConnection, query, null);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return out;
+	}*/
+	public DHQueryResult dbQuery(String query){
+		DHQueryResult out = null;
+		try{
+			TSocket newSocket = getConnectionSocket();
+			newSocket.open();
+			TBinaryProtocol bp = new TBinaryProtocol(newSocket);
+			//TJSONProtocol jp = new TJSONProtocol(socket);
+			Client c = new DataHub.Client(bp);
+			DHConnectionParams dhcp = getConnectionParams(database);
+			DHConnection co = c.connect(dhcp);
+			out = c.execute_sql(co, query, null);
+			newSocket.close();
 		}catch(Exception e){
 			e.printStackTrace();
 		}

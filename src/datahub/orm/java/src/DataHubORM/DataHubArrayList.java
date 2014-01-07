@@ -4,6 +4,10 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+
+import Workers.DataHubWorker;
+import Workers.GenericCallback;
+import Workers.GenericExecutable;
 import Annotations.association;
 import Annotations.association.AssociationType;
 import DataHubResources.Resources;
@@ -154,6 +158,40 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 		}else{
 			this.association = a;
 		}
+	}
+	public void populateAsync(final GenericCallback<DataHubArrayList<T>> callback) throws DataHubException{
+		final DataHubArrayList<T> object = (DataHubArrayList<T>) this;
+		DataHubWorker<DataHubArrayList<T>> dhw = new DataHubWorker<DataHubArrayList<T>>(new GenericExecutable<DataHubArrayList<T>>(){
+
+			//TODO:fix this
+			@Override
+			public DataHubArrayList<T> call() {
+				try {
+					populate();
+				} catch (DataHubException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return object;
+			}}, callback);
+		dhw.execute();
+	}
+	public void saveAsync(final GenericCallback<DataHubArrayList<T>> callback) throws DataHubException{
+		final DataHubArrayList<T> object = (DataHubArrayList<T>) this;
+		DataHubWorker<DataHubArrayList<T>> dhw = new DataHubWorker<DataHubArrayList<T>>(new GenericExecutable<DataHubArrayList<T>>(){
+
+			//TODO:fix this
+			@Override
+			public DataHubArrayList<T> call() {
+				try {
+					save();
+				} catch (DataHubException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return object;
+			}}, callback);
+		dhw.execute();
 	}
 	public void populate() throws DataHubException{
 		populate(Database.MAX_LOAD_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());

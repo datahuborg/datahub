@@ -73,6 +73,7 @@ public class Database {
 			dhc.connect(this);
 		} catch (Exception e){
 			//fix this
+			e.printStackTrace();
 			throw new DataHubException("Cannot connect to database!");
 		}
 		instantiateAndSetup();

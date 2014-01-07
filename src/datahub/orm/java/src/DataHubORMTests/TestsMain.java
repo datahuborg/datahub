@@ -27,7 +27,7 @@ public class TestsMain {
 			//System.out.println("connected!");
 			this.db = db;
 		}catch(Exception e){
-			
+			e.printStackTrace();
 		}
 	}
 	

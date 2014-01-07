@@ -13,12 +13,12 @@ public class ModelBasicTestsAsync extends TestsMain{
 	@Test
 	public void createAndDelete() throws DataHubException, InterruptedException{
 		final TestModel tm1 = newTestModel();
-		tm1.saveAsync(new GenericCallback<Void>(){
+		tm1.saveAsync(new GenericCallback<TestModel>(){
 			
 			@Override
-			public void call(Void data) throws DataHubException {
-				System.out.println(tm1);
-				tm1.destroyAsync(new GenericCallback<Void>(){
+			public void call(TestModel data) throws DataHubException {
+				System.out.println(data);
+				data.destroyAsync(new GenericCallback<Void>(){
 
 					@Override
 					public void call(Void data) throws DataHubException {
@@ -28,12 +28,12 @@ public class ModelBasicTestsAsync extends TestsMain{
 				
 			}});
 		final TestModel tm2 = newTestModel();
-		tm2.saveAsync(new GenericCallback<Void>(){
+		tm2.saveAsync(new GenericCallback<TestModel>(){
 			
 			@Override
-			public void call(Void data) throws DataHubException {
-				System.out.println(tm1);
-				tm2.destroyAsync(new GenericCallback<Void>(){
+			public void call(TestModel data) throws DataHubException {
+				System.out.println(data);
+				data.destroyAsync(new GenericCallback<Void>(){
 
 					@Override
 					public void call(Void data) throws DataHubException {
@@ -42,6 +42,36 @@ public class ModelBasicTestsAsync extends TestsMain{
 					}});
 				
 			}});
-		Thread.sleep(7000);
+		final TestModel tm3 = newTestModel();
+		tm3.saveAsync(new GenericCallback<TestModel>(){
+			
+			@Override
+			public void call(TestModel data) throws DataHubException {
+				System.out.println(data);
+				data.destroyAsync(new GenericCallback<Void>(){
+
+					@Override
+					public void call(Void data) throws DataHubException {
+						// TODO Auto-generated method stub
+						
+					}});
+				
+			}});
+		final TestModel tm4 = newTestModel();
+		tm4.saveAsync(new GenericCallback<TestModel>(){
+			
+			@Override
+			public void call(TestModel data) throws DataHubException {
+				System.out.println(data);
+				data.destroyAsync(new GenericCallback<Void>(){
+
+					@Override
+					public void call(Void data) throws DataHubException {
+						// TODO Auto-generated method stub
+						
+					}});
+				
+			}});
+		Thread.sleep(5000);
 	}
 }

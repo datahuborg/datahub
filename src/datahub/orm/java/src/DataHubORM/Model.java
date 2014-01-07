@@ -71,17 +71,18 @@ public class Model<T extends Model>{
 	public static Database getDatabase(){
 		return db;
 	}
-	public void saveAsync(GenericCallback<Void> callback) throws DataHubException{
-		DataHubWorker<Void> dhw = new DataHubWorker<Void>(new GenericExecutable<Void>(){
+	public void saveAsync(final GenericCallback<T> callback) throws DataHubException{
+		final T object = (T) this;
+		DataHubWorker<T> dhw = new DataHubWorker<T>(new GenericExecutable<T>(){
 
 			@Override
-			public Void call() {
+			public T call() {
 				save();
-				return null;
+				return object;
 			}}, callback);
 		dhw.execute();
 	}
-	public void destroyAsync(GenericCallback<Void> callback) throws DataHubException{
+	public void destroyAsync(final GenericCallback<Void> callback) throws DataHubException{
 		DataHubWorker<Void> dhw = new DataHubWorker<Void>(new GenericExecutable<Void>(){
 
 			@Override
@@ -187,6 +188,45 @@ public class Model<T extends Model>{
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+	}
+	public void allAsync(final GenericCallback<ArrayList<T>> callback) throws DataHubException{
+		DataHubWorker<ArrayList<T>> dhw = new DataHubWorker<ArrayList<T>>(new GenericExecutable<ArrayList<T>>(){
+
+			@Override
+			public ArrayList<T> call() {
+				return all();
+			}}, callback);
+		dhw.execute();
+	}
+	public void findAll(final HashMap<String,Object> params,final GenericCallback<ArrayList<T>> callback) throws DataHubException{
+		DataHubWorker<ArrayList<T>> dhw = new DataHubWorker<ArrayList<T>>(new GenericExecutable<ArrayList<T>>(){
+
+			@Override
+			public ArrayList<T> call() {
+				try {
+					return findAll(params);
+				} catch (DataHubException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return null;
+				}
+			}}, callback);
+		dhw.execute();
+	}
+	public void findOne(final HashMap<String,Object> params,final GenericCallback<T> callback) throws DataHubException{
+		DataHubWorker<T> dhw = new DataHubWorker<T>(new GenericExecutable<T>(){
+
+			@Override
+			public T call() {
+				try {
+					return findOne(params);
+				} catch (DataHubException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return null;
+				}
+			}}, callback);
+		dhw.execute();
 	}
 	public ArrayList<T> all(){
 		String query = "select * FROM "+this.getCompleteTableName();
