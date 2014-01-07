@@ -9,6 +9,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.thrift.TException;
 
+import Workers.DataHubWorker;
+import Workers.GenericCallback;
+import Workers.GenericExecutable;
+
 import datahub.DHCell;
 import datahub.DHData;
 import datahub.DHException;
@@ -23,14 +27,18 @@ import Annotations.association.AssociationType;
 import Annotations.column;
 import Annotations.database;
 import Annotations.column.Index;
+import Configurations.DataHubCache;
+import Configurations.DataHubConsistencySpecifier;
 import DataHubAccount.DataHubAccount;
 import DataHubResources.Resources;
-import DataHubUpdater.DataHubCache;
-import DataHubUpdater.DataHubConsistencySpecifier;
 
 @database(name="")
-public abstract class Database {
+public class Database {
 	//TODO: issue with stale objects on same system, could keep track of stale objects and update all of them
+	
+	public enum DatabaseMode{Synchronous, Asynchronous};
+	
+	public enum DatabaseEngine{Postgres};
 	
 	protected static int MAX_LOAD_RECURSION_DEPTH = 3;
 	
@@ -43,20 +51,24 @@ public abstract class Database {
 	
 	private DataHubConsistencySpecifier dhcs;
 	
+	private DatabaseMode databaseMode;
+	
+	private DatabaseEngine databaseEnginer;
+	
 	public Database(){
 		this.dhcp = new DataHubCache();
 		this.dhcs = new DataHubConsistencySpecifier();
 	}
-	public void setDataHubAccount(DataHubAccount dha){
+	public synchronized void setDataHubAccount(DataHubAccount dha){
 		this.dhc = new DataHubClient(dha);
 	}
-	public void setCachingPolicy(DataHubCache dhcp){
+	public synchronized void setCachingPolicy(DataHubCache dhcp){
 		this.dhcp = dhcp;
 	}
 	public void setConsistencyPolicy(DataHubConsistencySpecifier dhcs){
 		this.dhcs = dhcs;
 	}
-	public void connect() throws DataHubException{
+	public synchronized void connect() throws DataHubException{
 		try {
 			dhc.connect(this);
 		} catch (Exception e){
@@ -65,8 +77,58 @@ public abstract class Database {
 		}
 		instantiateAndSetup();
 	}
-	public void disconnect(){
+	public synchronized boolean isConnected(){
+		return dhc.isConnected();
+	}
+	public void connectAsync(GenericCallback<Void> callback) throws DataHubException{
+		final GenericCallback<Void>  callback1 = callback;
+		DataHubWorker<Void> dhw = new DataHubWorker<Void>(new GenericExecutable<Void>(){
+
+			@Override
+			public Void call() {
+				try {
+					connect();
+				} catch (DataHubException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
+			}},new GenericCallback<Void>(){
+
+				@Override
+				public void call(Void data) throws DataHubException {
+					if(isConnected()){
+						callback1.call(data);
+					}else{
+						throw new DataHubException("Cannot connect to database!");
+					}
+					
+				}});
+		dhw.execute();
+	}
+	public synchronized void disconnect(){
 		dhc.disconnect();
+	}
+	public void disconnectAsync(GenericCallback<Void> callback) throws DataHubException{
+		final GenericCallback<Void>  callback1 = callback;
+		DataHubWorker<Void> dhw = new DataHubWorker<Void>(new GenericExecutable<Void>(){
+
+			@Override
+			public Void call() {
+				disconnect();
+				return null;
+			}},new GenericCallback<Void>(){
+
+				@Override
+				public void call(Void data) throws DataHubException {
+					if(!isConnected()){
+						callback1.call(data);
+					}else{
+						throw new DataHubException("Cannot connect to database!");
+					}
+					
+				}});
+		dhw.execute();
 	}
 	private void instantiateAndSetup(){
 		//System.out.println("called");
@@ -81,7 +143,7 @@ public abstract class Database {
 			Resources.setField(this,f.getName(), Resources.fieldToInstance(f));
 		}
 	}
-	public String getDatabaseName(){
+	public synchronized String getDatabaseName(){
 		database d = this.getClass().getAnnotation(database.class);
 		if(d != null){
 			return d.name();
@@ -100,6 +162,7 @@ public abstract class Database {
 	/*TO BE REMOVED*/
 	public static int hitCount = 0;
 	public static int missCount = 0;
+	public static int otherCount = 0;
 	private String filter(String tentative, ConcurrentHashMap<String,Object> obj){
 		for(String key:obj.keySet()){
 			//System.out.println("key"+key);
@@ -111,6 +174,19 @@ public abstract class Database {
 		}
 		return null;
 	}
+	public void resetStats(){
+		hitCount=0;
+		missCount=0;
+		otherCount=0;
+	}
+	public void printStats(){
+		System.out.println("hits"+hitCount);
+		System.out.println("misses"+missCount);
+		System.out.println("other"+otherCount);
+	}
+	public DHQueryResult dbQuery(String query){
+		return dhc.dbQuery(query);
+	}
 	/*TO BE REMOVED*/
 	private DHQueryResult dbQuery(String query, ConcurrentHashMap<String,Object> localCache){
 		//System.out.println(query);
@@ -121,7 +197,7 @@ public abstract class Database {
 				hitCount+=1;
 				return (DHQueryResult) localCache.get(query);
 			}else{
-				//System.out.println(this.cache.keySet());
+				//System.out.println(localCache.keySet());
 				//System.out.println(query);
 				missCount+=1;
 				//System.out.println(query);
@@ -131,11 +207,15 @@ public abstract class Database {
 				return out;
 			}
 		}else{
+			otherCount+=1;
 			return dhc.dbQuery(query);
 		}
+		//return dhc.dbQuery(query);
 	}
 	protected void query(String query){
-		this.dbQuery(query, new ConcurrentHashMap<String,Object>());
+		if(!query.equals("") && query!=null){
+			this.dbQuery(query, new ConcurrentHashMap<String,Object>());
+		}
 	}
 	protected <T extends Model> ArrayList<T> query(String query, Class<T> modelClass, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
 		ArrayList<T> output = new ArrayList<T>();
@@ -149,6 +229,25 @@ public abstract class Database {
 		try{
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
 			//System.out.println(this.dbQuery(query));
+			/*if(query.toLowerCase().startsWith("select * from")){
+				if(localCache.containsKey(query)){
+					//System.out.println(query);
+					hitCount+=1;
+					return (ArrayList<T>) localCache.get(query);
+				}else{
+					//System.out.println(localCache.keySet());
+					//System.out.println(query);
+					missCount+=1;
+					//System.out.println(query);
+					//System.out.println("network");
+					output = dhQueryToModel(this.dbQuery(query, localCache), modelClass,recursionDepthLimit-1, localCache);
+					localCache.put(query, output);
+					return output;
+				}
+			}else{
+				otherCount+=1;
+				return dhQueryToModel(this.dbQuery(query, localCache), modelClass,recursionDepthLimit-1, localCache);
+			}*/
 			output = dhQueryToModel(this.dbQuery(query, localCache), modelClass,recursionDepthLimit-1, localCache);
 		}catch(Exception e){
 			e.printStackTrace();

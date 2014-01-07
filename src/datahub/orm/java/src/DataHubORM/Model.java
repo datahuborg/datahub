@@ -71,17 +71,19 @@ public class Model<T extends Model>{
 		//db.hitCount = 0;
 		//db.missCount = 0;
 		//System.out.println("before save");
-		this.save(Database.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ArrayList<Class>());
+		String query = this.save(Database.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ArrayList<Class>());
+		getDatabase().query(query);
 		updateModel(Database.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>());
 		//System.out.println("after save");
 	}
-	protected void save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved){
+	protected String save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved){
 		//System.out.println(modelsAlreadySaved);
 		//System.out.println(this.getClass());
 		if(recursionDepthLimit <= 0 || modelsAlreadySaved.contains(this.getClass())){
 			//System.out.println("broke"+modelsAlreadySaved.contains(this.getClass()));
-			return;
+			return "";
 		}
+		ArrayList<String> queries = new ArrayList<String>();
 		try{
 			String query = "";
 			//fix this
@@ -93,11 +95,14 @@ public class Model<T extends Model>{
 			}
 			//System.out.println(query);
 			//just make query no recursion
-			getDatabase().query(query);
+			//getDatabase().query(query);
 			
 			if(!this.validId()){
+				getDatabase().query(query);
 				//get new id
 				updateModelId(recursionDepthLimit,localCache);
+			}else{
+				queries.add(query);
 			}
 			
 			//update already saved models
@@ -116,20 +121,24 @@ public class Model<T extends Model>{
 								//System.out.println("updating");
 								String associateTableName = this.getCompleteTableName();
 								String queryBelongsTo = "UPDATE "+associateTableName+" SET "+a.foreignKey()+"="+m.id+" WHERE id="+this.id;
-								getDatabase().query(queryBelongsTo);
+								//getDatabase().query(queryBelongsTo);
+								queries.add(queryBelongsTo);
 							}
 							if(a.associationType() == AssociationType.HasOne){
 								String associateTableName = m.getCompleteTableName();
 								String queryHasOne = "UPDATE "+associateTableName+" SET "+a.foreignKey()+"="+m.id+" WHERE id="+this.id;
-								getDatabase().query(queryHasOne);
+								//getDatabase().query(queryHasOne);
+								queries.add(queryHasOne);
 							}
 							//System.out.println(m);
-							m.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
+							String otherQueries = m.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
+							queries.add(otherQueries);
 						}
 						//has many or HABTM relationship
 						if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
 							DataHubArrayList d = (DataHubArrayList) o;
-							d.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
+							String otherQueries = d.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
+							queries.add(otherQueries);
 						}
 					}
 				}
@@ -138,6 +147,7 @@ public class Model<T extends Model>{
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+		return Resources.concatenate(queries, ";");
 	}
 	public void destroy(){
 		try{

@@ -1,4 +1,4 @@
-package DataHubUpdater;
+package Configurations;
 
 public class DataHubCache{
 	//TODO: caching policies

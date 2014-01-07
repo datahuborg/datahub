@@ -84,6 +84,9 @@ class DataHubClient{
 			connectedToDB = false;
 		}
 	}
+	public boolean isConnected(){
+		return connectedToDB;
+	}
 	//TODO:possible security issue with unauthorized manipulation of client cause propagating changes to 
 	//server that destroy database
 	public void updateSchema(Database db) throws DHException, TException{

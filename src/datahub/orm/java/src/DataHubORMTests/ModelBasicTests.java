@@ -46,8 +46,10 @@ import datahub.DHConnectionParams._Fields;
 
 public class ModelBasicTests extends TestsMain{
 	
-	@Test
+	//@Test
 	public void testCreateAndDelete() throws DataHubException{
+		db.resetStats();
+		
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
 		String description = "test row";
@@ -72,6 +74,8 @@ public class ModelBasicTests extends TestsMain{
 	}
 	@Test
 	public void testSave() throws DataHubException{
+		db.resetStats();
+		
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
 		String description = "test row";
@@ -80,6 +84,8 @@ public class ModelBasicTests extends TestsMain{
 		t.description = description;
 		t.save();
 		assertEquals(t.id!=0,true);
+		
+		db.printStats();
 		
 		int id = t.id;
 		HashMap<String, Object> params = new HashMap<String,Object>();
@@ -107,9 +113,13 @@ public class ModelBasicTests extends TestsMain{
 		t.destroy();
 		TestModel t3 = this.db.test.findOne(params);
 		assertEquals(t3==null,true);
+		
+		db.printStats();
 	}
-	@Test
+	//@Test
 	public void testSave2ChangeObject() throws DataHubException{
+		db.resetStats();
+		
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
 		String description = "test row";
@@ -153,11 +163,12 @@ public class ModelBasicTests extends TestsMain{
 		t1.destroy();
 		t.destroy();
 		
-		System.out.println("hits"+db.hitCount);
-		System.out.println("misses"+db.missCount);
+		db.printStats();
 	}
-	@Test
+	//@Test
 	public void testDataHubArrayList() throws DataHubException{
+		db.resetStats();
+		
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
 		String description = "test row";
@@ -212,11 +223,12 @@ public class ModelBasicTests extends TestsMain{
 		d.destroy();
 		t.destroy();
 		
-		System.out.println("hits"+db.hitCount);
-		System.out.println("misses"+db.missCount);
+		db.printStats();
 	}
-	@Test
+	//@Test
 	public void testHasOneAndBelongsTo() throws DataHubException{
+		db.resetStats();
+		
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
 		String description = "test row";
@@ -253,11 +265,12 @@ public class ModelBasicTests extends TestsMain{
 		tester.destroy();
 		t.destroy();
 		
-		System.out.println("hits"+db.hitCount);
-		System.out.println("misses"+db.missCount);
+		db.printStats();
 	}
-	@Test
+	//@Test
 	public void HABTMTest() throws DataHubException{
+		db.resetStats();
+		
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
 		String description = "test row";
@@ -395,9 +408,7 @@ public class ModelBasicTests extends TestsMain{
 		u2.destroy();
 		u3.destroy();
 		
-		System.out.println("hits"+db.hitCount);
-		System.out.println("misses"+db.missCount);
-		
+		db.printStats();
 	}
 	//@Test
 	public void testQueryByObject() throws DataHubException{

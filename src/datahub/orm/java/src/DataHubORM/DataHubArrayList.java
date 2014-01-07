@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import Annotations.association;
 import Annotations.association.AssociationType;
+import DataHubResources.Resources;
 
 //ArrayList to represent sets connected to a particular 
 //table via foreign key
@@ -43,8 +44,12 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 	public static Database getDatabase(){
 		return db;
 	}
-	//TODO:fix this
 	private void addItemSQL(Model data) throws DataHubException{
+		String query = getAddItemSQL(data);
+		db.query(query);
+	}
+	//TODO:fix this
+	private String getAddItemSQL(Model data) throws DataHubException{
 		//data needs to be saved before it can be added to the collection
 		//need to get class that contains this object
 		//need to get class of T and then do mappings based on table names
@@ -77,9 +82,13 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 			default:
 				throw new DataHubException("Invalid association type for DataHubArrayList!");
 		}
-		db.query(query);
+		return query;
 	}
 	private void removeItemSQL(Model data) throws DataHubException{
+		String query = getRemoveItemSQL(data);
+		db.query(query);
+	}
+	private String getRemoveItemSQL(Model data) throws DataHubException{
 		String associateTableName = data.getCompleteTableName();
 		String query = "";
 		switch(this.association.associationType()){
@@ -103,7 +112,7 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 			default:
 				throw new DataHubException("Invalid association type for DataHubArrayList!");
 		}
-		db.query(query);
+		return query;
 	}
 	//TODO:fix this
 	@Override
@@ -150,24 +159,30 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 		populate(Database.MAX_LOAD_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
 	}
 	public void save() throws DataHubException{
-		save(Database.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ArrayList<Class>());
+		String query = save(Database.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ArrayList<Class>());
+		db.query(query);
 	}
-	protected void save(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved) throws DataHubException{
+	protected String save(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved) throws DataHubException{
 		if(recursionDepthLimit <= 0){
-			return;
+			return "";
 		}
 		ArrayList<Model> tempAddClone = (ArrayList<Model>) this.tempAdd.clone();
 		ArrayList<Model> tempRemoveClone = (ArrayList<Model>) this.tempRemove.clone();
+		ArrayList<String> queries = new ArrayList<String>();
 		for(Model element:tempAddClone){
-			element.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
-			this.addItemSQL(element);
+			String queryElement = element.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
+			String addItemSql = this.getAddItemSQL(element);
+			queries.add(queryElement);
+			queries.add(addItemSql);
 		}
 		for(Model element:tempRemoveClone){
-			element.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
-			this.removeItemSQL(element);
+			String queryElement = element.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
+			String removeItemSql = this.getRemoveItemSQL(element);
+			queries.add(queryElement);
+			queries.add(removeItemSql);
 		}
 		reset();
-		
+		return Resources.concatenate(queries, ";");
 	}
 	private void reset(){
 		this.tempAdd = new ArrayList<T>();

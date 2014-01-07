@@ -24,9 +24,12 @@ public class Resources {
 		String out = "";
 		Iterator<Q> p = i.iterator();
 		while(p.hasNext()){
-			out+=p.next().toString();
-			if(p.hasNext()){
-				out+=" "+linkSymbol+" ";
+			String strToAdd = p.next().toString();
+			if(!strToAdd.equals("") && strToAdd!=null){
+				out+=strToAdd;
+				if(p.hasNext()){
+					out+=" "+linkSymbol+" ";
+				}
 			}
 		}
 		return out;
