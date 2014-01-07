@@ -4,6 +4,8 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.SwingWorker;
 
+import android.os.AsyncTask;
+
 import DataHubORM.DataHubException;
 
 public class DataHubWorker<T>{
@@ -47,6 +49,22 @@ public class DataHubWorker<T>{
 					worker.execute();
 				break;
 			case Android:
+				AsyncTask<Void,Void,T> androidWorker = new AsyncTask<Void,Void,T>(){
+
+					@Override
+					protected T doInBackground(Void... params) {
+						// TODO Auto-generated method stub
+						return functionToExecute.call();
+					}
+					@Override
+					protected void onPostExecute(T result){
+						try {
+							callback.call(result);
+						} catch (DataHubException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}};
 				break;
 			default:
 				throw new DataHubException("Invalid DataHubWorker mode!");

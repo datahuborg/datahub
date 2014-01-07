@@ -13,5 +13,13 @@
 	<classpathentry kind="lib" path="C:/workspace/datahubmain/src/datahub/orm/java/jars/libthrift-0.9.1.jar"/>
 	<classpathentry kind="lib" path="C:/workspace/datahubmain/src/datahub/orm/java/jars/slf4j-api-1.7.5.jar"/>
 	<classpathentry kind="lib" path="C:/workspace/datahubmain/src/datahub/orm/java/jars/slf4j-api-1.7.5-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Eclipse/sdk/platforms/android-18/android.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://developer.android.com/reference/"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="nonaccessible" pattern="com/android/internal/**"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
