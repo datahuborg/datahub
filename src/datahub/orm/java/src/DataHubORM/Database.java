@@ -47,26 +47,14 @@ public class Database {
 	
 	private DataHubClient dhc;
 	
-	private DataHubCache dhcp;
-	
-	private DataHubConsistencySpecifier dhcs;
-	
 	private DatabaseMode databaseMode;
 	
 	private DatabaseEngine databaseEnginer;
 	
 	public Database(){
-		this.dhcp = new DataHubCache();
-		this.dhcs = new DataHubConsistencySpecifier();
 	}
 	public synchronized void setDataHubAccount(DataHubAccount dha){
 		this.dhc = new DataHubClient(dha);
-	}
-	public synchronized void setCachingPolicy(DataHubCache dhcp){
-		this.dhcp = dhcp;
-	}
-	public void setConsistencyPolicy(DataHubConsistencySpecifier dhcs){
-		this.dhcs = dhcs;
 	}
 	public synchronized void connect() throws DataHubException{
 		try {

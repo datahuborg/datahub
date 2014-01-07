@@ -64,7 +64,7 @@ class DataHubClient{
 		dhcp.setFieldValue(_Fields.REPO, db.getDatabaseName());
 		return dhcp;
 	}
-	public void connect(Database db) throws DHException, TException{
+	public synchronized void connect(Database db) throws DHException, TException{
 		TSocket newSocket = getConnectionSocket();
 		socket = newSocket;
 		socket.open();
@@ -76,7 +76,7 @@ class DataHubClient{
 		currentConnection = client.connect(dhcp);
 		connectedToDB = true;
 	}
-	public void disconnect(){
+	public synchronized void disconnect(){
 		if(connectedToDB){
 			socket.close();
 			client = null;
@@ -89,7 +89,7 @@ class DataHubClient{
 	}
 	//TODO:possible security issue with unauthorized manipulation of client cause propagating changes to 
 	//server that destroy database
-	public void updateSchema(Database db) throws DHException, TException{
+	public synchronized void updateSchema(Database db) throws DHException, TException{
 		detectSchemaDifferences();
 	}
 	public DHQueryResult getDatabaseSchema() throws DHException, TException{
@@ -101,7 +101,7 @@ class DataHubClient{
 		DHSchema schema = data.getSchema();
 		DHTable table  = data.getTable();
 	}
-	/*public DHQueryResult dbQuery(String query){
+	public synchronized DHQueryResult dbQuery(String query){
 		DHQueryResult out = null;
 		try{
 			out = this.client.execute_sql(this.currentConnection, query, null);
@@ -109,8 +109,8 @@ class DataHubClient{
 			e.printStackTrace();
 		}
 		return out;
-	}*/
-	public DHQueryResult dbQuery(String query){
+	}
+	public DHQueryResult dbQueryNewConnection(String query){
 		DHQueryResult out = null;
 		try{
 			TSocket newSocket = getConnectionSocket();
