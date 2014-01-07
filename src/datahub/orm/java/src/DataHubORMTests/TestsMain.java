@@ -1,12 +1,16 @@
 package DataHubORMTests;
 
+import java.util.Random;
+
 import org.apache.thrift.TException;
 import org.junit.After;
 import org.junit.Before;
 
 import DataHubAccount.DataHubAccount;
 import DataHubAccount.DataHubUser;
+import DataHubORM.DataHubException;
 import Examples.TestDatabase;
+import Examples.TestModel;
 import datahub.DHException;
 
 public class TestsMain {
@@ -30,5 +34,14 @@ public class TestsMain {
 	@After
 	public void tearDown(){
 		db.disconnect();
+	}
+	public TestModel newTestModel() throws DataHubException{
+		Random generator = new Random();
+		String name = "test"+Math.abs(generator.nextInt());
+		String description = "test row";
+		TestModel t = new TestModel();
+		t.name = name;
+		t.description = description;
+		return t;
 	}
 }

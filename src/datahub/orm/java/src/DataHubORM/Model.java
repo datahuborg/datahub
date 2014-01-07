@@ -9,6 +9,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import Workers.DataHubWorker;
+import Workers.GenericCallback;
+import Workers.GenericExecutable;
+
 import datahub.DHCell;
 import datahub.DHData;
 import datahub.DHField;
@@ -67,7 +71,27 @@ public class Model<T extends Model>{
 	public static Database getDatabase(){
 		return db;
 	}
-	public void save(){
+	public void saveAsync(GenericCallback<Void> callback) throws DataHubException{
+		DataHubWorker<Void> dhw = new DataHubWorker<Void>(new GenericExecutable<Void>(){
+
+			@Override
+			public Void call() {
+				save();
+				return null;
+			}}, callback);
+		dhw.execute();
+	}
+	public void destroyAsync(GenericCallback<Void> callback) throws DataHubException{
+		DataHubWorker<Void> dhw = new DataHubWorker<Void>(new GenericExecutable<Void>(){
+
+			@Override
+			public Void call() {
+				destroy();
+				return null;
+			}}, callback);
+		dhw.execute();
+	}
+	public synchronized void save(){
 		//db.hitCount = 0;
 		//db.missCount = 0;
 		//System.out.println("before save");
@@ -149,7 +173,7 @@ public class Model<T extends Model>{
 		}
 		return Resources.concatenate(queries, ";");
 	}
-	public void destroy(){
+	public synchronized void destroy(){
 		try{
 			String query = "DELETE FROM "+this.getCompleteTableName()+" WHERE "+"id="+this.id;
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));

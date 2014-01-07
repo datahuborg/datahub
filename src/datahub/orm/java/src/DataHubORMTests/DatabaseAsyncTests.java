@@ -9,11 +9,10 @@ import DataHubAccount.DataHubUser;
 import DataHubORM.DataHubException;
 import Examples.TestDatabase;
 
-public class DataHubDatabaseAsyncTests {
+public class DatabaseAsyncTests {
 
-	private boolean done = false;
 	@Test
-	public void testConnectDB(){
+	public void testConnectDB() throws InterruptedException{
 		DataHubAccount test_dha = new DataHubAccount("dggoeh1", new DataHubUser("dggoeh1@mit.edu","dggoeh1"));
 		final TestDatabase db = new TestDatabase();
 		db.setDataHubAccount(test_dha);
@@ -30,18 +29,14 @@ public class DataHubDatabaseAsyncTests {
 						public void call(Void data) throws DataHubException {
 							// TODO Auto-generated method stub
 							System.out.println("Disconnected Successfully!");
-							done=true;
 						}});
 					
 				}});
 		}catch(Exception e){
 			System.out.println("Failed to connect!");
 		}
-		while(!done){
-			if(done){
-				break;
-			}
-		}
+		Thread.sleep(1000);
+		
 	}
 	
 }
