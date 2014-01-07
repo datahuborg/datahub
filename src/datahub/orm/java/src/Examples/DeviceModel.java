@@ -1,25 +1,25 @@
 package Examples;
 
-import Annotations.association;
-import Annotations.column;
-import Annotations.association.AssociationType;
-import Annotations.column.Index;
-import Annotations.table;
+import Annotations.Association;
+import Annotations.Column;
+import Annotations.Association.AssociationType;
+import Annotations.Column.Index;
+import Annotations.Table;
 import DataHubORM.DataHubException;
-import DataHubORM.Model;
+import DataHubORM.DataHubModel;
 
-@table(name="device")
-public class DeviceModel extends Model<DeviceModel>{
+@Table(name="device")
+public class DeviceModel extends DataHubModel<DeviceModel>{
 
 	public DeviceModel() throws DataHubException {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	@column(name="code")
+	@Column(name="code")
 	public String code;
 	
 	//need to specify foreign key name that matches the foreign key in the corresponding belongs to relationship
-	@association(associationType = AssociationType.BelongsTo, foreignKey = "test_id")
+	@Association(associationType = AssociationType.BelongsTo, foreignKey = "test_id")
 	public TestModel testModel;
 }

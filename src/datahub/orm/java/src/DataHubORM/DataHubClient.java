@@ -37,7 +37,7 @@ class DataHubClient{
 	private DHConnection currentConnection;
 	private Client client;
 	private TSocket socket;
-	private Database database;
+	private DataHubDatabase database;
 	private boolean connectedToDB;
 	//possibly add support for  connection to many databases
 	//arraylist of datahum  clients
@@ -57,14 +57,14 @@ class DataHubClient{
 	private TSocket getConnectionSocket(){
 		return new TSocket(Constants.SERVER_ADDR_ROOT,Constants.SERVER_ADDR_PORT);
 	}
-	private DHConnectionParams getConnectionParams(Database db){
+	private DHConnectionParams getConnectionParams(DataHubDatabase db){
 		DHConnectionParams dhcp = new DHConnectionParams();
 		dhcp.setFieldValue(_Fields.USER, dha.getUser().getPassword());
 		dhcp.setFieldValue(_Fields.PASSWORD, dha.getApiKey());
 		dhcp.setFieldValue(_Fields.REPO, db.getDatabaseName());
 		return dhcp;
 	}
-	public synchronized void connect(Database db) throws DHException, TException{
+	public synchronized void connect(DataHubDatabase db) throws DHException, TException{
 		TSocket newSocket = getConnectionSocket();
 		socket = newSocket;
 		socket.open();
@@ -89,7 +89,7 @@ class DataHubClient{
 	}
 	//TODO:possible security issue with unauthorized manipulation of client cause propagating changes to 
 	//server that destroy database
-	public synchronized void updateSchema(Database db) throws DHException, TException{
+	public synchronized void updateSchema(DataHubDatabase db) throws DHException, TException{
 		detectSchemaDifferences();
 	}
 	public DHQueryResult getDatabaseSchema() throws DHException, TException{

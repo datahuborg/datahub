@@ -1,36 +1,51 @@
 package Examples;
 
-import Annotations.association;
-import Annotations.association.AssociationType;
-import Annotations.column;
-import Annotations.column.Index;
-import Annotations.table;
+import java.util.Date;
+
+import Annotations.Association;
+import Annotations.BooleanField;
+import Annotations.CharField;
+import Annotations.DateTimeField;
+import Annotations.Association.AssociationType;
+import Annotations.Column;
+import Annotations.Column.Index;
+import Annotations.Table;
 import DataHubORM.DataHubArrayList;
 import DataHubORM.DataHubException;
-import DataHubORM.Model;
+import DataHubORM.DataHubModel;
 
-@table(name="test")
-public class TestModel extends Model<TestModel> {
+@Table(name="test")
+public class TestModel extends DataHubModel<TestModel> {
 	
 	public TestModel() throws DataHubException {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	@column(name="name")
+	@Column(name="name")
+	@CharField(size=30)
 	public String name;
 	
-	@column(name="description") 
+	@Column(name="description") 
+	@CharField(size=30)
 	public String description;
+
+	/*@Column(name="is_cool")
+	@BooleanField()
+	public boolean isCool;
 	
-	@association(associationType = AssociationType.HasOne, foreignKey = "test_id")
+	@Column(name="created_at")
+	@DateTimeField()
+	public Date createdAt;*/
+
+	@Association(associationType = AssociationType.HasOne, foreignKey = "test_id")
 	public TesterModel tester;
 	
 	//need to specify foreign key name that matches the foreign key in the corresponding belongs to relationship
-	@association(associationType = AssociationType.HasMany, foreignKey = "test_id")
+	@Association(associationType = AssociationType.HasMany, foreignKey = "test_id")
 	public DevicesDataHubArrayList devices;
 	
-	@association(associationType = AssociationType.HasAndBelongsToMany, linkingTable = "testuser", leftTableForeignKey = "test_id",rightTableForeignKey = "user_id", foreignKey = "test_id")
+	@Association(associationType = AssociationType.HasAndBelongsToMany, linkingTable = "testuser", leftTableForeignKey = "test_id",rightTableForeignKey = "user_id", foreignKey = "test_id")
 	public UsersDataHubArrayList users;
 
 }

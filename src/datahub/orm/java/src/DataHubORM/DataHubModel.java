@@ -22,25 +22,26 @@ import datahub.DHSchema;
 import datahub.DHTable;
 import datahub.DHType;
 
-import Annotations.association;
-import Annotations.association.AssociationType;
-import Annotations.column;
-import Annotations.column.Index;
-import Annotations.database;
-import Annotations.table;
+import Annotations.Association;
+import Annotations.IntegerField;
+import Annotations.Association.AssociationType;
+import Annotations.Column;
+import Annotations.Column.Index;
+import Annotations.Table;
 import DataHubResources.Resources;
 import Examples.TestModel;
 
-@table(name="")
-public class Model<T extends Model>{
+@Table(name="")
+public class DataHubModel<T extends DataHubModel>{
 	
 	
-	private static Database db;
+	private static DataHubDatabase db;
 	
-	@column(name="id")
+	@Column(name="id")
+	@IntegerField(Serial=true)
 	public int id;
 
-	public Model() throws DataHubException{
+	public DataHubModel() throws DataHubException{
 		if(db==null){
 			throw new DataHubException("Database for model class must be set before any models can be created!");
 		}
@@ -48,7 +49,7 @@ public class Model<T extends Model>{
 		for(Field f: this.getClass().getFields()){
 			if(DataHubConverter.isDataHubArrayListSubclass(f.getType()) && DataHubConverter.hasAssociation(f)){
 				try{
-					association a = f.getAnnotation(association.class);
+					Association a = f.getAnnotation(Association.class);
 					DataHubArrayList d = (DataHubArrayList) f.getType().newInstance();
 					d.setCurrentModel(this);
 					d.setAssociation(a);
@@ -59,7 +60,7 @@ public class Model<T extends Model>{
 			}
 		}
 	}
-	public static void setDatabase(Database database) throws DataHubException{
+	public static void setDatabase(DataHubDatabase database) throws DataHubException{
 		//TODO: figure out why this is getting set more than once
 		db=database;
 		/*if(db == null){
@@ -68,7 +69,7 @@ public class Model<T extends Model>{
 			throw new DataHubException("Database can only be set once for the Model Class!");
 		}*/
 	}
-	public static Database getDatabase(){
+	public static DataHubDatabase getDatabase(){
 		return db;
 	}
 	public void saveAsync(final GenericCallback<T> callback) throws DataHubException{
@@ -96,9 +97,9 @@ public class Model<T extends Model>{
 		//db.hitCount = 0;
 		//db.missCount = 0;
 		//System.out.println("before save");
-		String query = this.save(Database.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ArrayList<Class>());
+		String query = this.save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ArrayList<Class>());
 		getDatabase().query(query);
-		updateModel(Database.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>());
+		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>());
 		//System.out.println("after save");
 	}
 	protected String save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved){
@@ -139,9 +140,9 @@ public class Model<T extends Model>{
 					Object o = f.get(this);
 					if(o != null){
 						if(DataHubConverter.isModelSubclass(f.getType())){
-							Model m = (Model) o;
+							DataHubModel m = (DataHubModel) o;
 							//TODO: fix this
-							association a = f.getAnnotation(association.class);
+							Association a = f.getAnnotation(Association.class);
 							if(a.associationType() == AssociationType.BelongsTo){
 								//System.out.println("updating");
 								String associateTableName = this.getCompleteTableName();
@@ -309,10 +310,10 @@ public class Model<T extends Model>{
 				}
 			}
 			if(match!=null){
-				association a = match.getAnnotation(association.class);
-				Model m;
+				Association a = match.getAnnotation(Association.class);
+				DataHubModel m;
 				if(DataHubConverter.isModelSubclass(o.getClass())){
-					m = (Model) o;
+					m = (DataHubModel) o;
 				}else{
 					//TODO:fix this
 					throw new DataHubException("Errror");
@@ -370,7 +371,7 @@ public class Model<T extends Model>{
 		HashMap<Field,DHType> currentModel = models.get(this.getClass());
 		ArrayList<String> fieldData = new ArrayList<String>();
 		for(Field f:currentModel.keySet()){
-			column c = f.getAnnotation(column.class);
+			Column c = f.getAnnotation(Column.class);
 			if(c.name().equals("id") && !this.validId()){
 				continue;
 			}
@@ -389,7 +390,7 @@ public class Model<T extends Model>{
 		HashMap<Field,DHType> currentModel = models.get(this.getClass());
 		ArrayList<String> getFieldTableNames = new ArrayList<String>();
 		for(Field f: currentModel.keySet()){
-			column c = f.getAnnotation(column.class);
+			Column c = f.getAnnotation(Column.class);
 			if(c.name().equals("id")){
 				continue;
 			}
@@ -404,7 +405,7 @@ public class Model<T extends Model>{
 		//System.out.println(currentModel);
 		ArrayList<String> fieldData = new ArrayList<String>();
 		for(Field f: currentModel.keySet()){
-			column c = f.getAnnotation(column.class);
+			Column c = f.getAnnotation(Column.class);
 			if(c.name().equals("id")){
 				continue;
 			}
@@ -415,7 +416,7 @@ public class Model<T extends Model>{
 		return Resources.converToSQLAndConcatenate(fieldData,",");
 	}
 	public void refreshModel(){
-		updateModel(Database.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>());
+		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>());
 	}
 	private void updateModel(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
 		getDatabase().updateModelObject(this,recursionDepthLimit,localCache);
@@ -427,7 +428,7 @@ public class Model<T extends Model>{
 		return (T) getClass().newInstance();
 	}
 	public String getTableName(){
-		table t = this.getClass().getAnnotation(table.class);
+		Table t = this.getClass().getAnnotation(Table.class);
 		if(t != null){
 			return t.name();
 		}
@@ -441,7 +442,7 @@ public class Model<T extends Model>{
 	@Override
 	public boolean equals(Object o){
 		if(DataHubConverter.isModelSubclass(o.getClass())){
-			Model other = (Model) o;
+			DataHubModel other = (DataHubModel) o;
 			String otherSQLRep = other.getCompleteTableName()+other.generateSQLRep();
 			String thisSQLRep = this.getCompleteTableName()+this.generateSQLRep();
 			//System.out.println(otherSQLRep);

@@ -9,17 +9,17 @@ import java.util.HashMap;
 
 import javax.print.DocFlavor.STRING;
 
-import Annotations.association;
-import Annotations.column;
-import Annotations.column.Index;
-import Annotations.table;
+import Annotations.Association;
+import Annotations.Column;
+import Annotations.Column.Index;
+import Annotations.Table;
 import DataHubResources.Constants;
 
 import datahub.DHType;
 
 public class DataHubConverter {
 
-	public static ArrayList<HashMap<Class,HashMap<Field,DHType>>> convertDBToSchema(Database db){
+	public static ArrayList<HashMap<Class,HashMap<Field,DHType>>> convertDBToSchema(DataHubDatabase db){
 		ArrayList<HashMap<Class,HashMap<Field,DHType>>> out = new ArrayList<HashMap<Class,HashMap<Field,DHType>>>();
 		ArrayList<Field> models = findModels(db);
 		for(Field model: models){
@@ -27,7 +27,7 @@ public class DataHubConverter {
 		}
 		return out;
 	}
-	public static ArrayList<Field> findModels(Database db){
+	public static ArrayList<Field> findModels(DataHubDatabase db){
 		Field[] dbFields = db.getClass().getFields();
 		ArrayList<Field> modelFields = new ArrayList<Field>();
 		for(Field f:dbFields){
@@ -40,7 +40,7 @@ public class DataHubConverter {
 	}
 	public static boolean isModelSubclass(Class c){
 		try{
-			if(c.equals(Model.class) || c.asSubclass(Model.class) != null){
+			if(c.equals(DataHubModel.class) || c.asSubclass(DataHubModel.class) != null){
 				return true;
 			}
 		}catch(Exception e){
@@ -96,10 +96,10 @@ public class DataHubConverter {
 			}
 		}
 		//check for table annotation
-		if(model.isAnnotationPresent(table.class)){
+		if(model.isAnnotationPresent(Table.class)){
 			try {
 				//update table information
-				tableName = ((table) model.getAnnotation(table.class)).name();
+				tableName = ((Table) model.getAnnotation(Table.class)).name();
 				tableCount++;
 				if(tableCount > 1){
 					throw new Exception("Too many tables!");
@@ -116,13 +116,13 @@ public class DataHubConverter {
 		return output;
 	}
 	public static boolean hasColumnBasic(Field f){
-		if(f.isAnnotationPresent(column.class)){
+		if(f.isAnnotationPresent(Column.class)){
 			return true;
 		}
 		return false;
 	}
 	public static boolean hasAssociation(Field f){
-		if(f.isAnnotationPresent(association.class)){
+		if(f.isAnnotationPresent(Association.class)){
 			return true;
 		}
 		return false;

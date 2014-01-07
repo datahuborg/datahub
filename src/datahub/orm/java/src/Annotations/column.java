@@ -4,7 +4,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface column {
+public @interface Column {
 	public enum Index{PrimaryKey,None}
 	String name();
 	Index index() default Index.None;

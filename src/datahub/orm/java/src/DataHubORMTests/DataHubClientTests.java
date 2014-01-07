@@ -21,7 +21,7 @@ import datahub.DataHub;
 
 import DataHubAccount.DataHubAccount;
 import DataHubAccount.DataHubUser;
-import DataHubORM.Database;
+import DataHubORM.DataHubDatabase;
 
 public class DataHubClientTests {
 	

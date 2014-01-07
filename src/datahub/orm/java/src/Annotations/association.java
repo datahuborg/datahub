@@ -5,7 +5,7 @@ import java.lang.annotation.RetentionPolicy;
 
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface association {
+public @interface Association {
 	public enum RemovalOptions{CascadingDelete, None};
 	public enum AssociationType{
 		HasMany, 

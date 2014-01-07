@@ -1,23 +1,23 @@
 package Examples;
 
-import Annotations.association;
-import Annotations.column;
-import Annotations.table;
-import Annotations.association.AssociationType;
+import Annotations.Association;
+import Annotations.Column;
+import Annotations.Table;
+import Annotations.Association.AssociationType;
 import DataHubORM.DataHubException;
-import DataHubORM.Model;
+import DataHubORM.DataHubModel;
 
-@table(name="users")
-public class UserModel extends Model<UserModel>{
+@Table(name="users")
+public class UserModel extends DataHubModel<UserModel>{
 	
 	public UserModel() throws DataHubException {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	@column(name="username")
+	@Column(name="username")
 	public String username;
 	
-	@association(associationType = AssociationType.HasAndBelongsToMany, linkingTable = "testuser", leftTableForeignKey = "test_id",rightTableForeignKey = "user_id", foreignKey = "user_id")
+	@Association(associationType = AssociationType.HasAndBelongsToMany, linkingTable = "testuser", leftTableForeignKey = "test_id",rightTableForeignKey = "user_id", foreignKey = "user_id")
 	public TestDatahubArrayList tests;
 }

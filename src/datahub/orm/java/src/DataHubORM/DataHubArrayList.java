@@ -8,35 +8,35 @@ import java.util.concurrent.ConcurrentHashMap;
 import Workers.DataHubWorker;
 import Workers.GenericCallback;
 import Workers.GenericExecutable;
-import Annotations.association;
-import Annotations.association.AssociationType;
+import Annotations.Association;
+import Annotations.Association.AssociationType;
 import DataHubResources.Resources;
 
 //ArrayList to represent sets connected to a particular 
 //table via foreign key
 //setup currentModel during model creation
-public class DataHubArrayList<T extends Model> extends ArrayList<T>{
+public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 	
 	//TODO: throw exceptions if db not set or currentModel not set
-	private static Database db;
+	private static DataHubDatabase db;
 	
-	private Model currentModel;
+	private DataHubModel currentModel;
 	
-	private association association;
+	private Association association;
 	
 	private ArrayList<T> tempAdd;
 	
-	private ArrayList<Model> tempRemove;
+	private ArrayList<DataHubModel> tempRemove;
 	
 	public DataHubArrayList() throws DataHubException{
 		/*if(this.foreignKey == null || this.currentModel == null){
 			throw new DataHubException("DataHubArrayList must have a foreign key and current model specified!");
 		}*/
 		tempAdd = new ArrayList<T>();
-		tempRemove = new ArrayList<Model>();
+		tempRemove = new ArrayList<DataHubModel>();
 	}
 	
-	public static void setDatabase(Database database) throws DataHubException{
+	public static void setDatabase(DataHubDatabase database) throws DataHubException{
 		//TODO: figure out why this is getting set more than once
 		db=database;
 		/*if(db == null){
@@ -45,15 +45,15 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 			//throw new DataHubException();
 		}*/
 	}
-	public static Database getDatabase(){
+	public static DataHubDatabase getDatabase(){
 		return db;
 	}
-	private void addItemSQL(Model data) throws DataHubException{
+	private void addItemSQL(DataHubModel data) throws DataHubException{
 		String query = getAddItemSQL(data);
 		db.query(query);
 	}
 	//TODO:fix this
-	private String getAddItemSQL(Model data) throws DataHubException{
+	private String getAddItemSQL(DataHubModel data) throws DataHubException{
 		//data needs to be saved before it can be added to the collection
 		//need to get class that contains this object
 		//need to get class of T and then do mappings based on table names
@@ -88,11 +88,11 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 		}
 		return query;
 	}
-	private void removeItemSQL(Model data) throws DataHubException{
+	private void removeItemSQL(DataHubModel data) throws DataHubException{
 		String query = getRemoveItemSQL(data);
 		db.query(query);
 	}
-	private String getRemoveItemSQL(Model data) throws DataHubException{
+	private String getRemoveItemSQL(DataHubModel data) throws DataHubException{
 		String associateTableName = data.getCompleteTableName();
 		String query = "";
 		switch(this.association.associationType()){
@@ -132,18 +132,18 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 	@Override
 	public boolean remove(Object o){
 		if(DataHubConverter.isModelSubclass(o.getClass())){
-			Model m = (Model) o;
+			DataHubModel m = (DataHubModel) o;
 			return this.tempRemove.add(m) && super.remove(o) && this.tempAdd.remove(o);
 		}
 		return false;
 	}
 	@Override
 	public void clear(){
-		for(Model m:this){
+		for(DataHubModel m:this){
 			this.remove(m);
 		}
 	}
-	public void setCurrentModel(Model m) throws DataHubException{
+	public void setCurrentModel(DataHubModel m) throws DataHubException{
 		//model can only be set once for life of the object to ensure consistency in operation
 		if(this.currentModel != null){
 			throw new DataHubException("Model already set for DataHubArrayList");
@@ -151,7 +151,7 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 			this.currentModel = m;
 		}
 	}
-	public void setAssociation(association a) throws DataHubException{
+	public void setAssociation(Association a) throws DataHubException{
 		//foreignkey can only be set once for life of the object to ensure consistency in operation
 		if(this.association != null){
 			throw new DataHubException("Association already set for DataHubArrayList");
@@ -194,26 +194,26 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 		dhw.execute();
 	}
 	public void populate() throws DataHubException{
-		populate(Database.MAX_LOAD_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
+		populate(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
 	}
 	public void save() throws DataHubException{
-		String query = save(Database.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ArrayList<Class>());
+		String query = save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ArrayList<Class>());
 		db.query(query);
 	}
 	protected String save(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved) throws DataHubException{
 		if(recursionDepthLimit <= 0){
 			return "";
 		}
-		ArrayList<Model> tempAddClone = (ArrayList<Model>) this.tempAdd.clone();
-		ArrayList<Model> tempRemoveClone = (ArrayList<Model>) this.tempRemove.clone();
+		ArrayList<DataHubModel> tempAddClone = (ArrayList<DataHubModel>) this.tempAdd.clone();
+		ArrayList<DataHubModel> tempRemoveClone = (ArrayList<DataHubModel>) this.tempRemove.clone();
 		ArrayList<String> queries = new ArrayList<String>();
-		for(Model element:tempAddClone){
+		for(DataHubModel element:tempAddClone){
 			String queryElement = element.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
 			String addItemSql = this.getAddItemSQL(element);
 			queries.add(queryElement);
 			queries.add(addItemSql);
 		}
-		for(Model element:tempRemoveClone){
+		for(DataHubModel element:tempRemoveClone){
 			String queryElement = element.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
 			String removeItemSql = this.getRemoveItemSQL(element);
 			queries.add(queryElement);
@@ -224,7 +224,7 @@ public class DataHubArrayList<T extends Model> extends ArrayList<T>{
 	}
 	private void reset(){
 		this.tempAdd = new ArrayList<T>();
-		this.tempRemove = new ArrayList<Model>();
+		this.tempRemove = new ArrayList<DataHubModel>();
 	}
 	protected Class<T> getAssociatedModelClass(){
 		return ((Class<T>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]);

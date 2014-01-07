@@ -1,10 +1,11 @@
 package Examples;
 
-import Annotations.database;
-import DataHubORM.Database;
+import Annotations.Database;
+import DataHubORM.DataHubDatabase;
 
-@database(name="test")
-public class TestDatabase extends Database {
+
+@Database(name="test")
+public class TestDatabase extends DataHubDatabase {
 	
 	public TestModel test;	
 	

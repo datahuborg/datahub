@@ -9,8 +9,8 @@ import java.util.HashMap;
 import org.junit.Test;
 
 import DataHubORM.DataHubConverter;
-import DataHubORM.Database;
-import DataHubORM.Model;
+import DataHubORM.DataHubDatabase;
+import DataHubORM.DataHubModel;
 import Examples.DeviceModel;
 import Examples.TestDatabase;
 import Examples.TestModel;
