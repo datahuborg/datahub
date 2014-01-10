@@ -66,9 +66,18 @@ public class DataHubDatabase {
 			throw new DataHubException("Cannot connect to database!");
 		}
 	}
-	public synchronized void sync() throws DataHubException{
+	public synchronized void clearAndReCreate() throws DataHubException{
+		//clear database
+		this.query("drop schema "+this.getDatabaseName()+" cascade");
+		
+		//re-create database from scratch
+		this.query("create schema "+this.getDatabaseName());
 		String database = DataHubConverter.convertDBToSQLSchemaString(this.getClass());
 		this.query(database);
+	}
+	public synchronized void sync() throws DataHubException{
+		//TODO: get better syncing
+		throw new DataHubException("Not implemented!");
 	}
 	public synchronized boolean isConnected(){
 		return dhc.isConnected();
