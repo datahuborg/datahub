@@ -1,7 +1,7 @@
 package Examples;
 
 import Annotations.Association;
-import Annotations.FloatField;
+import Annotations.DoubleField;
 import Annotations.VarCharField;
 import Annotations.Association.AssociationType;
 import Annotations.Column;

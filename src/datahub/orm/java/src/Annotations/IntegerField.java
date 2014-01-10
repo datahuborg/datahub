@@ -1,8 +1,10 @@
 package Annotations;
 
-public @interface IntegerField {
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-	boolean AutoIncrement() default false;
+@Retention(RetentionPolicy.RUNTIME)
+public @interface IntegerField {
 
 	boolean Serial() default false;
 

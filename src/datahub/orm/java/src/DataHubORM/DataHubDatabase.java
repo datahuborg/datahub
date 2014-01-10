@@ -52,6 +52,7 @@ public class DataHubDatabase {
 	private DatabaseEngine databaseEnginer;
 	
 	public DataHubDatabase(){
+		this.instantiateAndSetup();
 	}
 	public synchronized void setDataHubAccount(DataHubAccount dha){
 		this.dhc = new DataHubClient(dha);
@@ -64,7 +65,10 @@ public class DataHubDatabase {
 			e.printStackTrace();
 			throw new DataHubException("Cannot connect to database!");
 		}
-		instantiateAndSetup();
+	}
+	public synchronized void sync() throws DataHubException{
+		String database = DataHubConverter.convertDBToSQLSchemaString(this.getClass());
+		this.query(database);
 	}
 	public synchronized boolean isConnected(){
 		return dhc.isConnected();
@@ -121,7 +125,7 @@ public class DataHubDatabase {
 	}
 	private void instantiateAndSetup(){
 		//System.out.println("called");
-		ArrayList<Field> fields = DataHubConverter.findModels(this);
+		ArrayList<Field> fields = DataHubConverter.findModels(this.getClass());
 		try{
 			DataHubModel.setDatabase(this);
 			DataHubArrayList.setDatabase(this);

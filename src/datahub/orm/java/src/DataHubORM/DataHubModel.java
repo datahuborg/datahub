@@ -40,7 +40,7 @@ public class DataHubModel<T extends DataHubModel>{
 	@Column(name="id")
 	@IntegerField(Serial=true)
 	public int id;
-
+	
 	public DataHubModel() throws DataHubException{
 		if(db==null){
 			throw new DataHubException("Database for model class must be set before any models can be created!");
@@ -257,6 +257,12 @@ public class DataHubModel<T extends DataHubModel>{
 			}
 		}
 		return null; 
+	}
+	public synchronized void findOnePoll(int interval, HashMap<String,Object> params, final GenericCallback<T> callback){
+		
+	}
+	public synchronized void findAllPoll(int interval, HashMap<String,Object> params, final GenericCallback<T> callback){
+		
 	}
 	private boolean hasFieldAndColumnBasic(String name){
 		boolean out = false;

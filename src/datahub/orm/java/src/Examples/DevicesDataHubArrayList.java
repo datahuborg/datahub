@@ -1,7 +1,6 @@
 package Examples;
 
 import DataHubORM.DataHubArrayList;
-import DataHubORM.DataHubConverter;
 import DataHubORM.DataHubException;
 
 public class DevicesDataHubArrayList extends DataHubArrayList<DeviceModel>{
