@@ -14,6 +14,7 @@ import android.R.bool;
 
 import Annotations.Association;
 import Annotations.Association.AssociationType;
+import Annotations.Association.RemovalOptions;
 import Annotations.BooleanField;
 import Annotations.CharField;
 import Annotations.Column;
@@ -70,6 +71,7 @@ public class DataHubConverter {
 							if(!finalTableDefinitions.containsKey(currentModel.getCompleteTableName())){
 								String tableDef = tableDefinitions.get(currentModel.getCompleteTableName());
 								//TODO:change this so we use primary key of other table instead of id
+								//TODO: figure out how to add on constraints like cascading delete
 								tableDef=tableDef.substring(0, tableDef.length()-1);
 								tableDef+=", "+a.foreignKey()+" integer, foreign key ("+a.foreignKey()+") references "+otherModel.getCompleteTableName()+"("+"id"+")"+")";
 								finalTableDefinitions.put(currentModel.getCompleteTableName(), tableDef);
@@ -85,6 +87,7 @@ public class DataHubConverter {
 								String tableDef = tableDefinitions.get(otherModel.getCompleteTableName());
 								tableDef=tableDef.substring(0, tableDef.length()-1);
 								//TODO:change this so we use primary key of other table instead of id
+								//TODO: figure out how to add on constraints like cascading delete
 								tableDef+=", "+a.foreignKey()+" integer, foreign key ("+a.foreignKey()+") references "+currentModel.getCompleteTableName()+"("+"id"+")"+")";
 								finalTableDefinitions.put(otherModel.getCompleteTableName(), tableDef);
 							}
@@ -101,6 +104,7 @@ public class DataHubConverter {
 								String tableDef = tableDefinitions.get(otherModel.getCompleteTableName());
 								tableDef=tableDef.substring(0, tableDef.length()-1);
 								//TODO:change this so we use primary key of other table instead of id
+								//TODO: figure out how to add on constraints like cascading delete
 								tableDef+=", "+a.foreignKey()+" integer, foreign key ("+a.foreignKey()+") references "+currentModel.getCompleteTableName()+"("+"id"+")"+")";
 								finalTableDefinitions.put(otherModel.getCompleteTableName(), tableDef);
 							}
@@ -157,11 +161,22 @@ public class DataHubConverter {
 			throw new DataHubException("Could not convert model to SQL. "+e.getMessage());
 		}
 		String tableSQL = "create table if not exists "+m.getCompleteTableName()+"(";
+		
 		ArrayList<String> columnNamesAndDataTypes = new ArrayList<String>();
+		int primaryKeyCount = 0;
 		for(Field f: basicColumns.keySet()){
 			Column column = f.getAnnotation(Column.class);
 			String columnStr = column.name()+" "+modelTypeToSQLString(f);
+			if(column.index() == Index.PrimaryKey){
+				columnStr+=" "+"primary key";
+				primaryKeyCount++;
+			}
 			columnNamesAndDataTypes.add(columnStr);
+		}
+		//validity checks
+		if(primaryKeyCount > 1){
+			//TODO: support combo primary key
+			throw new DataHubException("DataHubModel classes only support one primary key!");
 		}
 		tableSQL+=Resources.concatenate(columnNamesAndDataTypes,",")+")";
 		return tableSQL;

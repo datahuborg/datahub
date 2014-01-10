@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.thrift.TException;
 
 import Workers.DataHubWorker;
+import Workers.DataHubWorker.DataHubWorkerMode;
 import Workers.GenericCallback;
 import Workers.GenericExecutable;
 
@@ -36,8 +37,6 @@ import DataHubResources.Resources;
 public class DataHubDatabase {
 	//TODO: issue with stale objects on same system, could keep track of stale objects and update all of them
 	
-	public enum DatabaseMode{Synchronous, Asynchronous};
-	
 	public enum DatabaseEngine{Postgres};
 	
 	protected static int MAX_LOAD_RECURSION_DEPTH = 3;
@@ -47,15 +46,22 @@ public class DataHubDatabase {
 	
 	private DataHubClient dhc;
 	
-	private DatabaseMode databaseMode;
-	
 	private DatabaseEngine databaseEnginer;
 	
+	private DataHubWorkerMode dataHubWorkerMode;
+	
 	public DataHubDatabase(){
+		this.dataHubWorkerMode = DataHubWorkerMode.Normal;
 		this.instantiateAndSetup();
 	}
 	public synchronized void setDataHubAccount(DataHubAccount dha){
 		this.dhc = new DataHubClient(dha);
+	}
+	public synchronized void setDataHubWorkerMode(DataHubWorkerMode dataHubWorkerMode){
+		this.dataHubWorkerMode = dataHubWorkerMode;
+	}
+	public synchronized DataHubWorkerMode getDataHubWorkerMode(){
+		return dataHubWorkerMode;
 	}
 	public synchronized void connect() throws DataHubException{
 		try {
@@ -105,7 +111,7 @@ public class DataHubDatabase {
 						throw new DataHubException("Cannot connect to database!");
 					}
 					
-				}});
+				}},dataHubWorkerMode);
 		dhw.execute();
 	}
 	public synchronized void disconnect(){
@@ -129,7 +135,7 @@ public class DataHubDatabase {
 						throw new DataHubException("Cannot connect to database!");
 					}
 					
-				}});
+				}}, dataHubWorkerMode);
 		dhw.execute();
 	}
 	private void instantiateAndSetup(){

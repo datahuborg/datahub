@@ -37,7 +37,7 @@ public class DataHubModel<T extends DataHubModel>{
 	
 	private static DataHubDatabase db;
 	
-	@Column(name="id")
+	@Column(name="id", index=Index.PrimaryKey)
 	@IntegerField(Serial=true)
 	public int id;
 	
@@ -80,7 +80,7 @@ public class DataHubModel<T extends DataHubModel>{
 			public T call() {
 				save();
 				return object;
-			}}, callback);
+			}}, callback, db.getDataHubWorkerMode());
 		dhw.execute();
 	}
 	public void destroyAsync(final GenericCallback<Void> callback) throws DataHubException{
@@ -90,7 +90,7 @@ public class DataHubModel<T extends DataHubModel>{
 			public Void call() {
 				destroy();
 				return null;
-			}}, callback);
+			}}, callback, db.getDataHubWorkerMode());
 		dhw.execute();
 	}
 	public synchronized void save(){
@@ -196,10 +196,10 @@ public class DataHubModel<T extends DataHubModel>{
 			@Override
 			public ArrayList<T> call() {
 				return all();
-			}}, callback);
+			}}, callback,db.getDataHubWorkerMode());
 		dhw.execute();
 	}
-	public void findAll(final HashMap<String,Object> params,final GenericCallback<ArrayList<T>> callback) throws DataHubException{
+	public void findAllAsync(final HashMap<String,Object> params,final GenericCallback<ArrayList<T>> callback) throws DataHubException{
 		DataHubWorker<ArrayList<T>> dhw = new DataHubWorker<ArrayList<T>>(new GenericExecutable<ArrayList<T>>(){
 
 			@Override
@@ -211,10 +211,10 @@ public class DataHubModel<T extends DataHubModel>{
 					e.printStackTrace();
 					return null;
 				}
-			}}, callback);
+			}}, callback, db.getDataHubWorkerMode());
 		dhw.execute();
 	}
-	public void findOne(final HashMap<String,Object> params,final GenericCallback<T> callback) throws DataHubException{
+	public void findOneAsync(final HashMap<String,Object> params,final GenericCallback<T> callback) throws DataHubException{
 		DataHubWorker<T> dhw = new DataHubWorker<T>(new GenericExecutable<T>(){
 
 			@Override
@@ -226,7 +226,7 @@ public class DataHubModel<T extends DataHubModel>{
 					e.printStackTrace();
 					return null;
 				}
-			}}, callback);
+			}}, callback, db.getDataHubWorkerMode());
 		dhw.execute();
 	}
 	public ArrayList<T> all(){

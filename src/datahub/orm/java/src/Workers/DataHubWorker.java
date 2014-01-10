@@ -10,7 +10,7 @@ import DataHubORM.DataHubException;
 
 public class DataHubWorker<T>{
 
-	public enum DataHubWorkerMode{Android, Normal};
+	public static enum DataHubWorkerMode{Android, Normal};
 	
 	private final DataHubWorkerMode mode;
 	
