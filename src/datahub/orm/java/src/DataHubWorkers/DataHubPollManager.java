@@ -1,4 +1,4 @@
-package Workers;
+package DataHubWorkers;
 
 import DataHubORM.DataHubModel;
 

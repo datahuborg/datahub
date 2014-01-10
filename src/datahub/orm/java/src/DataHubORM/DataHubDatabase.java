@@ -9,10 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.thrift.TException;
 
-import Workers.DataHubWorker;
-import Workers.DataHubWorker.DataHubWorkerMode;
-import Workers.GenericCallback;
-import Workers.GenericExecutable;
 
 import datahub.DHCell;
 import datahub.DHData;
@@ -32,6 +28,10 @@ import Configurations.DataHubCache;
 import Configurations.DataHubConsistencySpecifier;
 import DataHubAccount.DataHubAccount;
 import DataHubResources.Resources;
+import DataHubWorkers.DataHubWorker;
+import DataHubWorkers.GenericCallback;
+import DataHubWorkers.GenericExecutable;
+import DataHubWorkers.DataHubWorker.DataHubWorkerMode;
 
 @Database(name="")
 public class DataHubDatabase {

@@ -9,9 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import Workers.DataHubWorker;
-import Workers.GenericCallback;
-import Workers.GenericExecutable;
 
 import datahub.DHCell;
 import datahub.DHData;
@@ -29,6 +26,9 @@ import Annotations.Column;
 import Annotations.Column.Index;
 import Annotations.Table;
 import DataHubResources.Resources;
+import DataHubWorkers.DataHubWorker;
+import DataHubWorkers.GenericCallback;
+import DataHubWorkers.GenericExecutable;
 import Examples.TestModel;
 
 @Table(name="")

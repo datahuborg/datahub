@@ -72,6 +72,7 @@ public class DataHubConverter {
 								String tableDef = tableDefinitions.get(currentModel.getCompleteTableName());
 								//TODO:change this so we use primary key of other table instead of id
 								//TODO: figure out how to add on constraints like cascading delete
+								//on delete cascade
 								tableDef=tableDef.substring(0, tableDef.length()-1);
 								tableDef+=", "+a.foreignKey()+" integer, foreign key ("+a.foreignKey()+") references "+otherModel.getCompleteTableName()+"("+"id"+")"+")";
 								finalTableDefinitions.put(currentModel.getCompleteTableName(), tableDef);
@@ -88,6 +89,7 @@ public class DataHubConverter {
 								tableDef=tableDef.substring(0, tableDef.length()-1);
 								//TODO:change this so we use primary key of other table instead of id
 								//TODO: figure out how to add on constraints like cascading delete
+								//on delete cascade
 								tableDef+=", "+a.foreignKey()+" integer, foreign key ("+a.foreignKey()+") references "+currentModel.getCompleteTableName()+"("+"id"+")"+")";
 								finalTableDefinitions.put(otherModel.getCompleteTableName(), tableDef);
 							}
@@ -105,6 +107,7 @@ public class DataHubConverter {
 								tableDef=tableDef.substring(0, tableDef.length()-1);
 								//TODO:change this so we use primary key of other table instead of id
 								//TODO: figure out how to add on constraints like cascading delete
+								//on delete cascade
 								tableDef+=", "+a.foreignKey()+" integer, foreign key ("+a.foreignKey()+") references "+currentModel.getCompleteTableName()+"("+"id"+")"+")";
 								finalTableDefinitions.put(otherModel.getCompleteTableName(), tableDef);
 							}

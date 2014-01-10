@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import Workers.GenericCallback;
 
 import DataHubORM.DataHubException;
+import DataHubWorkers.GenericCallback;
 import Examples.TestModel;
 
 public class ModelBasicTestsAsync extends TestsMain{

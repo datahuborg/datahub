@@ -5,12 +5,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import Workers.DataHubWorker;
-import Workers.GenericCallback;
-import Workers.GenericExecutable;
 import Annotations.Association;
 import Annotations.Association.AssociationType;
 import DataHubResources.Resources;
+import DataHubWorkers.DataHubWorker;
+import DataHubWorkers.GenericCallback;
+import DataHubWorkers.GenericExecutable;
 
 //ArrayList to represent sets connected to a particular 
 //table via foreign key

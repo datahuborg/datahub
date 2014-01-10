@@ -2,11 +2,11 @@ package DataHubORMTests;
 
 import org.junit.Test;
 
-import Workers.GenericCallback;
 
 import DataHubAccount.DataHubAccount;
 import DataHubAccount.DataHubUser;
 import DataHubORM.DataHubException;
+import DataHubWorkers.GenericCallback;
 import Examples.TestDatabase;
 
 public class DatabaseAsyncTests {
