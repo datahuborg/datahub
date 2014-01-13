@@ -7,6 +7,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import DataHubORM.DataHubConverter;
+
 import datahub.DHType;
 
 public class Resources {
@@ -36,10 +38,19 @@ public class Resources {
 	public static String sqlEscape(String query){
 		return query;
 	}
+	public static <T,U> void convertAndSetField(T object, String fieldName, U value){
+		try{
+			Field f = object.getClass().getField(fieldName);
+			Object val = DataHubConverter.convertToJavaType(object, f);
+			f.set(object, val);
+		}catch(Exception e){
+			//e.printStackTrace();
+		}
+	}
 	public static <T,U> void setField(T object, String fieldName, U value){
 		try{
 			Field f = object.getClass().getField(fieldName);
-			f.set(object, convert(value,f.getType()));
+			f.set(object, value);
 		}catch(Exception e){
 			//e.printStackTrace();
 		}
@@ -90,14 +101,13 @@ public class Resources {
 		}
 		return out;
 	}
-	public static Object convert(Object c, Type t){
-		if(t.equals(String.class)){
-			return new String(((ByteBuffer) c).array());
+	public static boolean isNumeric(Class c){
+		if(c.equals(Integer.class) || c.equals(Integer.TYPE) ||
+		   c.equals(Double.class) || c.equals(Double.TYPE) ||
+		   c.equals(Float.class) || c.equals(Float.TYPE) ||
+		   c.equals(Short.class) || c.equals(Short.TYPE)){
+			return true;
 		}
-		if(t.equals(Integer.TYPE)){
-			int result = Integer.parseInt(new String(((ByteBuffer) c).array()));
-			return result;
-		}
-		return c;
+		return false;
 	}
 }

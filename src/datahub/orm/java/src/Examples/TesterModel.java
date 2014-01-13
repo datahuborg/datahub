@@ -3,7 +3,7 @@ package Examples;
 import Annotations.Association;
 import Annotations.DoubleField;
 import Annotations.VarCharField;
-import Annotations.Association.AssociationType;
+import Annotations.Association.AssociationTypes;
 import Annotations.Column;
 import Annotations.Column.Index;
 import Annotations.Table;
@@ -27,6 +27,6 @@ public class TesterModel extends DataHubModel<TesterModel> {
 	public float cost;*/
 	
 	
-	@Association(associationType = AssociationType.BelongsTo, foreignKey = "test_id")
+	@Association(associationType = AssociationTypes.BelongsTo, foreignKey = "test_id")
 	public TestModel test;
 }

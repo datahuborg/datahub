@@ -6,10 +6,11 @@ import Annotations.Association;
 import Annotations.BooleanField;
 import Annotations.CharField;
 import Annotations.DateTimeField;
-import Annotations.Association.AssociationType;
+import Annotations.Association.AssociationTypes;
 import Annotations.Column;
 import Annotations.Column.Index;
 import Annotations.Table;
+import Annotations.VarCharField;
 import DataHubORM.DataHubArrayList;
 import DataHubORM.DataHubException;
 import DataHubORM.DataHubModel;
@@ -23,29 +24,29 @@ public class TestModel extends DataHubModel<TestModel> {
 	}
 
 	@Column(name="name")
-	@CharField(size=30)
+	@VarCharField(size=30)
 	public String name;
 	
 	@Column(name="description") 
-	@CharField(size=30)
+	@VarCharField(size=30)
 	public String description;
 
-	/*@Column(name="is_cool")
+	@Column(name="is_cool")
 	@BooleanField()
 	public boolean isCool;
 	
 	@Column(name="created_at")
 	@DateTimeField()
-	public Date createdAt;*/
+	public Date createdAt;
 
-	@Association(associationType = AssociationType.HasOne, foreignKey = "test_id")
+	@Association(associationType = AssociationTypes.HasOne, foreignKey = "test_id")
 	public TesterModel tester;
 	
 	//need to specify foreign key name that matches the foreign key in the corresponding belongs to relationship
-	@Association(associationType = AssociationType.HasMany, foreignKey = "test_id")
+	@Association(associationType = AssociationTypes.HasMany, foreignKey = "test_id")
 	public DevicesDataHubArrayList devices;
 	
-	@Association(associationType = AssociationType.HasAndBelongsToMany, linkingTable = "testuser", leftTableForeignKey = "test_id",rightTableForeignKey = "user_id", foreignKey = "test_id")
+	@Association(associationType = AssociationTypes.HasAndBelongsToMany, linkingTable = "testuser", leftTableForeignKey = "test_id",rightTableForeignKey = "user_id", foreignKey = "test_id")
 	public UsersDataHubArrayList users;
 
 }

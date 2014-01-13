@@ -2,7 +2,7 @@ package Examples;
 
 import Annotations.Association;
 import Annotations.Column;
-import Annotations.Association.AssociationType;
+import Annotations.Association.AssociationTypes;
 import Annotations.Column.Index;
 import Annotations.Table;
 import Annotations.VarCharField;
@@ -22,6 +22,6 @@ public class DeviceModel extends DataHubModel<DeviceModel>{
 	public String code;
 	
 	//need to specify foreign key name that matches the foreign key in the corresponding belongs to relationship
-	@Association(associationType = AssociationType.BelongsTo, foreignKey = "test_id")
+	@Association(associationType = AssociationTypes.BelongsTo, foreignKey = "test_id")
 	public TestModel testModel;
 }

@@ -3,7 +3,9 @@ package DataHubORM;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -21,7 +23,7 @@ import datahub.DHType;
 
 import Annotations.Association;
 import Annotations.IntegerField;
-import Annotations.Association.AssociationType;
+import Annotations.Association.AssociationTypes;
 import Annotations.Column;
 import Annotations.Column.Index;
 import Annotations.Table;
@@ -143,14 +145,14 @@ public class DataHubModel<T extends DataHubModel>{
 							DataHubModel m = (DataHubModel) o;
 							//TODO: fix this
 							Association a = f.getAnnotation(Association.class);
-							if(a.associationType() == AssociationType.BelongsTo){
+							if(a.associationType() == AssociationTypes.BelongsTo){
 								//System.out.println("updating");
 								String associateTableName = this.getCompleteTableName();
 								String queryBelongsTo = "UPDATE "+associateTableName+" SET "+a.foreignKey()+"="+m.id+" WHERE id="+this.id;
 								//getDatabase().query(queryBelongsTo);
 								queries.add(queryBelongsTo);
 							}
-							if(a.associationType() == AssociationType.HasOne){
+							if(a.associationType() == AssociationTypes.HasOne){
 								String associateTableName = m.getCompleteTableName();
 								String queryHasOne = "UPDATE "+associateTableName+" SET "+a.foreignKey()+"="+m.id+" WHERE id="+this.id;
 								//getDatabase().query(queryHasOne);
@@ -243,13 +245,13 @@ public class DataHubModel<T extends DataHubModel>{
 		//invalid query exception because it does not make sense to query a model using a related object
 		//if there is no association
 		//String query = "select * FROM "+this.getCompleteTableName()+" WHERE "+ queryToSQL(params);
-		String query = queryToSQL(params);
+		String query = modelQueryToSQL(params);
 		return (ArrayList<T>) getDatabase().query(query, this.getClass());
 	}
 	public T findOne(HashMap<String,Object> params) throws DataHubException{
 		//TODO: querying by related object
 		if(params.size() != 0){
-			String query = queryToSQL(params) +" LIMIT 1";
+			String query = modelQueryToSQL(params) +" LIMIT 1";
 			ArrayList<T> data = (ArrayList<T>) getDatabase().query(query,this.getClass());
 			//System.out.println(data);
 			if(data.size() > 0){
@@ -264,40 +266,86 @@ public class DataHubModel<T extends DataHubModel>{
 	public synchronized void findAllPoll(int interval, HashMap<String,Object> params, final GenericCallback<T> callback){
 		
 	}
-	private boolean hasFieldAndColumnBasic(String name){
-		boolean out = false;
-		try{
-			Field f = this.getClass().getField(name);
-			if(DataHubConverter.hasColumnBasic(f)){
-				out= true;
+	//Keywords supported: CONTAINS, IN, BETWEEN, STARTS_WITH, ENDS_WITH 
+	//BETWEEN - applies to DateTime, Double, Integer, strings
+	//IN - list of values that column could be
+	protected String modelQueryToSQL(HashMap<String,Object> query) throws DataHubException{
+		class ModifierHandler{
+			public String modifierToSQL(String modifier, Object val, Field f) throws DataHubException{
+				ArrayList<String> symbols = new ArrayList<String>(Arrays.asList(new String[]{"<",">","<=",">="}));
+				String out = "";
+				String newMod = modifier.toLowerCase();
+				if(newMod.equals("contains")){
+					if(f.getType()==String.class && val.getClass()==String.class){
+						String newVal = Resources.objectToSQL(val);
+						out = "LIKE %"+newVal+"%";
+					}
+				}
+				if(newMod.equals("starts_width")){
+					if(f.getType()==String.class && val.getClass()==String.class){
+						String newVal = Resources.objectToSQL(val);
+						out = "LIKE "+newVal+"%";
+					}
+				}
+				if(newMod.equals("ends_width")){
+					if(f.getType()==String.class && val.getClass()==String.class){
+						String newVal = Resources.objectToSQL(val);
+						out = "LIKE %"+newVal;
+					}
+				}
+				if(newMod.equals("in")){
+					if(val.getClass() == ArrayList.class){
+						ArrayList<Object> list = (ArrayList<Object>) val;
+						if(list.size() == 2){
+							out = "in ("+Resources.converToSQLAndConcatenate(list,",")+")";
+						}
+					}
+				}
+				if(newMod.equals("between")){
+					if(Resources.isNumeric(f.getType()) || f.getType() == Date.class || f.getType() == String.class){
+						if(val.getClass() == ArrayList.class){
+							ArrayList<Object> list = (ArrayList<Object>) val;
+							if(list.size() == 2){
+								out = "between "+Resources.converToSQLAndConcatenate(list,"AND");
+							}
+						}
+					}
+				}
+				if(symbols.contains(newMod)){
+					out = newMod+Resources.objectToSQL(val);
+				}
+				if(out == null){
+					throw new DataHubException("Invalid query modifier: "+newMod+"!");
+				}
+				return out;
 			}
-		}catch(Exception e){
-			
 		}
-		return out;
-	}
-	private boolean hasAssociation(String name){
-		boolean out = false;
-		try{
-			Field f = this.getClass().getField(name);
-			if(DataHubConverter.hasAssociation(f)){
-				out= true;
-			}
-		}catch(Exception e){
-			
-		}
-		return out;
-	}
-	private String queryToSQL(HashMap<String,Object> query) throws DataHubException{
 		ArrayList<String> keyVal = new ArrayList<String>();
 		String tables = this.getCompleteTableName();
 		for(String field:query.keySet()){
-			if(hasFieldAndColumnBasic(field)){//also check if has column annotation
-				String val = Resources.objectToSQL(query.get(field));
-				keyVal.add(this.getCompleteTableName()+"."+field+"="+val);
+			//require a query hashmap to look like id >: 5, age <:10
+			String[] fieldParams = field.split(" ");
+			String fieldName = fieldParams[0];
+			String fieldModifier = "";
+			if(fieldParams.length > 1){
+				fieldModifier = fieldParams[1];
+			}
+			if(hasFieldAndColumnBasic(fieldName)){//also check if has column annotation
+				Field f = Resources.getField(this.getClass(), fieldName);
+				
+				//need to get the actual column name before query can be made
+				Column c = f.getAnnotation(Column.class);
+				
+				Object val = query.get(fieldName);
+				
+				String newVal = new ModifierHandler().modifierToSQL(fieldModifier, val, f);
+			
+				keyVal.add(this.getCompleteTableName()+"."+c.name()+newVal);
 				continue;
 			}
-			Object o = query.get(field);
+			
+			//if there is a model object in the hashmap, then only support equals to
+			Object o = query.get(fieldName);
 			HashMap<Field,DHType> fields = DataHubConverter.extractAssociationsFromClass(this.getClass()).get(this.getClass());
 			Field match = null;
 			for(Field f: fields.keySet()){
@@ -322,7 +370,7 @@ public class DataHubModel<T extends DataHubModel>{
 					m = (DataHubModel) o;
 				}else{
 					//TODO:fix this
-					throw new DataHubException("Errror");
+					throw new DataHubException("Association found but query object is not a model class!");
 				}
 				String newKey = "";
 				//System.out.println(a.associationType());
@@ -369,6 +417,32 @@ public class DataHubModel<T extends DataHubModel>{
 		//System.out.println(queryStr);
 		return queryStr;
 	}
+	protected boolean hasFieldAndColumnBasic(String name){
+		boolean out = false;
+		try{
+			Field f = this.getClass().getField(name);
+			if(DataHubConverter.hasColumnBasic(f)){
+				out= true;
+			}
+		}catch(Exception e){
+			
+		}
+		return out;
+	}
+	protected boolean hasAssociation(String name){
+		boolean out = false;
+		try{
+			Field f = this.getClass().getField(name);
+			if(DataHubConverter.hasAssociation(f)){
+				out= true;
+			}
+		}catch(Exception e){
+			
+		}
+		return out;
+	}
+	
+	
 	protected String generateSQLRep(){
 		return generateSQLRep(",");
 	}
@@ -423,6 +497,9 @@ public class DataHubModel<T extends DataHubModel>{
 	}
 	public void refreshModel(){
 		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>());
+	}
+	public void refreshField(String fieldName) throws DataHubException{
+		getDatabase().updateModelObjectField(fieldName, this,DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>());
 	}
 	private void updateModel(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
 		getDatabase().updateModelObject(this,recursionDepthLimit,localCache);

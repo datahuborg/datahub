@@ -20,7 +20,8 @@ import datahub.DHSchema;
 import datahub.DHTable;
 
 import Annotations.Association;
-import Annotations.Association.AssociationType;
+import Annotations.Association.AssociationTypes;
+import Annotations.Association.LoadTypes;
 import Annotations.Column;
 import Annotations.Database;
 import Annotations.Column.Index;
@@ -46,7 +47,7 @@ public class DataHubDatabase {
 	
 	private DataHubClient dhc;
 	
-	private DatabaseEngine databaseEnginer;
+	private DatabaseEngine databaseEngine;
 	
 	private DataHubWorkerMode dataHubWorkerMode;
 	
@@ -74,12 +75,13 @@ public class DataHubDatabase {
 	}
 	public synchronized void clearAndReCreate() throws DataHubException{
 		//clear database
-		this.query("drop schema "+this.getDatabaseName()+" cascade");
+		String clearDB = "drop schema "+this.getDatabaseName()+" cascade;";
 		
 		//re-create database from scratch
-		this.query("create schema "+this.getDatabaseName());
+		String createDB = "create schema "+this.getDatabaseName()+";";
 		String database = DataHubConverter.convertDBToSQLSchemaString(this.getClass());
-		this.query(database);
+		String overallQuery = createDB+createDB+database;
+		this.query(overallQuery);
 	}
 	public synchronized void sync() throws DataHubException{
 		//TODO: get better syncing
@@ -262,20 +264,31 @@ public class DataHubDatabase {
 		}
 		return output;
 	}
+	
 	protected <T extends DataHubModel> void updateModelObject(T model, int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache){
+		updateNewModel(getModelBasicDHQuerResult(model, localCache), 0, model, recursionDepthLimit, localCache);
+	}
+	protected <T extends DataHubModel> void updateModelId(T model,int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
+		updateNewModel(getModelBasicDHQuerResult(model, localCache), 0, model,recursionDepthLimit, localCache, null, true);
+	}
+	protected <T extends DataHubModel> void updateModelObjectField(String fieldName, T model, int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache) throws DataHubException{
+		if(Resources.hasField(model.getClass(), fieldName)){
+			ArrayList<String> fields = new ArrayList<String>();
+			fields.add(fieldName);
+			updateNewModel(getModelBasicDHQuerResult(model, localCache), 0, model,recursionDepthLimit, localCache, fields, false);
+		}else{
+			throw new DataHubException("Model: "+this.getClass().getCanonicalName()+" has no field: "+fieldName+". Cannot refresh field!");
+		}
+	}
+	public <T extends DataHubModel> ArrayList<T> query(String query, Class<T> modelClass){
+		return query(query,modelClass,DataHubDatabase.MAX_LOAD_RECURSION_DEPTH, new ConcurrentHashMap<String,Object> ());
+	}
+	private <T extends DataHubModel> DHQueryResult getModelBasicDHQuerResult(T model, ConcurrentHashMap<String,Object> localCache){
 		//TODO:VERY BIG ISSUE HERE, need to get id somehow, not sure how though
 		String query = "SELECT * FROM "+ model.getCompleteTableName()+" WHERE "+model.generateSQLRep("AND");
 		//System.out.println(query);
 		DHQueryResult dhqr = this.dbQuery(query, localCache);
-		updateNewModel(dhqr, 0, model, recursionDepthLimit, localCache);
-	}
-	protected <T extends DataHubModel> void updateModelId(T model,int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
-		String query = "SELECT * FROM "+ model.getCompleteTableName()+" WHERE "+model.generateSQLRep("AND");
-		DHQueryResult dhqr = this.dbQuery(query, localCache);
-		updateNewModel(dhqr, 0, model,recursionDepthLimit, localCache, true);
-	}
-	public <T extends DataHubModel> ArrayList<T> query(String query, Class<T> modelClass){
-		return query(query,modelClass,DataHubDatabase.MAX_LOAD_RECURSION_DEPTH, new ConcurrentHashMap<String,Object> ());
+		return dhqr;
 	}
 	private <T extends DataHubModel> ArrayList<T> dhQueryToModel(DHQueryResult dhqr, Class<T> modelClass, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache) throws InstantiationException, IllegalAccessException{
 		ArrayList<T> output = new ArrayList<T>();
@@ -293,9 +306,9 @@ public class DataHubDatabase {
 		return output;
 	}
 	private <T extends DataHubModel> void updateNewModel(DHQueryResult dhqr, int rowNumber, T objectToUpdate, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
-		updateNewModel(dhqr, rowNumber, objectToUpdate, recursionDepthLimit, localCache, false);
+		updateNewModel(dhqr, rowNumber, objectToUpdate, recursionDepthLimit, localCache, null, false);
 	}
-	private <T extends DataHubModel> void updateNewModel(DHQueryResult dhqr, int rowNumber, T objectToUpdate, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, boolean idOnly){
+	private <T extends DataHubModel> void updateNewModel(DHQueryResult dhqr, int rowNumber, T objectToUpdate, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ArrayList<String> fieldsToUpdate, boolean idOnly){
 		String databaseName = this.getDatabaseName();
 		String tableName = objectToUpdate.getTableName();
 		String completeTableName = objectToUpdate.getCompleteTableName();
@@ -323,7 +336,7 @@ public class DataHubDatabase {
 		if(!objectToUpdate.validId()){
 			if(fieldsToDHCell.containsKey("id")){
 				DHCell cell_id = fieldsToDHCell.get("id");
-				Resources.setField(objectToUpdate, "id", cell_id.value);
+				Resources.convertAndSetField(objectToUpdate, "id", cell_id.value);
 			}else{
 				//TODO: throw exception here
 			}
@@ -332,6 +345,11 @@ public class DataHubDatabase {
 			for(Field f1:objectToUpdate.getClass().getFields()){
 				//skip setting the id because it was set above
 				if(f1.getName().equals("id")){
+					continue;
+				}
+				//figure out fields to update, if fieldsToUpdate is null then update all fields
+				//that are not the id
+				if(fieldsToUpdate != null && !fieldsToUpdate.contains(f1.getName())){
 					continue;
 				}
 				if(f1.isAnnotationPresent(Column.class)){
@@ -344,81 +362,83 @@ public class DataHubDatabase {
 				if(f1.isAnnotationPresent(Association.class)){
 					Association a = f1.getAnnotation(Association.class);
 					//TODO:Fix this
-					switch(a.associationType()){
-						case HasOne:
-							if(DataHubConverter.isModelSubclass(f1.getType())){
-								try{
-									DHCell cell = fieldsToDHCell.get(a.foreignKey());
-									DataHubModel m = (DataHubModel) f1.getType().newInstance();
-									String newCompleteTableName = m.getCompleteTableName();
-									String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+"."+a.foreignKey()+" = "+objectToUpdate.id+" LIMIT 1";
-									ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit, localCache);
-									if(newData.size() > 0){
-										Resources.setField(objectToUpdate, f1.getName(),newData.get(0));
-									}
-								}catch(Exception e){
-									e.printStackTrace();
-								}
-							 }
-							 break;
-						case BelongsTo:
-							if(DataHubConverter.isModelSubclass(f1.getType())){
-								try{
-									DHCell cell = fieldsToDHCell.get(a.foreignKey());
-									int modelObjectBelongsToId = (int) Resources.convert(cell.value, Integer.TYPE);
-									//TODO: object already in memory so can just re-use it instead of making new query
-									DataHubModel m = (DataHubModel) f1.getType().newInstance();
-									String newCompleteTableName = m.getCompleteTableName();
-									//String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+tableName+".id = "+objectToUpdate.id;
-									String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+".id = "+modelObjectBelongsToId+" LIMIT 1";
-									//System.out.println(query);
-									ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit, localCache);
-									if(newData.size() > 0){
-										Resources.setField(objectToUpdate, f1.getName(),newData.get(0));
-									}
-								}catch(Exception e){
-									
-								}
-							}
-							break;
-						case HasMany:
-							if(a.associationType() == AssociationType.HasMany){
-								Class<? extends DataHubArrayList> listClass = (Class<? extends DataHubArrayList>) f1.getType();
-								if(DataHubConverter.isDataHubArrayListSubclass(listClass)){
-									//fix this
-									//make sure id of this object is set before doing this
+					if(a.loadType() == LoadTypes.Eager){
+						switch(a.associationType()){
+							case HasOne:
+								if(DataHubConverter.isModelSubclass(f1.getType())){
 									try{
-										DataHubArrayList d = (DataHubArrayList) listClass.newInstance();
-										d.setCurrentModel(objectToUpdate);
-										d.setAssociation(a);
-										d.populate(recursionDepthLimit, localCache);
-										Resources.setField(objectToUpdate, f1.getName(),d);
+										DHCell cell = fieldsToDHCell.get(a.foreignKey());
+										DataHubModel m = (DataHubModel) f1.getType().newInstance();
+										String newCompleteTableName = m.getCompleteTableName();
+										String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+"."+a.foreignKey()+" = "+objectToUpdate.id+" LIMIT 1";
+										ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit, localCache);
+										if(newData.size() > 0){
+											Resources.setField(objectToUpdate, f1.getName(),newData.get(0));
+										}
 									}catch(Exception e){
 										e.printStackTrace();
 									}
-								}
-							}
-							break;
-						case HasAndBelongsToMany:
-							if(a.associationType() == AssociationType.HasAndBelongsToMany){
-								Class<? extends DataHubArrayList> listClass = (Class<? extends DataHubArrayList>) f1.getType();
-								if(DataHubConverter.isDataHubArrayListSubclass(listClass)){
-									//fix this
-									//make sure id of this object is set before doing this
+								 }
+								 break;
+							case BelongsTo:
+								if(DataHubConverter.isModelSubclass(f1.getType())){
 									try{
-										DataHubArrayList d = (DataHubArrayList) listClass.newInstance();
-										d.setCurrentModel(objectToUpdate);
-										d.setAssociation(a);
-										d.populate(recursionDepthLimit, localCache);
-										Resources.setField(objectToUpdate, f1.getName(),d);
+										DHCell cell = fieldsToDHCell.get(a.foreignKey());
+										int modelObjectBelongsToId = (int) DataHubConverter.directConvert(cell.value, Integer.TYPE);
+										//TODO: object already in memory so can just re-use it instead of making new query
+										DataHubModel m = (DataHubModel) f1.getType().newInstance();
+										String newCompleteTableName = m.getCompleteTableName();
+										//String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+tableName+".id = "+objectToUpdate.id;
+										String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+".id = "+modelObjectBelongsToId+" LIMIT 1";
+										//System.out.println(query);
+										ArrayList<T> newData = (ArrayList<T>) this.query(query, m.getClass(),recursionDepthLimit, localCache);
+										if(newData.size() > 0){
+											Resources.setField(objectToUpdate, f1.getName(),newData.get(0));
+										}
 									}catch(Exception e){
-										e.printStackTrace();
+										
 									}
 								}
-							}
-							break;
-						default:
-							break;
+								break;
+							case HasMany:
+								if(a.associationType() == AssociationTypes.HasMany){
+									Class<? extends DataHubArrayList> listClass = (Class<? extends DataHubArrayList>) f1.getType();
+									if(DataHubConverter.isDataHubArrayListSubclass(listClass)){
+										//fix this
+										//make sure id of this object is set before doing this
+										try{
+											DataHubArrayList d = (DataHubArrayList) listClass.newInstance();
+											d.setCurrentModel(objectToUpdate);
+											d.setAssociation(a);
+											d.populate(recursionDepthLimit, localCache);
+											Resources.setField(objectToUpdate, f1.getName(),d);
+										}catch(Exception e){
+											e.printStackTrace();
+										}
+									}
+								}
+								break;
+							case HasAndBelongsToMany:
+								if(a.associationType() == AssociationTypes.HasAndBelongsToMany){
+									Class<? extends DataHubArrayList> listClass = (Class<? extends DataHubArrayList>) f1.getType();
+									if(DataHubConverter.isDataHubArrayListSubclass(listClass)){
+										//fix this
+										//make sure id of this object is set before doing this
+										try{
+											DataHubArrayList d = (DataHubArrayList) listClass.newInstance();
+											d.setCurrentModel(objectToUpdate);
+											d.setAssociation(a);
+											d.populate(recursionDepthLimit, localCache);
+											Resources.setField(objectToUpdate, f1.getName(),d);
+										}catch(Exception e){
+											e.printStackTrace();
+										}
+									}
+								}
+								break;
+							default:
+								break;
+						}
 					}
 				}
 			}

@@ -3,6 +3,7 @@ package DataHubORM;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -13,7 +14,7 @@ import javax.print.DocFlavor.STRING;
 import android.R.bool;
 
 import Annotations.Association;
-import Annotations.Association.AssociationType;
+import Annotations.Association.AssociationTypes;
 import Annotations.Association.RemovalOptions;
 import Annotations.BooleanField;
 import Annotations.CharField;
@@ -30,7 +31,6 @@ import DataHubResources.Resources;
 import datahub.DHType;
 
 public class DataHubConverter {
-
 	public static <T extends DataHubDatabase> String convertDBToSQLSchemaString(Class<T> db) throws DataHubException{
 		ArrayList<Field> models = findModels(db);
 		
@@ -293,7 +293,7 @@ public class DataHubConverter {
 		return false;
 	}
 	public static boolean hasAssociationHABTM(Field f){
-		if(f.isAnnotationPresent(Association.class) && f.getAnnotation(Association.class).associationType() == AssociationType.HasAndBelongsToMany){
+		if(f.isAnnotationPresent(Association.class) && f.getAnnotation(Association.class).associationType() == AssociationTypes.HasAndBelongsToMany){
 			return true;
 		}
 		return false;
@@ -363,5 +363,58 @@ public class DataHubConverter {
 			}
 		}
 		return DHType.Binary;
+	}
+	public static Object convertToJavaType(Object c, Field f) throws DataHubException{
+		if(f.isAnnotationPresent(Column.class)){
+			if(f.isAnnotationPresent(CharField.class)){
+				if(f.getType().equals(String.class)){
+					return new String(((ByteBuffer) c).array());
+				}
+			}
+			if(f.isAnnotationPresent(VarCharField.class)){
+				if(f.getType().equals(String.class)){
+					return new String(((ByteBuffer) c).array());
+				}
+			}
+			if(f.isAnnotationPresent(DoubleField.class)){
+				if(f.getType().equals(Double.class)){
+					double result = Double.parseDouble(new String(((ByteBuffer) c).array()));
+					return result;
+				}
+				if(f.getType().equals(Float.class)){
+					float result = Float.parseFloat(new String(((ByteBuffer) c).array()));
+					return result;
+				}
+			}
+			if(f.isAnnotationPresent(IntegerField.class)){
+				if(f.getType().equals(Integer.class)){
+					int result = Integer.parseInt(new String(((ByteBuffer) c).array()));
+					return result;
+				}
+			}
+			if(f.isAnnotationPresent(DateTimeField.class)){
+				if(f.getType().equals(Date.class)){
+					Date result = new Date(Date.parse(new String(((ByteBuffer) c).array())));
+					return result;
+				}
+			}
+			if(f.isAnnotationPresent(BooleanField.class)){
+				if(f.getType().equals(Boolean.class)){
+					Boolean result = Boolean.parseBoolean(new String(((ByteBuffer) c).array()));
+					return result;
+				}
+			}
+		}
+		throw new DataHubException("Invalid model field declaration for: "+f.getName()+"!");
+	}
+	public static Object directConvert(Object c, Type t){
+		if(t.equals(Integer.TYPE)){
+			int result = Integer.parseInt(new String(((ByteBuffer) c).array()));
+			return result;
+		}
+		if(t.equals(String.class)){
+			return new String(((ByteBuffer) c).array());
+		}
+		return null;
 	}
 }

@@ -492,4 +492,8 @@ public class ModelBasicTests extends TestsMain{
 		t1.destroy();
 		
 	}
+	@Test
+	public void testQueryWithModifiers(){
+		
+	}
 }
