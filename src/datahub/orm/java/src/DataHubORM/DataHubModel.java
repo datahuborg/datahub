@@ -460,7 +460,17 @@ public class DataHubModel<T extends DataHubModel>{
 			if(Resources.hasField(this.getClass(), qro.getOrderByField())){
 				throw new DataHubException("Invalid field in Order By Field Name!");
 			}
-			queryStr+=" order by "+qro.getOrderByField();
+			queryStr+=" order by "+qro.getOrderByField()+" ";
+			switch(qro.getOrderByType()){
+				case Ascending:
+					queryStr+="asc";
+					break;
+				case Descending:
+					queryStr+="desc";
+					break;
+				default:
+					throw new DataHubException("Invalid OrderByType!");
+			}
 		}
 		if(qro.getQuerySizeLimit()!=0){
 			queryStr+=" limit "+qro.getQuerySizeLimit();
