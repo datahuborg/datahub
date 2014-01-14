@@ -1,6 +1,7 @@
 package Examples;
 
 import Annotations.Association;
+import Annotations.Association.RemovalOptions;
 import Annotations.Column;
 import Annotations.Association.AssociationTypes;
 import Annotations.Column.Index;
@@ -22,6 +23,6 @@ public class DeviceModel extends DataHubModel<DeviceModel>{
 	public String code;
 	
 	//need to specify foreign key name that matches the foreign key in the corresponding belongs to relationship
-	@Association(associationType = AssociationTypes.BelongsTo, foreignKey = "test_id")
+	@Association(associationType = AssociationTypes.BelongsTo, foreignKey = "test_id", removalOption=RemovalOptions.CascadingDelete)
 	public TestModel testModel;
 }

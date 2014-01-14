@@ -32,6 +32,23 @@ import datahub.DHType;
 
 public class DataHubConverter {
 	public static <T extends DataHubDatabase> String convertDBToSQLSchemaString(Class<T> db) throws DataHubException{
+		
+		class AssociationModifierHandler{
+			public String generateModifierString(Association a){
+				String modifierString = "";
+				String removalOptions = "";
+				switch(a.removalOption()){
+					case CascadingDelete:
+						removalOptions+="on delete cascade";
+						break;
+					default:
+						break;
+				}
+				modifierString += removalOptions;
+				return modifierString;
+			}
+		}
+		
 		ArrayList<Field> models = findModels(db);
 		
 		HashMap<String,String> tableDefinitions = new HashMap<String,String>();
@@ -48,6 +65,7 @@ public class DataHubConverter {
 		}
 		
 		HashMap<String,String>finalTableDefinitions = new HashMap<String,String>();
+		HashMap<String,ArrayList<String>>finalTableDefinitionsModifiers = new HashMap<String,ArrayList<String>>();
 		
 		for(Field f: models){
 			
@@ -62,20 +80,20 @@ public class DataHubConverter {
 				}catch(Exception e){
 					
 				}
+				String key;
 				switch(a.associationType()){
 					case BelongsTo:
 						try{
 							DataHubModel otherModel = (DataHubModel) association.getType().newInstance();
+							key = currentModel.getCompleteTableName();
 							//current model belongs to another model specified by association field so
 							//current model needs foreign key column
-							if(!finalTableDefinitions.containsKey(currentModel.getCompleteTableName())){
-								String tableDef = tableDefinitions.get(currentModel.getCompleteTableName());
+							if(!finalTableDefinitions.containsKey(key)){
+								String tableDef = tableDefinitions.get(key);
 								//TODO:change this so we use primary key of other table instead of id
-								//TODO: figure out how to add on constraints like cascading delete
-								//on delete cascade
 								tableDef=tableDef.substring(0, tableDef.length()-1);
-								tableDef+=", "+a.foreignKey()+" integer, foreign key ("+a.foreignKey()+") references "+otherModel.getCompleteTableName()+"("+"id"+")"+")";
-								finalTableDefinitions.put(currentModel.getCompleteTableName(), tableDef);
+								tableDef+=", "+a.foreignKey()+" integer, foreign key ("+a.foreignKey()+") references "+otherModel.getCompleteTableName()+"("+"id"+") ";
+								finalTableDefinitions.put(key, tableDef);
 							}
 						}catch(Exception e){
 							throw new DataHubException("Invalid model association! A BelongsTo Annotation can only be used on a DataHubModel field!");
@@ -84,14 +102,13 @@ public class DataHubConverter {
 					case HasOne: 
 						try{
 							DataHubModel otherModel = (DataHubModel) association.getType().newInstance();
-							if(!finalTableDefinitions.containsKey(otherModel.getCompleteTableName())){
-								String tableDef = tableDefinitions.get(otherModel.getCompleteTableName());
+							key = otherModel.getCompleteTableName();
+							if(!finalTableDefinitions.containsKey(key)){
+								String tableDef = tableDefinitions.get(key);
 								tableDef=tableDef.substring(0, tableDef.length()-1);
 								//TODO:change this so we use primary key of other table instead of id
-								//TODO: figure out how to add on constraints like cascading delete
-								//on delete cascade
-								tableDef+=", "+a.foreignKey()+" integer, foreign key ("+a.foreignKey()+") references "+currentModel.getCompleteTableName()+"("+"id"+")"+")";
-								finalTableDefinitions.put(otherModel.getCompleteTableName(), tableDef);
+								tableDef+=", "+a.foreignKey()+" integer, foreign key ("+a.foreignKey()+") references "+currentModel.getCompleteTableName()+"("+"id"+") ";
+								finalTableDefinitions.put(key, tableDef);
 							}
 						}catch(Exception e){
 							throw new DataHubException("Invalid model association for field: "+association.getName()+" in "+f.getName()+"! A HasOne Annotation can only be used on a DataHubModel field!");
@@ -101,15 +118,13 @@ public class DataHubConverter {
 						try{
 							DataHubArrayList otherModelList = (DataHubArrayList) association.getType().newInstance();
 							DataHubModel otherModel = (DataHubModel) otherModelList.getAssociatedModelClass().newInstance();
-							
-							if(!finalTableDefinitions.containsKey(otherModel.getCompleteTableName())){
-								String tableDef = tableDefinitions.get(otherModel.getCompleteTableName());
+							key = otherModel.getCompleteTableName();
+							if(!finalTableDefinitions.containsKey(key)){
+								String tableDef = tableDefinitions.get(key);
 								tableDef=tableDef.substring(0, tableDef.length()-1);
 								//TODO:change this so we use primary key of other table instead of id
-								//TODO: figure out how to add on constraints like cascading delete
-								//on delete cascade
-								tableDef+=", "+a.foreignKey()+" integer, foreign key ("+a.foreignKey()+") references "+currentModel.getCompleteTableName()+"("+"id"+")"+")";
-								finalTableDefinitions.put(otherModel.getCompleteTableName(), tableDef);
+								tableDef+=", "+a.foreignKey()+" integer, foreign key ("+a.foreignKey()+") references "+currentModel.getCompleteTableName()+"("+"id"+") ";
+								finalTableDefinitions.put(key, tableDef);
 							}
 						}catch(Exception e){
 							//e.printStackTrace();
@@ -120,10 +135,12 @@ public class DataHubConverter {
 						try{
 							DataHubArrayList otherModelList = (DataHubArrayList) association.getType().newInstance();
 							String linkingTable = otherModelList.getDatabase().getDatabaseName()+"."+a.linkingTable();
-							if(!finalTableDefinitions.containsKey(linkingTable)){
+							key = linkingTable;
+							if(!finalTableDefinitions.containsKey(key)){
 								//add foreign key constraint later
+								//foreign key ("+a.foreignKey()+") references "+otherModel.getCompleteTableName()+"("+"id"+") 
 								String tableDef = "create table if not exists "+linkingTable+"(id serial,"+a.leftTableForeignKey()+" integer,"+a.rightTableForeignKey()+" integer)";
-								finalTableDefinitions.put(linkingTable, tableDef);
+								finalTableDefinitions.put(key, tableDef);
 							}
 						}catch(Exception e){
 							//e.printStackTrace();
@@ -133,6 +150,22 @@ public class DataHubConverter {
 					default:
 						throw new DataHubException("Invalid model association for field: "+association.getName()+" in "+f.getName());
 				}
+				ArrayList<String> modifiers = new ArrayList<String>();
+				if(finalTableDefinitionsModifiers.containsKey(key)){
+					modifiers = finalTableDefinitionsModifiers.get(key);
+				}
+				String newModifier = new AssociationModifierHandler().generateModifierString(a);
+				if(!modifiers.contains(newModifier) && !newModifier.equals("")){
+					modifiers.add(newModifier);
+				}
+				finalTableDefinitionsModifiers.put(key, modifiers);
+			}
+		}
+		for(String key:finalTableDefinitions.keySet()){
+			String value = finalTableDefinitions.get(key);
+			if(finalTableDefinitionsModifiers.containsKey(key)){
+				value+=Resources.concatenate(finalTableDefinitionsModifiers.get(key), " ")+")";
+				finalTableDefinitions.put(key, value);
 			}
 		}
 		for(String table: tableDefinitions.keySet()){
