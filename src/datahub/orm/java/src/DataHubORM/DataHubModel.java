@@ -201,13 +201,16 @@ public class DataHubModel<T extends DataHubModel>{
 			}}, callback,db.getDataHubWorkerMode());
 		dhw.execute();
 	}
-	public void findAllAsync(final HashMap<String,Object> params,final GenericCallback<ArrayList<T>> callback) throws DataHubException{
+	public void findAllAsync(final HashMap<String,Object> params, final GenericCallback<ArrayList<T>> callback) throws DataHubException{
+		findAllAsync(params, new QueryRefinementObject(),callback);
+	}
+	public void findAllAsync(final HashMap<String,Object> params, final QueryRefinementObject qro, final GenericCallback<ArrayList<T>> callback) throws DataHubException{
 		DataHubWorker<ArrayList<T>> dhw = new DataHubWorker<ArrayList<T>>(new GenericExecutable<ArrayList<T>>(){
 
 			@Override
 			public ArrayList<T> call() {
 				try {
-					return findAll(params);
+					return findAll(params,qro);
 				} catch (DataHubException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -216,13 +219,16 @@ public class DataHubModel<T extends DataHubModel>{
 			}}, callback, db.getDataHubWorkerMode());
 		dhw.execute();
 	}
-	public void findOneAsync(final HashMap<String,Object> params,final GenericCallback<T> callback) throws DataHubException{
+	public void findOneAsync(final HashMap<String,Object> params, final GenericCallback<T> callback) throws DataHubException{
+		findOneAsync(params,new QueryRefinementObject(), callback);
+	}
+	public void findOneAsync(final HashMap<String,Object> params,final QueryRefinementObject qro, final GenericCallback<T> callback) throws DataHubException{
 		DataHubWorker<T> dhw = new DataHubWorker<T>(new GenericExecutable<T>(){
 
 			@Override
 			public T call() {
 				try {
-					return findOne(params);
+					return findOne(params, qro);
 				} catch (DataHubException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -235,7 +241,20 @@ public class DataHubModel<T extends DataHubModel>{
 		String query = "select * FROM "+this.getCompleteTableName();
 		return (ArrayList<T>) getDatabase().query(query, this.getClass());
 	}
+	public boolean exists(HashMap<String,Object> params) throws DataHubException{
+		return exists(params, new QueryRefinementObject());
+	}
+	public boolean exists(HashMap<String,Object> params, QueryRefinementObject qro) throws DataHubException{
+		T results = findOne(params, qro);
+		if(results != null){
+			return true;
+		}
+		return false;
+	}
 	public ArrayList<T> findAll(HashMap<String,Object> params) throws DataHubException{
+		return findAll(params, new QueryRefinementObject());
+	}
+	public ArrayList<T> findAll(HashMap<String,Object> params, QueryRefinementObject qro) throws DataHubException{
 		if(params.size() == 0){
 			return new ArrayList<T>();
 		}
@@ -245,13 +264,17 @@ public class DataHubModel<T extends DataHubModel>{
 		//invalid query exception because it does not make sense to query a model using a related object
 		//if there is no association
 		//String query = "select * FROM "+this.getCompleteTableName()+" WHERE "+ queryToSQL(params);
-		String query = modelQueryToSQL(params);
+		String query = modelQueryToSQL(params,qro);
 		return (ArrayList<T>) getDatabase().query(query, this.getClass());
 	}
 	public T findOne(HashMap<String,Object> params) throws DataHubException{
+		return findOne(params, new QueryRefinementObject());
+	}
+	public T findOne(HashMap<String,Object> params,QueryRefinementObject qro) throws DataHubException{
 		//TODO: querying by related object
 		if(params.size() != 0){
-			String query = modelQueryToSQL(params) +" LIMIT 1";
+			qro.setQueryLimitSize(1);
+			String query = modelQueryToSQL(params,qro);
 			ArrayList<T> data = (ArrayList<T>) getDatabase().query(query,this.getClass());
 			//System.out.println(data);
 			if(data.size() > 0){
@@ -260,16 +283,17 @@ public class DataHubModel<T extends DataHubModel>{
 		}
 		return null; 
 	}
-	public synchronized void findOnePoll(int interval, HashMap<String,Object> params, final GenericCallback<T> callback){
+	public synchronized void findOnePoll(int interval, HashMap<String,Object> params, final GenericCallback<T> callback) throws DataHubException{
+		throw new DataHubException("Not implemented yet!");
 		
 	}
-	public synchronized void findAllPoll(int interval, HashMap<String,Object> params, final GenericCallback<T> callback){
-		
+	public synchronized void findAllPoll(int interval, HashMap<String,Object> params, final GenericCallback<T> callback) throws DataHubException{
+		throw new DataHubException("Not implemented yet!");
 	}
 	//Keywords supported: CONTAINS, IN, BETWEEN, STARTS_WITH, ENDS_WITH 
 	//BETWEEN - applies to DateTime, Double, Integer, strings
 	//IN - list of values that column could be
-	protected String modelQueryToSQL(HashMap<String,Object> query) throws DataHubException{
+	protected String modelQueryToSQL(HashMap<String,Object> query, QueryRefinementObject qro) throws DataHubException{
 		class ModifierHandler{
 			public String modifierToSQL(String modifier, Object val, Field f) throws DataHubException{
 				ArrayList<String> symbols = new ArrayList<String>(Arrays.asList(new String[]{"<",">","<=",">="}));
@@ -281,27 +305,28 @@ public class DataHubModel<T extends DataHubModel>{
 						out = "LIKE %"+newVal+"%";
 					}
 				}
-				if(newMod.equals("starts_width")){
+				else if(newMod.equals("starts_with")){
 					if(f.getType()==String.class && val.getClass()==String.class){
 						String newVal = Resources.objectToSQL(val);
 						out = "LIKE "+newVal+"%";
 					}
 				}
-				if(newMod.equals("ends_width")){
+				else if(newMod.equals("ends_with")){
 					if(f.getType()==String.class && val.getClass()==String.class){
 						String newVal = Resources.objectToSQL(val);
 						out = "LIKE %"+newVal;
 					}
 				}
-				if(newMod.equals("in")){
+				//TODO: may need to check if type of object in arraylist matches the type of the field
+				else if(newMod.equals("in")){
 					if(val.getClass() == ArrayList.class){
 						ArrayList<Object> list = (ArrayList<Object>) val;
-						if(list.size() == 2){
+						if(list.size()>0){
 							out = "in ("+Resources.converToSQLAndConcatenate(list,",")+")";
 						}
 					}
 				}
-				if(newMod.equals("between")){
+				else if(newMod.equals("between")){
 					if(Resources.isNumeric(f.getType()) || f.getType() == Date.class || f.getType() == String.class){
 						if(val.getClass() == ArrayList.class){
 							ArrayList<Object> list = (ArrayList<Object>) val;
@@ -311,11 +336,11 @@ public class DataHubModel<T extends DataHubModel>{
 						}
 					}
 				}
-				if(symbols.contains(newMod)){
+				else if(symbols.contains(newMod)){
 					out = newMod+Resources.objectToSQL(val);
-				}
-				if(out == null){
-					throw new DataHubException("Invalid query modifier: "+newMod+"!");
+				}else{
+					//do pure equals
+					out = "="+Resources.objectToSQL(val);
 				}
 				return out;
 			}
@@ -413,7 +438,33 @@ public class DataHubModel<T extends DataHubModel>{
 			}
 		}
 		//check to see if tables is not null and whereclause is not null
-		String queryStr = "select * from "+tables+" where "+Resources.concatenate(keyVal,"AND");
+		String whereClause = Resources.concatenate(keyVal,"AND");
+		//String queryStr = "select * from "+tables+" where "+Resources.concatenate(keyVal,"AND")
+		String queryStr = "";
+		if(qro.getDistinctFieldNames() != null){
+			for(String fieldName:qro.getDistinctFieldNames()){
+				if(Resources.hasField(this.getClass(), fieldName)){
+					throw new DataHubException("Invalid field in Distinct Field Names!");
+				}
+			}
+			String distinctFieldNames = Resources.concatenate(Arrays.asList(qro.getDistinctFieldNames()), ",");
+			queryStr+="select distinct "+distinctFieldNames+" from "+tables+" where "+whereClause;
+		}
+		if(qro.getGroupByField() != null){
+			if(Resources.hasField(this.getClass(), qro.getGroupByField())){
+				throw new DataHubException("Invalid field in Group By Field Name!");
+			}
+			queryStr+=" group by "+qro.getGroupByField();
+		}
+		if(qro.getOrderByField() != null){
+			if(Resources.hasField(this.getClass(), qro.getOrderByField())){
+				throw new DataHubException("Invalid field in Order By Field Name!");
+			}
+			queryStr+=" order by "+qro.getOrderByField();
+		}
+		if(qro.getQuerySizeLimit()!=0){
+			queryStr+=" limit "+qro.getQuerySizeLimit();
+		}
 		//System.out.println(queryStr);
 		return queryStr;
 	}
