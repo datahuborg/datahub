@@ -222,12 +222,12 @@ public class DataHubDatabase {
 		}
 		//return dhc.dbQuery(query);
 	}
-	protected void query(String query){
+	void query(String query){
 		if(!query.equals("") && query!=null){
 			this.dbQuery(query, new ConcurrentHashMap<String,Object>());
 		}
 	}
-	protected <T extends DataHubModel> ArrayList<T> query(String query, Class<T> modelClass, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
+	<T extends DataHubModel> ArrayList<T> query(String query, Class<T> modelClass, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
 		ArrayList<T> output = new ArrayList<T>();
 		if(recursionDepthLimit <= 0){
 			return output;
@@ -265,13 +265,13 @@ public class DataHubDatabase {
 		return output;
 	}
 	
-	protected <T extends DataHubModel> void updateModelObject(T model, int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache){
+	<T extends DataHubModel> void updateModelObject(T model, int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache){
 		updateNewModel(getModelBasicDHQuerResult(model, localCache), 0, model, recursionDepthLimit, localCache);
 	}
-	protected <T extends DataHubModel> void updateModelId(T model,int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
+	<T extends DataHubModel> void updateModelId(T model,int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
 		updateNewModel(getModelBasicDHQuerResult(model, localCache), 0, model,recursionDepthLimit, localCache, null, true);
 	}
-	protected <T extends DataHubModel> void updateModelObjectField(String fieldName, T model, int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache) throws DataHubException{
+	<T extends DataHubModel> void updateModelObjectField(String fieldName, T model, int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache) throws DataHubException{
 		if(Resources.hasField(model.getClass(), fieldName)){
 			ArrayList<String> fields = new ArrayList<String>();
 			fields.add(fieldName);

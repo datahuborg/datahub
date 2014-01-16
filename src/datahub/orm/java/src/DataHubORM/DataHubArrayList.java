@@ -200,7 +200,7 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 		String query = save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ArrayList<Class>());
 		db.query(query);
 	}
-	protected String save(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved) throws DataHubException{
+	String save(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved) throws DataHubException{
 		if(recursionDepthLimit <= 0){
 			return "";
 		}
@@ -226,11 +226,11 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 		this.tempAdd = new ArrayList<T>();
 		this.tempRemove = new ArrayList<DataHubModel>();
 	}
-	protected Class<T> getAssociatedModelClass(){
+	Class<T> getAssociatedModelClass(){
 		return ((Class<T>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
 	}
 	//add query this set methods
-	protected void populate(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache) throws DataHubException{
+	void populate(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache) throws DataHubException{
 		if(this.association == null || this.currentModel == null){
 			throw new DataHubException("Foreign Key and Current Model must be specified in DataHubArrayList");
 		}

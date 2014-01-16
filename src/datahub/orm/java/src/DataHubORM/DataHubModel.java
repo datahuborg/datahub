@@ -104,7 +104,7 @@ public class DataHubModel<T extends DataHubModel>{
 		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>());
 		//System.out.println("after save");
 	}
-	protected String save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved){
+	String save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved){
 		//System.out.println(modelsAlreadySaved);
 		//System.out.println(this.getClass());
 		if(recursionDepthLimit <= 0 || modelsAlreadySaved.contains(this.getClass())){
@@ -293,7 +293,7 @@ public class DataHubModel<T extends DataHubModel>{
 	//Keywords supported: CONTAINS, IN, BETWEEN, STARTS_WITH, ENDS_WITH 
 	//BETWEEN - applies to DateTime, Double, Integer, strings
 	//IN - list of values that column could be
-	protected String modelQueryToSQL(HashMap<String,Object> query, QueryRefinementObject qro) throws DataHubException{
+	String modelQueryToSQL(HashMap<String,Object> query, QueryRefinementObject qro) throws DataHubException{
 		class ModifierHandler{
 			public String modifierToSQL(String modifier, Object val, Field f) throws DataHubException{
 				ArrayList<String> symbols = new ArrayList<String>(Arrays.asList(new String[]{"<",">","<=",">="}));
@@ -478,7 +478,7 @@ public class DataHubModel<T extends DataHubModel>{
 		//System.out.println(queryStr);
 		return queryStr;
 	}
-	protected boolean hasFieldAndColumnBasic(String name){
+	boolean hasFieldAndColumnBasic(String name){
 		boolean out = false;
 		try{
 			Field f = this.getClass().getField(name);
@@ -490,7 +490,7 @@ public class DataHubModel<T extends DataHubModel>{
 		}
 		return out;
 	}
-	protected boolean hasAssociation(String name){
+	boolean hasAssociation(String name){
 		boolean out = false;
 		try{
 			Field f = this.getClass().getField(name);
@@ -504,10 +504,10 @@ public class DataHubModel<T extends DataHubModel>{
 	}
 	
 	
-	protected String generateSQLRep(){
+	String generateSQLRep(){
 		return generateSQLRep(",");
 	}
-	protected String generateSQLRep(String linkSymbol){
+	String generateSQLRep(String linkSymbol){
 		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractColumnBasicFromClass(this.getClass());
 		HashMap<Field,DHType> currentModel = models.get(this.getClass());
 		ArrayList<String> fieldData = new ArrayList<String>();
@@ -526,7 +526,7 @@ public class DataHubModel<T extends DataHubModel>{
 		}
 		return Resources.concatenate(fieldData,linkSymbol);
 	}
-	protected String getTableBasicFieldNames(){
+	String getTableBasicFieldNames(){
 		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractColumnBasicFromClass(this.getClass());
 		HashMap<Field,DHType> currentModel = models.get(this.getClass());
 		ArrayList<String> getFieldTableNames = new ArrayList<String>();
@@ -539,7 +539,7 @@ public class DataHubModel<T extends DataHubModel>{
 		}
 		return Resources.concatenate(getFieldTableNames,",");
 	}
-	protected String getBasicFieldValues(){
+	String getBasicFieldValues(){
 		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractColumnBasicFromClass(this.getClass());
 		HashMap<Field,DHType> currentModel = models.get(this.getClass());
 		//System.out.println(this.getTableName());
