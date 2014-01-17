@@ -57,7 +57,8 @@ public class DataHubModel<T extends DataHubModel>{
 					d.setAssociation(a);
 					Resources.setField(this, f.getName(), d);
 				}catch(Exception e){
-					
+					e.printStackTrace();
+					throw new DataHubException("Could not set database for DataHubArrayList class!");
 				}
 			}
 		}
