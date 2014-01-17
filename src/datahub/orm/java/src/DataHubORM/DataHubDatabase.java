@@ -80,7 +80,7 @@ public class DataHubDatabase {
 		//re-create database from scratch
 		String createDB = "create schema "+this.getDatabaseName()+";";
 		String database = DataHubConverter.convertDBToSQLSchemaString(this.getClass());
-		String overallQuery = createDB+createDB+database;
+		String overallQuery = clearDB+createDB+database;
 		this.query(overallQuery);
 	}
 	public synchronized void sync() throws DataHubException{
@@ -268,8 +268,8 @@ public class DataHubDatabase {
 	<T extends DataHubModel> void updateModelObject(T model, int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache){
 		updateNewModel(getModelBasicDHQuerResult(model, localCache), 0, model, recursionDepthLimit, localCache);
 	}
-	<T extends DataHubModel> void updateModelId(T model,int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
-		updateNewModel(getModelBasicDHQuerResult(model, localCache), 0, model,recursionDepthLimit, localCache, null, true);
+	<T extends DataHubModel> void updateModelId(T model){
+		updateNewModel(getModelBasicDHQuerResult(model), 0, model,1, null, null, true);
 	}
 	<T extends DataHubModel> void updateModelObjectField(String fieldName, T model, int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache) throws DataHubException{
 		if(Resources.hasField(model.getClass(), fieldName)){
@@ -283,9 +283,16 @@ public class DataHubDatabase {
 	public <T extends DataHubModel> ArrayList<T> query(String query, Class<T> modelClass){
 		return query(query,modelClass,DataHubDatabase.MAX_LOAD_RECURSION_DEPTH, new ConcurrentHashMap<String,Object> ());
 	}
+	private <T extends DataHubModel> DHQueryResult getModelBasicDHQuerResult(T model){
+		//TODO:VERY BIG ISSUE HERE, need to get id somehow, not sure how though
+		String query = "SELECT * FROM "+ model.getCompleteTableName()+" WHERE "+model.generateQuerySQLRep();
+		//System.out.println(query);
+		DHQueryResult dhqr = this.dbQuery(query);
+		return dhqr;
+	}
 	private <T extends DataHubModel> DHQueryResult getModelBasicDHQuerResult(T model, ConcurrentHashMap<String,Object> localCache){
 		//TODO:VERY BIG ISSUE HERE, need to get id somehow, not sure how though
-		String query = "SELECT * FROM "+ model.getCompleteTableName()+" WHERE "+model.generateSQLRep("AND");
+		String query = "SELECT * FROM "+ model.getCompleteTableName()+" WHERE "+model.generateQuerySQLRep();
 		//System.out.println(query);
 		DHQueryResult dhqr = this.dbQuery(query, localCache);
 		return dhqr;
@@ -356,7 +363,7 @@ public class DataHubDatabase {
 					Column c = f1.getAnnotation(Column.class);
 					if(fieldsToDHCell.containsKey(c.name())){
 						DHCell cell = fieldsToDHCell.get(c.name());
-						Resources.setField(objectToUpdate, f1.getName(), cell.value);
+						Resources.convertAndSetField(objectToUpdate, f1.getName(), cell.value);
 					}
 				}
 				if(f1.isAnnotationPresent(Association.class)){

@@ -41,10 +41,10 @@ public class Resources {
 	public static <T,U> void convertAndSetField(T object, String fieldName, U value){
 		try{
 			Field f = object.getClass().getField(fieldName);
-			Object val = DataHubConverter.convertToJavaType(object, f);
+			Object val = DataHubConverter.convertToJavaType(value, f);
 			f.set(object, val);
 		}catch(Exception e){
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 	public static <T,U> void setField(T object, String fieldName, U value){
@@ -52,7 +52,7 @@ public class Resources {
 			Field f = object.getClass().getField(fieldName);
 			f.set(object, value);
 		}catch(Exception e){
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 	public static boolean hasField(Class c, String field){
@@ -82,22 +82,38 @@ public class Resources {
 			return null;
 		}
 	}
-	public static String getFieldStringRep(Object o, String field){
+	public static String getFieldSQLStringRep(Object o, String field){
 		String out = "";
 		try{
 			Object o1 = o.getClass().getField(field).get(o);
-			out=o1.toString();
+			out=objectToSQL(o1);
 		}catch(Exception e){
-			
+			e.printStackTrace();
 		}
 		return out;
 	}
 	public static String objectToSQL(Object o1){
 		String out = "";
+		if(o1==null){
+			return "NULL";
+		}
 		if(o1.getClass().equals(String.class)){
 			out = "'"+o1.toString()+"'";
 		}else{
 			out = o1.toString();
+		}
+		return out;
+	}
+	public static String objectToSQLModifier(Object o1, boolean query){
+		String out = "";
+		if(query){
+			if(o1==null){
+				out = " is ";
+			}else{
+				out = "=";
+			}
+		}else{
+			out="=";
 		}
 		return out;
 	}

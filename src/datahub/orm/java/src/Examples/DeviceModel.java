@@ -19,7 +19,7 @@ public class DeviceModel extends DataHubModel<DeviceModel>{
 	}
 
 	@Column(name="code")
-	@VarCharField(size=20)
+	@VarCharField(size=1000)
 	public String code;
 	
 	//need to specify foreign key name that matches the foreign key in the corresponding belongs to relationship

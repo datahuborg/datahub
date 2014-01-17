@@ -46,7 +46,7 @@ import datahub.DHConnectionParams._Fields;
 
 public class ModelBasicTests extends TestsMain{
 	
-	//@Test
+	@Test
 	public void testCreateAndDelete() throws DataHubException{
 		db.resetStats();
 		
@@ -116,7 +116,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	//@Test
+	@Test
 	public void testSave2ChangeObject() throws DataHubException{
 		db.resetStats();
 		
@@ -165,7 +165,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	//@Test
+	@Test
 	public void testDataHubArrayList() throws DataHubException{
 		db.resetStats();
 		
@@ -225,7 +225,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	//@Test
+	@Test
 	public void testHasOneAndBelongsTo() throws DataHubException{
 		db.resetStats();
 		
@@ -267,7 +267,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	//@Test
+	@Test
 	public void HABTMTest() throws DataHubException{
 		db.resetStats();
 		
@@ -410,7 +410,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	//@Test
+	@Test
 	public void testQueryByObject() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());

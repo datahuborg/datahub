@@ -19,7 +19,7 @@ public class TesterModel extends DataHubModel<TesterModel> {
 	}
 
 	@Column(name="tester_name")
-	@VarCharField(size=30)
+	@VarCharField(size=1000)
 	public String testerName;
 	
 	/*@Column(name="cost")

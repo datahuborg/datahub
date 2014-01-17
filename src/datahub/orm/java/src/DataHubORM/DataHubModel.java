@@ -117,9 +117,8 @@ public class DataHubModel<T extends DataHubModel>{
 			//fix this
 			if(!this.validId()){
 				query = "INSERT INTO "+this.getCompleteTableName()+"("+this.getTableBasicFieldNames()+")"+" VALUES( "+getBasicFieldValues()+")";
-				//System.out.println(query);
 			}else{
-				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateSQLRep()+" WHERE "+"id="+this.id;
+				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateAssignmentSQLRep()+" WHERE "+"id="+this.id;
 			}
 			//System.out.println(query);
 			//just make query no recursion
@@ -127,12 +126,12 @@ public class DataHubModel<T extends DataHubModel>{
 			
 			if(!this.validId()){
 				getDatabase().query(query);
+				//System.out.println(query);
 				//get new id
-				updateModelId(recursionDepthLimit,localCache);
+				updateModelId(recursionDepthLimit);
 			}else{
 				queries.add(query);
 			}
-			
 			//update already saved models
 			modelsAlreadySaved.add(this.getClass());
 			
@@ -268,7 +267,8 @@ public class DataHubModel<T extends DataHubModel>{
 		return (ArrayList<T>) getDatabase().query(query, this.getClass());
 	}
 	public T findOne(HashMap<String,Object> params) throws DataHubException{
-		return findOne(params, new QueryRefinementObject());
+		QueryRefinementObject qro = new QueryRefinementObject();
+		return findOne(params, qro);
 	}
 	public T findOne(HashMap<String,Object> params,QueryRefinementObject qro) throws DataHubException{
 		//TODO: querying by related object
@@ -449,6 +449,8 @@ public class DataHubModel<T extends DataHubModel>{
 			}
 			String distinctFieldNames = Resources.concatenate(Arrays.asList(qro.getDistinctFieldNames()), ",");
 			queryStr+="select distinct "+distinctFieldNames+" from "+tables+" where "+whereClause;
+		}else{
+			queryStr+="select * from "+tables+" where "+whereClause;
 		}
 		if(qro.getGroupByField() != null){
 			if(Resources.hasField(this.getClass(), qro.getGroupByField())){
@@ -504,24 +506,28 @@ public class DataHubModel<T extends DataHubModel>{
 	}
 	
 	
-	String generateSQLRep(){
-		return generateSQLRep(",");
+	String generateAssignmentSQLRep(){
+		return generateSQLRep(",", false);
 	}
-	String generateSQLRep(String linkSymbol){
+	String generateQuerySQLRep(){
+		return generateSQLRep("AND", true);
+	}
+	String generateSQLRep(String linkSymbol, boolean query){
 		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractColumnBasicFromClass(this.getClass());
 		HashMap<Field,DHType> currentModel = models.get(this.getClass());
 		ArrayList<String> fieldData = new ArrayList<String>();
 		for(Field f:currentModel.keySet()){
+			//System.out.println(f.getName());
 			Column c = f.getAnnotation(Column.class);
 			if(c.name().equals("id") && !this.validId()){
 				continue;
 			}
 			try{
 				Object o = f.get(this);
-				String entry = c.name()+"="+Resources.objectToSQL(o);
+				String entry = c.name()+Resources.objectToSQLModifier(o, query)+Resources.objectToSQL(o);
 				fieldData.add(entry);
 			}catch(Exception e){
-				
+				e.printStackTrace();
 			}
 		}
 		return Resources.concatenate(fieldData,linkSymbol);
@@ -531,6 +537,7 @@ public class DataHubModel<T extends DataHubModel>{
 		HashMap<Field,DHType> currentModel = models.get(this.getClass());
 		ArrayList<String> getFieldTableNames = new ArrayList<String>();
 		for(Field f: currentModel.keySet()){
+			//System.out.println(f.getName());
 			Column c = f.getAnnotation(Column.class);
 			if(c.name().equals("id")){
 				continue;
@@ -550,11 +557,11 @@ public class DataHubModel<T extends DataHubModel>{
 			if(c.name().equals("id")){
 				continue;
 			}
-			String value = Resources.getFieldStringRep(this, f.getName());
+			String value = Resources.getFieldSQLStringRep(this, f.getName());
 			//System.out.println(value);
 			fieldData.add(value);
 		}
-		return Resources.converToSQLAndConcatenate(fieldData,",");
+		return Resources.concatenate(fieldData,",");
 	}
 	public void refreshModel(){
 		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>());
@@ -565,8 +572,8 @@ public class DataHubModel<T extends DataHubModel>{
 	private void updateModel(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
 		getDatabase().updateModelObject(this,recursionDepthLimit,localCache);
 	}
-	private void updateModelId(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
-		getDatabase().updateModelId(this,recursionDepthLimit,localCache);
+	private void updateModelId(int recursionDepthLimit){
+		getDatabase().updateModelId(this);
 	}
 	private T newInstance() throws InstantiationException, IllegalAccessException{
 		return (T) getClass().newInstance();
@@ -587,8 +594,8 @@ public class DataHubModel<T extends DataHubModel>{
 	public boolean equals(Object o){
 		if(DataHubConverter.isModelSubclass(o.getClass())){
 			DataHubModel other = (DataHubModel) o;
-			String otherSQLRep = other.getCompleteTableName()+other.generateSQLRep();
-			String thisSQLRep = this.getCompleteTableName()+this.generateSQLRep();
+			String otherSQLRep = other.getCompleteTableName()+other.generateQuerySQLRep();
+			String thisSQLRep = this.getCompleteTableName()+this.generateQuerySQLRep();
 			//System.out.println(otherSQLRep);
 			//System.out.println(thisSQLRep);
 			if(thisSQLRep.equals(otherSQLRep)){
@@ -599,7 +606,7 @@ public class DataHubModel<T extends DataHubModel>{
 	}
 	@Override
 	public String toString(){
-		return this.getCompleteTableName()+this.generateSQLRep();
+		return this.getCompleteTableName()+this.generateQuerySQLRep();
 	}
 	public boolean validId(){
 		if(this.id <= 0){

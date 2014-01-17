@@ -24,11 +24,11 @@ public class TestModel extends DataHubModel<TestModel> {
 	}
 
 	@Column(name="name")
-	@VarCharField(size=30)
+	@VarCharField(size=1000)
 	public String name;
 	
 	@Column(name="description") 
-	@VarCharField(size=30)
+	@VarCharField(size=1000)
 	public String description;
 
 	@Column(name="is_cool")

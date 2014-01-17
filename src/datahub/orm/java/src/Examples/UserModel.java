@@ -17,7 +17,7 @@ public class UserModel extends DataHubModel<UserModel>{
 	}
 
 	@Column(name="username")
-	@VarCharField(size=30)
+	@VarCharField(size=1000)
 	public String username;
 	
 	@Association(associationType = AssociationTypes.HasAndBelongsToMany, linkingTable = "testuser", leftTableForeignKey = "test_id",rightTableForeignKey = "user_id", foreignKey = "user_id")

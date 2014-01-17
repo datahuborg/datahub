@@ -134,12 +134,27 @@ public class DataHubConverter {
 					case HasAndBelongsToMany:
 						try{
 							DataHubArrayList otherModelList = (DataHubArrayList) association.getType().newInstance();
+							DataHubModel otherModel = (DataHubModel) otherModelList.getAssociatedModelClass().newInstance();
 							String linkingTable = otherModelList.getDatabase().getDatabaseName()+"."+a.linkingTable();
 							key = linkingTable;
 							if(!finalTableDefinitions.containsKey(key)){
 								//add foreign key constraint later
 								//foreign key ("+a.foreignKey()+") references "+otherModel.getCompleteTableName()+"("+"id"+") 
-								String tableDef = "create table if not exists "+linkingTable+"(id serial,"+a.leftTableForeignKey()+" integer,"+a.rightTableForeignKey()+" integer)";
+								String tableDef = "create table if not exists "+linkingTable+"(id serial,";
+								String leftTable;
+								String rightTable;
+								if(a.leftTableForeignKey().equals(a.foreignKey())){
+									leftTable = currentModel.getCompleteTableName();
+									rightTable = otherModel.getCompleteTableName();
+								}else if(a.rightTableForeignKey().equals(a.foreignKey())){
+									leftTable = otherModel.getCompleteTableName();
+									rightTable = currentModel.getCompleteTableName();
+								}else{
+									throw new DataHubException("For HABTM association, the foreign key must match either the left or the right key in the linking table!");
+								}
+								String left = a.leftTableForeignKey()+" integer, foreign key ("+a.leftTableForeignKey()+") references "+leftTable+"("+"id"+")"; 
+								String right = a.rightTableForeignKey()+" integer, foreign key ("+a.rightTableForeignKey()+") references "+rightTable+"("+"id"+")"; 
+								tableDef+= left+","+right;
 								finalTableDefinitions.put(key, tableDef);
 							}
 						}catch(Exception e){
@@ -161,6 +176,7 @@ public class DataHubConverter {
 				finalTableDefinitionsModifiers.put(key, modifiers);
 			}
 		}
+		//TODO: fix modifier generation, this code is bad if more than one foreign key
 		for(String key:finalTableDefinitions.keySet()){
 			String value = finalTableDefinitions.get(key);
 			if(finalTableDefinitionsModifiers.containsKey(key)){
@@ -185,6 +201,7 @@ public class DataHubConverter {
 			}
 		}
 		before.addAll(after);
+		System.out.println(Resources.concatenate(before, ";"));
 		return Resources.concatenate(before, ";");
 	}
 	public static <T extends DataHubModel> String convertModelBasicTOSQLSchemaString(Class<T> c) throws DataHubException{
@@ -410,29 +427,33 @@ public class DataHubConverter {
 				}
 			}
 			if(f.isAnnotationPresent(DoubleField.class)){
-				if(f.getType().equals(Double.class)){
+				if(f.getType().equals(Double.class) || f.getType().equals(Double.TYPE) ){
 					double result = Double.parseDouble(new String(((ByteBuffer) c).array()));
 					return result;
 				}
-				if(f.getType().equals(Float.class)){
+				if(f.getType().equals(Float.class) || f.getType().equals(Double.TYPE)){
 					float result = Float.parseFloat(new String(((ByteBuffer) c).array()));
 					return result;
 				}
 			}
 			if(f.isAnnotationPresent(IntegerField.class)){
-				if(f.getType().equals(Integer.class)){
+				if(f.getType().equals(Integer.class) || f.getType().equals(Integer.TYPE)){
 					int result = Integer.parseInt(new String(((ByteBuffer) c).array()));
 					return result;
 				}
 			}
 			if(f.isAnnotationPresent(DateTimeField.class)){
 				if(f.getType().equals(Date.class)){
+					String dateStr = new String(((ByteBuffer) c).array());
+					if(dateStr.equals("None")){
+						return null;
+					}
 					Date result = new Date(Date.parse(new String(((ByteBuffer) c).array())));
 					return result;
 				}
 			}
 			if(f.isAnnotationPresent(BooleanField.class)){
-				if(f.getType().equals(Boolean.class)){
+				if(f.getType().equals(Boolean.class) || f.getType().equals(Boolean.TYPE)){
 					Boolean result = Boolean.parseBoolean(new String(((ByteBuffer) c).array()));
 					return result;
 				}
