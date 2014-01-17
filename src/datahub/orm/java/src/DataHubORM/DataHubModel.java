@@ -99,15 +99,15 @@ public class DataHubModel<T extends DataHubModel>{
 		//db.hitCount = 0;
 		//db.missCount = 0;
 		//System.out.println("before save");
-		String query = this.save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ArrayList<Class>());
+		String query = this.save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
 		getDatabase().query(query);
 		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>());
 		//System.out.println("after save");
 	}
-	String save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache, ArrayList<Class> modelsAlreadySaved){
+	String save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache){
 		//System.out.println(modelsAlreadySaved);
 		//System.out.println(this.getClass());
-		if(recursionDepthLimit <= 0 || modelsAlreadySaved.contains(this.getClass())){
+		if(recursionDepthLimit <= 0){
 			//System.out.println("broke"+modelsAlreadySaved.contains(this.getClass()));
 			return "";
 		}
@@ -132,8 +132,6 @@ public class DataHubModel<T extends DataHubModel>{
 			}else{
 				queries.add(query);
 			}
-			//update already saved models
-			modelsAlreadySaved.add(this.getClass());
 			
 			//recursively save all fields
 			for(Field f:this.getClass().getFields()){
@@ -158,13 +156,13 @@ public class DataHubModel<T extends DataHubModel>{
 								queries.add(queryHasOne);
 							}
 							//System.out.println(m);
-							String otherQueries = m.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
+							String otherQueries = m.save(recursionDepthLimit-1,localCache);
 							queries.add(otherQueries);
 						}
 						//has many or HABTM relationship
 						if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
 							DataHubArrayList d = (DataHubArrayList) o;
-							String otherQueries = d.save(recursionDepthLimit-1,localCache,modelsAlreadySaved);
+							String otherQueries = d.save(recursionDepthLimit-1,localCache);
 							queries.add(otherQueries);
 						}
 					}
