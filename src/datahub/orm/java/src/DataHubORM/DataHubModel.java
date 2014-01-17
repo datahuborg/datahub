@@ -102,7 +102,7 @@ public class DataHubModel<T extends DataHubModel>{
 		//System.out.println("before save");
 		String query = this.save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
 		getDatabase().query(query);
-		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>());
+		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
 		//System.out.println("after save");
 	}
 	String save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache){
@@ -253,6 +253,7 @@ public class DataHubModel<T extends DataHubModel>{
 		return findAll(params, new QueryRefinementObject());
 	}
 	public ArrayList<T> findAll(HashMap<String,Object> params, QueryRefinementObject qro) throws DataHubException{
+		System.out.println("new query");
 		if(params.size() == 0){
 			return new ArrayList<T>();
 		}
@@ -270,6 +271,7 @@ public class DataHubModel<T extends DataHubModel>{
 		return findOne(params, qro);
 	}
 	public T findOne(HashMap<String,Object> params,QueryRefinementObject qro) throws DataHubException{
+		System.out.println("new query");
 		//TODO: querying by related object
 		if(params.size() != 0){
 			qro.setQueryLimitSize(1);
@@ -563,13 +565,13 @@ public class DataHubModel<T extends DataHubModel>{
 		return Resources.concatenate(fieldData,",");
 	}
 	public void refreshModel(){
-		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>());
+		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
 	}
 	public void refreshField(String fieldName) throws DataHubException{
-		getDatabase().updateModelObjectField(fieldName, this,DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>());
+		getDatabase().updateModelObjectField(fieldName, this,DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
 	}
-	private void updateModel(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache){
-		getDatabase().updateModelObject(this,recursionDepthLimit,localCache);
+	private void updateModel(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache,ConcurrentHashMap<String,Object> objectHash){
+		getDatabase().updateModelObject(this,recursionDepthLimit,localCache,objectHash);
 	}
 	private void updateModelId(int recursionDepthLimit){
 		getDatabase().updateModelId(this);

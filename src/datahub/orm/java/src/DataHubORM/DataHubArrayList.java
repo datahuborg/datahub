@@ -194,7 +194,7 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 		dhw.execute();
 	}
 	public void populate() throws DataHubException{
-		populate(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
+		populate(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
 	}
 	public void save() throws DataHubException{
 		String query = save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
@@ -231,14 +231,8 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 	Class<T> getAssociatedModelClass(){
 		return ((Class<T>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
 	}
-	//add query this set methods
-	void populate(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache) throws DataHubException{
-		if(this.association == null || this.currentModel == null){
-			throw new DataHubException("Foreign Key and Current Model must be specified in DataHubArrayList");
-		}
-		if(recursionDepthLimit <= 0){
-			return;
-		}
+	String getPopulateQuery(){
+		String query = "";
 		String tableName = currentModel.getCompleteTableName();
 		//join on table provided by class
 		//possibly only select relevant model fields
@@ -247,7 +241,6 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 			String newTableName = newInstance.getCompleteTableName();
 			//TODO: fix select *
 			//String query = "select "+"*"+" from "+tableName+", "+newTableName+" where "+newTableName+"."+this.foreignKey+" = "+currentModel.id;
-			String query = "";
 			switch(this.association.associationType()){
 				case HasMany:
 					query = "select "+"*"+" from "+newTableName+" where "+newTableName+"."+this.association.foreignKey()+" = "+currentModel.id;
@@ -272,7 +265,46 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 				default:
 					throw new DataHubException("Invalid association type for DataHubArrayList!");
 			}
-			ArrayList<T> data = (ArrayList<T>) getDatabase().query(query, newInstance.getClass(),recursionDepthLimit,localCache);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return query;
+	}
+	void addInverseQueries(ConcurrentHashMap<String,Object> objectHash) throws InstantiationException, IllegalAccessException, DataHubException{
+		for(DataHubModel m:this){
+			String newTableName = this.currentModel.getCompleteTableName();
+			//TODO: fix select *
+			//String query = "select "+"*"+" from "+tableName+", "+newTableName+" where "+newTableName+"."+this.foreignKey+" = "+currentModel.id;
+			String query = "";
+			switch(this.association.associationType()){
+				case HasMany:
+					break;
+				default:
+					throw new DataHubException("Invalid association type for DataHubArrayList!");
+			}
+			//objectHash.put(key, value)
+		}
+	}
+	//add query this set methods
+	void populate(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache,ConcurrentHashMap<String,Object> objectHash) throws DataHubException{
+		if(this.association == null || this.currentModel == null){
+			throw new DataHubException("Foreign Key and Current Model must be specified in DataHubArrayList");
+		}
+		if(recursionDepthLimit <= 0){
+			return;
+		}
+		String tableName = currentModel.getCompleteTableName();
+		//join on table provided by class
+		//possibly only select relevant model fields
+		try{
+			T newInstance = (T) ((Class)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
+			String query = getPopulateQuery();
+			ArrayList<T> data;
+			if(objectHash!=null && objectHash.contains(query)){
+				data = (ArrayList<T>) objectHash.get(query);
+			}else{
+				data = (ArrayList<T>) getDatabase().query(query, newInstance.getClass(),recursionDepthLimit,localCache,objectHash);
+			}
 			this.addAll(data);
 		}catch(Exception e){
 			e.printStackTrace();
