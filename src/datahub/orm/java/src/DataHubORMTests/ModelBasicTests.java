@@ -493,6 +493,7 @@ public class ModelBasicTests extends TestsMain{
 	}
 	@Test 
 	public void createTest() throws DataHubException{
+		db.resetStats();
 		TestModel t = this.newTestModel();
 		for(int i = 0; i<30; i++){
 			UserModel u = new UserModel();
@@ -500,6 +501,12 @@ public class ModelBasicTests extends TestsMain{
 			t.users.add(u);
 		}
 		t.save();
+		HashMap<String,Object> params = new HashMap<String,Object>();
+		params.put("id", t.id);
+		TestModel t1 = db.test.findOne(params);
+		System.out.println(t1);
+		db.printStats();
+		t1.destroy();
 	}
 	//@Test
 	public void testQueryWithModifiers(){

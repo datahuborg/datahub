@@ -7,6 +7,7 @@ import Annotations.BooleanField;
 import Annotations.CharField;
 import Annotations.DateTimeField;
 import Annotations.Association.AssociationTypes;
+import Annotations.Association.RemovalOptions;
 import Annotations.Column;
 import Annotations.Column.Index;
 import Annotations.Table;
@@ -46,7 +47,7 @@ public class TestModel extends DataHubModel<TestModel> {
 	@Association(associationType = AssociationTypes.HasMany, foreignKey = "test_id")
 	public DevicesDataHubArrayList devices;
 	
-	@Association(associationType = AssociationTypes.HasAndBelongsToMany, linkingTable = "testuser", leftTableForeignKey = "test_id",rightTableForeignKey = "user_id", foreignKey = "test_id")
+	@Association(removalOption=RemovalOptions.CascadingDelete, associationType = AssociationTypes.HasAndBelongsToMany, linkingTable = "testuser", leftTableForeignKey = "test_id",rightTableForeignKey = "user_id", foreignKey = "test_id")
 	public UsersDataHubArrayList users;
 
 }

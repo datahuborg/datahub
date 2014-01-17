@@ -152,8 +152,8 @@ public class DataHubConverter {
 								}else{
 									throw new DataHubException("For HABTM association, the foreign key must match either the left or the right key in the linking table!");
 								}
-								String left = a.leftTableForeignKey()+" integer, foreign key ("+a.leftTableForeignKey()+") references "+leftTable+"("+"id"+")"; 
-								String right = a.rightTableForeignKey()+" integer, foreign key ("+a.rightTableForeignKey()+") references "+rightTable+"("+"id"+")"; 
+								String left = a.leftTableForeignKey()+" integer, foreign key ("+a.leftTableForeignKey()+") references "+leftTable+"("+"id"+") " + new AssociationModifierHandler().generateModifierString(a); 
+								String right = a.rightTableForeignKey()+" integer, foreign key ("+a.rightTableForeignKey()+") references "+rightTable+"("+"id"+") " + new AssociationModifierHandler().generateModifierString(a); 
 								tableDef+= left+","+right;
 								finalTableDefinitions.put(key, tableDef);
 							}
@@ -166,12 +166,14 @@ public class DataHubConverter {
 						throw new DataHubException("Invalid model association for field: "+association.getName()+" in "+f.getName());
 				}
 				ArrayList<String> modifiers = new ArrayList<String>();
-				if(finalTableDefinitionsModifiers.containsKey(key)){
-					modifiers = finalTableDefinitionsModifiers.get(key);
-				}
-				String newModifier = new AssociationModifierHandler().generateModifierString(a);
-				if(!modifiers.contains(newModifier) && !newModifier.equals("")){
-					modifiers.add(newModifier);
+				if(a.associationType() != AssociationTypes.HasAndBelongsToMany){
+					if(finalTableDefinitionsModifiers.containsKey(key)){
+						modifiers = finalTableDefinitionsModifiers.get(key);
+					}
+					String newModifier = new AssociationModifierHandler().generateModifierString(a);
+					if(!modifiers.contains(newModifier) && !newModifier.equals("")){
+						modifiers.add(newModifier);
+					}
 				}
 				finalTableDefinitionsModifiers.put(key, modifiers);
 			}

@@ -40,7 +40,7 @@ public class DataHubDatabase {
 	
 	public enum DatabaseEngine{Postgres};
 	
-	protected static int MAX_LOAD_RECURSION_DEPTH = 3;
+	protected static int MAX_LOAD_RECURSION_DEPTH = 2;
 	
 	//prevent do unnecessary saves
 	protected static int MAX_SAVE_RECURSION_DEPTH = 2;
