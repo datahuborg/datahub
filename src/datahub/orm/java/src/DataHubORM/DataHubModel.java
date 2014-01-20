@@ -39,6 +39,8 @@ public class DataHubModel<T extends DataHubModel>{
 	
 	private static DataHubDatabase db;
 	
+	private HashMap<String,String> errors;
+	
 	@Column(name="id", index=Index.PrimaryKey)
 	@IntegerField(Serial=true)
 	public int id;
@@ -48,6 +50,7 @@ public class DataHubModel<T extends DataHubModel>{
 			throw new DataHubException("Database for model class must be set before any models can be created!");
 		}
 		this.id = 0;
+		this.errors = new HashMap<String,String>();
 		for(Field f: this.getClass().getFields()){
 			if(DataHubConverter.isDataHubArrayListSubclass(f.getType()) && DataHubConverter.hasAssociation(f)){
 				try{
@@ -63,6 +66,21 @@ public class DataHubModel<T extends DataHubModel>{
 			}
 		}
 	}
+	public boolean validate(){
+		return true;
+	}
+	public void beforeSave(){
+		
+	}
+	public void afterSave(){
+		
+	}
+	public void beforeDestroy(){
+		
+	}
+	public void afterDestroy(){
+		
+	}
 	public static void setDatabase(DataHubDatabase database) throws DataHubException{
 		//TODO: figure out why this is getting set more than once
 		db=database;
@@ -75,34 +93,43 @@ public class DataHubModel<T extends DataHubModel>{
 	public static DataHubDatabase getDatabase(){
 		return db;
 	}
-	public void saveAsync(final GenericCallback<T> callback) throws DataHubException{
+	public void saveAsync(final GenericCallback<T> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
 		final T object = (T) this;
+		DataHubException e;
 		DataHubWorker<T> dhw = new DataHubWorker<T>(new GenericExecutable<T>(){
 
 			@Override
-			public T call() {
+			public T call() throws DataHubException{
 				save();
 				return object;
-			}}, callback, db.getDataHubWorkerMode());
+			}}, succeedCallback,failCallback, db.getDataHubWorkerMode());
 		dhw.execute();
 	}
-	public void destroyAsync(final GenericCallback<Void> callback) throws DataHubException{
+	public void destroyAsync(final GenericCallback<Void> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
 		DataHubWorker<Void> dhw = new DataHubWorker<Void>(new GenericExecutable<Void>(){
 
 			@Override
 			public Void call() {
 				destroy();
 				return null;
-			}}, callback, db.getDataHubWorkerMode());
+			}}, succeedCallback, failCallback, db.getDataHubWorkerMode());
 		dhw.execute();
 	}
-	public synchronized void save(){
+	public synchronized void save() throws DataHubException{
 		//db.hitCount = 0;
 		//db.missCount = 0;
 		//System.out.println("before save");
-		String query = this.save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
-		getDatabase().query(query);
-		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
+		if(validate()){
+			beforeSave();
+			String query = this.save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
+			getDatabase().query(query);
+			updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
+			afterSave();
+		}else{
+			DataHubException dhe = new DataHubException("Model failed validation and resulted in the following errors: "+ this.errors.toString());
+			this.errors = new HashMap<String,String>();
+			throw dhe;
+		}
 		//System.out.println("after save");
 	}
 	String save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache){
@@ -177,6 +204,7 @@ public class DataHubModel<T extends DataHubModel>{
 	}
 	public synchronized void destroy(){
 		try{
+			beforeDestroy();
 			String query = "DELETE FROM "+this.getCompleteTableName()+" WHERE "+"id="+this.id;
 			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
 			//System.out.println(query);
@@ -184,25 +212,25 @@ public class DataHubModel<T extends DataHubModel>{
 			//System.out.println(getDatabase().query("SELECT * FROM "+this.getCompleteTableName()+" WHERE "+"id="+this.id, this.getClass()));
 			//possibly garbage collect object
 			//recursively save all fields
-			
+			afterSave();
 			//TODO: supporty cascading delete, but doing it in table definition so that server does it
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
-	public void allAsync(final GenericCallback<ArrayList<T>> callback) throws DataHubException{
+	public void allAsync(final GenericCallback<ArrayList<T>> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
 		DataHubWorker<ArrayList<T>> dhw = new DataHubWorker<ArrayList<T>>(new GenericExecutable<ArrayList<T>>(){
 
 			@Override
 			public ArrayList<T> call() {
 				return all();
-			}}, callback,db.getDataHubWorkerMode());
+			}}, succeedCallback, failCallback, db.getDataHubWorkerMode());
 		dhw.execute();
 	}
-	public void findAllAsync(final HashMap<String,Object> params, final GenericCallback<ArrayList<T>> callback) throws DataHubException{
-		findAllAsync(params, new QueryRefinementObject(),callback);
+	public void findAllAsync(final HashMap<String,Object> params, final GenericCallback<ArrayList<T>> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
+		findAllAsync(params, new QueryRefinementObject(),succeedCallback, failCallback);
 	}
-	public void findAllAsync(final HashMap<String,Object> params, final QueryRefinementObject qro, final GenericCallback<ArrayList<T>> callback) throws DataHubException{
+	public void findAllAsync(final HashMap<String,Object> params, final QueryRefinementObject qro, final GenericCallback<ArrayList<T>> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
 		DataHubWorker<ArrayList<T>> dhw = new DataHubWorker<ArrayList<T>>(new GenericExecutable<ArrayList<T>>(){
 
 			@Override
@@ -214,13 +242,13 @@ public class DataHubModel<T extends DataHubModel>{
 					e.printStackTrace();
 					return null;
 				}
-			}}, callback, db.getDataHubWorkerMode());
+			}}, succeedCallback, failCallback, db.getDataHubWorkerMode());
 		dhw.execute();
 	}
-	public void findOneAsync(final HashMap<String,Object> params, final GenericCallback<T> callback) throws DataHubException{
-		findOneAsync(params,new QueryRefinementObject(), callback);
+	public void findOneAsync(final HashMap<String,Object> params, final GenericCallback<T> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
+		findOneAsync(params,new QueryRefinementObject(), succeedCallback, failCallback);
 	}
-	public void findOneAsync(final HashMap<String,Object> params,final QueryRefinementObject qro, final GenericCallback<T> callback) throws DataHubException{
+	public void findOneAsync(final HashMap<String,Object> params,final QueryRefinementObject qro, final GenericCallback<T> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
 		DataHubWorker<T> dhw = new DataHubWorker<T>(new GenericExecutable<T>(){
 
 			@Override
@@ -232,7 +260,7 @@ public class DataHubModel<T extends DataHubModel>{
 					e.printStackTrace();
 					return null;
 				}
-			}}, callback, db.getDataHubWorkerMode());
+			}}, succeedCallback, failCallback, db.getDataHubWorkerMode());
 		dhw.execute();
 	}
 	public ArrayList<T> all(){

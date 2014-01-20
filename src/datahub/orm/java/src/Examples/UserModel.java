@@ -2,6 +2,7 @@ package Examples;
 
 import Annotations.Association;
 import Annotations.Column;
+import Annotations.NoDownload;
 import Annotations.Table;
 import Annotations.Association.AssociationTypes;
 import Annotations.VarCharField;
@@ -19,6 +20,11 @@ public class UserModel extends DataHubModel<UserModel>{
 	@Column(name="username")
 	@VarCharField(size=1000)
 	public String username;
+	
+	@NoDownload
+	@Column(name="password")
+	@VarCharField(size=1000)
+	public String password;
 	
 	@Association(associationType = AssociationTypes.HasAndBelongsToMany, linkingTable = "testuser", leftTableForeignKey = "test_id",rightTableForeignKey = "user_id", foreignKey = "user_id")
 	public TestDatahubArrayList tests;

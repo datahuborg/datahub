@@ -29,8 +29,20 @@ public class DatabaseAsyncTests {
 						public void call(Void data) throws DataHubException {
 							// TODO Auto-generated method stub
 							System.out.println("Disconnected Successfully!");
+						}}, new GenericCallback<DataHubException>(){
+
+							@Override
+							public void call(DataHubException data) throws DataHubException {
+								// TODO Auto-generated method stub
+								
 						}});
 					
+				}}, new GenericCallback<DataHubException>(){
+
+					@Override
+					public void call(DataHubException data) throws DataHubException {
+						// TODO Auto-generated method stub
+						
 				}});
 		}catch(Exception e){
 			System.out.println("Failed to connect!");

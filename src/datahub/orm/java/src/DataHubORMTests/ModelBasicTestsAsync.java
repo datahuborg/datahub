@@ -24,9 +24,21 @@ public class ModelBasicTestsAsync extends TestsMain{
 					public void call(Void data) throws DataHubException {
 						// TODO Auto-generated method stub
 						
+					}}, new GenericCallback<DataHubException>(){
+
+						@Override
+						public void call(DataHubException data) throws DataHubException {
+							// TODO Auto-generated method stub
+							
 					}});
 				
-			}});
+			}}, new GenericCallback<DataHubException>(){
+
+				@Override
+				public void call(DataHubException data) throws DataHubException {
+					// TODO Auto-generated method stub
+					
+		}});
 		final TestModel tm2 = newTestModel();
 		tm2.saveAsync(new GenericCallback<TestModel>(){
 			
@@ -39,9 +51,21 @@ public class ModelBasicTestsAsync extends TestsMain{
 					public void call(Void data) throws DataHubException {
 						// TODO Auto-generated method stub
 						
+					}}, new GenericCallback<DataHubException>(){
+
+						@Override
+						public void call(DataHubException data) throws DataHubException {
+							// TODO Auto-generated method stub
+							
 					}});
 				
-			}});
+			}}, new GenericCallback<DataHubException>(){
+
+				@Override
+				public void call(DataHubException data) throws DataHubException {
+					// TODO Auto-generated method stub
+					
+		}});
 		final TestModel tm3 = newTestModel();
 		tm3.saveAsync(new GenericCallback<TestModel>(){
 			
@@ -54,9 +78,21 @@ public class ModelBasicTestsAsync extends TestsMain{
 					public void call(Void data) throws DataHubException {
 						// TODO Auto-generated method stub
 						
+					}}, new GenericCallback<DataHubException>(){
+
+						@Override
+						public void call(DataHubException data) throws DataHubException {
+							// TODO Auto-generated method stub
+							
 					}});
 				
-			}});
+			}}, new GenericCallback<DataHubException>(){
+
+				@Override
+				public void call(DataHubException data) throws DataHubException {
+					// TODO Auto-generated method stub
+					
+		}});
 		final TestModel tm4 = newTestModel();
 		tm4.saveAsync(new GenericCallback<TestModel>(){
 			
@@ -69,9 +105,21 @@ public class ModelBasicTestsAsync extends TestsMain{
 					public void call(Void data) throws DataHubException {
 						// TODO Auto-generated method stub
 						
+					}}, new GenericCallback<DataHubException>(){
+
+						@Override
+						public void call(DataHubException data) throws DataHubException {
+							// TODO Auto-generated method stub
+							
 					}});
 				
-			}});
+			}}, new GenericCallback<DataHubException>(){
+
+				@Override
+				public void call(DataHubException data) throws DataHubException {
+					// TODO Auto-generated method stub
+					
+		}});
 		Thread.sleep(5000);
 	}
 }

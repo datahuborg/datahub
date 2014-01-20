@@ -90,8 +90,7 @@ public class DataHubDatabase {
 	public synchronized boolean isConnected(){
 		return dhc.isConnected();
 	}
-	public void connectAsync(GenericCallback<Void> callback) throws DataHubException{
-		final GenericCallback<Void>  callback1 = callback;
+	public void connectAsync(final GenericCallback<Void> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
 		DataHubWorker<Void> dhw = new DataHubWorker<Void>(new GenericExecutable<Void>(){
 
 			@Override
@@ -108,19 +107,18 @@ public class DataHubDatabase {
 				@Override
 				public void call(Void data) throws DataHubException {
 					if(isConnected()){
-						callback1.call(data);
+						succeedCallback.call(data);
 					}else{
-						throw new DataHubException("Cannot connect to database!");
+						failCallback.call(new DataHubException("Cannot connect to database!"));
 					}
 					
-				}},dataHubWorkerMode);
+				}},failCallback, dataHubWorkerMode);
 		dhw.execute();
 	}
 	public synchronized void disconnect(){
 		dhc.disconnect();
 	}
-	public void disconnectAsync(GenericCallback<Void> callback) throws DataHubException{
-		final GenericCallback<Void>  callback1 = callback;
+	public void disconnectAsync(final GenericCallback<Void> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
 		DataHubWorker<Void> dhw = new DataHubWorker<Void>(new GenericExecutable<Void>(){
 
 			@Override
@@ -132,12 +130,12 @@ public class DataHubDatabase {
 				@Override
 				public void call(Void data) throws DataHubException {
 					if(!isConnected()){
-						callback1.call(data);
+						succeedCallback.call(data);
 					}else{
 						throw new DataHubException("Cannot connect to database!");
 					}
 					
-				}}, dataHubWorkerMode);
+				}}, failCallback, dataHubWorkerMode);
 		dhw.execute();
 	}
 	private void instantiateAndSetup(){

@@ -14,17 +14,21 @@ public class DataHubWorker<T>{
 	
 	private final DataHubWorkerMode mode;
 	
-	private final GenericCallback<T> callback;
+	private final GenericCallback<T> succeedCallback;
+	
+	private final GenericCallback<DataHubException> failCallback;
 	
 	private final GenericExecutable<T> functionToExecute;
 	
-	public DataHubWorker(GenericExecutable<T> functionToExecute, GenericCallback<T> callback,DataHubWorkerMode mode){
-		this.callback = callback;
+	public DataHubWorker(GenericExecutable<T> functionToExecute, GenericCallback<T> succeedCallback,GenericCallback<DataHubException> failCallback,DataHubWorkerMode mode){
+		this.succeedCallback = succeedCallback;
+		this.failCallback = failCallback;
 		this.functionToExecute = functionToExecute;
 		this.mode = mode;
 	}
-	public DataHubWorker(GenericExecutable<T> functionToExecute, GenericCallback<T> callback){
-		this.callback = callback;
+	public DataHubWorker(GenericExecutable<T> functionToExecute, GenericCallback<T> succeedCallback,GenericCallback<DataHubException> failCallback){
+		this.succeedCallback = succeedCallback;
+		this.failCallback = failCallback;
 		this.functionToExecute = functionToExecute;
 		this.mode = DataHubWorkerMode.Normal;
 	}
@@ -33,14 +37,30 @@ public class DataHubWorker<T>{
 			case Normal:
 				SwingWorker<T,Void> worker = new SwingWorker<T,Void>(){
 
+					private boolean succeed = false;
+					
+					private DataHubException failureException;
+					
 					@Override
 					protected T doInBackground() throws Exception {
-						return functionToExecute.call();
+						try{
+							T result = functionToExecute.call();
+							succeed = true;
+							return result;
+						}catch(DataHubException e){
+							succeed = false;
+							failureException = e;
+						}
+						return null;
 					}
 					@Override
 					public void done(){
 						try{
-							callback.call(get());
+							if(succeed){
+								succeedCallback.call(get());
+							}else{
+								failCallback.call(failureException);
+							}
 						}catch(Exception e){
 							//do something else here
 							e.printStackTrace();
@@ -51,15 +71,32 @@ public class DataHubWorker<T>{
 			case Android:
 				AsyncTask<Void,Void,T> androidWorker = new AsyncTask<Void,Void,T>(){
 
+					private boolean succeed = false;
+					
+					private DataHubException failureException;
+					
 					@Override
-					protected T doInBackground(Void... params) {
+					protected T doInBackground(Void... params){
 						// TODO Auto-generated method stub
-						return functionToExecute.call();
+						try {
+							T result = functionToExecute.call();
+							succeed = true;
+							return result;
+						} catch (DataHubException e) {
+							// TODO Auto-generated catch block
+							succeed = false;
+							failureException = e;
+						}
+						return null;
 					}
 					@Override
 					protected void onPostExecute(T result){
 						try {
-							callback.call(result);
+							if(succeed){
+								succeedCallback.call(result);
+							}else{
+								failCallback.call(failureException);
+							}
 						} catch (DataHubException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

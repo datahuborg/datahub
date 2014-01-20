@@ -159,7 +159,7 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 			this.association = a;
 		}
 	}
-	public void populateAsync(final GenericCallback<DataHubArrayList<T>> callback) throws DataHubException{
+	public void populateAsync(final GenericCallback<DataHubArrayList<T>> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
 		final DataHubArrayList<T> object = (DataHubArrayList<T>) this;
 		DataHubWorker<DataHubArrayList<T>> dhw = new DataHubWorker<DataHubArrayList<T>>(new GenericExecutable<DataHubArrayList<T>>(){
 
@@ -173,10 +173,10 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 					e.printStackTrace();
 				}
 				return object;
-			}}, callback);
+			}}, succeedCallback, failCallback);
 		dhw.execute();
 	}
-	public void saveAsync(final GenericCallback<DataHubArrayList<T>> callback) throws DataHubException{
+	public void saveAsync(final GenericCallback<DataHubArrayList<T>> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
 		final DataHubArrayList<T> object = (DataHubArrayList<T>) this;
 		DataHubWorker<DataHubArrayList<T>> dhw = new DataHubWorker<DataHubArrayList<T>>(new GenericExecutable<DataHubArrayList<T>>(){
 
@@ -190,7 +190,7 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 					e.printStackTrace();
 				}
 				return object;
-			}}, callback);
+			}}, succeedCallback, failCallback);
 		dhw.execute();
 	}
 	public void populate() throws DataHubException{
