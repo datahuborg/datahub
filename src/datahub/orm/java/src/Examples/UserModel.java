@@ -4,11 +4,13 @@ import Annotations.Association;
 import Annotations.Column;
 import Annotations.NoDownload;
 import Annotations.Table;
+import Annotations.Verify;
 import Annotations.Association.AssociationTypes;
 import Annotations.VarCharField;
 import DataHubORM.DataHubException;
 import DataHubORM.DataHubModel;
 
+@Verify()
 @Table(name="users")
 public class UserModel extends DataHubModel<UserModel>{
 	
@@ -28,4 +30,5 @@ public class UserModel extends DataHubModel<UserModel>{
 	
 	@Association(associationType = AssociationTypes.HasAndBelongsToMany, linkingTable = "testuser", leftTableForeignKey = "test_id",rightTableForeignKey = "user_id", foreignKey = "user_id")
 	public TestDatahubArrayList tests;
+	
 }

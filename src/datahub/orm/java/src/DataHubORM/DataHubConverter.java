@@ -203,7 +203,7 @@ public class DataHubConverter {
 			}
 		}
 		before.addAll(after);
-		System.out.println(Resources.concatenate(before, ";"));
+		//System.out.println(Resources.concatenate(before, ";"));
 		return Resources.concatenate(before, ";");
 	}
 	public static <T extends DataHubModel> String convertModelBasicTOSQLSchemaString(Class<T> c) throws DataHubException{

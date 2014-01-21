@@ -6,6 +6,7 @@ import Annotations.Association;
 import Annotations.BooleanField;
 import Annotations.CharField;
 import Annotations.DateTimeField;
+import Annotations.Verify;
 import Annotations.Association.AssociationTypes;
 import Annotations.Association.RemovalOptions;
 import Annotations.Column;
@@ -16,6 +17,7 @@ import DataHubORM.DataHubArrayList;
 import DataHubORM.DataHubException;
 import DataHubORM.DataHubModel;
 
+@Verify()
 @Table(name="test")
 public class TestModel extends DataHubModel<TestModel> {
 	
