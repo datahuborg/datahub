@@ -89,10 +89,12 @@ public class DataHubConverter {
 							//current model belongs to another model specified by association field so
 							//current model needs foreign key column
 							if(!finalTableDefinitions.containsKey(key)){
-								String tableDef = tableDefinitions.get(key);
+								//String tableDef = tableDefinitions.get(key);
 								//TODO:change this so we use primary key of other table instead of id
-								tableDef=tableDef.substring(0, tableDef.length()-1);
-								tableDef+=", "+a.foreignKey()+" integer, foreign key ("+a.foreignKey()+") references "+otherModel.getCompleteTableName()+"("+"id"+") ";
+								//tableDef=tableDef.substring(0, tableDef.length()-1);
+								String tableDef1="alter table "+key+" add "+a.foreignKey()+" integer";
+								String tableDef2 = "alter table "+key+" add foreign key ("+a.foreignKey()+") references "+otherModel.getCompleteTableName()+"("+"id"+") ";
+								String tableDef = tableDef1 + ";" + tableDef2;
 								finalTableDefinitions.put(key, tableDef);
 							}
 						}catch(Exception e){
@@ -104,10 +106,12 @@ public class DataHubConverter {
 							DataHubModel otherModel = (DataHubModel) association.getType().newInstance();
 							key = otherModel.getCompleteTableName();
 							if(!finalTableDefinitions.containsKey(key)){
-								String tableDef = tableDefinitions.get(key);
-								tableDef=tableDef.substring(0, tableDef.length()-1);
+								//String tableDef = tableDefinitions.get(key);
+								//tableDef=tableDef.substring(0, tableDef.length()-1);
 								//TODO:change this so we use primary key of other table instead of id
-								tableDef+=", "+a.foreignKey()+" integer, foreign key ("+a.foreignKey()+") references "+currentModel.getCompleteTableName()+"("+"id"+") ";
+								String tableDef1="alter table "+key+" add "+a.foreignKey()+" integer";
+								String tableDef2 ="alter table "+key+" add foreign key ("+a.foreignKey()+") references "+currentModel.getCompleteTableName()+"("+"id"+") ";
+								String tableDef = tableDef1 + ";" + tableDef2;
 								finalTableDefinitions.put(key, tableDef);
 							}
 						}catch(Exception e){
@@ -120,10 +124,12 @@ public class DataHubConverter {
 							DataHubModel otherModel = (DataHubModel) otherModelList.getAssociatedModelClass().newInstance();
 							key = otherModel.getCompleteTableName();
 							if(!finalTableDefinitions.containsKey(key)){
-								String tableDef = tableDefinitions.get(key);
-								tableDef=tableDef.substring(0, tableDef.length()-1);
+								//String tableDef = tableDefinitions.get(key);
+								//tableDef=tableDef.substring(0, tableDef.length()-1);
 								//TODO:change this so we use primary key of other table instead of id
-								tableDef+=", "+a.foreignKey()+" integer, foreign key ("+a.foreignKey()+") references "+currentModel.getCompleteTableName()+"("+"id"+") ";
+								String tableDef1="alter table "+key+" add "+a.foreignKey()+" integer";
+								String tableDef2 = "alter table "+key+" add foreign key ("+a.foreignKey()+") references "+currentModel.getCompleteTableName()+"("+"id"+") ";
+								String tableDef = tableDef1 + ";" + tableDef2;
 								finalTableDefinitions.put(key, tableDef);
 							}
 						}catch(Exception e){
@@ -154,7 +160,7 @@ public class DataHubConverter {
 								}
 								String left = a.leftTableForeignKey()+" integer, foreign key ("+a.leftTableForeignKey()+") references "+leftTable+"("+"id"+") " + new AssociationModifierHandler().generateModifierString(a); 
 								String right = a.rightTableForeignKey()+" integer, foreign key ("+a.rightTableForeignKey()+") references "+rightTable+"("+"id"+") " + new AssociationModifierHandler().generateModifierString(a); 
-								tableDef+= left+","+right;
+								tableDef+= left+","+right+")";
 								finalTableDefinitions.put(key, tableDef);
 							}
 						}catch(Exception e){
@@ -181,30 +187,16 @@ public class DataHubConverter {
 		//TODO: fix modifier generation, this code is bad if more than one foreign key
 		for(String key:finalTableDefinitions.keySet()){
 			String value = finalTableDefinitions.get(key);
-			if(finalTableDefinitionsModifiers.containsKey(key)){
-				value+=Resources.concatenate(finalTableDefinitionsModifiers.get(key), " ")+")";
+			if(finalTableDefinitionsModifiers.containsKey(key) && finalTableDefinitionsModifiers.get(key).size() > 0){
+				value+=Resources.concatenate(finalTableDefinitionsModifiers.get(key), " ");
 				finalTableDefinitions.put(key, value);
-			}
-		}
-		for(String table: tableDefinitions.keySet()){
-			if(!finalTableDefinitions.containsKey(table)){
-				finalTableDefinitions.put(table, tableDefinitions.get(table));
 			}
 		}
 		//move tables with foreign key constraints after tables without them so
 		//no sql errors thrown
-		ArrayList<String> before = new ArrayList<String>();
-		ArrayList<String> after = new ArrayList<String>();
-		for(String value:finalTableDefinitions.values()){
-			if(value.contains("foreign key")){
-				after.add(value);
-			}else{
-				before.add(value);
-			}
-		}
-		before.addAll(after);
 		//System.out.println(Resources.concatenate(before, ";"));
-		return Resources.concatenate(before, ";");
+		String out = Resources.concatenate(tableDefinitions.values(), ";")+";"+Resources.concatenate(finalTableDefinitions.values(), ";");
+		return out;
 	}
 	public static <T extends DataHubModel> String convertModelBasicTOSQLSchemaString(Class<T> c) throws DataHubException{
 		HashMap<Class,HashMap<Field,DHType>> basicFields = extractColumnBasicFromClass(c);
