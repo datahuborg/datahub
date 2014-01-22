@@ -12,6 +12,18 @@
 			"sWidth": "100%"			
 		});
 		$('.dataTables_filter input').attr("placeholder", "filter by keyword tokens");
+		
+		$('td', table_data.fnGetNodes()).editable(
+				function(value, settings) { 
+			    var pos = table_data.fnGetPosition(this);
+					table_data.fnUpdate(value, pos[0], pos[1] );
+					console.log(pos)
+					console.log(value)
+					console.log(settings)
+			    return(value);
+			  }, {
+			  	height: '1.2em'
+			  });
 
 	});
 </script>
