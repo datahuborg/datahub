@@ -1,0 +1,41 @@
+.dataTable{
+	width: 100%;
+}
+
+table.dataTable thead tr th {
+	color: #fff;
+	font-weight: bold;
+	padding: 10px 15px;
+	background: #2B2B2B;
+	text-align:left;
+	cursor: pointer;
+}
+
+table.dataTable thead th div.DataTables_sort_wrapper {
+	position: relative;
+	padding-right: 20px;
+	padding-right: 20px;
+}
+
+table.dataTable thead th div.DataTables_sort_wrapper span {
+	position: absolute;
+	top: 50%;
+	margin-top: -8px;
+	right: 0;
+}
+
+table.dataTable tbody tr td {
+  vertical-align: top;
+  padding: 10px;
+  border-bottom: #ccc solid 1px; 
+}
+
+.dataTables_filter {
+  background: #f6f6f6;
+  padding: 10px;
+  font-weight: bold;
+}
+
+.dataTables_filter input[type="text"] {
+	width:70%;
+}
