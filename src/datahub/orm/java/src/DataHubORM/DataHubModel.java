@@ -633,6 +633,16 @@ public class DataHubModel<T extends DataHubModel>{
 		}
 		return false;
 	}
+	String generateNullSelect(){
+		String query = "select ";
+		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractColumnBasicFromClass(this.getClass());
+		HashMap<Field,DHType> currentModel = models.get(this.getClass());
+		ArrayList<String> nulls = new ArrayList<String>();
+		for(Field f: currentModel.keySet()){
+			nulls.add("null");
+		}
+		return query+Resources.concatenate(nulls,",");
+	}
 	@Override
 	public String toString(){
 		return this.getCompleteTableName()+this.generateQuerySQLRep();
