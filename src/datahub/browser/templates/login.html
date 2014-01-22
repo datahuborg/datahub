@@ -3,7 +3,7 @@
 <a class="button inactive" href="/register">Sign up</a>		
 {% endblock %}
 {% block content %}
-<form method="POST" action="/login">
+<form class="center-container" method="POST" action="/login">
 	{% csrf_token %}
 	<input type="hidden" name="redirect_url" value="{{redirect_url}}" />
 	<h3>Returning User -- Sign in</h3>
