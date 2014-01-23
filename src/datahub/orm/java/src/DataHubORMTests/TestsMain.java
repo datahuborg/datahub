@@ -26,7 +26,7 @@ public class TestsMain {
 		try{
 			//System.out.println("connecting!");
 			db.connect();
-			db.clearAndReCreate();
+			//db.clearAndReCreate();
 			//System.out.println("connected!");
 			this.db = db;
 		}catch(Exception e){

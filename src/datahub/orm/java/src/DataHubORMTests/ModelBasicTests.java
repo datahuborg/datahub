@@ -496,27 +496,29 @@ public class ModelBasicTests extends TestsMain{
 	//@Test 
 	public void createTest() throws DataHubException, InstantiationException, IllegalAccessException{
 		db.resetStats();
-		ArrayList<TestModel> tms = new ArrayList<TestModel>();
+		/*ArrayList<TestModel> tms = new ArrayList<TestModel>();
 		ArrayList<UserModel> ums = new ArrayList<UserModel>();
-		for(int j = 1; j<10; j++){
+		for(int j = 1; j<20; j++){
 			UserModel u = new UserModel();
 			u.username="user"+j;
 			u.save();
 			ums.add(u);
 		}
-		for(int i = 0; i<10; i++){
+		for(int i = 0; i<20; i++){
 			TestModel t = this.newTestModel();
 			for(UserModel u: ums){
 				t.users.add(u);
 			}
 			t.save();
 			tms.add(t);
-		}
+		}*/
+		db.resetStats();
 		long old = System.currentTimeMillis();
 		System.out.println("start query"+System.currentTimeMillis());
 		ArrayList<UserModel> users = this.db.users.all();
 		System.out.println("end query"+System.currentTimeMillis());
 		System.out.println(System.currentTimeMillis()-old);
+		db.printStats();
 		for(UserModel user: users){
 			System.out.println(user.tests);
 		}

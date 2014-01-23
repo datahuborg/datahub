@@ -193,7 +193,7 @@ public class DataHubDatabase {
 		System.out.println("misses"+missCount);
 		System.out.println("other"+otherCount);
 	}
-	public DHQueryResult dbQuery(String query){
+	DHQueryResult dbQuery(String query){
 		//System.out.println(query);
 		return dhc.dbQuery(query);
 	}
@@ -201,7 +201,7 @@ public class DataHubDatabase {
 	private DHQueryResult dbQuery(String query, ConcurrentHashMap<String,Object> localCache){
 		//System.out.println(query);
 		//System.out.println(dhc.dbQuery(query));
-		if(query.toLowerCase().startsWith("select * from")){
+		if(query.toLowerCase().startsWith("select * from") || query.toLowerCase().startsWith("(select * from")){
 			if(localCache.containsKey(query)){
 				//System.out.println(query);
 				hitCount+=1;
