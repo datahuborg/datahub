@@ -1,14 +1,14 @@
 package Examples;
 
-import Annotations.Association;
-import Annotations.Association.RemovalOptions;
-import Annotations.Column;
-import Annotations.Association.AssociationTypes;
-import Annotations.Column.Index;
-import Annotations.AccessControl;
-import Annotations.Table;
-import Annotations.VarCharField;
-import Annotations.Verify;
+import DataHubAnnotations.AccessControl;
+import DataHubAnnotations.Association;
+import DataHubAnnotations.Column;
+import DataHubAnnotations.Table;
+import DataHubAnnotations.VarCharField;
+import DataHubAnnotations.Verify;
+import DataHubAnnotations.Association.AssociationTypes;
+import DataHubAnnotations.Association.RemovalOptions;
+import DataHubAnnotations.Column.Index;
 import DataHubORM.DataHubException;
 import DataHubORM.DataHubModel;
 

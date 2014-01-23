@@ -493,7 +493,7 @@ public class ModelBasicTests extends TestsMain{
 		t1.destroy();
 		
 	}
-	//@Test 
+	@Test 
 	public void createTest() throws DataHubException, InstantiationException, IllegalAccessException{
 		db.resetStats();
 		/*ArrayList<TestModel> tms = new ArrayList<TestModel>();

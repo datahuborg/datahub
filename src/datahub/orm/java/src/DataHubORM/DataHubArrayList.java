@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import Annotations.Association;
-import Annotations.Association.AssociationTypes;
+import DataHubAnnotations.Association;
+import DataHubAnnotations.Association.AssociationTypes;
 import DataHubResources.Resources;
 import DataHubWorkers.DataHubWorker;
 import DataHubWorkers.GenericCallback;

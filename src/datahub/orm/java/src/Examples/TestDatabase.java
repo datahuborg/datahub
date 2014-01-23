@@ -1,6 +1,6 @@
 package Examples;
 
-import Annotations.Database;
+import DataHubAnnotations.Database;
 import DataHubORM.DataHubDatabase;
 
 

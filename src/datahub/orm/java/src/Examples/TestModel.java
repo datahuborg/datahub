@@ -2,17 +2,17 @@ package Examples;
 
 import java.util.Date;
 
-import Annotations.Association;
-import Annotations.BooleanField;
-import Annotations.CharField;
-import Annotations.DateTimeField;
-import Annotations.Verify;
-import Annotations.Association.AssociationTypes;
-import Annotations.Association.RemovalOptions;
-import Annotations.Column;
-import Annotations.Column.Index;
-import Annotations.Table;
-import Annotations.VarCharField;
+import DataHubAnnotations.Association;
+import DataHubAnnotations.BooleanField;
+import DataHubAnnotations.CharField;
+import DataHubAnnotations.Column;
+import DataHubAnnotations.DateTimeField;
+import DataHubAnnotations.Table;
+import DataHubAnnotations.VarCharField;
+import DataHubAnnotations.Verify;
+import DataHubAnnotations.Association.AssociationTypes;
+import DataHubAnnotations.Association.RemovalOptions;
+import DataHubAnnotations.Column.Index;
 import DataHubORM.DataHubArrayList;
 import DataHubORM.DataHubException;
 import DataHubORM.DataHubModel;

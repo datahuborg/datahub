@@ -1,4 +1,4 @@
-package Annotations;
+package DataHubAnnotations;
 
 public @interface AccessControl {
 	public enum AccessLevels {Read, ReadWrite}

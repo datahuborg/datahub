@@ -13,18 +13,18 @@ import javax.print.DocFlavor.STRING;
 
 import android.R.bool;
 
-import Annotations.Association;
-import Annotations.Association.AssociationTypes;
-import Annotations.Association.RemovalOptions;
-import Annotations.BooleanField;
-import Annotations.CharField;
-import Annotations.Column;
-import Annotations.Column.Index;
-import Annotations.DateTimeField;
-import Annotations.DoubleField;
-import Annotations.IntegerField;
-import Annotations.Table;
-import Annotations.VarCharField;
+import DataHubAnnotations.Association;
+import DataHubAnnotations.BooleanField;
+import DataHubAnnotations.CharField;
+import DataHubAnnotations.Column;
+import DataHubAnnotations.DateTimeField;
+import DataHubAnnotations.DoubleField;
+import DataHubAnnotations.IntegerField;
+import DataHubAnnotations.Table;
+import DataHubAnnotations.VarCharField;
+import DataHubAnnotations.Association.AssociationTypes;
+import DataHubAnnotations.Association.RemovalOptions;
+import DataHubAnnotations.Column.Index;
 import DataHubResources.Constants;
 import DataHubResources.Resources;
 
@@ -214,9 +214,27 @@ public class DataHubConverter {
 		for(Field f: basicColumns.keySet()){
 			Column column = f.getAnnotation(Column.class);
 			String columnStr = column.name()+" "+modelTypeToSQLString(f);
-			if(column.index() == Index.PrimaryKey){
-				columnStr+=" "+"primary key";
-				primaryKeyCount++;
+			switch(column.index()){
+				case PrimaryKey:
+					columnStr+=" "+"primary key";
+					primaryKeyCount++;
+					break;
+				default:
+					break;
+			}
+			switch(column.notNullConstraint()){
+				case NotNull:
+					columnStr+=" "+"not null";
+					break;
+				default:
+					break;
+			}
+			switch(column.uniquenessConstraint()){
+				case Unique:
+					columnStr+=" "+"unique";
+					break;
+				default:
+					break;
 			}
 			columnNamesAndDataTypes.add(columnStr);
 		}
@@ -344,22 +362,33 @@ public class DataHubConverter {
 	}
 	public static String modelTypeToSQLString(Field f) throws DataHubException{
 		//System.out.println(Arrays.asList(f.getDeclaredAnnotations()));
+		String modifier = "";
+		try{
+			DataHubModel modelObject = (DataHubModel) f.getDeclaringClass().newInstance();
+			Object val = f.get(modelObject);
+			if(val!=null){
+				modifier+=" default "+Resources.objectToSQL(val);
+			}
+		}catch(Exception  e){
+			
+		}
 		if(f.isAnnotationPresent(Column.class)){
 			if(f.isAnnotationPresent(CharField.class)){
 				CharField cf = f.getAnnotation(CharField.class);
 				if(f.getType().equals(String.class)){
-					return "char("+cf.size()+")";
+					return "char("+cf.size()+")"+modifier;
 				}
 			}
 			if(f.isAnnotationPresent(VarCharField.class)){
 				VarCharField ccf = f.getAnnotation(VarCharField.class);
 				if(f.getType().equals(String.class)){
-					return "varchar("+ccf.size()+")";
+					return "varchar("+ccf.size()+")"+modifier;
 				}
 			}
 			if(f.isAnnotationPresent(DoubleField.class)){
+				DoubleField df = f.getAnnotation(DoubleField.class);
 				if(f.getType().equals(Double.TYPE)){
-					return "decimal";
+					return "decimal"+modifier;
 				}
 			}
 			if(f.isAnnotationPresent(IntegerField.class)){
@@ -368,17 +397,18 @@ public class DataHubConverter {
 					if(intf.Serial()){
 						return "serial";
 					}
-					return "integer";
+					return "integer"+modifier;
 				}
 			}
 			if(f.isAnnotationPresent(DateTimeField.class)){
 				if(f.getType().equals(Date.class)){
-					return "timestamp";
+					return "timestamp"+modifier;
 				}
 			}
 			if(f.isAnnotationPresent(BooleanField.class)){
+				BooleanField bf = f.getAnnotation(BooleanField.class);
 				if(f.getType().equals(Boolean.TYPE)){
-					return "boolean";
+					return "boolean"+modifier;
 				}
 			}
 		}
@@ -425,12 +455,10 @@ public class DataHubConverter {
 			}
 			if(f.isAnnotationPresent(DoubleField.class)){
 				if(f.getType().equals(Double.class) || f.getType().equals(Double.TYPE) ){
-					double result = Double.parseDouble(new String(((ByteBuffer) c).array()));
-					return result;
+					return Double.parseDouble(new String(((ByteBuffer) c).array()));
 				}
 				if(f.getType().equals(Float.class) || f.getType().equals(Double.TYPE)){
-					float result = Float.parseFloat(new String(((ByteBuffer) c).array()));
-					return result;
+					return Float.parseFloat(new String(((ByteBuffer) c).array()));
 				}
 			}
 			if(f.isAnnotationPresent(IntegerField.class)){

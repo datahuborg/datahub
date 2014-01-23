@@ -1,11 +1,9 @@
-package Annotations;
+package DataHubAnnotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CharField {
-
-	int size();
-
+public @interface BooleanField {
+	
 }

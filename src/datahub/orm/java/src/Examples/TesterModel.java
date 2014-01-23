@@ -1,14 +1,14 @@
 package Examples;
 
-import Annotations.Association;
 
-import Annotations.DoubleField;
-import Annotations.VarCharField;
-import Annotations.Verify;
-import Annotations.Association.AssociationTypes;
-import Annotations.Column;
-import Annotations.Column.Index;
-import Annotations.Table;
+import DataHubAnnotations.Association;
+import DataHubAnnotations.Column;
+import DataHubAnnotations.DoubleField;
+import DataHubAnnotations.Table;
+import DataHubAnnotations.VarCharField;
+import DataHubAnnotations.Verify;
+import DataHubAnnotations.Association.AssociationTypes;
+import DataHubAnnotations.Column.Index;
 import DataHubORM.DataHubException;
 import DataHubORM.DataHubModel;
 

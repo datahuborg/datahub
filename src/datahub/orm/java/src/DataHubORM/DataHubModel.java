@@ -21,12 +21,13 @@ import datahub.DHSchema;
 import datahub.DHTable;
 import datahub.DHType;
 
-import Annotations.Association;
-import Annotations.IntegerField;
-import Annotations.Association.AssociationTypes;
-import Annotations.Column;
-import Annotations.Column.Index;
-import Annotations.Table;
+import DataHubAnnotations.Association;
+import DataHubAnnotations.Column;
+import DataHubAnnotations.IntegerField;
+import DataHubAnnotations.Table;
+import DataHubAnnotations.Association.AssociationTypes;
+import DataHubAnnotations.Column.Index;
+import DataHubORM.QueryRefinementObject.OrderBy;
 import DataHubResources.Resources;
 import DataHubWorkers.DataHubWorker;
 import DataHubWorkers.GenericCallback;
@@ -51,6 +52,10 @@ public class DataHubModel<T extends DataHubModel>{
 		}
 		this.id = 0;
 		this.errors = new HashMap<String,String>();
+		
+		//set default values
+		this.setDefaults();
+		
 		for(Field f: this.getClass().getFields()){
 			if(DataHubConverter.isDataHubArrayListSubclass(f.getType()) && DataHubConverter.hasAssociation(f)){
 				try{
@@ -66,19 +71,25 @@ public class DataHubModel<T extends DataHubModel>{
 			}
 		}
 	}
-	public boolean validate(){
+	public QueryRefinementObject getDefaultQueryRefinemnetObject(){
+		return new QueryRefinementObject();
+	}
+	public void setDefaults(){
+		
+	}
+	public synchronized boolean validate(){
 		return true;
 	}
-	public void beforeSave(){
+	public synchronized void beforeSave(){
 		
 	}
-	public void afterSave(){
+	public synchronized void afterSave(){
 		
 	}
-	public void beforeDestroy(){
+	public synchronized void beforeDestroy(){
 		
 	}
-	public void afterDestroy(){
+	public synchronized void afterDestroy(){
 		
 	}
 	public static void setDatabase(DataHubDatabase database) throws DataHubException{
@@ -228,7 +239,7 @@ public class DataHubModel<T extends DataHubModel>{
 		dhw.execute();
 	}
 	public void findAllAsync(final HashMap<String,Object> params, final GenericCallback<ArrayList<T>> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
-		findAllAsync(params, new QueryRefinementObject(),succeedCallback, failCallback);
+		findAllAsync(params, getDefaultQueryRefinemnetObject(),succeedCallback, failCallback);
 	}
 	public void findAllAsync(final HashMap<String,Object> params, final QueryRefinementObject qro, final GenericCallback<ArrayList<T>> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
 		DataHubWorker<ArrayList<T>> dhw = new DataHubWorker<ArrayList<T>>(new GenericExecutable<ArrayList<T>>(){
@@ -246,7 +257,7 @@ public class DataHubModel<T extends DataHubModel>{
 		dhw.execute();
 	}
 	public void findOneAsync(final HashMap<String,Object> params, final GenericCallback<T> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
-		findOneAsync(params,new QueryRefinementObject(), succeedCallback, failCallback);
+		findOneAsync(params,getDefaultQueryRefinemnetObject(), succeedCallback, failCallback);
 	}
 	public void findOneAsync(final HashMap<String,Object> params,final QueryRefinementObject qro, final GenericCallback<T> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
 		DataHubWorker<T> dhw = new DataHubWorker<T>(new GenericExecutable<T>(){
@@ -268,7 +279,7 @@ public class DataHubModel<T extends DataHubModel>{
 		return (ArrayList<T>) getDatabase().query(query, this.getClass());
 	}
 	public boolean exists(HashMap<String,Object> params) throws DataHubException{
-		return exists(params, new QueryRefinementObject());
+		return exists(params, getDefaultQueryRefinemnetObject());
 	}
 	public boolean exists(HashMap<String,Object> params, QueryRefinementObject qro) throws DataHubException{
 		T results = findOne(params, qro);
@@ -278,7 +289,7 @@ public class DataHubModel<T extends DataHubModel>{
 		return false;
 	}
 	public ArrayList<T> findAll(HashMap<String,Object> params) throws DataHubException{
-		return findAll(params, new QueryRefinementObject());
+		return findAll(params, getDefaultQueryRefinemnetObject());
 	}
 	public ArrayList<T> findAll(HashMap<String,Object> params, QueryRefinementObject qro) throws DataHubException{
 		System.out.println("new query");
@@ -298,7 +309,7 @@ public class DataHubModel<T extends DataHubModel>{
 		return results;
 	}
 	public T findOne(HashMap<String,Object> params) throws DataHubException{
-		QueryRefinementObject qro = new QueryRefinementObject();
+		QueryRefinementObject qro = getDefaultQueryRefinemnetObject();
 		return findOne(params, qro);
 	}
 	public T findOne(HashMap<String,Object> params,QueryRefinementObject qro) throws DataHubException{
@@ -486,27 +497,37 @@ public class DataHubModel<T extends DataHubModel>{
 		}else{
 			queryStr+="select * from "+tables+" where "+whereClause;
 		}
-		if(qro.getGroupByField() != null){
-			if(Resources.hasField(this.getClass(), qro.getGroupByField())){
-				throw new DataHubException("Invalid field in Group By Field Name!");
+		if(qro.getGroupByFields() != null){
+			String[] groupByFields = qro.getGroupByFields();
+			for(String groupByField: groupByFields){
+				if(!Resources.hasField(this.getClass(), groupByField)){
+					throw new DataHubException("Invalid field in Group By Field Name!");
+				}
 			}
-			queryStr+=" group by "+qro.getGroupByField();
+			queryStr+=" group by "+Resources.concatenate(Arrays.asList(groupByFields), ",");
 		}
-		if(qro.getOrderByField() != null){
-			if(Resources.hasField(this.getClass(), qro.getOrderByField())){
-				throw new DataHubException("Invalid field in Order By Field Name!");
+		if(qro.getOrderByFields() != null){
+			OrderBy[] orderByFields = qro.getOrderByFields();
+			ArrayList<String> orderByComponents = new ArrayList<String>();
+			for(OrderBy orderByField: orderByFields){
+				if(!Resources.hasField(this.getClass(), orderByField.getOrderByField())){
+					throw new DataHubException("Invalid field in Group By Field Name!");
+				}
+				String orderByComponent = orderByField.getOrderByField()+" ";
+				switch(orderByField.getOrderByType()){
+					case Ascending:
+						orderByComponent+="asc";
+						break;
+					case Descending:
+						orderByComponent+="desc";
+						break;
+					default:
+						throw new DataHubException("Invalid OrderByType!");
+				}
+				orderByComponents.add(orderByComponent);
 			}
-			queryStr+=" order by "+qro.getOrderByField()+" ";
-			switch(qro.getOrderByType()){
-				case Ascending:
-					queryStr+="asc";
-					break;
-				case Descending:
-					queryStr+="desc";
-					break;
-				default:
-					throw new DataHubException("Invalid OrderByType!");
-			}
+			queryStr+=" order by "+Resources.concatenate(orderByComponents, ",")+" ";
+
 		}
 		if(qro.getQuerySizeLimit()!=0){
 			queryStr+=" limit "+qro.getQuerySizeLimit();

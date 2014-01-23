@@ -1,4 +1,4 @@
-package Annotations;
+package DataHubAnnotations;
 
 public @interface Verify {
 

@@ -1,9 +1,11 @@
-package Annotations;
+package DataHubAnnotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Database {
-	String name();
+public @interface IntegerField {
+
+	boolean Serial() default false;
+
 }

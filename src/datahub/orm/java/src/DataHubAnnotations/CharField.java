@@ -1,11 +1,11 @@
-package Annotations;
+package DataHubAnnotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface IntegerField {
+public @interface CharField {
 
-	boolean Serial() default false;
+	int size();
 
 }

@@ -1,19 +1,34 @@
 package DataHubORM;
 
 public class QueryRefinementObject {
-	public enum OrderByType {Ascending, Descending}
-	private String orderBy;
-	private OrderByType orderByType;
-	private String groupBy;
+	
+	public static class OrderBy{
+		public enum OrderByType {Ascending, Descending}
+		private OrderByType orderByType;
+		private String orderByField;
+		
+		public OrderBy(String orderByField, OrderByType orderByType){
+			this.orderByField = orderByField;
+			this.orderByType = orderByType;
+		}
+		public OrderByType getOrderByType(){
+			return this.orderByType;
+		}
+		public String getOrderByField(){
+			return this.orderByField;
+		}
+		
+	}
+	private OrderBy[] orderBy;
+	private String[] groupBy;
 	private String[] distinct;
 	private int querySizeLimit;
 	
-	public void setOrderByField(String fieldName, OrderByType orderByType){
-		this.orderBy = fieldName;
-		this.orderByType = orderByType;
+	public void setOrderByFields(OrderBy[] orderBy){
+		this.orderBy = orderBy;
 	}
-	public void setGroupByField(String fieldName){
-		this.groupBy = fieldName;
+	public void setGroupByField(String[] fieldNames){
+		this.groupBy = fieldNames;
 	}
 	public void setDistinctFieldNames(String[] distinctFieldNames){
 		this.distinct = distinctFieldNames;
@@ -21,13 +36,10 @@ public class QueryRefinementObject {
 	public void setQueryLimitSize(int sizeLimit){
 		this.querySizeLimit = sizeLimit;
 	}
-	public String getOrderByField(){
+	public OrderBy[] getOrderByFields(){
 		return this.orderBy;
 	}
-	public OrderByType getOrderByType(){
-		return this.orderByType;
-	}
-	public String getGroupByField(){
+	public String[] getGroupByFields(){
 		return this.groupBy;
 	}
 	public String[]  getDistinctFieldNames(){
