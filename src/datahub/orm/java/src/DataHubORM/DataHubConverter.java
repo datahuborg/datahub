@@ -408,6 +408,9 @@ public class DataHubConverter {
 		}
 		return DHType.Binary;
 	}
+	public static String convertToString(Object c){
+		return new String(((ByteBuffer) c).array());
+	}
 	public static Object convertToJavaType(Object c, Field f) throws DataHubException{
 		if(f.isAnnotationPresent(Column.class)){
 			if(f.isAnnotationPresent(CharField.class)){

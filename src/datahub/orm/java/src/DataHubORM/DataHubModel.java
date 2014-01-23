@@ -300,14 +300,16 @@ public class DataHubModel<T extends DataHubModel>{
 	}
 	public T findOne(HashMap<String,Object> params,QueryRefinementObject qro) throws DataHubException{
 		System.out.println("new query");
+		long start = System.currentTimeMillis();
 		//TODO: querying by related object
 		if(params.size() != 0){
 			qro.setQueryLimitSize(1);
 			String query = modelQueryToSQL(params,qro);
 			ArrayList<T> data = (ArrayList<T>) getDatabase().query(query,this.getClass());
+			System.out.println("query took:"+(System.currentTimeMillis()-start));
 			//System.out.println(data);
 			if(data.size() > 0){
-				return (T) getDatabase().query(query,this.getClass()).get(0);
+				return (T) data.get(0);
 			}
 		}
 		return null; 
@@ -640,6 +642,14 @@ public class DataHubModel<T extends DataHubModel>{
 		ArrayList<String> nulls = new ArrayList<String>();
 		for(Field f: currentModel.keySet()){
 			nulls.add("null");
+		}
+		HashMap<Class,HashMap<Field,DHType>> models1 = DataHubConverter.extractAssociationsFromClass(this.getClass());
+		HashMap<Field,DHType> currentModel1 = models1.get(this.getClass());
+		for(Field f1: currentModel1.keySet()){
+			Association a = f1.getAnnotation(Association.class);
+			if(a!=null && a.associationType() == AssociationTypes.BelongsTo){
+				nulls.add("null");
+			}
 		}
 		return query+Resources.concatenate(nulls,",");
 	}

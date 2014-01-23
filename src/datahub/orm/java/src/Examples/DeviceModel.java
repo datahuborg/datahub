@@ -29,7 +29,4 @@ public class DeviceModel extends DataHubModel<DeviceModel>{
 	@Association(associationType = AssociationTypes.BelongsTo, foreignKey = "test_id", removalOption=RemovalOptions.CascadingDelete)
 	public TestModel testModel;
 	
-	@AccessControl()
-	@Association(associationType = AssociationTypes.HasMany, foreignKey = "user_id", removalOption=RemovalOptions.CascadingDelete)
-	public UsersDataHubArrayList users;
 }

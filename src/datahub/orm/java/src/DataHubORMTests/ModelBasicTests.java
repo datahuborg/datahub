@@ -164,7 +164,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	@Test
+    @Test
 	public void testDataHubArrayList() throws DataHubException{
 		db.resetStats();
 		
@@ -331,6 +331,8 @@ public class ModelBasicTests extends TestsMain{
 		TestModel refreshedT = db.test.findOne(testparams);
 		TestModel refreshedT1 = db.test.findOne(test1params);
 		
+		System.out.println(refreshedT.users);
+		
 		assertEquals(refreshedT.users.contains(u1), true);
 		assertEquals(refreshedT.users.contains(u2), true);
 		assertEquals(refreshedT.users.contains(u3), false);
@@ -492,7 +494,7 @@ public class ModelBasicTests extends TestsMain{
 		
 	}
 	//@Test 
-	public void createTest() throws DataHubException{
+	public void createTest() throws DataHubException, InstantiationException, IllegalAccessException{
 		db.resetStats();
 		ArrayList<TestModel> tms = new ArrayList<TestModel>();
 		ArrayList<UserModel> ums = new ArrayList<UserModel>();
@@ -502,7 +504,7 @@ public class ModelBasicTests extends TestsMain{
 			u.save();
 			ums.add(u);
 		}
-		for(int i = 0; i<30; i++){
+		for(int i = 0; i<10; i++){
 			TestModel t = this.newTestModel();
 			for(UserModel u: ums){
 				t.users.add(u);
@@ -510,12 +512,20 @@ public class ModelBasicTests extends TestsMain{
 			t.save();
 			tms.add(t);
 		}
-		HashMap<String,Object> params = new HashMap<String,Object>();
+		long old = System.currentTimeMillis();
+		System.out.println("start query"+System.currentTimeMillis());
+		ArrayList<UserModel> users = this.db.users.all();
+		System.out.println("end query"+System.currentTimeMillis());
+		System.out.println(System.currentTimeMillis()-old);
+		for(UserModel user: users){
+			System.out.println(user.tests);
+		}
+		/*HashMap<String,Object> params = new HashMap<String,Object>();
 		params.put("id", tms.get(0).id);
 		TestModel t1 = db.test.findOne(params);
 		System.out.println(t1);
 		db.printStats();
-		t1.destroy();
+		t1.destroy();*/
 	}
 	//@Test
 	public void testQueryWithModifiers(){
