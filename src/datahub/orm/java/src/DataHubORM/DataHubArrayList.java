@@ -2,6 +2,7 @@ package DataHubORM;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -118,6 +119,34 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 		}
 		return query;
 	}
+	//TODO:implement
+	@Override
+	public void add(int index, T data){
+		
+	}
+	//TODO:implement
+	@Override
+	public boolean addAll(Collection<? extends T> c){
+		return false;
+		
+	}
+	//TODO:implement
+	@Override
+	public boolean retainAll(Collection<?> c){
+		return false;
+	
+	}
+	//TODO:implement
+	@Override
+	public T set(int index, T data){
+		return data;
+		
+	}
+	//TODO:implement
+	@Override
+	public void trimToSize(){
+		
+	}
 	//TODO:fix this
 	@Override
 	public boolean add(T data){
@@ -137,13 +166,18 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 		}
 		return false;
 	}
+	//TODO:implement
+	@Override
+	public boolean removeAll(Collection<?> c){
+		return false;
+	}
 	@Override
 	public void clear(){
 		for(DataHubModel m:this){
 			this.remove(m);
 		}
 	}
-	public void setCurrentModel(DataHubModel m) throws DataHubException{
+	void setCurrentModel(DataHubModel m) throws DataHubException{
 		//model can only be set once for life of the object to ensure consistency in operation
 		if(this.currentModel != null){
 			throw new DataHubException("Model already set for DataHubArrayList");
@@ -151,7 +185,7 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 			this.currentModel = m;
 		}
 	}
-	public void setAssociation(Association a) throws DataHubException{
+	void setAssociation(Association a) throws DataHubException{
 		//foreignkey can only be set once for life of the object to ensure consistency in operation
 		if(this.association != null){
 			throw new DataHubException("Association already set for DataHubArrayList");
@@ -270,21 +304,6 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 		}
 		return query;
 	}
-	void addInverseQueries(ConcurrentHashMap<String,Object> objectHash) throws InstantiationException, IllegalAccessException, DataHubException{
-		for(DataHubModel m:this){
-			String newTableName = this.currentModel.getCompleteTableName();
-			//TODO: fix select *
-			//String query = "select "+"*"+" from "+tableName+", "+newTableName+" where "+newTableName+"."+this.foreignKey+" = "+currentModel.id;
-			String query = "";
-			switch(this.association.associationType()){
-				case HasMany:
-					break;
-				default:
-					throw new DataHubException("Invalid association type for DataHubArrayList!");
-			}
-			//objectHash.put(key, value)
-		}
-	}
 	//add query this set methods
 	void populate(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache,ConcurrentHashMap<String,Object> objectHash) throws DataHubException{
 		if(this.association == null || this.currentModel == null){
@@ -305,9 +324,12 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 			}else{
 				data = (ArrayList<T>) getDatabase().query(query, newInstance.getClass(),recursionDepthLimit,localCache,objectHash);
 			}
-			this.addAll(data);
+			this.addAllBasic(data);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+	}
+	void addAllBasic(Collection<? extends T> c){
+		super.addAll(c);
 	}
 }

@@ -282,6 +282,7 @@ public class DataHubModel<T extends DataHubModel>{
 	}
 	public ArrayList<T> findAll(HashMap<String,Object> params, QueryRefinementObject qro) throws DataHubException{
 		System.out.println("new query");
+		long start = System.currentTimeMillis();
 		if(params.size() == 0){
 			return new ArrayList<T>();
 		}
@@ -292,7 +293,9 @@ public class DataHubModel<T extends DataHubModel>{
 		//if there is no association
 		//String query = "select * FROM "+this.getCompleteTableName()+" WHERE "+ queryToSQL(params);
 		String query = modelQueryToSQL(params,qro);
-		return (ArrayList<T>) getDatabase().query(query, this.getClass());
+		ArrayList<T> results = (ArrayList<T>) getDatabase().query(query, this.getClass());
+		System.out.println("query took:"+(System.currentTimeMillis()-start));
+		return results;
 	}
 	public T findOne(HashMap<String,Object> params) throws DataHubException{
 		QueryRefinementObject qro = new QueryRefinementObject();

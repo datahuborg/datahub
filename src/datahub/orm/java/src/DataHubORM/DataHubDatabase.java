@@ -237,29 +237,7 @@ public class DataHubDatabase {
 		//get model class name
 		//make query to datahub and create new instances 
 		try{
-			//System.out.println(this.db.dbQuery("select * FROM "+this.db.getDatabaseName()+"."+this.getTableName()));
-			//System.out.println(this.dbQuery(query));
-			/*if(query.toLowerCase().startsWith("select * from")){
-				if(localCache.containsKey(query)){
-					//System.out.println(query);
-					hitCount+=1;
-					return (ArrayList<T>) localCache.get(query);
-				}else{
-					//System.out.println(localCache.keySet());
-					//System.out.println(query);
-					missCount+=1;
-					//System.out.println(query);
-					//System.out.println("network");
-					output = dhQueryToModel(this.dbQuery(query, localCache), modelClass,recursionDepthLimit-1, localCache);
-					localCache.put(query, output);
-					return output;
-				}
-			}else{
-				otherCount+=1;
-				return dhQueryToModel(this.dbQuery(query, localCache), modelClass,recursionDepthLimit-1, localCache);
-			}*/
 			output = dhQueryToModel(this.dbQuery(query, localCache), modelClass,recursionDepthLimit-1, localCache, objectHash);
-			//output = dhQueryToModelv2(this.dbQuery(query, localCache), modelClass,recursionDepthLimit-1);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -485,7 +463,7 @@ public class DataHubDatabase {
 											}
 											d.setCurrentModel(data1);
 											d.setAssociation(a);
-											d.addAll(results);
+											d.addAllBasic(results);
 											Resources.setField(data1, field1.getName(),d);
 										}catch(Exception e){
 											e.printStackTrace();
@@ -511,7 +489,7 @@ public class DataHubDatabase {
 											}
 											d.setCurrentModel(data1);
 											d.setAssociation(a);
-											d.addAll(results);
+											d.addAllBasic(results);
 											Resources.setField(data1, field1.getName(),d);
 										}catch(Exception e){
 											e.printStackTrace();
