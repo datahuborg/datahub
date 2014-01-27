@@ -144,8 +144,6 @@ public class DataHubModel<T extends DataHubModel>{
 		//System.out.println("after save");
 	}
 	String save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache){
-		//System.out.println(modelsAlreadySaved);
-		//System.out.println(this.getClass());
 		if(recursionDepthLimit <= 0){
 			//System.out.println("broke"+modelsAlreadySaved.contains(this.getClass()));
 			return "";
@@ -159,13 +157,10 @@ public class DataHubModel<T extends DataHubModel>{
 			}else{
 				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateAssignmentSQLRep()+" WHERE "+"id="+this.id;
 			}
-			//System.out.println(query);
-			//just make query no recursion
-			//getDatabase().query(query);
 			
 			if(!this.validId()){
 				getDatabase().query(query);
-				//System.out.println(query);
+				
 				//get new id
 				updateModelId();
 			}else{
