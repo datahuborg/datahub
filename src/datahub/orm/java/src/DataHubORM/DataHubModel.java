@@ -167,7 +167,7 @@ public class DataHubModel<T extends DataHubModel>{
 				getDatabase().query(query);
 				//System.out.println(query);
 				//get new id
-				updateModelId(recursionDepthLimit);
+				updateModelId();
 			}else{
 				queries.add(query);
 			}
@@ -649,7 +649,7 @@ public class DataHubModel<T extends DataHubModel>{
 	private void updateModel(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache,ConcurrentHashMap<String,Object> objectHash){
 		getDatabase().updateModelObject(this,recursionDepthLimit,localCache,objectHash);
 	}
-	private void updateModelId(int recursionDepthLimit){
+	private void updateModelId(){
 		getDatabase().updateModelId(this);
 	}
 	private T newInstance() throws InstantiationException, IllegalAccessException{
