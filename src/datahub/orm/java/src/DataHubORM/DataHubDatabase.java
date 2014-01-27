@@ -623,6 +623,15 @@ public class DataHubDatabase {
 									
 									DHCell cell = fieldsToDHCell.get(foreignKey);
 									int modelObjectBelongsToId = (int) DataHubConverter.directConvert(cell.value, Integer.TYPE);
+									
+									
+									//handles case where object is initialized and it belongs to another object that has currently
+									//not been set (meaning the column that contains the id of the associated object is None and 
+									//so has a default id of 0)
+									if(modelObjectBelongsToId == 0){
+										continue;
+									}
+									
 									//TODO: object already in memory so can just re-use it instead of making new query
 									String otherModelCompleteTableName = otherModel.getCompleteTableName();
 									//String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+tableName+".id = "+objectToUpdate.id;

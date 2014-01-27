@@ -619,7 +619,8 @@ public class DataHubConverter {
 				int result = Integer.parseInt(new String(((ByteBuffer) c).array()));
 				return result;
 			}catch(Exception e){
-				e.printStackTrace();
+				//e.printStackTrace();
+				//if an integer cannot be parsed just return 0
 				return 0;
 			}
 		}
