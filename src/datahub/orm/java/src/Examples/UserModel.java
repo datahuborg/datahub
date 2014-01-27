@@ -28,11 +28,11 @@ public class UserModel extends DataHubModel<UserModel>{
 	public String username;
 	
 	@NoDownload
-	@Column(name="password")
+	@Column(setupMode=AnnotationsConstants.SetupModes.Manual,name="password")
 	@VarCharField(size=1000)
 	public String password;
 	
-	@Association(associationType = AssociationTypes.HasAndBelongsToMany, linkingTable = "testuser", leftTableForeignKey = "test_id",rightTableForeignKey = "user_id", foreignKey = "user_id")
+	@Association(setupMode=AnnotationsConstants.SetupModes.Manual, associationType = AssociationTypes.HasAndBelongsToMany, linkingTable = "testuser", leftTableForeignKey = "test_id",rightTableForeignKey = "user_id", foreignKey = "user_id")
 	public TestDatahubArrayList tests;
 	
 	

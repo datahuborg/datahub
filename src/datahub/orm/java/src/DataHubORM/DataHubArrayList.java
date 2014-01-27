@@ -241,29 +241,8 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 			}}, succeedCallback, failCallback);
 		dhw.execute();
 	}
-	public void saveAsync(final GenericCallback<DataHubArrayList<T>> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
-		final DataHubArrayList<T> object = (DataHubArrayList<T>) this;
-		DataHubWorker<DataHubArrayList<T>> dhw = new DataHubWorker<DataHubArrayList<T>>(new GenericExecutable<DataHubArrayList<T>>(){
-
-			//TODO:fix this
-			@Override
-			public DataHubArrayList<T> call() {
-				try {
-					save();
-				} catch (DataHubException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return object;
-			}}, succeedCallback, failCallback);
-		dhw.execute();
-	}
 	public void populate() throws DataHubException{
 		populate(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
-	}
-	public void save() throws DataHubException{
-		String query = save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
-		db.query(query);
 	}
 	String save(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache) throws DataHubException{
 		if(recursionDepthLimit <= 0){

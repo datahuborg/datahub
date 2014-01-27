@@ -412,7 +412,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	//@Test
+	@Test
 	public void testQueryByObject() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -494,7 +494,7 @@ public class ModelBasicTests extends TestsMain{
 		t1.destroy();
 		
 	}
-	///@Test 
+	//@Test 
 	public void createTest() throws DataHubException, InstantiationException, IllegalAccessException{
 		db.resetStats();
 		ArrayList<TestModel> tms = new ArrayList<TestModel>();
@@ -524,7 +524,7 @@ public class ModelBasicTests extends TestsMain{
 			System.out.println(user.tests);
 		}
 	}
-	@Test
+	//@Test
 	public void testDefaultAndManualSpecCross() throws DataHubException{
 		TestModel t = this.newTestModel();
 		t.save();
@@ -552,17 +552,17 @@ public class ModelBasicTests extends TestsMain{
 		assertEquals(t1.cars.contains(c1), true);
 		assertEquals(c1.tests.contains(t1), true);
 	}
-	//@Test
+	@Test
 	public void testQueryWithInModifierAndQueryRefinement(){
 		//test in modifier
 		
 	}
-	//@Test
+	@Test
 	public void testQueryWithBetweenModifierAndQueryRefinement(){
 		//test between modifier
 		
 	}
-	//@Test
+	@Test
 	public void testQueryWithStringModifiersAndQueryRefinement(){
 		//test contains 
 		//test starts_with
