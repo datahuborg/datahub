@@ -1,6 +1,7 @@
 package Examples;
 
 
+import DataHubAnnotations.AnnotationsConstants;
 import DataHubAnnotations.Association;
 import DataHubAnnotations.Column;
 import DataHubAnnotations.DecimalField;
@@ -14,7 +15,7 @@ import DataHubORM.DataHubModel;
 
 
 @Verify()
-@Table(name="tester")
+@Table(setupMode=AnnotationsConstants.SetupModes.Manual, name="tester")
 public class TesterModel extends DataHubModel<TesterModel> {
 
 	public TesterModel() throws DataHubException {
@@ -22,15 +23,15 @@ public class TesterModel extends DataHubModel<TesterModel> {
 		// TODO Auto-generated constructor stub
 	}
 
-	@Column(name="tester_name")
+	@Column(setupMode=AnnotationsConstants.SetupModes.Manual, name="tester_name")
 	@VarCharField(size=1000)
 	public String testerName;
 	
-	@Column(name="cost")
+	@Column(setupMode=AnnotationsConstants.SetupModes.Manual, name="cost")
 	@DecimalField()
 	public double cost;
 	
 	
-	@Association(associationType = AssociationTypes.BelongsTo, foreignKey = "test_id")
+	@Association(setupMode=AnnotationsConstants.SetupModes.Manual, associationType = AssociationTypes.BelongsTo, foreignKey = "test_id")
 	public TestModel test;
 }

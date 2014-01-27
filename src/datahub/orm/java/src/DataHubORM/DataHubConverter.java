@@ -564,19 +564,19 @@ public class DataHubConverter {
 	public static String convertToString(Object c){
 		return new String(((ByteBuffer) c).array());
 	}
-	public static Object convertToJavaType(Object c, Field f) throws DataHubException{
+	public static Object convertToJavaType(Object c, Field f, boolean defaultSet) throws DataHubException{
 		if(f.isAnnotationPresent(Column.class)){
-			if(f.isAnnotationPresent(CharField.class)){
+			if(f.isAnnotationPresent(CharField.class) || defaultSet){
 				if(f.getType().equals(String.class)){
 					return new String(((ByteBuffer) c).array());
 				}
 			}
-			if(f.isAnnotationPresent(VarCharField.class)){
+			if(f.isAnnotationPresent(VarCharField.class) || defaultSet){
 				if(f.getType().equals(String.class)){
 					return new String(((ByteBuffer) c).array());
 				}
 			}
-			if(f.isAnnotationPresent(DecimalField.class)){
+			if(f.isAnnotationPresent(DecimalField.class) || defaultSet){
 				if(f.getType().equals(Double.class) || f.getType().equals(Double.TYPE) ){
 					return Double.parseDouble(new String(((ByteBuffer) c).array()));
 				}
@@ -584,13 +584,13 @@ public class DataHubConverter {
 					return Float.parseFloat(new String(((ByteBuffer) c).array()));
 				}
 			}
-			if(f.isAnnotationPresent(IntegerField.class)){
+			if(f.isAnnotationPresent(IntegerField.class) || defaultSet){
 				if(f.getType().equals(Integer.class) || f.getType().equals(Integer.TYPE)){
 					int result = Integer.parseInt(new String(((ByteBuffer) c).array()));
 					return result;
 				}
 			}
-			if(f.isAnnotationPresent(DateTimeField.class)){
+			if(f.isAnnotationPresent(DateTimeField.class) || defaultSet){
 				if(f.getType().equals(Date.class)){
 					String dateStr = new String(((ByteBuffer) c).array());
 					if(dateStr.equals("None")){
@@ -600,12 +600,16 @@ public class DataHubConverter {
 					return result;
 				}
 			}
-			if(f.isAnnotationPresent(BooleanField.class)){
+			if(f.isAnnotationPresent(BooleanField.class) || defaultSet){
 				if(f.getType().equals(Boolean.class) || f.getType().equals(Boolean.TYPE)){
 					Boolean result = Boolean.parseBoolean(new String(((ByteBuffer) c).array()));
 					return result;
 				}
 			}
+		}
+		Column col = f.getAnnotation(Column.class);
+		if(!defaultSet && col.setupMode() == AnnotationsConstants.SetupModes.Default){
+			return convertToJavaType(c, f, true); 
 		}
 		throw new DataHubException("Invalid model field declaration for: "+f.getName()+"!");
 	}

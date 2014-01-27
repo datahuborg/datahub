@@ -29,6 +29,7 @@ import org.junit.Test;
 import DataHubAccount.DataHubAccount;
 import DataHubAccount.DataHubUser;
 import DataHubORM.DataHubException;
+import Examples.CarModel;
 import Examples.DeviceModel;
 import Examples.TestModel;
 import Examples.TesterModel;
@@ -224,7 +225,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	@Test
+	//@Test
 	public void testHasOneAndBelongsTo() throws DataHubException{
 		db.resetStats();
 		
@@ -493,7 +494,7 @@ public class ModelBasicTests extends TestsMain{
 		t1.destroy();
 		
 	}
-	//@Test 
+	///@Test 
 	public void createTest() throws DataHubException, InstantiationException, IllegalAccessException{
 		db.resetStats();
 		ArrayList<TestModel> tms = new ArrayList<TestModel>();
@@ -522,6 +523,34 @@ public class ModelBasicTests extends TestsMain{
 		for(UserModel user: users){
 			System.out.println(user.tests);
 		}
+	}
+	@Test
+	public void testDefaultAndManualSpecCross() throws DataHubException{
+		TestModel t = this.newTestModel();
+		t.save();
+		
+		CarModel c = new CarModel();
+		c.make="toyota";
+		c.model="camry";
+		c.save();
+		
+		t.cars.add(c);
+		t.save();
+		
+		
+		HashMap<String,Object> params = new HashMap<String,Object>();
+		params.put("id", t.id);
+		TestModel t1 = db.test.findOne(params);
+		
+		HashMap<String,Object> params1 = new HashMap<String,Object>();
+		params1.put("id", c.id);
+		CarModel c1 = db.cars.findOne(params1);
+		
+		System.out.println(t1.cars);
+		System.out.println(c1.tests);
+		
+		assertEquals(t1.cars.contains(c1), true);
+		assertEquals(c1.tests.contains(t1), true);
 	}
 	//@Test
 	public void testQueryWithInModifierAndQueryRefinement(){

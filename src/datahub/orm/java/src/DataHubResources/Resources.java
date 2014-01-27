@@ -47,7 +47,7 @@ public class Resources {
 	public static <T,U> void convertAndSetField(T object, String fieldName, U value){
 		try{
 			Field f = object.getClass().getField(fieldName);
-			Object val = DataHubConverter.convertToJavaType(value, f);
+			Object val = DataHubConverter.convertToJavaType(value, f, false);
 			f.set(object, val);
 		}catch(Exception e){
 			e.printStackTrace();

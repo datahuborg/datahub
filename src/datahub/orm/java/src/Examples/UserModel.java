@@ -2,6 +2,7 @@ package Examples;
 
 import DataHubAnnotations.Association;
 import DataHubAnnotations.Association.LoadTypes;
+import DataHubAnnotations.AnnotationsConstants;
 import DataHubAnnotations.Column;
 import DataHubAnnotations.NoDownload;
 import DataHubAnnotations.Table;
@@ -13,7 +14,7 @@ import DataHubORM.DataHubModel;
 import DataHubORM.QueryRefinementObject;
 
 @Verify()
-@Table(name="users")
+@Table(setupMode=AnnotationsConstants.SetupModes.Manual, name="users")
 public class UserModel extends DataHubModel<UserModel>{
 	
 	//require constructor with no arguments to set defaults
@@ -22,7 +23,7 @@ public class UserModel extends DataHubModel<UserModel>{
 		// TODO Auto-generated constructor stub
 	}
 
-	@Column(name="username")
+	@Column(setupMode=AnnotationsConstants.SetupModes.Manual, name="username")
 	@VarCharField(size=1000)
 	public String username;
 	
