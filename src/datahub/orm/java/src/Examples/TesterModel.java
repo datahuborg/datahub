@@ -3,7 +3,7 @@ package Examples;
 
 import DataHubAnnotations.Association;
 import DataHubAnnotations.Column;
-import DataHubAnnotations.DoubleField;
+import DataHubAnnotations.DecimalField;
 import DataHubAnnotations.Table;
 import DataHubAnnotations.VarCharField;
 import DataHubAnnotations.Verify;
@@ -27,7 +27,7 @@ public class TesterModel extends DataHubModel<TesterModel> {
 	public String testerName;
 	
 	@Column(name="cost")
-	@DoubleField()
+	@DecimalField()
 	public double cost;
 	
 	

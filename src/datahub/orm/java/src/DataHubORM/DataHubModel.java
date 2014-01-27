@@ -178,24 +178,25 @@ public class DataHubModel<T extends DataHubModel>{
 					Object o = f.get(this);
 					if(o != null){
 						if(DataHubConverter.isModelSubclass(f.getType())){
-							DataHubModel m = (DataHubModel) o;
+							DataHubModel otherModel = (DataHubModel) o;
 							//TODO: fix this
 							Association a = f.getAnnotation(Association.class);
+							String foreignKey = DataHubConverter.AssociationDefaultsHandler.getForeignKey(a, this, otherModel);
 							if(a.associationType() == AssociationTypes.BelongsTo){
 								//System.out.println("updating");
 								String associateTableName = this.getCompleteTableName();
-								String queryBelongsTo = "UPDATE "+associateTableName+" SET "+a.foreignKey()+"="+m.id+" WHERE id="+this.id;
+								String queryBelongsTo = "UPDATE "+associateTableName+" SET "+foreignKey+"="+otherModel.id+" WHERE id="+this.id;
 								//getDatabase().query(queryBelongsTo);
 								queries.add(queryBelongsTo);
 							}
 							if(a.associationType() == AssociationTypes.HasOne){
-								String associateTableName = m.getCompleteTableName();
-								String queryHasOne = "UPDATE "+associateTableName+" SET "+a.foreignKey()+"="+m.id+" WHERE id="+this.id;
+								String associateTableName = otherModel.getCompleteTableName();
+								String queryHasOne = "UPDATE "+associateTableName+" SET "+foreignKey+"="+otherModel.id+" WHERE id="+this.id;
 								//getDatabase().query(queryHasOne);
 								queries.add(queryHasOne);
 							}
 							//System.out.println(m);
-							String otherQueries = m.save(recursionDepthLimit-1,localCache);
+							String otherQueries = otherModel.save(recursionDepthLimit-1,localCache);
 							queries.add(otherQueries);
 						}
 						//has many or HABTM relationship
@@ -444,15 +445,17 @@ public class DataHubModel<T extends DataHubModel>{
 				}
 				String newKey = "";
 				//System.out.println(a.associationType());
+				String foreignKey = DataHubConverter.AssociationDefaultsHandler.getForeignKey(a, this, m);
+				
 				switch(a.associationType()){
 					case HasOne:
-						newKey = this.getCompleteTableName()+".id in(select "+a.foreignKey()+" from "+m.getCompleteTableName()+
+						newKey = this.getCompleteTableName()+".id in(select "+foreignKey+" from "+m.getCompleteTableName()+
 						" where "+m.getCompleteTableName()+".id="+m.id+")";
 						//System.out.println(newKey);
 						break;
 					case BelongsTo:
 						newKey = this.getCompleteTableName()+".id in(select "+this.getCompleteTableName()+".id from "+this.getCompleteTableName()+
-						" where "+this.getCompleteTableName()+"."+a.foreignKey()+"="+m.id+")";
+						" where "+this.getCompleteTableName()+"."+foreignKey+"="+m.id+")";
 						break;
 					/*
 					case HasMany:
@@ -573,13 +576,19 @@ public class DataHubModel<T extends DataHubModel>{
 		ArrayList<String> fieldData = new ArrayList<String>();
 		for(Field f:currentModel.keySet()){
 			//System.out.println(f.getName());
-			Column c = f.getAnnotation(Column.class);
-			if(c.name().equals("id") && !this.validId()){
+			String columnName = "";
+			try {
+				columnName = DataHubConverter.getFieldColumnName(f);
+			} catch (DataHubException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(columnName.equals("id") && !this.validId()){
 				continue;
 			}
 			try{
 				Object o = f.get(this);
-				String entry = c.name()+Resources.objectToSQLModifier(o, query)+Resources.objectToSQL(o);
+				String entry = columnName+Resources.objectToSQLModifier(o, query)+Resources.objectToSQL(o);
 				fieldData.add(entry);
 			}catch(Exception e){
 				e.printStackTrace();
@@ -593,12 +602,19 @@ public class DataHubModel<T extends DataHubModel>{
 		ArrayList<String> getFieldTableNames = new ArrayList<String>();
 		for(Field f: currentModel.keySet()){
 			//System.out.println(f.getName());
-			Column c = f.getAnnotation(Column.class);
-			if(c.name().equals("id")){
+			String columnName = "";
+			try {
+				columnName = DataHubConverter.getFieldColumnName(f);
+			} catch (DataHubException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(columnName.equals("id")){
 				continue;
 			}
-			getFieldTableNames.add(c.name());
+			getFieldTableNames.add(columnName);
 		}
+		//System.out.println( Resources.concatenate(getFieldTableNames,","));
 		return Resources.concatenate(getFieldTableNames,",");
 	}
 	String getBasicFieldValues(){
@@ -608,8 +624,14 @@ public class DataHubModel<T extends DataHubModel>{
 		//System.out.println(currentModel);
 		ArrayList<String> fieldData = new ArrayList<String>();
 		for(Field f: currentModel.keySet()){
-			Column c = f.getAnnotation(Column.class);
-			if(c.name().equals("id")){
+			String columnName = "";
+			try {
+				columnName = DataHubConverter.getFieldColumnName(f);
+			} catch (DataHubException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(columnName.equals("id")){
 				continue;
 			}
 			String value = Resources.getFieldSQLStringRep(this, f.getName());
@@ -634,9 +656,11 @@ public class DataHubModel<T extends DataHubModel>{
 		return (T) getClass().newInstance();
 	}
 	public String getTableName(){
-		Table t = this.getClass().getAnnotation(Table.class);
-		if(t != null){
-			return t.name();
+		try {
+			return DataHubConverter.getModelTableName(this.getClass());
+		} catch (DataHubException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -664,11 +688,13 @@ public class DataHubModel<T extends DataHubModel>{
 		HashMap<Class,HashMap<Field,DHType>> models = DataHubConverter.extractColumnBasicFromClass(this.getClass());
 		HashMap<Field,DHType> currentModel = models.get(this.getClass());
 		ArrayList<String> nulls = new ArrayList<String>();
+		//System.out.println(currentModel);
 		for(Field f: currentModel.keySet()){
 			nulls.add("null");
 		}
 		HashMap<Class,HashMap<Field,DHType>> models1 = DataHubConverter.extractAssociationsFromClass(this.getClass());
 		HashMap<Field,DHType> currentModel1 = models1.get(this.getClass());
+		//System.out.println(currentModel1);
 		for(Field f1: currentModel1.keySet()){
 			Association a = f1.getAnnotation(Association.class);
 			if(a!=null && a.associationType() == AssociationTypes.BelongsTo){

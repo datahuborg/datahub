@@ -59,29 +59,44 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 		//need to get class that contains this object
 		//need to get class of T and then do mappings based on table names
 		//check for column annotation and foreign key stuff
+		DataHubModel currentModel = null;
+		DataHubModel otherModel  = null;
+		try {
+			currentModel = this.currentModel.getClass().newInstance();
+			otherModel = this.getAssociatedModelClass().newInstance();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String foreignKey = DataHubConverter.AssociationDefaultsHandler.getForeignKey(this.association, currentModel, otherModel);
+		String linkingTable = DataHubConverter.AssociationDefaultsHandler.getLinkingTableName(this.association, currentModel, otherModel);
+		String leftTableForeignKey = DataHubConverter.AssociationDefaultsHandler.getRightTableForeignKey(this.association, currentModel, otherModel);
+		String rightTableForeignKey = DataHubConverter.AssociationDefaultsHandler.getLeftTableForeignKey(this.association, currentModel, otherModel);
+		
 		String associateTableName = data.getCompleteTableName();
-		String linkingTableName = db.getDatabaseName()+"."+this.association.linkingTable();
+		String linkingTableName = db.getDatabaseName()+"."+linkingTable;
 		String query = "";
+		
 		switch(this.association.associationType()){
 			case HasMany:
-				query = "update "+associateTableName+" set "+this.association.foreignKey()+"="+this.currentModel.id+" where id="+data.id;
+				query = "update "+associateTableName+" set "+foreignKey+"="+this.currentModel.id+" where id="+data.id;
 				break;
 			case HasAndBelongsToMany:
 				int leftVal;
 				int rightVal;
-				if(this.association.leftTableForeignKey().equals(this.association.foreignKey())){
+				if(leftTableForeignKey.equals(foreignKey)){
 					leftVal = this.currentModel.id;
 					rightVal = data.id;
-				}else if(this.association.rightTableForeignKey().equals(this.association.foreignKey())){
+				}else if(rightTableForeignKey.equals(foreignKey)){
 					rightVal = this.currentModel.id;
 					leftVal = data.id;
 				}else{
 					throw new DataHubException("For HABTM association, the foreign key must match either the left or the right key in the linking table!");
 				}
 				//String update = "update "+linkingTableName+" set "+this.association.leftTableForeignKey()+"="+leftVal+" where "+this.association.rightTableForeignKey()+"="+rightVal;
-				String insert = "insert into "+linkingTableName+"("+this.association.leftTableForeignKey()+","+this.association.rightTableForeignKey()+")"+
-						" select "+leftVal+","+rightVal+" where not exists (select 1 from "+linkingTableName+" where "+this.association.leftTableForeignKey()+"="+
-						leftVal+" AND "+this.association.rightTableForeignKey()+"="+rightVal+")";
+				String insert = "insert into "+linkingTableName+"("+leftTableForeignKey+","+rightTableForeignKey+")"+
+						" select "+leftVal+","+rightVal+" where not exists (select 1 from "+linkingTableName+" where "+leftTableForeignKey+"="+
+						leftVal+" AND "+rightTableForeignKey+"="+rightVal+")";
 				query = insert;
 				break;
 			default:
@@ -94,25 +109,41 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 		db.query(query);
 	}
 	private String getRemoveItemSQL(DataHubModel data) throws DataHubException{
+		DataHubModel currentModel = null;
+		DataHubModel otherModel  = null;
+		try {
+			currentModel = this.currentModel.getClass().newInstance();
+			otherModel = this.getAssociatedModelClass().newInstance();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String foreignKey = DataHubConverter.AssociationDefaultsHandler.getForeignKey(this.association, currentModel, otherModel);
+		String linkingTable = DataHubConverter.AssociationDefaultsHandler.getLinkingTableName(this.association, currentModel, otherModel);
+		String leftTableForeignKey = DataHubConverter.AssociationDefaultsHandler.getRightTableForeignKey(this.association, currentModel, otherModel);
+		String rightTableForeignKey = DataHubConverter.AssociationDefaultsHandler.getLeftTableForeignKey(this.association, currentModel, otherModel);
+		
 		String associateTableName = data.getCompleteTableName();
 		String query = "";
+		String linkingTableName = db.getDatabaseName()+"."+linkingTable;
+		
 		switch(this.association.associationType()){
 			case HasMany:
-				query = "update "+associateTableName+" set "+this.association.foreignKey()+"= NULL "+"where id="+data.id;
+				query = "update "+associateTableName+" set "+foreignKey+"= NULL "+"where id="+data.id;
 				break;
 			case HasAndBelongsToMany:
 				int leftVal;
 				int rightVal;
-				if(this.association.leftTableForeignKey().equals(this.association.foreignKey())){
+				if(leftTableForeignKey.equals(foreignKey)){
 					leftVal = this.currentModel.id;
 					rightVal = data.id;
-				}else if(this.association.rightTableForeignKey().equals(this.association.foreignKey())){
+				}else if(rightTableForeignKey.equals(foreignKey)){
 					rightVal = this.currentModel.id;
 					leftVal = data.id;
 				}else{
 					throw new DataHubException("For HABTM association, the foreign key must match either the left or the right key in the linking table!");
 				}
-				query = "delete from "+db.getDatabaseName()+"."+this.association.linkingTable()+" where "+this.association.leftTableForeignKey()+"="+leftVal+" AND "+this.association.rightTableForeignKey()+"="+rightVal;
+				query = "delete from "+linkingTableName+" where "+leftTableForeignKey+"="+leftVal+" AND "+rightTableForeignKey+"="+rightVal;
 				break;
 			default:
 				throw new DataHubException("Invalid association type for DataHubArrayList!");
@@ -266,34 +297,46 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 		return ((Class<T>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
 	}
 	String getPopulateQuery(){
+		DataHubModel currentModel = null;
+		DataHubModel otherModel  = null;
+		try {
+			currentModel = this.currentModel.getClass().newInstance();
+			otherModel = this.getAssociatedModelClass().newInstance();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String foreignKey = DataHubConverter.AssociationDefaultsHandler.getForeignKey(this.association, currentModel, otherModel);
+		String linkingTable = DataHubConverter.AssociationDefaultsHandler.getLinkingTableName(this.association, currentModel, otherModel);
+		String leftTableForeignKey = DataHubConverter.AssociationDefaultsHandler.getRightTableForeignKey(this.association, currentModel, otherModel);
+		String rightTableForeignKey = DataHubConverter.AssociationDefaultsHandler.getLeftTableForeignKey(this.association, currentModel, otherModel);
+		
 		String query = "";
 		String tableName = currentModel.getCompleteTableName();
 		//join on table provided by class
 		//possibly only select relevant model fields
 		try{
-			T newInstance = (T) ((Class)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
-			String newTableName = newInstance.getCompleteTableName();
 			//TODO: fix select *
 			//String query = "select "+"*"+" from "+tableName+", "+newTableName+" where "+newTableName+"."+this.foreignKey+" = "+currentModel.id;
 			switch(this.association.associationType()){
 				case HasMany:
-					query = "select "+"*"+" from "+newTableName+" where "+newTableName+"."+this.association.foreignKey()+" = "+currentModel.id;
+					query = "select "+"*"+" from "+otherModel.getCompleteTableName()+" where "+otherModel.getCompleteTableName()+"."+foreignKey+" = "+this.currentModel.id;
 					break;
 				case HasAndBelongsToMany:
 					String linkTableSelectKey;
 					String linkTableSearchKey;
-					if(this.association.leftTableForeignKey().equals(this.association.foreignKey())){
-						linkTableSelectKey = this.association.rightTableForeignKey();
-						linkTableSearchKey = this.association.leftTableForeignKey();
-					}else if(this.association.rightTableForeignKey().equals(this.association.foreignKey())){
-						linkTableSelectKey = this.association.leftTableForeignKey();
-						linkTableSearchKey = this.association.rightTableForeignKey();
+					if(leftTableForeignKey.equals(foreignKey)){
+						linkTableSelectKey = rightTableForeignKey;
+						linkTableSearchKey = leftTableForeignKey;
+					}else if(rightTableForeignKey.equals(foreignKey)){
+						linkTableSelectKey = leftTableForeignKey;
+						linkTableSearchKey = rightTableForeignKey;
 					}else{
 						throw new DataHubException("For HABTM association, the foreign key must match either the left or the right key in the linking table!");
 					}
-					String query1 = "select ("+linkTableSelectKey+") from "+db.getDatabaseName()+"."+this.association.linkingTable()+" where "+linkTableSearchKey+"="+this.currentModel.id;
+					String query1 = "select ("+linkTableSelectKey+") from "+db.getDatabaseName()+"."+linkingTable+" where "+linkTableSearchKey+"="+this.currentModel.id;
 					//TODO:fix this
-					query = "select * from "+newTableName+" where id in("+query1+")";
+					query = "select * from "+otherModel.getCompleteTableName()+" where id in("+query1+")";
 					//System.out.println(query);
 					break;
 				default:

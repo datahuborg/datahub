@@ -12,6 +12,12 @@ import DataHubORM.DataHubConverter;
 import datahub.DHType;
 
 public class Resources {
+	public static boolean stringNotBlank(String input){
+		if(input!=null && !input.isEmpty() && !input.equals(" ")){
+			return true;
+		}
+		return false;
+	}
 	public static <Q> String converToSQLAndConcatenate(Iterable<Q> i, String linkSymbol){
 		ArrayList<String> sqlVersions = new ArrayList<String>();
 		for(Q object: i){

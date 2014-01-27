@@ -1,6 +1,7 @@
 package Examples;
 
 import DataHubAnnotations.Association;
+import DataHubAnnotations.Association.LoadTypes;
 import DataHubAnnotations.Column;
 import DataHubAnnotations.NoDownload;
 import DataHubAnnotations.Table;
@@ -60,7 +61,6 @@ public class UserModel extends DataHubModel<UserModel>{
 	}
 
 	//override this method to set defaults for fields in class
-	
 	@Override
 	public void setDefaults(){
 		this.password = "lol";

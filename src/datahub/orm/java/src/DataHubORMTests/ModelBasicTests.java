@@ -45,7 +45,7 @@ import datahub.DHConnectionParams._Fields;
 
 
 public class ModelBasicTests extends TestsMain{
-	@Test
+	//@Test
 	public void testCreateAndDelete() throws DataHubException{
 		db.resetStats();
 		
@@ -71,7 +71,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		assertEquals(t2==null,true);
 	}
-	@Test
+	//@Test
 	public void testSave() throws DataHubException{
 		db.resetStats();
 		
@@ -115,7 +115,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	@Test
+	//@Test
 	public void testSave2ChangeObject() throws DataHubException{
 		db.resetStats();
 		
@@ -164,7 +164,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-    @Test
+    //@Test
 	public void testDataHubArrayList() throws DataHubException{
 		db.resetStats();
 		
@@ -266,7 +266,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	@Test
+	//@Test
 	public void HABTMTest() throws DataHubException{
 		db.resetStats();
 		
@@ -411,7 +411,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	@Test
+	//@Test
 	public void testQueryByObject() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -493,25 +493,25 @@ public class ModelBasicTests extends TestsMain{
 		t1.destroy();
 		
 	}
-	@Test 
+	//@Test 
 	public void createTest() throws DataHubException, InstantiationException, IllegalAccessException{
 		db.resetStats();
-		/*ArrayList<TestModel> tms = new ArrayList<TestModel>();
+		ArrayList<TestModel> tms = new ArrayList<TestModel>();
 		ArrayList<UserModel> ums = new ArrayList<UserModel>();
-		for(int j = 1; j<20; j++){
+		for(int j = 1; j<10; j++){
 			UserModel u = new UserModel();
 			u.username="user"+j;
 			u.save();
 			ums.add(u);
 		}
-		for(int i = 0; i<20; i++){
+		for(int i = 0; i<10; i++){
 			TestModel t = this.newTestModel();
 			for(UserModel u: ums){
 				t.users.add(u);
 			}
 			t.save();
 			tms.add(t);
-		}*/
+		}
 		db.resetStats();
 		long old = System.currentTimeMillis();
 		System.out.println("start query"+System.currentTimeMillis());
@@ -522,15 +522,23 @@ public class ModelBasicTests extends TestsMain{
 		for(UserModel user: users){
 			System.out.println(user.tests);
 		}
-		/*HashMap<String,Object> params = new HashMap<String,Object>();
-		params.put("id", tms.get(0).id);
-		TestModel t1 = db.test.findOne(params);
-		System.out.println(t1);
-		db.printStats();
-		t1.destroy();*/
 	}
 	//@Test
-	public void testQueryWithModifiers(){
+	public void testQueryWithInModifierAndQueryRefinement(){
+		//test in modifier
 		
 	}
+	//@Test
+	public void testQueryWithBetweenModifierAndQueryRefinement(){
+		//test between modifier
+		
+	}
+	//@Test
+	public void testQueryWithStringModifiersAndQueryRefinement(){
+		//test contains 
+		//test starts_with
+		//test ends_with
+		
+	}
+	
 }

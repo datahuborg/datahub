@@ -1,10 +1,12 @@
 package DataHubORM;
 
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -153,9 +155,11 @@ public class DataHubDatabase {
 		}
 	}
 	public synchronized String getDatabaseName(){
-		Database d = this.getClass().getAnnotation(Database.class);
-		if(d != null){
-			return d.name();
+		try {
+			return DataHubConverter.getDatabaseName(this.getClass());
+		} catch (DataHubException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -193,11 +197,10 @@ public class DataHubDatabase {
 		System.out.println("misses"+missCount);
 		System.out.println("other"+otherCount);
 	}
+	/*TO BE REMOVED*/
 	DHQueryResult dbQuery(String query){
-		//System.out.println(query);
 		return dhc.dbQuery(query);
 	}
-	/*TO BE REMOVED*/
 	private DHQueryResult dbQuery(String query, ConcurrentHashMap<String,Object> localCache){
 		//System.out.println(query);
 		//System.out.println(dhc.dbQuery(query));
@@ -208,7 +211,7 @@ public class DataHubDatabase {
 				return (DHQueryResult) localCache.get(query);
 			}else{
 				//System.out.println(localCache.keySet());
-				//System.out.println(query);
+				System.out.println(query);
 				missCount+=1;
 				//System.out.println(query);
 				//System.out.println("network");
@@ -232,10 +235,6 @@ public class DataHubDatabase {
 		if(recursionDepthLimit <= 0){
 			return output;
 		}
-		//non-static implementation (should be static though)
-		//get table name
-		//get model class name
-		//make query to datahub and create new instances 
 		try{
 			output = dhQueryToModel(this.dbQuery(query, localCache), modelClass,recursionDepthLimit-1, localCache, objectHash);
 		}catch(Exception e){
@@ -243,7 +242,6 @@ public class DataHubDatabase {
 		}
 		return output;
 	}
-	
 	<T extends DataHubModel> void updateModelObject(T model, int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache,ConcurrentHashMap<String,Object> objectHash){
 		updateModel(getModelBasicDHQuerResult(model, localCache),model, recursionDepthLimit, localCache,objectHash);
 	}
@@ -313,17 +311,17 @@ public class DataHubDatabase {
 		DHSchema schema = data.getSchema();
 		DHTable table  = data.getTable();
 		
-		ArrayList<HashMap<Field,String>> queries = new ArrayList<HashMap<Field,String>>();
+		ArrayList<LinkedHashMap<Field,String>> queries = new ArrayList<LinkedHashMap<Field,String>>();
 		for(int i = 0; i < table.rows.size(); i++){
 			T newObj = models.get(i);
-			queries.add(setBasicAndGetRelatedQueries(dhqr, i,newObj,fieldsToUpdate,idOnly));
+			queries.add((LinkedHashMap<Field, String>) setBasicAndGetRelatedQueries(dhqr, i,newObj,fieldsToUpdate,idOnly));
 		}
 		if(idOnly){
 			return;
 		}
 		//System.out.println(queries);
-		HashMap<Field,String> queries1 = new HashMap<Field,String>();
-		HashMap<Field,ArrayList<String>> queryOrders = new HashMap<Field,ArrayList<String>>();
+		LinkedHashMap<Field,String> queries1 = new LinkedHashMap<Field,String>();
+		LinkedHashMap<Field,ArrayList<String>> queryOrders = new LinkedHashMap<Field,ArrayList<String>>();
 		for(HashMap<Field,String> data1: queries){
 			for(Field field: data1.keySet()){
 				ArrayList<String> queryOrdersForField;
@@ -340,6 +338,7 @@ public class DataHubDatabase {
 						newTemplate = (DataHubModel) field.getType().newInstance();
 					}
 				}catch(Exception e){
+					e.printStackTrace();
 					//TODO: fix this error message
 					 continue;
 				}
@@ -366,7 +365,7 @@ public class DataHubDatabase {
 			
 			ArrayList<DHQueryResult> queryResults = new ArrayList<DHQueryResult>();
 			List<DHField> fields = dhqr1.data.schema.getFields();
-			HashMap<String,Integer> fieldsToIndex = new HashMap<String,Integer>();
+			LinkedHashMap<String,Integer> fieldsToIndex = new LinkedHashMap<String,Integer>();
 			for(int j = 0; j < fields.size(); j++){
 				DHField f = fields.get(j);
 				fieldsToIndex.put(f.name, j);
@@ -544,18 +543,26 @@ public class DataHubDatabase {
 					continue;
 				}
 				if(f1.isAnnotationPresent(Column.class)){
-					Column c = f1.getAnnotation(Column.class);
-					if(fieldsToDHCell.containsKey(c.name())){
-						DHCell cell = fieldsToDHCell.get(c.name());
-						Resources.convertAndSetField(objectToUpdate, f1.getName(), cell.value);
+					//TODO: fix this
+					try {
+						String columnName;
+						columnName = DataHubConverter.getFieldColumnName(f1);
+						if(fieldsToDHCell.containsKey(columnName)){
+							DHCell cell = fieldsToDHCell.get(columnName);
+							Resources.convertAndSetField(objectToUpdate, f1.getName(), cell.value);
+						}
+					} catch (DataHubException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 				}
 			}
 		}
 	}
-	private <T extends DataHubModel> HashMap<Field,String> setBasicAndGetRelatedQueries(DHQueryResult dhqr, int rowNumber, T objectToUpdate, ArrayList<String> fieldsToUpdate, boolean idOnly){
+	private <T extends DataHubModel> LinkedHashMap<Field,String> setBasicAndGetRelatedQueries(DHQueryResult dhqr, int rowNumber, T objectToUpdate, ArrayList<String> fieldsToUpdate, boolean idOnly){
 		
 		setBasic(dhqr,rowNumber, objectToUpdate,fieldsToUpdate,idOnly);
+		
 		
 		DHData data = dhqr.getData();
 		DHSchema schema = data.getSchema();
@@ -563,8 +570,8 @@ public class DataHubDatabase {
 		HashMap<String,DHCell> fieldsToDHCell = new HashMap<String,DHCell>();
 		
 		//invalid conditions, terminate
-		if(table.rows.size() == 0){
-			return new HashMap<Field, String>();
+		if(idOnly || table.rows.size() == 0){
+			return new LinkedHashMap<Field, String>();
 		}
 		
 		//TODO: ID issues
@@ -577,7 +584,7 @@ public class DataHubDatabase {
 		}
 		//TODO: ID issues
 		//ensure id is set before anything and only set the id if the object has an invalid id
-		HashMap<Field, String> data1 = new HashMap<Field,String>();
+		LinkedHashMap<Field, String> data1 = new LinkedHashMap<Field,String>();
 		for(Field f1:objectToUpdate.getClass().getFields()){
 			//skip setting the id because it was set above
 			//figure out fields to update, if fieldsToUpdate is null then update all fields
@@ -593,10 +600,14 @@ public class DataHubDatabase {
 						case HasOne:
 							if(DataHubConverter.isModelSubclass(f1.getType())){
 								try{
-									DHCell cell = fieldsToDHCell.get(a.foreignKey());
-									DataHubModel m = (DataHubModel) f1.getType().newInstance();
-									String newCompleteTableName = m.getCompleteTableName();
-									String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+"."+a.foreignKey()+" = "+objectToUpdate.id+" LIMIT 1";
+									DataHubModel currentModel = (DataHubModel) f1.getDeclaringClass().newInstance();
+									DataHubModel otherModel = (DataHubModel) f1.getType().newInstance();
+									String foreignKey = DataHubConverter.AssociationDefaultsHandler.getForeignKey(a, currentModel, otherModel);
+									
+									
+									DHCell cell = fieldsToDHCell.get(foreignKey);
+									String otherModelCompleteTableName = otherModel.getCompleteTableName();
+									String query = "select * from "+otherModelCompleteTableName+" where "+otherModelCompleteTableName+"."+foreignKey+" = "+objectToUpdate.id+" LIMIT 1";
 									data1.put(f1, query);
 								}catch(Exception e){
 									e.printStackTrace();
@@ -606,17 +617,20 @@ public class DataHubDatabase {
 						case BelongsTo:
 							if(DataHubConverter.isModelSubclass(f1.getType())){
 								try{
-									DHCell cell = fieldsToDHCell.get(a.foreignKey());
+									DataHubModel currentModel = (DataHubModel) f1.getDeclaringClass().newInstance();
+									DataHubModel otherModel = (DataHubModel) f1.getType().newInstance();
+									String foreignKey = DataHubConverter.AssociationDefaultsHandler.getForeignKey(a, currentModel, otherModel);
+									
+									DHCell cell = fieldsToDHCell.get(foreignKey);
 									int modelObjectBelongsToId = (int) DataHubConverter.directConvert(cell.value, Integer.TYPE);
 									//TODO: object already in memory so can just re-use it instead of making new query
-									DataHubModel m = (DataHubModel) f1.getType().newInstance();
-									String newCompleteTableName = m.getCompleteTableName();
+									String otherModelCompleteTableName = otherModel.getCompleteTableName();
 									//String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+tableName+".id = "+objectToUpdate.id;
-									String query = "select * from "+newCompleteTableName+" where "+newCompleteTableName+".id = "+modelObjectBelongsToId+" LIMIT 1";
+									String query = "select * from "+otherModelCompleteTableName+" where "+otherModelCompleteTableName+".id = "+modelObjectBelongsToId+" LIMIT 1";
 									//System.out.println(query);
 									data1.put(f1, query);
 								}catch(Exception e){
-									
+									e.printStackTrace();
 								}
 							}
 							break;

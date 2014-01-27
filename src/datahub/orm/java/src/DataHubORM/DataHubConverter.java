@@ -13,12 +13,14 @@ import javax.print.DocFlavor.STRING;
 
 import android.R.bool;
 
+import DataHubAnnotations.AnnotationsConstants;
 import DataHubAnnotations.Association;
 import DataHubAnnotations.BooleanField;
 import DataHubAnnotations.CharField;
 import DataHubAnnotations.Column;
+import DataHubAnnotations.Database;
 import DataHubAnnotations.DateTimeField;
-import DataHubAnnotations.DoubleField;
+import DataHubAnnotations.DecimalField;
 import DataHubAnnotations.IntegerField;
 import DataHubAnnotations.Table;
 import DataHubAnnotations.VarCharField;
@@ -31,23 +33,125 @@ import DataHubResources.Resources;
 import datahub.DHType;
 
 public class DataHubConverter {
-	public static <T extends DataHubDatabase> String convertDBToSQLSchemaString(Class<T> db) throws DataHubException{
-		
-		class AssociationModifierHandler{
-			public String generateModifierString(Association a){
-				String modifierString = "";
-				String removalOptions = "";
-				switch(a.removalOption()){
-					case CascadingDelete:
-						removalOptions+="on delete cascade";
-						break;
-					default:
-						break;
-				}
-				modifierString += removalOptions;
-				return modifierString;
+	static class AssociationModifierHandler{
+		public String generateModifierString(Association a){
+			String modifierString = "";
+			String removalOptions = "";
+			switch(a.removalOption()){
+				case CascadingDelete:
+					removalOptions+="on delete cascade";
+					break;
+				default:
+					break;
+			}
+			modifierString += removalOptions;
+			return modifierString;
+		}
+	}
+	
+	static class AssociationDefaultsHandler{
+		public static String getForeignKey(Association a, DataHubModel<?> currentModel, DataHubModel<?> otherModel){
+			if(a.setupMode() == AnnotationsConstants.SetupModes.Manual){
+				return a.foreignKey().toLowerCase();
+			}
+			switch(a.associationType()){
+				case BelongsTo:
+					return (otherModel.getTableName()+"_id").toLowerCase();
+				case HasOne:
+				case HasMany:
+				case HasAndBelongsToMany:
+					return (currentModel.getTableName()+"_id").toLowerCase();
+				default:
+					return null;
 			}
 		}
+		public static String getLinkingTableName(Association a, DataHubModel<?> currentModel, DataHubModel<?> otherModel){
+			if(a.setupMode() == AnnotationsConstants.SetupModes.Manual){
+				return a.linkingTable().toLowerCase();
+			}
+			switch(a.associationType()){
+				case HasAndBelongsToMany:
+					String currentModelName = currentModel.getTableName();
+					String otherModelName = otherModel.getTableName();
+					String first;
+					String second;
+					if(currentModelName.compareTo(otherModelName) < 0){
+						first = currentModelName;
+						second = otherModelName;
+					}else{
+						first = otherModelName;
+						second = currentModelName;
+					}
+					return (first+second).toLowerCase();
+				default:
+					return null;
+			}
+		}
+		public static String getLeftTableForeignKey(Association a, DataHubModel<?> currentModel, DataHubModel<?> otherModel){
+			if(a.setupMode() == AnnotationsConstants.SetupModes.Manual){
+				return a.leftTableForeignKey().toLowerCase();
+			}
+			switch(a.associationType()){
+				case HasAndBelongsToMany:
+					String currentModelName = currentModel.getTableName();
+					String otherModelName = otherModel.getTableName();
+					String left;
+					if(currentModelName.compareTo(otherModelName) < 0){
+						left = currentModelName;
+					}else{
+						left = otherModelName;
+					}
+					return (left+"_id").toLowerCase();
+				default:
+					return null;
+			}
+		}
+		public static String getRightTableForeignKey(Association a, DataHubModel<?> currentModel, DataHubModel<?> otherModel){
+			if(a.setupMode() == AnnotationsConstants.SetupModes.Manual){
+				return a.rightTableForeignKey().toLowerCase();
+			}
+			switch(a.associationType()){
+				case HasAndBelongsToMany:
+					String currentModelName = currentModel.getTableName();
+					String otherModelName = otherModel.getTableName();
+					String right;
+					if(currentModelName.compareTo(otherModelName) < 0){
+						right = otherModelName;
+					}else{
+						right = currentModelName;
+					}
+					return (right+"_id").toLowerCase();
+				default:
+					return null;
+			}
+		}
+		public static String getLeftTableName(Association a, DataHubModel<?> currentModel, DataHubModel<?> otherModel) throws DataHubException{
+			String leftTableForeignKey = getLeftTableForeignKey(a,currentModel,otherModel);
+			String rightTableForeignKey = getRightTableForeignKey(a,currentModel,otherModel);
+			String foreignKey = getForeignKey(a,currentModel,otherModel);
+			if(leftTableForeignKey.equals(foreignKey)){
+				return currentModel.getCompleteTableName();
+			}else if(rightTableForeignKey.equals(foreignKey)){
+				return otherModel.getCompleteTableName();
+			}else{
+				throw new DataHubException("For HABTM association, the foreign key must match either the left or the right key in the linking table!");
+			}
+		}
+		public static String getRightTableName(Association a, DataHubModel<?> currentModel, DataHubModel<?> otherModel) throws DataHubException{
+			String leftTableForeignKey = getLeftTableForeignKey(a,currentModel,otherModel);
+			String rightTableForeignKey = getRightTableForeignKey(a,currentModel,otherModel);
+			String foreignKey = getForeignKey(a,currentModel,otherModel);
+			if(leftTableForeignKey.equals(foreignKey)){
+				return otherModel.getCompleteTableName();
+			}else if(rightTableForeignKey.equals(foreignKey)){
+				return currentModel.getCompleteTableName();
+			}else{
+				throw new DataHubException("For HABTM association, the foreign key must match either the left or the right key in the linking table!");
+			}
+		}
+	}
+	
+	public static <T extends DataHubDatabase> String convertDBToSQLSchemaString(Class<T> db) throws DataHubException{
 		
 		ArrayList<Field> models = findModels(db);
 		
@@ -91,9 +195,10 @@ public class DataHubConverter {
 							if(!finalTableDefinitions.containsKey(key)){
 								//String tableDef = tableDefinitions.get(key);
 								//TODO:change this so we use primary key of other table instead of id
-								//tableDef=tableDef.substring(0, tableDef.length()-1);
-								String tableDef1="alter table "+key+" add "+a.foreignKey()+" integer";
-								String tableDef2 = "alter table "+key+" add foreign key ("+a.foreignKey()+") references "+otherModel.getCompleteTableName()+"("+"id"+") ";
+								//tableDef=tableDef.substring(0, tableDef.length()-1);;
+								String foreignKey = AssociationDefaultsHandler.getForeignKey(a, currentModel, otherModel);
+								String tableDef1="alter table "+key+" add "+foreignKey+" integer";
+								String tableDef2 = "alter table "+key+" add foreign key ("+foreignKey+") references "+otherModel.getCompleteTableName()+"("+"id"+") ";
 								String tableDef = tableDef1 + ";" + tableDef2;
 								finalTableDefinitions.put(key, tableDef);
 							}
@@ -109,8 +214,9 @@ public class DataHubConverter {
 								//String tableDef = tableDefinitions.get(key);
 								//tableDef=tableDef.substring(0, tableDef.length()-1);
 								//TODO:change this so we use primary key of other table instead of id
-								String tableDef1="alter table "+key+" add "+a.foreignKey()+" integer";
-								String tableDef2 ="alter table "+key+" add foreign key ("+a.foreignKey()+") references "+currentModel.getCompleteTableName()+"("+"id"+") ";
+								String foreignKey = AssociationDefaultsHandler.getForeignKey(a, currentModel, otherModel);
+								String tableDef1="alter table "+key+" add "+foreignKey+" integer";
+								String tableDef2 ="alter table "+key+" add foreign key ("+foreignKey+") references "+currentModel.getCompleteTableName()+"("+"id"+") ";
 								String tableDef = tableDef1 + ";" + tableDef2;
 								finalTableDefinitions.put(key, tableDef);
 							}
@@ -127,13 +233,14 @@ public class DataHubConverter {
 								//String tableDef = tableDefinitions.get(key);
 								//tableDef=tableDef.substring(0, tableDef.length()-1);
 								//TODO:change this so we use primary key of other table instead of id
-								String tableDef1="alter table "+key+" add "+a.foreignKey()+" integer";
-								String tableDef2 = "alter table "+key+" add foreign key ("+a.foreignKey()+") references "+currentModel.getCompleteTableName()+"("+"id"+") ";
+								String foreignKey = AssociationDefaultsHandler.getForeignKey(a, currentModel, otherModel);
+								String tableDef1="alter table "+key+" add "+foreignKey+" integer";
+								String tableDef2 = "alter table "+key+" add foreign key ("+foreignKey+") references "+currentModel.getCompleteTableName()+"("+"id"+") ";
 								String tableDef = tableDef1 + ";" + tableDef2;
 								finalTableDefinitions.put(key, tableDef);
 							}
 						}catch(Exception e){
-							//e.printStackTrace();
+							e.printStackTrace();
 							throw new DataHubException("Invalid model association for field: "+association.getName()+" in "+f.getName()+"! A HasMany Annotation can only be used on a DataHubArrayList field!");
 						}
 						break;
@@ -141,30 +248,23 @@ public class DataHubConverter {
 						try{
 							DataHubArrayList otherModelList = (DataHubArrayList) association.getType().newInstance();
 							DataHubModel otherModel = (DataHubModel) otherModelList.getAssociatedModelClass().newInstance();
-							String linkingTable = otherModelList.getDatabase().getDatabaseName()+"."+a.linkingTable();
+							String linkingTable = otherModelList.getDatabase().getDatabaseName()+"."+AssociationDefaultsHandler.getLinkingTableName(a, currentModel, otherModel);
 							key = linkingTable;
 							if(!finalTableDefinitions.containsKey(key)){
 								//add foreign key constraint later
 								//foreign key ("+a.foreignKey()+") references "+otherModel.getCompleteTableName()+"("+"id"+") 
 								String tableDef = "create table if not exists "+linkingTable+"(id serial,";
-								String leftTable;
-								String rightTable;
-								if(a.leftTableForeignKey().equals(a.foreignKey())){
-									leftTable = currentModel.getCompleteTableName();
-									rightTable = otherModel.getCompleteTableName();
-								}else if(a.rightTableForeignKey().equals(a.foreignKey())){
-									leftTable = otherModel.getCompleteTableName();
-									rightTable = currentModel.getCompleteTableName();
-								}else{
-									throw new DataHubException("For HABTM association, the foreign key must match either the left or the right key in the linking table!");
-								}
-								String left = a.leftTableForeignKey()+" integer, foreign key ("+a.leftTableForeignKey()+") references "+leftTable+"("+"id"+") " + new AssociationModifierHandler().generateModifierString(a); 
-								String right = a.rightTableForeignKey()+" integer, foreign key ("+a.rightTableForeignKey()+") references "+rightTable+"("+"id"+") " + new AssociationModifierHandler().generateModifierString(a); 
+								String leftTableForeignKey = AssociationDefaultsHandler.getLeftTableForeignKey(a, currentModel, otherModel);
+								String rightTableForeignKey = AssociationDefaultsHandler.getRightTableForeignKey(a, currentModel, otherModel);
+								String leftTable = AssociationDefaultsHandler.getLeftTableName(a, currentModel, otherModel);
+								String rightTable = AssociationDefaultsHandler.getRightTableName(a, currentModel, otherModel);;
+								String left = leftTableForeignKey+" integer, foreign key ("+leftTableForeignKey+") references "+leftTable+"("+"id"+") " + new AssociationModifierHandler().generateModifierString(a); 
+								String right = rightTableForeignKey+" integer, foreign key ("+rightTableForeignKey+") references "+rightTable+"("+"id"+") " + new AssociationModifierHandler().generateModifierString(a); 
 								tableDef+= left+","+right+")";
 								finalTableDefinitions.put(key, tableDef);
 							}
 						}catch(Exception e){
-							//e.printStackTrace();
+							e.printStackTrace();
 							throw new DataHubException("Invalid model association for field: "+association.getName()+" in "+f.getName()+"! A HasMany Annotation can only be used on a DataHubArrayList field!");
 						}
 						break;
@@ -213,7 +313,8 @@ public class DataHubConverter {
 		int primaryKeyCount = 0;
 		for(Field f: basicColumns.keySet()){
 			Column column = f.getAnnotation(Column.class);
-			String columnStr = column.name()+" "+modelTypeToSQLString(f);
+			String columnName = DataHubConverter.getFieldColumnName(f);
+			String columnStr = columnName+" "+modelTypeToSQLString(f);
 			switch(column.index()){
 				case PrimaryKey:
 					columnStr+=" "+"primary key";
@@ -326,7 +427,8 @@ public class DataHubConverter {
 		if(model.isAnnotationPresent(Table.class)){
 			try {
 				//update table information
-				tableName = ((Table) model.getAnnotation(Table.class)).name();
+				//get table name via helper inference methods
+				tableName = DataHubConverter.getModelTableName(model);
 				tableCount++;
 				if(tableCount > 1){
 					throw new Exception("Too many tables!");
@@ -362,6 +464,7 @@ public class DataHubConverter {
 	}
 	public static String modelTypeToSQLString(Field f) throws DataHubException{
 		//System.out.println(Arrays.asList(f.getDeclaredAnnotations()));
+		//TODO: move to separate object
 		String modifier = "";
 		try{
 			DataHubModel modelObject = (DataHubModel) f.getDeclaringClass().newInstance();
@@ -385,15 +488,15 @@ public class DataHubConverter {
 					return "varchar("+ccf.size()+")"+modifier;
 				}
 			}
-			if(f.isAnnotationPresent(DoubleField.class)){
-				DoubleField df = f.getAnnotation(DoubleField.class);
-				if(f.getType().equals(Double.TYPE)){
+			if(f.isAnnotationPresent(DecimalField.class)){
+				DecimalField df = f.getAnnotation(DecimalField.class);
+				if(f.getType().equals(Double.TYPE) || f.getType().equals(Double.class) || f.getType().equals(Float.TYPE) || f.getType().equals(Float.class)){
 					return "decimal"+modifier;
 				}
 			}
 			if(f.isAnnotationPresent(IntegerField.class)){
 				IntegerField intf = f.getAnnotation(IntegerField.class);
-				if(f.getType().equals(Integer.TYPE)){
+				if(f.getType().equals(Integer.TYPE) || f.getType().equals(Integer.class)){
 					if(intf.Serial()){
 						return "serial";
 					}
@@ -407,12 +510,32 @@ public class DataHubConverter {
 			}
 			if(f.isAnnotationPresent(BooleanField.class)){
 				BooleanField bf = f.getAnnotation(BooleanField.class);
-				if(f.getType().equals(Boolean.TYPE)){
+				if(f.getType().equals(Boolean.TYPE) || f.getType().equals(Boolean.class)){
 					return "boolean"+modifier;
 				}
 			}
+			return javaTypeToDefaultSQLType(f);
 		}
-		throw new DataHubException("Invalid model field declaration for: "+f.getName()+"!");
+		throw new DataHubException("Invalid model field declaration for: "+f.getName()+"! No Column annotation!");
+	}
+	public static String javaTypeToDefaultSQLType(Field f) throws DataHubException{
+		Type t= f.getType();
+		if(t.equals(String.class)){
+			return "varchar(1000)";
+		}
+		if(t.equals(Integer.TYPE) || t.equals(Integer.class)){
+			return "integer";
+		}
+		if(f.getType().equals(Double.TYPE) || f.getType().equals(Double.class) || f.getType().equals(Float.TYPE) || f.getType().equals(Float.class)){
+			return "decimal";
+		}
+		if(t.equals(Boolean.TYPE) || t.equals(Boolean.class)){
+			return "boolean";
+		}
+		if(t.equals(Date.class)){
+			return "timestamp";
+		}
+		throw new DataHubException("Only primitive types and classes are supported for @Column on "+f.getName());
 	}
 	public static DHType modelTypeToDHType(Field f){
 		//convert from annotation to DataHub type
@@ -423,7 +546,7 @@ public class DataHubConverter {
 			if(f.isAnnotationPresent(VarCharField.class)){
 				return DHType.Text;
 			}
-			if(f.isAnnotationPresent(DoubleField.class)){
+			if(f.isAnnotationPresent(DecimalField.class)){
 				return DHType.Double;
 			}
 			if(f.isAnnotationPresent(IntegerField.class)){
@@ -453,7 +576,7 @@ public class DataHubConverter {
 					return new String(((ByteBuffer) c).array());
 				}
 			}
-			if(f.isAnnotationPresent(DoubleField.class)){
+			if(f.isAnnotationPresent(DecimalField.class)){
 				if(f.getType().equals(Double.class) || f.getType().equals(Double.TYPE) ){
 					return Double.parseDouble(new String(((ByteBuffer) c).array()));
 				}
@@ -488,12 +611,54 @@ public class DataHubConverter {
 	}
 	public static Object directConvert(Object c, Type t){
 		if(t.equals(Integer.TYPE)){
-			int result = Integer.parseInt(new String(((ByteBuffer) c).array()));
-			return result;
+			try{
+				int result = Integer.parseInt(new String(((ByteBuffer) c).array()));
+				return result;
+			}catch(Exception e){
+				e.printStackTrace();
+				return 0;
+			}
 		}
 		if(t.equals(String.class)){
 			return new String(((ByteBuffer) c).array());
 		}
 		return null;
+	}
+	public static String getDatabaseName(Class<? extends DataHubDatabase> class1) throws DataHubException{
+		if(!class1.isAnnotationPresent(Database.class)){
+			throw new DataHubException("Invalid Database Class! Requires @Database annotation!");
+		}
+		Database d = class1.getAnnotation(Database.class);
+		String databaseName = d.name();
+		if(d.setupMode() == AnnotationsConstants.SetupModes.Manual){
+			return databaseName;
+		}else{
+			return class1.getSimpleName();
+		}
+		
+	}
+	public static String getModelTableName(Class<? extends DataHubModel> class1) throws DataHubException{
+		if(!class1.isAnnotationPresent(Table.class)){
+			throw new DataHubException("Invalid Model Class! Requires @Table annotation!");
+		}
+		Table t = class1.getAnnotation(Table.class);
+		String tableName = t.name();
+		if(t.setupMode() == AnnotationsConstants.SetupModes.Manual){
+			return tableName;
+		}else{
+			return class1.getSimpleName();
+		}
+	}
+	public static String getFieldColumnName(Field f) throws DataHubException{
+		if(!f.isAnnotationPresent(Column.class)){
+			throw new DataHubException("Invalid Model Field! Requires @Column annotation!");
+		}
+		Column c  = f.getAnnotation(Column.class);
+		String columnName = c.name();
+		if(c.setupMode() == AnnotationsConstants.SetupModes.Manual){
+			return columnName;
+		}else{
+			return f.getName();
+		}
 	}
 }

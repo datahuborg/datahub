@@ -1,10 +1,11 @@
 package Examples;
 
+import DataHubAnnotations.AnnotationsConstants;
 import DataHubAnnotations.Database;
 import DataHubORM.DataHubDatabase;
 
 
-@Database(name="test")
+@Database(setupMode=AnnotationsConstants.SetupModes.Manual,name="test")
 public class TestDatabase extends DataHubDatabase {
 	
 	public TestModel test;	
@@ -14,5 +15,7 @@ public class TestDatabase extends DataHubDatabase {
 	public UserModel users;
 	
 	public TesterModel testers;
+	
+	public CarModel cars;
 	
 }
