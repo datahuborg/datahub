@@ -161,8 +161,12 @@ def create_table_from_file(request):
     tuples = [Tuples(**row) for row in data]
     
     for t in tuples:
-      query = "INSERT INTO %s (%s) values (%s)" %(dh_table_name, ', '.join(columns), ', '.join(map(lambda x: "'" + x + "'", list(t))))
-      manager.execute_sql(username=login, query=query)
+      try:
+        query = "INSERT INTO %s (%s) values (%s)" %(dh_table_name, ', '.join(columns), ', '.join(map(lambda x: "'" + x + "'", list(t))))
+        manager.execute_sql(username=login, query=query)
+      except Exception, e:
+        pass
+
 
 
   return HttpResponseRedirect('/browse/%s/%s' %(login, repo))
