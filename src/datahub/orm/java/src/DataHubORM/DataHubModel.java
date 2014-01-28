@@ -21,6 +21,7 @@ import datahub.DHSchema;
 import datahub.DHTable;
 import datahub.DHType;
 
+import DataHubAnnotations.AnnotationsConstants.SetupModes;
 import DataHubAnnotations.Association;
 import DataHubAnnotations.Column;
 import DataHubAnnotations.IntegerField;
@@ -35,14 +36,14 @@ import DataHubWorkers.GenericExecutable;
 import Examples.TestModel;
 
 @Table(name="")
-public class DataHubModel<T extends DataHubModel>{
+public abstract class DataHubModel<T extends DataHubModel>{
 	
 	
 	private static DataHubDatabase db;
 	
 	private HashMap<String,String> errors;
 	
-	@Column(name="id", index=Index.PrimaryKey)
+	@Column(setupMode=SetupModes.Manual, name="id", index=Index.PrimaryKey)
 	@IntegerField(Serial=true)
 	public int id;
 	
@@ -220,7 +221,7 @@ public class DataHubModel<T extends DataHubModel>{
 			//System.out.println(getDatabase().query("SELECT * FROM "+this.getCompleteTableName()+" WHERE "+"id="+this.id, this.getClass()));
 			//possibly garbage collect object
 			//recursively save all fields
-			afterSave();
+			afterDestroy();
 			//TODO: supporty cascading delete, but doing it in table definition so that server does it
 		}catch(Exception e){
 			e.printStackTrace();

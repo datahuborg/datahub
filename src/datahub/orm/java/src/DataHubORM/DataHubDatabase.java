@@ -43,10 +43,11 @@ public class DataHubDatabase {
 	
 	public enum DatabaseEngine{Postgres};
 	
-	protected static int MAX_LOAD_RECURSION_DEPTH = 100;
 	
-	//prevent do unnecessary saves
-	protected static int MAX_SAVE_RECURSION_DEPTH = 100;
+	protected static int MAX_LOAD_RECURSION_DEPTH = Integer.MAX_VALUE;
+	
+	//prevent unnecessary saves
+	protected static int MAX_SAVE_RECURSION_DEPTH = Integer.MAX_VALUE;
 	
 	private DataHubClient dhc;
 	
@@ -163,15 +164,6 @@ public class DataHubDatabase {
 		}
 		return null;
 	}
-	/*public <T extends Model> ArrayList<T> insert(T object){
-		
-	}
-	public <T extends Model> ArrayList<T> update(T object){
-		
-	}
-	public <T extends Model> ArrayList<T> select(T object, HashMap<String,Object> queryParams){
-		
-	}*/
 	/*TO BE REMOVED*/
 	public static int hitCount = 0;
 	public static int missCount = 0;

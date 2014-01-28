@@ -499,13 +499,13 @@ public class ModelBasicTests extends TestsMain{
 		db.resetStats();
 		ArrayList<TestModel> tms = new ArrayList<TestModel>();
 		ArrayList<UserModel> ums = new ArrayList<UserModel>();
-		for(int j = 1; j<10; j++){
+		for(int j = 1; j<15; j++){
 			UserModel u = new UserModel();
 			u.username="user"+j;
 			u.save();
 			ums.add(u);
 		}
-		for(int i = 0; i<10; i++){
+		for(int i = 0; i<15; i++){
 			TestModel t = this.newTestModel();
 			for(UserModel u: ums){
 				t.users.add(u);
