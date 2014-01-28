@@ -79,7 +79,7 @@ public class DataHubDatabase {
 	}
 	public synchronized void clearAndReCreate() throws DataHubException{
 		//clear database
-		String clearDB = "drop schema "+this.getDatabaseName()+" cascade;";
+		String clearDB = "drop schema if exists "+this.getDatabaseName()+" cascade;";
 		
 		//re-create database from scratch
 		String createDB = "create schema "+this.getDatabaseName()+";";
