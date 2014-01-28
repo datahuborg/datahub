@@ -157,7 +157,7 @@ def create_table_from_file(request):
     except Exception, e:
       pass 
 
-    Tuples = collections.namedtuple('Tuples', data.fieldnames)
+    Tuples = collections.namedtuple('Tuples', columns)
     tuples = [Tuples(**row) for row in data]
     
     for t in tuples:
