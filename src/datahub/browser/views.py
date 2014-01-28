@@ -1,4 +1,4 @@
-import json, sys, re, hashlib, smtplib, base64, urllib, os
+import json, sys, re, hashlib, smtplib, base64, urllib, os, csv, collections
 
 from auth import *
 
@@ -96,11 +96,13 @@ def repo(request, username, repo):
   try:
     res = manager.list_tables(username, repo)
     tables = [t[0] for t in res['tuples']]
-    return render_to_response("repo.html", {
+    res = {
         'login': get_login(request),
         'username': username,
         'repo': repo,
-        'tables': tables})
+        'tables': tables}
+    res.update(csrf(request))
+    return render_to_response("repo.html", res)
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -126,6 +128,44 @@ def table(request, username, repo, table):
         json.dumps(
           {'error': str(e)}),
         mimetype="application/json")
+
+
+def handle_uploaded_file(username, repo, table_name, file_data):
+  file_name, file_extension = os.path.splitext(str(file_data))
+  with open('%s/%s/%s.%s' %(username, repo, table_name, file_extension), 'wb+') as destination:
+    for chunk in f.chunks():
+      destination.write(chunk)
+
+def create_table_from_file(request):
+  login = get_login(request)
+  repo = ''
+  if request.method == 'POST':
+    data_file = request.FILES['data_file']
+    file_extension = os.path.splitext(str(data_file))[1]
+    data = csv.DictReader(data_file)
+    table_name = request.POST['table_name']
+    repo = request.POST['repo']
+    columns = data.fieldnames
+    dh_table_name = '%s.%s.%s' %(login, repo, table_name)
+    query = 'CREATE TABLE IF NOT EXISTS %s (%s text' % (dh_table_name, columns[0])
+    for i in range(1, len(columns)):
+      query += ', %s %s' %(columns[i], 'text')
+
+    query += ')'
+    
+    res = manager.execute_sql(
+        username=login, query=query
+        )  
+
+    Tuples = collections.namedtuple('Tuples', data.fieldnames)
+    tuples = [Tuples(**row) for row in data]
+    
+    for t in tuples:
+      query = "INSERT INTO %s (%s) values (%s)" %(dh_table_name, ', '.join(columns), ', '.join(map(lambda x: "'" + x + "'", list(t))))
+      manager.execute_sql(username=login, query=query)
+
+
+  return HttpResponseRedirect('/browse/%s/%s' %(login, repo))
 
 
 

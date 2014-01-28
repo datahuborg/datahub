@@ -22,6 +22,8 @@ urlpatterns = patterns('',
     url(r'^newrepo$', 'browser.views.newrepo'),
     url(r'^newrepo/$', 'browser.views.newrepo'),
 
+    url(r'^create_table_from_file$', 'browser.views.create_table_from_file'),
+
     url(r'^service$', 'browser.views.service'),
     url(r'^service/$', 'browser.views.service'),
 
