@@ -23,6 +23,12 @@
 <div id="content">
 	<a class="blue bold" href=/browse/{{username}}>{{username}}</a> . <a class = "blue bold" href=/browse/{{username}}/{{repo}}>{{repo}}</a>
 	<br />
+	<form method='POST' enctype='multipart/form-data' action='upload_file'>
+	Table Data File (csv or xls) <input type=file name=upfile><br>
+	Name of the table: <input type=text name=note><br>
+<br>
+<input type="submit" value="Create Table" />
+</form>
 	<br />
 	<table id="tables">
 		<thead>
