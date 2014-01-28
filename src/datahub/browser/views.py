@@ -159,9 +159,10 @@ def create_table_from_file(request):
     
     for t in data:
       try:
-        query = "INSERT INTO %s (%s) values (%s)" %(dh_table_name, ', '.join(columns), ', '.join(map(lambda x: "'" + x + "'", list(t))))
+        query = "INSERT INTO %s (%s) values (%s)" %(dh_table_name, ', '.join(columns), ', '.join(map(lambda x: "'" + unicode(x, "ISO-8859-1") + "'", list(t))))
         manager.execute_sql(username=login, query=query)
       except Exception, e:
+        print e
         pass
 
 
