@@ -145,7 +145,7 @@ def create_table_from_file(request):
     data = csv.DictReader(data_file)
     table_name = request.POST['table_name']
     repo = request.POST['repo']
-    columns = data.fieldnames
+    columns = map(lambda x: re.sub(r'\W+', '_', x), data.fieldnames)
     dh_table_name = '%s.%s.%s' %(login, repo, table_name)
     query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
     for i in range(1, len(columns)):
