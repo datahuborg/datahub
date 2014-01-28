@@ -142,10 +142,10 @@ def create_table_from_file(request):
   if request.method == 'POST':
     data_file = request.FILES['data_file']
     file_extension = os.path.splitext(str(data_file))[1]
-    data = csv.DictReader(data_file)
+    data = csv.reader(data_file)
     table_name = request.POST['table_name']
     repo = request.POST['repo']
-    columns = map(lambda x: re.sub(r'\W+', '_', x), data.fieldnames)
+    columns = map(lambda x: re.sub(r'\W+', '_', x), data.next())
     dh_table_name = '%s.%s.%s' %(login, repo, table_name)
     query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
     for i in range(1, len(columns)):
@@ -156,11 +156,8 @@ def create_table_from_file(request):
       res = manager.execute_sql(username=login, query=query)
     except Exception, e:
       pass 
-
-    Tuples = collections.namedtuple('Tuples', columns)
-    tuples = [Tuples(**row) for row in data]
     
-    for t in tuples:
+    for t in data:
       try:
         query = "INSERT INTO %s (%s) values (%s)" %(dh_table_name, ', '.join(columns), ', '.join(map(lambda x: "'" + x + "'", list(t))))
         manager.execute_sql(username=login, query=query)
