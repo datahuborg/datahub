@@ -13,7 +13,6 @@ import DataHubORM.DataHubException;
 import DataHubORM.DataHubModel;
 import DataHubORM.QueryRefinementObject;
 
-@Verify()
 @Table(setupMode=AnnotationsConstants.SetupModes.Manual, name="users")
 public class UserModel extends DataHubModel<UserModel>{
 	
@@ -27,14 +26,21 @@ public class UserModel extends DataHubModel<UserModel>{
 	@VarCharField(size=1000)
 	public String username;
 	
-	@NoDownload
 	@Column(setupMode=AnnotationsConstants.SetupModes.Manual,name="password")
 	@VarCharField(size=1000)
 	public String password;
 	
+	@Column
+	public String description;
+	
+	@Column
+	public double funds;
+	
 	@Association(setupMode=AnnotationsConstants.SetupModes.Manual, associationType = AssociationTypes.HasAndBelongsToMany, linkingTable = "testuser", leftTableForeignKey = "test_id",rightTableForeignKey = "user_id", foreignKey = "user_id")
 	public TestDatahubArrayList tests;
 	
+	@Association(associationType = AssociationTypes.HasAndBelongsToMany, loadType = LoadTypes.None)
+	public CarDataHubArrayList cars;
 	
 	@Override
 	public synchronized boolean validate(){
@@ -65,6 +71,8 @@ public class UserModel extends DataHubModel<UserModel>{
 	@Override
 	public void setDefaults(){
 		this.password = "lol";
+		this.description = "Enter a description here!";
+		this.funds = 0;
 	}
 	
 	//Override this method to use this default query refinment object in all queries for class

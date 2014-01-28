@@ -46,7 +46,7 @@ import datahub.DHConnectionParams._Fields;
 
 
 public class ModelBasicTests extends TestsMain{
-	//@Test
+	@Test
 	public void testCreateAndDelete() throws DataHubException{
 		db.resetStats();
 		
@@ -72,7 +72,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		assertEquals(t2==null,true);
 	}
-	//@Test
+	@Test
 	public void testSave() throws DataHubException{
 		db.resetStats();
 		
@@ -116,7 +116,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	//@Test
+	@Test
 	public void testSave2ChangeObject() throws DataHubException{
 		db.resetStats();
 		
@@ -165,7 +165,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-    //@Test
+    @Test
 	public void testDataHubArrayList() throws DataHubException{
 		db.resetStats();
 		
@@ -225,7 +225,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	//@Test
+	@Test
 	public void testHasOneAndBelongsTo() throws DataHubException{
 		db.resetStats();
 		
@@ -267,7 +267,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	//@Test
+	@Test
 	public void HABTMTest() throws DataHubException{
 		db.resetStats();
 		
@@ -494,7 +494,7 @@ public class ModelBasicTests extends TestsMain{
 		t1.destroy();
 		
 	}
-	//@Test 
+	@Test 
 	public void createTest() throws DataHubException, InstantiationException, IllegalAccessException{
 		db.resetStats();
 		ArrayList<TestModel> tms = new ArrayList<TestModel>();
@@ -524,7 +524,7 @@ public class ModelBasicTests extends TestsMain{
 			System.out.println(user.tests);
 		}
 	}
-	//@Test
+	@Test
 	public void testDefaultAndManualSpecCross() throws DataHubException{
 		TestModel t = this.newTestModel();
 		t.save();

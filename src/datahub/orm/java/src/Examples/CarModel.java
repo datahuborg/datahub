@@ -4,6 +4,7 @@ import DataHubAnnotations.Association;
 import DataHubAnnotations.Column;
 import DataHubAnnotations.Table;
 import DataHubAnnotations.Association.AssociationTypes;
+import DataHubAnnotations.Association.LoadTypes;
 import DataHubORM.DataHubException;
 import DataHubORM.DataHubModel;
 
@@ -23,4 +24,7 @@ public class CarModel extends DataHubModel<CarModel>{
 	
 	@Association(associationType = AssociationTypes.HasAndBelongsToMany)
 	public TestDatahubArrayList tests;
+	
+	@Association(associationType = AssociationTypes.HasAndBelongsToMany, loadType = LoadTypes.None)
+	public UsersDataHubArrayList users;
 }

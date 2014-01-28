@@ -521,7 +521,7 @@ public class DataHubConverter {
 	public static String javaTypeToDefaultSQLType(Field f) throws DataHubException{
 		Type t= f.getType();
 		if(t.equals(String.class)){
-			return "varchar(1000)";
+			return "varchar";
 		}
 		if(t.equals(Integer.TYPE) || t.equals(Integer.class)){
 			return "integer";

@@ -202,7 +202,7 @@ public class DataHubDatabase {
 		return dhc.dbQuery(query);
 	}
 	private DHQueryResult dbQuery(String query, ConcurrentHashMap<String,Object> localCache){
-		System.out.println(query);
+		//System.out.println(query);
 		//System.out.println(dhc.dbQuery(query));
 		if(query.toLowerCase().startsWith("select * from") || query.toLowerCase().startsWith("(select * from")){
 			if(localCache.containsKey(query)){
@@ -211,7 +211,7 @@ public class DataHubDatabase {
 				return (DHQueryResult) localCache.get(query);
 			}else{
 				//System.out.println(localCache.keySet());
-				//System.out.println(query);
+				System.out.println(query);
 				missCount+=1;
 				//System.out.println(query);
 				//System.out.println("network");
