@@ -147,15 +147,15 @@ def create_table_from_file(request):
     repo = request.POST['repo']
     columns = data.fieldnames
     dh_table_name = '%s.%s.%s' %(login, repo, table_name)
-    query = 'CREATE TABLE IF NOT EXISTS %s (%s text' % (dh_table_name, columns[0])
+    query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
     for i in range(1, len(columns)):
       query += ', %s %s' %(columns[i], 'text')
 
     query += ')'
-    
-    res = manager.execute_sql(
-        username=login, query=query
-        )  
+    try:
+      res = manager.execute_sql(username=login, query=query)
+    except Exception, e:
+      pass 
 
     Tuples = collections.namedtuple('Tuples', data.fieldnames)
     tuples = [Tuples(**row) for row in data]
