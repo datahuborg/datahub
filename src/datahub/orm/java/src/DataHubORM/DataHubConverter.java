@@ -473,7 +473,7 @@ public class DataHubConverter {
 				modifier+=" default "+Resources.objectToSQL(val);
 			}
 		}catch(Exception  e){
-			
+			//e.printStackTrace();
 		}
 		if(f.isAnnotationPresent(Column.class)){
 			if(f.isAnnotationPresent(CharField.class)){
