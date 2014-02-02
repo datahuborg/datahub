@@ -599,7 +599,7 @@ public class DataHubDatabase {
 									
 									DHCell cell = fieldsToDHCell.get(foreignKey);
 									String otherModelCompleteTableName = otherModel.getCompleteTableName();
-									String query = "select * from "+otherModelCompleteTableName+" where "+otherModelCompleteTableName+"."+foreignKey+" = "+objectToUpdate.id+" LIMIT 1";
+									String query = "select * from "+otherModelCompleteTableName+" where "+otherModelCompleteTableName+"."+foreignKey+" = "+objectToUpdate.id;
 									data1.put(f1, query);
 								}catch(Exception e){
 									e.printStackTrace();
@@ -627,7 +627,7 @@ public class DataHubDatabase {
 									//TODO: object already in memory so can just re-use it instead of making new query
 									String otherModelCompleteTableName = otherModel.getCompleteTableName();
 									//String query = "select * from "+completeTableName+", "+newCompleteTableName+" where "+tableName+".id = "+objectToUpdate.id;
-									String query = "select * from "+otherModelCompleteTableName+" where "+otherModelCompleteTableName+".id = "+modelObjectBelongsToId+" LIMIT 1";
+									String query = "select * from "+otherModelCompleteTableName+" where "+otherModelCompleteTableName+".id = "+modelObjectBelongsToId;
 									//System.out.println(query);
 									data1.put(f1, query);
 								}catch(Exception e){

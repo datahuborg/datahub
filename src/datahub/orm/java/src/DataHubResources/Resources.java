@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 import DataHubORM.DataHubConverter;
 
@@ -98,6 +99,21 @@ public class Resources {
 		}
 		return out;
 	}
+	public static String escapeSQLSpecial(String o1){
+		
+		char[] characters = o1.toCharArray();
+		String outputStr = "";
+		for(char c:characters){
+			String charVal = String.valueOf(c);
+			if(Constants.sqlSpecialChars.contains(charVal)){
+				outputStr+="\\"+charVal;
+			}else{
+				outputStr+=charVal;
+			}
+			
+		}
+		return outputStr;
+	}
 	public static String objectToSQL(Object o1){
 		String out = "";
 		if(o1==null){
@@ -109,6 +125,19 @@ public class Resources {
 			out = o1.toString();
 		}
 		return out;
+	}
+	public static String objectPlusModifierAndEscapeToSQL(Object o1, String modifierFront, String modifierBack){
+		String out = "";
+		if(o1==null){
+			return "NULL";
+		}
+		if(o1.getClass().equals(String.class)){
+			out = "'"+modifierFront + escapeSQLSpecial(o1.toString()) + modifierBack+"'";
+		}else{
+			out = modifierFront + o1.toString() + modifierBack;	
+		}
+		return out;
+		
 	}
 	public static String objectToSQLModifier(Object o1, boolean query){
 		String out = "";

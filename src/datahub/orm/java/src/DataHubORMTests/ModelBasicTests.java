@@ -7,6 +7,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -46,7 +47,7 @@ import datahub.DHConnectionParams._Fields;
 
 
 public class ModelBasicTests extends TestsMain{
-	@Test
+	//@Test
 	public void testCreateAndDelete() throws DataHubException{
 		db.resetStats();
 		
@@ -72,7 +73,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		assertEquals(t2==null,true);
 	}
-	@Test
+	//@Test
 	public void testSave() throws DataHubException{
 		db.resetStats();
 		
@@ -116,7 +117,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	@Test
+	//@Test
 	public void testSave2ChangeObject() throws DataHubException{
 		db.resetStats();
 		
@@ -165,7 +166,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-    @Test
+    //@Test
 	public void testDataHubArrayList() throws DataHubException{
 		db.resetStats();
 		
@@ -225,7 +226,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	@Test
+	//@Test
 	public void testHasOneAndBelongsTo() throws DataHubException{
 		db.resetStats();
 		
@@ -267,7 +268,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	@Test
+	//@Test
 	public void HABTMTest() throws DataHubException{
 		db.resetStats();
 		
@@ -412,7 +413,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	@Test
+	//@Test
 	public void testQueryByObject() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -482,8 +483,8 @@ public class ModelBasicTests extends TestsMain{
 		
 		System.out.println(tests);*/
 		
-		assert(tester.test.equals(test));
-		assert(test.tester.equals(tester));
+		assertEquals(tester.test.equals(test), true);
+		assertEquals(test.tester.equals(tester), true);
 		
 		
 		d.destroy();
@@ -494,7 +495,7 @@ public class ModelBasicTests extends TestsMain{
 		t1.destroy();
 		
 	}
-	@Test 
+	//@Test 
 	public void createTest() throws DataHubException, InstantiationException, IllegalAccessException{
 		db.resetStats();
 		ArrayList<TestModel> tms = new ArrayList<TestModel>();
@@ -524,7 +525,7 @@ public class ModelBasicTests extends TestsMain{
 			System.out.println(user.tests);
 		}
 	}
-	@Test
+	//@Test
 	public void testDefaultAndManualSpecCross() throws DataHubException{
 		TestModel t = this.newTestModel();
 		t.save();
@@ -553,21 +554,118 @@ public class ModelBasicTests extends TestsMain{
 		assertEquals(c1.tests.contains(t1), true);
 	}
 	@Test
-	public void testQueryWithInModifierAndQueryRefinement(){
+	public void testQueryWithInModifierAndQueryRefinement() throws DataHubException{
 		//test in modifier
+		TestModel t1 = new TestModel();
+		t1.name = "lol123";
+		t1.description = "first test";
+		t1.cost = 10;
+		t1.save();
+		
+		TestModel t2 = new TestModel();
+		t2.name = "test343434";
+		t2.description="second test";
+		t2.cost = 20;
+		t2.save();
+		
+		TestModel t3= new TestModel();
+		t3.name = "fourscore";
+		t3.description="third test";
+		t3.cost = 500;
+		t3.save();
+		
+		HashMap<String,Object> params = new HashMap<String,Object>();
+		params.put("name in", new ArrayList<String>(Arrays.asList(new String[]{"lol123","fourscore"})));
+		ArrayList<TestModel> tests = db.test.findAll(params);
+		
+		assertEquals(true, tests.contains(t1));
+		assertEquals(false, tests.contains(t2));
+		assertEquals(true, tests.contains(t3));
+		
+		HashMap<String,Object> params1 = new HashMap<String,Object>();
+		params1.put("cost in", new ArrayList<Integer>(Arrays.asList(new Integer[]{10,500})));
+		ArrayList<TestModel> tests1 = db.test.findAll(params1);
+		
+		assertEquals(true, tests1.contains(t1));
+		assertEquals(false, tests1.contains(t2));
+		assertEquals(true, tests1.contains(t3));
 		
 	}
 	@Test
-	public void testQueryWithBetweenModifierAndQueryRefinement(){
+	public void testQueryWithBetweenModifierAndQueryRefinement() throws DataHubException{
 		//test between modifier
+		TestModel t1 = new TestModel();
+		t1.name = "lol123";
+		t1.description = "first test";
+		t1.cost = 10;
+		t1.save();
 		
+		TestModel t2 = new TestModel();
+		t2.name = "test343434";
+		t2.description="second test";
+		t2.cost = 20;
+		t2.save();
+		
+		TestModel t3= new TestModel();
+		t3.name = "fourscore";
+		t3.description="third test";
+		t3.cost = 500;
+		t3.save();
+		
+		HashMap<String,Object> params = new HashMap<String,Object>();
+		params.put("cost between", new ArrayList<Integer>(Arrays.asList(new Integer[]{10,20})));
+		ArrayList<TestModel> tests = db.test.findAll(params);
+		
+		assertEquals(true, tests.contains(t1));
+		assertEquals(true, tests.contains(t2));
+		assertEquals(false, tests.contains(t3));
 	}
 	@Test
-	public void testQueryWithStringModifiersAndQueryRefinement(){
+	public void testQueryWithStringModifiersAndQueryRefinement() throws DataHubException{
 		//test contains 
 		//test starts_with
 		//test ends_with
+		TestModel t1 = new TestModel();
+		t1.name = "p_lol123";
+		t1.description = "first test";
+		t1.cost = 10;
+		t1.save();
 		
+		TestModel t2 = new TestModel();
+		t2.name = "p_test343434_rofl";
+		t2.description="second test";
+		t2.cost = 20;
+		t2.save();
+		
+		TestModel t3= new TestModel();
+		t3.name = "fourscore_rofl";
+		t3.description="third test";
+		t3.cost = 500;
+		t3.save();
+		
+		HashMap<String,Object> params = new HashMap<String,Object>();
+		params.put("description contains", "test");
+		ArrayList<TestModel> tests = db.test.findAll(params);
+		
+		assertEquals(true, tests.contains(t1));
+		assertEquals(true, tests.contains(t2));
+		assertEquals(true, tests.contains(t3));
+		
+		HashMap<String,Object> params1 = new HashMap<String,Object>();
+		params1.put("name starts_with", "p_");
+		ArrayList<TestModel> tests1 = db.test.findAll(params1);
+		
+		assertEquals(true, tests1.contains(t1));
+		assertEquals(true, tests1.contains(t2));
+		assertEquals(false, tests1.contains(t3));
+		
+		HashMap<String,Object> params2 = new HashMap<String,Object>();
+		params2.put("name ends_with", "_rofl");
+		ArrayList<TestModel> tests2 = db.test.findAll(params2);
+		
+		assertEquals(false, tests2.contains(t1));
+		assertEquals(true, tests2.contains(t2));
+		assertEquals(true, tests2.contains(t3));
 	}
 	
 }

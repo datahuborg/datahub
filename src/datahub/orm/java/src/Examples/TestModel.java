@@ -43,6 +43,9 @@ public class TestModel extends DataHubModel<TestModel> {
 	@DateTimeField()
 	public Date createdAt;
 
+	@Column
+	public int cost;
+	
 	@Association(setupMode=AnnotationsConstants.SetupModes.Manual, associationType = AssociationTypes.HasOne, foreignKey = "test_id")
 	public TesterModel tester;
 	

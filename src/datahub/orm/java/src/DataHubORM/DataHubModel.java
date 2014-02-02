@@ -1,6 +1,7 @@
 package DataHubORM;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.sql.Date;
@@ -128,24 +129,19 @@ public abstract class DataHubModel<T extends DataHubModel>{
 		dhw.execute();
 	}
 	public synchronized void save() throws DataHubException{
-		//db.hitCount = 0;
-		//db.missCount = 0;
-		//System.out.println("before save");
-		if(validate()){
-			beforeSave();
-			String query = this.save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
-			getDatabase().query(query);
-			updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
-			afterSave();
-		}else{
+		beforeSave();
+		String query = this.save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
+		getDatabase().query(query);
+		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
+		afterSave();
+	}
+	
+	String save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache) throws DataHubException{
+		if(!validate()){
 			DataHubException dhe = new DataHubException("Model failed validation and resulted in the following errors: "+ this.errors.toString());
 			this.errors = new HashMap<String,String>();
 			throw dhe;
 		}
-		//System.out.println("after save");
-	}
-	
-	String save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache){
 		if(recursionDepthLimit <= 0){
 			//System.out.println("broke"+modelsAlreadySaved.contains(this.getClass()));
 			return "";
@@ -344,26 +340,32 @@ public abstract class DataHubModel<T extends DataHubModel>{
 				String newMod = modifier.toLowerCase();
 				if(newMod.equals("contains")){
 					if(f.getType()==String.class && val.getClass()==String.class){
-						String newVal = Resources.objectToSQL(val);
-						out = "LIKE %"+newVal+"%";
+						String newVal = Resources.objectPlusModifierAndEscapeToSQL(val,"%","%");
+						out = "LIKE "+newVal;
 					}
 				}
 				else if(newMod.equals("starts_with")){
 					if(f.getType()==String.class && val.getClass()==String.class){
-						String newVal = Resources.objectToSQL(val);
-						out = "LIKE "+newVal+"%";
+						String newVal = Resources.objectPlusModifierAndEscapeToSQL(val, "", "%");
+						out = "LIKE "+newVal;
 					}
 				}
 				else if(newMod.equals("ends_with")){
 					if(f.getType()==String.class && val.getClass()==String.class){
-						String newVal = Resources.objectToSQL(val);
-						out = "LIKE %"+newVal;
+						String newVal = Resources.objectPlusModifierAndEscapeToSQL(val, "%", "");
+						out = "LIKE "+newVal;
 					}
 				}
 				//TODO: may need to check if type of object in arraylist matches the type of the field
 				else if(newMod.equals("in")){
 					if(val.getClass() == ArrayList.class){
 						ArrayList<Object> list = (ArrayList<Object>) val;
+						if(list.size()>0){
+							out = "in ("+Resources.converToSQLAndConcatenate(list,",")+")";
+						}
+					}
+					if(val.getClass() == Array.class){
+						ArrayList<Object> list = (ArrayList<Object>) Arrays.asList(val);
 						if(list.size()>0){
 							out = "in ("+Resources.converToSQLAndConcatenate(list,",")+")";
 						}
@@ -404,11 +406,11 @@ public abstract class DataHubModel<T extends DataHubModel>{
 				//need to get the actual column name before query can be made
 				Column c = f.getAnnotation(Column.class);
 				
-				Object val = query.get(fieldName);
+				Object val = query.get(field);
 				
 				String newVal = new ModifierHandler().modifierToSQL(fieldModifier, val, f);
 			
-				keyVal.add(this.getCompleteTableName()+"."+c.name()+newVal);
+				keyVal.add(this.getCompleteTableName()+"."+DataHubConverter.getFieldColumnName(f)+" "+newVal);
 				continue;
 			}
 			

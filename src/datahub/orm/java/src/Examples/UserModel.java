@@ -49,7 +49,7 @@ public class UserModel extends DataHubModel<UserModel>{
 	
 	@Override
 	public synchronized void beforeSave(){
-		
+
 	}
 	
 	@Override

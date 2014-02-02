@@ -1,5 +1,8 @@
 package DataHubResources;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class Constants {
 	public static final String SERVER_ADDR_ROOT = "datahub-experimental.csail.mit.edu";
 	public static final int SERVER_ADDR_PORT = 9000;
@@ -12,4 +15,5 @@ public class Constants {
 	public static final String unassignedAssociationForeignKeyName ="[unassigned_foreign_key]";
 	public static final String unassignedAssociationLinkingTableName ="[unassigned_linking_table]";
 
+	public static ArrayList<String> sqlSpecialChars = new ArrayList<String>(Arrays.asList(new String[]{"%", "_","*",".","|","+","#","(",")","[","]","{","}"}));
 }
