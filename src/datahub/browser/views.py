@@ -14,6 +14,7 @@ from django.db.utils import IntegrityError
 from django.utils.http import urlquote_plus
 
 from thrift.protocol import TBinaryProtocol
+from thrift.protocol import TJSONProtocol
 from thrift.transport import TTransport
 from thrift.transport.TTransport import TMemoryBuffer
 
