@@ -1,10 +1,10 @@
 <html>
 <head>
-	<title>Sample DataHub HTML</title>
-  <script type="text/javascript" src="http://datahub-experimental.csail.mit.edu/static/javascript/third-party/jquery.min.js"></script> 
-  <script type="text/javascript" src="http://datahub-experimental.csail.mit.edu/static/javascript/third-party/thrift.js"></script>
-  <script type="text/javascript" src="http://datahub-experimental.csail.mit.edu/static/javascript/datahub/datahub_types.js"></script>
-  <script type="text/javascript" src="http://datahub-experimental.csail.mit.edu/static/javascript/datahub/DataHub.js"></script>
+  <title>Sample DataHub HTML</title>
+  <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/jquery/jquery.min.js"></script> 
+  <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/thrift/thrift.js"></script>
+  <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/datahub/datahub_types.js"></script>
+  <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/datahub/DataHub.js"></script>
 
 </head>
 <body>
@@ -25,12 +25,12 @@ You can put this code in Chrome Console too.
 */
 
 
-transport = new Thrift.Transport("http://datahub-experimental.csail.mit.edu/service"),
+transport = new Thrift.Transport("http://datahub.csail.mit.edu/service"),
 protocol = new Thrift.Protocol(transport),
 client = new DataHubClient(protocol),
 con_params = new DHConnectionParams({'user': 'anantb', 'password': 'anant'}),
 con = client.connect(con_params),
-res = client.execute_sql(con, 'select * from samsung.employee');
+res = client.execute_sql(con, 'select * from anantb.demo.team');
 $(body).html(res)
 
 </script>

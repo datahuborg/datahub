@@ -1,9 +1,6 @@
 import datahub.*;
-import org.apache.thrift.TException;
-import org.apache.thrift.transport.TSSLTransportFactory;
 import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.TSocket;
-import org.apache.thrift.transport.TSSLTransportFactory.TSSLTransportParameters;
+import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 
@@ -18,14 +15,19 @@ import org.apache.thrift.protocol.TProtocol;
 public class DHClient {
   public static void main(String [] args) {
     try {
-      TTransport transport = new TSocket(
-		  "datahub-experimental.csail.mit.edu", 9000);
+      TTransport transport = new THttpClient("http://datahub.csail.mit.edu/service");
       transport.open();
-	  
+
       TProtocol protocol = new  TBinaryProtocol(transport);
       DataHub.Client client = new DataHub.Client(protocol);
-	  
-      System.out.println(client.get_version());
+
+      DHConnectionParams con_params = new DHConnectionParams();
+      con_params.setUser("anantb");
+      con_params.setPassword("anant");
+      DHConnection con = client.connect(con_params);
+	     
+      DHQueryResult res = client.execute_sql(con, "select * from anantb.demo.team", null);
+      System.out.println(res);
 	  
       transport.close();
     } catch(Exception e) {

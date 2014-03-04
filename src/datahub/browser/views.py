@@ -13,7 +13,7 @@ from django.core.validators import email_re
 from django.db.utils import IntegrityError
 from django.utils.http import urlquote_plus
 
-from thrift.protocol.TJSONProtocol import TJSONProtocol
+from thrift.protocol import TBinaryProtocol
 from thrift.transport import TTransport
 from thrift.transport.TTransport import TMemoryBuffer
 
@@ -64,9 +64,7 @@ def service(request):
         TMemoryBuffer(request.body))
     oprot = TJSONProtocol(TMemoryBuffer())
     processor.process(iprot, oprot)
-    resp = HttpResponse(
-        oprot.trans.getvalue(),
-        mimetype="application/json")
+    resp = HttpResponse(oprot.trans.getvalue())
     resp['Access-Control-Allow-Origin'] = "*"
     return resp
   except Exception, e:
