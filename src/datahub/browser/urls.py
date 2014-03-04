@@ -24,8 +24,9 @@ urlpatterns = patterns('',
 
     url(r'^create_table_from_file$', 'browser.views.create_table_from_file'),
 
-    url(r'^service$', 'browser.views.service'),
-    url(r'^service/$', 'browser.views.service'),
+    url(r'^service$', 'browser.views.service_binary'),
+    url(r'^service/binary$', 'browser.views.service_binary'),
+    url(r'^service/json$', 'browser.views.service_json'),
 
     url(r'^browse/(\w+)/(\w+)/(\w+)$', 'browser.views.table'),
     url(r'^browse/(\w+)/(\w+)/(\w+)/$', 'browser.views.table'),
