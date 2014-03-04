@@ -16,7 +16,6 @@ public class DHClient {
   public static void main(String [] args) {
     try {
       TTransport transport = new THttpClient("http://datahub.csail.mit.edu/service");
-      transport.open();
 
       TProtocol protocol = new  TBinaryProtocol(transport);
       DataHub.Client client = new DataHub.Client(protocol);
@@ -29,7 +28,6 @@ public class DHClient {
       DHQueryResult res = client.execute_sql(con, "select * from anantb.demo.team", null);
       System.out.println(res);
 	  
-      transport.close();
     } catch(Exception e) {
       e.printStackTrace();
     }
