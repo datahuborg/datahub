@@ -9,7 +9,7 @@ var thrift = require('thrift'),
   DataHub = require('DataHub.js'),
   ttypes = require('datahub_types.js'),
   connection = thrift.createConnection(
-    'datahub.csail.mit.edu', 80, {
+    'http://datahub.csail.mit.edu/service', {
     transport: thrift.TBufferedTransport(),
     protocol: thrift.TBinaryProtocol
   });
