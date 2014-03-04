@@ -61,8 +61,7 @@ def newrepo(request):
 @csrf_exempt
 def service_binary(request):
   try:
-    iprot = TBinaryProtocol.TBinaryProtocol(
-        TMemoryBuffer(request.body))
+    iprot = TBinaryProtocol.TBinaryProtocol(TMemoryBuffer(request.body))
     oprot = TBinaryProtocol.TBinaryProtocol(TMemoryBuffer())
     processor.process(iprot, oprot)
     resp = HttpResponse(oprot.trans.getvalue())
@@ -78,9 +77,8 @@ def service_binary(request):
 @csrf_exempt
 def service_json(request):
   try:
-    iprot = TJSONProtocol(
-        TMemoryBuffer(request.body))
-    oprot = TJSONProtocol(TMemoryBuffer())
+    iprot = TJSONProtocol.TJSONProtocol(TMemoryBuffer(request.body))
+    oprot = TJSONProtocol.TJSONProtocol(TMemoryBuffer())
     processor.process(iprot, oprot)
     resp = HttpResponse(
         oprot.trans.getvalue(),
