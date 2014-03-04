@@ -60,9 +60,9 @@ def newrepo(request):
 @csrf_exempt
 def service(request):
   try:
-    iprot = TJSONProtocol(
+    iprot = TBinaryProtocol.TBinaryProtocol(
         TMemoryBuffer(request.body))
-    oprot = TJSONProtocol(TMemoryBuffer())
+    oprot = TBinaryProtocol.TBinaryProtocol(TMemoryBuffer())
     processor.process(iprot, oprot)
     resp = HttpResponse(oprot.trans.getvalue())
     resp['Access-Control-Allow-Origin'] = "*"
