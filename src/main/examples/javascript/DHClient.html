@@ -25,12 +25,20 @@ You can put this code in Chrome Console too.
 */
 
 
-transport = new Thrift.Transport("http://datahub.csail.mit.edu/service"),
+transport = new Thrift.Transport("http://datahub.csail.mit.edu/service/json"),
 protocol = new Thrift.Protocol(transport),
 client = new DataHubClient(protocol),
 con_params = new DHConnectionParams({'user': 'anantb', 'password': 'anant'}),
 con = client.connect(con_params),
 res = client.execute_sql(con, 'select * from anantb.demo.team');
-$(body).html(res)
+
+for (var row in res.data.table.rows) {
+  values = []
+  for (var c in res.data.table.rows[row].cells) {
+    values.push(res.data.table.rows[row].cells[c].value)
+  }
+  $('body').append(values.join('&nbsp;&nbsp;&nbsp;'));
+  $('body').append('<br />');
+}
 
 </script>
