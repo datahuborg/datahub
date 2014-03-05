@@ -6,7 +6,7 @@ basepath=$(cd "$abspath/../../../.."; pwd)
 rm -rf $abspath/bin
 rm -rf $abspath/gen-java
 
-thrift --gen java -o $abspath $basepath/src/datahub/datahub.thrift
+thrift --gen java -o $abspath $basepath/src/main/datahub.thrift
 mkdir $abspath/bin
 jar=$(cd "$abspath/lib"; pwd)
 CLASSPATH=$CLASSPATH:$jar/thrift/*:$jar/slf4j/*:$jar/apache-commons/*:$abspath/bin:$abspath/gen-java
