@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <memory>
 
 #include <thrift/protocol/TBinaryProtocol.h>
 #include <thrift/transport/TSocket.h>
@@ -7,7 +8,7 @@
 #include "../gen-cpp/DataHub.h"
 
 /** 
- * Sample DataHub C++ Client
+ * Sample DataHub C++11 Client
  * 
  * @author anantb
  * @date 11/07/2013
@@ -22,10 +23,10 @@ using namespace apache::thrift::transport;
 using namespace datahub;
 
 int main () {
-  try:
-    shared_ptr socket(new TSocket("datahub-experimental.csail.mit.edu", 9000));
-    shared_ptr transport(new TBufferedTransport(socket));
-    shared_ptr protocol(new TBinaryProtocol(transport));
+  try {
+    shared_ptr<TSocket> socket(new TSocket("datahub-experimental.csail.mit.edu", 9000));
+    shared_ptr<TBufferedTransport> transport(new TBufferedTransport(socket));
+    shared_ptr<TBinaryProtocol> protocol(new TBinaryProtocol(transport));
     DataHub client(protocol);
 
     transport->open();
