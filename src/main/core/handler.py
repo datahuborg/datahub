@@ -24,7 +24,7 @@ def construct_query_result(res):
       DHField(
           name=field['name'],
           type=DHType.Binary
-      ) for field in res[fields]
+      ) for field in res['fields']
   ])
 
   query_result = DHQueryResult(
