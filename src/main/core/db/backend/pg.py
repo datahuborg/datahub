@@ -71,8 +71,7 @@ class PGBackend:
         'status': False,
         'row_count': 0,
         'tuples': [],
-        'column_names': [],
-        'column_types': []
+        'fields': []
     }
 
     conn = self.connection 
@@ -80,15 +79,14 @@ class PGBackend:
     c.execute(query.strip(), params)
 
     try:
-      tuples = c.fetchall()
-      result['tuples'] = [list(t) for t in tuples]
+      result['tuples'] = c.fetchall()
     except:
       pass
 
     result['status'] = True
     result['row_count'] = c.rowcount
     if c.description:
-      result['column_names'] = [col[0] for col in c.description]
+      result['fields'] = [{'name': col[0], 'type': col[1]} for col in c.description]
 
     tokens = query.strip().split(' ', 2)
     c.close()

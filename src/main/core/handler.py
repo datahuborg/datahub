@@ -22,9 +22,9 @@ def construct_query_result(res):
 
   schema = DHSchema(fields=[
       DHField(
-          name=res['column_names'][i],
+          name=field['name'],
           type=DHType.Binary
-      ) for i in range(0, len(res['column_names']))
+      ) for field in res[fields]
   ])
 
   query_result = DHQueryResult(
@@ -97,14 +97,6 @@ class DataHubHandler:
     try:
       res = manager.execute_sql(
           username=dh_con.user, query=query, params=query_params)
-      return construct_query_result(res)
-    except Exception, e:
-      raise DHException(message=str(e))
-
-  def load(self, dh_con, url):
-    try:
-      query = 'SELECT * from %s' % (url)
-      res = manager.execute_sql(username=dh_con.user, query=query)
       return construct_query_result(res)
     except Exception, e:
       raise DHException(message=str(e))
