@@ -8,7 +8,8 @@
 
 </head>
 <body>
-
+<table id="result">
+</table>
 </body>
 </html>
 
@@ -37,8 +38,7 @@ for (var row in res.data.table.rows) {
   for (var c in res.data.table.rows[row].cells) {
     values.push(res.data.table.rows[row].cells[c].value)
   }
-  $('body').append(values.join('&nbsp;&nbsp;&nbsp;'));
-  $('body').append('<br />');
+  $('#results').append('<tr><td>' + values.join('</td><td>') + '</td></tr>');
 }
 
 </script>
