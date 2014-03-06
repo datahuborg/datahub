@@ -1,21 +1,21 @@
 #include <unistd.h>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
+#include "gen-cpp/DataHub.h"
+#include <thrift/transport/THttpClient.h>
+#include <thrift/transport/TBufferTransports.h>
 #include <thrift/protocol/TBinaryProtocol.h>
-#include <thrift/transport/TSocket.h>
-#include <thrift/transport/TTransportUtils.h>
 
-#include "../gen-cpp/DataHub.h"
-
-/** 
- * Sample DataHub C++11 Client
- * 
+/**
+ * Sample DataHub C++ Client
+ *
  * @author anantb
  * @date 11/07/2013
- * 
+ *
  */
 
 using namespace std;
+using namespace boost;
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
 using namespace apache::thrift::transport;
@@ -24,16 +24,26 @@ using namespace datahub;
 
 int main () {
   try {
-    shared_ptr<TSocket> socket(new TSocket("datahub-experimental.csail.mit.edu", 9000));
-    shared_ptr<TBufferedTransport> transport(new TBufferedTransport(socket));
-    shared_ptr<TBinaryProtocol> protocol(new TBinaryProtocol(transport));
-    DataHub client(protocol);
+    shared_ptr<THttpClient> http(new THttpClient("datahub.csail.mit.edu", 80, "/service"));
+    shared_ptr<TBinaryProtocol> protocol(new TBinaryProtocol(http));
+    DataHubClient client(protocol);
 
-    transport->open();
+    http->open();
     double version = client.get_version();
-    cout << version; 
+    cout << version << endl;
 
-    transport->close();
+    DHConnectionParams params;
+    params.user = "anantb";
+    params.password = "anant";
+
+    DHConnection conn;
+    client.connect(conn, params);
+    cout << conn.id << endl;
+
+    DHQueryResult res;
+    client.execute_sql(res, conn, "select * from anantb.demo.team", vector<string>());
+
+    http->close();
   } catch (TException &tx) {
     cout << "ERROR: " << tx.what();
   }
