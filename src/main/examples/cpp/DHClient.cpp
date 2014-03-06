@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <cassert>
 #include <boost/shared_ptr.hpp>
 
 #include "gen-cpp/DataHub.h"
@@ -24,26 +25,29 @@ using namespace datahub;
 
 int main () {
   try {
-    shared_ptr<THttpClient> http(new THttpClient("datahub.csail.mit.edu", 80, "/service"));
-    shared_ptr<TBinaryProtocol> protocol(new TBinaryProtocol(http));
+    shared_ptr<THttpClient> transport(new THttpClient("datahub.csail.mit.edu", 80, "/service"));
+    shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
     DataHubClient client(protocol);
 
-    http->open();
+    transport->open();
     double version = client.get_version();
     cout << version << endl;
 
+    // XXX: does not work if we directly set user/password
     DHConnectionParams params;
-    params.user = "anantb";
-    params.password = "anant";
+    params.__set_user("anantb");
+    params.__set_password("anant");
 
     DHConnection conn;
     client.connect(conn, params);
-    cout << conn.id << endl;
+    cout << conn.user << endl;
 
     DHQueryResult res;
     client.execute_sql(res, conn, "select * from anantb.demo.team", vector<string>());
+    assert( !res.data.table.rows.size() >= 1 );
+    cout << res.data.table.rows[1].cells[0].value << endl;
 
-    http->close();
+    transport->close();
   } catch (TException &tx) {
     cout << "ERROR: " << tx.what();
   }
