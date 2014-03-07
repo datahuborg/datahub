@@ -29,7 +29,6 @@ urlpatterns = patterns('',
     url(r'^service/json$', 'browser.views.service_json'),
 
     url(r'^browse/(\w+)/(\w+)/(\w+)$', 'browser.views.table'),
-    url(r'^browse/(\w+)/(\w+)/(\w+)/$', 'browser.views.table'),
     url(r'^browse/(\w+)/(\w+)/(\w+)/(\w+)$', 'browser.views.table'),
     url(r'^browse/(\w+)/(\w+)/(\w+)/(\w+)/$', 'browser.views.table'),
 
