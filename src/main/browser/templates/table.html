@@ -45,13 +45,14 @@
 		<tbody>
 		{% for tuple in tuples %}
 		<tr>
-			{% for t in tuple %}
-				<td class="strong">{{t}}</td>
+			{% for cell in tuple %}
+				<td class="strong">{{cell}}</td>
 			{% endfor %}
 		</tr>
 		{% endfor %}
 		</tbody>
 	</table>
+	
 </div>
 {% endblock %}
 

@@ -30,6 +30,8 @@ urlpatterns = patterns('',
 
     url(r'^browse/(\w+)/(\w+)/(\w+)$', 'browser.views.table'),
     url(r'^browse/(\w+)/(\w+)/(\w+)/$', 'browser.views.table'),
+    url(r'^browse/(\w+)/(\w+)/(\w+)/(\w+)$', 'browser.views.table'),
+    url(r'^browse/(\w+)/(\w+)/(\w+)/(\w+)/$', 'browser.views.table'),
 
     url(r'^browse/(\w+)/(\w+)$', 'browser.views.repo'),
     url(r'^browse/(\w+)/(\w+)/$', 'browser.views.repo'),

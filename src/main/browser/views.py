@@ -125,11 +125,21 @@ def repo(request, username, repo):
           {'error': str(e)}),
         mimetype="application/json")
 
-def table(request, username, repo, table):
+def table(request, username, repo, table, page='0'):
+  offset = 0
+  try:
+    offset = int(page)
+  except:
+    pass
+
   try:
     res = manager.execute_sql(
         username=username,
-        query='SELECT * from %s.%s.%s LIMIT 100' %(username, repo, table))
+        query='SELECT count(*) from %s.%s.%s' %(username, repo, table))
+    count = res.data.table.rows[0].cells[0]
+    res = manager.execute_sql(
+        username=username,
+        query='SELECT * from %s.%s.%s LIMIT 100 OFFSET %s' %(username, repo, table, offset))
     column_names = [field['name'] for field in res['fields']]
     tuples = res['tuples']
     return render_to_response("table.html", {
@@ -138,7 +148,9 @@ def table(request, username, repo, table):
         'repo': repo,
         'table': table,
         'column_names': column_names,
-        'tuples': tuples})
+        'tuples': tuples,
+        'count': count,
+        'page': offset})
   except Exception, e:
     return HttpResponse(
         json.dumps(
