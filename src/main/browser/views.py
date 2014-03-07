@@ -135,7 +135,9 @@ def table(request, username, repo, table, page='1'):
   if current_page < 1:
       current_page = 1
 
-  previous_page = current_page - 1
+  start_page = current_page - 5
+  if start_page < 1:
+    start_page = 1
 
   try:
     res = manager.execute_sql(
@@ -143,11 +145,11 @@ def table(request, username, repo, table, page='1'):
         query='SELECT count(*) from %s.%s.%s' %(username, repo, table))
     count = res['tuples'][0][0]
     total_pages = 1 + (int(count) / 100)
-    last_page_to_show = total_pages
-    if last_page_to_show <= (total_pages - 10):
-      last_page_to_show = total_pages
+    end_page = total_pages
+    if start_page <= (total_pages - 10):
+      end_page = total_pages
     else:
-      last_page_to_show = current_page + 10
+      end_page = start_page + 10
     res = manager.execute_sql(
         username=username,
         query='SELECT * from %s.%s.%s LIMIT 100 OFFSET %s' %(username, repo, table, (current_page -1) * 100))
@@ -160,9 +162,8 @@ def table(request, username, repo, table, page='1'):
         'table': table,
         'column_names': column_names,
         'tuples': tuples,
-        'previous_page': previous_page,
         'current_page': current_page,
-        'next_pages': range(current_page + 1, last_page_to_show)})
+        'pages': range(start_page, end_page)})
   except Exception, e:
     return HttpResponse(
         json.dumps(
