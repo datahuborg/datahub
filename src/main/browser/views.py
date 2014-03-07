@@ -145,11 +145,10 @@ def table(request, username, repo, table, page='1'):
         query='SELECT count(*) from %s.%s.%s' %(username, repo, table))
     count = res['tuples'][0][0]
     total_pages = 1 + (int(count) / 100)
-    end_page = total_pages
-    if start_page <= (total_pages - 10):
+    end_page = start_page + 10
+    if end_page > total_pages:
       end_page = total_pages
-    else:
-      end_page = start_page + 10
+      
     res = manager.execute_sql(
         username=username,
         query='SELECT * from %s.%s.%s LIMIT 100 OFFSET %s' %(username, repo, table, (current_page -1) * 100))
