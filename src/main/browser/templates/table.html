@@ -52,8 +52,13 @@
 		{% endfor %}
 		</tbody>
 	</table>
-	{{page}}
-	{% for page in pages %}
+	{% if previous_page >= 0 %}
+		<a class="blue bold" href="/browse/{{username}}/{{repo}}/{{table}}/{{page}}">{{previous_page}}</a>&nbsp;&nbsp;
+	{% endif %}
+
+	{{current_page}}&nbsp;&nbsp;
+
+	{% for page in next_pages %}
      	<a class="blue bold" href="/browse/{{username}}/{{repo}}/{{table}}/{{page}}">{{page}}</a>&nbsp;&nbsp;
 	{% endfor %}
 	
