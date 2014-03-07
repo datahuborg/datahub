@@ -53,8 +53,8 @@
 		</tbody>
 	</table>
 	{{page}}
-	{% for i in range(page) %}
-     	<a class="blue bold" href="/browse/{{username}}/{{repo}}/{{table}}/{{i}}">i+1</a>&nbsp;&nbsp;
+	{% for page in pages %}
+     	<a class="blue bold" href="/browse/{{username}}/{{repo}}/{{table}}/{{page}}">page+1</a>&nbsp;&nbsp;
 	{% endfor %}
 	
 </div>
