@@ -383,6 +383,10 @@ button, .button, input[type="button"], input[type="submit"]{
 }
 
 
+.dataTables_wrapper {
+  overflow-x: auto;
+}
+
 
 
 
