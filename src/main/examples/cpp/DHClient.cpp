@@ -11,6 +11,7 @@
  * Sample DataHub C++ Client
  *
  * @author anantb
+ * @author stephentu
  * @date 11/07/2013
  *
  */
@@ -33,19 +34,21 @@ int main () {
     double version = client.get_version();
     cout << version << endl;
 
-    // XXX: does not work if we directly set user/password
-    DHConnectionParams params;
+    DHConnectionParams params = DHConnectionParams();
     params.__set_user("anantb");
     params.__set_password("anant");
 
     DHConnection conn;
     client.connect(conn, params);
-    cout << conn.user << endl;
 
     DHQueryResult res;
     client.execute_sql(res, conn, "select * from anantb.demo.team", vector<string>());
-    assert( !res.data.table.rows.size() >= 1 );
-    cout << res.data.table.rows[1].cells[0].value << endl;
+    for(vector<DHRow>::iterator row_it = res.data.table.rows.begin(); row_it != res.data.table.rows.end(); ++row_it) {
+      for(vector<DHCell>::iterator cell_it = (*row_it).cells.begin(); cell_it != (*row_it).cells.end(); ++cell_it) {
+    	cout << (*cell_it).value << "\t";
+      }
+      cout << "\n";
+    }
 
     transport->close();
   } catch (TException &tx) {
