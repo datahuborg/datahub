@@ -129,7 +129,7 @@ def table(request, username, repo, table):
   try:
     res = manager.execute_sql(
         username=username,
-        query='SELECT * from %s.%s.%s' %(username, repo, table))
+        query='SELECT * from %s.%s.%s LIMIT 100' %(username, repo, table))
     column_names = [field['name'] for field in res['fields']]
     tuples = res['tuples']
     return render_to_response("table.html", {
