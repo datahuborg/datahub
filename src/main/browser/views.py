@@ -150,7 +150,7 @@ def table(request, username, repo, table, page='0'):
         'column_names': column_names,
         'tuples': tuples,
         'count': count,
-        'page': offset})
+        'page': int(offset/100)})
   except Exception, e:
     return HttpResponse(
         json.dumps(

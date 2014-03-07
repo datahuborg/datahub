@@ -52,6 +52,9 @@
 		{% endfor %}
 		</tbody>
 	</table>
+	{% for i in range(page) %}
+     	<a class="blue bold" href="/browse/{{username}}/{{repo}}/{{table}}/{{i}}">i+1</a>&nbsp;&nbsp;
+	{% endfor %}
 	
 </div>
 {% endblock %}
