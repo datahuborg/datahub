@@ -1,24 +1,30 @@
 ### cpp
-* `source cpp/setup.sh`
+* `cd cpp`
+* `source setup.sh`
 * `make`
 * `./DHClient`
 
 ### java
-* `source java/setup.sh`
+* `cd java`
+* `source setup.sh`
 * `java DHClient``
 
 ### node
-* `source node/setup.sh`
-* `node node/DHClient.py`
+* `cd node`
+* `source setup.sh`
+* `node DHClient.js`
 
 ### php
-* `source php/setup.sh`
-* `php php/DHClient.php`
+* `cd php`
+* `source setup.sh`
+* `php DHClient.php`
 
 ### python
-* `source python/setup.sh`
-* `python python/DHClient.py`
+* `cd python`
+* `source setup.sh`
+* `python DHClient.py`
 
 ### ruby
-* `source ruby/setup.sh`
-* `ruby ruby/DHClient.rb`
+* `cd ruby`
+* `source setup.sh`
+* `ruby DHClient.rb`
