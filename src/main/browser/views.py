@@ -128,7 +128,7 @@ def repo(request, username, repo):
 def table(request, username, repo, table, page='0'):
   offset = 0
   try:
-    offset = int(page)
+    offset = 100 * int(page)
   except:
     pass
 
