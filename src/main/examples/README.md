@@ -1,6 +1,7 @@
 ### cpp
 * `source cpp/setup.sh`
-* `sample_client`
+* `make`
+* `./DHClient`
 
 ### java
 * `source java/setup.sh`
@@ -8,16 +9,16 @@
 
 ### node
 * `source node/setup.sh`
-* `node node/sample_client.py`
+* `node node/DHClient.py`
 
 ### php
 * `source php/setup.sh`
-* `php php/sample_client.php`
+* `php php/DHClient.php`
 
 ### python
 * `source python/setup.sh`
-* `python python/sample_load.py`
+* `python python/DHClient.py`
 
 ### ruby
 * `source ruby/setup.sh`
-* `ruby ruby/sample_client.py`
+* `ruby ruby/DHClient.rb`
