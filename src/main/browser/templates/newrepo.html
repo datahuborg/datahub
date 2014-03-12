@@ -51,7 +51,7 @@
 
 $(document).ready(function($) {
   var login = '{{login}}'
-  var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service');
+  var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
   var protocol = new Thrift.Protocol(transport);
   var client = new DataHubClient(protocol);
   var con = new DHConnection({'user':login})
