@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<script type="text/javascript">
+
+	$(document).ready(function() {	
+		var table_data = $('#table_data').dataTable({
+			"sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
+			"bPaginate": false,
+			"bFilter": true,
+			"bInfo": false,
+			"sWidth": "100%"			
+		});
+		$('.dataTables_filter input').attr("placeholder", "filter by keyword tokens");
+		
+		$('td', table_data.fnGetNodes()).editable(
+				function(value, settings) { 
+			    var pos = table_data.fnGetPosition(this);
+					table_data.fnUpdate(value, pos[0], pos[1] );
+					console.log(pos)
+					console.log(value)
+					console.log(settings)
+			    return(value);
+			  }, {
+			  	height: '1.2em'
+			  });
+
+	});
+</script>
+
+<div id="content">
+	<a class="blue bold" href="/browse/{{username}}">{{username}}</a> . 
+	<a class="blue bold" href="/browse/{{username}}/{{repo}}">{{repo}}</a> . 
+	<a class="blue bold" href="/browse/{{username}}/{{repo}}/{{table}}">{{table}}</a>
+	<br />
+	<br />
+	<table id="table_data">
+		<thead>
+		<tr>
+			{% for column_name in column_names %}
+			<th>{{column_name}}</th>
+			{% endfor %}
+		</tr>
+		</thead>
+		<tbody>
+		{% for tuple in tuples %}
+		<tr>
+			{% for cell in tuple %}
+				<td class="strong">{{cell}}</td>
+			{% endfor %}
+		</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+	<br /><br />
+	
+
+	{% for page in pages %}
+		{% if page == current_page %}
+			{{current_page}}&nbsp;&nbsp;	
+		{% else %}
+     		<a class="blue bold" href="/browse/{{username}}/{{repo}}/{{table}}/{{page}}">{{page}}</a>&nbsp;&nbsp;
+     	{% endif %}
+	{% endfor %}
+	
+</div>
+{% endblock %}
+
+
+
+
+

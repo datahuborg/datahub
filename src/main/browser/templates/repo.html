@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<script type="text/javascript">
+
+	function load_table (table) {
+		window.location.href = "/browse/{{username}}/{{repo}}/" + table;
+	}
+
+	$(document).ready(function(){
+		var tables = $('#tables').dataTable({
+			"sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
+			"bPaginate": false,
+			"bFilter": true,
+			"bInfo": false,
+			"sWidth": "100%"			
+		});
+		$('.dataTables_filter input').attr("placeholder", "filter by keyword tokens");
+	});
+</script>
+
+
+<div id="content">
+	<form class="center-container" method="POST" action="/create_table_from_file" enctype='multipart/form-data'>
+	{% csrf_token %}
+	<input type="hidden" name="repo" value="{{repo}}" />
+	<h3>Create a new table</h3>
+	<hr />
+	<div id="error">
+		{% for error in errors %}<span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
+        {% endfor %}
+        <br />
+    </div>
+	<label for="data_file">Table Data File (csv or xls)</label><br />
+	<input type="file" name="data_file" placeholder="Data File"> <br /> <br />
+	<label for="table_name">Table Name</label><br />
+	<input type="text" name="table_name" placeholder="Table Name"><br /><br />
+	<input class="button" type="submit" value="Create Table"/>
+
+	</form>
+	<br />
+	<br />
+	<a class="blue bold" href=/browse/{{username}}>{{username}}</a> . <a class = "blue bold" href=/browse/{{username}}/{{repo}}>{{repo}}</a>
+	<br />
+	<br />
+	<table id="tables">
+		<thead>
+		<tr>
+			<th>All Tables</th>
+		</tr>
+		</thead>
+		<tbody>
+		{% for table in tables %}
+		<tr>
+			<td class="blue link" onclick='load_table("{{table}}")'>{{table}}</td>
+		</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}
+
+
+
+
+

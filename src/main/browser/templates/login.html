@@ -1,0 +1,27 @@
+{% extends "login-layout.html" %}
+{% block headlink-right %}
+<a class="button inactive" href="/register">Sign up</a>		
+{% endblock %}
+{% block content %}
+<form class="center-container" method="POST" action="/login">
+	{% csrf_token %}
+	<input type="hidden" name="redirect_url" value="{{redirect_url}}" />
+	<h3>Returning User -- Sign in</h3>
+	<hr />
+	<div id="error">
+		{% for error in errors %}<span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
+        {% endfor %}
+        <br />
+    </div>
+	<label for="login_id">Username or Email</label><br />
+	<input type="text" name="login_id" id="login_id" placeholder="Your email address" {% if values.login_id %}value="{{values.login_id}}"{% endif %}/><br /><br />
+	<label for="password">Password</label><br />
+	<input type="password" name="login_password" id="login_password" placeholder="Your password" {% if values.login_password %}value="{{values.login_password}}"{% endif %}/><br /><br />
+	<input class="button" type="submit" value="Sign in"/>
+	<br />
+	<br />
+	<div>
+		New to DataHub? <a class="blue bold" href="/register?redirect_url={{redirect_url}}">Sign up now</a>
+	</div>
+</form>
+{% endblock %}
