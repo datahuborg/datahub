@@ -26,6 +26,8 @@ public class UserModel extends DataHubModel<UserModel>{
 	@VarCharField(size=1000)
 	public String username;
 	
+	//if the setupMode is Manual then you must specify a name and sql datatype for the column
+	//if this is not done then issues will happen
 	@Column(setupMode=AnnotationsConstants.SetupModes.Manual,name="password")
 	@VarCharField(size=1000)
 	public String password;

@@ -8,7 +8,10 @@ import java.util.List;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TJSONProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
 import datahub.DHCell;
@@ -36,7 +39,6 @@ class DataHubClient{
 	private DataHubAccount dha;
 	private DHConnection currentConnection;
 	private Client client;
-	private TSocket socket;
 	private DataHubDatabase database;
 	private boolean connectedToDB;
 	//possibly add support for  connection to many databases
@@ -65,12 +67,9 @@ class DataHubClient{
 		return dhcp;
 	}
 	public synchronized void connect(DataHubDatabase db) throws DHException, TException{
-		TSocket newSocket = getConnectionSocket();
-		socket = newSocket;
-		socket.open();
-		TBinaryProtocol bp = new TBinaryProtocol(socket);
-		//TJSONProtocol jp = new TJSONProtocol(socket);
-		client = new DataHub.Client(bp);
+		TTransport transport = new THttpClient("http://datahub-experimental.csail.mit.edu/service");
+	    TProtocol protocol = new TBinaryProtocol(transport);
+		client = new DataHub.Client(protocol);
 		database = db;
 		DHConnectionParams dhcp = getConnectionParams(database);
 		currentConnection = client.connect(dhcp);
@@ -78,7 +77,6 @@ class DataHubClient{
 	}
 	public synchronized void disconnect(){
 		if(connectedToDB){
-			socket.close();
 			client = null;
 			currentConnection = null;
 			connectedToDB = false;

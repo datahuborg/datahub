@@ -47,7 +47,7 @@ import datahub.DHConnectionParams._Fields;
 
 
 public class ModelBasicTests extends TestsMain{
-	//@Test
+	@Test
 	public void testCreateAndDelete() throws DataHubException{
 		db.resetStats();
 		
@@ -73,7 +73,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		assertEquals(t2==null,true);
 	}
-	//@Test
+	@Test
 	public void testSave() throws DataHubException{
 		db.resetStats();
 		
@@ -117,7 +117,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	//@Test
+	@Test
 	public void testSave2ChangeObject() throws DataHubException{
 		db.resetStats();
 		
@@ -166,7 +166,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-    //@Test
+    @Test
 	public void testDataHubArrayList() throws DataHubException{
 		db.resetStats();
 		
@@ -215,10 +215,6 @@ public class ModelBasicTests extends TestsMain{
 		t.save();
 		TestModel t4 = db.test.findOne(params);
 		
-		//System.out.println("TESTMODEL");
-		//System.out.println(t);
-		//System.out.println("DEVICES");
-		//System.out.println(t4.devices);
 		assertEquals(t4.devices.contains(d),false);
 		
 		d.destroy();
@@ -226,7 +222,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	//@Test
+	@Test
 	public void testHasOneAndBelongsTo() throws DataHubException{
 		db.resetStats();
 		
@@ -268,7 +264,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	//@Test
+	@Test
 	public void HABTMTest() throws DataHubException{
 		db.resetStats();
 		
@@ -413,7 +409,7 @@ public class ModelBasicTests extends TestsMain{
 		
 		db.printStats();
 	}
-	//@Test
+	@Test
 	public void testQueryByObject() throws DataHubException{
 		Random generator = new Random();
 		String name = "test"+Math.abs(generator.nextInt());
@@ -495,8 +491,8 @@ public class ModelBasicTests extends TestsMain{
 		t1.destroy();
 		
 	}
-	//@Test 
-	public void createTest() throws DataHubException, InstantiationException, IllegalAccessException{
+	@Test 
+	public void createAndBatchLoadTest() throws DataHubException, InstantiationException, IllegalAccessException{
 		db.resetStats();
 		ArrayList<TestModel> tms = new ArrayList<TestModel>();
 		ArrayList<UserModel> ums = new ArrayList<UserModel>();
@@ -525,7 +521,7 @@ public class ModelBasicTests extends TestsMain{
 			System.out.println(user.tests);
 		}
 	}
-	//@Test
+	@Test
 	public void testDefaultAndManualSpecCross() throws DataHubException{
 		TestModel t = this.newTestModel();
 		t.save();
@@ -590,6 +586,10 @@ public class ModelBasicTests extends TestsMain{
 		assertEquals(false, tests1.contains(t2));
 		assertEquals(true, tests1.contains(t3));
 		
+		t1.destroy();
+		t2.destroy();
+		t3.destroy();
+		
 	}
 	@Test
 	public void testQueryWithBetweenModifierAndQueryRefinement() throws DataHubException{
@@ -619,6 +619,10 @@ public class ModelBasicTests extends TestsMain{
 		assertEquals(true, tests.contains(t1));
 		assertEquals(true, tests.contains(t2));
 		assertEquals(false, tests.contains(t3));
+		
+		t1.destroy();
+		t2.destroy();
+		t3.destroy();
 	}
 	@Test
 	public void testQueryWithStringModifiersAndQueryRefinement() throws DataHubException{
@@ -666,6 +670,14 @@ public class ModelBasicTests extends TestsMain{
 		assertEquals(false, tests2.contains(t1));
 		assertEquals(true, tests2.contains(t2));
 		assertEquals(true, tests2.contains(t3));
+		
+		t1.destroy();
+		t2.destroy();
+		t3.destroy();
+	}
+	@Test
+	public void moveFromOneToAnotherHABTMTest(){
+		
 	}
 	
 }

@@ -15,5 +15,5 @@ public class Constants {
 	public static final String unassignedAssociationForeignKeyName ="[unassigned_foreign_key]";
 	public static final String unassignedAssociationLinkingTableName ="[unassigned_linking_table]";
 
-	public static ArrayList<String> sqlSpecialChars = new ArrayList<String>(Arrays.asList(new String[]{"%", "_","*",".","|","+","#","(",")","[","]","{","}"}));
+	public static final ArrayList<String> sqlSpecialChars = new ArrayList<String>(Arrays.asList(new String[]{"%", "_","*",".","|","+","#","(",")","[","]","{","}"}));
 }

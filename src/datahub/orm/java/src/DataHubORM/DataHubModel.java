@@ -137,6 +137,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 	}
 	
 	String save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache) throws DataHubException{
+		//validates done in string generation so no query made until string generation completes
 		if(!validate()){
 			DataHubException dhe = new DataHubException("Model failed validation and resulted in the following errors: "+ this.errors.toString());
 			this.errors = new HashMap<String,String>();
@@ -148,6 +149,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 		}
 		ArrayList<String> queries = new ArrayList<String>();
 		try{
+			//TODO: nat
 			String query = "";
 			//fix this
 			if(!this.validId()){
