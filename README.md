@@ -1,3 +1,5 @@
+*Note: The project is under development. It is not ready for deployment yet.*
+
 ### Dependencies
 * `thrift`
 * `postgres`
