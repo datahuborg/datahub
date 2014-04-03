@@ -679,5 +679,9 @@ public class ModelBasicTests extends TestsMain{
 	public void moveFromOneToAnotherHABTMTest(){
 		
 	}
+	@Test
+	public void nestedObjectsTest(){
+		
+	}
 	
 }

@@ -1,6 +1,7 @@
 package DataHubORM;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +26,7 @@ import datahub.DHTable;
 import Configurations.DataHubCache;
 import Configurations.DataHubConsistencySpecifier;
 import DataHubAccount.DataHubAccount;
+import DataHubAccount.DataHubUser;
 import DataHubAnnotations.Association;
 import DataHubAnnotations.Column;
 import DataHubAnnotations.Database;
@@ -51,15 +53,23 @@ public class DataHubDatabase {
 	
 	private DataHubClient dhc;
 	
+	private DataHubAccount dha;
+	
 	private DatabaseEngine databaseEngine;
 	
 	private DataHubWorkerMode dataHubWorkerMode;
 	
-	public DataHubDatabase(){
+	public DataHubDatabase() throws DataHubException{
+		this(true);
+	}
+	public DataHubDatabase(boolean setup) throws DataHubException{
 		this.dataHubWorkerMode = DataHubWorkerMode.Normal;
-		this.instantiateAndSetup();
+		if(setup){
+			this.instantiateAndSetup();
+		}
 	}
 	public synchronized void setDataHubAccount(DataHubAccount dha){
+		this.dha = dha;
 		this.dhc = new DataHubClient(dha);
 	}
 	public synchronized void setDataHubWorkerMode(DataHubWorkerMode dataHubWorkerMode){
@@ -76,6 +86,13 @@ public class DataHubDatabase {
 			e.printStackTrace();
 			throw new DataHubException("Cannot connect to database!");
 		}
+	}
+	DataHubDatabase copy() throws DataHubException{
+		DataHubDatabase newDB = new DataHubDatabase(false);
+		newDB.dataHubWorkerMode = this.dataHubWorkerMode;
+		newDB.databaseEngine = this.databaseEngine;
+		newDB.setDataHubAccount(new DataHubAccount(dha.getApiKey(), new DataHubUser(dha.getUser().getUsername(), dha.getUser().getPassword())));
+		return newDB;
 	}
 	public synchronized void clearAndReCreate() throws DataHubException{
 		//clear database
@@ -142,16 +159,13 @@ public class DataHubDatabase {
 				}}, failCallback, dataHubWorkerMode);
 		dhw.execute();
 	}
-	private void instantiateAndSetup(){
-		//System.out.println("called");
+	private void instantiateAndSetup() throws DataHubException{
 		ArrayList<Field> fields = DataHubConverter.findModels(this.getClass());
-		try{
-			DataHubModel.setDatabase(this);
-			DataHubArrayList.setDatabase(this);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
 		for(Field f:fields){
+			Class c = f.getType();
+			if(DataHubConverter.isModelSubclass(c)){
+				DataHubModel.setDatabase(c, this);
+			}
 			Resources.setField(this,f.getName(), Resources.fieldToInstance(f));
 		}
 	}

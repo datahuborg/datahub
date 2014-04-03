@@ -248,7 +248,7 @@ public class DataHubConverter {
 						try{
 							DataHubArrayList otherModelList = (DataHubArrayList) association.getType().newInstance();
 							DataHubModel otherModel = (DataHubModel) otherModelList.getAssociatedModelClass().newInstance();
-							String linkingTable = otherModelList.getDatabase().getDatabaseName()+"."+AssociationDefaultsHandler.getLinkingTableName(a, currentModel, otherModel);
+							String linkingTable = getDatabaseName(db)+"."+AssociationDefaultsHandler.getLinkingTableName(a, currentModel, otherModel);
 							key = linkingTable;
 							if(!finalTableDefinitions.containsKey(key)){
 								//add foreign key constraint later

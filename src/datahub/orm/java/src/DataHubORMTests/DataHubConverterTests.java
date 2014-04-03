@@ -19,14 +19,14 @@ import Examples.TestModel;
 public class DataHubConverterTests {
 
 	//@Test
-	public void testFindModelFields() {
+	public void testFindModelFields() throws DataHubException {
 		TestDatabase db = new TestDatabase();
 		ArrayList<Field> fields = DataHubConverter.findModels(db.getClass());
 		System.out.println(fields);
 	}
 	
 	//@Test
-	public void testextractDataFromClass(){
+	public void testextractDataFromClass() throws DataHubException{
 		TestDatabase db = new TestDatabase();
 		System.out.println(DataHubConverter.convertDBToSchema(db.getClass()));
 	}

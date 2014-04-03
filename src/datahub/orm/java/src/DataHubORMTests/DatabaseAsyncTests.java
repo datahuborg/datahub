@@ -12,7 +12,7 @@ import Examples.TestDatabase;
 public class DatabaseAsyncTests {
 
 	@Test
-	public void testConnectDB() throws InterruptedException{
+	public void testConnectDB() throws InterruptedException, DataHubException{
 		DataHubAccount test_dha = new DataHubAccount("dggoeh1", new DataHubUser("dggoeh1@mit.edu","dggoeh1"));
 		final TestDatabase db = new TestDatabase();
 		db.setDataHubAccount(test_dha);

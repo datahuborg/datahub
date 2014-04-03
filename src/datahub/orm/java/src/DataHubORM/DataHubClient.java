@@ -56,15 +56,20 @@ class DataHubClient{
 			throw new Exception("Connection not initialized!");
 		}
 	}
-	private TSocket getConnectionSocket(){
-		return new TSocket(Constants.SERVER_ADDR_ROOT,Constants.SERVER_ADDR_PORT);
-	}
 	private DHConnectionParams getConnectionParams(DataHubDatabase db){
 		DHConnectionParams dhcp = new DHConnectionParams();
 		dhcp.setFieldValue(_Fields.USER, dha.getUser().getPassword());
 		dhcp.setFieldValue(_Fields.PASSWORD, dha.getApiKey());
 		dhcp.setFieldValue(_Fields.REPO, db.getDatabaseName());
 		return dhcp;
+	}
+	private synchronized Client getNewClient() throws DHException, TException{
+		TTransport transport = new THttpClient("http://datahub-experimental.csail.mit.edu/service");
+	    TProtocol protocol = new TBinaryProtocol(transport);
+		client = new DataHub.Client(protocol);
+		DHConnectionParams dhcp = getConnectionParams(database);
+		client.connect(dhcp);
+		return client;
 	}
 	public synchronized void connect(DataHubDatabase db) throws DHException, TException{
 		TTransport transport = new THttpClient("http://datahub-experimental.csail.mit.edu/service");
@@ -99,27 +104,10 @@ class DataHubClient{
 		DHSchema schema = data.getSchema();
 		DHTable table  = data.getTable();
 	}
-	public synchronized DHQueryResult dbQuery(String query){
+	public DHQueryResult dbQuery(String query){
 		DHQueryResult out = null;
 		try{
-			out = this.client.execute_sql(this.currentConnection, query, null);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		return out;
-	}
-	public DHQueryResult dbQueryNewConnection(String query){
-		DHQueryResult out = null;
-		try{
-			TSocket newSocket = getConnectionSocket();
-			newSocket.open();
-			TBinaryProtocol bp = new TBinaryProtocol(newSocket);
-			//TJSONProtocol jp = new TJSONProtocol(socket);
-			Client c = new DataHub.Client(bp);
-			DHConnectionParams dhcp = getConnectionParams(database);
-			DHConnection co = c.connect(dhcp);
-			out = c.execute_sql(co, query, null);
-			newSocket.close();
+			out = this.getNewClient().execute_sql(this.currentConnection, query, null);
 		}catch(Exception e){
 			e.printStackTrace();
 		}

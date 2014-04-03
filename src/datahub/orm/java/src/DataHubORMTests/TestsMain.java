@@ -4,7 +4,9 @@ import java.util.Random;
 
 import org.apache.thrift.TException;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import DataHubAccount.DataHubAccount;
@@ -16,26 +18,27 @@ import Examples.TestModel;
 import datahub.DHException;
 
 public class TestsMain {
-	public DataHubAccount test_dha;
-	public TestDatabase db;
-	@Before
-	public void setUp() throws DHException, TException{
+	public static DataHubAccount test_dha;
+	public static TestDatabase db;
+	
+	@BeforeClass
+	public static void setUp() throws DHException, TException, DataHubException{
 		test_dha = new DataHubAccount("dggoeh1", new DataHubUser("dggoeh1@mit.edu","dggoeh1"));
-		TestDatabase db = new TestDatabase();
-		db.setDataHubAccount(this.test_dha);
+		TestDatabase db1 = new TestDatabase();
+		db1.setDataHubAccount(test_dha);
 		try{
 			//System.out.println("connecting!");
-			db.connect();
-			db.clearAndReCreate();
+			db1.connect();
+			db1.clearAndReCreate();
 			//System.out.println("connected!");
-			this.db = db;
+			db = db1;
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 	
-	@After
-	public void tearDown(){
+	@AfterClass
+	public static void tearDown(){
 		db.disconnect();
 	}
 	public TestModel newTestModel() throws DataHubException{

@@ -40,7 +40,7 @@ import Examples.TestModel;
 public abstract class DataHubModel<T extends DataHubModel>{
 	
 	
-	private static DataHubDatabase db;
+	private static HashMap<Class,DataHubDatabase> dbs = new HashMap<Class,DataHubDatabase>();
 	
 	private HashMap<String,String> errors;
 	
@@ -49,6 +49,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 	public int id;
 	
 	public DataHubModel() throws DataHubException{
+		DataHubDatabase db = dbs.get(this.getClass());
 		if(db==null){
 			throw new DataHubException("Database for model class must be set before any models can be created!");
 		}
@@ -94,17 +95,18 @@ public abstract class DataHubModel<T extends DataHubModel>{
 	public synchronized void afterDestroy(){
 		
 	}
-	public static void setDatabase(DataHubDatabase database) throws DataHubException{
+    static synchronized void setDatabase(Class c, DataHubDatabase database) throws DataHubException{
 		//TODO: figure out why this is getting set more than once
-		db=database;
-		/*if(db == null){
-			db = database;
+		//db=database;
+    	DataHubDatabase db = dbs.get(c);
+		if(db == null){
+			dbs.put(c, database);
 		}else{
 			throw new DataHubException("Database can only be set once for the Model Class!");
-		}*/
+		}
 	}
-	public static DataHubDatabase getDatabase(){
-		return db;
+	public DataHubDatabase getDatabase(){
+		return dbs.get(this.getClass());
 	}
 	public void saveAsync(final GenericCallback<T> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
 		final T object = (T) this;
@@ -115,7 +117,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			public T call() throws DataHubException{
 				save();
 				return object;
-			}}, succeedCallback,failCallback, db.getDataHubWorkerMode());
+			}}, succeedCallback,failCallback, getDatabase().getDataHubWorkerMode());
 		dhw.execute();
 	}
 	public void destroyAsync(final GenericCallback<Void> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
@@ -125,7 +127,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			public Void call() {
 				destroy();
 				return null;
-			}}, succeedCallback, failCallback, db.getDataHubWorkerMode());
+			}}, succeedCallback, failCallback, getDatabase().getDataHubWorkerMode());
 		dhw.execute();
 	}
 	public synchronized void save() throws DataHubException{
@@ -231,7 +233,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			@Override
 			public ArrayList<T> call() {
 				return all();
-			}}, succeedCallback, failCallback, db.getDataHubWorkerMode());
+			}}, succeedCallback, failCallback, getDatabase().getDataHubWorkerMode());
 		dhw.execute();
 	}
 	public void findAllAsync(final HashMap<String,Object> params, final GenericCallback<ArrayList<T>> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
@@ -249,7 +251,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 					e.printStackTrace();
 					return null;
 				}
-			}}, succeedCallback, failCallback, db.getDataHubWorkerMode());
+			}}, succeedCallback, failCallback, getDatabase().getDataHubWorkerMode());
 		dhw.execute();
 	}
 	public void findOneAsync(final HashMap<String,Object> params, final GenericCallback<T> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
@@ -267,7 +269,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 					e.printStackTrace();
 					return null;
 				}
-			}}, succeedCallback, failCallback, db.getDataHubWorkerMode());
+			}}, succeedCallback, failCallback, getDatabase().getDataHubWorkerMode());
 		dhw.execute();
 	}
 	public ArrayList<T> all(){

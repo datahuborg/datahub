@@ -18,9 +18,6 @@ import DataHubWorkers.GenericExecutable;
 //setup currentModel during model creation
 public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 	
-	//TODO: throw exceptions if db not set or currentModel not set
-	private static DataHubDatabase db;
-	
 	private DataHubModel currentModel;
 	
 	private Association association;
@@ -30,28 +27,25 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 	private ArrayList<DataHubModel> tempRemove;
 	
 	public DataHubArrayList() throws DataHubException{
-		/*if(this.foreignKey == null || this.currentModel == null){
-			throw new DataHubException("DataHubArrayList must have a foreign key and current model specified!");
-		}*/
 		tempAdd = new ArrayList<T>();
 		tempRemove = new ArrayList<DataHubModel>();
 	}
-	
-	public static void setDatabase(DataHubDatabase database) throws DataHubException{
-		//TODO: figure out why this is getting set more than once
-		db=database;
-		/*if(db == null){
-			db = database;
-		}else{
-			//throw new DataHubException();
-		}*/
-	}
-	public static DataHubDatabase getDatabase(){
+	public DataHubDatabase getDatabase() throws DataHubException{
+		DataHubDatabase db = null;
+		try {
+			DataHubDatabase db1 = this.getAssociatedModelClass().newInstance().getDatabase();
+			DataHubDatabase db2 = this.currentModel.getDatabase();
+			if (db2==null || db1.equals(db2)){
+				db=db1;
+			}
+		} catch(Exception e){
+			
+		}
 		return db;
 	}
 	private void addItemSQL(DataHubModel data) throws DataHubException{
 		String query = getAddItemSQL(data);
-		db.query(query);
+		getDatabase().query(query);
 	}
 	//TODO:fix this
 	private String getAddItemSQL(DataHubModel data) throws DataHubException{
@@ -74,7 +68,7 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 		String rightTableForeignKey = DataHubConverter.AssociationDefaultsHandler.getLeftTableForeignKey(this.association, currentModel, otherModel);
 		
 		String associateTableName = data.getCompleteTableName();
-		String linkingTableName = db.getDatabaseName()+"."+linkingTable;
+		String linkingTableName = getDatabase().getDatabaseName()+"."+linkingTable;
 		String query = "";
 		
 		switch(this.association.associationType()){
@@ -106,7 +100,7 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 	}
 	private void removeItemSQL(DataHubModel data) throws DataHubException{
 		String query = getRemoveItemSQL(data);
-		db.query(query);
+		getDatabase().query(query);
 	}
 	private String getRemoveItemSQL(DataHubModel data) throws DataHubException{
 		DataHubModel currentModel = null;
@@ -125,7 +119,7 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 		
 		String associateTableName = data.getCompleteTableName();
 		String query = "";
-		String linkingTableName = db.getDatabaseName()+"."+linkingTable;
+		String linkingTableName = getDatabase().getDatabaseName()+"."+linkingTable;
 		
 		switch(this.association.associationType()){
 			case HasMany:
@@ -313,7 +307,7 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 					}else{
 						throw new DataHubException("For HABTM association, the foreign key must match either the left or the right key in the linking table!");
 					}
-					String query1 = "select ("+linkTableSelectKey+") from "+db.getDatabaseName()+"."+linkingTable+" where "+linkTableSearchKey+"="+this.currentModel.id;
+					String query1 = "select ("+linkTableSelectKey+") from "+getDatabase().getDatabaseName()+"."+linkingTable+" where "+linkTableSearchKey+"="+this.currentModel.id;
 					//TODO:fix this
 					query = "select * from "+otherModel.getCompleteTableName()+" where id in("+query1+")";
 					//System.out.println(query);
