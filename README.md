@@ -1,5 +1,7 @@
 *Note: The project is under development. It is not ready for deployment yet.*
 
+DataHub
+=====
 ### Dependencies
 * `thrift`
 * `postgres`
