@@ -20,4 +20,4 @@ DataHub
 ### Running DataHub Example Code
 * `cd src/datahub/examples/<python | java | javascript | ...>`
 * `source setup.sh`
-* execute the `<example-binary>`
+* `sh run.sh`
