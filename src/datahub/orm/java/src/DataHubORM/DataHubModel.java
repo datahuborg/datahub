@@ -132,12 +132,20 @@ public abstract class DataHubModel<T extends DataHubModel>{
 	}
 	public synchronized void save() throws DataHubException{
 		beforeSave();
-		String query = this.save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
+		//add begin transaction stuff here
+		String query = null;
+		try{
+			query = this.save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
+		}catch(DataHubException e){
+			//add rollback transaction here
+			throw new DataHubException(e.getMessage());
+		}
 		getDatabase().query(query);
+		//add end transaction stuff here
 		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
 		afterSave();
 	}
-	
+	//TODO: add already saved hashmap so that save not called again on same object.
 	String save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache) throws DataHubException{
 		//validates done in string generation so no query made until string generation completes
 		if(!validate()){
@@ -151,7 +159,6 @@ public abstract class DataHubModel<T extends DataHubModel>{
 		}
 		ArrayList<String> queries = new ArrayList<String>();
 		try{
-			//TODO: nat
 			String query = "";
 			//fix this
 			if(!this.validId()){

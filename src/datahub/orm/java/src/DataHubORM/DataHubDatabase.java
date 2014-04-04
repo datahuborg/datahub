@@ -71,21 +71,13 @@ public class DataHubDatabase {
 	public synchronized void setDataHubAccount(DataHubAccount dha){
 		this.dha = dha;
 		this.dhc = new DataHubClient(dha);
+		this.dhc.setDatabase(this);
 	}
 	public synchronized void setDataHubWorkerMode(DataHubWorkerMode dataHubWorkerMode){
 		this.dataHubWorkerMode = dataHubWorkerMode;
 	}
 	public synchronized DataHubWorkerMode getDataHubWorkerMode(){
 		return dataHubWorkerMode;
-	}
-	public synchronized void connect() throws DataHubException{
-		try {
-			dhc.connect(this);
-		} catch (Exception e){
-			//fix this
-			e.printStackTrace();
-			throw new DataHubException("Cannot connect to database!");
-		}
 	}
 	DataHubDatabase copy() throws DataHubException{
 		DataHubDatabase newDB = new DataHubDatabase(false);
@@ -107,57 +99,6 @@ public class DataHubDatabase {
 	public synchronized void sync() throws DataHubException{
 		//TODO: get better syncing
 		throw new DataHubException("Not implemented!");
-	}
-	public synchronized boolean isConnected(){
-		return dhc.isConnected();
-	}
-	public void connectAsync(final GenericCallback<Void> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
-		DataHubWorker<Void> dhw = new DataHubWorker<Void>(new GenericExecutable<Void>(){
-
-			@Override
-			public Void call() {
-				try {
-					connect();
-				} catch (DataHubException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return null;
-			}},new GenericCallback<Void>(){
-
-				@Override
-				public void call(Void data) throws DataHubException {
-					if(isConnected()){
-						succeedCallback.call(data);
-					}else{
-						failCallback.call(new DataHubException("Cannot connect to database!"));
-					}
-					
-				}},failCallback, dataHubWorkerMode);
-		dhw.execute();
-	}
-	public synchronized void disconnect(){
-		dhc.disconnect();
-	}
-	public void disconnectAsync(final GenericCallback<Void> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
-		DataHubWorker<Void> dhw = new DataHubWorker<Void>(new GenericExecutable<Void>(){
-
-			@Override
-			public Void call() {
-				disconnect();
-				return null;
-			}},new GenericCallback<Void>(){
-
-				@Override
-				public void call(Void data) throws DataHubException {
-					if(!isConnected()){
-						succeedCallback.call(data);
-					}else{
-						throw new DataHubException("Cannot connect to database!");
-					}
-					
-				}}, failCallback, dataHubWorkerMode);
-		dhw.execute();
 	}
 	private void instantiateAndSetup() throws DataHubException{
 		ArrayList<Field> fields = DataHubConverter.findModels(this.getClass());

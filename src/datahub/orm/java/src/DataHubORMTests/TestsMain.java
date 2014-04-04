@@ -28,7 +28,6 @@ public class TestsMain {
 		db1.setDataHubAccount(test_dha);
 		try{
 			//System.out.println("connecting!");
-			db1.connect();
 			db1.clearAndReCreate();
 			//System.out.println("connected!");
 			db = db1;
@@ -39,7 +38,6 @@ public class TestsMain {
 	
 	@AfterClass
 	public static void tearDown(){
-		db.disconnect();
 	}
 	public TestModel newTestModel() throws DataHubException{
 		Random generator = new Random();

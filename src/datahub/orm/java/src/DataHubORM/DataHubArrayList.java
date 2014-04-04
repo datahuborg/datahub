@@ -35,7 +35,7 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 		try {
 			DataHubDatabase db1 = this.getAssociatedModelClass().newInstance().getDatabase();
 			DataHubDatabase db2 = this.currentModel.getDatabase();
-			if (db2==null || db1.equals(db2)){
+			if (db1.equals(db2)){
 				db=db1;
 			}
 		} catch(Exception e){

@@ -37,24 +37,16 @@ import DataHubResources.Resources;
 //actual database names should have username as prefix so unique
 class DataHubClient{
 	private DataHubAccount dha;
-	private DHConnection currentConnection;
-	private Client client;
 	private DataHubDatabase database;
-	private boolean connectedToDB;
+	private boolean isDBSet;
 	//possibly add support for  connection to many databases
 	//arraylist of datahum  clients
 	public DataHubClient(DataHubAccount dha){
 		this.dha = dha;
+		this.isDBSet = false;
 	}
-	private void checkDBConnection() throws Exception{
-		if(!connectedToDB){
-			throw new Exception("Not connected to DB!");
-		}
-	}
+
 	private void checkRep() throws Exception{
-		if(currentConnection == null){
-			throw new Exception("Connection not initialized!");
-		}
 	}
 	private DHConnectionParams getConnectionParams(DataHubDatabase db){
 		DHConnectionParams dhcp = new DHConnectionParams();
@@ -66,29 +58,21 @@ class DataHubClient{
 	private synchronized Client getNewClient() throws DHException, TException{
 		TTransport transport = new THttpClient("http://datahub-experimental.csail.mit.edu/service");
 	    TProtocol protocol = new TBinaryProtocol(transport);
-		client = new DataHub.Client(protocol);
-		DHConnectionParams dhcp = getConnectionParams(database);
-		client.connect(dhcp);
+		Client client = new DataHub.Client(protocol);
 		return client;
 	}
-	public synchronized void connect(DataHubDatabase db) throws DHException, TException{
-		TTransport transport = new THttpClient("http://datahub-experimental.csail.mit.edu/service");
-	    TProtocol protocol = new TBinaryProtocol(transport);
-		client = new DataHub.Client(protocol);
-		database = db;
+	private synchronized DHConnection getNewConnection(Client c) throws DHException, TException{
 		DHConnectionParams dhcp = getConnectionParams(database);
-		currentConnection = client.connect(dhcp);
-		connectedToDB = true;
+		return c.connect(dhcp);
+	}
+	public synchronized void setDatabase(DataHubDatabase db){
+		database = db;
+		this.isDBSet = true;
 	}
 	public synchronized void disconnect(){
-		if(connectedToDB){
-			client = null;
-			currentConnection = null;
-			connectedToDB = false;
-		}
 	}
-	public boolean isConnected(){
-		return connectedToDB;
+	public boolean isDBSet(){
+		return this.isDBSet;
 	}
 	//TODO:possible security issue with unauthorized manipulation of client cause propagating changes to 
 	//server that destroy database
@@ -96,7 +80,8 @@ class DataHubClient{
 		detectSchemaDifferences();
 	}
 	public DHQueryResult getDatabaseSchema() throws DHException, TException{
-		return client.list_tables(currentConnection, this.database.getDatabaseName());
+		Client localClient = this.getNewClient();
+		return localClient.list_tables(getNewConnection(localClient), this.database.getDatabaseName());
 	}
 	private void detectSchemaDifferences() throws DHException, TException{
 		DHQueryResult dbSchema = getDatabaseSchema();
@@ -107,7 +92,8 @@ class DataHubClient{
 	public DHQueryResult dbQuery(String query){
 		DHQueryResult out = null;
 		try{
-			out = this.getNewClient().execute_sql(this.currentConnection, query, null);
+			Client localClient = this.getNewClient();
+			out = localClient.execute_sql(getNewConnection(localClient), query, null);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
