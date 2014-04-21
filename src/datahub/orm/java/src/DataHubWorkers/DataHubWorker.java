@@ -91,17 +91,13 @@ public class DataHubWorker<T>{
 					}
 					@Override
 					protected void onPostExecute(T result){
-						try {
-							if(succeed){
-								succeedCallback.call(result);
-							}else{
-								failCallback.call(failureException);
-							}
-						} catch (DataHubException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+						if(succeed){
+							succeedCallback.call(result);
+						}else{
+							failCallback.call(failureException);
 						}
 					}};
+					androidWorker.execute();
 				break;
 			default:
 				throw new DataHubException("Invalid DataHubWorker mode!");

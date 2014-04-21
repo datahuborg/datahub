@@ -4,5 +4,5 @@ import DataHubORM.DataHubException;
 
 public interface GenericCallback<T> {
 
-	public void call(T data) throws DataHubException;
+	public void call(T data);
 }

@@ -132,6 +132,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 	}
 	public synchronized void save() throws DataHubException{
 		beforeSave();
+		//recursively call validate here 
 		//add begin transaction stuff here
 		String query = null;
 		try{
