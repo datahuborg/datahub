@@ -676,8 +676,21 @@ public class ModelBasicTests extends TestsMain{
 		t3.destroy();
 	}
 	@Test
-	public void insertBlankViaDataHubArrayList(){
+	public void insertBlankViaDataHubArrayList() throws DataHubException{
+		TestModel t = new TestModel();
+		t.cars.add(new CarModel());
+		t.cars.add(new CarModel());
+		t.save();
+	
+		assertEquals(2,t.cars.size());
+		assertEquals(false, t.cars.get(0).equals(t.cars.get(1)));
 		
+		HashMap<String,Object> params = new HashMap<String,Object>();
+		params.put("id", t.id);
+		TestModel t1 = t.findOne(params);
+	
+		assertEquals(2,t1.cars.size());
+		assertEquals(false, t1.cars.get(0).equals(t1.cars.get(1)));
 	}
 	@Test
 	public void moveFromOneToAnotherHABTMTest(){
