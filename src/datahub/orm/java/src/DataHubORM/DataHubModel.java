@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -48,12 +49,17 @@ public abstract class DataHubModel<T extends DataHubModel>{
 	@IntegerField(Serial=true)
 	public int id;
 	
+	//hopefuly unique to id record before creation
+	@Column
+    public int randID;	
+	
 	public DataHubModel() throws DataHubException{
 		DataHubDatabase db = dbs.get(this.getClass());
 		if(db==null){
 			throw new DataHubException("Database for model class must be set before any models can be created!");
 		}
 		this.id = 0;
+		this.randID = new Random().nextInt();
 		this.errors = new HashMap<String,String>();
 		
 		//set default values
@@ -169,7 +175,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			}
 			
 			if(!this.validId()){
-				getDatabase().query(query);
+				DHQueryResult dhqr = getDatabase().dbQuery(query);
 				
 				//get new id
 				updateModelId();
@@ -688,7 +694,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			String thisSQLRep = this.getCompleteTableName()+this.generateQuerySQLRep();
 			//System.out.println(otherSQLRep);
 			//System.out.println(thisSQLRep);
-			if(thisSQLRep.equals(otherSQLRep)){
+			if(thisSQLRep.equals(otherSQLRep) && this.id!=0 && this.id==other.id){
 				return true;
 			}
 		}

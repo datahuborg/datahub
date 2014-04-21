@@ -580,7 +580,7 @@ public class DataHubConverter {
 				if(f.getType().equals(Double.class) || f.getType().equals(Double.TYPE) ){
 					return Double.parseDouble(new String(((ByteBuffer) c).array()));
 				}
-				if(f.getType().equals(Float.class) || f.getType().equals(Double.TYPE)){
+				if(f.getType().equals(Float.class) || f.getType().equals(Float.TYPE)){
 					return Float.parseFloat(new String(((ByteBuffer) c).array()));
 				}
 			}
@@ -638,7 +638,7 @@ public class DataHubConverter {
 		if(d.setupMode() == AnnotationsConstants.SetupModes.Manual){
 			return databaseName;
 		}else{
-			return class1.getSimpleName();
+			return class1.getSimpleName().toLowerCase();
 		}
 		
 	}
@@ -651,7 +651,7 @@ public class DataHubConverter {
 		if(t.setupMode() == AnnotationsConstants.SetupModes.Manual){
 			return tableName;
 		}else{
-			return class1.getSimpleName();
+			return class1.getSimpleName().toLowerCase();
 		}
 	}
 	public static String getFieldColumnName(Field f) throws DataHubException{
@@ -663,7 +663,7 @@ public class DataHubConverter {
 		if(c.setupMode() == AnnotationsConstants.SetupModes.Manual){
 			return columnName;
 		}else{
-			return f.getName();
+			return f.getName().toLowerCase();
 		}
 	}
 }

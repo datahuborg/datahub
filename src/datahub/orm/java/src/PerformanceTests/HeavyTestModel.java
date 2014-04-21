@@ -1,6 +1,7 @@
 package PerformanceTests;
 
 import DataHubAnnotations.Association;
+import DataHubAnnotations.Column;
 import DataHubAnnotations.Association.AssociationTypes;
 import DataHubAnnotations.Table;
 import DataHubORM.DataHubException;
@@ -13,6 +14,35 @@ public class HeavyTestModel extends DataHubModel<HeavyTestModel>{
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	@Column
+	public String ltm1;
+	
+	@Column
+	public int ltm2;
+	
+	@Column
+	public double ltm3;
+	
+	@Column
+	public float ltm4;
+	
+	@Column
+	public String ltm5;
+	
+	@Column
+	public String ltm6;
+	
+	@Column
+	public int ltm7;
+	
+	@Column
+	public boolean ltm8;
+	
+	@Column
+	public double ltm9;
+	
+	@Column
+	public boolean ltm10;
 	
 	@Association(associationType=AssociationTypes.HasMany)
 	public HTM1DataHubArrayList htm1s;

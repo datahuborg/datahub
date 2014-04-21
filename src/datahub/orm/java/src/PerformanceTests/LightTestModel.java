@@ -42,5 +42,34 @@ public class LightTestModel extends DataHubModel<LightTestModel>{
 	
 	@Column
 	public boolean ltm10;
-
+	
+	@Column
+	public String ltm11;
+	
+	@Column
+	public int ltm12;
+	
+	@Column
+	public double ltm13;
+	
+	@Column
+	public float ltm14;
+	
+	@Column
+	public String ltm15;
+	
+	@Column
+	public String ltm16;
+	
+	@Column
+	public int ltm17;
+	
+	@Column
+	public boolean ltm18;
+	
+	@Column
+	public double ltm19;
+	
+	@Column
+	public boolean ltm20;
 }

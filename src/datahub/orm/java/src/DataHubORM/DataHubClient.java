@@ -56,8 +56,8 @@ class DataHubClient{
 		return dhcp;
 	}
 	private synchronized Client getNewClient() throws DHException, TException{
-		//new THttpClient("http://datahub-experimental.csail.mit.edu/service");
-		TTransport transport = new THttpClient("http://datahub.csail.mit.edu/service");
+		TTransport transport = new THttpClient("http://datahub-experimental.csail.mit.edu/service");
+		//TTransport transport = new THttpClient("http://datahub.csail.mit.edu/service");
 	    TProtocol protocol = new TBinaryProtocol(transport);
 		Client client = new DataHub.Client(protocol);
 		return client;

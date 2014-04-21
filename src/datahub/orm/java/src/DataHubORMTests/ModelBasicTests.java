@@ -676,6 +676,10 @@ public class ModelBasicTests extends TestsMain{
 		t3.destroy();
 	}
 	@Test
+	public void insertBlankViaDataHubArrayList(){
+		
+	}
+	@Test
 	public void moveFromOneToAnotherHABTMTest(){
 		
 	}

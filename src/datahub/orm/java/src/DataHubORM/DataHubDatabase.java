@@ -251,15 +251,15 @@ public class DataHubDatabase {
 	
 	private <T extends DataHubModel> void updateNewModels(DHQueryResult dhqr, ArrayList<T> models,  int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ArrayList<String> fieldsToUpdate, boolean idOnly, ConcurrentHashMap<String,Object> objectHash){
 		//System.out.println(recursionDepthLimit);
-		if(recursionDepthLimit <= 0){
+		if(recursionDepthLimit <= 0 || dhqr==null){
 			return;
 		}
 		DHData data = dhqr.getData();
 		DHSchema schema = data.getSchema();
-		DHTable table  = data.getTable();
+		DHTable table  = data.getTable().deepCopy();
 		
 		ArrayList<LinkedHashMap<Field,String>> queries = new ArrayList<LinkedHashMap<Field,String>>();
-		for(int i = 0; i < table.rows.size(); i++){
+		for(int i = 0; i < models.size(); i++){
 			T newObj = models.get(i);
 			queries.add((LinkedHashMap<Field, String>) setBasicAndGetRelatedQueries(dhqr, i,newObj,fieldsToUpdate,idOnly));
 		}
