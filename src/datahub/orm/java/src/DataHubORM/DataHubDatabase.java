@@ -54,7 +54,7 @@ public class DataHubDatabase {
 	//prevent unnecessary saves
 	protected static int MAX_SAVE_RECURSION_DEPTH = Integer.MAX_VALUE;
 	
-	protected static int MAX_THREADS = 20;
+	protected static int MAX_THREADS = 2;
 	
 	private DataHubClient dhc;
 	
@@ -63,6 +63,7 @@ public class DataHubDatabase {
 	private DatabaseEngine databaseEngine;
 	
 	private DataHubWorkerMode dataHubWorkerMode;
+	
 	
 	public DataHubDatabase() throws DataHubException{
 		this(true);
@@ -154,7 +155,6 @@ public class DataHubDatabase {
 		return dhc.dbQuery(query);
 	}
 	private DHQueryResult dbQuery(String query, ConcurrentHashMap<String,Object> localCache){
-		System.out.println(query);
 		//System.out.println(dhc.dbQuery(query));
 		if(query.equals("") || query.equals(" ") || query.equals(null)){
 			return null;
@@ -166,6 +166,7 @@ public class DataHubDatabase {
 				return (DHQueryResult) localCache.get(query);
 			}else{
 				//System.out.println(localCache.keySet());
+				System.out.println(query);
 				missCount+=1;
 				//System.out.println(query);
 				//System.out.println("network");
@@ -231,7 +232,7 @@ public class DataHubDatabase {
 	}
 	private <T extends DataHubModel> ArrayList<T> dhQueryToModel(DHQueryResult dhqr, Class<T> modelClass, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ConcurrentHashMap<String,Object> objectHash) throws InstantiationException, IllegalAccessException{
 		ArrayList<T> output = new ArrayList<T>();
-		if(dhqr == null || recursionDepthLimit == 0){
+		if(dhqr == null || recursionDepthLimit <= 0){
 			return output;
 		}
 		DHData data = dhqr.getData();

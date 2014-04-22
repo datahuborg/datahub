@@ -45,7 +45,6 @@ import Examples.TestModel;
 @Table(name="")
 public abstract class DataHubModel<T extends DataHubModel>{
 	
-	
 	private static HashMap<Class,DataHubDatabase> dbs = new HashMap<Class,DataHubDatabase>();
 	
 	private HashMap<String,String> errors;
@@ -119,7 +118,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 	public DataHubDatabase getDatabase(){
 		return dbs.get(this.getClass());
 	}
-	public static void batchSaveOrInsert(DataHubModel[] models){
+	public static void batchSaveOrInsert(DataHubModel[] models) throws DataHubException{
 		class BatchInsert implements Runnable{
 			
 			DataHubModel[] models;
@@ -142,20 +141,6 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			
 		}
 		System.out.println("before dispatch");
-		/*Thread[] threads  = new Thread[models.length];
-		for(int i=0; i<models.length; i++){
-			threads[i] = new Thread(new BatchInsert(models,i));
-			threads[i].start();
-		}
-		System.out.println("after dispatch");
-		for(int i=0; i<models.length; i++){
-			try {
-				threads[i].join();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}*/
 		ExecutorService executor = Executors.newFixedThreadPool(DataHubDatabase.MAX_THREADS);
 		for(int i=0; i<models.length; i++){
 			executor.execute(new BatchInsert(models,i));
@@ -214,7 +199,6 @@ public abstract class DataHubModel<T extends DataHubModel>{
 		if(saved.containsKey(this)){
 			return "";
 		}
-		saved.put(this, true);
 		if(!validate()){
 			DataHubException dhe = new DataHubException("Model failed validation and resulted in the following errors: "+ this.errors.toString());
 			this.errors = new HashMap<String,String>();
@@ -229,16 +213,20 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			String query = "";
 			//fix this
 			if(!this.validId()){
-				query = "INSERT INTO "+this.getCompleteTableName()+"("+this.getTableBasicFieldNames()+")"+" VALUES( "+getBasicFieldValues()+")";
+				query = "insert into "+this.getCompleteTableName()+"("+this.getTableBasicFieldNames()+")"+" select "+getBasicFieldValues()+
+						" where not exists( "+"select * from "+ this.getCompleteTableName()+" where "+this.generateQuerySQLRep()+")";
 			}else{
-				query = "UPDATE "+this.getCompleteTableName()+" SET "+generateAssignmentSQLRep()+" WHERE "+"id="+this.id;
+				query = "update "+this.getCompleteTableName()+" set "+generateAssignmentSQLRep()+" where "+"id="+this.id;
 			}
 			
 			if(!this.validId()){
-				DHQueryResult dhqr = getDatabase().dbQuery(query);
+				getDatabase().dbQuery(query);
 				
 				//get new id
 				updateModelId();
+				
+				//ensure basic model data is truly saved before marking it as saved
+				saved.put(this, true);
 			}else{
 				queries.add(query);
 			}
@@ -317,6 +305,27 @@ public abstract class DataHubModel<T extends DataHubModel>{
 					if(o != null){
 						if(DataHubConverter.isModelSubclass(f.getType())){
 							DataHubModel otherModel = (DataHubModel) o;
+							executor.execute(new Thread(new DataHubModelSaveHelper(otherModel, recursionDepthLimit, localCache, queries,saved)));
+						}
+						//has many or HABTM relationship
+						if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
+							DataHubArrayList d = (DataHubArrayList) o;
+							executor.execute(new DataHubArrayListSaveHelper(d, recursionDepthLimit, localCache, queries,saved));
+						}
+					}
+				}
+			}
+			//save models then update associations
+			executor.shutdown();
+			executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
+			
+			
+			for(Field f:this.getClass().getFields()){
+				if(this.hasAssociation(f.getName())){
+					Object o = f.get(this);
+					if(o != null){
+						if(DataHubConverter.isModelSubclass(f.getType())){
+							DataHubModel otherModel = (DataHubModel) o;
 							//TODO: fix this
 							Association a = f.getAnnotation(Association.class);
 							String foreignKey = DataHubConverter.AssociationDefaultsHandler.getForeignKey(a, this, otherModel);
@@ -333,35 +342,10 @@ public abstract class DataHubModel<T extends DataHubModel>{
 								//getDatabase().query(queryHasOne);
 								queries.add(queryHasOne);
 							}
-							//System.out.println(m);
-							//String otherQueries = otherModel.save(recursionDepthLimit-1,localCache);
-							//queries.add(otherQueries);
-							//Thread t = new Thread(new DataHubModelSaveHelper(otherModel, recursionDepthLimit, localCache, queries,saved));
-							//threads.add(t);
-							executor.execute(new Thread(new DataHubModelSaveHelper(otherModel, recursionDepthLimit, localCache, queries,saved)));
-						}
-						//has many or HABTM relationship
-						if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
-							DataHubArrayList d = (DataHubArrayList) o;
-							//String otherQueries = d.save(recursionDepthLimit-1,localCache);
-							//queries.add(otherQueries);
-							//Thread t = new Thread(new DataHubArrayListSaveHelper(d, recursionDepthLimit, localCache, queries,saved));
-							//threads.add(t);
-							executor.execute(new DataHubArrayListSaveHelper(d, recursionDepthLimit, localCache, queries,saved));
 						}
 					}
 				}
 			}
-			/*for(Thread t: threads){
-				t.start();
-			}
-			//System.out.println("after dispatch save");
-			for(Thread t: threads){
-				t.join();
-			}
-			//System.out.println("after  save");*/
-			executor.shutdown();
-			executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
 			//updateModel(recursionDepthLimit,localCache);
 		}catch(Exception e){
 			e.printStackTrace();

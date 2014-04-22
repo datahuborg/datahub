@@ -30,6 +30,7 @@ import org.junit.Test;
 import DataHubAccount.DataHubAccount;
 import DataHubAccount.DataHubUser;
 import DataHubORM.DataHubException;
+import DataHubORM.DataHubModel;
 import Examples.CarModel;
 import Examples.DeviceModel;
 import Examples.TestModel;
@@ -447,6 +448,7 @@ public class ModelBasicTests extends TestsMain{
 		testerM.save();
 		
 		assertEquals(testerM.id!=0,true);
+		assertEquals(testerM.test.equals(t),true);
 		
 		String code = "test_code"+Math.abs(generator.nextInt());
 		DeviceModel d = new DeviceModel();
@@ -464,6 +466,12 @@ public class ModelBasicTests extends TestsMain{
 		t.devices.add(d);
 		t.devices.add(d1);
 		t.save();
+		
+		//up to dev to refresh
+		d.refreshModel();
+		d1.refreshModel();
+		assertEquals(d.testModel.equals(t),true);
+		assertEquals(d1.testModel.equals(t),true);
 		
 		HashMap<String,Object> params = new HashMap<String,Object>();
 		params.put("tester", testerM);
@@ -499,7 +507,7 @@ public class ModelBasicTests extends TestsMain{
 		for(int j = 1; j<15; j++){
 			UserModel u = new UserModel();
 			u.username="user"+j;
-			u.save();
+			//u.save();
 			ums.add(u);
 		}
 		for(int i = 0; i<15; i++){
@@ -507,9 +515,10 @@ public class ModelBasicTests extends TestsMain{
 			for(UserModel u: ums){
 				t.users.add(u);
 			}
-			t.save();
+			//t.save();
 			tms.add(t);
 		}
+		DataHubModel.batchSaveOrInsert(tms.toArray(new DataHubModel[]{}));
 		db.resetStats();
 		long old = System.currentTimeMillis();
 		System.out.println("start query"+System.currentTimeMillis());
@@ -519,6 +528,9 @@ public class ModelBasicTests extends TestsMain{
 		db.printStats();
 		for(UserModel user: users){
 			System.out.println(user.tests);
+			assertEquals(user.tests.size(),tms.size());
+			for(TestModel t:user.tests){
+			}
 		}
 	}
 	@Test
@@ -699,6 +711,51 @@ public class ModelBasicTests extends TestsMain{
 	@Test
 	public void nestedObjectsTest(){
 		
+	}
+	@Test
+	public void layeredInsertTest1() throws DataHubException{
+		TesterModel trm = new TesterModel();
+		UserModel um = new UserModel();
+		TestModel tm = new TestModel();
+		
+		um.tests.add(tm);
+		trm.users.add(um);
+		trm.test = tm;
+		trm.save();
+		
+		HashMap<String,Object> params = new HashMap<String,Object>();
+		params.put("id", trm.id);
+		TesterModel trm1 = db.testers.findOne(params);
+		um.refreshModel();
+		tm.refreshModel();
+		
+		assertEquals(true,trm1.test.equals(tm));
+		assertEquals(true,trm1.users.contains(um));
+	}
+	@Test
+	public void layeredInsertTest2() throws DataHubException{
+		TesterModel trm = new TesterModel();
+		UserModel um = new UserModel();
+		TestModel tm = new TestModel();
+		
+		um.tests.add(tm);
+		trm.users.add(um);
+		tm.tester = trm;
+
+
+		//trm.test = tm; save doesn't work because tm.tester is null
+		um.save();
+		
+		HashMap<String,Object> params = new HashMap<String,Object>();
+		params.put("id", trm.id);
+		TesterModel trm1 = db.testers.findOne(params);
+		um.refreshModel();
+		tm.refreshModel();
+		
+		assertEquals(true,trm1!=null);
+		assertEquals(true,trm1.test!=null);
+		assertEquals(true,trm1.test.equals(tm));
+		assertEquals(true,trm1.users.contains(um));
 	}
 	
 }

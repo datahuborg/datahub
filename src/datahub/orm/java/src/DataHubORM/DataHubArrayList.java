@@ -242,7 +242,6 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 		if(recursionDepthLimit <= 0 || saved.contains(this)){
 			return "";
 		}
-		saved.put(this, true);
 		ArrayList<DataHubModel> tempAddClone = (ArrayList<DataHubModel>) this.tempAdd.clone();
 		ArrayList<DataHubModel> tempRemoveClone = (ArrayList<DataHubModel>) this.tempRemove.clone();
 		ArrayList<String> queries = new ArrayList<String>();
@@ -260,6 +259,8 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 			queries.add(queryElement);
 			queries.add(removeItemSql);
 		}
+		//ensure basic model data is truly saved before marking it as saved
+		saved.put(this, true);
 		reset();
 		return Resources.concatenate(queries, ";");
 	}

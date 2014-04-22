@@ -44,6 +44,9 @@ public class UserModel extends DataHubModel<UserModel>{
 	@Association(associationType = AssociationTypes.HasAndBelongsToMany, loadType = LoadTypes.None)
 	public CarDataHubArrayList cars;
 	
+	@Association(associationType = AssociationTypes.BelongsTo)
+	public TesterModel tester;
+	
 	@Override
 	public synchronized boolean validate(){
 		return true;

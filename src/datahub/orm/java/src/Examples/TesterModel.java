@@ -34,4 +34,7 @@ public class TesterModel extends DataHubModel<TesterModel> {
 	
 	@Association(setupMode=AnnotationsConstants.SetupModes.Manual, associationType = AssociationTypes.BelongsTo, foreignKey = "test_id")
 	public TestModel test;
+	
+	@Association(associationType = AssociationTypes.HasMany)
+	public UsersDataHubArrayList users;
 }
