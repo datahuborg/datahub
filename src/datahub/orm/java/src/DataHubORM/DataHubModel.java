@@ -220,13 +220,13 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			}
 			
 			if(!this.validId()){
-				getDatabase().dbQuery(query);
+				getDatabase().query(query);
 				
 				//get new id
 				updateModelId();
 				
-				//ensure basic model data is truly saved before marking it as saved
 				saved.put(this, true);
+								
 			}else{
 				queries.add(query);
 			}
@@ -319,13 +319,14 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			executor.shutdown();
 			executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
 			
-			
+
 			for(Field f:this.getClass().getFields()){
 				if(this.hasAssociation(f.getName())){
 					Object o = f.get(this);
 					if(o != null){
 						if(DataHubConverter.isModelSubclass(f.getType())){
 							DataHubModel otherModel = (DataHubModel) o;
+							//queries.add(otherModel.save(recursionDepthLimit, localCache, saved));
 							//TODO: fix this
 							Association a = f.getAnnotation(Association.class);
 							String foreignKey = DataHubConverter.AssociationDefaultsHandler.getForeignKey(a, this, otherModel);
@@ -338,15 +339,19 @@ public abstract class DataHubModel<T extends DataHubModel>{
 							}
 							if(a.associationType() == AssociationTypes.HasOne){
 								String associateTableName = otherModel.getCompleteTableName();
-								String queryHasOne = "UPDATE "+associateTableName+" SET "+foreignKey+"="+otherModel.id+" WHERE id="+this.id;
+								String queryHasOne = "UPDATE "+associateTableName+" SET "+foreignKey+"="+this.id+" WHERE id="+otherModel.id;
 								//getDatabase().query(queryHasOne);
 								queries.add(queryHasOne);
 							}
 						}
 					}
+					/*//has many or HABTM relationship
+					if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
+						DataHubArrayList d = (DataHubArrayList) o;
+						queries.add(d.save(recursionDepthLimit, localCache, saved));
+					}*/
 				}
 			}
-			//updateModel(recursionDepthLimit,localCache);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -807,6 +812,9 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			e.printStackTrace();
 		}
 		return null;
+	}
+	public String getUpdateCheckQuery(){
+		return "";
 	}
 	public String getCompleteTableName(){
 		return getDatabase().getDatabaseName()+"."+this.getTableName();

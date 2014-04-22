@@ -2,6 +2,7 @@ package DataHubORMTests;
 
 import static org.junit.Assert.assertEquals;
 
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -703,6 +704,7 @@ public class ModelBasicTests extends TestsMain{
 	
 		assertEquals(2,t1.cars.size());
 		assertEquals(false, t1.cars.get(0).equals(t1.cars.get(1)));
+		
 	}
 	@Test
 	public void moveFromOneToAnotherHABTMTest(){
@@ -729,6 +731,8 @@ public class ModelBasicTests extends TestsMain{
 		um.refreshModel();
 		tm.refreshModel();
 		
+		assertEquals(true,trm1!=null);
+		assertEquals(true,trm1.test!=null);
 		assertEquals(true,trm1.test.equals(tm));
 		assertEquals(true,trm1.users.contains(um));
 	}
@@ -739,8 +743,8 @@ public class ModelBasicTests extends TestsMain{
 		TestModel tm = new TestModel();
 		
 		um.tests.add(tm);
-		trm.users.add(um);
 		tm.tester = trm;
+		trm.users.add(um);
 
 
 		//trm.test = tm; save doesn't work because tm.tester is null
@@ -751,7 +755,9 @@ public class ModelBasicTests extends TestsMain{
 		TesterModel trm1 = db.testers.findOne(params);
 		um.refreshModel();
 		tm.refreshModel();
+		trm.refreshModel();
 		
+		assertEquals(true,um.id!=0);
 		assertEquals(true,trm1!=null);
 		assertEquals(true,trm1.test!=null);
 		assertEquals(true,trm1.test.equals(tm));

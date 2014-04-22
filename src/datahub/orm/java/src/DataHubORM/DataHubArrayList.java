@@ -259,8 +259,8 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 			queries.add(queryElement);
 			queries.add(removeItemSql);
 		}
-		//ensure basic model data is truly saved before marking it as saved
 		saved.put(this, true);
+		//ensure basic model data is truly saved before marking it as saved
 		reset();
 		return Resources.concatenate(queries, ";");
 	}

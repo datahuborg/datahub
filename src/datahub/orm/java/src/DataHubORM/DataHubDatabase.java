@@ -166,7 +166,7 @@ public class DataHubDatabase {
 				return (DHQueryResult) localCache.get(query);
 			}else{
 				//System.out.println(localCache.keySet());
-				System.out.println(query);
+				//System.out.println(query);
 				missCount+=1;
 				//System.out.println(query);
 				//System.out.println("network");
@@ -176,6 +176,7 @@ public class DataHubDatabase {
 				return out;
 			}
 		}else{
+			System.out.println(query);
 			otherCount+=1;
 			return dhc.dbQuery(query);
 		}
