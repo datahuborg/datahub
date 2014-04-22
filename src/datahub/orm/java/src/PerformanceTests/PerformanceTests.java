@@ -144,12 +144,9 @@ public class PerformanceTests {
 		long now1 = t1.getTime();
 		System.out.println(new Date(now1-now).getTime());
 	}
-	@Test
+	//@Test
 	public void insertTestManyHTM() throws DataHubException{
-		HeavyTestModel[] data = generateManyRandomHTM(100,5,1);
-		/*for(HeavyTestModel m: data){
-			m.save();
-		}*/
+		HeavyTestModel[] data = generateManyRandomHTM(10,5,1);
 		DataHubModel.batchSaveOrInsert(data);
 		Date t = new Date();
 		long now = t.getTime();
@@ -173,16 +170,40 @@ public class PerformanceTests {
 				htm.save();
 				Date t1 = new Date();
 				long now1 = t1.getTime();
-				System.out.println("Insert Time"+new Date(now1-now).getTime());
+				System.out.println("Insert Time "+new Date(now1-now).getTime());
 				Date t2 = new Date();
 				long now2 = t2.getTime();
-				htm.save();
+				assertEquals(1,db.HeavyTestModel.all().size());
 				Date t3 = new Date();
 				long now3 = t3.getTime();
-				System.out.println("Query Time"+new Date(now3-now2).getTime());
+				System.out.println("Query Time "+new Date(now3-now2).getTime());
 			}
 		}
 	}
-	
+	@Test
+	public void HTMStressTest2() throws DataHubException{
+		int[] Ks = {1,5,10};
+		int[] Ns = {1,5,10};
+		int M=2;
+		for(int N:Ns){
+			for(int k:Ks){
+				db.clearAndReCreate();
+				System.out.println("N="+N+",K="+k+",M="+M);
+				HeavyTestModel[] htm = PerformanceTests.generateManyRandomHTM(k, N, M);
+				Date t = new Date();
+				long now = t.getTime();
+				DataHubModel.batchSaveOrInsert(htm);
+				Date t1 = new Date();
+				long now1 = t1.getTime();
+				System.out.println("Insert Time "+new Date(now1-now).getTime());
+				Date t2 = new Date();
+				long now2 = t2.getTime();
+				assertEquals(k,db.HeavyTestModel.all().size());
+				Date t3 = new Date();
+				long now3 = t3.getTime();
+				System.out.println("Query Time "+new Date(now3-now2).getTime());
+			}
+		}
+	}
 
 }

@@ -232,101 +232,13 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			}
 			
 			//recursively save all fields
-			class SaveHelper{
-				
-				int recursionDepthLimit;
-				volatile ConcurrentHashMap<String,Object> localCache;
-				Collection<String> queries;
-				volatile ConcurrentHashMap<Object, Boolean> saved;
-				public SaveHelper(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache,Collection<String> queries,ConcurrentHashMap<Object, Boolean> saved){
-					this.recursionDepthLimit = recursionDepthLimit;
-					this.localCache = localCache;
-					this.queries = queries;
-					this.saved = saved;
-				}
-			}
-			class DataHubModelSaveHelper extends SaveHelper implements Runnable{
-				
-				DataHubModel dataHubModel;
-				public DataHubModelSaveHelper(DataHubModel dataHubModel,
-						int recursionDepthLimit,
-						ConcurrentHashMap<String, Object> localCache,
-						Collection<String> queries,ConcurrentHashMap<Object, Boolean> saved) {
-					super(recursionDepthLimit, localCache, queries,saved);
-					this.dataHubModel = dataHubModel;
-					// TODO Auto-generated constructor stub
-				}
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					try {
-						queries.add(dataHubModel.save(recursionDepthLimit, localCache,saved));
-						Thread.sleep(10);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-				}
-			}
-			class DataHubArrayListSaveHelper extends SaveHelper implements Runnable{
-				
-				DataHubArrayList dataHubArrayList;
-				public DataHubArrayListSaveHelper(DataHubArrayList dataHubArrayList,
-						int recursionDepthLimit,
-						ConcurrentHashMap<String, Object> localCache,
-						Collection<String> queries,ConcurrentHashMap<Object, Boolean> saved) {
-					super(recursionDepthLimit, localCache, queries,saved);
-					this.dataHubArrayList = dataHubArrayList;
-					// TODO Auto-generated constructor stub
-				}
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					try {
-						queries.add(dataHubArrayList.save(recursionDepthLimit, localCache, saved));
-						//System.out.println(Thread.currentThread().getId()+queries.toString());
-						Thread.sleep(10);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-				}
-				
-			}
-
-			//ArrayList<Thread> threads = new ArrayList<Thread>();
-			ExecutorService executor = Executors.newFixedThreadPool(DataHubDatabase.MAX_THREADS);
-			
 			for(Field f:this.getClass().getFields()){
 				if(this.hasAssociation(f.getName())){
 					Object o = f.get(this);
 					if(o != null){
 						if(DataHubConverter.isModelSubclass(f.getType())){
 							DataHubModel otherModel = (DataHubModel) o;
-							executor.execute(new Thread(new DataHubModelSaveHelper(otherModel, recursionDepthLimit, localCache, queries,saved)));
-						}
-						//has many or HABTM relationship
-						if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
-							DataHubArrayList d = (DataHubArrayList) o;
-							executor.execute(new DataHubArrayListSaveHelper(d, recursionDepthLimit, localCache, queries,saved));
-						}
-					}
-				}
-			}
-			//save models then update associations
-			executor.shutdown();
-			executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
-			
-
-			for(Field f:this.getClass().getFields()){
-				if(this.hasAssociation(f.getName())){
-					Object o = f.get(this);
-					if(o != null){
-						if(DataHubConverter.isModelSubclass(f.getType())){
-							DataHubModel otherModel = (DataHubModel) o;
-							//queries.add(otherModel.save(recursionDepthLimit, localCache, saved));
+							queries.add(otherModel.save(recursionDepthLimit, localCache, saved));
 							//TODO: fix this
 							Association a = f.getAnnotation(Association.class);
 							String foreignKey = DataHubConverter.AssociationDefaultsHandler.getForeignKey(a, this, otherModel);
@@ -345,11 +257,11 @@ public abstract class DataHubModel<T extends DataHubModel>{
 							}
 						}
 					}
-					/*//has many or HABTM relationship
+					//has many or HABTM relationship
 					if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
 						DataHubArrayList d = (DataHubArrayList) o;
 						queries.add(d.save(recursionDepthLimit, localCache, saved));
-					}*/
+					}
 				}
 			}
 		}catch(Exception e){

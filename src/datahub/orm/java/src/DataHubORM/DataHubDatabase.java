@@ -49,12 +49,12 @@ public class DataHubDatabase {
 	public enum DatabaseEngine{Postgres};
 	
 	
-	protected static int MAX_LOAD_RECURSION_DEPTH = Integer.MAX_VALUE;
+	protected static int MAX_LOAD_RECURSION_DEPTH = 3;
 	
 	//prevent unnecessary saves
-	protected static int MAX_SAVE_RECURSION_DEPTH = Integer.MAX_VALUE;
+	protected static int MAX_SAVE_RECURSION_DEPTH = 4;
 	
-	protected static int MAX_THREADS = 2;
+	protected static int MAX_THREADS = 1;
 	
 	private DataHubClient dhc;
 	
@@ -176,7 +176,7 @@ public class DataHubDatabase {
 				return out;
 			}
 		}else{
-			System.out.println(query);
+			//System.out.println(query);
 			otherCount+=1;
 			return dhc.dbQuery(query);
 		}
