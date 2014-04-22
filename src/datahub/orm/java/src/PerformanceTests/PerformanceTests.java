@@ -2,8 +2,11 @@ package PerformanceTests;
 
 import static org.junit.Assert.*;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Date;
 import java.util.Random;
 
 import org.apache.thrift.TException;
@@ -12,7 +15,10 @@ import org.junit.Test;
 
 import DataHubAccount.DataHubAccount;
 import DataHubAccount.DataHubUser;
+import DataHubORM.DataHubArrayList;
+import DataHubORM.DataHubConverter;
 import DataHubORM.DataHubException;
+import DataHubORM.DataHubModel;
 import Examples.TestDatabase;
 import datahub.DHException;
 
@@ -70,48 +76,44 @@ public class PerformanceTests {
 		return ltm;
 		
 	}
-	public static HeavyTestModel generateRandomHTM(int M) throws DataHubException{
+	public static HeavyTestModel generateRandomHTM(int N, int M){
 		Random rand = new Random();
-		
-		HeavyTestModel htm = new HeavyTestModel();
-		htm.ltm1 = generateRandomString();
-		htm.ltm2 = rand.nextInt();
-		htm.ltm3 = rand.nextDouble();
-		htm.ltm4 = rand.nextFloat();
-		htm.ltm5 = generateRandomString();
-		htm.ltm6 = generateRandomString();
-		htm.ltm7 = rand.nextInt();
-		htm.ltm8 = rand.nextBoolean();
-		htm.ltm9 = rand.nextDouble();
-		htm.ltm10 = rand.nextBoolean();
-		for(int i=0; i<M; i++){
-			HTM1 ht1 = new HTM1();
-			htm.htm1s.add(ht1);
-			HTM2 ht2 = new HTM2();
-			htm.htm2s.add(ht2);
-			HTM3 ht3 = new HTM3();
-			htm.htm3s.add(ht3);
-			HTM4 ht4 = new HTM4();
-			htm.htm4s.add(ht4);
-			HTM5 ht5 = new HTM5();
-			htm.htm5s.add(ht5);
-			HTM6 ht6 = new HTM6();
-			htm.htm6s.add(ht6);
-			HTM7 ht7 = new HTM7();
-			htm.htm7s.add(ht7);
-			HTM8 ht8 = new HTM8();
-			htm.htm8s.add(ht8);
-			HTM9 ht9 = new HTM9();
-			htm.htm9s.add(ht9);
-			HTM10 ht10 = new HTM10();
-			htm.htm10s.add(ht10);
+		HeavyTestModel htm = null;
+		try{
+			htm = new HeavyTestModel();
+			htm.ltm1 = generateRandomString();
+			htm.ltm2 = rand.nextInt();
+			htm.ltm3 = rand.nextDouble();
+			htm.ltm4 = rand.nextFloat();
+			htm.ltm5 = generateRandomString();
+			htm.ltm6 = generateRandomString();
+			htm.ltm7 = rand.nextInt();
+			htm.ltm8 = rand.nextBoolean();
+			htm.ltm9 = rand.nextDouble();
+			htm.ltm10 = rand.nextBoolean();
+			int count = 0;
+			for(Field f:HeavyTestModel.class.getFields()){
+				if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
+					DataHubArrayList d = (DataHubArrayList) f.get(htm);
+					for(int i=0; i<M; i++){
+						DataHubModel m = (DataHubModel) ((Class)((ParameterizedType)d.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
+						d.add(m);
+					}
+					if(count>=N){
+						break;
+					}
+					count++;
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 		return htm;	
 	}
-	public static HeavyTestModel[] generateManyRandomHTM(int N, int M) throws DataHubException{
-		HeavyTestModel[] data = new HeavyTestModel[N];
-		for(int i=0; i<N; i++){
-			data[i] = generateRandomHTM(M);
+	public static HeavyTestModel[] generateManyRandomHTM(int k, int N, int M){
+		HeavyTestModel[] data = new HeavyTestModel[k];
+		for(int i=0; i<k; i++){
+			data[i] = generateRandomHTM(N,M);
 		}
 		return data;
 	}
@@ -119,23 +121,68 @@ public class PerformanceTests {
 	public void inserTestOneLTM() throws DataHubException {
 		generateRandomLTM().save();
 	}
-	@Test
-	public void insertTestOneHTM() throws DataHubException{
-		HeavyTestModel h = generateRandomHTM(2);
-		h.save();
-	}
 	//@Test
-	public void inserTestManyLTM() throws DataHubException {
-		for(int i=0; i<100;i++){
+	public void insertTestOneLTMCompare() throws DataHubException{
+		for(int i=0; i<10; i++){
 			generateRandomLTM().save();
 		}
 	}
 	//@Test
+	public void insertTestOneHTMCompare() throws DataHubException{
+		HeavyTestModel h = generateRandomHTM(10,1);
+		h.save();
+	}
+	//@Test
+	public void inserTestManyLTM() throws DataHubException {
+		for(int i=0; i<1000;i++){
+			generateRandomLTM().save();
+		}
+		Date t = new Date();
+		long now = t.getTime();
+		db.LightTestModel.all();
+		Date t1 = new Date();
+		long now1 = t1.getTime();
+		System.out.println(new Date(now1-now).getTime());
+	}
+	@Test
 	public void insertTestManyHTM() throws DataHubException{
-		HeavyTestModel[] data = generateManyRandomHTM(10,10);
-		for(HeavyTestModel d: data){
-			d.save();
+		HeavyTestModel[] data = generateManyRandomHTM(100,5,1);
+		/*for(HeavyTestModel m: data){
+			m.save();
+		}*/
+		DataHubModel.batchSaveOrInsert(data);
+		Date t = new Date();
+		long now = t.getTime();
+		System.out.println(db.HeavyTestModel.all().size());
+		Date t1 = new Date();
+		long now1 = t1.getTime();
+		System.out.println(new Date(now1-now).getTime());
+	}
+	
+	//@Test
+	public void HTMStressTest() throws DataHubException{
+		int[] Ns = {1,5,10};
+		int[] Ms = {1,5,10};
+		for(int N:Ns){
+			for(int M:Ms){
+				db.clearAndReCreate();
+				System.out.println("N="+N+",M="+M);
+				HeavyTestModel htm = generateRandomHTM(N,M);
+				Date t = new Date();
+				long now = t.getTime();
+				htm.save();
+				Date t1 = new Date();
+				long now1 = t1.getTime();
+				System.out.println("Insert Time"+new Date(now1-now).getTime());
+				Date t2 = new Date();
+				long now2 = t2.getTime();
+				htm.save();
+				Date t3 = new Date();
+				long now3 = t3.getTime();
+				System.out.println("Query Time"+new Date(now3-now2).getTime());
+			}
 		}
 	}
+	
 
 }

@@ -10,6 +10,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.thrift.TException;
 
@@ -50,6 +53,8 @@ public class DataHubDatabase {
 	
 	//prevent unnecessary saves
 	protected static int MAX_SAVE_RECURSION_DEPTH = Integer.MAX_VALUE;
+	
+	protected static int MAX_THREADS = 20;
 	
 	private DataHubClient dhc;
 	
@@ -149,8 +154,11 @@ public class DataHubDatabase {
 		return dhc.dbQuery(query);
 	}
 	private DHQueryResult dbQuery(String query, ConcurrentHashMap<String,Object> localCache){
-		//System.out.println(query);
+		System.out.println(query);
 		//System.out.println(dhc.dbQuery(query));
+		if(query.equals("") || query.equals(" ") || query.equals(null)){
+			return null;
+		}
 		if(query.toLowerCase().startsWith("select * from") || query.toLowerCase().startsWith("(select * from")){
 			if(localCache.containsKey(query)){
 				//System.out.println(query);
@@ -158,10 +166,10 @@ public class DataHubDatabase {
 				return (DHQueryResult) localCache.get(query);
 			}else{
 				//System.out.println(localCache.keySet());
-				System.out.println(query);
 				missCount+=1;
 				//System.out.println(query);
 				//System.out.println("network");
+//				/System.out.println(Thread.currentThread().getId()+query);
 				DHQueryResult out = dhc.dbQuery(query);
 				localCache.put(query, out);
 				return out;
@@ -302,12 +310,63 @@ public class DataHubDatabase {
 				queryOrders.put(field, queryOrdersForField);
 			}
 		}
+		class LoadHelper  implements Runnable{
+			volatile ConcurrentHashMap<String,Object> localCache;
+			String actualQuery;
+			Field f;
+			ConcurrentHashMap<Field,DHQueryResult> results;
+			public LoadHelper(Field f,ConcurrentHashMap<Field,DHQueryResult> results,String actualQuery,ConcurrentHashMap<String,Object> localCache){
+				this.f = f;
+				this.results = results;
+				this.actualQuery = actualQuery;
+				this.localCache = localCache;
+			}
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				this.results.put(f, dbQuery(actualQuery, localCache));
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		}
+		ConcurrentHashMap<Field,DHQueryResult> results12 = new ConcurrentHashMap<Field,DHQueryResult>();
+		//ArrayList<Thread> threads = new ArrayList<Thread>();
+		ExecutorService executor = Executors.newFixedThreadPool(DataHubDatabase.MAX_THREADS);
+		for(Field field1: queries1.keySet()){
+			String actualQuery = queries1.get(field1);
+			executor.execute(new LoadHelper(field1,results12,actualQuery,localCache));
+			//Thread t = new Thread(new LoadHelper(field1,results12,actualQuery,localCache));
+			//threads.add(t);
+		}
+		executor.shutdown();
+		try {
+			executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		/*for(Thread t: threads){
+			t.start();
+		}
+		for(Thread t: threads){
+			try {
+				t.join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}*/
 		for(Field field1: queries1.keySet()){
 			ArrayList<String> queryOrdersForCurrentField = queryOrders.get(field1);
 			String actualQuery = queries1.get(field1);
 			
 			//actual network request made here
-			DHQueryResult dhqr1 = this.dbQuery(actualQuery, localCache);
+			DHQueryResult dhqr1 = results12.get(field1);
 			
 			
 			ArrayList<DHQueryResult> queryResults = new ArrayList<DHQueryResult>();
@@ -569,7 +628,7 @@ public class DataHubDatabase {
 									String foreignKey = DataHubConverter.AssociationDefaultsHandler.getForeignKey(a, currentModel, otherModel);
 									
 									DHCell cell = fieldsToDHCell.get(foreignKey);
-									int modelObjectBelongsToId = (int) DataHubConverter.directConvert(cell.value, Integer.TYPE);
+									int modelObjectBelongsToId = (Integer)DataHubConverter.directConvert(cell.value, Integer.TYPE);
 									
 									
 									//handles case where object is initialized and it belongs to another object that has currently

@@ -238,23 +238,24 @@ public class DataHubArrayList<T extends DataHubModel> extends ArrayList<T>{
 	public void populate() throws DataHubException{
 		populate(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
 	}
-	String save(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache) throws DataHubException{
-		if(recursionDepthLimit <= 0){
+	String save(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ConcurrentHashMap<Object, Boolean> saved) throws DataHubException{
+		if(recursionDepthLimit <= 0 || saved.contains(this)){
 			return "";
 		}
+		saved.put(this, true);
 		ArrayList<DataHubModel> tempAddClone = (ArrayList<DataHubModel>) this.tempAdd.clone();
 		ArrayList<DataHubModel> tempRemoveClone = (ArrayList<DataHubModel>) this.tempRemove.clone();
 		ArrayList<String> queries = new ArrayList<String>();
 		for(DataHubModel element:tempAddClone){
 			//need to save new model at least once
-			String queryElement = element.save(Math.max(1, recursionDepthLimit-1),localCache);
+			String queryElement = element.save(Math.max(1, recursionDepthLimit-1),localCache,saved);
 			String addItemSql = this.getAddItemSQL(element);
 			queries.add(queryElement);
 			queries.add(addItemSql);
 		}
 		for(DataHubModel element:tempRemoveClone){
 			//need to save new model at least once
-			String queryElement = element.save(Math.max(1, recursionDepthLimit-1),localCache);
+			String queryElement = element.save(Math.max(1, recursionDepthLimit-1),localCache,saved);
 			String removeItemSql = this.getRemoveItemSQL(element);
 			queries.add(queryElement);
 			queries.add(removeItemSql);

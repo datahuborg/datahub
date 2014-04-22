@@ -7,11 +7,16 @@ import java.lang.reflect.Type;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 
 import datahub.DHCell;
@@ -114,6 +119,57 @@ public abstract class DataHubModel<T extends DataHubModel>{
 	public DataHubDatabase getDatabase(){
 		return dbs.get(this.getClass());
 	}
+	public static void batchSaveOrInsert(DataHubModel[] models){
+		class BatchInsert implements Runnable{
+			
+			DataHubModel[] models;
+			int myModelIndex;
+			public BatchInsert(DataHubModel[] models, int myModelIndex){
+				this.models = models;
+				this.myModelIndex = myModelIndex;
+			}
+			public void run() {
+				// TODO Auto-generated method stub
+				try {
+					
+					this.models[this.myModelIndex].save();
+					Thread.sleep(10);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		}
+		System.out.println("before dispatch");
+		/*Thread[] threads  = new Thread[models.length];
+		for(int i=0; i<models.length; i++){
+			threads[i] = new Thread(new BatchInsert(models,i));
+			threads[i].start();
+		}
+		System.out.println("after dispatch");
+		for(int i=0; i<models.length; i++){
+			try {
+				threads[i].join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}*/
+		ExecutorService executor = Executors.newFixedThreadPool(DataHubDatabase.MAX_THREADS);
+		for(int i=0; i<models.length; i++){
+			executor.execute(new BatchInsert(models,i));
+		}
+		executor.shutdown();
+		try {
+			executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("after join");
+		
+	}
 	public void saveAsync(final GenericCallback<T> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
 		final T object = (T) this;
 		DataHubException e;
@@ -142,7 +198,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 		//add begin transaction stuff here
 		String query = null;
 		try{
-			query = this.save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>());
+			query = this.save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ConcurrentHashMap<Object,Boolean>());
 		}catch(DataHubException e){
 			//add rollback transaction here
 			throw new DataHubException(e.getMessage());
@@ -153,8 +209,12 @@ public abstract class DataHubModel<T extends DataHubModel>{
 		afterSave();
 	}
 	//TODO: add already saved hashmap so that save not called again on same object.
-	String save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache) throws DataHubException{
+	String save(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache, ConcurrentHashMap<Object,Boolean>saved) throws DataHubException{
 		//validates done in string generation so no query made until string generation completes
+		if(saved.containsKey(this)){
+			return "";
+		}
+		saved.put(this, true);
 		if(!validate()){
 			DataHubException dhe = new DataHubException("Model failed validation and resulted in the following errors: "+ this.errors.toString());
 			this.errors = new HashMap<String,String>();
@@ -164,7 +224,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			//System.out.println("broke"+modelsAlreadySaved.contains(this.getClass()));
 			return "";
 		}
-		ArrayList<String> queries = new ArrayList<String>();
+		Collection<String> queries = Collections.synchronizedCollection(new ArrayList<String>());
 		try{
 			String query = "";
 			//fix this
@@ -184,6 +244,73 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			}
 			
 			//recursively save all fields
+			class SaveHelper{
+				
+				int recursionDepthLimit;
+				volatile ConcurrentHashMap<String,Object> localCache;
+				Collection<String> queries;
+				volatile ConcurrentHashMap<Object, Boolean> saved;
+				public SaveHelper(int recursionDepthLimit,ConcurrentHashMap<String,Object> localCache,Collection<String> queries,ConcurrentHashMap<Object, Boolean> saved){
+					this.recursionDepthLimit = recursionDepthLimit;
+					this.localCache = localCache;
+					this.queries = queries;
+					this.saved = saved;
+				}
+			}
+			class DataHubModelSaveHelper extends SaveHelper implements Runnable{
+				
+				DataHubModel dataHubModel;
+				public DataHubModelSaveHelper(DataHubModel dataHubModel,
+						int recursionDepthLimit,
+						ConcurrentHashMap<String, Object> localCache,
+						Collection<String> queries,ConcurrentHashMap<Object, Boolean> saved) {
+					super(recursionDepthLimit, localCache, queries,saved);
+					this.dataHubModel = dataHubModel;
+					// TODO Auto-generated constructor stub
+				}
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					try {
+						queries.add(dataHubModel.save(recursionDepthLimit, localCache,saved));
+						Thread.sleep(10);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				}
+			}
+			class DataHubArrayListSaveHelper extends SaveHelper implements Runnable{
+				
+				DataHubArrayList dataHubArrayList;
+				public DataHubArrayListSaveHelper(DataHubArrayList dataHubArrayList,
+						int recursionDepthLimit,
+						ConcurrentHashMap<String, Object> localCache,
+						Collection<String> queries,ConcurrentHashMap<Object, Boolean> saved) {
+					super(recursionDepthLimit, localCache, queries,saved);
+					this.dataHubArrayList = dataHubArrayList;
+					// TODO Auto-generated constructor stub
+				}
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					try {
+						queries.add(dataHubArrayList.save(recursionDepthLimit, localCache, saved));
+						//System.out.println(Thread.currentThread().getId()+queries.toString());
+						Thread.sleep(10);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				}
+				
+			}
+
+			//ArrayList<Thread> threads = new ArrayList<Thread>();
+			ExecutorService executor = Executors.newFixedThreadPool(DataHubDatabase.MAX_THREADS);
+			
 			for(Field f:this.getClass().getFields()){
 				if(this.hasAssociation(f.getName())){
 					Object o = f.get(this);
@@ -207,18 +334,34 @@ public abstract class DataHubModel<T extends DataHubModel>{
 								queries.add(queryHasOne);
 							}
 							//System.out.println(m);
-							String otherQueries = otherModel.save(recursionDepthLimit-1,localCache);
-							queries.add(otherQueries);
+							//String otherQueries = otherModel.save(recursionDepthLimit-1,localCache);
+							//queries.add(otherQueries);
+							//Thread t = new Thread(new DataHubModelSaveHelper(otherModel, recursionDepthLimit, localCache, queries,saved));
+							//threads.add(t);
+							executor.execute(new Thread(new DataHubModelSaveHelper(otherModel, recursionDepthLimit, localCache, queries,saved)));
 						}
 						//has many or HABTM relationship
 						if(DataHubConverter.isDataHubArrayListSubclass(f.getType())){
 							DataHubArrayList d = (DataHubArrayList) o;
-							String otherQueries = d.save(recursionDepthLimit-1,localCache);
-							queries.add(otherQueries);
+							//String otherQueries = d.save(recursionDepthLimit-1,localCache);
+							//queries.add(otherQueries);
+							//Thread t = new Thread(new DataHubArrayListSaveHelper(d, recursionDepthLimit, localCache, queries,saved));
+							//threads.add(t);
+							executor.execute(new DataHubArrayListSaveHelper(d, recursionDepthLimit, localCache, queries,saved));
 						}
 					}
 				}
 			}
+			/*for(Thread t: threads){
+				t.start();
+			}
+			//System.out.println("after dispatch save");
+			for(Thread t: threads){
+				t.join();
+			}
+			//System.out.println("after  save");*/
+			executor.shutdown();
+			executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
 			//updateModel(recursionDepthLimit,localCache);
 		}catch(Exception e){
 			e.printStackTrace();
