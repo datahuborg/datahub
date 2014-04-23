@@ -1,0 +1,186 @@
+Mutate: drop schema if exists test cascade;create schema test;create table if not exists test.tester(randid integer , cost decimal default 0.0 , tester_name varchar(1000) , id serial primary key) ; create table if not exists test.test(randid integer , created_at timestamp , description varchar(1000) , name varchar(1000) , is_cool boolean default false , id serial primary key , cost integer) ; create table if not exists test.users(randid integer , description varchar , username varchar(1000) , funds decimal , password varchar(1000) default 'lol' , id serial primary key) ; create table if not exists test.device(code varchar(1000) , randid integer , id serial primary key) ; create table if not exists test.carmodel(randid integer , make varchar , id serial primary key , model varchar);alter table test.tester add test_id integer;alter table test.tester add foreign key (test_id) references test.test(id)  ; alter table test.users add tester_id integer;alter table test.users add foreign key (tester_id) references test.tester(id)  ; alter table test.device add test_id integer;alter table test.device add foreign key (test_id) references test.test(id) on delete cascade ; create table if not exists test.carmodeltest(id serial,carmodel_id integer, foreign key (carmodel_id) references test.carmodel(id) ,test_id integer, foreign key (test_id) references test.test(id) ) ; create table if not exists test.carmodelusers(id serial,carmodel_id integer, foreign key (carmodel_id) references test.carmodel(id) ,users_id integer, foreign key (users_id) references test.users(id) ) ; create table if not exists test.testuser(id serial,test_id integer, foreign key (test_id) references test.test(id) on delete cascade,user_id integer, foreign key (user_id) references test.users(id) on delete cascade)
+Mutate: insert into test.test(randid , created_at , description , name , is_cool , cost) select -2013270901 , NULL , NULL , NULL , false , 0 where not exists( select * from test.test where randid=-2013270901)
+Mutate: insert into test.carmodel(randid , make , model) select -684034595 , NULL , NULL where not exists( select * from test.carmodel where randid=-684034595)
+Mutate: insert into test.carmodel(randid , make , model) select 1887258217 , NULL , NULL where not exists( select * from test.carmodel where randid=1887258217)
+Mutate: insert into test.carmodeltest(test_id,carmodel_id) select 1,1 where not exists (select 1 from test.carmodeltest where test_id=1 AND carmodel_id=1) ; insert into test.carmodeltest(test_id,carmodel_id) select 1,2 where not exists (select 1 from test.carmodeltest where test_id=1 AND carmodel_id=2)
+Miss: SELECT * FROM test.test WHERE randid=-2013270901 AND created_at is NULL AND description is NULL AND name is NULL AND is_cool=false AND id=1 AND cost=0
+Miss: (select * from test.tester where test.tester.test_id = 1) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 1) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=1)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=1)) union all (select null , null , null , null)
+Miss: (select * from test.test where id in(select (test_id) from test.carmodeltest where carmodel_id=1)) union all (select null , null , null , null , null , null , null) union all ((select * from test.test where id in(select (test_id) from test.carmodeltest where carmodel_id=2)) union all (select null , null , null , null , null , null , null))
+Miss: (select * from test.tester where test.tester.test_id = 1) union all (select null , null , null , null , null) union all ((select * from test.tester where test.tester.test_id = 1) union all (select null , null , null , null , null))
+Miss: (select * from test.device where test.device.test_id = 1) union all (select null , null , null , null) union all ((select * from test.device where test.device.test_id = 1) union all (select null , null , null , null))
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=1)) union all (select null , null , null , null , null , null , null) union all ((select * from test.users where id in(select (user_id) from test.testuser where test_id=1)) union all (select null , null , null , null , null , null , null))
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=1)) union all (select null , null , null , null) union all ((select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=1)) union all (select null , null , null , null))
+new query
+Miss: select * from test.test where test.test.id =1 limit 1
+Miss: (select * from test.tester where test.tester.test_id = 1) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 1) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=1)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=1)) union all (select null , null , null , null)
+Miss: (select * from test.test where id in(select (test_id) from test.carmodeltest where carmodel_id=1)) union all (select null , null , null , null , null , null , null) union all ((select * from test.test where id in(select (test_id) from test.carmodeltest where carmodel_id=2)) union all (select null , null , null , null , null , null , null))
+query took:602
+Mutate: insert into test.test(randid , created_at , description , name , is_cool , cost) select -554390983 , NULL , 'test row' , 'test2046450022' , false , 0 where not exists( select * from test.test where randid=-554390983)
+Miss: SELECT * FROM test.test WHERE randid=-554390983 AND created_at is NULL AND description='test row' AND name='test2046450022' AND is_cool=false AND id=2 AND cost=0
+Miss: (select * from test.tester where test.tester.test_id = 2) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 2) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=2)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=2)) union all (select null , null , null , null)
+Mutate: insert into test.carmodel(randid , make , model) select 272642920 , 'toyota' , 'camry' where not exists( select * from test.carmodel where randid=272642920)
+Miss: SELECT * FROM test.carmodel WHERE randid=272642920 AND make='toyota' AND id=3 AND model='camry'
+Miss: (select * from test.test where id in(select (test_id) from test.carmodeltest where carmodel_id=3)) union all (select null , null , null , null , null , null , null)
+Mutate: update test.test set randid=-554390983 , created_at=NULL , description='test row' , name='test2046450022' , is_cool=false , id=2 , cost=0 where id=2 ; update test.carmodel set randid=272642920 , make='toyota' , id=3 , model='camry' where id=3 ;  ; insert into test.carmodeltest(test_id,carmodel_id) select 2,3 where not exists (select 1 from test.carmodeltest where test_id=2 AND carmodel_id=3)
+Miss: SELECT * FROM test.test WHERE randid=-554390983 AND created_at is NULL AND description='test row' AND name='test2046450022' AND is_cool=false AND id=2 AND cost=0
+Miss: (select * from test.tester where test.tester.test_id = 2) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 2) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=2)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=2)) union all (select null , null , null , null)
+Miss: (select * from test.test where id in(select (test_id) from test.carmodeltest where carmodel_id=3)) union all (select null , null , null , null , null , null , null)
+new query
+Miss: select * from test.test where test.test.id =2 limit 1
+Miss: (select * from test.tester where test.tester.test_id = 2) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 2) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=2)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=2)) union all (select null , null , null , null)
+Miss: (select * from test.test where id in(select (test_id) from test.carmodeltest where carmodel_id=3)) union all (select null , null , null , null , null , null , null)
+query took:605
+new query
+Miss: select * from test.carmodel where test.carmodel.id =3 limit 1
+Miss: (select * from test.test where id in(select (test_id) from test.carmodeltest where carmodel_id=3)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.tester where test.tester.test_id = 2) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 2) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=2)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=2)) union all (select null , null , null , null)
+query took:553
+[test.carmodelrandid=272642920 AND make='toyota' AND id=3 AND model='camry']
+[test.testrandid=-554390983 AND created_at is NULL AND description='test row' AND name='test2046450022' AND is_cool=false AND id=2 AND cost=0]
+Mutate: insert into test.test(randid , created_at , description , name , is_cool , cost) select 1294995271 , NULL , 'first test' , 'lol123' , false , 10 where not exists( select * from test.test where randid=1294995271)
+Miss: SELECT * FROM test.test WHERE randid=1294995271 AND created_at is NULL AND description='first test' AND name='lol123' AND is_cool=false AND id=3 AND cost=10
+Miss: (select * from test.tester where test.tester.test_id = 3) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 3) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=3)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=3)) union all (select null , null , null , null)
+Mutate: insert into test.test(randid , created_at , description , name , is_cool , cost) select 1956059496 , NULL , 'second test' , 'test343434' , false , 20 where not exists( select * from test.test where randid=1956059496)
+Miss: SELECT * FROM test.test WHERE randid=1956059496 AND created_at is NULL AND description='second test' AND name='test343434' AND is_cool=false AND id=4 AND cost=20
+Miss: (select * from test.tester where test.tester.test_id = 4) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 4) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=4)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=4)) union all (select null , null , null , null)
+Mutate: insert into test.test(randid , created_at , description , name , is_cool , cost) select 830752487 , NULL , 'third test' , 'fourscore' , false , 500 where not exists( select * from test.test where randid=830752487)
+Miss: SELECT * FROM test.test WHERE randid=830752487 AND created_at is NULL AND description='third test' AND name='fourscore' AND is_cool=false AND id=5 AND cost=500
+Miss: (select * from test.tester where test.tester.test_id = 5) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 5) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=5)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=5)) union all (select null , null , null , null)
+new query
+Miss: select * from test.test where test.test.name in ('lol123' , 'fourscore')
+Miss: (select * from test.tester where test.tester.test_id = 3) union all (select null , null , null , null , null) union all ((select * from test.tester where test.tester.test_id = 5) union all (select null , null , null , null , null))
+Miss: (select * from test.device where test.device.test_id = 3) union all (select null , null , null , null) union all ((select * from test.device where test.device.test_id = 5) union all (select null , null , null , null))
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=3)) union all (select null , null , null , null , null , null , null) union all ((select * from test.users where id in(select (user_id) from test.testuser where test_id=5)) union all (select null , null , null , null , null , null , null))
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=3)) union all (select null , null , null , null) union all ((select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=5)) union all (select null , null , null , null))
+query took:474
+new query
+Miss: select * from test.test where test.test.cost in (10 , 500)
+Miss: (select * from test.tester where test.tester.test_id = 3) union all (select null , null , null , null , null) union all ((select * from test.tester where test.tester.test_id = 5) union all (select null , null , null , null , null))
+Miss: (select * from test.device where test.device.test_id = 3) union all (select null , null , null , null) union all ((select * from test.device where test.device.test_id = 5) union all (select null , null , null , null))
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=3)) union all (select null , null , null , null , null , null , null) union all ((select * from test.users where id in(select (user_id) from test.testuser where test_id=5)) union all (select null , null , null , null , null , null , null))
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=3)) union all (select null , null , null , null) union all ((select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=5)) union all (select null , null , null , null))
+query took:457
+Mutate: DELETE FROM test.test WHERE id=3
+Mutate: DELETE FROM test.test WHERE id=4
+Mutate: DELETE FROM test.test WHERE id=5
+Mutate: insert into test.test(randid , created_at , description , name , is_cool , cost) select -1011955803 , NULL , 'test row' , 'test935429755' , false , 0 where not exists( select * from test.test where randid=-1011955803)
+Miss: SELECT * FROM test.test WHERE randid=-1011955803 AND created_at is NULL AND description='test row' AND name='test935429755' AND is_cool=false AND id=6 AND cost=0
+Miss: (select * from test.tester where test.tester.test_id = 6) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 6) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=6)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=6)) union all (select null , null , null , null)
+Mutate: insert into test.test(randid , created_at , description , name , is_cool , cost) select 576378668 , NULL , 'test row1234567' , 'test20507943' , false , 0 where not exists( select * from test.test where randid=576378668)
+Miss: SELECT * FROM test.test WHERE randid=576378668 AND created_at is NULL AND description='test row1234567' AND name='test20507943' AND is_cool=false AND id=7 AND cost=0
+Miss: (select * from test.tester where test.tester.test_id = 7) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 7) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=7)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=7)) union all (select null , null , null , null)
+Mutate: insert into test.users(randid , description , username , funds , password) select 817461355 , 'Enter a description here!' , 'david1' , 0.0 , 'lol' where not exists( select * from test.users where randid=817461355)
+Miss: SELECT * FROM test.users WHERE randid=817461355 AND description='Enter a description here!' AND username='david1' AND funds=0.0 AND password='lol' AND id=1
+Miss: (select * from test.test where id in(select (test_id) from test.testuser where user_id=1)) union all (select null , null , null , null , null , null , null)
+Mutate: insert into test.users(randid , description , username , funds , password) select -400868366 , 'Enter a description here!' , 'david2' , 0.0 , 'lol' where not exists( select * from test.users where randid=-400868366)
+Miss: SELECT * FROM test.users WHERE randid=-400868366 AND description='Enter a description here!' AND username='david2' AND funds=0.0 AND password='lol' AND id=2
+Miss: (select * from test.test where id in(select (test_id) from test.testuser where user_id=2)) union all (select null , null , null , null , null , null , null)
+Mutate: insert into test.users(randid , description , username , funds , password) select 1888985882 , 'Enter a description here!' , 'david3' , 0.0 , 'lol' where not exists( select * from test.users where randid=1888985882)
+Miss: SELECT * FROM test.users WHERE randid=1888985882 AND description='Enter a description here!' AND username='david3' AND funds=0.0 AND password='lol' AND id=3
+Miss: (select * from test.test where id in(select (test_id) from test.testuser where user_id=3)) union all (select null , null , null , null , null , null , null)
+Mutate: update test.test set randid=-1011955803 , created_at=NULL , description='test row' , name='test935429755' , is_cool=false , id=6 , cost=0 where id=6 ; update test.users set randid=817461355 , description='Enter a description here!' , username='david1' , funds=0.0 , password='lol' , id=1 where id=1 ;  ; insert into test.testuser(user_id,test_id) select 1,6 where not exists (select 1 from test.testuser where user_id=1 AND test_id=6) ; update test.users set randid=-400868366 , description='Enter a description here!' , username='david2' , funds=0.0 , password='lol' , id=2 where id=2 ;  ; insert into test.testuser(user_id,test_id) select 2,6 where not exists (select 1 from test.testuser where user_id=2 AND test_id=6) ; 
+Miss: SELECT * FROM test.test WHERE randid=-1011955803 AND created_at is NULL AND description='test row' AND name='test935429755' AND is_cool=false AND id=6 AND cost=0
+Miss: (select * from test.tester where test.tester.test_id = 6) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 6) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=6)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=6)) union all (select null , null , null , null)
+Miss: (select * from test.test where id in(select (test_id) from test.testuser where user_id=1)) union all (select null , null , null , null , null , null , null) union all ((select * from test.test where id in(select (test_id) from test.testuser where user_id=2)) union all (select null , null , null , null , null , null , null))
+Miss: (select * from test.tester where test.tester.test_id = 6) union all (select null , null , null , null , null) union all ((select * from test.tester where test.tester.test_id = 6) union all (select null , null , null , null , null))
+Miss: (select * from test.device where test.device.test_id = 6) union all (select null , null , null , null) union all ((select * from test.device where test.device.test_id = 6) union all (select null , null , null , null))
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=6)) union all (select null , null , null , null , null , null , null) union all ((select * from test.users where id in(select (user_id) from test.testuser where test_id=6)) union all (select null , null , null , null , null , null , null))
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=6)) union all (select null , null , null , null) union all ((select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=6)) union all (select null , null , null , null))
+Mutate: update test.test set randid=576378668 , created_at=NULL , description='test row1234567' , name='test20507943' , is_cool=false , id=7 , cost=0 where id=7 ; update test.users set randid=-400868366 , description='Enter a description here!' , username='david2' , funds=0.0 , password='lol' , id=2 where id=2 ;  ; insert into test.testuser(user_id,test_id) select 2,7 where not exists (select 1 from test.testuser where user_id=2 AND test_id=7) ; update test.users set randid=1888985882 , description='Enter a description here!' , username='david3' , funds=0.0 , password='lol' , id=3 where id=3 ;  ; insert into test.testuser(user_id,test_id) select 3,7 where not exists (select 1 from test.testuser where user_id=3 AND test_id=7) ; 
+Miss: SELECT * FROM test.test WHERE randid=576378668 AND created_at is NULL AND description='test row1234567' AND name='test20507943' AND is_cool=false AND id=7 AND cost=0
+Miss: (select * from test.tester where test.tester.test_id = 7) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 7) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=7)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=7)) union all (select null , null , null , null)
+Miss: (select * from test.test where id in(select (test_id) from test.testuser where user_id=2)) union all (select null , null , null , null , null , null , null) union all ((select * from test.test where id in(select (test_id) from test.testuser where user_id=3)) union all (select null , null , null , null , null , null , null))
+Miss: (select * from test.tester where test.tester.test_id = 6) union all (select null , null , null , null , null) union all ((select * from test.tester where test.tester.test_id = 7) union all (select null , null , null , null , null)) union all ((select * from test.tester where test.tester.test_id = 7) union all (select null , null , null , null , null))
+Miss: (select * from test.device where test.device.test_id = 6) union all (select null , null , null , null) union all ((select * from test.device where test.device.test_id = 7) union all (select null , null , null , null)) union all ((select * from test.device where test.device.test_id = 7) union all (select null , null , null , null))
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=6)) union all (select null , null , null , null , null , null , null) union all ((select * from test.users where id in(select (user_id) from test.testuser where test_id=7)) union all (select null , null , null , null , null , null , null)) union all ((select * from test.users where id in(select (user_id) from test.testuser where test_id=7)) union all (select null , null , null , null , null , null , null))
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=6)) union all (select null , null , null , null) union all ((select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=7)) union all (select null , null , null , null)) union all ((select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=7)) union all (select null , null , null , null))
+new query
+Miss: select * from test.test where test.test.id =6 limit 1
+Miss: (select * from test.tester where test.tester.test_id = 6) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 6) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=6)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=6)) union all (select null , null , null , null)
+Miss: (select * from test.test where id in(select (test_id) from test.testuser where user_id=1)) union all (select null , null , null , null , null , null , null) union all ((select * from test.test where id in(select (test_id) from test.testuser where user_id=2)) union all (select null , null , null , null , null , null , null))
+query took:634
+new query
+Miss: select * from test.test where test.test.id =7 limit 1
+Miss: (select * from test.tester where test.tester.test_id = 7) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 7) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=7)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=7)) union all (select null , null , null , null)
+Miss: (select * from test.test where id in(select (test_id) from test.testuser where user_id=2)) union all (select null , null , null , null , null , null , null) union all ((select * from test.test where id in(select (test_id) from test.testuser where user_id=3)) union all (select null , null , null , null , null , null , null))
+query took:535
+[test.usersrandid=817461355 AND description='Enter a description here!' AND username='david1' AND funds=0.0 AND password='lol' AND id=1, test.usersrandid=-400868366 AND description='Enter a description here!' AND username='david2' AND funds=0.0 AND password='lol' AND id=2]
+new query
+Miss: select * from test.users where test.users.id =1 limit 1
+Miss: (select * from test.test where id in(select (test_id) from test.testuser where user_id=1)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.tester where test.tester.test_id = 6) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 6) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=6)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=6)) union all (select null , null , null , null)
+query took:599
+new query
+Miss: select * from test.users where test.users.id =2 limit 1
+Miss: (select * from test.test where id in(select (test_id) from test.testuser where user_id=2)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.tester where test.tester.test_id = 6) union all (select null , null , null , null , null) union all ((select * from test.tester where test.tester.test_id = 7) union all (select null , null , null , null , null))
+Miss: (select * from test.device where test.device.test_id = 6) union all (select null , null , null , null) union all ((select * from test.device where test.device.test_id = 7) union all (select null , null , null , null))
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=6)) union all (select null , null , null , null , null , null , null) union all ((select * from test.users where id in(select (user_id) from test.testuser where test_id=7)) union all (select null , null , null , null , null , null , null))
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=6)) union all (select null , null , null , null) union all ((select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=7)) union all (select null , null , null , null))
+query took:549
+new query
+Miss: select * from test.users where test.users.id =3 limit 1
+Miss: (select * from test.test where id in(select (test_id) from test.testuser where user_id=3)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.tester where test.tester.test_id = 7) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 7) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=7)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=7)) union all (select null , null , null , null)
+query took:541
+Mutate: update test.test set randid=-1011955803 , created_at=NULL , description='test row' , name='test935429755' , is_cool=false , id=6 , cost=0 where id=6 ; update test.users set randid=817461355 , description='Enter a description here!' , username='david1' , funds=0.0 , password='lol' , id=1 where id=1 ;  ; delete from test.testuser where user_id=1 AND test_id=6 ; 
+Miss: SELECT * FROM test.test WHERE randid=-1011955803 AND created_at is NULL AND description='test row' AND name='test935429755' AND is_cool=false AND id=6 AND cost=0
+Miss: (select * from test.tester where test.tester.test_id = 6) union all (select null , null , null , null , null)
+Miss: (select * from test.device where test.device.test_id = 6) union all (select null , null , null , null)
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=6)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.carmodel where id in(select (carmodel_id) from test.carmodeltest where test_id=6)) union all (select null , null , null , null)
+Miss: (select * from test.test where id in(select (test_id) from test.testuser where user_id=2)) union all (select null , null , null , null , null , null , null)
+Miss: (select * from test.tester where test.tester.test_id = 6) union all (select null , null , null , null , null) union all ((select * from test.tester where test.tester.test_id = 7) union all (select null , null , null , null , null))
+Miss: (select * from test.device where test.device.test_id = 6) union all (select null , null , null , null) union all ((select * from test.device where test.device.test_id = 7) union all (select null , null , null , null))
+Miss: (select * from test.users where id in(select (user_id) from test.testuser where test_id=6)) union all (select null , null , null , null , null , null , null) union all ((select * from test.users where id in(select (user_id) from test.testuser where test_id=7)) union all (select null , null , null , null , null , null , null))

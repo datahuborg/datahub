@@ -119,7 +119,10 @@ public abstract class DataHubModel<T extends DataHubModel>{
 		return dbs.get(this.getClass());
 	}
 	public static void batchSaveOrInsert(DataHubModel[] models) throws DataHubException{
-		class BatchInsert implements Runnable{
+		for(DataHubModel m: models){
+			m.save();
+		}
+		/*class BatchInsert implements Runnable{
 			
 			DataHubModel[] models;
 			int myModelIndex;
@@ -152,7 +155,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("after join");
+		System.out.println("after join");*/
 		
 	}
 	public void saveAsync(final GenericCallback<T> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
@@ -171,7 +174,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 		DataHubWorker<Void> dhw = new DataHubWorker<Void>(new GenericExecutable<Void>(){
 
 			@Override
-			public Void call() {
+			public Void call() throws DataHubException {
 				destroy();
 				return null;
 			}}, succeedCallback, failCallback, getDatabase().getDataHubWorkerMode());
@@ -224,13 +227,14 @@ public abstract class DataHubModel<T extends DataHubModel>{
 				
 				//get new id
 				updateModelId();
-				
-				saved.put(this, true);
 								
+				saved.put(this, true);
 			}else{
 				queries.add(query);
 			}
-			
+			if(!this.validId()){
+				throw new DataHubException("Invalid ID");
+			}
 			//recursively save all fields
 			for(Field f:this.getClass().getFields()){
 				if(this.hasAssociation(f.getName())){
@@ -265,11 +269,11 @@ public abstract class DataHubModel<T extends DataHubModel>{
 				}
 			}
 		}catch(Exception e){
-			e.printStackTrace();
+			throw new DataHubException(e.getMessage());
 		}
 		return Resources.concatenate(queries, ";");
 	}
-	public synchronized void destroy(){
+	public synchronized void destroy() throws DataHubException{
 		try{
 			beforeDestroy();
 			String query = "DELETE FROM "+this.getCompleteTableName()+" WHERE "+"id="+this.id;
@@ -282,7 +286,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			afterDestroy();
 			//TODO: supporty cascading delete, but doing it in table definition so that server does it
 		}catch(Exception e){
-			e.printStackTrace();
+			throw new DataHubException(e.getMessage());
 		}
 	}
 	public void allAsync(final GenericCallback<ArrayList<T>> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
@@ -647,6 +651,10 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			if(columnName.equals("id") && !this.validId()){
 				continue;
 			}
+			//initial object on system with no DHid
+			if(!this.validId() && !columnName.equals("randid")){
+				continue;
+			}
 			try{
 				Object o = f.get(this);
 				String entry = columnName+Resources.objectToSQLModifier(o, query)+Resources.objectToSQL(o);
@@ -701,16 +709,16 @@ public abstract class DataHubModel<T extends DataHubModel>{
 		}
 		return Resources.concatenate(fieldData,",");
 	}
-	public void refreshModel(){
+	public void refreshModel() throws DataHubException{
 		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
 	}
 	public void refreshField(String fieldName) throws DataHubException{
 		getDatabase().updateModelObjectField(fieldName, this,DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
 	}
-	private void updateModel(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache,ConcurrentHashMap<String,Object> objectHash){
+	private void updateModel(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache,ConcurrentHashMap<String,Object> objectHash) throws DataHubException{
 		getDatabase().updateModelObject(this,recursionDepthLimit,localCache,objectHash);
 	}
-	private void updateModelId(){
+	private void updateModelId() throws DataHubException{
 		getDatabase().updateModelId(this);
 	}
 	private T newInstance() throws InstantiationException, IllegalAccessException{

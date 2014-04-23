@@ -568,24 +568,44 @@ public class DataHubConverter {
 		if(f.isAnnotationPresent(Column.class)){
 			if(f.isAnnotationPresent(CharField.class) || defaultSet){
 				if(f.getType().equals(String.class)){
-					return new String(((ByteBuffer) c).array());
+					String data = new String(((ByteBuffer) c).array());
+					if(data.equals("None")){
+						return null;
+					}
+					return data;
 				}
 			}
 			if(f.isAnnotationPresent(VarCharField.class) || defaultSet){
 				if(f.getType().equals(String.class)){
-					return new String(((ByteBuffer) c).array());
+					String data = new String(((ByteBuffer) c).array());
+					if(data.equals("None")){
+						return null;
+					}
+					return data;
 				}
 			}
 			if(f.isAnnotationPresent(DecimalField.class) || defaultSet){
 				if(f.getType().equals(Double.class) || f.getType().equals(Double.TYPE) ){
+					String data = new String(((ByteBuffer) c).array());
+					if(data.equals("None")){
+						return 0;
+					}
 					return Double.parseDouble(new String(((ByteBuffer) c).array()));
 				}
 				if(f.getType().equals(Float.class) || f.getType().equals(Float.TYPE)){
+					String data = new String(((ByteBuffer) c).array());
+					if(data.equals("None")){
+						return 0;
+					}
 					return Float.parseFloat(new String(((ByteBuffer) c).array()));
 				}
 			}
 			if(f.isAnnotationPresent(IntegerField.class) || defaultSet){
 				if(f.getType().equals(Integer.class) || f.getType().equals(Integer.TYPE)){
+					String data = new String(((ByteBuffer) c).array());
+					if(data.equals("None")){
+						return 0;
+					}
 					int result = Integer.parseInt(new String(((ByteBuffer) c).array()));
 					return result;
 				}
@@ -602,6 +622,10 @@ public class DataHubConverter {
 			}
 			if(f.isAnnotationPresent(BooleanField.class) || defaultSet){
 				if(f.getType().equals(Boolean.class) || f.getType().equals(Boolean.TYPE)){
+					String data = new String(((ByteBuffer) c).array());
+					if(data.equals("None")){
+						return false;
+					}
 					Boolean result = Boolean.parseBoolean(new String(((ByteBuffer) c).array()));
 					return result;
 				}

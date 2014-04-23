@@ -529,7 +529,7 @@ public class ModelBasicTests extends TestsMain{
 		db.printStats();
 		for(UserModel user: users){
 			System.out.println(user.tests);
-			assertEquals(user.tests.size(),tms.size());
+			assertEquals(tms.size(),user.tests.size());
 			for(TestModel t:user.tests){
 			}
 		}
@@ -705,6 +705,8 @@ public class ModelBasicTests extends TestsMain{
 		assertEquals(2,t1.cars.size());
 		assertEquals(false, t1.cars.get(0).equals(t1.cars.get(1)));
 		
+		//t.destroy();
+		
 	}
 	@Test
 	public void moveFromOneToAnotherHABTMTest(){
@@ -735,6 +737,8 @@ public class ModelBasicTests extends TestsMain{
 		assertEquals(true,trm1.test!=null);
 		assertEquals(true,trm1.test.equals(tm));
 		assertEquals(true,trm1.users.contains(um));
+		um.destroy();
+		trm.destroy();
 	}
 	@Test
 	public void layeredInsertTest2() throws DataHubException{
@@ -762,6 +766,7 @@ public class ModelBasicTests extends TestsMain{
 		assertEquals(true,trm1.test!=null);
 		assertEquals(true,trm1.test.equals(tm));
 		assertEquals(true,trm1.users.contains(um));
+		um.destroy();
 	}
 	
 }

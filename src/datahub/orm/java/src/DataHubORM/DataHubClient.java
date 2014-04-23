@@ -90,13 +90,13 @@ class DataHubClient{
 		DHSchema schema = data.getSchema();
 		DHTable table  = data.getTable();
 	}
-	public DHQueryResult dbQuery(String query){
+	public DHQueryResult dbQuery(String query) throws DataHubException{
 		DHQueryResult out = null;
 		try{
 			Client localClient = this.getNewClient();
 			out = localClient.execute_sql(getNewConnection(localClient), query, null);
 		}catch(Exception e){
-			e.printStackTrace();
+			throw new DataHubException(e.getMessage());
 		}
 		return out;
 	}
