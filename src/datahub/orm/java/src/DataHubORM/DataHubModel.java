@@ -119,10 +119,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 		return dbs.get(this.getClass());
 	}
 	public static void batchSaveOrInsert(DataHubModel[] models) throws DataHubException{
-		for(DataHubModel m: models){
-			m.save();
-		}
-		/*class BatchInsert implements Runnable{
+		class BatchInsert implements Runnable{
 			
 			DataHubModel[] models;
 			int myModelIndex;
@@ -143,7 +140,6 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			}
 			
 		}
-		System.out.println("before dispatch");
 		ExecutorService executor = Executors.newFixedThreadPool(DataHubDatabase.MAX_THREADS);
 		for(int i=0; i<models.length; i++){
 			executor.execute(new BatchInsert(models,i));
@@ -155,7 +151,6 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("after join");*/
 		
 	}
 	public void saveAsync(final GenericCallback<T> succeedCallback, final GenericCallback<DataHubException> failCallback) throws DataHubException{
