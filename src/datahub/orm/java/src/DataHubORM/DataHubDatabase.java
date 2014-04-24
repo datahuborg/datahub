@@ -4,9 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -51,12 +49,12 @@ public class DataHubDatabase {
 	public enum DatabaseEngine{Postgres};
 	
 	
-	protected static int MAX_LOAD_RECURSION_DEPTH = Integer.MAX_VALUE;
+	protected static int MAX_LOAD_RECURSION_DEPTH = 3;
 	
 	//prevent unnecessary saves
 	protected static int MAX_SAVE_RECURSION_DEPTH = 5;
 	
-	protected static int MAX_THREADS=1;
+	protected static int MAX_THREADS =1;
 	
 	private DataHubClient dhc;
 	
@@ -67,8 +65,6 @@ public class DataHubDatabase {
 	private DataHubWorkerMode dataHubWorkerMode;
 	
 	DataHubModel sentinel = null;
-	
-	private boolean debug = false;
 	
 	public DataHubDatabase() throws DataHubException{
 		this(true);
@@ -172,9 +168,7 @@ public class DataHubDatabase {
 				return (DHQueryResult) localCache.get(query);
 			}else{
 				//System.out.println(localCache.keySet());
-				if(debug){
-					System.out.println("Miss: "+query);
-				}
+				System.out.println("Miss: "+query);
 				missCount+=1;
 				//System.out.println(query);
 				//System.out.println("network");
@@ -184,9 +178,7 @@ public class DataHubDatabase {
 				return out;
 			}
 		}else{
-			if(debug){
-				System.out.println("Mutate: "+query);
-			}
+			System.out.println("Mutate: "+query);
 			otherCount+=1;
 			return dhc.dbQuery(query);
 		}
@@ -291,7 +283,6 @@ public class DataHubDatabase {
 		DHData data = dhqr.getData();
 		DHSchema schema = data.getSchema();
 		DHTable table  = data.getTable().deepCopy();
-	
 		
 		ArrayList<LinkedHashMap<Field,String>> queries = new ArrayList<LinkedHashMap<Field,String>>();
 		for(int i = 0; i < models.size(); i++){
@@ -301,15 +292,8 @@ public class DataHubDatabase {
 			}
 			queries.add((LinkedHashMap<Field, String>) setBasicAndGetRelatedQueries(dhqr, i,newObj,fieldsToUpdate,idOnly));
 		}
-		//System.out.println(queries);
 		if(idOnly){
 			return;
-		}
-		ArrayList<T> models1 = new ArrayList<T>();
-		for(T d:models){
-			if(d!=sentinel){
-				models1.add(d);
-			}
 		}
 		//System.out.println(queries);
 		LinkedHashMap<Field,String> queries1 = new LinkedHashMap<Field,String>();
@@ -365,9 +349,7 @@ public class DataHubDatabase {
 			public void run() {
 				// TODO Auto-generated method stub
 				try {
-					if(!this.localCache.contains(actualQuery)){
-						this.results.put(f, dbQuery(actualQuery, localCache));
-					}
+					this.results.put(f, dbQuery(actualQuery, localCache));
 				} catch (DataHubException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -397,69 +379,61 @@ public class DataHubDatabase {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		/*for(Thread t: threads){
+			t.start();
+		}
+		for(Thread t: threads){
+			try {
+				t.join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}*/
 		for(Field field1: queries1.keySet()){
 			ArrayList<String> queryOrdersForCurrentField = queryOrders.get(field1);
+			String actualQuery = queries1.get(field1);
 			
 			//actual network request made here
 			DHQueryResult dhqr1 = results12.get(field1);
 			
+			
+			ArrayList<DHQueryResult> queryResults = new ArrayList<DHQueryResult>();
 			List<DHField> fields = dhqr1.data.schema.getFields();
 			LinkedHashMap<String,Integer> fieldsToIndex = new LinkedHashMap<String,Integer>();
 			for(int j = 0; j < fields.size(); j++){
 				DHField f = fields.get(j);
 				fieldsToIndex.put(f.name, j);
 			}
-			
-			//top level recursion
-			String actualQuery = queries1.get(field1);
-			ArrayList<DataHubModel> output = new ArrayList<DataHubModel>();
-			objectHash.put(actualQuery, output);
-			//indexes missed
-			for(int i=0;i<queryOrdersForCurrentField.size();i++){
-				String curr = ((ArrayList<String>) queryOrdersForCurrentField.clone()).get(i);
-				if(objectHash.contains(curr)){
-					System.out.println("found sub");
-					output.addAll((Collection<? extends DataHubModel>) objectHash.get(curr));
-					queryOrdersForCurrentField.remove(i);
-				}
-			}
-			if(queryOrdersForCurrentField.size()!=0)
-				try {
-					Class<? extends DataHubModel> classToUse = (Class<? extends DataHubModel>)field1.getType();
-					if(DataHubConverter.isDataHubArrayListSubclass(field1.getType())){
-						Class<? extends DataHubArrayList> listClass = (Class<? extends DataHubArrayList>) field1.getType();
-						DataHubArrayList d = (DataHubArrayList) listClass.newInstance();
-						classToUse=(Class<? extends DataHubModel>)d.getAssociatedModelClass();
+			int lastDivision = 0;
+			int idIndex = fieldsToIndex.get("id");
+			for(int i = 0; i < dhqr1.data.table.rows.size(); i++){
+				DHRow dhrow = dhqr1.data.table.rows.get(i);
+				if(DataHubConverter.convertToString(dhrow.getCells().get(idIndex).value).equals("None") && i<(dhqr1.data.table.rows.size()-1)){
+					DHQueryResult newDhqr = dhqr1.deepCopy();
+					if(lastDivision!=i && lastDivision<=i){
+						newDhqr.data.table.rows = newDhqr.data.table.rows.subList(lastDivision, i);
+					}else{
+						newDhqr.data.table.rows.clear();
 					}
-					output.addAll((ArrayList<DataHubModel>)dhQueryToModel(dhqr1,classToUse,recursionDepthLimit-1,localCache,objectHash));
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					lastDivision = i+1;
+					queryResults.add(newDhqr);
 				}
 			}
-			ArrayList<ArrayList<DataHubModel>> finalData = new ArrayList<ArrayList<DataHubModel>>();
-			ArrayList<DataHubModel> newData = new ArrayList<DataHubModel>();
-			
-			boolean lastNull = false ;
-			for(int i=0; i<output.size(); i++){
-				DataHubModel o = output.get(i);
-				if(o==null){
-					if(i!=0 && !lastNull){
-						finalData.add(newData);
-						newData = new ArrayList<DataHubModel>();
-					}
-					lastNull = true;
-					continue;
-				}
-				lastNull = false;
-				newData.add(o);
+			if(lastDivision<dhqr1.data.table.rows.size()){
+				DHQueryResult newDhqr = dhqr1.deepCopy();
+				newDhqr.data.table.rows = newDhqr.data.table.rows.subList(lastDivision, dhqr1.data.table.rows.size()-1);
+				queryResults.add(newDhqr);
 			}
-			int end = finalData.size();
-			
+			int end = Math.min(queryResults.size(), queries.size());
+			//System.out.println(queryResults);
 			for(int k = 0; k < end; k++){
-				T data1  = models1.get(k);
-				ArrayList<DataHubModel> modelData = finalData.get(k);
-						
+				T data1  = models.get(k);
+				DHQueryResult corresponingResults  = queryResults.get(k);
+				String currentQuery = queryOrdersForCurrentField.get(k);
+				
+				localCache.put(currentQuery, corresponingResults);
+				
 				//System.out.println(corresponingResults);
 				if(field1.isAnnotationPresent(Association.class)){
 					Association a = field1.getAnnotation(Association.class);
@@ -470,7 +444,14 @@ public class DataHubDatabase {
 							case HasOne:
 								if(DataHubConverter.isModelSubclass(field1.getType())){
 									try{
-										ArrayList<DataHubModel> results = modelData;
+										ArrayList<DataHubModel> results = new ArrayList<DataHubModel>();
+										if(objectHash.containsKey(currentQuery)){
+											//System.out.println("found"+currentQuery);
+											results = (ArrayList<DataHubModel>) objectHash.get(currentQuery);
+										}else{
+											objectHash.put(currentQuery, results);
+											results.addAll((ArrayList<DataHubModel>)dhQueryToModel(corresponingResults,(Class<? extends DataHubModel>)field1.getType(),recursionDepthLimit-1,localCache,objectHash));
+										}
 										if(results.size() > 0){
 											Resources.setField(data1, field1.getName(),results.get(0));
 										}
@@ -482,7 +463,14 @@ public class DataHubDatabase {
 							case BelongsTo:
 								if(DataHubConverter.isModelSubclass(field1.getType())){
 									try{
-										ArrayList<DataHubModel> results = modelData;
+										ArrayList<DataHubModel> results = new ArrayList<DataHubModel>();
+										if(objectHash.containsKey(currentQuery)){
+											//System.out.println("found"+currentQuery);
+											results = (ArrayList<DataHubModel>) objectHash.get(currentQuery);
+										}else{
+											objectHash.put(currentQuery, results);
+											results.addAll((ArrayList<DataHubModel>)dhQueryToModel(corresponingResults,(Class<? extends DataHubModel>)field1.getType(),recursionDepthLimit-1,localCache,objectHash));
+										}
 										if(results.size() > 0){
 											Resources.setField(data1, field1.getName(),results.get(0));
 										}
@@ -499,7 +487,14 @@ public class DataHubDatabase {
 										//make sure id of this object is set before doing this
 										try{
 											DataHubArrayList d = (DataHubArrayList) listClass.newInstance();
-											ArrayList<DataHubModel> results = modelData;
+											ArrayList<DataHubModel> results = new ArrayList<DataHubModel>();
+											if(objectHash.containsKey(currentQuery)){
+												//System.out.println("found"+currentQuery);
+												results = (ArrayList<DataHubModel>) objectHash.get(currentQuery);
+											}else{
+												objectHash.put(currentQuery, results);
+												results.addAll(dhQueryToModel(corresponingResults,(Class<? extends DataHubModel>)d.getAssociatedModelClass(),recursionDepthLimit-1,localCache,objectHash));
+											}
 											d.setCurrentModel(data1);
 											d.setAssociation(a);
 											d.addAllBasic(results);
@@ -518,8 +513,14 @@ public class DataHubDatabase {
 										//make sure id of this object is set before doing this
 										try{
 											DataHubArrayList d = (DataHubArrayList) listClass.newInstance();
-											ArrayList<DataHubModel> results = modelData;
-
+											ArrayList<DataHubModel> results = new ArrayList<DataHubModel>();
+											if(objectHash.containsKey(currentQuery)){
+												//System.out.println("found"+currentQuery);
+												results = (ArrayList<DataHubModel>) objectHash.get(currentQuery);
+											}else{
+												objectHash.put(currentQuery, results);
+												results.addAll(dhQueryToModel(corresponingResults,(Class<? extends DataHubModel>)d.getAssociatedModelClass(),recursionDepthLimit-1,localCache,objectHash));
+											}
 											d.setCurrentModel(data1);
 											d.setAssociation(a);
 											d.addAllBasic(results);
