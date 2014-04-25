@@ -272,6 +272,15 @@ public class DataHubDatabase {
 		for(int i = 0; i < models.size(); i++){
 			T newObj = models.get(i);
 			queries.add((LinkedHashMap<Field, String>) setBasicAndGetRelatedQueries(dhqr, i,newObj,fieldsToUpdate,idOnly));
+			String baseQuery = "select * from "+newObj.getCompleteTableName()+" where "+newObj.getCompleteTableName()+".id = "+newObj.id;
+			String queryLocal = "("+baseQuery+") union all ("+ newObj.generateNullSelect()+")"; 
+			ArrayList<DataHubModel> dataTry = new ArrayList<DataHubModel>();
+			dataTry.add(newObj);
+			if(objectHash!=null && !objectHash.containsKey(queryLocal)){
+				objectHash.put(baseQuery, dataTry);
+				objectHash.put(queryLocal, dataTry);
+			}
+
 		}
 		if(idOnly){
 			return;
@@ -303,10 +312,13 @@ public class DataHubDatabase {
 				queryOrdersForField.add(data1.get(field));
 				
 				String newQuery = "("+data1.get(field) +") union all ("+ newTemplate.generateNullSelect()+")";
-				if(!queries1.containsKey(field)){
-					queries1.put(field, newQuery);
-				}else{
-					queries1.put(field, queries1.get(field)+" union all ("+newQuery+")");
+				
+				if(!objectHash.containsKey(newQuery)){
+					if(!queries1.containsKey(field)){
+						queries1.put(field, newQuery);
+					}else{
+						queries1.put(field, queries1.get(field)+" union all ("+newQuery+")");
+					}
 				}
 				
 				queryOrders.put(field, queryOrdersForField);
@@ -345,10 +357,12 @@ public class DataHubDatabase {
 		//ArrayList<Thread> threads = new ArrayList<Thread>();
 		ExecutorService executor = Executors.newFixedThreadPool(DataHubDatabase.MAX_THREADS);
 		for(Field field1: queries1.keySet()){
-			String actualQuery = queries1.get(field1);
-			executor.execute(new LoadHelper(field1,results12,actualQuery,localCache));
-			//Thread t = new Thread(new LoadHelper(field1,results12,actualQuery,localCache));
-			//threads.add(t);
+			if(queries1.containsKey(field1)){
+				String actualQuery = queries1.get(field1);
+				executor.execute(new LoadHelper(field1,results12,actualQuery,localCache));
+				//Thread t = new Thread(new LoadHelper(field1,results12,actualQuery,localCache));
+				//threads.add(t);
+			}
 		}
 		executor.shutdown();
 		try {
@@ -357,61 +371,53 @@ public class DataHubDatabase {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		/*for(Thread t: threads){
-			t.start();
-		}
-		for(Thread t: threads){
-			try {
-				t.join();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}*/
-		for(Field field1: queries1.keySet()){
+
+		for(Field field1: queryOrders.keySet()){
 			ArrayList<String> queryOrdersForCurrentField = queryOrders.get(field1);
-			String actualQuery = queries1.get(field1);
-			
-			//actual network request made here
-			DHQueryResult dhqr1 = results12.get(field1);
-			
-			
 			ArrayList<DHQueryResult> queryResults = new ArrayList<DHQueryResult>();
-			List<DHField> fields = dhqr1.data.schema.getFields();
-			LinkedHashMap<String,Integer> fieldsToIndex = new LinkedHashMap<String,Integer>();
-			for(int j = 0; j < fields.size(); j++){
-				DHField f = fields.get(j);
-				fieldsToIndex.put(f.name, j);
-			}
-			int lastDivision = 0;
-			int idIndex = fieldsToIndex.get("id");
-			for(int i = 0; i < dhqr1.data.table.rows.size(); i++){
-				DHRow dhrow = dhqr1.data.table.rows.get(i);
-				if(DataHubConverter.convertToString(dhrow.getCells().get(idIndex).value).equals("None") && i<(dhqr1.data.table.rows.size()-1)){
-					DHQueryResult newDhqr = dhqr1.deepCopy();
-					if(lastDivision!=i && lastDivision<=i){
-						newDhqr.data.table.rows = newDhqr.data.table.rows.subList(lastDivision, i);
-					}else{
-						newDhqr.data.table.rows.clear();
+			
+			if(results12.containsKey(field1)){
+				//actual network request made here
+				DHQueryResult dhqr1 = results12.get(field1);
+				
+				List<DHField> fields = dhqr1.data.schema.getFields();
+				LinkedHashMap<String,Integer> fieldsToIndex = new LinkedHashMap<String,Integer>();
+				for(int j = 0; j < fields.size(); j++){
+					DHField f = fields.get(j);
+					fieldsToIndex.put(f.name, j);
+				}
+				int lastDivision = 0;
+				int idIndex = fieldsToIndex.get("id");
+				for(int i = 0; i < dhqr1.data.table.rows.size(); i++){
+					DHRow dhrow = dhqr1.data.table.rows.get(i);
+					if(DataHubConverter.convertToString(dhrow.getCells().get(idIndex).value).equals("None") && i<(dhqr1.data.table.rows.size()-1)){
+						DHQueryResult newDhqr = dhqr1.deepCopy();
+						if(lastDivision!=i && lastDivision<=i){
+							newDhqr.data.table.rows = newDhqr.data.table.rows.subList(lastDivision, i);
+						}else{
+							newDhqr.data.table.rows.clear();
+						}
+						lastDivision = i+1;
+						queryResults.add(newDhqr);
 					}
-					lastDivision = i+1;
+				}
+				if(lastDivision<dhqr1.data.table.rows.size()){
+					DHQueryResult newDhqr = dhqr1.deepCopy();
+					newDhqr.data.table.rows = newDhqr.data.table.rows.subList(lastDivision, dhqr1.data.table.rows.size()-1);
 					queryResults.add(newDhqr);
 				}
+				int end = Math.min(queryResults.size(), queries.size());
 			}
-			if(lastDivision<dhqr1.data.table.rows.size()){
-				DHQueryResult newDhqr = dhqr1.deepCopy();
-				newDhqr.data.table.rows = newDhqr.data.table.rows.subList(lastDivision, dhqr1.data.table.rows.size()-1);
-				queryResults.add(newDhqr);
-			}
-			int end = Math.min(queryResults.size(), queries.size());
 			//System.out.println(queryResults);
-			for(int k = 0; k < end; k++){
+			for(int k = 0; k < models.size(); k++){
 				T data1  = models.get(k);
-				DHQueryResult corresponingResults  = queryResults.get(k);
 				String currentQuery = queryOrdersForCurrentField.get(k);
-				
-				localCache.put(currentQuery, corresponingResults);
-				
+				DHQueryResult corresponingResults  = null;
+				if(queryResults.size()>0){
+					corresponingResults = queryResults.get(k);
+					localCache.put(currentQuery, corresponingResults);
+				}
+		
 				//System.out.println(corresponingResults);
 				if(field1.isAnnotationPresent(Association.class)){
 					Association a = field1.getAnnotation(Association.class);

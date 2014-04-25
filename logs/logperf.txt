@@ -1,2 +1,2 @@
 FindMany Heavy
-Time: 7860
+Time: 1892
