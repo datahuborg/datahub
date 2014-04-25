@@ -64,6 +64,7 @@ public class DataHubDatabase {
 	
 	private DataHubWorkerMode dataHubWorkerMode;
 	
+	private boolean debug = true;
 	
 	public DataHubDatabase() throws DataHubException{
 		this(true);
@@ -165,6 +166,9 @@ public class DataHubDatabase {
 				hitCount+=1;
 				return (DHQueryResult) localCache.get(query);
 			}else{
+				if(debug){
+					System.out.println("Miss: "+query);
+				}
 				//System.out.println(localCache.keySet());
 				//System.out.println(query);
 				missCount+=1;
@@ -176,6 +180,9 @@ public class DataHubDatabase {
 				return out;
 			}
 		}else{
+			if(debug){
+				System.out.println("Other: "+query);
+			}
 			//System.out.println(query);
 			otherCount+=1;
 			return dhc.dbQuery(query);

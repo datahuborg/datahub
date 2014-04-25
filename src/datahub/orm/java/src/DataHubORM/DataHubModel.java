@@ -189,7 +189,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 		}
 		getDatabase().query(query);
 		//add end transaction stuff here
-		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
+		//updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
 		afterSave();
 	}
 	//TODO: add already saved hashmap so that save not called again on same object.

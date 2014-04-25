@@ -35,7 +35,7 @@ public class PerformanceTests {
 		db1.setDataHubAccount(test_dha);
 		try{
 			//System.out.println("connecting!");
-			//db1.clearAndReCreate();
+			db1.clearAndReCreate();
 			//System.out.println("connected!");
 			db = db1;
 		}catch(Exception e){
@@ -173,7 +173,7 @@ public class PerformanceTests {
 	@Test
 	public void generalTest() throws DataHubException{
 		//db.clearAndReCreate();
-		int K = 50;
+		int K = 100;
 		int N = 1;
 		int M = 1;
 		Date t = new Date();
@@ -222,8 +222,8 @@ public class PerformanceTests {
 		assertEquals(100,db.LightTestModel.all().size());
 		System.out.println("Time: "+getTimeDifference(t));*/
 		
-		//HeavyTestModel[] htms = generateManyRandomHTM(K,N,M);
-		//DataHubModel.batchSaveOrInsert(htms);
+		HeavyTestModel[] htms = generateManyRandomHTM(K,N,M);
+		DataHubModel.batchSaveOrInsert(htms);
 		
 		System.out.println("FindMany Heavy");
 		t = new Date();
