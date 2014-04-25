@@ -119,6 +119,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 		return dbs.get(this.getClass());
 	}
 	public static void batchSaveOrInsert(DataHubModel[] models) throws DataHubException{
+
 		class BatchInsert implements Runnable{
 			
 			DataHubModel[] models;
@@ -708,7 +709,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 		updateModel(DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
 	}
 	public void refreshField(String fieldName) throws DataHubException{
-		getDatabase().updateModelObjectField(fieldName, this,DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
+		getDatabase().updateModelObjectField(fieldName,this,DataHubDatabase.MAX_LOAD_RECURSION_DEPTH,new ConcurrentHashMap<String,Object>(),new ConcurrentHashMap<String,Object>());
 	}
 	private void updateModel(int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache,ConcurrentHashMap<String,Object> objectHash) throws DataHubException{
 		getDatabase().updateModelObject(this,recursionDepthLimit,localCache,objectHash);

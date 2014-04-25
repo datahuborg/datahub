@@ -52,9 +52,9 @@ public class DataHubDatabase {
 	protected static int MAX_LOAD_RECURSION_DEPTH = 3;
 	
 	//prevent unnecessary saves
-	protected static int MAX_SAVE_RECURSION_DEPTH = 5;
+	protected static int MAX_SAVE_RECURSION_DEPTH = 4;
 	
-	protected static int MAX_THREADS =1;
+	protected static int MAX_THREADS = 1;
 	
 	private DataHubClient dhc;
 	
@@ -64,7 +64,6 @@ public class DataHubDatabase {
 	
 	private DataHubWorkerMode dataHubWorkerMode;
 	
-	DataHubModel sentinel = null;
 	
 	public DataHubDatabase() throws DataHubException{
 		this(true);
@@ -116,7 +115,6 @@ public class DataHubDatabase {
 			}
 			Resources.setField(this,f.getName(), Resources.fieldToInstance(f));
 		}
-		//sentinel = new DataHubModel(){};
 	}
 	public synchronized String getDatabaseName(){
 		try {
@@ -168,7 +166,7 @@ public class DataHubDatabase {
 				return (DHQueryResult) localCache.get(query);
 			}else{
 				//System.out.println(localCache.keySet());
-				System.out.println("Miss: "+query);
+				//System.out.println(query);
 				missCount+=1;
 				//System.out.println(query);
 				//System.out.println("network");
@@ -178,7 +176,7 @@ public class DataHubDatabase {
 				return out;
 			}
 		}else{
-			System.out.println("Mutate: "+query);
+			//System.out.println(query);
 			otherCount+=1;
 			return dhc.dbQuery(query);
 		}
@@ -233,29 +231,15 @@ public class DataHubDatabase {
 		DHQueryResult dhqr = this.dbQuery(query, localCache);
 		return dhqr;
 	}
-	private <T extends DataHubModel> ArrayList<T> dhQueryToModel(DHQueryResult dhqr, Class<T> modelClass, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ConcurrentHashMap<String,Object> objectHash) throws InstantiationException, IllegalAccessException, DataHubException{
+	private <T extends DataHubModel> ArrayList<T> dhQueryToModel(DHQueryResult dhqr, Class<T> modelClass, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ConcurrentHashMap<String,Object> objectHash) throws InstantiationException, IllegalAccessException{
 		ArrayList<T> output = new ArrayList<T>();
 		if(dhqr == null || recursionDepthLimit <= 0){
 			return output;
 		}
 		DHData data = dhqr.getData();
 		DHTable table  = data.getTable();
-		HashMap<String,Integer> fieldToIndex = new HashMap<String,Integer>();
-		
-		List<DHField> fields = dhqr.data.schema.getFields();
-		LinkedHashMap<String,Integer> fieldsToIndex = new LinkedHashMap<String,Integer>();
-		for(int j = 0; j < fields.size(); j++){
-			DHField f = fields.get(j);
-			fieldsToIndex.put(f.name, j);
-		}
 		
 		for(int i = 0; i < table.rows.size(); i++){
-			Object c = dhqr.data.table.rows.get(i).getCells().get(fieldsToIndex.get("id")).value;
-			String key = new String(((ByteBuffer) c).array());
-			if(key.equals("None")){
-				output.add((T) sentinel);
-				continue;
-			}
 			T newObj = (T) modelClass.newInstance();
 			//update model basic fields
 			output.add(newObj);
@@ -263,19 +247,19 @@ public class DataHubDatabase {
 		updateNewModels(dhqr, output,recursionDepthLimit,localCache,objectHash);
 		return output;
 	}
-	private <T extends DataHubModel> void updateModel(DHQueryResult dhqr, T objectToUpdate, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ConcurrentHashMap<String,Object> objectHash) throws DataHubException{
+	private <T extends DataHubModel> void updateModel(DHQueryResult dhqr, T objectToUpdate, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ConcurrentHashMap<String,Object> objectHash){
 		updateModel(dhqr, objectToUpdate, recursionDepthLimit, localCache, null, false, objectHash);
 	}
-	private <T extends DataHubModel> void updateModel(DHQueryResult dhqr, T objectToUpdate,  int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ArrayList<String> fieldsToUpdate, boolean idOnly, ConcurrentHashMap<String,Object> objectHash) throws DataHubException{
+	private <T extends DataHubModel> void updateModel(DHQueryResult dhqr, T objectToUpdate,  int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ArrayList<String> fieldsToUpdate, boolean idOnly, ConcurrentHashMap<String,Object> objectHash){
 		ArrayList<T> models = new ArrayList<T>();
 		models.add(objectToUpdate);
 		updateNewModels(dhqr, models, recursionDepthLimit, localCache, fieldsToUpdate, idOnly, objectHash);
 	}
-	private <T extends DataHubModel> void updateNewModels(DHQueryResult dhqr, ArrayList<T> models, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ConcurrentHashMap<String,Object> objectHash) throws DataHubException{
+	private <T extends DataHubModel> void updateNewModels(DHQueryResult dhqr, ArrayList<T> models, int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ConcurrentHashMap<String,Object> objectHash){
 		updateNewModels(dhqr, models, recursionDepthLimit, localCache, null, false, objectHash);
 	}
 	
-	private <T extends DataHubModel> void updateNewModels(DHQueryResult dhqr, ArrayList<T> models,  int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ArrayList<String> fieldsToUpdate, boolean idOnly, ConcurrentHashMap<String,Object> objectHash) throws DataHubException{
+	private <T extends DataHubModel> void updateNewModels(DHQueryResult dhqr, ArrayList<T> models,  int recursionDepthLimit, ConcurrentHashMap<String,Object> localCache, ArrayList<String> fieldsToUpdate, boolean idOnly, ConcurrentHashMap<String,Object> objectHash){
 		//System.out.println(recursionDepthLimit);
 		if(recursionDepthLimit <= 0 || dhqr==null){
 			return;
@@ -287,9 +271,6 @@ public class DataHubDatabase {
 		ArrayList<LinkedHashMap<Field,String>> queries = new ArrayList<LinkedHashMap<Field,String>>();
 		for(int i = 0; i < models.size(); i++){
 			T newObj = models.get(i);
-			if(newObj==sentinel){
-				continue;
-			}
 			queries.add((LinkedHashMap<Field, String>) setBasicAndGetRelatedQueries(dhqr, i,newObj,fieldsToUpdate,idOnly));
 		}
 		if(idOnly){
@@ -299,9 +280,6 @@ public class DataHubDatabase {
 		LinkedHashMap<Field,String> queries1 = new LinkedHashMap<Field,String>();
 		LinkedHashMap<Field,ArrayList<String>> queryOrders = new LinkedHashMap<Field,ArrayList<String>>();
 		for(HashMap<Field,String> data1: queries){
-			if(data1==null){
-				continue;
-			}
 			for(Field field: data1.keySet()){
 				ArrayList<String> queryOrdersForField;
 				if(!queryOrders.containsKey(field)){
@@ -594,7 +572,7 @@ public class DataHubDatabase {
 			}
 		}
 	}
-	private <T extends DataHubModel> LinkedHashMap<Field,String> setBasicAndGetRelatedQueries(DHQueryResult dhqr, int rowNumber, T objectToUpdate, ArrayList<String> fieldsToUpdate, boolean idOnly) throws DataHubException{
+	private <T extends DataHubModel> LinkedHashMap<Field,String> setBasicAndGetRelatedQueries(DHQueryResult dhqr, int rowNumber, T objectToUpdate, ArrayList<String> fieldsToUpdate, boolean idOnly){
 		
 		setBasic(dhqr,rowNumber, objectToUpdate,fieldsToUpdate,idOnly);
 		
@@ -634,9 +612,6 @@ public class DataHubDatabase {
 					switch(a.associationType()){
 						case HasOne:
 							if(DataHubConverter.isModelSubclass(f1.getType())){
-								if(objectToUpdate.id==0){
-									throw new DataHubException("Invalid Id");
-								}
 								try{
 									DataHubModel currentModel = (DataHubModel) f1.getDeclaringClass().newInstance();
 									DataHubModel otherModel = (DataHubModel) f1.getType().newInstance();
@@ -654,9 +629,6 @@ public class DataHubDatabase {
 							 break;
 						case BelongsTo:
 							if(DataHubConverter.isModelSubclass(f1.getType())){
-								if(objectToUpdate.id==0){
-									throw new DataHubException("Invalid Id");
-								}
 								try{
 									DataHubModel currentModel = (DataHubModel) f1.getDeclaringClass().newInstance();
 									DataHubModel otherModel = (DataHubModel) f1.getType().newInstance();

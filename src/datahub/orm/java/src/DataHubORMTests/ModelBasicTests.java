@@ -505,7 +505,7 @@ public class ModelBasicTests extends TestsMain{
 		db.resetStats();
 		ArrayList<TestModel> tms = new ArrayList<TestModel>();
 		ArrayList<UserModel> ums = new ArrayList<UserModel>();
-		for(int j = 1; j<15; j++){
+		for(int j = 0; j<15; j++){
 			UserModel u = new UserModel();
 			u.username="user"+j;
 			//u.save();
@@ -528,6 +528,8 @@ public class ModelBasicTests extends TestsMain{
 		System.out.println(System.currentTimeMillis()-old);
 		db.printStats();
 		for(UserModel user: users){
+			assertEquals(true,user.id!=0);
+			System.out.println(user.id);
 			System.out.println(user.tests);
 			assertEquals(tms.size(),user.tests.size());
 			for(TestModel t:user.tests){

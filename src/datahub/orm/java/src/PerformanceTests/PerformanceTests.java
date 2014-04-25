@@ -6,7 +6,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Random;
 
 import org.apache.thrift.TException;
@@ -33,7 +35,7 @@ public class PerformanceTests {
 		db1.setDataHubAccount(test_dha);
 		try{
 			//System.out.println("connecting!");
-			db1.clearAndReCreate();
+			//db1.clearAndReCreate();
 			//System.out.println("connected!");
 			db = db1;
 		}catch(Exception e){
@@ -117,6 +119,18 @@ public class PerformanceTests {
 		}
 		return data;
 	}
+	public static LightTestModel[] generateManyRandomLTM(int k) throws DataHubException{
+		LightTestModel[] data = new LightTestModel[k];
+		for(int i=0; i<k; i++){
+			data[i] = generateRandomLTM();
+		}
+		return data;
+	}
+	public long getTimeDifference(Date d){
+		Date t = new Date();
+		long now = t.getTime();
+		return new Date(now-d.getTime()).getTime();
+	}
 	//@Test
 	public void inserTestOneLTM() throws DataHubException {
 		generateRandomLTM().save();
@@ -155,32 +169,116 @@ public class PerformanceTests {
 		long now1 = t1.getTime();
 		System.out.println(new Date(now1-now).getTime());
 	}
-	
+	/*Main Tests*/
+	@Test
+	public void generalTest() throws DataHubException{
+		//db.clearAndReCreate();
+		int K = 50;
+		int N = 1;
+		int M = 1;
+		Date t = new Date();
+		/*System.out.println("Insert Light");
+		LightTestModel ltm = generateRandomLTM();
+		ltm.save();
+		System.out.println("Time: "+getTimeDifference(t));
+		
+		System.out.println("Save Light");
+		t = new Date();
+		ltm.save();
+		System.out.println("Time: "+getTimeDifference(t));
+		
+		System.out.println("FindOne Light");
+		HashMap<String,Object> params = new HashMap<String,Object>();
+		params.put("id", ltm.id);
+		t = new Date();
+		db.LightTestModel.findOne(params);
+		System.out.println("Time: "+getTimeDifference(t));
+		
+		System.out.println("Insert Heavy");
+		HeavyTestModel htm = generateRandomHTM(N,M);
+		t = new Date();
+		htm.save();
+		System.out.println("Time: "+getTimeDifference(t));
+		
+		System.out.println("Save Heavy");
+		t = new Date();
+		htm.save();
+		System.out.println("Time: "+getTimeDifference(t));
+		
+		System.out.println("FindOne Heavy");
+		HashMap<String,Object> params1 = new HashMap<String,Object>();
+		params1.put("id", htm.id);
+		t = new Date();
+		db.HeavyTestModel.findOne(params1);
+		System.out.println("Time: "+getTimeDifference(t));
+		
+		db.clearAndReCreate();
+		
+		LightTestModel[] ltms = generateManyRandomLTM(100);
+		DataHubModel.batchSaveOrInsert(ltms);
+		
+		System.out.println("FindMany Light");
+		t = new Date();
+		assertEquals(100,db.LightTestModel.all().size());
+		System.out.println("Time: "+getTimeDifference(t));*/
+		
+		//HeavyTestModel[] htms = generateManyRandomHTM(K,N,M);
+		//DataHubModel.batchSaveOrInsert(htms);
+		
+		System.out.println("FindMany Heavy");
+		t = new Date();
+		ArrayList<HeavyTestModel> htmall = db.HeavyTestModel.all();
+		assertEquals(K,htmall.size());
+		System.out.println("Time: "+getTimeDifference(t));
+		for(HeavyTestModel htmd:htmall){
+			assertEquals(M,htmd.htm1s.size());
+			if(M==1){
+				assertEquals(true,htmd.htm1s.get(0).ht.equals(htmd));
+			}
+		}
+		
+		
+	}
 	//@Test
 	public void HTMStressTest() throws DataHubException{
-		int[] Ns = {1,5,10};
-		int[] Ms = {1,5,10};
+		int[] Ns = {1,2,4,8,10};
+		int[] Ms = {1,2,4,8,10};
+		Date t = new Date();
 		for(int N:Ns){
 			for(int M:Ms){
 				db.clearAndReCreate();
 				System.out.println("N="+N+",M="+M);
 				HeavyTestModel htm = generateRandomHTM(N,M);
-				Date t = new Date();
-				long now = t.getTime();
+				
+				t = new Date();
 				htm.save();
-				Date t1 = new Date();
-				long now1 = t1.getTime();
-				System.out.println("Insert Time "+new Date(now1-now).getTime());
-				Date t2 = new Date();
-				long now2 = t2.getTime();
-				assertEquals(1,db.HeavyTestModel.all().size());
-				Date t3 = new Date();
-				long now3 = t3.getTime();
-				System.out.println("Query Time "+new Date(now3-now2).getTime());
+				System.out.println("Insert Time "+getTimeDifference(t));
+				
+				t = new Date();
+				htm.save();
+				System.out.println("Save Time "+getTimeDifference(t));
+				
+				t = new Date();
+				ArrayList<HeavyTestModel> ms = db.HeavyTestModel.all();
+				assertEquals(1,ms.size());
+				for(HeavyTestModel m:ms){
+					System.out.println(m.htm1s.size());
+					assertEquals(true,m.htm1s.get(0).ht.equals(htm));
+					System.out.println(m.htm2s.size());
+					System.out.println(m.htm3s.size());
+					System.out.println(m.htm4s.size());
+					System.out.println(m.htm5s.size());
+					System.out.println(m.htm6s.size());
+					System.out.println(m.htm7s.size());
+					System.out.println(m.htm8s.size());
+					System.out.println(m.htm9s.size());
+					System.out.println(m.htm10s.size());
+				}
+				System.out.println("Query Time "+getTimeDifference(t));
 			}
 		}
 	}
-	@Test
+	//@Test
 	public void HTMStressTest2() throws DataHubException{
 		int[] Ks = {1,5,10};
 		int[] Ns = {1,5,10};
