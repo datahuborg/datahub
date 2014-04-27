@@ -170,14 +170,14 @@ public class PerformanceTests {
 		System.out.println(new Date(now1-now).getTime());
 	}
 	/*Main Tests*/
-	@Test
+	//@Test
 	public void generalTest() throws DataHubException{
 		//db.clearAndReCreate();
 		int K = 100;
 		int N = 1;
 		int M = 1;
 		Date t = new Date();
-		/*System.out.println("Insert Light");
+		System.out.println("Insert Light");
 		LightTestModel ltm = generateRandomLTM();
 		ltm.save();
 		System.out.println("Time: "+getTimeDifference(t));
@@ -220,7 +220,7 @@ public class PerformanceTests {
 		System.out.println("FindMany Light");
 		t = new Date();
 		assertEquals(100,db.LightTestModel.all().size());
-		System.out.println("Time: "+getTimeDifference(t));*/
+		System.out.println("Time: "+getTimeDifference(t));
 		
 		HeavyTestModel[] htms = generateManyRandomHTM(K,N,M);
 		DataHubModel.batchSaveOrInsert(htms);
@@ -262,9 +262,9 @@ public class PerformanceTests {
 				ArrayList<HeavyTestModel> ms = db.HeavyTestModel.all();
 				assertEquals(1,ms.size());
 				for(HeavyTestModel m:ms){
-					System.out.println(m.htm1s.size());
+					//System.out.println(m.htm1s.size());
 					assertEquals(true,m.htm1s.get(0).ht.equals(htm));
-					System.out.println(m.htm2s.size());
+					/*System.out.println(m.htm2s.size());
 					System.out.println(m.htm3s.size());
 					System.out.println(m.htm4s.size());
 					System.out.println(m.htm5s.size());
@@ -272,13 +272,13 @@ public class PerformanceTests {
 					System.out.println(m.htm7s.size());
 					System.out.println(m.htm8s.size());
 					System.out.println(m.htm9s.size());
-					System.out.println(m.htm10s.size());
+					System.out.println(m.htm10s.size());*/
 				}
 				System.out.println("Query Time "+getTimeDifference(t));
 			}
 		}
 	}
-	//@Test
+	@Test
 	public void HTMStressTest2() throws DataHubException{
 		int[] Ks = {1,5,10};
 		int[] Ns = {1,5,10};

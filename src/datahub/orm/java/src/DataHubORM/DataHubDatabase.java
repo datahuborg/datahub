@@ -64,7 +64,7 @@ public class DataHubDatabase {
 	
 	private DataHubWorkerMode dataHubWorkerMode;
 	
-	private boolean debug = true;
+	private boolean debug = false;
 	
 	public DataHubDatabase() throws DataHubException{
 		this(true);
