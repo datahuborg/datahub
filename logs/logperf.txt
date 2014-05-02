@@ -1,16 +1,4 @@
 N=1,K=1,M=2
-Insert Time 1004
-Query Time 1108
+Insert Time 1008
+Query Time 1165
 N=1,K=5,M=2
-Insert Time 5093
-Query Time 1214
-N=1,K=10,M=2
-Insert Time 9921
-Query Time 1256
-N=5,K=1,M=2
-Insert Time 2193
-Query Time 1019
-N=5,K=5,M=2
-Insert Time 14441
-Query Time 1240
-N=5,K=10,M=2
