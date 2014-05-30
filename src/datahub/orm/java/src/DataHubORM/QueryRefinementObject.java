@@ -24,6 +24,10 @@ public class QueryRefinementObject {
 	private String[] distinct;
 	private int querySizeLimit;
 	
+	public QueryRefinementObject(){
+		querySizeLimit = 20;
+	}
+	
 	public void setOrderByFields(OrderBy[] orderBy){
 		this.orderBy = orderBy;
 	}

@@ -523,7 +523,7 @@ public class ModelBasicTests extends TestsMain{
 		db.resetStats();
 		long old = System.currentTimeMillis();
 		System.out.println("start query"+System.currentTimeMillis());
-		ArrayList<UserModel> users = this.db.users.all();
+		ArrayList<UserModel> users = db.users.all();
 		System.out.println("end query"+System.currentTimeMillis());
 		System.out.println(System.currentTimeMillis()-old);
 		db.printStats();
