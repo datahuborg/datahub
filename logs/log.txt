@@ -1,22 +1,32 @@
-DataHubORM.DataHubException: java.net.UnknownHostException: datahub-experimental.csail.mit.edu
-	at DataHubORM.DataHubClient.dbQuery(DataHubClient.java:99)
-	at DataHubORM.DataHubDatabase.dbQuery(DataHubDatabase.java:188)
-	at DataHubORM.DataHubDatabase.query(DataHubDatabase.java:194)
-	at DataHubORM.DataHubDatabase.clearAndReCreate(DataHubDatabase.java:104)
-	at DataHubORMTests.TestsMain.setUp(TestsMain.java:31)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-	at java.lang.reflect.Method.invoke(Unknown Source)
-	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:45)
-	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:15)
-	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:42)
-	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:27)
-	at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:30)
-	at org.junit.runners.ParentRunner.run(ParentRunner.java:300)
-	at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:50)
-	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
-	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:467)
-	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:683)
-	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:390)
-	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:197)
+new query
+query took:1943
+new query
+query took:2600
+[test.carmodelrandid=-1566087891 AND make='toyota' AND id=1 AND model='camry']
+[test.testrandid=1603968620 AND created_at is NULL AND description='test row' AND name='test1555107050' AND is_cool=false AND id=1 AND cost=0]
+new query
+query took:1204
+new query
+query took:1239
+new query
+query took:1624
+hits0
+misses0
+other1
+new query
+query took:1130
+new query
+query took:1105
+new query
+query took:274
+hits0
+misses11
+other3
+new query
+query took:1856
+new query
+query took:1876
+[test.usersrandid=-2086535301 AND description='Enter a description here!' AND username='david1' AND funds=0.0 AND password='lol' AND id=1, test.usersrandid=533575783 AND description='Enter a description here!' AND username='david2' AND funds=0.0 AND password='lol' AND id=2]
+new query
+query took:1864
+new query

@@ -413,7 +413,7 @@ public class DataHubDatabase {
 					newDhqr.data.table.rows = newDhqr.data.table.rows.subList(lastDivision, dhqr1.data.table.rows.size()-1);
 					queryResults.add(newDhqr);
 				}
-				int end = Math.min(queryResults.size(), queries.size());
+				//int end = Math.min(queryResults.size(), queries.size());
 			}
 			//System.out.println(queryResults);
 			for(int k = 0; k < models.size(); k++){
