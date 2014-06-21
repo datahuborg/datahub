@@ -3,14 +3,14 @@
 
 <div id="content">
 	<a class="blue bold" href=/browse/{{username}}>{{username}}</a> / <a class = "blue bold" href=/browse/{{username}}/{{repo}}>{{repo}}</a> /
-	<hr clss="light" />
+	<hr class="light" />
 	<br />
 	<br />
 	<div>
 	<a class="button inactive" href="/console">Create Table Using SQL</a> &nbsp; &nbsp; &nbsp; &nbsp; <a class="button inactive" href="/refiner">Transform/Refine Data</a>
 	</div>
-	<h3>Create a new table</h3>
-	<form method="POST" action="/create_table_from_file" enctype='multipart/form-data'>
+
+	<form class="form-container" method="POST" action="/create_table_from_file" enctype='multipart/form-data'>
 	{% csrf_token %}
 	<input type="hidden" name="repo" value="{{repo}}" />
 	<h3>Create a new table</h3>

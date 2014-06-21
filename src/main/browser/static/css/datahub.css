@@ -96,13 +96,23 @@ a:active, a:hover {
 	width: 100%;
 }
 
+.form-container {
+  margin:0 auto;
+  margin-top:1em; 
+  padding:1.8em 1.8em 1em 1.8em; 
+  vertical-align:top;
+  background-color: #fff;
+  max-width:380px;
+  width: 100%;
+}
 
-form.center-container label {
+
+form label {
 	font-weight:bold; 
 	color:#666;
 }
 
-form.center-container input[type="text"], form.center-container input[type="password"] {
+form input[type="text"], form.center-container input[type="password"] {
   width: 95%;
 }
 
