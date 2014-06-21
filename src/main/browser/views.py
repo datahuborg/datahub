@@ -59,9 +59,9 @@ def newrepo(request):
 
 @login_required
 def newtable(request, username, repo):
-  return render_to_response("newtable.html", {
-    'username': get_login(request),
-    'repo':repo})
+  res= {'username': get_login(request), 'repo':repo}
+  res.update(csrf(request))
+  return render_to_response("newtable.html", res)
 
 
 @csrf_exempt
@@ -123,7 +123,6 @@ def repo(request, username, repo):
         'username': username,
         'repo': repo,
         'tables': tables}
-    res.update(csrf(request))
     return render_to_response("repo.html", res)
   except Exception, e:
     return HttpResponse(
