@@ -10,8 +10,7 @@
 	<a class="button inactive" href="/console">Create Table Using SQL</a> &nbsp; &nbsp; &nbsp; &nbsp; <a class="button inactive" href="/refiner">Transform/Refine Data</a>
 	</div>
 	<form class="form-container" method="POST" action="/create_table_from_file" enctype='multipart/form-data'>
-	<h3>Create a new table</h3>
-	<br />
+	<h3 style="padding-bottom:0.5em;">Create a new table</h3>
 	{% csrf_token %}
 	<input type="hidden" name="repo" value="{{repo}}" />
 	<div id="error">
