@@ -185,7 +185,7 @@ def create_table_from_file(request):
       file_name = '/tmp/%s_%s_%s.csv' %(login, repo, table_name)
       dh_table_name = '%s.%s.%s' %(login, repo, table_name)
       handle_uploaded_file(file_name, file_data)
-      f = codecs.open(path, 'r', 'utf-8')
+      f = codecs.open(file_name, 'r', 'utf-8')
       data = csv.reader(f)
       cells = data.next()
       columns = map(lambda x: re.sub(r'\W+', '_', x), cells)
