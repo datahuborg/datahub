@@ -170,10 +170,9 @@ def table(request, username, repo, table, page='1'):
         mimetype="application/json")
 
 
-def handle_uploaded_file(username, repo, table_name, file_data):
-  file_name, file_extension = os.path.splitext(str(file_data))
-  with open('%s/%s/%s.%s' %(username, repo, table_name, file_extension), 'wb+') as destination:
-    for chunk in f.chunks():
+def handle_uploaded_file(file_name, file_data):
+  with open(file_name, 'wb+') as destination:
+    for chunk in file_data.chunks():
       destination.write(chunk)
 
 def create_table_from_file(request):
@@ -181,31 +180,13 @@ def create_table_from_file(request):
   repo = ''
   if request.method == 'POST':
     data_file = request.FILES['data_file']
-    file_extension = os.path.splitext(str(data_file))[1]
-    data = csv.reader(data_file)
     table_name = request.POST['table_name']
     repo = request.POST['repo']
-    columns = map(lambda x: re.sub(r'\W+', '_', x), data.next())
+    file_path = '%s/%s/%s' %(login, repo, table_name)
     dh_table_name = '%s.%s.%s' %(login, repo, table_name)
-    query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
-    for i in range(1, len(columns)):
-      query += ', %s %s' %(columns[i], 'text')
-
-    query += ')'
-    try:
-      res = manager.execute_sql(username=login, query=query)
-    except Exception, e:
-      pass 
     
-    for t in data:
-      try:
-        query = "INSERT INTO %s (%s) values (%s)" %(dh_table_name, ', '.join(columns), ', '.join(map(lambda x: "'" + unicode(x, "ISO-8859-1") + "'", list(t))))
-        manager.execute_sql(username=login, query=query)
-      except Exception, e:
-        print e
-        pass
-
-
+    manager.create_table_from_file(path=file_path, table_name=dh_table_name)
+    
 
   return HttpResponseRedirect('/browse/%s/%s' %(login, repo))
 

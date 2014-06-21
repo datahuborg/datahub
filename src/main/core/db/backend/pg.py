@@ -109,7 +109,7 @@ class PGBackend:
     return self.execute_sql(query)
 
 
-  def create_table_from_file(path, database, table_name):
+  def create_table_from_file(path, table_name):
     conn = self.connection 
     c = conn.cursor()
     f = codecs.open(path, 'r', 'utf-8')
