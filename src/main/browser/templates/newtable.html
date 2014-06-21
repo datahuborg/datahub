@@ -11,6 +11,7 @@
 	</div>
 	<form class="form-container" method="POST" action="/create_table_from_file" enctype='multipart/form-data'>
 	<h3>Create a new table</h3>
+	<br />
 	{% csrf_token %}
 	<input type="hidden" name="repo" value="{{repo}}" />
 	<div id="error">
