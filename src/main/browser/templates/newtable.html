@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div id="content">
+	<a class="blue bold" href=/browse/{{username}}>{{username}}</a> . <a class = "blue bold" href=/browse/{{username}}/{{repo}}>{{repo}}</a>
+	<br />
+	<br />
+	<form class="center-container" method="POST" action="/create_table_from_file" enctype='multipart/form-data'>
+	{% csrf_token %}
+	<input type="hidden" name="repo" value="{{repo}}" />
+	<h3>Create a new table</h3>
+	<hr />
+	<div id="error">
+		{% for error in errors %}<span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
+        {% endfor %}
+        <br />
+    </div>
+	<label for="data_file">Table Data File (csv with headers)</label><br />
+	<input type="file" name="data_file" placeholder="Data File"> <br /> <br />
+	<label for="table_name">Table Name</label><br />
+	<input type="text" name="table_name" placeholder="Table Name"><br /><br />
+	<input class="button" type="submit" value="Create Table"/>
+
+	</form>
+</div>
+{% endblock %}
+
+
+
+
+
