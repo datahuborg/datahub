@@ -192,15 +192,15 @@ def create_table_from_file(request):
       columns = map(lambda x: re.sub(r'\.', '_', x), columns)
       columns = map(lambda x: '_' + x[-20:], columns)
       columns = filter(lambda x: x!='', columns)
-      query = 'CREATE TABLE %s (%s text' % (table_name, columns[0])
+      query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
       for i in range(1, len(columns)):
         query += ', %s %s' %(columns[i], 'text')
       query += ')'
       manager.execute_sql(
-        username=username, query=query)
+        username=login, query=query)
       manager.create_table_from_file(path=file_name, table_name=dh_table_name)
 
-    return HttpResponseRedirect('/browse/%s/%s' %(login, repo))
+      return HttpResponseRedirect('/browse/%s/%s' %(login, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
