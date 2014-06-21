@@ -178,7 +178,6 @@ def handle_uploaded_file(file_name, file_data):
 def create_table_from_file(request):
   try:
     login = get_login(request)
-    repo = ''
     if request.method == 'POST':
       data_file = request.FILES['data_file']
       table_name = request.POST['table_name']
