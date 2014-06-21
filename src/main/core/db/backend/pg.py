@@ -16,16 +16,16 @@ port = 5432 if DATABASES['default']['PORT'] == '' else int(DATABASES['default'][
 
 class PGBackend:
   def __init__(
-      self, user, password, host=host, port=port, db_name=None):
+      self, user, password, host=host, port=port, database=None):
 
     self.user = user
     self.password = password
     self.host = host
     self.port = port
 
-    if db_name:
+    if database:
       self.connection = psycopg2.connect(
-          user=user, password=password, host=host, port=port, database=db_name)
+          user=user, password=password, host=host, port=port, database=database)
     else:
       self.connection = psycopg2.connect(
           user=user, password=password, host=host, port=port)
