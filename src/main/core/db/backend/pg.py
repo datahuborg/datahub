@@ -110,8 +110,6 @@ class PGBackend:
 
 
   def create_table_from_file(path, table_name):
-    conn = self.connection 
-    c = conn.cursor()
     f = codecs.open(path, 'r', 'utf-8')
     data = csv.reader(f)
     cells = data.next()
@@ -123,10 +121,11 @@ class PGBackend:
     for i in range(1, len(columns)):
       query += ', %s %s' %(columns[i], 'text')
     query += ')'
-    c.execute(query)
+    self.execute_sql(query)
 
-    c.execute("copy %s from '%s' WITH CSV HEADER ENCODING 'ISO-8859-1';" %(table_name, path))
-    conn.commit()
+    return self.execute_sql(
+        "COPY %s FROM '%s' WITH CSV HEADER ENCODING 'ISO-8859-1';" %(
+            table_name, path))
 
   def close(self):    
     self.connection.close()
