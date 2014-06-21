@@ -39,8 +39,13 @@ ol, ul, li {
 }
 
 hr{
-	background-color: #F6F6F6;
-	border: thin #F6F6F6 solid;
+	background-color: #2B2B2B;
+	border: thin #2B2B2B solid;
+}
+
+hr.light{
+  background-color: #F6F6F6;
+  border: thin #F6F6F6 solid;
 }
 
 #header, .collapsible-title, .metadata{

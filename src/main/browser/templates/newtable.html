@@ -2,7 +2,8 @@
 {% block content %}
 
 <div id="content">
-	<a class="blue bold" href=/browse/{{username}}>{{username}}</a> . <a class = "blue bold" href=/browse/{{username}}/{{repo}}>{{repo}}</a>
+	<a class="blue bold" href=/browse/{{username}}>{{username}}</a> / <a class = "blue bold" href=/browse/{{username}}/{{repo}}>{{repo}}</a> /
+	<hr clss="light" />
 	<br />
 	<br />
 	<form class="center-container" method="POST" action="/create_table_from_file" enctype='multipart/form-data'>
