@@ -61,6 +61,11 @@ def execute_sql(username, query, params=None):
 SUPERUSER operations (be careful)
 '''
 
+def create_table_from_file(path, database, table_name):
+  res = Connection.create_table_from_file(
+      path=path, database=database, table_name=table_name)
+  return res
+
 def create_user(username, password):
   res = Connection.create_user(
       username=username, password=password)

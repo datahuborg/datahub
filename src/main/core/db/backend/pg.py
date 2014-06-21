@@ -1,5 +1,8 @@
 import psycopg2
 import re
+import csv
+import codecs
+
 from config.settings import *
 
 '''
@@ -103,8 +106,27 @@ class PGBackend:
     query = ''' ALTER ROLE %s WITH PASSWORD '%s' 
         ''' %(username, password)
 
-    return self.execute_sql(query) 
+    return self.execute_sql(query)
 
+
+  def create_table_from_file(path, database, table_name):
+    conn = self.connection 
+    c = conn.cursor()
+    f = codecs.open(path, 'r', 'utf-8')
+    data = csv.reader(f)
+    cells = data.next()
+    columns = map(lambda x: re.sub(r'\W+', '_', x), cells)
+    columns = map(lambda x: re.sub(r'\.', '_', x), columns)
+    columns = map(lambda x: '_' + x[-20:], columns)
+    columns = filter(lambda x: x!='', columns)
+    query = 'CREATE TABLE %s (%s text' % (table_name, columns[0])
+    for i in range(1, len(columns)):
+      query += ', %s %s' %(columns[i], 'text')
+    query += ')'
+    c.execute(query)
+
+    c.execute("copy %s from '%s' WITH CSV HEADER ENCODING 'ISO-8859-1';" %(table_name, path))
+    conn.commit()
 
   def close(self):    
     self.connection.close()

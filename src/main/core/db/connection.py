@@ -46,6 +46,12 @@ class Connection:
     return s_backend.create_user(username, password)
 
   @staticmethod
+  def create_table_from_file(path, database, table_name):
+    s_backend = PGBackend(user='postgres', password='postgres')
+    return s_backend.create_table_from_file(
+        path=path, database=database, table_name=table_name)
+
+  @staticmethod
   def change_password(username, password):
     s_backend = PGBackend(user='postgres', password='postgres')
     return s_backend.change_password(username, password)
