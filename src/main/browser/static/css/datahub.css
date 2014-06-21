@@ -39,8 +39,8 @@ ol, ul, li {
 }
 
 hr{
-	background-color: #CCC;
-	border: thin #CCC solid;
+	background-color: #F6F6F6;
+	border: thin #F6F6F6 solid;
 }
 
 #header, .collapsible-title, .metadata{
