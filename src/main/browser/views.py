@@ -1,4 +1,4 @@
-import json, sys, re, hashlib, smtplib, base64, urllib, os, csv, collections
+import json, sys, re, hashlib, smtplib, base64, urllib, os, csv, collections, codecs
 
 from auth import *
 
