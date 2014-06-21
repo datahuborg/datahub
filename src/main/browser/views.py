@@ -57,6 +57,12 @@ def newrepo(request):
   return render_to_response("newrepo.html", {
     'login': get_login(request)})
 
+@login_required
+def newtable(request, username, repo):
+  return render_to_response("newtable.html", {
+    'login': get_login(request),
+    'repo':repo})
+
 
 @csrf_exempt
 def service_binary(request):
@@ -201,7 +207,7 @@ def create_table_from_file(request):
         username=login, query=query)
       manager.create_table_from_file(path=file_name, database=login, table_name=dh_table_name)
 
-    return HttpResponseRedirect('/browse/%s/%s' %(login, repo))
+    return HttpResponseRedirect('/newtable/%s/%s' %(login, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
