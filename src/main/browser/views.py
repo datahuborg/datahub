@@ -182,7 +182,7 @@ def create_table_from_file(request):
       file_data = request.FILES['data_file']
       table_name = request.POST['table_name']
       repo = request.POST['repo']
-      file_name = '%s/%s/%s' %(login, repo, table_name)
+      file_name = '/tmp/%s/%s/%s' %(login, repo, table_name)
       dh_table_name = '%s.%s.%s' %(login, repo, table_name)
       handle_uploaded_file(file_name, file_data)
       manager.create_table_from_file(path=file_name, table_name=dh_table_name)
