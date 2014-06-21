@@ -178,6 +178,7 @@ def handle_uploaded_file(file_name, file_data):
 def create_table_from_file(request):
   try:
     login = get_login(request)
+    repo = ''
     if request.method == 'POST':
       file_data = request.FILES['data_file']
       table_name = request.POST['table_name']
@@ -200,7 +201,7 @@ def create_table_from_file(request):
         username=login, query=query)
       manager.create_table_from_file(path=file_name, database=login, table_name=dh_table_name)
 
-      return HttpResponseRedirect('/browse/%s/%s' %(login, repo))
+    return HttpResponseRedirect('/browse/%s/%s' %(login, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
