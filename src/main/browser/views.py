@@ -198,7 +198,7 @@ def create_table_from_file(request):
       query += ')'
       manager.execute_sql(
         username=login, query=query)
-      manager.create_table_from_file(path=file_name, table_name=dh_table_name)
+      manager.create_table_from_file(path=file_name, database=login, table_name=dh_table_name)
 
       return HttpResponseRedirect('/browse/%s/%s' %(login, repo))
   except Exception, e:

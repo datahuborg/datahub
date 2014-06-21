@@ -42,12 +42,14 @@ class Connection:
   def create_user(username, password):
     s_backend = PGBackend(user='postgres', password='postgres')
     s_backend.create_user(username, password)
-    s_backend.execute_sql('CREATE DATABASE %s WITH OWNER=%s' %(username, username))
+    s_backend.execute_sql('CREATE DATABASE %s WITH OWNER=%s' %(
+        username, username))
     return s_backend.create_user(username, password)
 
   @staticmethod
-  def create_table_from_file(path, table_name):
-    s_backend = PGBackend(user='postgres', password='postgres')
+  def create_table_from_file(path, database, table_name):
+    s_backend = PGBackend(
+        user='postgres', password='postgres', database=database)
     return s_backend.create_table_from_file(path=path, table_name=table_name)
 
   @staticmethod
