@@ -176,19 +176,24 @@ def handle_uploaded_file(file_name, file_data):
       destination.write(chunk)
 
 def create_table_from_file(request):
-  login = get_login(request)
-  repo = ''
-  if request.method == 'POST':
-    data_file = request.FILES['data_file']
-    table_name = request.POST['table_name']
-    repo = request.POST['repo']
-    file_path = '%s/%s/%s' %(login, repo, table_name)
-    dh_table_name = '%s.%s.%s' %(login, repo, table_name)
-    
-    manager.create_table_from_file(path=file_path, table_name=dh_table_name)
-    
+  try:
+    login = get_login(request)
+    repo = ''
+    if request.method == 'POST':
+      data_file = request.FILES['data_file']
+      table_name = request.POST['table_name']
+      repo = request.POST['repo']
+      file_path = '%s/%s/%s' %(login, repo, table_name)
+      dh_table_name = '%s.%s.%s' %(login, repo, table_name)
+      
+      manager.create_table_from_file(path=file_path, table_name=dh_table_name)
 
-  return HttpResponseRedirect('/browse/%s/%s' %(login, repo))
+    return HttpResponseRedirect('/browse/%s/%s' %(login, repo))
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
 
 
 
