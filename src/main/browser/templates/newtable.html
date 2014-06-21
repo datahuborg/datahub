@@ -6,6 +6,9 @@
 	<hr clss="light" />
 	<br />
 	<br />
+	<div>
+	<a class="button inactive" href="/console">Create Table Using SQL</a> &nbsp; &nbsp; &nbsp; &nbsp; <a class="button inactive" href="/refiner">Transform/Refine Data</a>
+	</div>
 	<form class="center-container" method="POST" action="/create_table_from_file" enctype='multipart/form-data'>
 	{% csrf_token %}
 	<input type="hidden" name="repo" value="{{repo}}" />
