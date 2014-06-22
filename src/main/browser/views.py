@@ -219,6 +219,7 @@ def create_table_from_file(request):
           {'error': str(e)}),
         mimetype="application/json")
 
+@csrf_exempt
 def refine_data(request):
   res  = {'error': None}
   try:
