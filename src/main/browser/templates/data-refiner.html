@@ -513,15 +513,15 @@ Reported crime in 'Wyoming',
 <script type="text/javascript">
 
 $(document).ready(function($) { 
-  var selected = $('#select_example').find(":selected").text()
-  $("#training_input").val($(selected+'training_input').text())
-  $("#training_output").val($(selected+'training_output').text())
+  var selected = $('#select_example').find(":selected").val()
+  $("#training_input").val($(selected+'training_input').val())
+  $("#training_output").val($(selected+'training_output').val())
   $("#test_data").val($(selected+'test').text())
 
   $("#select_example").change(function () {
-    selected = $('#select_example').find(":selected").text();
-    $("#training_input").val($(selected+'training_input').text())
-    $("#training_output").val($(selected+'training_output').text())
+    selected = $('#select_example').find(":selected").val();
+    $("#training_input").val($(selected+'training_input').val())
+    $("#training_output").val($(selected+'training_output').val())
     $("#test_data").val($(selected+'test').text())
   })
 
