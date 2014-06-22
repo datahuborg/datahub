@@ -1,0 +1,21 @@
+total 136
+-rw-r--r--   1 mjc  staff   5415 Jan  3 08:38 InferredTypeWithCharParseHandling.java
+-rw-r--r--   1 mjc  staff    180 Mar 12 07:18 accesses.txt
+-rw-r--r--   1 mjc  staff    183 Mar 12 07:15 accesses.txt~
+drwxr-xr-x   5 mjc  staff    170 Mar 14 14:14 bin
+drwxr-xr-x   5 mjc  staff    170 Mar 12 05:13 build
+-rw-r--r--   1 mjc  staff     17 Mar 14 14:14 build.properties
+-rw-r--r--   1 mjc  staff  11080 Mar 14 14:14 build.xml
+-rw-r--r--   1 mjc  staff  12009 Mar 13 07:35 index.html~
+-rw-r--r--   1 mjc  staff    416 Mar 15 18:03 induced.data.json
+drwxr-xr-x   6 mjc  staff    204 Mar 14 14:38 ivy
+-rw-r--r--   1 mjc  staff   1620 Mar 14 14:14 ivy.xml
+-rw-r--r--   1 mjc  staff   1619 Dec 16 16:20 ivy.xml~
+drwxr-xr-x   5 mjc  staff    170 Feb 23 10:30 localfoo2
+drwxr-xr-x   6 mjc  staff    204 Mar 14 14:20 outdir1
+drwxr-xr-x   6 mjc  staff    204 Mar 14 15:03 outdir2
+drwxr-xr-x   6 mjc  staff    204 Mar 14 17:22 outdir3
+drwxr-xr-x  15 mjc  staff    510 Mar 16 13:40 outdir4
+drwxr-xr-x   5 mjc  staff    170 Mar 16 13:34 schemaDict1
+drwxr-xr-x   4 mjc  staff    136 Dec 16 17:01 src
+drwxr-xr-x   3 mjc  staff    102 Mar 14 14:14 test

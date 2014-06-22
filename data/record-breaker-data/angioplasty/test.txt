@@ -1,0 +1,13 @@
+Albany Medical Center 1099 8 0.73 0.59 1.18 (0.51, 2.32) 960 0.77
+Brookdale Hosp Med Ctr 49 4 8.16 1.75 4.45 * (1.20,11.40) . .
+Buffalo General Hosp 1521 14 0.92 0.70 1.26 (0.69, 2.11) 1413 0.95
+Glens Falls Hospital 322 7 2.17 1.09 1.91 (0.76, 3.93) 233 1.53
+Good Sam - West Islip 450 6 1.33 1.00 1.27 (0.46, 2.77) 350 0.00
+Huntington Hospital 76 1 1.32 2.70 0.46 (0.01, 2.58) . .
+Jamaica Hosp Med Ctr 116 3 2.59 2.34 1.06 (0.21, 3.08) . .
+Long Island Coll. Hosp 147 3 2.04 1.56 1.25 (0.25, 3.65) 104 1.18
+M I Bassett Hospital 324 3 0.93 0.90 0.99 (0.20, 2.88) 260 0.81
+NYP- Columbia Presby. 3013 20 0.66 0.80 0.79 (0.48, 1.22) 2872 0.53
+Orange Regional Med Ctr 87 2 2.30 3.79 0.58 (0.06, 2.08) . .
+Vassar Bros. Med Ctr 713 3 0.42 1.07 0.38 (0.08, 1.10) 560 0.39
+

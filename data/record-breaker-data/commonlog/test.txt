@@ -1,0 +1,4 @@
+ 127.0.0.1 - frank [10/Oct/2000:13:55:36 -0700] "GET /apache_pb.gif HTTP/1.0" 200 2326
+ 184.86.80.110 - bilkson [15/Nov/2001:14:11:36 -0700] "GET /etc/passwds.txt HTTP/1.0" 200 1022
+ 74.125.65.105 - rickcat [22/Oct/2003:4:55:22 -0700] "GET /foo/baz/bar.jpg HTTP/1.0" 404
+ 140.211.11.131 - pune [10/Oct/2000:13:55:36 -0700] "GET /src/com/scitronixdatasystems.gif HTTP/1.0" 200 9919

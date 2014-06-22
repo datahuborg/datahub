@@ -1,0 +1,4 @@
+[["12:38:42 AM", "org apache.catalina.core.StandardService", "start"],
+["12:38:42 AM", "org.apache.catalina.core.StandardEngine", "start"],
+["12:38:42 AM", "org.apache.catalina.startup.HostConfig", "deployDescriptor"],
+["12:38:42 AM", "org.apache.catalina.startup.HostConfig", "deployDescriptor"]]
