@@ -617,6 +617,20 @@ $(document).ready(function($) {
       }
     });
   }
+
+  var create_table = function(){
+    $.ajax({
+      type:'POST',
+      url:'/create-table-from-file-data',
+      async: false, 
+      cache: false,
+      data:{
+        'repo': $('#repo_name').find(":selected").val();,
+        'table_name': $("#table_name").val(),
+        'data': $("#results_data").val(),
+      }
+    });
+  }
   $("#btn-refine-data").click(refine_data);
 });
 

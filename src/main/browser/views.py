@@ -185,6 +185,10 @@ def handle_uploaded_file(file_name, file_data):
     for chunk in file_data.chunks():
       destination.write(chunk)
 
+def save_uploaded_file(file_name, file_data):
+  f = open(file_name, 'wb+')
+  f.write(file_data)
+
 @login_required
 def create_table_from_file(request):
   try:
@@ -218,6 +222,45 @@ def create_table_from_file(request):
         json.dumps(
           {'error': str(e)}),
         mimetype="application/json")
+
+@login_required
+@csrf_exempt
+def create_table_from_file_data(request):
+  try:
+    login = get_login(request)
+    repo = ''
+    if request.method == 'POST':
+      file_data = request.POST['data']
+      table_name = request.POST['table_name']
+      repo = request.POST['repo']
+      file_name = '/tmp/%s_%s_%s.csv' %(login, repo, table_name)
+      dh_table_name = '%s.%s.%s' %(login, repo, table_name)
+      save_uploaded_file(file_name, file_data)
+      f = codecs.open(file_name, 'r', 'utf-8')
+      data = csv.reader(f)
+      cells = data.next()
+      columns = []
+      i = 1
+      for cell in cells:
+        columns.append('col_%s' %(i))
+        i += 1
+
+      query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
+      for i in range(1, len(columns)):
+        query += ', %s %s' %(columns[i], 'text')
+      query += ')'
+      manager.execute_sql(
+        username=login, query=query)
+      manager.create_table_from_file(path=file_name, database=login, table_name=dh_table_name)
+
+    return HttpResponseRedirect('/browse/%s/%s' %(login, repo))
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
+
+
 
 @csrf_exempt
 def refine_data(request):

@@ -32,6 +32,7 @@ urlpatterns = patterns('',
     url(r'^newtable/(\w+)/(\w+)/$', 'browser.views.newtable'),
 
     url(r'^create_table_from_file$', 'browser.views.create_table_from_file'),
+    url(r'^create-table-from-file-data$', 'browser.views.create_table_from_file_data'),
 
     url(r'^service$', 'browser.views.service_binary'),
     url(r'^service/binary$', 'browser.views.service_binary'),
