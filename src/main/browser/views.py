@@ -3,6 +3,7 @@ import json, sys, re, hashlib, smtplib, base64, urllib, os, csv, collections, co
 from auth import *
 
 from core.handler import DataHubHandler
+from refiner import inference
 from datahub import DataHub
 
 from django.http import *
@@ -225,13 +226,20 @@ def refine_data(request):
       training_input = request.POST['training_input']
       training_output = request.POST['training_output']
       test_input = request.POST['test_input']
-      res['output'] = 'out'
+      record_separator = '\n'
+      if 'record_separator' in request.POST:
+        record_separator = request.POST['record_separator']
+      o_fields_structure, i_structure = inference.learn_mapping(training_input, training_output)
+      out = inference.extract(test_input, o_fields_structure, sep=record_separator)
+      csv_lines = []
+      for row in out:
+        csv_lines.append(','.join(row.values()))
+
+      csv_str = '\n'.join(csv_lines)
+      res['output'] = csv_str
     else:
       res['error'] = 'Invalid HTTP Method'      
   except Exception, e:
     res['error'] = str(e)
 
   return HttpResponse(json.dumps(res), mimetype="application/json")
-
-
-

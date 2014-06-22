@@ -508,24 +508,62 @@ Reported crime in 'Wyoming',
   <br />
   <br />
   <button type="button" id="btn-refine-data" style="margin-left:0px;">Refine</button>
+  <br />
+  <br />
+  <table id = "results_table" cellspacing="0" style="width:100%">
+  <tr><td style="width:100%"><h4>Results</h4></td></tr>
+  <tr>
+  <td style="width:100%">
+  <textarea id="results_data" style="width:100%; height:600px;" ></textarea>
+  </td>
+  </tr>
+  </table>
 </div>
   
 <script type="text/javascript">
 
 $(document).ready(function($) { 
+  $("#results_table").hide()
   var selected = $('#select_example').find(":selected").val()
+  var record_separator = '\n'
+
   $("#training_input").val($('#' + selected + '_training_input').text())
   $("#training_output").val($('#' + selected + '_training_output').text())
   $("#test_data").val($('#' + selected + '_test').text())
+  if (selected == 'crime') {
+    record_separator = '==========\n'
+  }
 
   $("#select_example").change(function () {
     selected = $('#select_example').find(":selected").val();
     $("#training_input").val($('#' + selected + '_training_input').text())
     $("#training_output").val($('#' + selected + '_training_output').text())
     $("#test_data").val($('#' + selected + '_test').text())
+    if (selected == 'crime') {
+      record_separator = '==========\n'
+    }
   })
 
+  
+
+
   var refine_data = function(){
+    $.ajax({
+      type:'POST',
+      url:'/refine-data',
+      async: false, 
+      cache: false,
+      data:{
+        'training_input': $("#training_input").val(),
+        'training_output': $("#training_output").val(),
+        'test_data': $("#test_data").val(),
+        'record_separator': record_separator
+      }, 
+      success: function(res) {
+        $("#results_table").show()
+        $("#results_data").val(res.output)        
+      }
+    });
   }
   $("#btn-refine-data").click(refine_data);
 });
