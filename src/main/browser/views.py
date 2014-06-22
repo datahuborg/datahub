@@ -224,6 +224,7 @@ def create_table_from_file(request):
         mimetype="application/json")
 
 @csrf_exempt
+@login_required
 def create_table_from_file_data(request):
   try:
     login = get_login(request)
