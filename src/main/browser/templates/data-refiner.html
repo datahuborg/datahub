@@ -513,16 +513,16 @@ Reported crime in 'Wyoming',
 <script type="text/javascript">
 
 $(document).ready(function($) { 
-  var selected = $('#select_example').find(":selected").val()
-  $("#training_input").val($(selected+'_training_input').val())
-  $("#training_output").val($(selected+'_training_output').val())
-  $("#test_data").val($(selected+'_test').text())
+  var selected = $('#select_example').find(":selected").text()
+  $("#training_input").val($('#' + selected + '_training_input').text())
+  $("#training_output").val($('#' + selected + '_training_output').text())
+  $("#test_data").val($('#' + selected + '_test').text())
 
   $("#select_example").change(function () {
-    selected = $('#select_example').find(":selected").val();
-    $("#training_input").val($(selected+'_training_input').val())
-    $("#training_output").val($(selected+'_training_output').val())
-    $("#test_data").val($(selected+'_test').text())
+    selected = $('#select_example').find(":selected").text();
+    $("#training_input").val($('#' + selected + '_training_input').text())
+    $("#training_output").val($('#' + selected + '_training_output').text())
+    $("#test_data").val($('#' + selected + '_test').text())
   })
 
   var refine_data = function(){
