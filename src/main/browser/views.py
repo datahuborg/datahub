@@ -60,7 +60,7 @@ def newrepo(request):
 
 @login_required
 def newtable(request, username, repo):
-  res= {'username': get_login(request), 'repo':repo}
+  res= {'login': get_login(request), 'username': get_login(request), 'repo':repo}
   res.update(csrf(request))
   return render_to_response("newtable.html", res)
 
