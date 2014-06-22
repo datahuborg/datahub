@@ -628,6 +628,9 @@ $(document).ready(function($) {
         'repo': $('#repo_name').find(":selected").val(),
         'table_name': $("#table_name").val(),
         'data': $("#results_data").val(),
+      },
+      success: function(res) {
+        windows.location.href= '/browse/' + login + '/' + $('#repo_name').find(":selected").val()   
       }
     });
   }
