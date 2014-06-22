@@ -223,8 +223,8 @@ def create_table_from_file(request):
           {'error': str(e)}),
         mimetype="application/json")
 
-@login_required
 @csrf_exempt
+@login_required
 def create_table_from_file_data(request):
   try:
     login = get_login(request)
