@@ -584,6 +584,8 @@ $(document).ready(function($) {
   $("#test_data").val($('#' + selected + '_test').text())
   if (selected == 'crime') {
     record_separator = '==========\n'
+  } else {
+    record_separator = '\n'
   }
 
   $("#select_example").change(function () {
@@ -593,6 +595,8 @@ $(document).ready(function($) {
     $("#test_data").val($('#' + selected + '_test').text())
     if (selected == 'crime') {
       record_separator = '==========\n'
+    } else {
+      record_separator = '\n'
     }
   })
 
