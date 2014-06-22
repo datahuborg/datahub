@@ -55,6 +55,10 @@ hr.light{
     user-select: none;
 }
 
+textarea {
+  resize: none;
+}
+
 a:link, a:visited {
   text-decoration:none; 
 }
