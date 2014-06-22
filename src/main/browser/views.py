@@ -63,6 +63,10 @@ def newtable(request, username, repo):
   res.update(csrf(request))
   return render_to_response("newtable.html", res)
 
+@login_required
+def data_refiner(request):
+  return render_to_response("data-refiner.html", {
+    'login': get_login(request)})
 
 @csrf_exempt
 def service_binary(request):
@@ -180,6 +184,7 @@ def handle_uploaded_file(file_name, file_data):
     for chunk in file_data.chunks():
       destination.write(chunk)
 
+@login_required
 def create_table_from_file(request):
   try:
     login = get_login(request)
@@ -212,6 +217,21 @@ def create_table_from_file(request):
         json.dumps(
           {'error': str(e)}),
         mimetype="application/json")
+
+def refine_data(request):
+  res  = {'error': None}
+  try:
+    if request.method == 'POST':
+      training_input = request.POST['training_input']
+      training_output = request.POST['training_output']
+      test_input = request.POST['test_input']
+      res['output'] = 'out'
+    else:
+      res['error'] = 'Invalid HTTP Method'      
+  except Exception, e:
+    res['error'] = str(e)
+
+  return HttpResponse(json.dumps(res), mimetype="application/json")
 
 
 

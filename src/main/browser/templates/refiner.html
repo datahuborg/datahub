@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div id="content">
+	<a class="blue bold" href=/browse/{{username}}>{{username}}</a> / <a class = "blue bold" href=/browse/{{username}}/{{repo}}>{{repo}}</a> /
+	<hr class="light" />
+	<br />
+	<br />
+	<div>
+	<a class="button inactive" href="/refiner">Create Table From CSV File</a> &nbsp; &nbsp; <a class="button inactive" href="/console">Create Table Using SQL</a> 
+	</div>
+	
+</div>
+{% endblock %}
+
+
+
+
+

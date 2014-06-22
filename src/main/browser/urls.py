@@ -22,6 +22,12 @@ urlpatterns = patterns('',
     url(r'^newrepo$', 'browser.views.newrepo'),
     url(r'^newrepo/$', 'browser.views.newrepo'),
 
+    url(r'^data-refiner$', 'browser.views.data_refiner'),
+    url(r'^data-refiner/$', 'browser.views.data_refiner'),
+
+    url(r'^refine-data$', 'browser.views.refine_data'),
+    url(r'^refine-data/$', 'browser.views.refine_data'),
+
     url(r'^newtable/(\w+)/(\w+)$', 'browser.views.newtable'),
     url(r'^newtable/(\w+)/(\w+)/$', 'browser.views.newtable'),
 
