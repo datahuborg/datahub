@@ -519,9 +519,16 @@ Reported crime in 'Wyoming',
   </td>
   </tr>
   </table>
+  <br />
+  <br />
   <table cellspacing="0" style="width:100%">
   <tr>
   <td><h4>Save resuts as DataHub Table</h4></td><td></td>
+  </tr>
+  <tr>
+  <td></td>
+  <div id="error_results"></div>
+  <td></td>
   </tr>
   <tr>
   <td>
@@ -554,7 +561,7 @@ $(document).ready(function($) {
   var client = new DataHubClient(protocol);
   var con = new DHConnection({'user':login})
   try {
-    res = client.list_repos()
+    res = client.list_repos(con)
     if (res.row_count >= 0) {
       $("#repo_name").html('')
       for (var row in res.data.table.rows) {
@@ -563,7 +570,7 @@ $(document).ready(function($) {
       }
     }
   }catch(error){
-    $('#error').html('<span class="error">' + error.message + '</span>');
+    $('#error_results').html('<span class="error">' + error.message + '</span>');
   }
  
 
