@@ -226,12 +226,14 @@ def refine_data(request):
     if request.method == 'POST':
       training_input = request.POST['training_input']
       training_output = request.POST['training_output']
-      test_input = request.POST['test_input']
+      test_data = request.POST['test_data']
       record_separator = '\n'
       if 'record_separator' in request.POST:
         record_separator = request.POST['record_separator']
+
       o_fields_structure, i_structure = inference.learn_mapping(training_input, training_output)
-      out = inference.extract(test_input, o_fields_structure, sep=record_separator)
+      out = inference.extract(test_data, o_fields_structure, sep=record_separator)
+
       csv_lines = []
       for row in out:
         csv_lines.append(','.join(row.values()))
