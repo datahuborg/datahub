@@ -4,6 +4,12 @@ DataHub
 * `thrift`
 * `postgres`
 
+
+### Optional Dependencies 
+* `dbtruck` for robust imports
+* `scorpionsql` for dbwipes
+* `sqlalchemy` for dbwipes
+
 ### Running DataHub Server
 * `source setup.sh`
 * `python server.py`
