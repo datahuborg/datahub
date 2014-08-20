@@ -8,6 +8,7 @@ define(function(require) {
     return _.contains(['integer', 'double precision', 'num', 'int4', 'int', 'int8', 'float8', 'float', 'bigint'], type);
   }
   function isStr(type) {
+    return !isTime(type) && !isNum(type);
     return _.contains(['varchar', 'text', 'str'], type);
   }
 
