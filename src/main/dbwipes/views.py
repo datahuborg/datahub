@@ -56,18 +56,8 @@ def returns_json(f):
     return HttpResponse(r, mimetype='application/json')
   return json_returner
 
-def cache_result(key, value):
-  engine = db_connect('cache')
-  db = engine.connect()
-  q = "insert into requests values(%s, %s)"
-  db.execute(q, key, value)
-  db.close()
-  engine.dispose()
 
-
-@login_required
-def index(request):
-  username = get_login(request)
+def index(request, username, repo, table):
   if has_scorpion():
     enable_scorpion = 1
     title = 'DBWipes + Scorpion!'
@@ -75,9 +65,7 @@ def index(request):
     enable_scorpion = 0
     title = 'DBWipes'
 
-  db = request.GET.get('db', '')
-  table = request.GET.get('table', '')
-  schema = get_schema(db, table, username)
+  schema = get_schema(repo, table, username)
   # pick the first number as y, and first non y as x
   x = y = ''
   for col, typ in schema.iteritems():
@@ -100,10 +88,10 @@ def index(request):
     'js': 'summary',
     'study': 0,
     'title': title,
-    'db': db,
+    'db': repo,
     'table': table,
     'username': username,
-    'repo': db,
+    'repo': repo,
     'x': x,
     'y': y
   }
@@ -156,7 +144,7 @@ def get_schema(repo, table, username):
 
 @returns_json
 def schema(request):
-  username = get_login(request)
+  username = request.GET.get('username', '')
   table = request.GET.get('table', '')
   db = request.GET.get('db', '')
   if not table:
@@ -209,7 +197,6 @@ def api_status(request):
 @login_required
 @returns_json
 def api_tuples(request):
-  username = get_login(request)
   ret = { }
   jsonstr = request.GET.get('json')
   if not jsonstr:
@@ -217,6 +204,7 @@ def api_tuples(request):
     return ret
 
   args = json.loads(jsonstr)
+  username = args.get('username')
   dbname = repo = args.get('db')
   table = args.get('table')
   where = args.get('where', []) or []
@@ -251,7 +239,6 @@ def api_tuples(request):
 @login_required
 @returns_json
 def api_query(request):
-  username = get_login(request)
   ret = { }
   jsonstr = request.GET.get('json', None)
   if not jsonstr:
@@ -259,6 +246,7 @@ def api_query(request):
     return ret
 
   args = json.loads(jsonstr)
+  username = args.get('username')
   dbname = args.get('db')
   table = args.get('table')
   args['table'] = "%s.%s" % (dbname, table)
@@ -289,8 +277,7 @@ def api_query(request):
 @login_required
 @returns_json
 def column_distribution(request):
-  username = get_login(request)
-
+  username = request.GET.get('username')
   dbname = request.GET.get('db', 'intel')
   tablename = request.GET.get('table', 'readings')
   where = request.GET.get('where', '')
@@ -325,7 +312,7 @@ def column_distribution(request):
 @login_required
 @returns_json
 def column_distributions(request):
-  username = get_login(request)
+  username = request.GET.get('username')
   dbname = request.GET.get('db', 'intel')
   tablename = request.GET.get('table', 'readings')
   where = request.GET.get('where', '')

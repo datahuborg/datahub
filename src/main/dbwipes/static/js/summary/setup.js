@@ -96,6 +96,7 @@ define(function(require) {
 
       where.fetch({
         data: {
+          username: window.username,
           db: q.get('db'),
           table: q.get('table'),
           where: whereSQL

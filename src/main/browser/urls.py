@@ -51,8 +51,14 @@ urlpatterns = patterns('',
 
     ### start dbwipes urls ###
 
-    url(r'^dbwipes$', 'dbwipes.views.index'),
-    url(r'^dbwipes/$', 'dbwipes.views.index'),
+    url(r'^dbwipes/(\w+)/(\w+)$', 'browser.views.repo'),
+    url(r'^dbwipes/(\w+)/(\w+)/$', 'browser.views.repo'),
+
+    url(r'^dbwipes/(\w+)$', 'browser.views.user'),
+    url(r'^dbwipes/(\w+)/$', 'browser.views.user'),
+
+    url(r'^dbwipes/(\w+)/(\w+)/(\w+)$', 'dbwipes.views.index'),
+    url(r'^dbwipes/(\w+)/(\w+)/(\w+)/$', 'dbwipes.views.index'),
 
     url(r'^api/databases$', 'dbwipes.views.dbs'),
     url(r'^api/databases/$', 'dbwipes.views.dbs'),

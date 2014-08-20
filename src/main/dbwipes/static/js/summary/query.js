@@ -87,6 +87,7 @@ define(function(require) {
 
     fetch: function(options) {
       var json = this.toJSON();
+      json.username = window.username;
       var resp = checkQueryCache(json);
       if (resp) {
         console.log(['q.fetch', 'cache hit', json, resp])
@@ -169,6 +170,7 @@ define(function(require) {
       var where = this.get('where');
 
       var ret = {
+        username: window.username,
         x: this.get('x'),
         ys: this.get('ys'),
         table: this.get('table'),

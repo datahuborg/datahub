@@ -131,6 +131,7 @@ define(function(require) {
     toJSON: function() {
       var q = this.get('query');
       var json = {
+        username: window.username,
         db: this.get('query').get('db'),
         table: this.get('query').get('table'),
         where: this.get('where')
