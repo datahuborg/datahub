@@ -1,0 +1,79 @@
+<html>
+
+<head>
+  <script src="/static/js/lib/tether.js"></script>
+  <script>
+    window.enableScorpion = {{enableScorpion}};
+    {% if idx and idx >= 0 %}
+    window.jsidx = {{idx}};
+    {% endif %}
+
+
+    // parameters for initial query
+    window.db = "{{db}}";
+    window.tablename = "{{table}}";
+    window.x = "{{x}}";
+    window.y = "{{y}}";
+  </script>
+  <script data-main="/static/js/{{js}}" src="/static/js/require.js"></script>
+
+</head>
+
+
+<body>
+<h4>{{title}} <small>{{subtitle}}</small>
+<a class="blue bold" href="/browse/{{username}}">{{username}}</a> /
+<a class="blue bold" href="/browse/{{username}}/{{repo}}">{{repo}}</a> /
+<a class="blue bold" href="/browse/{{username}}/{{repo}}/{{table}}">{{table}}</a>
+  {% if enableScorpion == 1 %}
+  <span id="togglescorpion" class="btn btn-sm btn-primary walkthrough-btn">toggle scorpion</span>
+  {% endif %}
+</h4>
+
+
+<div class="row">
+	<div id="tasks" class="col-md-12">
+	</div>
+</div>
+
+
+{% block content %}{% endblock %}
+
+{% include 'footer.html' %}
+
+{% include 'wherelabel.html' %}
+{% include 'cstat.html' %}
+{% include 'qform.html' %}
+{% include 'scorpionresults.html' %}
+{% include 'walkthrough.html' %}
+{% include 'tuples.html' %}
+{% include 'tasks.html' %}
+
+{% block includes %}{% endblock %}
+
+{% if study == 1 %}
+<script>
+  (function() {
+    var name = localStorage['name'];
+    var stepCompleted = +(localStorage['stepCompleted']||0);
+    if (!name || name == '') {
+      window.location = "/study/dir/";
+    }
+    if ({{idx}} <= 3 && stepCompleted < {{idx}}-1) {
+      window.location = '/study/dir';
+    } 
+  })();
+</script>
+{% endif %}
+
+</body>
+
+	<link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css"/>
+	<link rel="stylesheet" type="text/css" href="/static/css/bootstrap-slider.css"/>
+	<link rel="stylesheet" type="text/css" href="/static/css/base.css"/>
+	<link rel="stylesheet" type="text/css" href="/static/css/docs.min.css"/>
+	<link rel="stylesheet" type="text/css" href="/static/css/tether.css"/>
+	<link rel="stylesheet" type="text/css" href="/static/css/tether-theme-arrows.css"/>
+	<link rel="stylesheet" type="text/css" href="/static/css/shepherd-theme-arrows.css"/>
+
+</html>

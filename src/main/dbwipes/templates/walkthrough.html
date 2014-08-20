@@ -1,0 +1,93 @@
+{%verbatim%}
+
+
+
+<script id="scorpion-template" type="text/x-underscore-template">
+<div class="walkthrough row" >
+	<div class="col-md-12">
+    <h4>
+      <h4> 
+        Scorpion Query 
+        <button type="button" class="close pull-right" aria-hidden="true">&times;</button>
+      </h4>
+    </h4>
+
+    <fieldset>
+        <small id="selectionmsg">The <span class="badge">{{nselected}}</span> selected results are </small>
+
+      <div class="row">
+        <div class="col-sm-10">
+          <span id="addbad" class="form-control btn btn-danger" style='position: relative' >
+            examples of outlier values
+            <span class="badge pull-right" style="position: absolute; top: .5em; right: 1em;">{{nbad}}</span>
+          </span>
+          <span id="addgood" class="form-control btn btn-success" style="position: relative;">
+            examples of normal values 
+            <span class="badge pull-right" style="position: absolute; top: .5em; right: 1em;">{{ngood}}</span>
+          </span>
+        </div>
+        <div class="col-sm-2" style="padding-left: 0px">
+          <div><span id="clearbad" class="btn">
+            clear
+          </span></div>
+          <div><span id="cleargood" class="btn" >
+            clear
+          </span></div>
+        </div>
+      </div>			
+
+      <div class="row" style="{%endraw%}{% if study == 1 %}display: none;{% endif %}{%raw%}">
+        <div class="col-sm-12">
+          <span id="draw" class="form-control btn btn-default">
+            click to draw expected values for outliers
+          </span>
+        </div>
+      </div>
+
+      <!--
+      <div class="form-group row" id="walkthrough-schema" >
+        <label class="col-sm-3 control-label">
+          <span class='link' id='toggle-schema'>cols</span>
+        </label>
+        <div id="schema" class="col-sm-9" style="display: none;">
+          <label class="checkbox">
+            <span class='link' id='uncheck-schema'>uncheck all</span>
+          </label>
+
+          {{#each cols}}
+          <label class="checkbox">
+            <input type="checkbox" checked class="errcol" id="" value="{{this}}"/>
+            {{this}}
+          </label>
+          {{/each}}
+        </div>
+      </div>
+      -->
+
+
+      <div class="form-group row">
+        <div class="controls col-sm-12">
+          <div>
+            <span id="scorpion_submit" class="form-control btn btn-primary">
+              Run Scorpion!
+              <small class='scorpion-wait'>loading</small>
+            </span>
+          </div>
+          <p id="scorpion_status" class="text"></p>
+          <p id="errmsg" class="text-danger"></p>
+        </div>
+      </div>
+
+
+    </fieldset>
+	</div>
+</div>
+</script>
+
+<script id="scorpion-btn-template" type="text/x-underscore-template">
+<div class="walkthrough-btn">
+  Scorpion
+</div>
+</script>
+
+{%endverbatim%}

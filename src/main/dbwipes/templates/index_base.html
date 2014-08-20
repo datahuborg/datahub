@@ -1,0 +1,157 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-md-5" style="min-width: 500px; max-width: 550px;">
+
+
+    <div class='row'>
+      <div class='col-md-9 col-md-offset-3'>
+      </div>
+    </div>
+
+
+    <div class='row'>
+      <div class='col-md-3'>
+        <h5>
+          {% if enableScorpion == 1 %}
+          <span id="facet-togglecheckall" state='checked' class="btn btn-primary btn-xs" data-toggle="tooltip" data-placement="top" title="Remove all attributes from Scorpion analysis">uncheck all</span>
+          {% endif %}
+        </h5>
+      </div>
+      <div class="col-md-9">
+        <h5>
+          Facets
+          <span data-toggle="tooltip"
+            data-placement="top"
+            title="Facets list each attribute and the distribution of values by count"
+          >[?]</span>
+
+          {% if debug %}
+          <span style='float: right'>
+            <div id="fake-type" data-toggle="tooltip" data-placement="top" class="onoffswitch">
+              <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="fakeswitch" checked>
+              <label class="onoffswitch-label" for="fakeswitch">
+                <span class="onoffswitch-inner"></span>
+                <span class="onoffswitch-switch"></span>
+              </label>
+            </div>
+          </span>
+          {% endif %}
+
+          <span style='float:right'>
+            <div id="selection-type" data-toggle="tooltip" data-placement="top" class="onoffswitch">
+              <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" checked>
+              <label class="onoffswitch-label" for="myonoffswitch">
+                <span class="onoffswitch-inner"></span>
+                <span class="onoffswitch-switch"></span>
+              </label>
+            </div>
+          </span>
+
+        </h5>
+      </div>
+    </div>
+
+
+
+
+    <div id="facets"></div>
+  </div>
+
+  <div class="col-md-3" style="max-width: 350px;">
+    <div class='row'>
+      <div class='col-md-12'>
+        <div id='cur_sql'></div>
+        <h5>
+          Temporary Filters
+          <span data-toggle="tooltip"
+            data-placement="top"
+            title="Temporary filters are shown as an overlay in the visualization on the right"
+          >[?]</span>
+        </h5>
+        <div id='temp-where-container' class='where-container'>
+          <div class='where' id='temp-where'></div>
+        </div>
+
+        <h5>
+          Permanent Filters
+          <span data-toggle="tooltip"
+            data-placement="top"
+            title="Permanent filters are applied and reflected in the facet distributions on the left"
+          >[?]</span>
+          <span id="apply-btn" data-toggle="tooltip" 
+            data-placement="top" 
+            title="Make temporary filters permanent" 
+            class="btn btn-primary btn-xs" style='float:right'>
+            &darr; Make Permanent
+          </span>
+        </h5>
+        <div id='perm-where-container' class='where-container'>
+          <div class='where' id='perm-where'></div>
+        </div>
+
+
+        {% if enableScorpion == 1 %}
+        <h5 style="position:relative;">
+          Scorpion Results 
+          <span class="scorpion-wait" style="display: none;">
+            <small>loading</small>
+          </span>
+
+          <span class="btn btn-xs btn-primary" id="scorpion-showbest" style='float: right;'>Show Best Overall</span>
+        </h5>
+        <div id='slider-container'>
+          <span id="slider-smallest" class='info' 
+            data-toggle="tooltip" data-placement="top"
+            title="Most absolute impact" >
+            small &lambda;
+          </span>
+          <span class='slider-span'>
+            <input class='slider' id="scorpion-slider" data-slider-id='ex1Slider' type="text" style="display: none;"/>
+          </span>
+          <span id="slider-biggest" class='info'  data-toggle="tooltip" 
+            data-placement="top" 
+            title="Most impact per record (biggest bang for the buck)">
+            big &lambda;
+          </span>
+        </div>
+
+        <div id='all-scorpion-results-container'>
+          <div id="scorpion-results-container" style="display:none">
+          </div>
+          <div id="scorpion-partialresults-container" style="display:none">
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <h5>
+      Visualization
+      <span id="q_loading" style="display:none;">loading...</span>
+
+      {% if study == 0 %}
+        <span id="q-toggle" style='float:right; margin-left: 1em;' class="btn btn-xs btn-primary">Show Query Form</span>
+      {% endif %}
+      <span id="tuples-toggle" style='float:right' class="btn btn-xs btn-primary">Show Rows</span>
+    </h5>
+    <!--
+    <div class="row">
+      <div class="col-md-12">
+      </div>
+    </div>
+    -->
+
+    <div id="query-form-container" style="display:none;"></div>
+    <div id="right"></div>
+    <div id="tuples"></div>
+  </div>
+</div>
+ 
+{% endblock %}
+
+

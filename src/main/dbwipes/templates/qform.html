@@ -1,0 +1,78 @@
+{%verbatim%}
+<script id="q-err-template" type="text/x-underscore-template">
+<div class='row'>
+<div class="col-md-12"  style="padding: 2em">
+  <div class='row'>
+    <div class="col-md-4 col-md-offset-4 input-ys">DB name</div>
+    <div class="col-md-4 input-ys">Table name</div>
+  </div>
+  <div class='row'>
+    <div class="col-md-4 col-md-offset-4">
+      <input class="form-control" name="q-db" value="{{db}}" placeholder="database">
+    </div>
+    <div class="col-md-4">
+      <input class="form-control" name="q-table" value="{{table}}" placeholder="table">
+    </div>
+  </div>
+
+
+  <div class='row'>
+    <div class="col-md-5 col-md-offset-4"> Expression </div>
+    <div class="col-md-3"> Attribute </div>
+  </div>
+  <div class='row'>
+    <div class="col-md-4">GROUP BY clause</div>
+    <div class="col-md-5 input-x">
+      <input class="form-control" name="q-x-expr" value="{{x.expr}} as {{x.alias}}" placeholder="expression">
+    </div>
+    <div class="col-md-3 input-x">
+      <input class="form-control" name="q-x-col" value="{{x.col}}" placeholder="attribute">
+    </div>
+  </div>
+
+
+  <div class='row'>
+    <div class="col-md-4">SELECT clauses <span id="q-add-select-expr" class='q-add btn btn-primary btn-xs'>add</span></div>
+    <div class="col-md-5 input-ys-expr">
+      {{#each ys}}
+      <div>
+        <input  class="form-control" name="q-y-expr" value="{{this.expr}} as {{this.alias}}" placeholder="expression"/>
+      </div>
+      {{/each}}
+    </div>
+    <div class="col-md-3 input-ys-col">
+      {{#each ys}}
+      <div>
+        <input  class="form-control" name="q-y-col" value="{{this.col}}" placeholder="attribute"/>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+
+
+  <div class='row'>
+    <div class="col-md-4">WHERE clauses</div>
+    <div class="col-md-8 input-x">
+      {{#each basewheres}}
+			<div>
+        <button data-idx="{{this.idx}}" type="button" class="q-where-close close" aria-hidden="true">&times;</button>
+				<input data-idx="{{this.idx}}" class="form-control" name="q-where" value="{{this.sql}}" placeholder="expression">
+      </div>
+      {{/each}}
+			<div>
+				<input data-idx="new" class="form-control" name="q-where" value="" placeholder="expression">
+      </div>
+    </div>
+  </div>
+
+
+  <div class='row'>
+    <div class="col-md-8 col-md-offset-4">
+      <button class='q-submit btn btn-primary'>Execute Query</button>
+    </div>
+  </div>
+</div>
+</div>
+</script>
+
+{%endverbatim%}

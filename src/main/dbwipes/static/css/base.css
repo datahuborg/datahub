@@ -1,0 +1,526 @@
+@import url(/static/fonts/carme.css);
+
+@import url(/static/fonts/opensans-light.css);
+body {
+  font-family: open sans, "Gill Sans";
+  min-width: 1100px;
+  width: 95%;
+  margin-right: auto;
+  margin-left: auto;
+}
+body .link {
+  cursor: pointer;
+}
+body .row {
+  margin-top: .2em;
+}
+body h4 {
+  min-height: .5em;
+}
+body .disabled {
+  background: grey;
+}
+body #q_loading {
+  font-size: 12pt;
+  color: grey;
+  display: none;
+  margin-left: 2em;
+}
+body #footer {
+  text-align: center;
+  margin-top: 2em;
+  border-top: 1px solid #efefef;
+}
+body .cstat-col-name {
+  background: whitesmoke;
+  border: 1px solid white;
+  border-radius: 4px;
+  font-size: smaller;
+  padding: 2px;
+  padding-left: .5em;
+  padding-right: .5em;
+  margin: 0px;
+  cursor: pointer;
+}
+body .cstat-col-name.active {
+  background: steelblue;
+  color: white;
+}
+body .cstat-label {
+  overflow: hidden;
+  text-align: right;
+}
+body .cstat-label label,
+body .cstat-label input {
+  display: inline;
+  cursor: pointer;
+}
+body .cstat-label .col-name:hover {
+  font-weight: bold;
+  background: steelblue;
+  color: white;
+}
+body .cstat-label .col-name {
+  right: 0px;
+}
+body .cstat-label .type label {
+  font-size: smaller;
+  color: black;
+  cursor: pointer;
+  min-width: 50px;
+}
+body .count {
+  font-size: 9px;
+}
+body .cstat circle {
+  fill: #aeaeae;
+  stroke: none;
+}
+body .cstat rect {
+  fill: #aeaeae;
+  stroke: none;
+}
+body .axis path,
+body .axis line {
+  fill: none;
+  stroke: #aeaeae;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+}
+body .tick text {
+  fill: #aeaeae;
+  font-size: 10pt;
+}
+body .mark:hover {
+  /*fill:steelblue;*/
+
+}
+body circle.selected {
+  fill: black;
+  size: 10;
+  stroke: black;
+}
+body rect.selected {
+  fill: black;
+}
+body rect.faded {
+  fill: whitesmoke;
+}
+body rect.highlighted {
+  fill: black;
+}
+body rect.extent {
+  fill: grey;
+  fill-opacity: 0.2;
+  stroke-width: 1px;
+  stroke: white;
+  shape-rendering: crispEdges;
+}
+body .background .mark {
+  fill-opacity: 0.48;
+  stroke-opacity: 0.05;
+  fill: grey;
+}
+body #tuples {
+  height: 500px;
+  overflow-y: scroll;
+  margin-top: 1em;
+  border: 1px solid #ddd;
+  padding: 1em;
+}
+body table.tuples tr td,
+body table.tuples tr th {
+  padding: 5px;
+  font-size: 9pt;
+}
+body table.tuples tr th {
+  font-weight: bold;
+  text-align: left;
+}
+#query-container {
+  position: fixed;
+  top: 0px;
+  margin-left: 50%;
+  padding-bottom: 2em;
+  background: white;
+}
+#q .q-where-close {
+  cursor: pointer;
+  position: absolute;
+  right: 1em;
+  vertical-align: middle;
+  padding-top: .35em;
+}
+#q input[name=q-where] {
+  padding-right: 2em;
+}
+#right .legend {
+  margin-top: 10px;
+}
+#right .legend span {
+  padding: 3px;
+  padding-left: 1em;
+  padding-right: 1em;
+  margin-right: 1em;
+  border-radius: 3px;
+  border: none;
+  color: white;
+}
+/*
+  
+*/
+.where-container {
+  height: 125px;
+  overflow-y: scroll;
+  padding-left: .5em;
+  border: 1px solid #ddd;
+}
+.where-container .where .clause {
+  font-family: "Gill Sans";
+  font-size: 10pt;
+  max-height: 5em;
+  color: black;
+  border-left: 2px solid grey;
+  padding: .5em;
+  padding-left: .5em;
+  padding-top: .2em;
+  margin: 0;
+  margin-top: .2em;
+  clear: both;
+  list-style-type: none;
+  position: relative;
+  overflow: hidden;
+  width: 90%;
+}
+.where-container .where .clause button {
+  color: grey;
+  font-weight: bold;
+  cursor: pointer;
+  opacity: .8;
+  top: 0px;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  font-size: 15px;
+}
+.where-container .where .temporary {
+  background: #efefef;
+  border-left: 2px solid grey;
+}
+.where-container .where .permanent {
+  background: #edfaec;
+  border-left: 2px solid #5cc232;
+}
+#slider-container {
+  display: none;
+  text-align: center;
+  margin-bottom: .4em;
+}
+#slider-container span.slider-span {
+  margin-left: 1em;
+  margin-right: 1em;
+}
+#slider-container #scorpion-slider {
+  display: none;
+}
+#slider-container span.info {
+  border-bottom: 1px dotted #56aaf7;
+  cursor: pointer;
+}
+#slider-container span.info:hover {
+  background: #efefef;
+  border-bottom: 1px dotted #56aaf7;
+  cursor: pointer;
+}
+#all-scorpion-results-container {
+  height: 300px;
+  overflow-y: scroll;
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+#all-scorpion-results-container::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
+#all-scorpion-results-container::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+#scorpion-results-container > div,
+#scorpion-partialresults-container > div {
+  width: 90%;
+}
+.scorpion-results {
+  padding: 0px;
+  /* /.scorpion-result */
+
+}
+.scorpion-results .equiv-toggle-container {
+  padding-left: 2em;
+}
+.scorpion-results .equiv-toggle-container .equiv-toggle {
+  font-size: 10pt;
+  text-align: right;
+  padding-right: 1em;
+  background: #e4ebeb;
+  color: black;
+  cursor: pointer;
+}
+.scorpion-results .scorpion-result .filter-clause {
+  font-family: arial, "Gill Sans";
+  font-size: 10pt;
+  color: black;
+  clear: both;
+  background: steelblue;
+  background: #f4f8fa;
+  background: #edf4f8;
+  border-left: 2px solid #5bc0de;
+  width: 100%;
+  padding: .5em;
+  padding-left: .5em;
+  padding-top: .2em;
+  margin: 0;
+  margin-top: .2em;
+  list-style-type: none;
+  cursor: pointer;
+  position: relative;
+}
+.scorpion-results .scorpion-result .filter-clause .load-text {
+  display: none;
+  color: black;
+}
+.scorpion-results .scorpion-result .filter-clause .info {
+  right: .25em;
+  top: .25em;
+  position: absolute;
+  font-weight: 100;
+  font-size: 10px;
+  color: grey;
+}
+.scorpion-results .scorpion-result .filter-clause .info .score,
+.scorpion-results .scorpion-result .filter-clause .info .crange {
+  margin-left: 2em;
+}
+.scorpion-results .scorpion-result .filter-clause.locked {
+  background: #114e66;
+  color: white;
+}
+.scorpion-results .scorpion-result .filter-clause:hover {
+  color: white;
+  background: #359fdb;
+}
+.scorpion-results .scorpion-result .filter-clause.locked:hover {
+  background: #114e66;
+  color: white;
+}
+.scorpion-results .scorpion-result .equiv-clauses {
+  margin-left: 1em;
+}
+.scorpion-results .scorpion-result .equiv-clause {
+  font-family: "Gill Sans";
+  font-size: 11pt;
+  line-height: 13pt;
+  width: 100%;
+  padding: .75em;
+  position: relative;
+  margin: 0;
+  margin-bottom: 5px;
+  list-style-type: none;
+  color: black;
+  background: #edf4f8;
+  clear: both;
+}
+#scorpion-partialresults-container .scorpion-result .filter-clause {
+  border-left: 2px solid grey;
+  background: #efefef;
+  color: black;
+}
+#scorpion-partialresults-container .scorpion-result .equiv-clause {
+  background: #7b8085;
+}
+#scorpion-partialresults-container .scorpion-result .filter-clause:hover {
+  background: #bfbfbf;
+}
+#scorpion-partialresults-container .scorpion-result .filter-clause.locked:hover {
+  background: grey;
+  color: white;
+}
+.scorpion-wait {
+  margin-left: 10px;
+  display: none;
+  color: grey;
+}
+.scorpion-wait .loadingspincircle {
+  width: 24px;
+  height: 24px;
+  /*
+    border: 2px solid #ccc;
+    border-radius: 100%;
+    */
+
+}
+.scorpion-wait .loadingspincircle:before {
+  display: block;
+  width: 12px;
+  height: 12px;
+  margin: 4px 4px 0 0;
+  background-color: grey;
+  content: "";
+  border-radius: 100%;
+  animation: spin 4s ease infinite;
+  -webkit-animation: spin 4s ease infinite;
+  -moz-animation: spin 4s ease infinite;
+}
+#walkthrough-container {
+  position: absolute;
+  top: 8em;
+  left: 0px;
+  background: white;
+  z-index: 100;
+}
+#walkthrough-container .walkthrough {
+  width: 500px;
+  position: fixed;
+  left: -10px;
+  background: white;
+  border: 10px solid #647ca0;
+  padding: 1em;
+  padding-top: 0px;
+  box-shadow: 4px 4px 10px -4px #929292;
+}
+#walkthrough-container .walkthrough fieldset {
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+#walkthrough-container .walkthrough span.btn {
+  margin-bottom: .25em;
+}
+#walkthrough-container .walkthrough span.btn-danger span.btn-success {
+  border: none;
+}
+#walkthrough-container .walkthrough label {
+  text-align: right;
+}
+#walkthrough-container .walkthrough #draw.drawing {
+  background: whitesmoke;
+}
+#walkthrough-container .walkthrough .scorpion-wait {
+  color: white;
+}
+#tasks {
+  border-bottom: 2px solid #ddd;
+}
+#tasks div.task {
+  top: 0px;
+  min-width: 600px;
+  width: 75%;
+  padding: 15px 15px 15px;
+  margin: 0 -15px 15px;
+  margin-left: auto;
+  margin-right: auto;
+  background: white;
+  position: relative;
+  z-index: 70;
+  box-shadow: none;
+}
+#tasks div.task .submit {
+  width: 100%;
+}
+#tasks div.task input[name=text] {
+  margin-bottom: .2em;
+}
+#tasks div.task h3 {
+  margin-top: .0em;
+}
+/* Thanks http://proto.io/freebies/onoff/ !! */
+.onoffswitch {
+  position: relative;
+  width: 90px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+.onoffswitch-checkbox {
+  display: none;
+}
+.onoffswitch-label {
+  display: block;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid #FFFFFF;
+  border-radius: 4px;
+}
+.onoffswitch-inner {
+  display: block;
+  width: 200%;
+  margin-left: -100%;
+  -moz-transition: margin 0.3s ease-in 0s;
+  -webkit-transition: margin 0.3s ease-in 0s;
+  -o-transition: margin 0.3s ease-in 0s;
+  transition: margin 0.3s ease-in 0s;
+}
+.onoffswitch-inner:before,
+.onoffswitch-inner:after {
+  display: block;
+  float: left;
+  width: 50%;
+  height: 20px;
+  padding: 0;
+  line-height: 20px;
+  font-size: 11px;
+  color: white;
+  font-family: Trebuchet, Arial, sans-serif;
+  font-weight: bold;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.onoffswitch-inner:before {
+  content: "SELECT";
+  padding-left: 10px;
+  background-color: #EEEEEE;
+  color: #000000;
+}
+.onoffswitch-inner:after {
+  content: "REMOVE";
+  padding-right: 10px;
+  background-color: #EEEEEE;
+  color: #000000;
+  text-align: right;
+}
+.onoffswitch-switch {
+  display: block;
+  width: 16px;
+  margin: 1px;
+  background: #D95050;
+  border: 2px solid #FFFFFF;
+  border-radius: 4px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 68px;
+  -moz-transition: all 0.3s ease-in 0s;
+  -webkit-transition: all 0.3s ease-in 0s;
+  -o-transition: all 0.3s ease-in 0s;
+  transition: all 0.3s ease-in 0s;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+  margin-left: 0;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+  right: 0px;
+  background-color: #6ADE85;
+}
+#selection-type .onoffswitch-inner:before {
+  content: "SELECT";
+}
+#selection-type .onoffswitch-inner:after {
+  content: "REMOVE";
+}
+#fake-type .onoffswitch-inner:before {
+  content: "Real";
+}
+#fake-type .onoffswitch-inner:after {
+  content: "Fake";
+}

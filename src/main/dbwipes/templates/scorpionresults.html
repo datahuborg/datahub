@@ -1,0 +1,48 @@
+{%verbatim%}
+<script id="scorpion-result-template" type="text/x-underscore-template">
+<div class='row'>
+  <div class="col-md-12 scorpion-result">
+    <ul class="filter-clause">
+{%endraw%}
+{% if debug %}
+{%raw%}
+        <span class="info">
+          <span class="count">{{count}}</span>
+          <span class="score">{{score}}</span>
+          <span class="crange">{{c_range}}</span>
+        </span>
+{%endraw%}
+{% endif %}
+{%raw%}
+      {{#each clauses}}
+        <li class='clause-part'>{{this}}</li>
+      {{/each}}
+    </ul>
+    {{#if alt_rules}}
+    <div class="equiv-toggle-container">
+      <div class="equiv-toggle">show rules in cluster</div>
+    </div>
+    <div class="equiv-clauses" style="display:none;">
+        {{#each alt_rules}}
+        <ul class="equiv-clause">
+          {{#each this}}
+            <li class="clause-part">{{this}}</li>
+          {{/each}}
+        </ul>
+        {{/each}}
+    </div>
+    {{/if}}
+  </div>
+</div>
+</script>
+
+<script id="scorpion-results-template" type="text/x-underscore-template">
+<div class='row'>
+  <div class="col-md-12">
+    <ul class="scorpion-results">
+    </ul>
+  </div>
+</div>
+</script>
+
+{%endverbatim%}

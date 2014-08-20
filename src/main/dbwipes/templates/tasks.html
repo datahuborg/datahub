@@ -1,0 +1,31 @@
+{%verbatim%}
+<script id="task-template" type="text/x-underscore-template">
+  <div class='row'>
+    <div class='col-md-4 col-md-offset-1' style='border-right: 1px solid #ddd'>
+      {{#if title}}
+      <h3>{{title}}</h3>
+      {{/if}}
+      <div>{{{question}}}</div>
+
+      <div class="submit btn btn-primary">Submit</div>
+      <div class="error bs-callout bs-callout-danger" style="display:none"> </div>
+    </div>
+    <div class='col-md-5' >
+      <div>{{{text}}}</div>
+      {{#each options}}
+      <div class="radio">
+        <label>
+          <input type="radio" name="opt" value="{{this.idx}}">
+          {{this.text}}
+        </label>
+      </div>
+      {{/each}}
+      {{#if textbox}}
+          <textarea name="text" class="form-control" placeholder="type in the answer" style="min-height: 6em;"></textarea>
+          <!--<input name="text" class="form-control" placeholder="type in the answer"/>-->
+      {{/if}}
+    </div>
+  </div>
+</script>
+
+{%endverbatim%}
