@@ -207,7 +207,7 @@ define(function(require) {
         var intervals = _.times(xs.length-1, function(idx) { return xs[idx+1] - xs[idx]});
         var width = null;
         if (intervals.length)
-          width = d3.min(intervals) * 0.95
+          width = d3.min(intervals) * 0.96
         if (!width)
           width = 10;
         console.log("rect width " + col + " is " + width)
@@ -217,14 +217,16 @@ define(function(require) {
             maxv = xscales.invert(d3.max(xs) + d3.max([5, width]));
         xscales.domain([minv, maxv]);
 
+        var widthf = function(d) { return d3.max([width, xscales(d.range[1]) - xscales(d.range[0])]) };
+
         el.selectAll('rect.mark')
             .data(stats)
           .enter().append('rect')
             .attr({
               class: 'mark',
-              width: function(d) { return d3.max([width, xscales(d.range[1]) - xscales(d.range[0])]) },
+              width: widthf,
               height: function(d) {return Math.max(2, h-yscales(d.count))},
-              x: function(d) {return xscales(d.range[0]);},
+              x: function(d) {return xscales(d.range[0]) - widthf(d)/2.0;},
               y: function(d) { return Math.min(h-2, yscales(d.count)); }
             })
       } 
@@ -322,13 +324,13 @@ define(function(require) {
       var within = function(d, e) {
         if (e[0] == e[1]) return false;
         if (type == 'str') {
-          var bmin = xscales(d.val) + xscales.rangeBand()/4,
-              bmax = xscales(d.val) + 3*xscales.rangeBand()/4;
+          var bmin = xscales(d.val) + xscales.rangeBand()/5,
+              bmax = xscales(d.val) + 4*xscales.rangeBand()/5;
           var b = !(e[1] < bmin || bmax < e[0]);
         } else {
           var width = xscales(d.range[1]) - xscales(d.range[0]),
-              bmin = xscales(d.val)+width/4.0,
-              bmax = xscales(d.val)+3.0*width/4.0;
+              bmin = xscales(d.val)+width/5.0,
+              bmax = xscales(d.val)+4.0*width/5.0;
           var b = !(xscales(e[1]) < bmin || bmax < xscales(e[0]));
         }
         return b;
@@ -421,6 +423,11 @@ define(function(require) {
       var yzoomf = function(el) {
         var yaxis = this.state.yaxis;
         var yscales = this.state.yscales;
+        var ydomain = yscales.domain();
+        if (ydomain[0] < 0) {
+          ydomain = [0, ydomain[1] - ydomain[0]];
+        }
+        yscales.domain(ydomain);
         el.select('.axis.y').call(yaxis);
         el.selectAll('.mark')
           .attr('y', function(d) {
