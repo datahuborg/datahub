@@ -194,7 +194,6 @@ def api_status(request):
   }
 
 
-@login_required
 @returns_json
 def api_tuples(request):
   ret = { }
@@ -236,7 +235,6 @@ def api_tuples(request):
 
 
 
-@login_required
 @returns_json
 def api_query(request):
   ret = { }
@@ -274,7 +272,6 @@ def api_query(request):
 
 
 
-@login_required
 @returns_json
 def column_distribution(request):
   username = request.GET.get('username')
@@ -309,7 +306,6 @@ def column_distribution(request):
 
 
 
-@login_required
 @returns_json
 def column_distributions(request):
   username = request.GET.get('username')
