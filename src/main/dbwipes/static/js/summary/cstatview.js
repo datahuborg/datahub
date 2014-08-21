@@ -20,7 +20,7 @@ define(function(require) {
         series: null,
         w: 350,
         h: 30,
-        lp: 70,
+        lp: 50,
         bp: 18,
         rectwidth: 1,
         marktype: 'rect'
@@ -84,8 +84,8 @@ define(function(require) {
       var xdomain = this.model.get('xdomain'),
           ydomain = this.model.get('ydomain'),
           type = this.model.get('type');
-      this.state.xscales = this.makeScales('x', xdomain, [0, this.state.w], type);
-      this.state.yscales = this.makeScales('y', ydomain, [this.state.h, 5], 'num');
+      this.state.xscales = this.makeScales('x', xdomain, [0+5, this.state.w-5], type);
+      this.state.yscales = this.makeScales('y', ydomain, [this.state.h, 10], 'num');
 
 
       // create axes
@@ -207,17 +207,34 @@ define(function(require) {
         var intervals = _.times(xs.length-1, function(idx) { return xs[idx+1] - xs[idx]});
         var width = null;
         if (intervals.length)
-          width = d3.min(intervals) * 0.96
+          width = d3.min(intervals) * 0.95
         if (!width)
-          width = 10;
+          width = 2;
         console.log("rect width " + col + " is " + width)
-        this.state.rectwidth = width = d3.max([1, width])
 
         var minv = xscales.invert(d3.min(xs) - d3.max([5, width])),
             maxv = xscales.invert(d3.max(xs) + d3.max([5, width]));
         xscales.domain([minv, maxv]);
 
-        var widthf = function(d) { return d3.max([width, xscales(d.range[1]) - xscales(d.range[0])]) };
+        // after xscale domain has been reset,
+        // need to recompute min-rectangle width again
+
+        xs = _.pluck(stats, 'val');
+        xs = _.uniq(_.map(xs, xscales));
+        xs.push.apply(xs, xscales.range());
+        xs = _.sortBy(xs)
+        intervals = _.times(xs.length-1, function(idx) { return xs[idx+1] - xs[idx]});
+        width = 2;
+        if (intervals.length)
+          width = d3.min(intervals) * 0.9
+        if (!width)
+          width = 2;
+        width = Math.max(width, 2);
+        this.state.rectwidth = width = d3.max([2, width])
+
+        var widthf = function(d) { 
+          return d3.max([width, (xscales(d.range[1]) - xscales(d.range[0])) * 0.9]);
+        };
 
         el.selectAll('rect.mark')
             .data(stats)
@@ -226,7 +243,7 @@ define(function(require) {
               class: 'mark',
               width: widthf,
               height: function(d) {return Math.max(2, h-yscales(d.count))},
-              x: function(d) {return xscales(d.range[0]) - widthf(d)/2.0;},
+              x: function(d) {return xscales((d.range[1]-d.range[0])/2.0 + d.range[0]) - widthf(d)/2.0;},
               y: function(d) { return Math.min(h-2, yscales(d.count)); }
             })
       } 
@@ -491,23 +508,27 @@ define(function(require) {
 
       if (!util.isStr(this.model.get('type'))) {
         // sorry, don't support discrete zooming...
+        var rectwidth = this.state.rectwidth;
+        var widthf = function(d) { 
+          return d3.max([rectwidth, (xscales(d.range[1]) - xscales(d.range[0])) * 0.9]);
+        };
+
 
         var zoomf = function() {
+          // the container hides overflow, but it also contains
+          // the y axis, so need some custom code to hide
+          // elements that intersect into y-axis
           el.select('.axis.x').call(xaxis);
           el.selectAll('.mark') 
             .attr('x', function(d) {
-              return d3.max([xscales.range()[0], xscales(d.range[0])]);
+              var x = xscales(d.range[0]) - widthf(d)/2.0; 
+              return Math.max(x, xscales.range()[0]);
             })
             .attr('width', function(d) {
               var minx = d3.max([xscales.range()[0], xscales(d.range[0])]);
               if (xscales(d.range[1]) < minx) return 0;
-              return d3.max([width, xscales(d.range[1]) - minx])
+              return Math.max(rectwidth, widthf(d) - minx);
             })
-            /*.style('display', function(d) {
-              var x = xscales(d.val);
-              var within = (x >= xscales.range()[0] && x <= xscales.range()[1]);
-              return (within)? null : 'none';
-            });*/
         }
 
         var zoom = d3.behavior.zoom()

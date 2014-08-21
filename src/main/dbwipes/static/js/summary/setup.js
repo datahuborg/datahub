@@ -159,18 +159,18 @@ define(function(require) {
             top: initOffset.top + ev.pageY - initMouse.top
           });
           if (checkHit(activeEl, "#viz .xaxis", ev)) {
-            $("#viz .xaxis rect").attr("fill", "steelblue");
+            d3.select("#viz .xaxis").classed("dropactive", true);
             activeEl.addClass("active");
           } else {
-            $("#viz .xaxis rect").attr("fill", "none");
+            d3.select("#viz .xaxis").classed("dropactive", false);
             activeEl.removeClass("active");
 
             if (util.isNum(cstatview.model.get("type"))) {
               if (checkHit(activeEl, "#viz .yaxis", ev)) {
-                $("#viz .yaxis rect").attr("fill", "steelblue");
+                d3.select("#viz .yaxis").classed("dropactive", true);
                 activeEl.addClass("active");
               } else {
-                $("#viz .yaxis rect").attr("fill", "none");
+                d3.select("#viz .yaxis").classed("dropactive", false);
                 activeEl.removeClass("active");
               }
             }
@@ -194,8 +194,8 @@ define(function(require) {
               qf.onSubmit();
             }
           } 
-          $("#viz .xaxis rect").attr("fill", "none");
-          $("#viz .yaxis rect").attr("fill", "none");
+          d3.select("#viz .xaxis").classed("dropactive", false);
+          d3.select("#viz .yaxis").classed("dropactive", false);
           activeEl.remove();
           activeCStat = activeEl = null;
         }

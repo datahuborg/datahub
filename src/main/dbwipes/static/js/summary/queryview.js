@@ -150,8 +150,8 @@ define(function(require) {
         xel.append('rect')
           .attr('width', this.state.w)
           .attr('height', this.state.bp)
-          .attr('fill', 'none')
-          .attr('stroke', 'none')
+          //.attr('fill', 'none')
+          //.attr('stroke', 'none')
           .style('pointer-events', 'all')
         xel.call(this.state.xaxis)
       } else {
@@ -167,8 +167,8 @@ define(function(require) {
           .attr('width', this.state.lp)
           .attr('height', this.state.h)
           .attr('x', -this.state.lp)
-          .attr('fill', 'none')
-          .attr('stroke', 'none')
+          //.attr('fill', 'none')
+          //.attr('stroke', 'none')
           .style('pointer-events', 'all')
         yel.call(this.state.yaxis)
       } else {

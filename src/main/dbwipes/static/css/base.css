@@ -32,9 +32,10 @@ body #footer {
   border-top: 1px solid #efefef;
 }
 body .cstat-hover {
-  padding-left: 70px;
+  padding-left: 50px;
   font-size: 9pt;
   margin-top: 5px;
+  font-family: arial;
 }
 body .cstat-col-name {
   background: whitesmoke;
@@ -54,6 +55,8 @@ body .cstat-col-name.active {
 body .cstat-label {
   overflow: hidden;
   text-align: right;
+  margin-top: 5px;
+  padding-top: 9pt;
 }
 body .cstat-label label,
 body .cstat-label input {
@@ -74,6 +77,9 @@ body .cstat-label .type label {
   cursor: pointer;
   min-width: 50px;
 }
+body .cstat-container .plot-background {
+  stroke: grey;
+}
 body .count {
   font-size: 9px;
 }
@@ -89,9 +95,20 @@ body .axis line {
   stroke-width: 1px;
   shape-rendering: crispEdges;
 }
-body .tick text {
+body .axis rect {
+  fill: none;
+  stroke: none;
+}
+body .axis .tick text {
   fill: #aeaeae;
   font-size: 9pt;
+}
+body #viz .axis.dropactive rect {
+  fill: steelblue;
+  stroke: none;
+}
+body #viz .axis.dropactive .tick text {
+  fill: white;
 }
 body circle.selected {
   fill: black;

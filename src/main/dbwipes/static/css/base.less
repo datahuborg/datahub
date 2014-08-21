@@ -44,9 +44,10 @@ body {
 
   
   .cstat-hover {
-    padding-left: 70px;
+    padding-left: 50px;
     font-size: 9pt;
     margin-top: 5px;
+    font-family: arial;
   }
 
 
@@ -70,6 +71,8 @@ body {
   .cstat-label {
     overflow: hidden;
     text-align: right;
+    margin-top: 5px;
+    padding-top: 9pt;
 
     label, input {
       display: inline;
@@ -93,6 +96,12 @@ body {
     }
    }
 
+   .cstat-container {
+      .plot-background {
+        stroke: grey;
+      }
+    }
+
    .count {
       font-size:9px;
     }
@@ -110,9 +119,27 @@ body {
     stroke-width: 1px;
     shape-rendering: crispEdges;
   }
-  .tick text {
-    fill: #aeaeae;
-    font-size: 9pt;
+
+  .axis {
+    rect {
+      fill: none;
+      stroke: none;
+    }
+
+    .tick text {
+      fill: #aeaeae;
+      font-size: 9pt;
+    }
+  }
+
+  #viz .axis.dropactive {
+    rect {
+      fill: steelblue;
+      stroke: none;
+    }
+    .tick text {
+      fill: white;
+    }
   }
 
 
