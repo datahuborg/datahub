@@ -42,6 +42,12 @@ body {
     border-top: 1px solid #efefef;
   }
 
+  
+  .cstat-hover {
+    padding-left: 70px;
+    font-size: 9pt;
+    margin-top: 5px;
+  }
 
 
   .cstat-col-name {
@@ -92,11 +98,7 @@ body {
     }
  
   .cstat {
-    circle {
-      fill: #aeaeae;
-      stroke: none;
-    }
-    rect{
+    rect, circle {
       fill: #aeaeae;
       stroke: none;
     }
@@ -110,13 +112,9 @@ body {
   }
   .tick text {
     fill: #aeaeae;
-    font-size: 10pt;
+    font-size: 9pt;
   }
 
-
-  .mark:hover {
-    /*fill:steelblue;*/
-  }
 
   circle.selected {
     fill: black;
@@ -131,6 +129,9 @@ body {
   }
   rect.highlighted {
     fill: black; 
+  }
+  rect.hover {
+    fill: steelblue;
   }
 
   rect.extent {

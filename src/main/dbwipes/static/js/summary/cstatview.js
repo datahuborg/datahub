@@ -19,7 +19,7 @@ define(function(require) {
         yaxis: null,
         series: null,
         w: 350,
-        h: 50,
+        h: 30,
         lp: 70,
         bp: 18,
         rectwidth: 1,
@@ -36,6 +36,7 @@ define(function(require) {
     render: function() {
       this.$el.html(this.template(this.model.toJSON()));
       if (!window.enableScorpion) this.$('.errcol').hide();
+
       if (this.model.get('ready')) {
         this.$('.cstat-loading').hide();
         this.renderPlot(this.$('svg.cstat-plot-svg'));
@@ -160,55 +161,63 @@ define(function(require) {
           stats = this.model.get('stats'),
           xscales = this.state.xscales,
           yscales = this.state.yscales,
-          h = this.state.h
+          h = this.state.h,
+          _this = this;
+
+
+      // render hover over info box
+      this.$(".cstat-hover").css({
+        "padding-left": this.state.lp,
+        "font-size": "9pt"
+      });
 
       if (util.isStr(type)) {
         this.state.rectwidth = width = xscales.rangeBand();
-        el.selectAll('rect')
+        el.selectAll('rect.mark')
             .data(stats)
           .enter().append('rect')
             .attr({
               class: 'mark',
               width: d3.max([1,xscales.rangeBand()]),
-              x: function(d) { return xscales(d.val) },
               height: function(d) {return Math.max(2, yscales(0)-yscales(d.count));},
+              x: function(d) { return xscales(d.val) },
               y: function(d) { return Math.min(h-2, yscales(d.count));}
             })
-      } else {
-        var xs =_.pluck(stats, 'val');
+            .on("click", function(d) {
+              console.log(d)
+            })
+            .on("mousedown", function(d) {
+              //_this.d3brush.event(_this.d3gbrush)
+            })
+            .on("mouseover", function(d) {
+              _this.$(".cstat-hover").text(d.val)
+            })
+            .on("mouseout", function(d) {
+              _this.$(".cstat-hover").html("&nbsp;")
+            })
 
-        //if (xs.length == 0) return;
+
+      } else {
+        var xs = _.pluck(stats, 'val');
+        if (xs.length == 0) return;
 
         xs = _.uniq(_.map(xs, xscales));
         xs.push.apply(xs, xscales.range());
-        xs.sort();
+        xs = _.sortBy(xs)
         var intervals = _.times(xs.length-1, function(idx) { return xs[idx+1] - xs[idx]});
         var width = null;
         if (intervals.length)
-          width = d3.min(intervals) - 0.5
+          width = d3.min(intervals) * 0.95
         if (!width)
           width = 10;
+        console.log("rect width " + col + " is " + width)
         this.state.rectwidth = width = d3.max([1, width])
 
         var minv = xscales.invert(d3.min(xs) - d3.max([5, width])),
             maxv = xscales.invert(d3.max(xs) + d3.max([5, width]));
         xscales.domain([minv, maxv]);
 
-        if (!_.isNaN(xscales.domain()[0]) && col == 'light'){
-          var args = [this.model.get('col'), type,  stats.length, stats[0]];
-          args.push('xscale')
-          args.push.apply(args, xscales.domain());
-          args.push('->')
-          args.push.apply(args, xscales.range());
-          args.push('yscale')
-          args.push.apply(args, yscales.domain());
-          args.push('->')
-          args.push.apply(args, yscales.range());
-          console.log(args);
-        }
-
-
-        el.selectAll('rect')
+        el.selectAll('rect.mark')
             .data(stats)
           .enter().append('rect')
             .attr({
@@ -325,7 +334,17 @@ define(function(require) {
         return b;
       };
 
+      // is x within d?
+      var ptwithin = function(el, d, x) {
+        var width = +el.attr('width'),
+            bmin = xscales(d.val),
+            bmax = bmin + width;
+        return x >= bmin && x <= bmax;
+      }
+
+
       var brushf = function(p) {
+        console.log(["brush event", brush])
         var e = brush.extent()
         var selected = [];
         el.selectAll('.mark')
@@ -339,16 +358,50 @@ define(function(require) {
         }
       }
 
+      var movef = function(p) {
+        var found = false;
+        var xy = d3.mouse(this);
+        el.selectAll(".mark")
+          .classed("hover", function(d) { 
+            if (ptwithin(d3.select(this), d, xy[0])) {
+              _this.$(".cstat-hover").text(d.val)
+              found = true;
+              return true;
+            } 
+            return false;
+          })
+        
+        if (!found) 
+          _this.$(".cstat-hover").html("&nbsp;")
+      };
+
+      var outf = function() {
+        el.selectAll(".mark")
+          .classed("hover", false)
+        _this.$(".cstat-hover").html("&nbsp;")
+      };
+
+
+
+
+
       var brush = d3.svg.brush()
           .x(xscales)
           .on('brush', brushf)
-          .on('brushend', brushf)
-          .on('brushstart', brushf);
+          .on('brushstart', brushf)
+          .on('brushend', function() {
+            brushf();
+            _this.d3svg.selectAll("rect.mark").style("pointer-events", "all");
+          })
+          .on("mouseover", movef)
+          .on("mousemove", movef)
+          .on("mouseout", outf);
       var gbrush = el.append('g')
           .attr('class', 'brush')
           .call(brush);
       gbrush.selectAll('rect')
           .attr('height', h)
+
 
       this.d3brush = brush;
       this.d3gbrush = gbrush;

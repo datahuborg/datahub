@@ -12,6 +12,9 @@ requirejs.config({
   },
 
   shim: {
+    'd3': {
+      exports: 'd3'
+    },
     'backbone': {
       //These script dependencies should be loaded before loading
       //backbone.js
