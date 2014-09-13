@@ -1,0 +1,22 @@
+{%verbatim%}
+<script id="tuple-template" type="text/x-underscore-template">
+<h4>A sample of {{nrows}} selected rows</h4>
+<div class="table-responsive">
+<table class="tuples table table-striped table-condensed table-hover">
+  <thead>
+  <tr>
+		{{#each cols}} <th data-col="{{this}}">{{this}}</th> {{/each}}
+  </tr>
+  </thead>
+  <tbody>
+  {{#each data}}
+    <tr>
+      {{#each this}} <td>{{this}}</td> {{/each}}
+    </tr>
+  {{/each}}
+  </tbody>
+</table>
+</div>
+</script>
+{%endverbatim%}
+

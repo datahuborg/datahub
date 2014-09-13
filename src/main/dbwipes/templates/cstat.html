@@ -1,0 +1,22 @@
+{% verbatim %}
+<script id="cstat-template" type="text/x-underscore-template">
+<div class='row' id="cstat-{{col}}">
+  <div class="col-md-2 cstat-label" >
+    <button class="cstat-col-name col-name">{{col}}</button>
+    <div class="type" >
+      <label style="min-width: 50px" class="btn btn-xs" for="errcol_{{col}}"   data-toggle="tooltip" data-placement="top" title="Check to include this attribute in scorpion query" >{{type}}</label>
+      <span>
+        <input type="checkbox" class="errcol" checked id="errcol_{{col}}" value="{{col}}"/>
+      </span>
+    </div>
+    <div class="count"></div>
+  </div>
+	<div class="col-md-10 cstat-plot">
+    <div class="cstat-hover">&nbsp;</div>
+    <svg class="cstat-plot-svg"></svg>
+	</div>
+</div>
+</script>
+
+{%endverbatim%}
+

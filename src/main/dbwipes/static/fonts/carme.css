@@ -1,0 +1,6 @@
+@font-face {
+  font-family: 'Carme';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Carme Regular'), local('Carme'), url(/static/fonts/carme.ttf) format('truetype');
+}
