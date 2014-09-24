@@ -1,6 +1,6 @@
 requirejs.config({
   //By default load any module IDs from js/lib
-  baseUrl: '/static/js/lib',
+  baseUrl: '/static/dbwipes/js/lib',
 
   //except, if the module ID starts with "app",
   //load it from the js/app directory. paths
