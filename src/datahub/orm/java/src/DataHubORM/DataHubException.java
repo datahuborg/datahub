@@ -6,5 +6,8 @@ public class DataHubException extends Exception {
 		// TODO Auto-generated constructor stub
 		super(string);
 	}
+	public DataHubException(Throwable throwable) {
+		super(throwable);
+	}
 
 }

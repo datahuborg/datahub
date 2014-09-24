@@ -9,6 +9,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TJSONProtocol;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
@@ -56,9 +57,9 @@ class DataHubClient{
 		return dhcp;
 	}
 	private synchronized Client getNewClient() throws DHException, TException{
-		TTransport transport = new THttpClient("http://datahub-experimental.csail.mit.edu/service");
-		//TTransport transport = new THttpClient("http://datahub.csail.mit.edu/service");
-	    TProtocol protocol = new TBinaryProtocol(transport);
+		//TTransport transport = new THttpClient("http://datahub-experimental.csail.mit.edu/service");
+		TTransport transport = new THttpClient("http://datahub.csail.mit.edu/service");
+		TProtocol protocol = new TBinaryProtocol(transport);
 		Client client = new DataHub.Client(protocol);
 		return client;
 	}
@@ -81,7 +82,7 @@ class DataHubClient{
 		detectSchemaDifferences();
 	}
 	public DHQueryResult getDatabaseSchema() throws DHException, TException{
-		Client localClient = this.getNewClient();
+		Client localClient = getNewClient();
 		return localClient.list_tables(getNewConnection(localClient), this.database.getDatabaseName());
 	}
 	private void detectSchemaDifferences() throws DHException, TException{
@@ -93,10 +94,10 @@ class DataHubClient{
 	public DHQueryResult dbQuery(String query) throws DataHubException{
 		DHQueryResult out = null;
 		try{
-			Client localClient = this.getNewClient();
+			Client localClient = getNewClient();
 			out = localClient.execute_sql(getNewConnection(localClient), query, null);
 		}catch(Exception e){
-			throw new DataHubException(e.getMessage());
+			throw new DataHubException(e);
 		}
 		return out;
 	}

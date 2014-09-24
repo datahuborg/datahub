@@ -185,7 +185,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 			query = this.save(DataHubDatabase.MAX_SAVE_RECURSION_DEPTH, new ConcurrentHashMap<String,Object>(), new ConcurrentHashMap<Object,Boolean>());
 		}catch(DataHubException e){
 			//add rollback transaction here
-			throw new DataHubException(e.getMessage());
+			throw new DataHubException(e);
 		}
 		getDatabase().query(query);
 		//add end transaction stuff here
@@ -265,7 +265,7 @@ public abstract class DataHubModel<T extends DataHubModel>{
 				}
 			}
 		}catch(Exception e){
-			throw new DataHubException(e.getMessage());
+			throw new DataHubException(e);
 		}
 		return Resources.concatenate(queries, ";");
 	}
