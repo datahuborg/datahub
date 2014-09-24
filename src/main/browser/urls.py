@@ -72,6 +72,7 @@ urlpatterns = patterns('',
     url(r'^api/column_distributions/$', 'dbwipes.views.column_distributions'),
     url(r'^api/requestid/$', 'dbwipes.views.requestid'),
     url(r'^api/status/$', 'dbwipes.views.api_status'),
+    url(r'^api/scorpion$', 'dbwipes.views.scorpion'),
     url(r'^api/scorpion/$', 'dbwipes.views.scorpion')
 
 )

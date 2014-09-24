@@ -11,6 +11,9 @@ import numpy.random as nprand
 from collections import *
 from datetime import datetime
 
+from browser.auth import *
+from django.db import connection
+
 from scorpionsql.aggerror import AggErr
 from scorpion.arch import SharedObj, extract_agg_vals
 from scorpion.parallel import parallel_debug
@@ -50,6 +53,7 @@ def scorpion_run(db, requestdata, requestid):
     x = qjson['x']
     ys = qjson['ys']
 
+    pdb.set_trace()
     obj = SharedObj(db, dbname=dbname, parsed=parsed, params=params)
     obj.dbname = dbname
     obj.C = 0.2
@@ -109,6 +113,7 @@ def scorpion_run(db, requestdata, requestid):
     print "status requid = ", requestid
 
     start = time.time()
+    print obj.rules_schema
     parallel_debug(
       obj,
       parallel=True,

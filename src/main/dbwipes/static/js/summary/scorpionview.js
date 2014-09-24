@@ -133,26 +133,31 @@ define(function(require) {
 
       $.get('/api/requestid', function(resp) {
         var requestid = resp.requestid;
+        console.log("got reqid " + requestid)
         _this.model.fetch({
           data: {
             fake: util.debugMode(),
             requestid: requestid,
             json: JSON.stringify(_this.model.toJSON()) ,
+            username: window.username,
             db: _this.model.get('query').get('db')
           }, 
-          type: 'POST',
+          //type: 'POST',
           success: _this.onResult.bind(_this),
           error: _this.onResult.bind(_this)
         });
 
+      /*
         _this.statusview = new StatusView({ 
           requestid: requestid ,
           query: _this.model.get('query'),
+          username: window.username,
           results: _this.model.get('partialresults')
         });
         _this.statusview.render();
         $("#scorpion_status").append(_this.statusview.$el);
 
+        */
         $("#scorpion-results-container").fadeOut(500);
         $("#scorpion-partialresults-container").fadeIn(500);
       }, 'json')

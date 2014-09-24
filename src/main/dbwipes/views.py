@@ -100,7 +100,6 @@ def index(request, username, repo, table):
 def has_scorpion():
   try:
     import scorpion
-    return False
     return True
   except:
     return False
@@ -155,7 +154,6 @@ def schema(request):
   return ret
 
 
-@login_required
 @returns_json
 def requestid(request):
   if not has_scorpion():
@@ -165,17 +163,17 @@ def requestid(request):
   status = Status()
   requestid = status.reqid
   status.close()
+  print "requestid", requestid
   return {'requestid': requestid}
 
 
-@login_required
 @returns_json
 def api_status(request):
   if not has_scorpion():
     return {'error': "Scorpion not installed"}
 
   from scorpion.util import Status
-  rid = int(request.args.get('requestid'))
+  rid = int(request.GET.get('requestid'))
 
   status = Status(rid)
   ret = status.latest_status()
@@ -342,23 +340,51 @@ def column_distributions(request):
 
 
 
-@login_required
 @returns_json
 def scorpion(request):
-  return {}
   if not has_scorpion():
     print >>sys.stderr, "Could not load scorpionutil.  Maybe scorpion has not been installed?"
-    traceback.print_exc()
     return {'status': "error: could not load scorpion"}
 
   try:
-    data =  json.loads(str(request.POST.get('json')))
-    fake = request.POST.get('fake', False)
-    requestid = request.POST.get('requestid')
+    data =  json.loads(str(request.GET.get('json')))
+    username = request.GET.get('username')
+    fake = request.GET.get('fake', False)
+    requestid = request.GET.get('requestid')
     if not fake or fake == 'false':
-      results = scorpionutil.scorpion_run(db, data, requestid)
-      return results
+
+      import core.db.backend.pg as pg
+      qjson = data.get('query', {})
+      repo = qjson['db']
+      qjson['db'] = username
+      qjson['table'] = "%s.%s" % (repo, qjson['table'])
+      tablename = qjson['table']
+      host = pg.host
+      port = pg.port
+      dburl = "postgresql://%s@%s:%s/%s" % (username,host, port, username)
+      engine = create_engine(dburl)
+      db = engine.connect()
+      import scorpionutil
+
+      try:
+        results = scorpionutil.scorpion_run(db, data, requestid)
+        return results
+      except:
+        traceback.print_exc()
+        return {}
+      finally:
+        try:
+          db.close()
+        except:
+          pass
+        try:
+          engine.dispose()
+        except:
+          pass
+
+
   except:
+    traceback.print_exc()
     return {}
 
   ret = {}
