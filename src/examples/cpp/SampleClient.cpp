@@ -34,15 +34,15 @@ int main () {
     double version = client.get_version();
     cout << version << endl;
 
-    DHConnectionParams params = DHConnectionParams();
+    ConnectionParams params = ConnectionParams();
     params.__set_user("anantb");
     params.__set_password("anant");
 
     DHConnection conn;
-    client.connect(conn, params);
+    client.open_connection(conn, params);
 
     DHQueryResult res;
-    client.execute_sql(res, conn, "select * from anantb.demo.team", vector<string>());
+    client.execute_sql(res, conn, "select * from anantb.test.demo", vector<string>());
     for(vector<DHRow>::iterator row_it = res.data.table.rows.begin(); row_it != res.data.table.rows.end(); ++row_it) {
       for(vector<DHCell>::iterator cell_it = (*row_it).cells.begin(); cell_it != (*row_it).cells.end(); ++cell_it) {
     	cout << (*cell_it).value << "\t";
