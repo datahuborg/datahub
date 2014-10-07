@@ -44,17 +44,15 @@ int main () {
     ResultSet res;
     client.execute_sql(
       res, conn, "select * from anantb.test.demo", vector<string>());
-    for(
-        const auto* tuple_it = res.tuples.begin();
+    for(vector<Tuple>::const_iterator tuple_it = res.tuples.begin();
         tuple_it != res.tuples.end();
         ++tuple_it) {
-      for(
-          const auto* cell_it = (*tuple_it).cells.begin();
+      for(vector<string>::const_iterator cell_it = (*tuple_it).cells.begin();
           cell_it != (*tuple_it).cells.end(); 
           ++cell_it) {
-        std::cout << *cell_it << "\t";
+        cout << *cell_it << "\t";
       }
-      std::cout << std::endl;
+      cout << std::endl;
     }
 
     transport->close();
