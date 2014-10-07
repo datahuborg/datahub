@@ -2,6 +2,7 @@ import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
+import java.nio.ByteBuffer;
 import datahub.*;
 
 /** 
@@ -21,21 +22,22 @@ public class DHClient {
 
       System.out.println(client.get_version());
 
-      DHConnectionParams con_params = new DHConnectionParams();
+      ConnectionParams con_params = new ConnectionParams();
       con_params.setUser("anantb");
       con_params.setPassword("anant");
-      DHConnection con = client.connect(con_params);
+      Connection con = client.open_connection(con_params);
 	     
-      DHQueryResult res = client.execute_sql(con, "select * from anantb.test.demo", null);
+      ResultSet res = client.execute_sql(con, "select * from anantb.test.demo", null);
 
-      for (DHRow row : res.getData().getTable().getRows()) {
-        for (DHCell cell : row.getCells()) {
-          if (cell.getValue()!= null) {
-            System.out.print(new String(cell.getValue()));            
-          } else {
-            System.out.print(cell.getValue());
-          }
-          System.out.print("\t");
+      for (String field_name : res.getField_names()) {
+        System.out.print(field_name + "\t");
+      }
+
+      System.out.println();
+
+      for (Tuple t : res.getTuples()) {
+        for (ByteBuffer cell : t.getCells()) {
+          System.out.print(new String(cell.array()) + "\t");
         }
         System.out.println();
       }

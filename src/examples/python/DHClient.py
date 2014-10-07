@@ -24,15 +24,17 @@ try:
   client = DataHub.Client(protocol)
   print client.get_version()
   
-  con_params = DHConnectionParams(user='anantb', password='anant')
-  con = client.connect(con_params=con_params)
+  con_params = ConnectionParams(user='anantb', password='anant')
+  con = client.open_connection(con_params=con_params)
 
   res  = client.execute_sql(
       con=con,
       query='select * from anantb.test.demo',
       query_params=None)
 
-  print res
+  print "\t".join(res.field_names)
+  for t in res.tuples:
+    print "\t".join(t.cells)
 
 except Exception, e:
     print 'Something went wrong : %s' % (e)

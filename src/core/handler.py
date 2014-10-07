@@ -1,7 +1,7 @@
 import hashlib
 
 from core.db import manager
-from core.db.connection import *
+from core.db import connection
 
 from datahub import DataHub
 from datahub.constants import *
@@ -13,30 +13,22 @@ from datahub.constants import *
 DataHub Handler
 '''
 
-def construct_query_result(res):
-  print res
-  table = DHTable(rows=[
-      DHRow(
-          cells=[DHCell(value=bytes(val)) for val in t]
-      ) for t in res['tuples']
-  ])
+def construct_result_set(res):
+  tuples = [Tuple(
+      cells=[bytes(val) for val in t]) for t in res['tuples']
+  ]
 
-  schema = DHSchema(fields=[
-      DHField(
-          name=field['name'],
-          type=DHType.Binary
-      ) for field in res['fields']
-  ])
-
-  query_result = DHQueryResult(
-      status=res['status'],
-      row_count=res['row_count'],
-      data=DHData(
-          table=table, schema=schema
-      )
+  field_names = [bytes(field['name']) for field in res['fields']]
+  field_types = [bytes(field['type']) for field in res['fields']]
+  
+  result_set = ResultSet(status=res['status'],
+                         row_count=res['row_count'],
+                         tuples=tuples,
+                         field_names=field_names,
+                         field_types=field_types
   )
-
-  return query_result
+  
+  return result_set
 
 
 class DataHubHandler:
@@ -47,57 +39,57 @@ class DataHubHandler:
   def get_version(self):
     return VERSION
 
-  def connect(self, dh_con_params):  
+  def open_connection(self, con_params):  
     try:
-      con = Connection(
-          user=dh_con_params.user,
-          password=hashlib.sha1(dh_con_params.password).hexdigest())
+      con = connection.Connection(
+          user=con_params.user,
+          password=hashlib.sha1(con_params.password).hexdigest())
 
-      dh_con = DHConnection(user=dh_con_params.user)
-      return dh_con
+      con = Connection(user=con_params.user)
+      return con
     except Exception, e:
-      raise DHException(message=str(e))
+      raise DBException(message=str(e))
   
-  def create_repo(self, dh_con, repo):
+  def create_repo(self, con, repo_name):
     try:
-      res = manager.create_repo(username=dh_con.user, repo=repo)
-      return construct_query_result(res)
+      res = manager.create_repo(username=con.user, repo=repo_name)
+      return construct_result_set(res)
     except Exception, e:
-      raise DHException(message=str(e))
+      raise DBException(message=str(e))
 
-  def list_repos(self, dh_con):
+  def list_repos(self, con):
     try:
-      res = manager.list_repos(username=dh_con.user)
-      return construct_query_result(res)
+      res = manager.list_repos(username=con.user)
+      return construct_result_set(res)
     except Exception, e:
-      raise DHException(message=str(e))
+      raise DBException(message=str(e))
 
-  def delete_repo(self, dh_con, repo, force):
+  def delete_repo(self, con, repo_name, force_if_non_empty):
     try:
       res = manager.delete_repo(
-          username=dh_con.user, repo=repo, force=force)
-      return construct_query_result(res)
+          username=con.user, repo=repo, force=force_if_non_empty)
+      return construct_result_set(res)
     except Exception, e:
-      raise DHException(message=str(e))
+      raise DBException(message=str(e))
 
-  def list_tables(self, dh_con, repo):
+  def list_tables(self, con, repo_name):
     try:
-      res = manager.list_tables(username=dh_con.user, repo=repo)
-      return construct_query_result(res)
+      res = manager.list_tables(username=con.user, repo=repo_name)
+      return construct_result_set(res)
     except Exception, e:
-      raise DHException(message=str(e))
+      raise DBException(message=str(e))
 
-  def desc_table(self, dh_con, table):
+  def print_schema(self, con, table_name):
     try:
-      res = manager.desc_table(username=dh_con.user, table=table)
-      return construct_query_result(res)
+      res = manager.desc_table(username=con.user, table=table_name)
+      return construct_result_set(res)
     except Exception, e:
-      raise DHException(message=str(e))
+      raise DBException(message=str(e))
 
-  def execute_sql(self, dh_con, query, query_params=None):
+  def execute_sql(self, con, query, query_params=None):
     try:
       res = manager.execute_sql(
-          username=dh_con.user, query=query, params=query_params)
-      return construct_query_result(res)
+          username=con.user, query=query, params=query_params)
+      return construct_result_set(res)
     except Exception, e:
-      raise DHException(message=str(e))
+      raise DBException(message=str(e))
