@@ -52,6 +52,7 @@ int main () {
         ++field_it) {
       cout << *field_it << "\t";
     }
+    cout << endl;
 
     // print tuple values
     for(vector<Tuple>::const_iterator tuple_it = res.tuples.begin();
@@ -62,7 +63,7 @@ int main () {
           ++cell_it) {
         cout << *cell_it << "\t";
       }
-      cout << std::endl;
+      cout << endl;
     }
 
     transport->close();

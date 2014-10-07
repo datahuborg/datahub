@@ -14,25 +14,28 @@ from thrift.transport import TTransport
 Sample python code accesing DataHub APIs
 '''
 
-
-
 try:
-
   transport = THttpClient.THttpClient('http://datahub.csail.mit.edu/service')
   transport = TTransport.TBufferedTransport(transport)
   protocol = TBinaryProtocol.TBinaryProtocol(transport)
   client = DataHub.Client(protocol)
-  print client.get_version()
   
+  print "Version: %s" %(client.get_version())
+  
+  # open connection
   con_params = ConnectionParams(user='anantb', password='anant')
   con = client.open_connection(con_params=con_params)
 
+  # execute a query
   res  = client.execute_sql(
       con=con,
       query='select * from anantb.test.demo',
       query_params=None)
 
+  # print field names
   print "\t".join(res.field_names)
+  
+  # print tuples
   for t in res.tuples:
     print "\t".join(t.cells)
 
