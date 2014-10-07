@@ -45,11 +45,11 @@ int main () {
     client.execute_sql(
       res, conn, "select * from anantb.test.demo", vector<string>());
     for(
-        auto* tuple_it = res.tuples.begin();
+        const auto* tuple_it = res.tuples.begin();
         tuple_it != res.tuples.end();
         ++tuple_it) {
       for(
-          auto* cell_it = (*tuple_it).cells.begin();
+          const auto* cell_it = (*tuple_it).cells.begin();
           cell_it != (*tuple_it).cells.end(); 
           ++cell_it) {
         std::cout << *cell_it << "\t";
