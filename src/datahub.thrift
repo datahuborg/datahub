@@ -76,28 +76,23 @@ service DataHub {
   Connection open_connection (1: ConnectionParams con_params)
       throws (1: DBException ex)
 
-  ResultSet create_repo (1: Connection con,
-                         2: string repo_name)
+  ResultSet create_repo (1: Connection con, 2: string repo_name)
       throws (1: DBException ex)
 
   ResultSet list_repos(1: Connection con)
       throws (1: DBException ex)
 
-  ResultSet delete_repo (1: Connection con,
-                         2: string repo_name,
-                         3: bool force_if_non_empty)
+  ResultSet delete_repo (
+      1: Connection con, 2: string repo_name, 3: bool force_if_non_empty)
       throws (1: DBException ex)
 
-  ResultSet list_tables (1: Connection con,
-                         2: string repo_name)
+  ResultSet list_tables (1: Connection con, 2: string repo_name)
       throws (1: DBException ex)
 
-  ResultSet print_schema (1: Connection con,
-                          2: string table_name)
+  ResultSet print_schema (1: Connection con, 2: string table_name)
       throws (1: DBException ex)
 
-  ResultSet execute_sql (1: Connection con,
-                         2: string query,
-                         3: list <binary> query_params)
+  ResultSet execute_sql (
+      1: Connection con, 2: string query, 3: list <binary> query_params)
       throws (1: DBException ex)
 }
