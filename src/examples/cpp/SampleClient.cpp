@@ -26,13 +26,14 @@ using namespace datahub;
 
 int main () {
   try {
-    shared_ptr<THttpClient> transport(new THttpClient("datahub.csail.mit.edu", 80, "/service"));
+    shared_ptr<THttpClient> transport(
+        new THttpClient("datahub.csail.mit.edu", 80, "/service"));
     shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
     DataHubClient client(protocol);
 
     transport->open();
     double version = client.get_version();
-    cout << version << endl;
+    cout << "Version: " << version << endl;
 
     ConnectionParams params = ConnectionParams();
     params.__set_user("anantb");
@@ -44,6 +45,15 @@ int main () {
     ResultSet res;
     client.execute_sql(
       res, conn, "select * from anantb.test.demo", vector<string>());
+
+    // print field names
+    for(vector<string>::const_iterator field_it = res.field_names.begin();
+        field_it != res.field_names.end(); 
+        ++field_it) {
+      cout << *field_it << "\t";
+    }
+
+    // print tuple values
     for(vector<Tuple>::const_iterator tuple_it = res.tuples.begin();
         tuple_it != res.tuples.end();
         ++tuple_it) {
