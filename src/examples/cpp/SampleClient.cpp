@@ -38,10 +38,10 @@ int main () {
     params.__set_user("anantb");
     params.__set_password("anant");
 
-    DHConnection conn;
+    Connection conn;
     client.open_connection(conn, params);
 
-    DHQueryResult res;
+    ResultSet res;
     client.execute_sql(res, conn, "select * from anantb.test.demo", vector<string>());
     for(vector<DHRow>::iterator row_it = res.data.table.rows.begin(); row_it != res.data.table.rows.end(); ++row_it) {
       for(vector<DHCell>::iterator cell_it = (*row_it).cells.begin(); cell_it != (*row_it).cells.end(); ++cell_it) {
