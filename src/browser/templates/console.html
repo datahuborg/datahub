@@ -33,21 +33,21 @@ function print_result (res, term) {
     var col_names = []
     var separator = []
 
-    for (var field in res.data.schema.fields) {
-      col_names.push(res.data.schema.fields[field].name)
+    $.each(res.field_names, function(field_idx, field) {
+      col_names.push(field)
       separator.push('------------')
-    }
+    });
 
     term.echo(col_names.join('\t'))
     term.echo(separator.join(''))
 
-    for (var row in res.data.table.rows) {
+    $.each(res.tuples, function(tuple_idx, tuple) {
       values = []
-      for (var c in res.data.table.rows[row].cells) {
-        values.push(res.data.table.rows[row].cells[c].value)
-      }
+      $.each(tuple.cells, function(cell_idx, cell) {
+        values.push(cell)
+      });
       term.echo(values.join('\t'))
-    }
+    });
 
     term.echo('')
     term.echo(res.row_count + ' rows returned')
@@ -74,7 +74,7 @@ $(document).ready(function($) {
   var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
   var protocol = new Thrift.Protocol(transport);
   var client = new DataHubClient(protocol);
-  var con = new DHConnection({'user':login})
+  var con = new Connection({'user':login})
 
   $('#dh-console').terminal(
     function (command, term) {
@@ -108,7 +108,7 @@ $(document).ready(function($) {
         } else if (cmd.startsWith('desc')) {
           var args = cmd.split(' ', 2)
           if (args.length > 1) {
-            res = client.desc_table(con, args[1])
+            res = client.print_schema(con, args[1])
             print_result(res, term)
           } else {
             term.error ('HELP: desc &lt;table-name&gt;')

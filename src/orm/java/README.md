@@ -1,2 +1,0 @@
-DataHub Java ORM Spec
-=======

@@ -3,7 +3,7 @@ import json, sys, re, hashlib, smtplib, base64, urllib, os, csv, collections, co
 from auth import *
 
 from core.handler import DataHubHandler
-from refiner import inference
+from apps.refiner import inference
 from datahub import DataHub
 
 from django.http import *
