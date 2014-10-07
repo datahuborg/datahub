@@ -1,2 +1,2 @@
 #!/bin/sh
-java DHClient
+java SampleClient

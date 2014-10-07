@@ -13,7 +13,7 @@ import datahub.*;
  * 
  */
 
-public class DHClient {
+public class SampleClient {
   public static void main(String [] args) {
     try {
       TTransport transport = new THttpClient("http://datahub.csail.mit.edu/service");
