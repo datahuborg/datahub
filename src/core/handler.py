@@ -14,9 +14,10 @@ DataHub Handler
 '''
 
 def construct_query_result(res):
+  print res
   table = DHTable(rows=[
       DHRow(
-          cells=[DHCell(value=val) for val in t]
+          cells=[DHCell(value=bytes(val)) for val in t]
       ) for t in res['tuples']
   ])
 

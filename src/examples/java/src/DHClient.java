@@ -26,7 +26,7 @@ public class DHClient {
       con_params.setPassword("anant");
       DHConnection con = client.connect(con_params);
 	     
-      DHQueryResult res = client.execute_sql(con, "select * from anantb.test.logs", null);
+      DHQueryResult res = client.execute_sql(con, "select * from anantb.test.demo", null);
 
       for (DHRow row : res.getData().getTable().getRows()) {
         for (DHCell cell : row.getCells()) {

@@ -29,7 +29,7 @@ try:
 
   res  = client.execute_sql(
       con=con,
-      query='select * from anantb.demo.team',
+      query='select * from anantb.test.demo',
       query_params=None)
 
   print res
