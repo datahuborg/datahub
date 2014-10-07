@@ -26,11 +26,16 @@ public class DHClient {
       con_params.setPassword("anant");
       DHConnection con = client.connect(con_params);
 	     
-      DHQueryResult res = client.execute_sql(con, "select * from anantb.demo.team", null);
+      DHQueryResult res = client.execute_sql(con, "select * from anantb.test.logs", null);
 
       for (DHRow row : res.getData().getTable().getRows()) {
         for (DHCell cell : row.getCells()) {
-          System.out.print(new String(cell.getValue()) + "\t");
+          if (cell.getValue()!= null) {
+            System.out.print(new String(cell.getValue()));            
+          } else {
+            System.out.print(cell.getValue());
+          }
+          System.out.print("\t");
         }
         System.out.println();
       }
