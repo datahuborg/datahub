@@ -1,4 +1,5 @@
 #!/bin/sh
+abspath=$(cd "$(dirname "$BASH_SOURCE")"; pwd)
 rm -rf $abspath/nohup.out
 
 process_line=`lsof -i :9000 | tail -1`
