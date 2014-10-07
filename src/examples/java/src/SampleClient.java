@@ -44,13 +44,9 @@ public class SampleClient {
           System.out.print(new String(cell.array()) + "\t");
         }
         System.out.println();
-      }
-      
-	  
+      }	  
     } catch(Exception e) {
       e.printStackTrace();
     }
- 
   }
-
 }
