@@ -42,12 +42,19 @@ int main () {
     client.open_connection(conn, params);
 
     ResultSet res;
-    client.execute_sql(res, conn, "select * from anantb.test.demo", vector<string>());
-    for(vector<DHRow>::iterator row_it = res.data.table.rows.begin(); row_it != res.data.table.rows.end(); ++row_it) {
-      for(vector<DHCell>::iterator cell_it = (*row_it).cells.begin(); cell_it != (*row_it).cells.end(); ++cell_it) {
-    	cout << (*cell_it).value << "\t";
+    client.execute_sql(
+      res, conn, "select * from anantb.test.demo", vector<string>());
+    for(
+        auto* tuple_it = res.tuples.begin();
+        tuple_it != res.tuples.end();
+        ++tuple_it) {
+      for(
+          auto* cell_it = (*tuple_it).cells.begin();
+          cell_it != (*tuple_it).cells.end(); 
+          ++cell_it) {
+        std::cout << *cell_it << "\t";
       }
-      cout << "\n";
+      std::cout << std::endl;
     }
 
     transport->close();
