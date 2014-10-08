@@ -124,6 +124,7 @@ Connection = function(args) {
   this.seq_id = null;
   this.user = null;
   this.repo = null;
+  this.cursor = null;
   if (args) {
     if (args.client_id !== undefined) {
       this.client_id = args.client_id;
@@ -136,6 +137,9 @@ Connection = function(args) {
     }
     if (args.repo !== undefined) {
       this.repo = args.repo;
+    }
+    if (args.cursor !== undefined) {
+      this.cursor = args.cursor;
     }
   }
 };
@@ -181,6 +185,13 @@ Connection.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 5:
+      if (ftype == Thrift.Type.I64) {
+        this.cursor = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -210,6 +221,11 @@ Connection.prototype.write = function(output) {
   if (this.repo !== null && this.repo !== undefined) {
     output.writeFieldBegin('repo', Thrift.Type.STRING, 4);
     output.writeString(this.repo);
+    output.writeFieldEnd();
+  }
+  if (this.cursor !== null && this.cursor !== undefined) {
+    output.writeFieldBegin('cursor', Thrift.Type.I64, 5);
+    output.writeI64(this.cursor);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -295,7 +311,8 @@ Tuple.prototype.write = function(output) {
 ResultSet = function(args) {
   this.status = null;
   this.con = null;
-  this.row_count = null;
+  this.num_tuples = null;
+  this.num_more_tuples = null;
   this.tuples = null;
   this.field_names = null;
   this.field_types = null;
@@ -306,8 +323,11 @@ ResultSet = function(args) {
     if (args.con !== undefined) {
       this.con = args.con;
     }
-    if (args.row_count !== undefined) {
-      this.row_count = args.row_count;
+    if (args.num_tuples !== undefined) {
+      this.num_tuples = args.num_tuples;
+    }
+    if (args.num_more_tuples !== undefined) {
+      this.num_more_tuples = args.num_more_tuples;
     }
     if (args.tuples !== undefined) {
       this.tuples = args.tuples;
@@ -350,13 +370,20 @@ ResultSet.prototype.read = function(input) {
       }
       break;
       case 3:
-      if (ftype == Thrift.Type.I32) {
-        this.row_count = input.readI32().value;
+      if (ftype == Thrift.Type.I64) {
+        this.num_tuples = input.readI64().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 4:
+      if (ftype == Thrift.Type.I64) {
+        this.num_more_tuples = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 5:
       if (ftype == Thrift.Type.LIST) {
         var _size8 = 0;
         var _rtmp312;
@@ -377,7 +404,7 @@ ResultSet.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 5:
+      case 6:
       if (ftype == Thrift.Type.LIST) {
         var _size15 = 0;
         var _rtmp319;
@@ -397,7 +424,7 @@ ResultSet.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 6:
+      case 7:
       if (ftype == Thrift.Type.LIST) {
         var _size22 = 0;
         var _rtmp326;
@@ -438,13 +465,18 @@ ResultSet.prototype.write = function(output) {
     this.con.write(output);
     output.writeFieldEnd();
   }
-  if (this.row_count !== null && this.row_count !== undefined) {
-    output.writeFieldBegin('row_count', Thrift.Type.I32, 3);
-    output.writeI32(this.row_count);
+  if (this.num_tuples !== null && this.num_tuples !== undefined) {
+    output.writeFieldBegin('num_tuples', Thrift.Type.I64, 3);
+    output.writeI64(this.num_tuples);
+    output.writeFieldEnd();
+  }
+  if (this.num_more_tuples !== null && this.num_more_tuples !== undefined) {
+    output.writeFieldBegin('num_more_tuples', Thrift.Type.I64, 4);
+    output.writeI64(this.num_more_tuples);
     output.writeFieldEnd();
   }
   if (this.tuples !== null && this.tuples !== undefined) {
-    output.writeFieldBegin('tuples', Thrift.Type.LIST, 4);
+    output.writeFieldBegin('tuples', Thrift.Type.LIST, 5);
     output.writeListBegin(Thrift.Type.STRUCT, this.tuples.length);
     for (var iter29 in this.tuples)
     {
@@ -458,7 +490,7 @@ ResultSet.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.field_names !== null && this.field_names !== undefined) {
-    output.writeFieldBegin('field_names', Thrift.Type.LIST, 5);
+    output.writeFieldBegin('field_names', Thrift.Type.LIST, 6);
     output.writeListBegin(Thrift.Type.STRING, this.field_names.length);
     for (var iter30 in this.field_names)
     {
@@ -472,7 +504,7 @@ ResultSet.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.field_types !== null && this.field_types !== undefined) {
-    output.writeFieldBegin('field_types', Thrift.Type.LIST, 6);
+    output.writeFieldBegin('field_types', Thrift.Type.LIST, 7);
     output.writeListBegin(Thrift.Type.STRING, this.field_types.length);
     for (var iter31 in this.field_types)
     {

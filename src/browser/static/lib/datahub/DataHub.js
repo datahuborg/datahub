@@ -1089,6 +1089,131 @@ DataHub_execute_sql_result.prototype.write = function(output) {
   return;
 };
 
+DataHub_close_connection_args = function(args) {
+  this.con = null;
+  if (args) {
+    if (args.con !== undefined) {
+      this.con = args.con;
+    }
+  }
+};
+DataHub_close_connection_args.prototype = {};
+DataHub_close_connection_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.con = new Connection();
+        this.con.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+DataHub_close_connection_args.prototype.write = function(output) {
+  output.writeStructBegin('DataHub_close_connection_args');
+  if (this.con !== null && this.con !== undefined) {
+    output.writeFieldBegin('con', Thrift.Type.STRUCT, 1);
+    this.con.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+DataHub_close_connection_result = function(args) {
+  this.success = null;
+  this.ex = null;
+  if (args instanceof DBException) {
+    this.ex = args;
+    return;
+  }
+  if (args) {
+    if (args.success !== undefined) {
+      this.success = args.success;
+    }
+    if (args.ex !== undefined) {
+      this.ex = args.ex;
+    }
+  }
+};
+DataHub_close_connection_result.prototype = {};
+DataHub_close_connection_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+      if (ftype == Thrift.Type.BOOL) {
+        this.success = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.ex = new DBException();
+        this.ex.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+DataHub_close_connection_result.prototype.write = function(output) {
+  output.writeStructBegin('DataHub_close_connection_result');
+  if (this.success !== null && this.success !== undefined) {
+    output.writeFieldBegin('success', Thrift.Type.BOOL, 0);
+    output.writeBool(this.success);
+    output.writeFieldEnd();
+  }
+  if (this.ex !== null && this.ex !== undefined) {
+    output.writeFieldBegin('ex', Thrift.Type.STRUCT, 1);
+    this.ex.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 DataHubClient = function(input, output) {
     this.input = input;
     this.output = (!output) ? input : output;
@@ -1537,4 +1662,59 @@ DataHubClient.prototype.recv_execute_sql = function() {
     return result.success;
   }
   throw 'execute_sql failed: unknown result';
+};
+DataHubClient.prototype.close_connection = function(con, callback) {
+  this.send_close_connection(con, callback); 
+  if (!callback) {
+    return this.recv_close_connection();
+  }
+};
+
+DataHubClient.prototype.send_close_connection = function(con, callback) {
+  this.output.writeMessageBegin('close_connection', Thrift.MessageType.CALL, this.seqid);
+  var args = new DataHub_close_connection_args();
+  args.con = con;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  if (callback) {
+    var self = this;
+    this.output.getTransport().flush(true, function() {
+      if (this.readyState == 4 && this.status == 200) {
+        self.output.getTransport().setRecvBuffer(this.responseText);
+        var result = null;
+        try {
+          result = self.recv_close_connection();
+        } catch (e) {
+          result = e;
+        }
+        callback(result);
+      }
+    });
+  } else {
+    return this.output.getTransport().flush();
+  }
+};
+
+DataHubClient.prototype.recv_close_connection = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new DataHub_close_connection_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  if (null !== result.ex) {
+    throw result.ex;
+  }
+  if (null !== result.success) {
+    return result.success;
+  }
+  throw 'close_connection failed: unknown result';
 };

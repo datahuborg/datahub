@@ -116,11 +116,12 @@ class PGBackend:
     then fall back to default COPY import
     """
     try:
-      self.create_table_from_file_w_dbtruck(path, table_name)
-    except:
       return self.execute_sql(
           "COPY %s FROM '%s' WITH CSV HEADER ENCODING 'ISO-8859-1';" %(
               table_name, path))
+    except:
+      return self.create_table_from_file_w_dbtruck(path, table_name)
+      
 
   def create_table_from_file_w_dbtruck(self, path, table_name):
     from dbtruck.dbtruck import import_datafiles
@@ -136,7 +137,7 @@ class PGBackend:
     create_new = True
     errfile = None
 
-    import_datafiles([path], create_new, table_name, errfile, PGMethods,
+    return import_datafiles([path], create_new, table_name, errfile, PGMethods,
                     **dbsettings)
 
   def close(self):    
