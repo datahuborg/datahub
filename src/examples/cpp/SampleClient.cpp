@@ -8,7 +8,7 @@
 #include <thrift/protocol/TBinaryProtocol.h>
 
 /**
- * Sample DataHub C++ Client
+ * Sample C++ Client for DataHub
  *
  * @author anantb
  * @author stephentu

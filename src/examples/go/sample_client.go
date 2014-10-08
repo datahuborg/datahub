@@ -1,7 +1,7 @@
 package main
 
 /**
- * Sample Go Client for Barista
+ * Sample Go Client for DataHub
  *
  * @author: Anant Bhardwaj
  * @date: 03/23/2014

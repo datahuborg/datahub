@@ -11,7 +11,7 @@ from thrift.transport import TTransport
 @author: anant bhardwaj
 @date: Oct 11, 2013
 
-Sample python code accesing DataHub APIs
+Sample Python client for DataHub
 '''
 
 try:

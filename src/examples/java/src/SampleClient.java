@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import datahub.*;
 
 /** 
- * Sample DataHub Java Client
+ * Sample Java Client for DataHub
  * 
  * @author anantb
  * @date 11/07/2013
