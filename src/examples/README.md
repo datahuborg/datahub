@@ -18,6 +18,6 @@
 * `source setup.sh`
 * `go run SampleClient.go`
 
-### Javascript Sample Code
+### JavaScript Sample Code
 * `cd javascript`
 * open `SampleClient.html` in a browser
