@@ -106,10 +106,13 @@ def user(request, username):
   try:
     if(username):
       login = get_login(request)
-      res = manager.execute_sql(username=username,
-          query="SELECT has_database_privilege('%s', '%s', 'connect')" %(login, username))
+      
+      res = None
+      if login: 
+        res = manager.execute_sql(username=username,
+            query="SELECT has_database_privilege('%s', '%s', 'connect')" %(login, username))
 
-      if not res['tuples'][0][0]:
+      if (not res) or (not res['tuples'][0][0]):
         return HttpResponse(json.dumps(
             {'error': 'Access denied (missing required privileges).'}),
             mimetype="application/json")
@@ -128,10 +131,13 @@ def user(request, username):
 def repo(request, username, repo):
   try:
     login = get_login(request)
-    res = manager.execute_sql(username=username,
-        query="SELECT has_schema_privilege('%s', '%s', 'usage')" %(login, repo))
+
+    res = None
+    if login: 
+      res = manager.execute_sql(username=username,
+          query="SELECT has_schema_privilege('%s', '%s', 'usage')" %(login, repo))
     
-    if not res['tuples'][0][0]:
+    if (not res) or (not res['tuples'][0][0]):
       return HttpResponse(
         json.dumps(
             {'error': 'Access denied (missing required privileges).'}),
@@ -166,10 +172,13 @@ def table(request, username, repo, table, page='1'):
 
   try:
     login = get_login(request)
-    res = manager.execute_sql(username=username,
-        query="SELECT has_table_privilege('%s', '%s.%s.%s', 'select')" %(login, username, repo, table))
+
+    res = None
+    if login:
+      res = manager.execute_sql(username=username,
+          query="SELECT has_table_privilege('%s', '%s.%s.%s', 'select')" %(login, username, repo, table))
     
-    if not res['tuples'][0][0]:
+    if (not res) or (not res['tuples'][0][0]):
       return HttpResponse(
         json.dumps(
             {'error': 'Access denied (missing required privileges).'}),
