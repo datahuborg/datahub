@@ -149,9 +149,19 @@ def table(request, username, repo, table, page='1'):
 
   try:
     login = get_login(request)
+    res = manager.execute_sql(username=username,
+        query="SELECT has_table_privilege('%s', '%s.%s.%s', 'select')" %(login, username, repo, table))
+    
+    if not res['tuples'][0][0]:
+      return HttpResponse(
+        json.dumps(
+          {'error': 'access denied'}),
+        mimetype="application/json")
+
     res = manager.execute_sql(
-        username=login,
+        username=username,
         query='SELECT count(*) from %s.%s.%s' %(username, repo, table))
+    
     count = res['tuples'][0][0]
     total_pages = 1 + (int(count) / 100)
     end_page = start_page + 10
@@ -159,7 +169,7 @@ def table(request, username, repo, table, page='1'):
       end_page = total_pages
       
     res = manager.execute_sql(
-        username=login,
+        username=username,
         query='SELECT * from %s.%s.%s LIMIT 100 OFFSET %s' %(username, repo, table, (current_page -1) * 100))
     column_names = [field['name'] for field in res['fields']]
     tuples = res['tuples']
