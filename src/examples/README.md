@@ -11,7 +11,7 @@
 
 ### javascript
 * `cd javascript`
-* open SampleClient.html in a browser
+* open `SampleClient.html` in a browser
 
 ### python
 * `cd python`
