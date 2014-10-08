@@ -2,22 +2,11 @@
 
 DataHub
 =====
-### Dependencies
-* `thrift (0.9.1)`
-* `postgres (9.3)`
+DataHub is a (GitHub like) hosted platform for organizing, managing, sharing, collaborating, and making sense of data. It provides an efficient platform and easy to use tools/interfaces for:
 
-### Running DataHub Server
-* `cd src/datahub`
-* `source setup.sh`
-* `python server.py`
+* Publishing of your own data (hosting, sharing, collaboration)
+* Using other’s data (querying, linking)
+* Making sense of data (analysis, visualization)
 
-
-### Running DataHub Interactive Shell
-* `cd src/datahub`
-* `source setup.sh`
-* `python tools/cli.py`
-
-### Running DataHub Example Code
-* `cd examples/<...>`
-* `source setup.sh`
-* execute the `<example-binary>`
+## Contact Info
++ [datahub@csail.mit.edu](mailto:datahub@csail.mit.edu)
