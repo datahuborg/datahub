@@ -41,7 +41,7 @@ class DataHubHandler:
 
   def open_connection(self, con_params):  
     try:
-      con = connection.Connection(
+      db_con = connection.Connection(
           user=con_params.user,
           password=hashlib.sha1(con_params.password).hexdigest())
 
