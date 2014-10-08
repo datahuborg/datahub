@@ -111,8 +111,8 @@ INSTALLED_APPS = (
   'django.contrib.messages',
   'django.contrib.staticfiles',
   'browser',
-  'apps.dbwipes',
-  'apps.refiner',
+  'dbwipes',
+  'refiner',
   'schema'
 )
 

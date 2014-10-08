@@ -1,7 +1,7 @@
 #!/bin/sh
-basepath=$(cd "$(dirname "$BASH_SOURCE")"; pwd)
+abspath=$(cd "$(dirname "$BASH_SOURCE")"; pwd)
 
-rm -rf $basepath/gen-py
-thrift --gen py -o $basepath $basepath/datahub.thrift
-PYTHONPATH=$basepath:$basepath/gen-py
+rm -rf $abspath/gen-py
+thrift --gen py -o $abspath $abspath/datahub.thrift
+PYTHONPATH=$abspath:$abspath/gen-py:$abspath/apps
 export PYTHONPATH
