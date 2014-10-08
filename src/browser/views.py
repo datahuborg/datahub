@@ -79,7 +79,6 @@ def service_binary(request):
     resp['Access-Control-Allow-Origin'] = "*"
     return resp
   except Exception, e:
-    print str(e)
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
@@ -97,7 +96,6 @@ def service_json(request):
     resp['Access-Control-Allow-Origin'] = "*"
     return resp
   except Exception, e:
-    print str(e)
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),

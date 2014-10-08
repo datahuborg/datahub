@@ -7,3 +7,5 @@ rm -rf $abspath/bin
 rm -rf $abspath/gen-cpp
 
 thrift --gen cpp -o $abspath $basepath/datahub.thrift
+
+make
