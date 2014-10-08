@@ -48,6 +48,16 @@ urlpatterns = patterns('',
     url(r'^browse/(\w+)$', 'browser.views.user'),
     url(r'^browse/(\w+)/$', 'browser.views.user'),
 
+    url(r'^settings/(\w+)/(\w+)/(\w+)$', 'browser.views.settings_table'),
+    url(r'^settings/(\w+)/(\w+)/(\w+)/(\w+)$', 'browser.views.settings_table'),
+    url(r'^settings/(\w+)/(\w+)/(\w+)/(\w+)/$', 'browser.views.settings_table'),
+
+    url(r'^settings/(\w+)/(\w+)$', 'browser.views.settings_repo'),
+    url(r'^settings/(\w+)/(\w+)/$', 'browser.views.settings_repo'),
+
+    url(r'^settings/(\w+)$', 'browser.views.settings_database'),
+    url(r'^settings/(\w+)/$', 'browser.views.settings_database'),
+
 
     ### start dbwipes urls ###
 

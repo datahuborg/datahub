@@ -156,6 +156,34 @@ def repo(request, username, repo):
         {'error': str(e)}),
         mimetype="application/json")
 
+def settings_repo(request, username, repo):
+  try:
+    login = get_login(request)
+
+    res = None
+    if login: 
+      res = manager.execute_sql(username=username,
+          query="SELECT has_schema_privilege('%s', '%s', 'create')" %(login, repo))
+    
+    if (not res) or (not res['tuples'][0][0]):
+      return HttpResponse(
+        json.dumps(
+            {'error': 'Access denied (missing required privileges).'}),
+            mimetype="application/json")
+    
+    res = manager.list_tables(username, repo)
+    tables = [t[0] for t in res['tuples']]
+    res = {
+        'login': get_login(request),
+        'username': username,
+        'repo': repo,
+        'tables': tables}
+    return render_to_response("settings_repo.html", res)
+  except Exception, e:
+    return HttpResponse(json.dumps(
+        {'error': str(e)}),
+        mimetype="application/json")
+
 def table(request, username, repo, table, page='1'):
   current_page = 1
   try:
