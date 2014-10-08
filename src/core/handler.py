@@ -67,7 +67,7 @@ class DataHubHandler:
   def delete_repo(self, con, repo_name, force_if_non_empty):
     try:
       res = manager.delete_repo(
-          username=con.user, repo=repo, force=force_if_non_empty)
+          username=con.user, repo=repo_name, force=force_if_non_empty)
       return construct_result_set(res)
     except Exception, e:
       raise DBException(message=str(e))
