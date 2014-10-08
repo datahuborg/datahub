@@ -107,7 +107,7 @@ def user(request, username):
     if(username):
       login = get_login(request)
       res = manager.execute_sql(username=username,
-          query="SELECT has_database_privilege('%s', '%s', 'select')" %(login, username))
+          query="SELECT has_database_privilege('%s', '%s', 'connect')" %(login, username))
 
       if not res['tuples'][0][0]:
         return HttpResponse(json.dumps(
