@@ -23,6 +23,7 @@ def construct_result_set(res):
   
   result_set = ResultSet(status=res['status'],
                          num_tuples=res['row_count'],
+                         num_more_tuples=0,
                          tuples=tuples,
                          field_names=field_names,
                          field_types=field_types

@@ -51,7 +51,9 @@ function print_result (res, term) {
 
     term.echo('')
     term.echo(res.num_tuples + ' rows returned.')
-    term.echo(res.num_more_tuples + ' more rows available. Type \'more\' to see more rows.')
+    if (res.num_more_tuples && res.num_more_tuples > 0) {
+      term.echo(res.num_more_tuples + ' more rows available. Type \'more\' to see more rows.')
+    }
   } else {
     if (res.status) {
       term.echo('success')
