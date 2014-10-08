@@ -105,6 +105,15 @@ def service_json(request):
 def user(request, username):
   try:
     if(username):
+      login = get_login(request)
+      res = manager.execute_sql(username=username,
+          query="SELECT has_database_privilege('%s', '%s', 'select')" %(login, username))
+
+      if not res['tuples'][0][0]:
+        return HttpResponse(json.dumps(
+            {'error': 'Access denied (missing required privileges).'}),
+            mimetype="application/json")
+
       res = manager.list_repos(username)
       repos = [t[0] for t in res['tuples']]
       return render_to_response("user.html", {
@@ -112,13 +121,22 @@ def user(request, username):
           'username': username,
           'repos': repos})      
   except Exception, e:
-    return HttpResponse(
-        json.dumps(
-          {'error': str(e)}),
+    return HttpResponse(json.dumps(
+        {'error': str(e)}),
         mimetype="application/json")
 
 def repo(request, username, repo):
   try:
+    login = get_login(request)
+    res = manager.execute_sql(username=username,
+        query="SELECT has_schema_privilege('%s', '%s.%s', 'select')" %(login, username, repo))
+    
+    if not res['tuples'][0][0]:
+      return HttpResponse(
+        json.dumps(
+            {'error': 'Access denied (missing required privileges).'}),
+            mimetype="application/json")
+    
     res = manager.list_tables(username, repo)
     tables = [t[0] for t in res['tuples']]
     res = {
@@ -128,9 +146,8 @@ def repo(request, username, repo):
         'tables': tables}
     return render_to_response("repo.html", res)
   except Exception, e:
-    return HttpResponse(
-        json.dumps(
-          {'error': str(e)}),
+    return HttpResponse(json.dumps(
+        {'error': str(e)}),
         mimetype="application/json")
 
 def table(request, username, repo, table, page='1'):
@@ -155,8 +172,8 @@ def table(request, username, repo, table, page='1'):
     if not res['tuples'][0][0]:
       return HttpResponse(
         json.dumps(
-          {'error': 'access denied'}),
-        mimetype="application/json")
+            {'error': 'Access denied (missing required privileges).'}),
+            mimetype="application/json")
 
     res = manager.execute_sql(
         username=username,
@@ -183,9 +200,8 @@ def table(request, username, repo, table, page='1'):
         'current_page': current_page,
         'pages': range(start_page, end_page)})
   except Exception, e:
-    return HttpResponse(
-        json.dumps(
-          {'error': str(e)}),
+    return HttpResponse(json.dumps(
+        {'error': str(e)}),
         mimetype="application/json")
 
 
