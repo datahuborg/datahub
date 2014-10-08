@@ -9,10 +9,9 @@
 * `source setup.sh`
 * `java DHClient``
 
-### node
-* `cd node`
-* `source setup.sh`
-* `node DHClient.js`
+### javascript
+* `cd javascript`
+* open SampleClient.html in a browser
 
 ### python
 * `cd python`
