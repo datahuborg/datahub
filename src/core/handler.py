@@ -22,7 +22,7 @@ def construct_result_set(res):
   field_types = [bytes(field['type']) for field in res['fields']]
   
   result_set = ResultSet(status=res['status'],
-                         row_count=res['row_count'],
+                         num_tuples=res['row_count'],
                          tuples=tuples,
                          field_names=field_names,
                          field_types=field_types
