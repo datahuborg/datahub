@@ -148,8 +148,9 @@ def table(request, username, repo, table, page='1'):
     start_page = 1
 
   try:
+    login = get_login(request)
     res = manager.execute_sql(
-        username=username,
+        username=login,
         query='SELECT count(*) from %s.%s.%s' %(username, repo, table))
     count = res['tuples'][0][0]
     total_pages = 1 + (int(count) / 100)
@@ -158,7 +159,7 @@ def table(request, username, repo, table, page='1'):
       end_page = total_pages
       
     res = manager.execute_sql(
-        username=username,
+        username=login,
         query='SELECT * from %s.%s.%s LIMIT 100 OFFSET %s' %(username, repo, table, (current_page -1) * 100))
     column_names = [field['name'] for field in res['fields']]
     tuples = res['tuples']
