@@ -1,17 +1,13 @@
-### cpp
-* `cd cpp`
-* `source setup.sh`
-* `make`
-* `./DHClient`
-
 ### java
 * `cd java`
 * `source setup.sh`
 * `java DHClient``
 
-### javascript
-* `cd javascript`
-* open `SampleClient.html` in a browser
+### cpp
+* `cd cpp`
+* `source setup.sh`
+* `make`
+* `./DHClient`
 
 ### python
 * `cd python`
@@ -21,3 +17,7 @@
 ### go
 * `cd go`
 * `sh run.sh`
+
+### javascript
+* `cd javascript`
+* open `SampleClient.html` in a browser
