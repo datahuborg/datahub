@@ -3,8 +3,8 @@
 DataHub
 =====
 ### Dependencies
-* `thrift`
-* `postgres`
+* `thrift (0.9.1)`
+* `postgres (9.3)`
 
 ### Running DataHub Server
 * `cd src/datahub`
@@ -18,6 +18,6 @@ DataHub
 * `python tools/cli.py`
 
 ### Running DataHub Example Code
-* `cd src/datahub/examples/<python | java | javascript | ...>`
+* `cd src/datahub/examples/<python | java | cpp | go | ...>`
 * `source setup.sh`
 * `sh run.sh`
