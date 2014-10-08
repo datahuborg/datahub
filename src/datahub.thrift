@@ -36,7 +36,8 @@ struct Connection {
   1: optional string client_id,
   2: optional string seq_id,
   3: optional string user,
-  4: optional string repo
+  4: optional string repo,
+  5: optional i64 cursor
 }
 
 
@@ -50,11 +51,12 @@ struct Tuple {
 // a result set (list of tuples)
 struct ResultSet {
   1: required bool status,
-  2: Connection con,
-  3: optional i32 row_count,
-  4: optional list <Tuple> tuples,
-  5: optional list <string> field_names,
-  6: optional list <string> field_types
+  2: optional Connection con,
+  3: optional i64 num_tuples,
+  4: optional i64 num_more_tuples,
+  5: optional list <Tuple> tuples,
+  6: optional list <string> field_names,
+  7: optional list <string> field_types
 }
 
 
@@ -94,5 +96,8 @@ service DataHub {
 
   ResultSet execute_sql (
       1: Connection con, 2: string query, 3: list <binary> query_params)
+      throws (1: DBException ex)
+
+  bool close_connection (1: Connection con)
       throws (1: DBException ex)
 }
