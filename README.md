@@ -18,6 +18,6 @@ DataHub
 * `python tools/cli.py`
 
 ### Running DataHub Example Code
-* `cd src/datahub/examples/<python | java | cpp | go | ...>`
+* `cd examples/<...>`
 * `source setup.sh`
-* `sh run.sh`
+* execute the `<example-binary>`
