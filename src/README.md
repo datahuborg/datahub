@@ -1,5 +1,3 @@
-DataHub
-=======
 ### Dependencies
 * `thrift (0.9.1)`
 * `postgres (9.3)`
