@@ -21,24 +21,19 @@
 @date: Oct 11, 2013
 
 Sample javascript code accesing DataHub APIs
-
-You can put this code in Chrome Console too.
 */
 
 
 transport = new Thrift.Transport("http://datahub.csail.mit.edu/service/json"),
 protocol = new Thrift.Protocol(transport),
 client = new DataHubClient(protocol),
-con_params = new DHConnectionParams({'user': 'anantb', 'password': 'anant'}),
-con = client.connect(con_params),
-res = client.execute_sql(con, 'select * from anantb.demo.team');
+con_params = new ConnectionParams({'user': 'anantb', 'password': 'anant'}),
+con = client.open_connection(con_params),
+res = client.execute_sql(con, 'select * from anantb.test.demo');
 
-for (var row in res.data.table.rows) {
-  values = []
-  for (var c in res.data.table.rows[row].cells) {
-    values.push(res.data.table.rows[row].cells[c].value)
-  }
-  $('#results').append('<tr><td>' + values.join('</td><td>') + '</td></tr>');
-}
+$('#results').append('<tr><th>' + res.field_names.join('</th><th>') + '</th></tr>');
 
+$.each(res.tuples, function(tuple_idx, tuple) {
+  $('#results').append('<tr><td>' + tuple.cells.join('</td><td>') + '</td></tr>');
+});
 </script>
