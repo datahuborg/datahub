@@ -1,8 +1,8 @@
 DataHub
 =======
 ### Dependencies
-* `thrift`
-* `postgres`
+* `thrift (0.9.1)`
+* `postgres (9.3)`
 
 
 ### Optional Dependencies 
@@ -10,10 +10,13 @@ DataHub
 * `scorpionsql` for dbwipes
 * `sqlalchemy` for dbwipes
 
-### Running DataHub Server
+### Running DataHub TCP Server
 * `source setup.sh`
-* `python server.py`
+* `python server.py` // runs on port 9000
 
+### Running DataHub Web Server + HTTP Service
+* `source setup.sh`
+* `python manage.py runserver` // runs on port 8000
 
 ### Running DataHub Interactive Shell
 * `source setup.sh`
