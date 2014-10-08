@@ -29,7 +29,7 @@ if (typeof String.prototype.startsWith != 'function') {
 }
 
 function print_result (res, term) {
-  if (res.row_count >= 0) {
+  if (res.num_tuples >= 0) {
     var col_names = []
     var separator = []
 
@@ -50,7 +50,8 @@ function print_result (res, term) {
     });
 
     term.echo('')
-    term.echo(res.row_count + ' rows returned')
+    term.echo(res.num_tuples + ' rows returned.')
+    term.echo(res.num_more_tuples + ' more rows available. Type \'more\' to see more rows.')
   } else {
     if (res.status) {
       term.echo('success')
