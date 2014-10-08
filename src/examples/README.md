@@ -7,7 +7,7 @@
 ### Java Sample Code
 * `cd java`
 * `source setup.sh`
-* `java SampleClient``
+* `java SampleClient`
 
 ### Python Sample Code
 * `cd python`
