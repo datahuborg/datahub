@@ -1,23 +1,23 @@
-### java
+### Java Sample Code
 * `cd java`
 * `source setup.sh`
 * `java DHClient``
 
-### cpp
+### C++ Sample Code
 * `cd cpp`
 * `source setup.sh`
 * `make`
 * `./DHClient`
 
-### python
+### Python Sample Code
 * `cd python`
 * `source setup.sh`
 * `python DHClient.py`
 
-### go
+### Go Sample Code
 * `cd go`
 * `sh run.sh`
 
-### javascript
+### Javascript Sample Code
 * `cd javascript`
 * open `SampleClient.html` in a browser
