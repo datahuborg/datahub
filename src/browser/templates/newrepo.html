@@ -64,7 +64,7 @@ $(document).ready(function($) {
   var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
   var protocol = new Thrift.Protocol(transport);
   var client = new DataHubClient(protocol);
-  var con = new DHConnection({'user':login})
+  var con = new Connection({'user':login})
  
   var create_repo = function(){
     var db_name = $('#db-name').val();
