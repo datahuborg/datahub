@@ -129,7 +129,7 @@ def repo(request, username, repo):
   try:
     login = get_login(request)
     res = manager.execute_sql(username=username,
-        query="SELECT has_schema_privilege('%s', '%s', 'select')" %(login, repo))
+        query="SELECT has_schema_privilege('%s', '%s', 'usage')" %(login, repo))
     
     if not res['tuples'][0][0]:
       return HttpResponse(
