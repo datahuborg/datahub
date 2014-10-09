@@ -565,7 +565,7 @@ $(document).ready(function($) {
     if (res.num_tuples >= 0) {
       $("#repo_name").html('')
       $.each(res.tuples, function(idx, tuple) {
-        var repo = tuple.cells[0].value
+        var repo = tuple.cells[0]
         $("#repo_name").append('<option value="'+ repo +'">' + repo +' </option>')
       });
     }
