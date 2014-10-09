@@ -568,6 +568,7 @@ $(document).ready(function($) {
         var repo = tuple.cells[0].value
         $("#repo_name").append('<option value="'+ repo +'">' + repo +' </option>')
       });
+    }
   }catch(error){
     $('#error_results').html('<span class="error">' + error.message + '</span>');
   }
