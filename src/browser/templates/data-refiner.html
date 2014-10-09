@@ -559,16 +559,16 @@ $(document).ready(function($) {
   var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
   var protocol = new Thrift.Protocol(transport);
   var client = new DataHubClient(protocol);
-  var con = new DHConnection({'user':login})
+  var con = new Connection({'user':login})
   try {
     res = client.list_repos(con)
-    if (res.row_count >= 0) {
+    if (res.num_tuples >= 0) {
       $("#repo_name").html('')
-      for (var row in res.data.table.rows) {
-        var repo = res.data.table.rows[row].cells[0].value
+      $.each(res.tuples, function(idx, tuple) {
+        var repo = tuple.cells[0].value
         $("#repo_name").append('<option value="'+ repo +'">' + repo +' </option>')
       }
-    }
+    });
   }catch(error){
     $('#error_results').html('<span class="error">' + error.message + '</span>');
   }
