@@ -133,7 +133,7 @@ def repo(request, username, repo):
 
     res = None
     if login: 
-      res = manager.has_repo_privilege(login, username, repo), 'usage')
+      res = manager.has_repo_privilege(login, username, repo, 'usage')
     
     if (not res) or (not res['tuples'][0][0]):
       return HttpResponse(
