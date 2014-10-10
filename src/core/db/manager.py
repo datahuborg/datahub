@@ -74,8 +74,8 @@ def change_password(username, password):
   res = Connection.change_password(username=username, password=password)
   return res
 
-def list_shared_repo(username):
-  res = Connection.list_shared_repo(username=username)
+def list_shared_repos(username):
+  res = Connection.list_shared_repos(username=username)
   return res
 
 def has_user_access_privilege(login, username, privilege):

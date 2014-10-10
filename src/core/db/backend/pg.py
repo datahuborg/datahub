@@ -121,7 +121,7 @@ class PGBackend:
     query = ''' ALTER ROLE %s WITH PASSWORD '%s' ''' %(username, password)
     return self.execute_sql(query)
 
-  def list_shared_repo(self, username):
+  def list_shared_repos(self, username):
     query = ''' SELECT DISTINCT table_catalog, table_schema
                 FROM information_schema.table_privileges
                 WHERE grantee='%s' ''' %(username)

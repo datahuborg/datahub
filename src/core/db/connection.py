@@ -56,8 +56,8 @@ class Connection:
     return superuser_backend.change_password(username, password)
 
   @staticmethod
-  def list_shared_repo(username):
-    return superuser_backend.list_shared_repo(username)
+  def list_shared_repos(username):
+    return superuser_backend.list_shared_repos(username)
 
   @staticmethod
   def has_user_access_privilege(login, username, privilege):
