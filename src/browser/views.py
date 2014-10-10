@@ -120,7 +120,7 @@ def user(request, username):
       repos = [{'name':t[0], 'owner': username} for t in res['tuples']]
 
       res = manager.list_shared_repos(username)
-      shared_repos = [{'name':t[0], 'owner': t[1]} for t in res['tuples']]
+      shared_repos = [{'name':t[1], 'owner': t[0]} for t in res['tuples']]
       return render_to_response("user.html", {
           'login': get_login(request),
           'username': username,
