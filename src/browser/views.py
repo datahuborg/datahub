@@ -244,7 +244,11 @@ def table(request, username, repo, table, page='1'):
 
 
 def handle_uploaded_file(file_name, file_data):
-  with open(file_name, 'wb+') as destination:
+  user_dir = '/projects/user_files/%s' %(login)
+  if not os.path.exists(user_dir):
+    os.makedirs(user_dir)
+  
+  with open('%s/%s' %(user_dir, file_name), 'wb+') as destination:
     for chunk in file_data.chunks():
       destination.write(chunk)
 
