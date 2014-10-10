@@ -67,11 +67,33 @@ def create_table_from_file(path, database, table_name):
   return res
 
 def create_user(username, password):
-  res = Connection.create_user(
-      username=username, password=password)
+  res = Connection.create_user(username=username, password=password)
   return res
 
 def change_password(username, password):
-  res = Connection.change_password(
-      username=username, password=password)
+  res = Connection.change_password(username=username, password=password)
+  return res
+
+def list_shared_repo(username):
+  res = Connection.list_shared_repo(username=username)
+  return res
+
+def has_database_privilege(username, database, privilege):
+  res = Connection.has_database_privilege(
+      username=username, database=database, privilege=privilege)
+  return res
+
+def has_repo_privilege(username, repo, privilege):
+  res = Connection.has_schema_privilege(
+      username=username, reo=repo, privilege=privilege)
+  return res
+
+def has_table_privilege(username, table, privilege):
+  res = Connection.has_table_privilege(
+      username=username, table=table, privilege=privilege)
+  return res
+
+def has_column_privilege(username, table, column, privilege):
+  res = Connection.has_column_privilege(
+      username=username, table=table, column=column, privilege=privilege)
   return res

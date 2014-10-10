@@ -3,7 +3,7 @@ import re
 import csv
 import codecs
 
-from config.settings import *
+from config import settings
 
 '''
 @author: anant bhardwaj
@@ -11,8 +11,8 @@ from config.settings import *
 
 DataHub internal APIs for postgres database
 '''
-host = DATABASES['default']['HOST']
-port = 5432 if DATABASES['default']['PORT'] == '' else int(DATABASES['default']['PORT'])
+host = settings.DATABASES['default']['HOST']
+port = 5432 if settings.DATABASES['default']['PORT'] == '' else int(settings.DATABASES['default']['PORT'])
 
 class PGBackend:
   def __init__(
@@ -90,7 +90,8 @@ class PGBackend:
     result['status'] = True
     result['row_count'] = c.rowcount
     if c.description:
-      result['fields'] = [{'name': col[0], 'type': col[1]} for col in c.description]
+      result['fields'] = [
+          {'name': col[0], 'type': col[1]} for col in c.description]
 
     tokens = query.strip().split(' ', 2)
     c.close()
@@ -98,17 +99,41 @@ class PGBackend:
 
   def create_user(self, username, password):
     query = ''' CREATE ROLE %s WITH LOGIN 
-        NOCREATEDB NOCREATEROLE NOCREATEUSER PASSWORD '%s'
-        ''' %(username, password)
-
+                NOCREATEDB NOCREATEROLE NOCREATEUSER PASSWORD '%s'
+                ''' %(username, password)
+    self.execute_sql(query)
+    query = ''' CREATE DATABASE %s WITH OWNER=%s ''' %(username, username)
     return self.execute_sql(query)
 
   def change_password(self, username, password):
-    query = ''' ALTER ROLE %s WITH PASSWORD '%s' 
-        ''' %(username, password)
-
+    query = ''' ALTER ROLE %s WITH PASSWORD '%s' ''' %(username, password)
     return self.execute_sql(query)
 
+  def list_shared_repo(self, username):
+    query = ''' SELECT DISTINCT table_catalog, table_schema
+                FROM information_schema.table_privileges
+                WHERE grantee='%s' ''' %(username)
+    return self.execute_sql(query)
+
+  def has_database_privilege(self, username, database, privilege):
+    query = ''' SELECT has_database_privilege('%s', '%s', '%s')
+                ''' %(username, database, privilege)
+    return self.execute_sql(query)
+
+  def has_repo_privilege(self, username, repo, privilege):
+    query = ''' SELECT has_schema_privilege('%s', '%s', '%s')
+                ''' %(username, repo, privilege)
+    return self.execute_sql(query)
+
+  def has_table_privilege(self, username, table, privilege):
+    query = ''' SELECT has_table_privilege('%s', '%s', '%s')
+                ''' %(username, table, privilege)
+    return self.execute_sql(query)
+
+  def has_column_privilege(self, username, table, column, privilege):
+    query = ''' SELECT has_column_privilege('%s', '%s', '%s')
+                ''' %(username, table, column, privilege)
+    return self.execute_sql(query)
 
   def create_table_from_file(self, path, table_name):
     """
@@ -121,7 +146,6 @@ class PGBackend:
               table_name, path))
     except:
       return self.create_table_from_file_w_dbtruck(path, table_name)
-      
 
   def create_table_from_file_w_dbtruck(self, path, table_name):
     from dbtruck.dbtruck import import_datafiles
@@ -129,11 +153,13 @@ class PGBackend:
     from dbtruck.exporters.pg import PGMethods
 
     dbsettings = {
-      'dbname' : self.database,
-      'hostname' : self.host,
-      'username' : self.user,
-      'port' : self.port,
+      'dbname': self.database,
+      'hostname': self.host,
+      'username': self.user,
+      'password': self.password,
+      'port': self.port,
     }
+    
     create_new = True
     errfile = None
 
