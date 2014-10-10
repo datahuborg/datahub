@@ -7,7 +7,11 @@
       "bPaginate": false,
       "bFilter": true,
       "bInfo": false,
-      "sWidth": "100%"      
+      "sWidth": "100%",
+      "aoColumns": [                 
+        {"bSortable": false},
+        {"bSortable": false, "sWidth": "10em"},
+      ]     
     });
 
     $('.dataTables_filter input').attr("placeholder", "filter by keyword tokens");
