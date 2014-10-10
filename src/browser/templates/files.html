@@ -37,12 +37,14 @@
     <thead>
     <tr>
       <th>Uploaded Files</th>
+      <th>Action</th>
     </tr>
     </thead>
     <tbody>
     {% for file in files %}
     <tr>
-      <td class="blue link"><a href="#">{{file}}</a></td>
+      <td><a class="blue link" href="#">{{file}}</a></td>
+      <td><a class="button" href="/import/{{username}}/{{repo}}/{{file}}">Import as Table</a></td>
     </tr>
     {% endfor %}
     </tbody>
