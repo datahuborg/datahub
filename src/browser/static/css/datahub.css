@@ -131,10 +131,11 @@ input[type="text"], input[type="password"], select{
 input[type="file"]{
   padding:0.5em;
   padding-left: 0e;
-  border: #2B2B2B solid thin;
+  border: #ccc solid thin;
   margin: 0.3em 0;
   margin-left: 0;
   font-size: 1em;
+  font-weight: bold;
 }
 
 button, .button, input[type="button"], input[type="submit"]{
