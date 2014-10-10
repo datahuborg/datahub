@@ -248,9 +248,12 @@ def handle_uploaded_file(data_file):
   if not os.path.exists(user_dir):
     os.makedirs(user_dir)
   
-  with open('%s/%s' %(user_dir, data_file.name), 'wb+') as destination:
+  file_name = '%s/%s' %(user_dir, data_file.name)
+  with open(file_name, 'wb+') as destination:
     for chunk in data_file.chunks():
       destination.write(chunk)
+
+  return file_name
 
 @login_required
 def create_table_from_file(request):
@@ -262,7 +265,7 @@ def create_table_from_file(request):
       table_name = request.POST['table_name']
       repo = request.POST['repo']
       dh_table_name = '%s.%s.%s' %(login, repo, table_name)
-      handle_uploaded_file(data_file)
+      file_name = handle_uploaded_file(data_file)
       f = codecs.open(file_name, 'r', 'utf-8')
       data = csv.reader(f)
       cells = data.next()
