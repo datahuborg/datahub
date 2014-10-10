@@ -43,7 +43,7 @@
     <tbody>
     {% for file in files %}
     <tr>
-      <td><a class="black bold" href="/download/{{username}}/{{repo}}?file={{file}}">{{file}}</a></td>
+      <td><a class="blue bold link" href="/download/{{username}}/{{repo}}?file={{file}}">{{file}}</a></td>
       <td><a class="blue link" href="/import/{{username}}/{{repo}}?file={{file}}">Import as Table</a> &nbsp; <a class="blue link" href="/download/{{username}}/{{repo}}?file={{file}}">Download</a> &nbsp; <a class="blue link" href="/delete/{{username}}/{{repo}}?file={{file}}">Delete</a></td>
     </tr>
     {% endfor %}
