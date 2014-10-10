@@ -125,7 +125,7 @@ def tables(request):
 
 def get_schema(repo, table, username):
   full_tablename = "%s.%s" % (repo, table)
-  pairs = manager.desc_table(username, full_tablename)['tuples']
+  pairs = manager.print_schema(username, full_tablename)['tuples']
   schema = {}
   for col, typ in pairs:
     if typ == 'text':
