@@ -243,7 +243,7 @@ def table(request, username, repo, table, page='1'):
         mimetype="application/json")
 
 
-def handle_uploaded_file(data_file):
+def handle_uploaded_file(login, data_file):
   user_dir = '/user_data/%s' %(login)
   if not os.path.exists(user_dir):
     os.makedirs(user_dir)
@@ -265,7 +265,7 @@ def create_table_from_file(request):
       table_name = request.POST['table_name']
       repo = request.POST['repo']
       dh_table_name = '%s.%s.%s' %(login, repo, table_name)
-      file_name = handle_uploaded_file(data_file)
+      file_name = handle_uploaded_file(login, data_file)
       f = codecs.open(file_name, 'r', 'utf-8')
       data = csv.reader(f)
       cells = data.next()
