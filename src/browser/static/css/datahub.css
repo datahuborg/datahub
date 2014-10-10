@@ -425,10 +425,10 @@ button, .button, input[type="button"], input[type="submit"]{
   height: 1.2em;
 }
 
-.table-icon{
+.database-icon{
   display: inline-block;
   margin-right: 0.7em;
-  background-image:url(/static/images/table.png);
+  background-image:url(/static/images/database.png);
   background-repeat: no-repeat;
   background-size: 1.2em 1.2em;
   border-radius: 0.25em;
