@@ -133,7 +133,7 @@ def repo(request, username, repo):
 
     res = None
     if login: 
-      res = manager.has_schema_privilege(
+      res = manager.has_repo_privilege(
           login, '%s.%s', 'usage') %(username, repo)
     
     if (not res) or (not res['tuples'][0][0]):
@@ -161,7 +161,7 @@ def settings_repo(request, username, repo):
 
     res = None
     if login: 
-      res = manager.has_schema_privilege(
+      res = manager.has_repo_privilege(
           login, '%s.%s', 'create') %(username, repo)
     
     if (not res) or (not res['tuples'][0][0]):
