@@ -152,6 +152,10 @@ button, .button, input[type="button"], input[type="submit"]{
   color: #447EAC !important;
 }
 
+.black {
+  color: #000 !important;
+}
+
 .bold {
   font-weight: bold;
 }
