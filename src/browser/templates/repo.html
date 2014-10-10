@@ -66,14 +66,14 @@
     <thead>
     <tr>
       <th>Files</th>
-      <th>Action</th>
+      <th></th>
     </tr>
     </thead>
     <tbody>
     {% for file in files %}
     <tr>
       <td><a class="blue link" href="/download/{{username}}/{{repo}}?file={{file}}">{{file}}</a></td>
-      <td><a class="download-icon" href="/download/{{username}}/{{repo}}?file={{file}}" title="Download"></a> &nbsp; <a class="table-icon" href="/import/{{username}}/{{repo}}?file={{file}}" title="Import as Table"></a> &nbsp; <a class="delete-icon" href="/delete/{{username}}/{{repo}}?file={{file}}" title="Delete"></a></td>
+      <td><a class="table-icon" href="/import/{{username}}/{{repo}}?file={{file}}" title="Import as Table"></a> &nbsp; <a class="download-icon" href="/download/{{username}}/{{repo}}?file={{file}}" title="Download"></a> &nbsp; <a class="delete-icon" href="/delete/{{username}}/{{repo}}?file={{file}}" title="Delete"></a></td>
     </tr>
     {% endfor %}
     </tbody>
