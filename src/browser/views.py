@@ -284,8 +284,9 @@ def handle_file_upload(request):
         mimetype="application/json")
 
 @login_required
-def file_import(request, username, repo, file_name):
+def file_import(request, username, repo):
   try:
+    file_name = request.GET['file']
     user_dir = '/user_data/%s/%s' %(username, repo)
     file_path = '%s/%s' %(user_dir, file_name)
     table_name, _ = os.path.splitext(file_name)
