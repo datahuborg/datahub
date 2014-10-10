@@ -64,7 +64,7 @@ def newtable(request, username, repo):
   if not os.path.exists(user_dir):
     os.makedirs(user_dir)
   
-  uploaded_files = [f for f in os.listdir(username)]
+  uploaded_files = [f for f in os.listdir(user_dir)]
   res= {'login': get_login(request), 'username': get_login(request), 'repo':repo, 'files': uploaded_files}
   res.update(csrf(request))
   return render_to_response("newtable.html", res)
