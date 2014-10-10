@@ -22,7 +22,7 @@
   <div>
   <a class="button inactive" href="/console">Create Table Using SQL</a> &nbsp; &nbsp; <!-- <a class="button inactive" href="/data-refiner">Extract From Text</a> -->
   </div>
-  <form class="form-container" method="POST" action="/upload_file" enctype='multipart/form-data'>
+  <form class="form-container" method="POST" action="/handle-file-upload" enctype='multipart/form-data'>
   <h3 style="padding-bottom:0.5em;">Create new table by uploading a file</h3>
   {% csrf_token %}
   <input type="hidden" name="username" value="{{username}}" />
@@ -37,7 +37,6 @@
   <input class="button" type="submit" value="Upload File"/>
   </form>
 
-  <br />
   <br />
   <table id="files">
     <thead>
