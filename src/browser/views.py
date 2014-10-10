@@ -244,7 +244,7 @@ def table(request, username, repo, table, page='1'):
 
 
 def handle_uploaded_file(file_name, file_data):
-  user_dir = '/projects/user_files/%s' %(login)
+  user_dir = '/user_data/%s' %(login)
   if not os.path.exists(user_dir):
     os.makedirs(user_dir)
   
