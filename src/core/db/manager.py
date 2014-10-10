@@ -41,12 +41,12 @@ def list_tables(username, repo):
   res = con.list_tables(repo=repo)
   return res
 
-def desc_table(username, table):
+def print_schema(username, table):
   user = User.objects.get(username=username)
   con = Connection(
       user=username,
       password=user.password)
-  res = con.desc_table(table=table)
+  res = con.print_schema(table=table)
   return res
 
 def execute_sql(username, query, params=None):
@@ -85,7 +85,7 @@ def has_database_privilege(username, database, privilege):
 
 def has_repo_privilege(username, repo, privilege):
   res = Connection.has_repo_privilege(
-      username=username, reo=repo, privilege=privilege)
+      username=username, repo=repo, privilege=privilege)
   return res
 
 def has_table_privilege(username, table, privilege):

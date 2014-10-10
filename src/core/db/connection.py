@@ -30,8 +30,8 @@ class Connection:
   def list_tables(self, repo):
     return self.user_backend.list_tables(repo=repo)
 
-  def desc_table(self, table):
-    return self.user_backend.desc_table(table=table)
+  def print_schema(self, table):
+    return self.user_backend.print_scheme(table=table)
 
   def execute_sql(self, query, params=None):
     return self.user_backend.execute_sql(query, params) 
@@ -67,7 +67,7 @@ class Connection:
   @staticmethod
   def has_repo_privilege(username, repo, privilege):
     return superuser_backend.has_repo_privilege(
-        username=username, reo=repo, privilege=privilege)
+        username=username, repo=repo, privilege=privilege)
 
   @staticmethod
   def has_table_privilege(username, table, privilege):

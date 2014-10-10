@@ -82,7 +82,7 @@ class DataHubHandler:
 
   def print_schema(self, con, table_name):
     try:
-      res = manager.desc_table(username=con.user, table=table_name)
+      res = manager.print_schema(username=con.user, table=table_name)
       return construct_result_set(res)
     except Exception, e:
       raise DBException(message=str(e))

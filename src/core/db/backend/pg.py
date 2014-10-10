@@ -58,7 +58,7 @@ class PGBackend:
         WHERE table_schema = '%s' ''' %(repo)
     return self.execute_sql(query)
 
-  def desc_table(self, table):
+  def print_schema(self, table):
     tokens = table.split('.')
     if len(tokens) < 2:
       raise NameError (
