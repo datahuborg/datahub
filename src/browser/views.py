@@ -109,7 +109,7 @@ def user(request, username):
       
       res = None
       if login: 
-        res = manager.has_database_privilege(login, username, 'connect')
+        res = manager.has_user_access_privilege(login, username, 'connect')
 
       if (not res) or (not res['tuples'][0][0]):
         return HttpResponse(json.dumps(

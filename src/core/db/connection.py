@@ -60,9 +60,9 @@ class Connection:
     return superuser_backend.list_shared_repo(username)
 
   @staticmethod
-  def has_database_privilege(login, username, privilege):
+  def has_user_access_privilege(login, username, privilege):
     return superuser_backend.has_database_privilege(
-        login=login, database=database, privilege=privilege)
+        login=login, username=username, privilege=privilege)
 
   @staticmethod
   def has_repo_privilege(login, username, repo, privilege):

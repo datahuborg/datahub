@@ -78,8 +78,8 @@ def list_shared_repo(username):
   res = Connection.list_shared_repo(username=username)
   return res
 
-def has_database_privilege(login, username, privilege):
-  res = Connection.has_database_privilege(
+def has_user_access_privilege(login, username, privilege):
+  res = Connection.has_user_access_privilege(
       login=login, username=username, privilege=privilege)
   return res
 

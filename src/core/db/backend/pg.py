@@ -127,9 +127,9 @@ class PGBackend:
                 WHERE grantee='%s' ''' %(username)
     return self.execute_sql(query)
 
-  def has_database_privilege(self, login, database, privilege):
+  def has_user_access_privilege(self, login, username, privilege):
     query = ''' SELECT has_database_privilege('%s', '%s', '%s')
-                ''' %(login, database, privilege)
+                ''' %(login, username, privilege)
     return self.execute_sql(query)
 
   def has_repo_privilege(self, login, repo, privilege):
