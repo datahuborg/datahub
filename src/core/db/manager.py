@@ -88,7 +88,7 @@ def has_repo_privilege(login, username, repo, privilege):
       login=login, username=username, repo=repo, privilege=privilege)
   return res
 
-def has_table_privilege(login, username, repo, table, privilege):
+def has_table_privilege(login, username, table, privilege):
   res = Connection.has_table_privilege(
       login=login, username=username, table=table, privilege=privilege)
   return res
