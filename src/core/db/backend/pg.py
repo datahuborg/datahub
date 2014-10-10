@@ -15,13 +15,11 @@ HOST = settings.DATABASES['default']['HOST']
 PORT = 5432 if settings.DATABASES['default']['PORT'] == '' else int(settings.DATABASES['default']['PORT'])
 
 class PGBackend:
-  def __init__(
-      self, user, password, host=host, port=port, database=None):
-
+  def __init__(self, user, password, host=HOST, port=PORT, database=None):
     self.user = user
     self.password = password
-    self.host = HOST
-    self.port = PORT
+    self.host = host
+    self.port = port
     self.database = database
 
     self.__open_connection__()
