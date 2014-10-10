@@ -55,7 +55,7 @@
     {% for table in tables %}
     <tr>
       <td><a class="blue link" href="/browse/{{username}}/{{repo}}/{{table}}">{{table}}</a></td>
-      <td><a class="open-icon" href="/browse/{{username}}/{{repo}}/{{table}}" title="Open"></a> &nbsp; <a class="visualize-icon" href="/dbwipes/{{username}}/{{repo}}/{{table}}" title="Visualization"></a> &nbsp; <a class="csv-icon" href="/export/{{username}}/{{repo}}/{{table}}" title="Export to CSV"></a> &nbsp; <a class="delete-icon" href="/delete-table/{{username}}/{{repo}}/{{table}}" title="Delete"></a></td>
+      <td><a class="open-icon" href="/browse/{{username}}/{{repo}}/{{table}}" title="Open"></a> &nbsp; <a class="csv-icon" href="/export/{{username}}/{{repo}}/{{table}}" title="Export to CSV"></a> &nbsp; <a class="delete-icon" href="/delete-table/{{username}}/{{repo}}/{{table}}" title="Delete"></a></td>
     </tr>
     {% endfor %}
     </tbody>
