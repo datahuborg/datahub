@@ -64,8 +64,8 @@
     <tbody>
     {% for file in files %}
     <tr>
-      <td class="blue link"><a href="#">{{file}}</a></td>
-      <td><a class="button inactive" href="/import/{{username}}/{{repo}}?file={{file}}">Import as Table</a> &nbsp; <a class="button inactive" href="/delete/{{username}}/{{repo}}?file={{file}}">Delete</a></td>
+      <td class="blue link"><a href="/download/{{username}}/{{repo}}?file={{file}}">{{file}}</a></td>
+      <td><a class="button inactive" href="/import/{{username}}/{{repo}}?file={{file}}">Import as Table</a> &nbsp; <a href="/download/{{username}}/{{repo}}?file={{file}}">Download</a> &nbsp; <a class="button inactive" href="/delete/{{username}}/{{repo}}?file={{file}}">Delete</a></td>
     </tr>
     {% endfor %}
     </tbody>
