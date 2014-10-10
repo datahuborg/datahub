@@ -27,9 +27,9 @@ class PGBackend:
     self.__open_connection__()
 
   def __open_connection__(self):
-    if database:
-      self.connection = psycopg2.connect(
-          user=user, password=password, host=host, port=port, database=database)
+    if self.database:
+      self.connection = psycopg2.connect(user=user,
+        password=password, host=host, port=port, database=self.database)
     else:
       self.connection = psycopg2.connect(
           user=user, password=password, host=host, port=port)
