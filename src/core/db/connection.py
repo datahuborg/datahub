@@ -57,6 +57,7 @@ class Connection:
 
   @staticmethod
   def list_shared_repos(username):
+    superuser_backend.reset_connection(database=username)
     return superuser_backend.list_shared_repos(username)
 
   @staticmethod
