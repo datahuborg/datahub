@@ -293,7 +293,7 @@ def file_import(request, username, repo):
     table_name, _ = os.path.splitext(file_name)
     re.sub(r'\W+', '_', table_name)
     re.sub(r'\.', '_', table_name)
-    dh_table_name = '%s/%s/%s' %(username, repo, table_name)
+    dh_table_name = '%s.%s.%s' %(username, repo, table_name)
     f = codecs.open(file_path, 'r', 'ISO-8859-1')
     data = csv.reader(f)
     cells = data.next()
