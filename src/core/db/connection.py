@@ -48,7 +48,7 @@ class Connection:
 
   @staticmethod
   def create_table_from_file(path, database, table_name):
-    return superuser_backend.create_table_from_file_w_dbtruck(
+    return superuser_backend.create_table_from_file(
         path=path, table_name=table_name)
 
   @staticmethod

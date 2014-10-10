@@ -286,12 +286,25 @@ def handle_file_upload(request):
 @login_required
 def file_import(request, username, repo):
   try:
+    login = get_login(request)
     file_name = request.GET['file']
     user_dir = '/user_data/%s/%s' %(username, repo)
     file_path = '%s/%s' %(user_dir, file_name)
     table_name, _ = os.path.splitext(file_name)
     re.sub(r'\W+', '_', table_name)
     re.sub(r'\.', '_', table_name)
+    f = codecs.open(file_path, 'r', 'ISO-8859-1')
+    data = csv.reader(f)
+    cells = data.next()
+    columns = map(lambda x: re.sub(r'\W+', '_', x), cells)
+    columns = map(lambda x: re.sub(r'\.', '_', x), columns)
+    columns = map(lambda x: '_' + x[-20:], columns)
+    columns = filter(lambda x: x!='', columns)
+    query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
+    for i in range(1, len(columns)):
+      query += ', %s %s' %(columns[i], 'text')
+    query += ')'
+    manager.execute_sql(username=login, query=query)
     manager.create_table_from_file(path=file_path, database=username, table_name=table_name)
     return HttpResponseRedirect('/browse/%s/%s' %(username, repo))
   except Exception, e:
