@@ -284,75 +284,20 @@ def handle_file_upload(request):
         mimetype="application/json")
 
 @login_required
-def create_table_from_file(request):
+def file_import(request, username, repo, file_name):
   try:
-    login = get_login(request)
-    repo = ''
-    if request.method == 'POST':
-      repo = request.POST['repo']      
-      file_name = request.POST['file_name']
-      table_name = request.POST['table_name']
-      dh_table_name = '%s.%s.%s' %(login, repo, table_name)
-      f = codecs.open(file_name, 'r', 'utf-8')
-      data = csv.reader(f)
-      cells = data.next()
-      columns = map(lambda x: re.sub(r'\W+', '_', x), cells)
-      columns = map(lambda x: re.sub(r'\.', '_', x), columns)
-      columns = map(lambda x: '_' + x[-20:], columns)
-      columns = filter(lambda x: x!='', columns)
-      query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
-      for i in range(1, len(columns)):
-        query += ', %s %s' %(columns[i], 'text')
-      query += ')'
-      manager.execute_sql(
-        username=login, query=query)
-      manager.create_table_from_file(path=file_name, database=login, table_name=dh_table_name)
-
+    user_dir = '/user_data/%s/%s' %(username, repo)
+    file_path = '%s/%s' %(user_dir, file_name)
+    table_name, _ = os.path.splitext(file_name)
+    re.sub(r'\W+', '_', table_name)
+    re.sub(r'\.', '_', table_name)
+    manager.create_table_from_file(path=file_path, database=username, table_name=table_name)
     return HttpResponseRedirect('/browse/%s/%s' %(login, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
         mimetype="application/json")
-
-@csrf_exempt
-@login_required
-def create_table_from_file_data(request):
-  try:
-    login = get_login(request)
-    repo = ''
-    if request.method == 'POST':
-      file_data = request.POST['data']
-      table_name = request.POST['table_name']
-      repo = request.POST['repo']
-      file_name = '/tmp/%s_%s_%s.csv' %(login, repo, table_name)
-      dh_table_name = '%s.%s.%s' %(login, repo, table_name)
-      save_uploaded_file(file_name, file_data)
-      f = codecs.open(file_name, 'r', 'utf-8')
-      data = csv.reader(f)
-      cells = data.next()
-      columns = []
-      i = 1
-      for cell in cells:
-        columns.append('col_%s' %(i))
-        i += 1
-
-      query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
-      for i in range(1, len(columns)):
-        query += ', %s %s' %(columns[i], 'text')
-      query += ')'
-      manager.execute_sql(
-        username=login, query=query)
-      manager.create_table_from_file(path=file_name, database=login, table_name=dh_table_name)
-
-    return HttpResponseRedirect('/browse/%s/%s' %(login, repo))
-  except Exception, e:
-    return HttpResponse(
-        json.dumps(
-          {'error': str(e)}),
-        mimetype="application/json")
-
-
 
 @csrf_exempt
 def refine_data(request):

@@ -33,8 +33,8 @@ urlpatterns = patterns('',
 
     url(r'^handle-file-upload$', 'browser.views.handle_file_upload'),
 
-    url(r'^create_table_from_file$', 'browser.views.create_table_from_file'),
-    url(r'^create-table-from-file-data$', 'browser.views.create_table_from_file_data'),
+    url(r'^import/(\w+)/(\w+)/(\w+)', 'browser.views.file_import'),
+    url(r'^export/(\w+)/(\w+)/(\w+)', 'browser.views.file_export'),
 
     url(r'^service$', 'browser.views.service_binary'),
     url(r'^service/binary$', 'browser.views.service_binary'),
