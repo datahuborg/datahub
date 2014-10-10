@@ -34,7 +34,8 @@ urlpatterns = patterns('',
     url(r'^handle-file-upload$', 'browser.views.handle_file_upload'),
 
     url(r'^import/(\w+)/(\w+)', 'browser.views.file_import'),
-    url(r'^export/(\w+)/(\w+)/', 'browser.views.file_export'),
+    url(r'^delete/(\w+)/(\w+)', 'browser.views.file_delete'),
+    url(r'^export/(\w+)/(\w+)/(\w+)', 'browser.views.file_export'),
 
     url(r'^service$', 'browser.views.service_binary'),
     url(r'^service/binary$', 'browser.views.service_binary'),

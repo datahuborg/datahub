@@ -61,39 +61,35 @@ def execute_sql(username, query, params=None):
 SUPERUSER operations (be careful)
 '''
 
-def create_table_from_file(username, path, table_name):
-  res = Connection.create_table_from_file(
+def import_file(username, path, table_name):
+  return Connection.import_file(
       username=username, path=path, table_name=table_name)
-  return res
+
+def export_file(username, path, table_name):
+  return Connection.export_file(
+      username=username, path=path, table_name=table_name)
 
 def create_user(username, password):
-  res = Connection.create_user(username=username, password=password)
-  return res
+  return Connection.create_user(username=username, password=password)
 
 def change_password(username, password):
-  res = Connection.change_password(username=username, password=password)
-  return res
+  return Connection.change_password(username=username, password=password)
 
 def list_shared_repos(username):
-  res = Connection.list_shared_repos(username=username)
-  return res
+  return Connection.list_shared_repos(username=username)
 
 def has_user_access_privilege(login, username, privilege):
-  res = Connection.has_user_access_privilege(
+  return Connection.has_user_access_privilege(
       login=login, username=username, privilege=privilege)
-  return res
 
 def has_repo_privilege(login, username, repo, privilege):
-  res = Connection.has_repo_privilege(
+  return Connection.has_repo_privilege(
       login=login, username=username, repo=repo, privilege=privilege)
-  return res
 
 def has_table_privilege(login, username, table, privilege):
-  res = Connection.has_table_privilege(
+  return Connection.has_table_privilege(
       login=login, username=username, table=table, privilege=privilege)
-  return res
 
 def has_column_privilege(login, username, repo, column, privilege):
-  res = Connection.has_column_privilege(login=login,
+  return Connection.has_column_privilege(login=login,
       username=username, table=table, column=column, privilege=privilege)
-  return res

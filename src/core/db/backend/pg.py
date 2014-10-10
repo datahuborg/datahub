@@ -147,19 +147,22 @@ class PGBackend:
                 ''' %(login, table, column, privilege)
     return self.execute_sql(query)
 
-  def create_table_from_file(self, path, table_name):
+  def export_file(self, path, table_name):
+    return self.execute_sql(
+        '''COPY %s TO '%s' DELIMITER ',' CSV HEADER;''' %(table_name, path))
+
+  def import_file(self, path, table_name):
     """
     Try importing using dbtruck.  If it fails for any reason at all,
     then fall back to default COPY import
     """
     try:
-      return self.execute_sql(
-          "COPY %s FROM '%s' WITH CSV HEADER ENCODING 'ISO-8859-1';" %(
-              table_name, path))
+      return self.execute_sql('''COPY %s FROM '%s'
+          WITH CSV HEADER ENCODING 'ISO-8859-1';''' %(table_name, path))
     except:
-      return self.create_table_from_file_w_dbtruck(path, table_name)
+      return self.import_file_w_dbtruck(path, table_name)
 
-  def create_table_from_file_w_dbtruck(self, path, table_name):
+  def import_file_w_dbtruck(self, path, table_name):
     from dbtruck.dbtruck import import_datafiles
     from dbtruck.util import get_logger
     from dbtruck.exporters.pg import PGMethods

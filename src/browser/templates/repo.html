@@ -40,12 +40,14 @@
     <thead>
     <tr>
       <th>All Tables</th>
+      <th>Action</th>
     </tr>
     </thead>
     <tbody>
     {% for table in tables %}
     <tr>
       <td class="blue link"><a href="/browse/{{username}}/{{repo}}/{{table}}">{{table}}</a></td>
+      <td><a class="button inactive" href="/import/{{username}}/{{repo}}/{{table}}">Export to CSV</a> &nbsp; <a class="button inactive" href="/browse/{{username}}/{{repo}}/{{table}}">Open</a></td>
     </tr>
     {% endfor %}
     </tbody>
@@ -63,7 +65,7 @@
     {% for file in files %}
     <tr>
       <td class="blue link"><a href="#">{{file}}</a></td>
-      <td><a class="button inactive" href="/import/{{username}}/{{repo}}?file={{file}}">Import as Table</a></td>
+      <td><a class="button inactive" href="/import/{{username}}/{{repo}}?file={{file}}">Import as Table</a> &nbsp; <a class="button inactive" href="/delete/{{username}}/{{repo}}?file={{file}}">Delete</a></td>
     </tr>
     {% endfor %}
     </tbody>

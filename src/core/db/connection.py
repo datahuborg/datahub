@@ -47,10 +47,14 @@ class Connection:
     return superuser_backend.create_user(username, password)
 
   @staticmethod
-  def create_table_from_file(username, path, table_name):
+  def import_file(username, path, table_name):
     superuser_backend.reset_connection(database=username)
-    return superuser_backend.create_table_from_file(
-        path=path, table_name=table_name)
+    return superuser_backend.import_file(path=path, table_name=table_name)
+
+  @staticmethod
+  def export_file(username, path, table_name):
+    superuser_backend.reset_connection(database=username)
+    return superuser_backend.export_file(path=path, table_name=table_name)
 
   @staticmethod
   def change_password(username, password):

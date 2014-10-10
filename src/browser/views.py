@@ -305,9 +305,39 @@ def file_import(request, username, repo):
     for i in range(1, len(columns)):
       query += ', %s %s' %(columns[i], 'text')
     query += ')'
-    manager.execute_sql(username=login, query=query)
-    manager.create_table_from_file(username=username, path=file_path, table_name=dh_table_name)
+    manager.execute_sql(username=username, query=query)
+    manager.import_file(username=username, path=file_path, table_name=dh_table_name)
     os.remove(file_path)
+    return HttpResponseRedirect('/browse/%s/%s' %(username, repo))
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
+
+@login_required
+def file_delete(request, username, repo):
+  try:
+    login = get_login(request)
+    file_name = request.GET['file']
+    user_dir = '/user_data/%s/%s' %(username, repo)
+    file_path = '%s/%s' %(user_dir, file_name)
+    os.remove(file_path)
+    return HttpResponseRedirect('/browse/%s/%s' %(username, repo))
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
+
+@login_required
+def file_export(request, username, repo, table_name):
+  try:
+    login = get_login(request)
+    user_dir = '/user_data/%s/%s' %(username, repo)
+    file_path = '%s/%s.csv' %(user_dir, table_name)
+    dh_table_name = '%s.%s.%s' %(username, repo, table_name)
+    manager.export_file(username=username, path=file_path, table_name=dh_table_name)
     return HttpResponseRedirect('/browse/%s/%s' %(username, repo))
   except Exception, e:
     return HttpResponse(
