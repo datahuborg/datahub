@@ -134,7 +134,7 @@ def repo(request, username, repo):
     res = None
     if login: 
       res = manager.has_repo_privilege(
-          login, '%s.%s', 'usage') %(username, repo)
+          login, '%s.%s' %(username, repo), 'usage')
     
     if (not res) or (not res['tuples'][0][0]):
       return HttpResponse(
@@ -162,7 +162,7 @@ def settings_repo(request, username, repo):
     res = None
     if login: 
       res = manager.has_repo_privilege(
-          login, '%s.%s', 'create') %(username, repo)
+          login, '%s.%s' %(username, repo), 'create')
     
     if (not res) or (not res['tuples'][0][0]):
       return HttpResponse(
@@ -203,7 +203,7 @@ def table(request, username, repo, table, page='1'):
     res = None
     if login:
       res = manager.has_table_privilege(
-          login, '%s.%s.%s', 'select') %(username, repo, table)
+          login, '%s.%s.%s' %(username, repo, table), 'select')
     
     if (not res) or (not res['tuples'][0][0]):
       return HttpResponse(
