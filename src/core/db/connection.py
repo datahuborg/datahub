@@ -37,19 +37,19 @@ class Connection:
     return self.user_backend.execute_sql(query, params)
 
   def has_database_privilege(self, username, database, privilege):
-    return self.has_database_privilege(
+    return self.user_backend.has_database_privilege(
         username=username, database=database, privilege=privilege)
 
   def has_repo_privilege(self, username, repo, privilege):
-    return self.has_repo_privilege(
+    return self.user_backend.has_repo_privilege(
         username=username, repo=repo, privilege=privilege)
 
   def has_table_privilege(self, username, table, privilege):
-    return self.has_table_privilege(
+    return self.user_backend.has_table_privilege(
         username=username, table=table, privilege=privilege)
 
   def has_column_privilege(self, table, column, privilege):
-    return self.has_column_privilege(
+    return self.user_backend.has_column_privilege(
         username=username, table=table, column=column, privilege=privilege)
 
   def close(self):    
