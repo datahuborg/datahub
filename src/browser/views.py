@@ -306,7 +306,7 @@ def file_import(request, username, repo):
       query += ', %s %s' %(columns[i], 'text')
     query += ')'
     manager.execute_sql(username=login, query=query)
-    manager.create_table_from_file(path=file_path, database=username, table_name=table_name)
+    manager.create_table_from_file(username=username, path=file_path, table_name=dh_table_name)
     os.remove(file_path)
     return HttpResponseRedirect('/browse/%s/%s' %(username, repo))
   except Exception, e:

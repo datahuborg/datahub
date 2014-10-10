@@ -47,7 +47,8 @@ class Connection:
     return superuser_backend.create_user(username, password)
 
   @staticmethod
-  def create_table_from_file(path, database, table_name):
+  def create_table_from_file(username, path, table_name):
+    superuser_backend.reset_connection(database=username)
     return superuser_backend.create_table_from_file(
         path=path, table_name=table_name)
 
