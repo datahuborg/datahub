@@ -293,7 +293,7 @@ def file_import(request, username, repo):
     re.sub(r'\W+', '_', table_name)
     re.sub(r'\.', '_', table_name)
     manager.create_table_from_file(path=file_path, database=username, table_name=table_name)
-    return HttpResponseRedirect('/browse/%s/%s' %(login, repo))
+    return HttpResponseRedirect('/browse/%s/%s' %(username, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
