@@ -38,6 +38,8 @@ urlpatterns = patterns('',
     url(r'^download/(\w+)/(\w+)', 'browser.views.file_download'),
     url(r'^export/(\w+)/(\w+)/(\w+)', 'browser.views.file_export'),
 
+    url(r'^delete-table/(\w+)/(\w+)/(\w+)', 'browser.views.table_delete'),
+
     url(r'^service$', 'browser.views.service_binary'),
     url(r'^service/binary$', 'browser.views.service_binary'),
     url(r'^service/json$', 'browser.views.service_json'),

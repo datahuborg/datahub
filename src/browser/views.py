@@ -331,7 +331,21 @@ def file_delete(request, username, repo):
         mimetype="application/json")
 
 @login_required
-def file_download(request, username, repo):
+def table_delete(request, username, repo):
+  try:
+    login = get_login(request)
+    dh_table_name = '%s.%s.%s' %(username, repo, table_name)
+    query = '''DROP TABLE %s''' %(dh_table_name)
+    manager.execute_sql(username=login, query=query)
+    return HttpResponseRedirect('/browse/%s/%s' %(username, repo))
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
+
+@login_required
+def file_download(request, username, repo, table_name):
   try:
     login = get_login(request)
     file_name = request.GET['file']
