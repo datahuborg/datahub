@@ -35,6 +35,7 @@ urlpatterns = patterns('',
 
     url(r'^import/(\w+)/(\w+)', 'browser.views.file_import'),
     url(r'^delete/(\w+)/(\w+)', 'browser.views.file_delete'),
+    url(r'^download/(\w+)/(\w+)', 'browser.views.file_download'),
     url(r'^export/(\w+)/(\w+)/(\w+)', 'browser.views.file_export'),
 
     url(r'^service$', 'browser.views.service_binary'),

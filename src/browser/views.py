@@ -331,6 +331,23 @@ def file_delete(request, username, repo):
         mimetype="application/json")
 
 @login_required
+def file_download(request, username, repo):
+  try:
+    login = get_login(request)
+    file_name = request.GET['file']
+    user_dir = '/user_data/%s/%s' %(username, repo)
+    file_path = '%s/%s' %(user_dir, file_name)
+    response = HttpResponse(mimetype='application/force-download')
+    response['Content-Disposition'] = 'attachment; filename="%s"' %(file_path)
+    response['X-Sendfile'] = file_path
+    return response
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
+
+@login_required
 def file_export(request, username, repo, table_name):
   try:
     login = get_login(request)
