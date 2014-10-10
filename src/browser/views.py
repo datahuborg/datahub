@@ -345,7 +345,7 @@ def table_delete(request, username, repo, table_name):
         mimetype="application/json")
 
 @login_required
-def file_download(request, username, repo, table_name):
+def file_download(request, username, repo):
   try:
     login = get_login(request)
     file_name = request.GET['file']
