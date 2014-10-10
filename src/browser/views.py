@@ -117,11 +117,15 @@ def user(request, username):
             mimetype="application/json")
 
       res = manager.list_repos(username)
-      repos = [t[0] for t in res['tuples']]
+      repos = [{'name':t[0], 'owner': username} for t in res['tuples']]
+
+      res = manager.list_shared_repos(username)
+      shared_repos = [{'name':t[0], 'owner': t[1]} for t in res['tuples']]
       return render_to_response("user.html", {
           'login': get_login(request),
           'username': username,
-          'repos': repos})      
+          'repos': repos,
+          'shared_repos': shared_repos})      
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),

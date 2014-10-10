@@ -3,49 +3,69 @@
 
 <script type="text/javascript">
 
-	function load_repo (repo) {
-		window.location.href = "/browse/{{username}}/" + repo;
-	}
+  $(document).ready(function(){
+    var repos = $('#repos').dataTable({
+      "sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
+      "bPaginate": false,
+      "bFilter": true,
+      "bInfo": false,
+      "sWidth": "100%"      
+    });
+    var shared_repos = $('#shared_repos').dataTable({
+      "sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
+      "bPaginate": false,
+      "bFilter": true,
+      "bInfo": false,
+      "sWidth": "100%"      
+    });
+    $('.dataTables_filter input').attr("placeholder", "filter by keyword tokens");
 
-
-	$(document).ready(function(){	
-
-		var repos = $('#repos').dataTable({
-			"sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
-			"bPaginate": false,
-			"bFilter": true,
-			"bInfo": false,
-			"sWidth": "100%"			
-		});
-		$('.dataTables_filter input').attr("placeholder", "filter by keyword tokens");
-
-	});
+  });
 </script>
 
 
 <div id="content">
-	<a class="blue bold" href=/browse/{{username}}>{{username}}</a> /
-	<hr class="light"/>
-	<br />
-	<br />
-	<div>
-	<a class="button inactive" href="/newrepo">Create New Repository</a>
-	</div>
-	<br />
-	<table id="repos">
-		<thead>
-		<tr>
-			<th>All Repositories</th>
-		</tr>
-		</thead>
-		<tbody>
-			{% for repo in repos %}
-				<tr>
-				<td class="blue link" onclick='load_repo("{{repo}}")'>{{repo}}</td>
-				</tr>
-			{% endfor %}		
-		</tbody>
-	</table>
+  <a class="blue bold" href=/browse/{{username}}>{{username}}</a> /
+  <hr class="light"/>
+  <br />
+  <br />
+  <div>
+  <a class="button inactive" href="/newrepo">Create New Repository</a>
+  </div>
+  <br />
+  <table id="repos">
+    <thead>
+    <tr>
+      <th>Your Repositories</th>
+      <th>Owner</th>
+    </tr>
+    </thead>
+    <tbody>
+      {% for repo in repos %}
+        <tr>
+        <td class="blue link"><a class="blue link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
+        <td class="blue link"><a class="blue link" href=/browse/{{repo.owner}}>{{repo.owner}}</a></td>
+        </tr>
+      {% endfor %}    
+    </tbody>
+  </table>
+
+  <table id="shared_repos">
+    <thead>
+    <tr>
+      <th>Repositories Shared With You</th>
+      <th>Owner</th>
+    </tr>
+    </thead>
+    <tbody>
+      {% for repo in shared_repos %}
+        <tr>
+        <td class="blue link"><a class="blue link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
+        <td class="blue link"><a class="blue link" href=/browse/{{repo.owner}}>{{repo.owner}}</a></td>
+        </tr>
+      {% endfor %}    
+    </tbody>
+  </table>
 </div>
 {% endblock %}
 
