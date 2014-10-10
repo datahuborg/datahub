@@ -243,18 +243,14 @@ def table(request, username, repo, table, page='1'):
         mimetype="application/json")
 
 
-def handle_uploaded_file(file_name, file_data):
+def handle_uploaded_file(data_file):
   user_dir = '/user_data/%s' %(login)
   if not os.path.exists(user_dir):
     os.makedirs(user_dir)
   
-  with open('%s/%s' %(user_dir, file_name), 'wb+') as destination:
-    for chunk in file_data.chunks():
+  with open('%s/%s' %(user_dir, data_file.name), 'wb+') as destination:
+    for chunk in data_file.chunks():
       destination.write(chunk)
-
-def save_uploaded_file(file_name, file_data):
-  f = open(file_name, 'wb+')
-  f.write(file_data)
 
 @login_required
 def create_table_from_file(request):
@@ -262,12 +258,11 @@ def create_table_from_file(request):
     login = get_login(request)
     repo = ''
     if request.method == 'POST':
-      file_data = request.FILES['data_file']
+      data_file = request.FILES['data_file']
       table_name = request.POST['table_name']
       repo = request.POST['repo']
-      file_name = '/tmp/%s_%s_%s.csv' %(login, repo, table_name)
       dh_table_name = '%s.%s.%s' %(login, repo, table_name)
-      handle_uploaded_file(file_name, file_data)
+      handle_uploaded_file(data_file)
       f = codecs.open(file_name, 'r', 'utf-8')
       data = csv.reader(f)
       cells = data.next()
