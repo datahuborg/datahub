@@ -300,7 +300,7 @@ def file_import(request, username, repo):
     columns = map(lambda x: re.sub(r'\.', '_', x), columns)
     columns = map(lambda x: '_' + x[-20:], columns)
     columns = filter(lambda x: x!='', columns)
-    query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
+    query = 'CREATE TABLE %s (%s text' % (table_name, columns[0])
     for i in range(1, len(columns)):
       query += ', %s %s' %(columns[i], 'text')
     query += ')'
