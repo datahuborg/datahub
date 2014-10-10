@@ -11,8 +11,8 @@ from config import settings
 
 DataHub internal APIs for postgres database
 '''
-host = settings.DATABASES['default']['HOST']
-port = 5432 if settings.DATABASES['default']['PORT'] == '' else int(settings.DATABASES['default']['PORT'])
+HOST = settings.DATABASES['default']['HOST']
+PORT = 5432 if settings.DATABASES['default']['PORT'] == '' else int(settings.DATABASES['default']['PORT'])
 
 class PGBackend:
   def __init__(
@@ -20,19 +20,26 @@ class PGBackend:
 
     self.user = user
     self.password = password
-    self.host = host
-    self.port = port
+    self.host = HOST
+    self.port = PORT
     self.database = database
 
     self.__open_connection__()
 
   def __open_connection__(self):
     if self.database:
-      self.connection = psycopg2.connect(user=user,
-        password=password, host=host, port=port, database=self.database)
+      self.connection = psycopg2.connect(
+          user=self.user,
+          password=self.password,
+          host=self.host,
+          port=self.port,
+          database=self.database)
     else:
       self.connection = psycopg2.connect(
-          user=user, password=password, host=host, port=port)
+          user=self.user,
+          password=self.password,
+          host=self.host,
+          port=self.port)
 
     self.connection.set_isolation_level(
         psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
