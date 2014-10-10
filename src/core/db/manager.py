@@ -41,7 +41,7 @@ def list_tables(username, repo):
   res = con.list_tables(repo=repo)
   return res
 
-def print_schema(username, table):
+def print_schem(username, table):
   user = User.objects.get(username=username)
   con = Connection(
       user=username,
@@ -78,22 +78,22 @@ def list_shared_repo(username):
   res = Connection.list_shared_repo(username=username)
   return res
 
-def has_database_privilege(username, database, privilege):
+def has_database_privilege(login, username, privilege):
   res = Connection.has_database_privilege(
-      username=username, database=database, privilege=privilege)
+      login=login, username=username, privilege=privilege)
   return res
 
-def has_repo_privilege(username, repo, privilege):
+def has_repo_privilege(login, username, repo, privilege):
   res = Connection.has_repo_privilege(
-      username=username, repo=repo, privilege=privilege)
+      login=login, username=username, repo=repo, privilege=privilege)
   return res
 
-def has_table_privilege(username, table, privilege):
+def has_table_privilege(login, username, repo, table, privilege):
   res = Connection.has_table_privilege(
-      username=username, table=table, privilege=privilege)
+      login=login, username=username, table=table, privilege=privilege)
   return res
 
-def has_column_privilege(username, table, column, privilege):
-  res = Connection.has_column_privilege(
+def has_column_privilege(login, username, repo, column, privilege):
+  res = Connection.has_column_privilege(login=login,
       username=username, table=table, column=column, privilege=privilege)
   return res

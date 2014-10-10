@@ -24,6 +24,9 @@ class PGBackend:
     self.port = port
     self.database = database
 
+    self.__open_connection__()
+
+  def __open_connection__(self):
     if database:
       self.connection = psycopg2.connect(
           user=user, password=password, host=host, port=port, database=database)
@@ -33,6 +36,10 @@ class PGBackend:
 
     self.connection.set_isolation_level(
         psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+
+  def reset_connection(self, database):
+    self.database=database
+    self.__open_connection__()
 
   def create_repo(self, repo):
     query = ''' CREATE SCHEMA %s ''' %(repo)
@@ -115,24 +122,24 @@ class PGBackend:
                 WHERE grantee='%s' ''' %(username)
     return self.execute_sql(query)
 
-  def has_database_privilege(self, username, database, privilege):
+  def has_database_privilege(self, login, database, privilege):
     query = ''' SELECT has_database_privilege('%s', '%s', '%s')
-                ''' %(username, database, privilege)
+                ''' %(login, database, privilege)
     return self.execute_sql(query)
 
-  def has_repo_privilege(self, username, repo, privilege):
+  def has_repo_privilege(self, login, repo, privilege):
     query = ''' SELECT has_schema_privilege('%s', '%s', '%s')
-                ''' %(username, repo, privilege)
+                ''' %(login, repo, privilege)
     return self.execute_sql(query)
 
-  def has_table_privilege(self, username, table, privilege):
+  def has_table_privilege(self, login, table, privilege):
     query = ''' SELECT has_table_privilege('%s', '%s', '%s')
-                ''' %(username, table, privilege)
+                ''' %(login, table, privilege)
     return self.execute_sql(query)
 
-  def has_column_privilege(self, username, table, column, privilege):
+  def has_column_privilege(self, login, table, column, privilege):
     query = ''' SELECT has_column_privilege('%s', '%s', '%s')
-                ''' %(username, table, column, privilege)
+                ''' %(login, table, column, privilege)
     return self.execute_sql(query)
 
   def create_table_from_file(self, path, table_name):

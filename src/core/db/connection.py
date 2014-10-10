@@ -34,23 +34,7 @@ class Connection:
     return self.user_backend.print_scheme(table=table)
 
   def execute_sql(self, query, params=None):
-    return self.user_backend.execute_sql(query, params)
-
-  def has_database_privilege(self, username, database, privilege):
-    return self.user_backend.has_database_privilege(
-        username=username, database=database, privilege=privilege)
-
-  def has_repo_privilege(self, username, repo, privilege):
-    return self.user_backend.has_repo_privilege(
-        username=username, repo=repo, privilege=privilege)
-
-  def has_table_privilege(self, username, table, privilege):
-    return self.user_backend.has_table_privilege(
-        username=username, table=table, privilege=privilege)
-
-  def has_column_privilege(self, table, column, privilege):
-    return self.user_backend.has_column_privilege(
-        username=username, table=table, column=column, privilege=privilege)
+    return self.user_backend.execute_sql(query, params) 
 
   def close(self):    
     self.user_backend.close()
@@ -74,3 +58,26 @@ class Connection:
   @staticmethod
   def list_shared_repo(username):
     return superuser_backend.list_shared_repo(username)
+
+  @staticmethod
+  def has_database_privilege(login, username, privilege):
+    return superuser_backend.has_database_privilege(
+        login=login, database=database, privilege=privilege)
+
+  @staticmethod
+  def has_repo_privilege(login, username, repo, privilege):
+    superuser_backend.reset_connection(database=username)
+    return superuser_backend.has_repo_privilege(
+        login=login, repo=repo, privilege=privilege)
+
+  @staticmethod
+  def has_table_privilege(login, username, table, privilege):
+    superuser_backend.reset_connection(database=username)
+    return superuser_backend.has_table_privilege(
+      login=login, table=table, privilege=privilege)
+
+  @staticmethod
+  def has_column_privilege(login, username, table, column, privilege):
+    superuser_backend.reset_connection(database=username)
+    return superuser_backend.has_column_privilege(
+        login=login, table=table, column=column, privilege=privilege)
