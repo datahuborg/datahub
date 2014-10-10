@@ -371,6 +371,61 @@ button, .button, input[type="button"], input[type="submit"]{
   height: 1.2em;
 }
 
+.csv-icon{
+  display: inline-block;
+  margin-right: 0.7em;
+  background-image:url(/static/images/csv.png);
+  background-repeat: no-repeat;
+  background-size: 1.2em 1.2em;
+  border-radius: 0.25em;
+  width: 1.2em;
+  height: 1.2em;
+}
+
+.open-icon{
+  display: inline-block;
+  margin-right: 0.7em;
+  background-image:url(/static/images/open.png);
+  background-repeat: no-repeat;
+  background-size: 1.2em 1.2em;
+  border-radius: 0.25em;
+  width: 1.2em;
+  height: 1.2em;
+}
+
+.download-icon{
+  display: inline-block;
+  margin-right: 0.7em;
+  background-image:url(/static/images/download.png);
+  background-repeat: no-repeat;
+  background-size: 1.2em 1.2em;
+  border-radius: 0.25em;
+  width: 1.2em;
+  height: 1.2em;
+}
+
+.delete-icon{
+  display: inline-block;
+  margin-right: 0.7em;
+  background-image:url(/static/images/delete.png);
+  background-repeat: no-repeat;
+  background-size: 1.2em 1.2em;
+  border-radius: 0.25em;
+  width: 1.2em;
+  height: 1.2em;
+}
+
+.table-icon{
+  display: inline-block;
+  margin-right: 0.7em;
+  background-image:url(/static/images/table.png);
+  background-repeat: no-repeat;
+  background-size: 1.2em 1.2em;
+  border-radius: 0.25em;
+  width: 1.2em;
+  height: 1.2em;
+}
+
 
 .console-icon{
   display: inline-block;

@@ -46,8 +46,8 @@
     <tbody>
     {% for table in tables %}
     <tr>
-      <td><a class="blue bold link" href="/browse/{{username}}/{{repo}}/{{table}}">{{table}}</a></td>
-      <td><a class="blue link" href="/export/{{username}}/{{repo}}/{{table}}">Export to CSV</a> &nbsp; <a class="blue link" href="/browse/{{username}}/{{repo}}/{{table}}">Open</a></td>
+      <td><a class="blue link" href="/browse/{{username}}/{{repo}}/{{table}}">{{table}}</a></td>
+      <td><a class="open-icon" href="/browse/{{username}}/{{repo}}/{{table}}" title="Open"</a> &nbsp; <a class="csv-icon" href="/export/{{username}}/{{repo}}/{{table}}" title="Export to CSV"</a> &nbsp; <a class="delete-icon" href="/delete/{{username}}/{{repo}}/{{table}}" title="Delete"></a></td>
     </tr>
     {% endfor %}
     </tbody>
@@ -64,8 +64,8 @@
     <tbody>
     {% for file in files %}
     <tr>
-      <td><a class="blue bold link" href="/download/{{username}}/{{repo}}?file={{file}}">{{file}}</a></td>
-      <td><a class="blue link" href="/import/{{username}}/{{repo}}?file={{file}}">Import as Table</a> &nbsp; <a class="blue link" href="/download/{{username}}/{{repo}}?file={{file}}">Download</a> &nbsp; <a class="blue link" href="/delete/{{username}}/{{repo}}?file={{file}}">Delete</a></td>
+      <td><a class="blue link" href="/download/{{username}}/{{repo}}?file={{file}}">{{file}}</a></td>
+      <td><a class="download-icon" href="/download/{{username}}/{{repo}}?file={{file}}" title="Download"></a> &nbsp; <a class="table-icon" href="/import/{{username}}/{{repo}}?file={{file}}" title="Import as Table"></a> &nbsp; <a class="delete-icon" href="/delete/{{username}}/{{repo}}?file={{file}}" title="Delete"></a></td>
     </tr>
     {% endfor %}
     </tbody>
