@@ -331,7 +331,7 @@ def file_delete(request, username, repo):
         mimetype="application/json")
 
 @login_required
-def table_delete(request, username, repo):
+def table_delete(request, username, repo, table_name):
   try:
     login = get_login(request)
     dh_table_name = '%s.%s.%s' %(username, repo, table_name)
