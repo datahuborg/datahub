@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% block content %}
 <script type="text/javascript">
   $(document).ready(function() {
     var files = $('#files').dataTable({
@@ -12,7 +13,7 @@
     $('.dataTables_filter input').attr("placeholder", "filter by keyword tokens");
   });
 </script>
-{% block content %}
+
 <div id="content">
   <a class="blue bold" href=/browse/{{username}}>{{username}}</a> / <a class = "blue bold" href=/browse/{{username}}/{{repo}}>{{repo}}</a> /
   <hr class="light" />
