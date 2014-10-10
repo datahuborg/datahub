@@ -41,7 +41,7 @@ def list_tables(username, repo):
   res = con.list_tables(repo=repo)
   return res
 
-def print_schem(username, table):
+def print_schema(username, table):
   user = User.objects.get(username=username)
   con = Connection(
       user=username,
