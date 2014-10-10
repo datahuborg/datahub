@@ -128,6 +128,15 @@ input[type="text"], input[type="password"], select{
   font-size: 1em;
 }
 
+input[type="file"]{
+  padding:0.5em;
+  padding-left: 0e;
+  border: #2B2B2B solid thin;
+  margin: 0.3em 0;
+  margin-left: 0;
+  font-size: 1em;
+}
+
 button, .button, input[type="button"], input[type="submit"]{
   background-color: #4285f4;
   font-size: 1em;
