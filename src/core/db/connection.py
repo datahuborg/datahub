@@ -61,7 +61,7 @@ class Connection:
 
   @staticmethod
   def has_user_access_privilege(login, username, privilege):
-    return superuser_backend.has_database_privilege(
+    return superuser_backend.has_user_access_privilege(
         login=login, username=username, privilege=privilege)
 
   @staticmethod
