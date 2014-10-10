@@ -109,8 +109,7 @@ def user(request, username):
       
       res = None
       if login: 
-        res = manager.execute_sql(username=username,
-            query="SELECT has_database_privilege('%s', '%s', 'connect')" %(login, username))
+        res = manager.has_database_privilege(login, username, 'connect')
 
       if (not res) or (not res['tuples'][0][0]):
         return HttpResponse(json.dumps(
@@ -134,8 +133,8 @@ def repo(request, username, repo):
 
     res = None
     if login: 
-      res = manager.execute_sql(username=username,
-          query="SELECT has_schema_privilege('%s', '%s', 'usage')" %(login, repo))
+      res = manager.has_schema_privilege(
+          login, '%s.%s', 'usage') %(username, repo)
     
     if (not res) or (not res['tuples'][0][0]):
       return HttpResponse(
@@ -162,8 +161,8 @@ def settings_repo(request, username, repo):
 
     res = None
     if login: 
-      res = manager.execute_sql(username=username,
-          query="SELECT has_schema_privilege('%s', '%s', 'create')" %(login, repo))
+      res = manager.has_schema_privilege(
+          login, '%s.%s', 'create') %(username, repo)
     
     if (not res) or (not res['tuples'][0][0]):
       return HttpResponse(
@@ -203,8 +202,8 @@ def table(request, username, repo, table, page='1'):
 
     res = None
     if login:
-      res = manager.execute_sql(username=username,
-          query="SELECT has_table_privilege('%s', '%s.%s.%s', 'select')" %(login, username, repo, table))
+      res = manager.has_table_privilege(
+          login, '%s.%s.%s', 'select') %(username, repo, table)
     
     if (not res) or (not res['tuples'][0][0]):
       return HttpResponse(
