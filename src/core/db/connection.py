@@ -66,7 +66,7 @@ class Connection:
 
   @staticmethod
   def has_repo_privilege(username, repo, privilege):
-    return superuser_backend.has_schema_privilege(
+    return superuser_backend.has_repo_privilege(
         username=username, reo=repo, privilege=privilege)
 
   @staticmethod

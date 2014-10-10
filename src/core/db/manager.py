@@ -84,7 +84,7 @@ def has_database_privilege(username, database, privilege):
   return res
 
 def has_repo_privilege(username, repo, privilege):
-  res = Connection.has_schema_privilege(
+  res = Connection.has_repo_privilege(
       username=username, reo=repo, privilege=privilege)
   return res
 
