@@ -60,7 +60,12 @@ def newrepo(request):
 
 @login_required
 def newtable(request, username, repo):
-  res= {'login': get_login(request), 'username': get_login(request), 'repo':repo}
+  user_dir = '/user_data/%s/%s' %(username, repo)
+  if not os.path.exists(user_dir):
+    os.makedirs(user_dir)
+  
+  uploaded_files = [f for f in os.listdir(username)]
+  res= {'login': get_login(request), 'username': get_login(request), 'repo':repo, 'files': uploaded_files}
   res.update(csrf(request))
   return render_to_response("newtable.html", res)
 
@@ -147,11 +152,19 @@ def repo(request, username, repo):
     
     res = manager.list_tables(username, repo)
     tables = [t[0] for t in res['tuples']]
+
+    user_dir = '/user_data/%s/%s' %(username, repo)
+    if not os.path.exists(user_dir):
+      os.makedirs(user_dir)
+    
+    uploaded_files = [f for f in os.listdir(user_dir)]
+    
     res = {
         'login': get_login(request),
         'username': username,
         'repo': repo,
-        'tables': tables}
+        'tables': tables,
+        'files': uploaded_files}
     return render_to_response("repo.html", res)
   except Exception, e:
     return HttpResponse(json.dumps(
@@ -243,8 +256,8 @@ def table(request, username, repo, table, page='1'):
         mimetype="application/json")
 
 
-def handle_uploaded_file(login, data_file):
-  user_dir = '/user_data/%s' %(login)
+def save_uploaded_file(username, repo, data_file):
+  user_dir = '/user_data/%s/%s' %(username, repo)
   if not os.path.exists(user_dir):
     os.makedirs(user_dir)
   
@@ -253,7 +266,22 @@ def handle_uploaded_file(login, data_file):
     for chunk in data_file.chunks():
       destination.write(chunk)
 
-  return file_name
+
+@login_required
+def handle_file_upload(request):
+  try:
+    if request.method == 'POST':
+      data_file = request.FILES['data_file']
+      repo = request.POST['repo']
+      username = request.POST['username']
+      save_uploaded_file(username, repo, data_file)
+    
+    return HttpResponseRedirect('/newtable/%s/%s' %(username,repo))
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
 
 @login_required
 def create_table_from_file(request):
@@ -261,11 +289,10 @@ def create_table_from_file(request):
     login = get_login(request)
     repo = ''
     if request.method == 'POST':
-      data_file = request.FILES['data_file']
+      repo = request.POST['repo']      
+      file_name = request.POST['file_name']
       table_name = request.POST['table_name']
-      repo = request.POST['repo']
       dh_table_name = '%s.%s.%s' %(login, repo, table_name)
-      file_name = handle_uploaded_file(login, data_file)
       f = codecs.open(file_name, 'r', 'utf-8')
       data = csv.reader(f)
       cells = data.next()

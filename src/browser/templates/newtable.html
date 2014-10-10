@@ -1,30 +1,58 @@
 {% extends "layout.html" %}
 {% block content %}
+<script type="text/javascript">
+  $(document).ready(function(){
+    var files = $('#files').dataTable({
+      "sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
+      "bPaginate": false,
+      "bFilter": true,
+      "bInfo": false,
+      "sWidth": "100%"      
+    });
+
+    $('.dataTables_filter input').attr("placeholder", "filter by keyword tokens");
+  });
+</script>
 
 <div id="content">
-	<a class="blue bold" href=/browse/{{username}}>{{username}}</a> / <a class = "blue bold" href=/browse/{{username}}/{{repo}}>{{repo}}</a> /
-	<hr class="light" />
-	<br />
-	<br />
-	<div>
-	<a class="button inactive" href="/console">Create Table Using SQL</a> &nbsp; &nbsp; <!-- <a class="button inactive" href="/data-refiner">Extract From Text</a> -->
-	</div>
-	<form class="form-container" method="POST" action="/create_table_from_file" enctype='multipart/form-data'>
-	<h3 style="padding-bottom:0.5em;">Create new table by uploading a csv file</h3>
-	{% csrf_token %}
-	<input type="hidden" name="repo" value="{{repo}}" />
-	<div id="error">
-		{% for error in errors %}<span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
+  <a class="blue bold" href=/browse/{{username}}>{{username}}</a> / <a class = "blue bold" href=/browse/{{username}}/{{repo}}>{{repo}}</a> /
+  <hr class="light" />
+  <br />
+  <br />
+  <div>
+  <a class="button inactive" href="/console">Create Table Using SQL</a> &nbsp; &nbsp; <!-- <a class="button inactive" href="/data-refiner">Extract From Text</a> -->
+  </div>
+  <form class="form-container" method="POST" action="/upload_file" enctype='multipart/form-data'>
+  <h3 style="padding-bottom:0.5em;">Create new table by uploading a file</h3>
+  {% csrf_token %}
+  <input type="hidden" name="username" value="{{username}}" />
+  <input type="hidden" name="repo" value="{{repo}}" />
+  <div id="error">
+    {% for error in errors %}<span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
         {% endfor %}
         <br />
     </div>
-	<label for="data_file">Table Data File (csv with headers)</label><br />
-	<input type="file" name="data_file" placeholder="Data File"> <br /> <br /> <br />
-	<label for="table_name">Table Name</label><br />
-	<input type="text" name="table_name" placeholder="Table Name"><br /><br />
-	<input class="button" type="submit" value="Create Table"/>
+  <label for="data_file">Table Data File (csv with headers)</label><br />
+  <input type="file" name="data_file" placeholder="Data File"> <br /> <br /> <br />
+  <input class="button" type="submit" value="Upload File"/>
+  </form>
 
-	</form>
+  <br />
+  <br />
+  <table id="files">
+    <thead>
+    <tr>
+      <th>Uploaded Files</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for file in files %}
+    <tr>
+      <td class="blue link"><a href="#">{{file}}</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endblock %}
 

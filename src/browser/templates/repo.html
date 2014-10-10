@@ -2,50 +2,70 @@
 {% block content %}
 
 <script type="text/javascript">
+  $(document).ready(function(){
+    var tables = $('#tables').dataTable({
+      "sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
+      "bPaginate": false,
+      "bFilter": true,
+      "bInfo": false,
+      "sWidth": "100%"      
+    });
 
-	function load_table (table) {
-		window.location.href = "/browse/{{username}}/{{repo}}/" + table;
-	}
+    var files = $('#files').dataTable({
+      "sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
+      "bPaginate": false,
+      "bFilter": true,
+      "bInfo": false,
+      "sWidth": "100%"      
+    });
 
-	$(document).ready(function(){
-		var tables = $('#tables').dataTable({
-			"sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
-			"bPaginate": false,
-			"bFilter": true,
-			"bInfo": false,
-			"sWidth": "100%"			
-		});
-		$('.dataTables_filter input').attr("placeholder", "filter by keyword tokens");
-	});
+    $('.dataTables_filter input').attr("placeholder", "filter by keyword tokens");
+  });
 </script>
 
 
 <div id="content">
-	<a class="blue bold" href=/browse/{{username}}>{{username}}</a> / <a class = "blue bold" href=/browse/{{username}}/{{repo}}>{{repo}}</a> /
-	<hr class="light" />
-	<br />
-	<br />
-	<div>
-	<a class="button inactive" href="/newtable/{{username}}/{{repo}}">Create New Table</a>
-	<!--
-	<a class="button inactive" href="/settings/{{username}}/{{repo}}">Manage Settings</a>
-	-->
-	</div>
-	<br />
-	<table id="tables">
-		<thead>
-		<tr>
-			<th>All Tables</th>
-		</tr>
-		</thead>
-		<tbody>
-		{% for table in tables %}
-		<tr>
-			<td class="blue link" onclick='load_table("{{table}}")'>{{table}}</td>
-		</tr>
-		{% endfor %}
-		</tbody>
-	</table>
+  <a class="blue bold" href=/browse/{{username}}>{{username}}</a> / <a class = "blue bold" href=/browse/{{username}}/{{repo}}>{{repo}}</a> /
+  <hr class="light" />
+  <br />
+  <br />
+  <div>
+  <a class="button inactive" href="/newtable/{{username}}/{{repo}}">Create New Table</a>
+  <!--
+  <a class="button inactive" href="/settings/{{username}}/{{repo}}">Manage Settings</a>
+  -->
+  </div>
+  <br />
+  <table id="tables">
+    <thead>
+    <tr>
+      <th>All Tables</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for table in tables %}
+    <tr>
+      <td class="blue link"><a href="/browse/{{username}}/{{repo}}/">{{table}}</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <br />
+  <br />
+  <table id="files">
+    <thead>
+    <tr>
+      <th>Uploaded Files</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for file in files %}
+    <tr>
+      <td class="blue link"><a href="#">{{file}}</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endblock %}
 
