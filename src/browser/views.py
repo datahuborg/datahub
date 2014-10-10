@@ -351,9 +351,9 @@ def file_download(request, username, repo, table_name):
     file_name = request.GET['file']
     user_dir = '/user_data/%s/%s' %(username, repo)
     file_path = '%s/%s' %(user_dir, file_name)
-    response = HttpResponse(mimetype='application/force-download')
-    response['Content-Disposition'] = 'attachment; filename="%s"' %(file_path)
-    response['X-Sendfile'] = file_path
+    response = HttpResponse(
+        open(file_path).read(), mimetype='application/force-download')
+    response['Content-Disposition'] = 'attachment; filename="%s"' %(file_name)
     return response
   except Exception, e:
     return HttpResponse(
