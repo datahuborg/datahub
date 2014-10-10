@@ -31,7 +31,7 @@ class Connection:
     return self.user_backend.list_tables(repo=repo)
 
   def print_schema(self, table):
-    return self.user_backend.print_scheme(table=table)
+    return self.user_backend.print_schema(table=table)
 
   def execute_sql(self, query, params=None):
     return self.user_backend.execute_sql(query, params) 
