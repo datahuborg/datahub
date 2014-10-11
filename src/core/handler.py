@@ -15,8 +15,7 @@ DataHub Handler
 
 def construct_result_set(res):
   tuples = [Tuple(
-      cells=[bytes(val) for val in t]) for t in res['tuples']
-  ]
+      cells=[bytes(val) for val in t]) for t in res['tuples']]
 
   field_names = [bytes(field['name']) for field in res['fields']]
   field_types = [bytes(field['type']) for field in res['fields']]
@@ -26,9 +25,7 @@ def construct_result_set(res):
                          num_more_tuples=0,
                          tuples=tuples,
                          field_names=field_names,
-                         field_types=field_types
-  )
-  
+                         field_types=field_types)
   return result_set
 
 
