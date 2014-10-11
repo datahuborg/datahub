@@ -1,7 +1,5 @@
 import psycopg2
 import re
-import csv
-import codecs
 
 from config import settings
 

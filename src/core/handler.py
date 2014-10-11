@@ -1,7 +1,7 @@
 import hashlib
 
-from core.db import manager
 from core.db import connection
+from core.db import manager
 
 from datahub import DataHub
 from datahub.constants import *

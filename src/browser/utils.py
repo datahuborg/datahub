@@ -1,4 +1,6 @@
-import hashlib, smtplib, json
+import hashlib
+import re
+import smtplib
 
 from Crypto.Cipher import AES
 from Crypto import Random

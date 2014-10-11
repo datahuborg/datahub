@@ -1,18 +1,25 @@
-import json, sys, re, hashlib, smtplib, base64, urllib, os
+import base64
+import hashlib
+import json
+import os
+import re
+import smtplib
+import sys
+import urllib
 
-from django.http import *
-from django.shortcuts import render_to_response
-from django.views.decorators.csrf import csrf_exempt
 from django.core.context_processors import csrf
 from django.core.validators import email_re
 from django.db.utils import IntegrityError
+from django.http import *
+from django.shortcuts import render_to_response
 from django.utils.http import urlquote_plus
+from django.views.decorators.csrf import csrf_exempt
 
 from multiprocessing import Pool
 
-from schema.models import *
 from browser.utils import *
 from core.db import manager
+from schema.models import *
 
 p = os.path.abspath(os.path.dirname(__file__))
 

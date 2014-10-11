@@ -1,23 +1,30 @@
-import json, sys, re, hashlib, smtplib, base64, urllib, os, csv, collections, codecs
+import codecs
+import collections
+import csv
+import json
+import os
+import re
+import sys
+import urllib
 
-from auth import *
-
-from core.handler import DataHubHandler
-from apps.refiner import inference
-from datahub import DataHub
-
-from django.http import *
-from django.shortcuts import render_to_response
-from django.views.decorators.csrf import csrf_exempt
 from django.core.context_processors import csrf
 from django.core.validators import email_re
 from django.db.utils import IntegrityError
+from django.http import *
+from django.shortcuts import render_to_response
 from django.utils.http import urlquote_plus
+from django.views.decorators.csrf import csrf_exempt
 
 from thrift.protocol import TBinaryProtocol
 from thrift.protocol import TJSONProtocol
 from thrift.transport import TTransport
 from thrift.transport.TTransport import TMemoryBuffer
+
+from apps.refiner import inference
+from auth import *
+from core.handler import DataHubHandler
+from datahub import DataHub
+from utils import *
 
 '''
 @author: Anant Bhardwaj
