@@ -274,7 +274,7 @@ def clean_str(text):
   s = re.sub('^[^a-zA-Z_]+', '', s)
 
   if s == '':
-    return clean('col_' + text)
+    return clean_str('col_' + text)
   
   return s
 
