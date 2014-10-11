@@ -266,6 +266,32 @@ def save_uploaded_file(username, repo, data_file):
     for chunk in data_file.chunks():
       destination.write(chunk)
 
+def clean_str(text):
+  s = text.strip() 
+  # remove invalid characters
+  s = re.sub('[^0-9a-zA-Z_]', '', s)
+  # remove leading characters until a letter or underscore
+  s = re.sub('^[^a-zA-Z_]+', '', s)
+
+  if s == '':
+    return clean('col_' + text)
+  
+  return s
+
+def handle_duplicates(columns):
+  new_columns = []
+  col_idx = {}
+  for c in columns:
+    if columns.count(c) == 1:
+      new_columns.append(c)
+      continue    
+
+    col_idx[c] = 1
+    # add a suffix
+    new_columns.append(c + str(col_idx[c]))
+    col_idx[c] += 1
+  
+  return new_columns
 
 @login_required
 def handle_file_upload(request):
@@ -291,16 +317,13 @@ def file_import(request, username, repo):
     user_dir = '/user_data/%s/%s' %(username, repo)
     file_path = '%s/%s' %(user_dir, file_name)
     table_name, _ = os.path.splitext(file_name)
-    re.sub(r'\W+', '_', table_name)
-    re.sub(r'\.', '_', table_name)
+    clean_str(table_name)
     dh_table_name = '%s.%s.%s' %(username, repo, table_name)
     f = codecs.open(file_path, 'r', 'ISO-8859-1')
     data = csv.reader(f)
     cells = data.next()
-    columns = map(lambda x: re.sub(r'\W+', '_', x), cells)
-    columns = map(lambda x: re.sub(r'\.', '_', x), columns)
-    columns = map(lambda x: '_' + x[-20:], columns)
-    columns = filter(lambda x: x!='', columns)
+    columns = map(lambda x: clean_str(x), cells)
+    columns = handle_duplicates(columns)
     query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
     for i in range(1, len(columns)):
       query += ', %s %s' %(columns[i], 'text')
