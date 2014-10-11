@@ -51,12 +51,15 @@ class PGBackend:
     return self.execute_sql(query)
 
   def list_repos(self):
-    query = ''' SELECT schema_name as repo_name FROM information_schema.schemata
-        WHERE schema_owner = '%s' ''' %(self.user)
+    query = ''' SELECT schema_name AS repo_name
+                FROM information_schema.schemata
+                WHERE schema_owner = '%s'
+            ''' %(self.user)
     return self.execute_sql(query)
 
   def delete_repo(self, repo, force=False):
-    query = ''' DROP SCHEMA %s %s''' %(repo, 'CASCADE' if force else '')
+    query = ''' DROP SCHEMA %s %s
+            ''' %(repo, 'CASCADE' if force else '')
     return self.execute_sql(query)
 
   def list_tables(self, repo):
@@ -64,22 +67,26 @@ class PGBackend:
 
     all_repos = [t[0] for t in res['tuples']]
     if repo not in all_repos:
-      raise LookupError('invalid repository name: %s' %(repo))
+      raise LookupError('Invalid repository name: %s' %(repo))
 
-    query = ''' SELECT table_name as table FROM information_schema.tables
-        WHERE table_schema = '%s' ''' %(repo)
+    query = ''' SELECT table_name AS table FROM information_schema.tables
+                WHERE table_schema = '%s'
+            ''' %(repo)
     return self.execute_sql(query)
 
   def print_schema(self, table):
     tokens = table.split('.')
+    
     if len(tokens) < 2:
       raise NameError (
-          "can't resolve the name: '%s'.\n"
+          "Can't resolve the name: '%s'.\n"
           "HINT: use <repo-name>.<table-name> " %(table))
-    query = ''' SELECT column_name as field_name, data_type as field_type
-        from information_schema.columns
-        where table_name = '%s'
-        and table_schema = '%s' ''' %(tokens[-1], tokens[-2])
+    
+    query = ''' SELECT column_name AS field_name, data_type AS field_type
+                FROM information_schema.columns
+                WHERE table_name = '%s'
+                AND table_schema = '%s'
+            ''' %(tokens[-1], tokens[-2])
     return self.execute_sql(query)
 
   def execute_sql(self, query, params=None):
@@ -112,44 +119,47 @@ class PGBackend:
   def create_user(self, username, password):
     query = ''' CREATE ROLE %s WITH LOGIN 
                 NOCREATEDB NOCREATEROLE NOCREATEUSER PASSWORD '%s'
-                ''' %(username, password)
+            ''' %(username, password)
     self.execute_sql(query)
     query = ''' CREATE DATABASE %s WITH OWNER=%s ''' %(username, username)
     return self.execute_sql(query)
 
   def change_password(self, username, password):
-    query = ''' ALTER ROLE %s WITH PASSWORD '%s' ''' %(username, password)
+    query = ''' ALTER ROLE %s WITH PASSWORD '%s'
+            ''' %(username, password)
     return self.execute_sql(query)
 
   def list_shared_repos(self, username):
     query = ''' SELECT DISTINCT table_catalog, table_schema
                 FROM information_schema.table_privileges
-                WHERE grantee='%s' ''' %(username)
+                WHERE grantee='%s'
+            ''' %(username)
     return self.execute_sql(query)
 
   def has_user_access_privilege(self, login, username, privilege):
     query = ''' SELECT has_database_privilege('%s', '%s', '%s')
-                ''' %(login, username, privilege)
+            ''' %(login, username, privilege)
     return self.execute_sql(query)
 
   def has_repo_privilege(self, login, repo, privilege):
     query = ''' SELECT has_schema_privilege('%s', '%s', '%s')
-                ''' %(login, repo, privilege)
+            ''' %(login, repo, privilege)
     return self.execute_sql(query)
 
   def has_table_privilege(self, login, table, privilege):
     query = ''' SELECT has_table_privilege('%s', '%s', '%s')
-                ''' %(login, table, privilege)
+            ''' %(login, table, privilege)
     return self.execute_sql(query)
 
   def has_column_privilege(self, login, table, column, privilege):
     query = ''' SELECT has_column_privilege('%s', '%s', '%s')
-                ''' %(login, table, column, privilege)
+            ''' %(login, table, column, privilege)
     return self.execute_sql(query)
 
-  def export_file(self, path, table_name):
+  def export_file(self, path, table_name, delimiter=',', header=True):
     return self.execute_sql(
-        '''COPY %s TO '%s' DELIMITER ',' CSV HEADER;''' %(table_name, path))
+        '''COPY %s TO '%s' DELIMITER '%s' %s;
+        ''' %(table_name, path, delimiter, 'CSV HEADER' if header else ''))
 
   def import_file(self, path, table_name):
     """
@@ -157,8 +167,9 @@ class PGBackend:
     then fall back to default COPY import
     """
     try:
-      return self.execute_sql('''COPY %s FROM '%s'
-          WITH CSV HEADER ENCODING 'ISO-8859-1';''' %(table_name, path))
+      return self.execute_sql(
+          '''COPY %s FROM '%s' WITH CSV HEADER ENCODING 'ISO-8859-1';
+          ''' %(table_name, path))
     except:
       return self.import_file_w_dbtruck(path, table_name)
 
