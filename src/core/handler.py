@@ -20,13 +20,12 @@ def construct_result_set(res):
   field_names = [bytes(field['name']) for field in res['fields']]
   field_types = [bytes(field['type']) for field in res['fields']]
   
-  result_set = ResultSet(status=res['status'],
-                         num_tuples=res['row_count'],
-                         num_more_tuples=0,
-                         tuples=tuples,
-                         field_names=field_names,
-                         field_types=field_types)
-  return result_set
+  return ResultSet(status=res['status'],
+                   num_tuples=res['row_count'],
+                   num_more_tuples=0,
+                   tuples=tuples,
+                   field_names=field_names,
+                   field_types=field_types)
 
 
 class DataHubHandler:
