@@ -156,21 +156,27 @@ class PGBackend:
             ''' %(login, table, column, privilege)
     return self.execute_sql(query)
 
-  def export_file(self, path, table_name, delimiter=',', header=True):
+  def export_file(self, path, table_name, file_format='CSV',
+      delimiter=',', header=True):
+    header_option = 'HEADER' if header else ''
     return self.execute_sql(
-        '''COPY %s TO '%s' DELIMITER '%s' %s;
-        ''' %(table_name, path, delimiter, 'CSV HEADER' if header else ''))
+        ''' COPY %s TO '%s'
+            WITH FORMAT %s %s DELIMITER '%s';
+        ''' %(table_name, path, file_format, header_option, delimiter))
 
-  def import_file(self, path, table_name):
-    """
-    Try importing using dbtruck.  If it fails for any reason at all,
-    then fall back to default COPY import
-    """
+  def import_file(self, path, table_name, file_format='CSV',
+      delimiter=',', header=True, encoding='ISO-8859-1'):
     try:
+      header_option = 'HEADER' if header else ''
       return self.execute_sql(
-          '''COPY %s FROM '%s' WITH CSV HEADER ENCODING 'ISO-8859-1';
-          ''' %(table_name, path))
+          ''' COPY %s FROM '%s'
+              WITH FORMAT %s %s DELIMITER '%s' ENCODING '%s';
+          ''' %(table_name, path, file_format,
+                header_option, delimiter, encoding))
     except:
+      """
+      Try importing using dbtruck.
+      """
       return self.import_file_w_dbtruck(path, table_name)
 
   def import_file_w_dbtruck(self, path, table_name):
