@@ -161,7 +161,7 @@ class PGBackend:
     header_option = 'HEADER' if header else ''
     return self.execute_sql(
         ''' COPY %s TO '%s'
-            WITH FORMAT %s %s DELIMITER '%s';
+            WITH %s %s DELIMITER '%s';
         ''' %(table_name, path, file_format, header_option, delimiter))
 
   def import_file(self, path, table_name, file_format='CSV',
@@ -170,7 +170,7 @@ class PGBackend:
       header_option = 'HEADER' if header else ''
       return self.execute_sql(
           ''' COPY %s FROM '%s'
-              WITH FORMAT %s %s DELIMITER '%s' ENCODING '%s';
+              WITH %s %s DELIMITER '%s' ENCODING '%s';
           ''' %(table_name, path, file_format,
                 header_option, delimiter, encoding))
     except:
