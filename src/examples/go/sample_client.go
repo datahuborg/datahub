@@ -12,10 +12,10 @@ import "datahub"
 import "git.apache.org/thrift.git/lib/go/thrift"
 
 func main() {
-  user, password := "anantb", "anantb"
+  user, password := "anantb", "anant"
   con_params := datahub.ConnectionParams {
-      User: &user,
-      Password: &password}
+      User: user,
+      Password: password}
   
   protocolFactory := thrift.NewTBinaryProtocolFactoryDefault()
   //transport, err := thrift.NewTHttpClient("http://datahub.csail.mit.edu/service")
@@ -32,29 +32,28 @@ func main() {
   defer transport.Close()
 
   // open connection
-  con, err := client.OpenConnection(&con_params)
+  con, exception, err := client.OpenConnection(&con_params)
   
-  if err != nil {
-    fmt.Println(err)
+  if exception != nil {
+    fmt.Println(exception)
     return
   }
 
   // execute sql
-  res, err := client.ExecuteSql(
+  res, exception, err := client.ExecuteSql(
       con, "SELECT * FROM anantb.test.demo", nil)  
   
-  if err != nil {
-    fmt.Println(err)
+  if exception != nil {
+    fmt.Println(exception)
     return
   }
-  
   print_result_set(res)
 }
 
 func print_result_set(res *datahub.ResultSet) {
   // print fields
   if res != nil && res.FieldNames != nil {
-    for _, field_name := range *(res.FieldNames) {
+    for _, field_name := range res.FieldNames {
       fmt.Printf("%s\t", field_name)
     }
   }
@@ -63,8 +62,8 @@ func print_result_set(res *datahub.ResultSet) {
 
   // print tuples
   if res != nil && res.Tuples != nil {
-    for _, tuple := range *(res.Tuples) {
-      for _, cell := range *(tuple.Cells) {
+    for _, tuple := range res.Tuples {
+      for _, cell := range tuple.Cells {
         fmt.Printf("%s\t", cell)
       }
       fmt.Println()
