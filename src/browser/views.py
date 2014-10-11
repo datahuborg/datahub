@@ -155,7 +155,7 @@ def repo(request, username, repo):
 
     user_dir = '/user_data/%s/%s' %(username, repo)
     if not os.path.exists(user_dir):
-      os.makedirs(user_dir, 0775)
+      os.makedirs(user_dir, 2o775)
     
     uploaded_files = [f for f in os.listdir(user_dir)]
     
@@ -259,7 +259,7 @@ def table(request, username, repo, table, page='1'):
 def save_uploaded_file(username, repo, data_file):
   user_dir = '/user_data/%s/%s' %(username, repo)
   if not os.path.exists(user_dir):
-    os.makedirs(user_dir, 0775)
+    os.makedirs(user_dir, 2o775)
   
   file_name = '%s/%s' %(user_dir, data_file.name)
   with open(file_name, 'wb+') as destination:
@@ -367,7 +367,7 @@ def file_export(request, username, repo, table_name):
     user_dir = '/user_data/%s/%s' %(username, repo)
     
     if not os.path.exists(user_dir):
-      os.makedirs(user_dir, 0775)
+      os.makedirs(user_dir, 2o775)
     
     file_path = '%s/%s.csv' %(user_dir, table_name)
     dh_table_name = '%s.%s.%s' %(username, repo, table_name)
