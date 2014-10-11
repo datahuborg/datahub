@@ -266,32 +266,6 @@ def save_uploaded_file(username, repo, data_file):
     for chunk in data_file.chunks():
       destination.write(chunk)
 
-def clean_str(text):
-  s = text.strip()
-  # remove invalid characters
-  s = re.sub('[^0-9a-zA-Z_]', '', s)
-  # remove leading characters until a letter or underscore
-  s = re.sub('^[^a-zA-Z_]+', '', s)
-
-  if s == '':
-    return clean_str('col_' + text)
-  
-  return s
-
-def rename_duplicates(columns):
-  new_columns = []
-  col_idx = {c:1 for c in columns}
-  
-  for c in columns:
-    if columns.count(c) == 1:
-      new_columns.append(c)
-    else:
-      # add a suffix
-      new_columns.append(c + str(col_idx[c]))
-      col_idx[c] += 1
-  
-  return new_columns
-
 @login_required
 def handle_file_upload(request):
   try:
