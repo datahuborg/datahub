@@ -28,7 +28,7 @@ def decrypt_text (crypt_text):
 def clean_str(text, prefix):
   s = text.strip().lower()
   
-  # replace whitespce with '_'
+  # replace whitespace with '_'
   s = re.sub(' ', '_', s)
   
   # remove invalid characters
