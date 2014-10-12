@@ -279,7 +279,7 @@ def file_import(request, repo_owner, repo):
     
     manager = get_manager(request, repo_owner)
     manager.execute_sql(query=query)
-    manager.import_file(path=file_path, table_name=dh_table_name)
+    Manager.import_file(path=file_path, table_name=dh_table_name)
     return HttpResponseRedirect('/browse/%s/%s' %(repo_owner, repo))
   except Exception, e:
     return HttpResponse(
@@ -345,8 +345,7 @@ def file_export(request, repo_owner, repo, table_name):
     
     file_path = '%s/%s.csv' %(repo_dir, table_name)
     dh_table_name = '%s.%s.%s' %(repo_owner, repo, table_name)
-    manager = get_manager(request, repo_owner)
-    manager.export_file(
+    Manager.export_file(
         repo_owner=repo_owner, path=file_path, table_name=dh_table_name)
     return HttpResponseRedirect('/browse/%s/%s' %(repo_owner, repo))
   except Exception, e:
