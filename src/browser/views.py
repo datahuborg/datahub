@@ -266,7 +266,7 @@ def file_import(request, repo_owner, repo):
     login = get_login(request)
     file_name = request.GET['file']
     repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
-    file_path = '%s/%s' %(repo_owner, file_name)
+    file_path = '%s/%s' %(repo_dir, file_name)
     table_name, _ = os.path.splitext(file_name)
     table_name = clean_str(table_name, 'table')
     dh_table_name = '%s.%s.%s' %(repo_owner, repo, table_name)
