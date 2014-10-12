@@ -86,8 +86,8 @@ class PGBackend:
     tokens = table.split('.')
     
     if len(tokens) < 2:
-      raise NameError (
-          "Can't resolve the name: '%s'.\n"
+      raise NameError(
+          "Invalid name: '%s'.\n"
           "HINT: use <repo-name>.<table-name> " %(table))
     
     query = ''' SELECT column_name, data_type
@@ -95,7 +95,12 @@ class PGBackend:
                 WHERE table_name = '%s'
                 AND table_schema = '%s'
             ''' %(tokens[-1], tokens[-2])
-    return self.execute_sql(query)
+    res = self.execute_sql(query)
+    
+    if res['row_count'] < 1:
+      raise NameError("Invalid reference: '%s'.\n" %(table))
+
+    return res
 
   def execute_sql(self, query, params=None):
     result = {
