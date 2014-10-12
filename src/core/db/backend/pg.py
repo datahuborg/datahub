@@ -144,9 +144,9 @@ class PGBackend:
             ''' %(username)
     return self.execute_sql(query)
 
-  def has_user_access_privilege(self, login, username, privilege):
-    query = ''' SELECT has_database_privilege('%s', '%s', '%s')
-            ''' %(login, username, privilege)
+  def has_user_access_privilege(self, login, privilege):
+    query = ''' SELECT has_database_privilege('%s', '%s')
+            ''' %(login, privilege)
     return self.execute_sql(query)
 
   def has_repo_privilege(self, login, repo, privilege):
@@ -164,7 +164,7 @@ class PGBackend:
             ''' %(login, table, column, privilege)
     return self.execute_sql(query)
 
-  def export_file(self, file_path, table_name, file_format='CSV',
+  def export_file(self, table_name, file_path, file_format='CSV',
       delimiter=',', header=True):
     header_option = 'HEADER' if header else ''
     return self.execute_sql(
@@ -172,7 +172,7 @@ class PGBackend:
             WITH %s %s DELIMITER '%s';
         ''' %(table_name, file_path, file_format, header_option, delimiter))
 
-  def import_file(self, file_path, table_name, file_format='CSV',
+  def import_file(self, table_name, file_path, file_format='CSV',
       delimiter=',', header=True, encoding='ISO-8859-1'):
     try:
       header_option = 'HEADER' if header else ''
@@ -187,7 +187,7 @@ class PGBackend:
       """
       return self.import_file_w_dbtruck(path, table_name)
 
-  def import_file_w_dbtruck(self, file_path, table_name):
+  def import_file_w_dbtruck(self, table_name, file_path):
     from dbtruck.dbtruck import import_datafiles
     from dbtruck.util import get_logger
     from dbtruck.exporters.pg import PGMethods
