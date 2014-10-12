@@ -1,6 +1,6 @@
 import hashlib
 
-from core.db import connection
+from core.db.connection import DataHubConnection
 from core.db.manager import DataHubManager
 
 from datahub import DataHub
@@ -38,7 +38,7 @@ class DataHubHandler:
 
   def open_connection(self, con_params):  
     try:
-      db_con = connection.Connection(
+      DataHubConnection(
           user=con_params.user,
           password=hashlib.sha1(con_params.password).hexdigest())
 
@@ -46,14 +46,14 @@ class DataHubHandler:
           user=con_params.user,
           repo_owner=con_params.repo_owner,
           repo=con_params.repo)
-      print con
+
       return con
     except Exception, e:
       raise DBException(message=str(e))
   
   def create_repo(self, con, repo_name):
     try:
-      manager = DataHubManager(user=con.user, database=con.repo_owner)
+      manager = DataHubManager(user=con.user, repo_base=con.repo_base)
       res = manager.create_repo(repo=repo_name)
       return construct_result_set(res)
     except Exception, e:
@@ -61,7 +61,7 @@ class DataHubHandler:
 
   def list_repos(self, con):
     try:
-      manager = DataHubManager(user=con.user, database=con.repo_owner)
+      manager = DataHubManager(user=con.user, repo_base=con.repo_base)
       res = manager.list_repos()
       return construct_result_set(res)
     except Exception, e:
@@ -69,7 +69,7 @@ class DataHubHandler:
 
   def delete_repo(self, con, repo_name, force_if_non_empty):
     try:
-      manager = DataHubManager(user=con.user, database=con.repo_owner)
+      manager = DataHubManager(user=con.user, repo_base=con.repo_base)
       res = manager.delete_repo(repo=repo_name, force=force_if_non_empty)
       return construct_result_set(res)
     except Exception, e:
@@ -77,7 +77,7 @@ class DataHubHandler:
 
   def list_tables(self, con, repo_name):
     try:
-      manager = DataHubManager(user=con.user, database=con.repo_owner)
+      manager = DataHubManager(user=con.user, repo_base=con.repo_base)
       res = manager.list_tables(repo=repo_name)
       return construct_result_set(res)
     except Exception, e:
@@ -85,7 +85,7 @@ class DataHubHandler:
 
   def print_schema(self, con, table_name):
     try:
-      manager = DataHubManager(user=con.user, database=con.repo_owner)
+      manager = DataHubManager(user=con.user, repo_base=con.repo_base)
       res = manager.print_schema(table=table_name)
       return construct_result_set(res)
     except Exception, e:
@@ -93,7 +93,7 @@ class DataHubHandler:
 
   def execute_sql(self, con, query, query_params=None):
     try:
-      manager = DataHubManager(user=con.user, database=con.repo_owner)
+      manager = DataHubManager(user=con.user, repo_base=con.repo_base)
       res = manager.execute_sql(query=query, params=query_params)
       return construct_result_set(res)
     except Exception, e:

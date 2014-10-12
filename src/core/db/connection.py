@@ -8,15 +8,15 @@ from backend.pg import PGBackend
 @date: Oct 3, 2013
 
 DataHub DB wrapper for backends (only postgres implemented)
-Any new backend must implement the Connection interface
+Any new backend must implement the DataHubConnection interface
 '''
 
-class Connection:
-  def __init__(self, user, password, database=None):
-    self.backend = PGBackend(user, password, database=database)
+class DataHubConnection:
+  def __init__(self, user, password, repo_base=None):
+    self.backend = PGBackend(user, password, repo_base=repo_base)
   
-  def reset_connection(self, database):
-    self.backend.reset_connection(database=database)
+  def reset_connection(self, repo_base):
+    self.backend.reset_connection(repo_base=repo_base)
 
   def close_connection(self):    
     self.backend.close_connection()

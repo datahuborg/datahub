@@ -7,18 +7,18 @@ from config import settings
 @author: anant bhardwaj
 @date: Oct 3, 2013
 
-DataHub internal APIs for postgres database
+DataHub internal APIs for postgres repo_base
 '''
 HOST = settings.DATABASES['default']['HOST']
 PORT = 5432 if settings.DATABASES['default']['PORT'] == '' else int(settings.DATABASES['default']['PORT'])
 
 class PGBackend:
-  def __init__(self, user, password, host=HOST, port=PORT, database=None):
+  def __init__(self, user, password, host=HOST, port=PORT, repo_base=None):
     self.user = user
     self.password = password
     self.host = host
     self.port = port
-    self.database = database
+    self.repo_base = repo_base
 
     self.__open_connection__()
 
@@ -28,13 +28,13 @@ class PGBackend:
         password=self.password,
         host=self.host,
         port=self.port,
-        database=self.database)
+        database=self.repo_base)
 
     self.connection.set_isolation_level(
         psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
-  def reset_connection(self, database):
-    self.database=database
+  def reset_connection(self, repo_base):
+    self.repo_base=repo_base
     self.__open_connection__()
 
   def close_connection(self):    
@@ -77,7 +77,7 @@ class PGBackend:
     if repo not in all_repos:
       raise LookupError('Invalid repository name: %s' %(repo))
 
-    query = ''' SELECT table_name AS table FROM information_schema.tables
+    query = ''' SELECT table_name FROM information_schema.tables
                 WHERE table_schema = '%s'
             ''' %(repo)
     return self.execute_sql(query)
@@ -90,7 +90,7 @@ class PGBackend:
           "Can't resolve the name: '%s'.\n"
           "HINT: use <repo-name>.<table-name> " %(table))
     
-    query = ''' SELECT column_name AS field_name, data_type AS field_type
+    query = ''' SELECT column_name, data_type
                 FROM information_schema.columns
                 WHERE table_name = '%s'
                 AND table_schema = '%s'
@@ -145,7 +145,7 @@ class PGBackend:
     return self.execute_sql(query)
 
   def has_user_access_privilege(self, login, privilege):
-    query = ''' SELECT has_database_privilege('%s', '%s')
+    query = ''' SELECT has_repo_base_privilege('%s', '%s')
             ''' %(login, privilege)
     return self.execute_sql(query)
 
@@ -193,7 +193,7 @@ class PGBackend:
     from dbtruck.exporters.pg import PGMethods
 
     dbsettings = {
-      'dbname': self.database,
+      'dbname': self.repo_base,
       'hostname': self.host,
       'username': self.user,
       'password': self.password,
@@ -205,4 +205,3 @@ class PGBackend:
 
     return import_datafiles([file_path], create_new, table_name, errfile,
         PGMethods, **dbsettings)
-

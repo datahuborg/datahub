@@ -22,8 +22,8 @@ from thrift.transport.TTransport import TMemoryBuffer
 
 from apps.refiner import inference
 from auth import *
-from core.handler import DataHubHandler
 from core.db.manager import DataHubManager
+from core.handler import DataHubHandler
 from datahub import DataHub
 from utils import *
 
@@ -119,7 +119,7 @@ def service_json(request):
 
 def get_manager(request, repo_owner):
   login = get_login(request)
-  manager = DataHubManager(user=login, database=repo_owner)
+  manager = DataHubManager(user=login, repo_base=repo_owner)
   return manager
 
 def user(request, repo_owner):
