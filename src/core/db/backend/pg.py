@@ -185,7 +185,7 @@ class PGBackend:
       """
       Try importing using dbtruck.
       """
-      return self.import_file_w_dbtruck(path, table_name)
+      return self.import_file_w_dbtruck(file_path, table_name)
 
   def import_file_w_dbtruck(self, table_name, file_path):
     from dbtruck.dbtruck import import_datafiles
