@@ -28,8 +28,7 @@ struct ConnectionParams {
   2: optional string seq_id,
   3: optional string user,
   4: optional string password,
-  5: optional string repo_base,
-  6: optional string repo
+  5: optional string repo_base
 }
 
 // connection info -- must be passed in every execute_sql call
@@ -38,8 +37,7 @@ struct Connection {
   2: optional string seq_id,
   3: optional string user,
   4: optional string repo_base,
-  5: optional string repo,
-  6: optional i64 cursor
+  5: optional i64 cursor
 }
 
 

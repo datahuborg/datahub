@@ -10,7 +10,13 @@ from config import settings
 DataHub internal APIs for postgres repo_base
 '''
 HOST = settings.DATABASES['default']['HOST']
-PORT = 5432 if settings.DATABASES['default']['PORT'] == '' else int(settings.DATABASES['default']['PORT'])
+PORT = 5432
+
+if settings.DATABASES['default']['PORT'] != '':
+  try:
+    PORT = int(settings.DATABASES['default']['PORT'])
+  except:
+    pass
 
 class PGBackend:
   def __init__(self, user, password, host=HOST, port=PORT, repo_base=None):
