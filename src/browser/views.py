@@ -213,7 +213,7 @@ def table(request, repo_owner, repo, table, page='1'):
       
     res = manager.execute_sql(
         query='SELECT * from %s.%s.%s LIMIT 100 OFFSET %s'
-        %(repo, table, (current_page -1) * 100))
+        %(repo_owner, repo, table, (current_page -1) * 100))
     column_names = [field['name'] for field in res['fields']]
     tuples = res['tuples']
     return render_to_response("table.html", {
