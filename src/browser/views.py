@@ -152,7 +152,7 @@ def repo(request, repo_owner, repo):
 
     repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
     if not os.path.exists(repo_dir):
-      os.makedirs(user_dir)
+      os.makedirs(repo_dir)
     
     uploaded_files = [f for f in os.listdir(repo_dir)]
     

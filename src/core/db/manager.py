@@ -29,7 +29,7 @@ class DataHubManager:
     self.user_con.close()
   
   def create_repo(self, repo):  
-    return user_con.create_repo(repo=repo)
+    return self.user_con.create_repo(repo=repo)
 
   def list_repos(self):
     return self.user_con.list_repos()

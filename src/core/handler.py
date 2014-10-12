@@ -1,7 +1,7 @@
 import hashlib
 
 from core.db import connection
-from core.db import manager
+from core.db.manager import DataHubManager
 
 from datahub import DataHub
 from datahub.constants import *
@@ -54,7 +54,7 @@ class DataHubHandler:
   def create_repo(self, con, repo_name):
     try:
       manager = DataHubManager(user=con.user, database=con.repo_owner)
-      res = manager.create_repo(username=con.user, repo=repo_name)
+      res = manager.create_repo(repo=repo_name)
       return construct_result_set(res)
     except Exception, e:
       raise DBException(message=str(e))
