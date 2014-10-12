@@ -55,16 +55,16 @@ class DataHubManager:
   '''
   
   @staticmethod
-  def import_file(repo_owner, path, table_name):
+  def import_file(repo_owner, table_name, file_path):
     superuser_con.reset_connection(database=repo_owner)
     return superuser_con.import_file(
-        username=username, path=path, table_name=table_name)
+        file_path=file_path, table_name=table_name)
 
   @staticmethod
-  def export_file(repo_owner, path, table_name):
+  def export_file(repo_owner, table_name, file_path):
     superuser_con.reset_connection(database=repo_owner)
     return superuser_con.export_file(
-        username=username, path=path, table_name=table_name)
+        file_path=file_path, table_name=table_name)
 
   @staticmethod
   def create_user(username, password):

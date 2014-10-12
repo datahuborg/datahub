@@ -52,10 +52,10 @@ class Connection:
     return self.backend.create_user(username, password)
 
   def import_file(username, path, table_name):
-    return self.backend.import_file(path=path, table_name=table_name)
+    return self.backend.import_file(file_path=file_path, table_name=table_name)
 
   def export_file(username, path, table_name):
-    return self.backend.export_file(path=path, table_name=table_name)
+    return self.backend.export_file(file_path=file_path, table_name=table_name)
 
   def change_password(username, password):
     return self.backend.change_password(username, password)

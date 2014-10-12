@@ -343,7 +343,7 @@ def file_export(request, repo_owner, repo, table_name):
     login = get_login(request)
     repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
     
-    if not os.path.exists(user_dir):
+    if not os.path.exists(repo_dir):
       os.makedirs(repo_dir)
     
     file_path = '%s/%s.csv' %(repo_dir, table_name)

@@ -164,22 +164,22 @@ class PGBackend:
             ''' %(login, table, column, privilege)
     return self.execute_sql(query)
 
-  def export_file(self, path, table_name, file_format='CSV',
+  def export_file(self, file_path, table_name, file_format='CSV',
       delimiter=',', header=True):
     header_option = 'HEADER' if header else ''
     return self.execute_sql(
         ''' COPY %s TO '%s'
             WITH %s %s DELIMITER '%s';
-        ''' %(table_name, path, file_format, header_option, delimiter))
+        ''' %(table_name, file_path, file_format, header_option, delimiter))
 
-  def import_file(self, path, table_name, file_format='CSV',
+  def import_file(self, file_path, table_name, file_format='CSV',
       delimiter=',', header=True, encoding='ISO-8859-1'):
     try:
       header_option = 'HEADER' if header else ''
       return self.execute_sql(
           ''' COPY %s FROM '%s'
               WITH %s %s DELIMITER '%s' ENCODING '%s';
-          ''' %(table_name, path, file_format,
+          ''' %(table_name, file_path, file_format,
                 header_option, delimiter, encoding))
     except:
       """
@@ -187,7 +187,7 @@ class PGBackend:
       """
       return self.import_file_w_dbtruck(path, table_name)
 
-  def import_file_w_dbtruck(self, path, table_name):
+  def import_file_w_dbtruck(self, file_path, table_name):
     from dbtruck.dbtruck import import_datafiles
     from dbtruck.util import get_logger
     from dbtruck.exporters.pg import PGMethods
@@ -203,6 +203,6 @@ class PGBackend:
     create_new = True
     errfile = None
 
-    return import_datafiles([path], create_new, table_name, errfile,
+    return import_datafiles([file_path], create_new, table_name, errfile,
         PGMethods, **dbsettings)
 
