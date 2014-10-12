@@ -349,7 +349,7 @@ def file_export(request, repo_owner, repo, table_name):
     
     file_path = '%s/%s.csv' %(repo_dir, table_name)
     dh_table_name = '%s.%s.%s' %(repo_owner, repo, table_name)
-    manager.export_file(
+    DataHubManager.export_file(
         repo_owner=repo_owner, table_name=dh_table_name, file_path=file_path)
     return HttpResponseRedirect('/browse/%s/%s' %(repo_owner, repo))
   except Exception, e:
