@@ -25,7 +25,7 @@
   <form class="form-container" method="POST" action="/handle-file-upload" enctype='multipart/form-data'>
   <h3 style="padding-bottom:0.5em;">Upload Files to DataHub</h3>
   {% csrf_token %}
-  <input type="hidden" name="username" value="{{repo_owner}}" />
+  <input type="hidden" name="repo_owner" value="{{repo_owner}}" />
   <input type="hidden" name="repo" value="{{repo}}" />
   <div id="error">
     {% for error in errors %}<span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
