@@ -25,6 +25,8 @@ class DataHubManager:
         database=database,
         password=self.user.password)
   
+  ''' Basic Operations. '''
+
   def reset_connection(self, database):
     self.user_con.reset_connection(database=database)
 
@@ -49,23 +51,31 @@ class DataHubManager:
   def execute_sql(self, query, params=None):
     return self.user_con.execute_sql(query=query, params=params)
 
+  ''' Access Privilege Checks '''
+
+  def has_user_access_privilege(login, privilege):
+    return self.user_con.has_user_access_privilege(
+        login=login, privilege=privilege)
+
+  def has_repo_privilege(login, repo_owner, repo, privilege):
+    return self.user_con.has_repo_privilege(
+        login=login, repo=repo, privilege=privilege)
+
+  def has_table_privilege(login, repo_owner, table, privilege):
+    return self.user_con.has_table_privilege(
+        login=login, table=table, privilege=privilege)
+
+  def has_column_privilege(login, repo_owner, repo, column, privilege):
+    return self.user_con.has_column_privilege(login=login,
+        table=table, column=column, privilege=privilege)
+
 
   '''
-  The following methods run in superuser mode
+  The following methods run in superuser mode only
   '''
   
-  @staticmethod
-  def import_file(repo_owner, table_name, file_path):
-    superuser_con.reset_connection(database=repo_owner)
-    return superuser_con.import_file(
-        file_path=file_path, table_name=table_name)
-
-  @staticmethod
-  def export_file(repo_owner, table_name, file_path):
-    superuser_con.reset_connection(database=repo_owner)
-    return superuser_con.export_file(
-        file_path=file_path, table_name=table_name)
-
+  ''' User/Role Management '''
+  
   @staticmethod
   def create_user(username, password):
     return superuser_con.create_user(username=username, password=password)
@@ -74,30 +84,21 @@ class DataHubManager:
   def change_password(username, password):
     return superuser_con.change_password(username=username, password=password)
 
+  ''' Import/Export Files '''
+  
+  @staticmethod
+  def import_file(repo_owner, table_name, file_path):
+    superuser_con.reset_connection(database=repo_owner)
+    return superuser_con.import_file(
+        table_name=table_name, file_path=file_path)
+
+  @staticmethod
+  def export_file(repo_owner, table_name, file_path):
+    superuser_con.reset_connection(database=repo_owner)
+    return superuser_con.export_file(
+        table_name=table_name, file_path=file_path)
+
   @staticmethod
   def list_shared_repos(username):
     superuser_con.reset_connection(database=username)
     return superuser_con.list_shared_repos(username=username)
-
-  @staticmethod
-  def has_user_access_privilege(login, repo_owner, privilege):
-    return superuser_con.has_user_access_privilege(
-        login=login, username=repo_owner, privilege=privilege)
-
-  @staticmethod
-  def has_repo_privilege(login, repo_owner, repo, privilege):
-    superuser_con.reset_connection(database=repo_owner)
-    return superuser_con.has_repo_privilege(
-        login=login, username=username, repo=repo, privilege=privilege)
-
-  @staticmethod
-  def has_table_privilege(login, repo_owner, table, privilege):
-    superuser_con.reset_connection(database=repo_owner)
-    return superuser_con.has_table_privilege(
-        login=login, username=username, table=table, privilege=privilege)
-
-  @staticmethod
-  def has_column_privilege(login, repo_owner, repo, column, privilege):
-    superuser_con.reset_connection(database=repo_owner)
-    return superuser_con.has_column_privilege(login=login,
-        username=username, table=table, column=column, privilege=privilege)
