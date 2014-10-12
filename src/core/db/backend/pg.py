@@ -54,7 +54,7 @@ class PGBackend:
     query = ''' SELECT schema_name AS repo_name
                 FROM information_schema.schemata
                 WHERE schema_owner = '%s'
-            ''' %(self.user)
+            ''' %(self.repo_base)
     return self.execute_sql(query)
 
   def delete_repo(self, repo, force=False):

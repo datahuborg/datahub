@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from multiprocessing import Pool
 
 from browser.utils import *
-from core.db import manager
+from core.db.manager import DataHubManager
 from schema.models import *
 
 p = os.path.abspath(os.path.dirname(__file__))
@@ -169,12 +169,12 @@ def register (request):
       if not error:
         hashed_password = hashlib.sha1(password).hexdigest()
         try:
-          manager.create_user(username=username, password=hashed_password)
+          DataHubManager.create_user(username=username, password=hashed_password)
         except Exception, e:
           pass
 
         try:
-          manager.change_password(username=username, password=hashed_password)
+          DataHubManager.change_password(username=username, password=hashed_password)
         except Exception, e:
           errors.append(str(e))
           error = True
@@ -336,12 +336,12 @@ def reset (request, encrypted_email):
         hashed_password = hashlib.sha1(password).hexdigest()
         user = User.objects.get(email=user_email)
         try:
-          manager.create_user(username=user.username, password=hashed_password)
+          DataHubManager.create_user(username=user.username, password=hashed_password)
         except Exception, e:
           pass
 
         try:
-          manager.change_password(username=user.username, password=hashed_password)
+          DataHubManager.change_password(username=user.username, password=hashed_password)
         except Exception, e:
           errors.append(str(e))
           error = True

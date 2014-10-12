@@ -127,6 +127,7 @@ def user(request, repo_owner):
     manager = get_manager(request, repo_owner)
 
     res = manager.list_repos()
+    print res
     repos = [{'name':t[0], 'owner': repo_owner} for t in res['tuples']]
 
     shared_repos = None
