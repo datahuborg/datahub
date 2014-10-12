@@ -23,6 +23,7 @@ from thrift.transport.TTransport import TMemoryBuffer
 from apps.refiner import inference
 from auth import *
 from core.handler import DataHubHandler
+from core.db.manager import DataHubManager
 from datahub import DataHub
 from utils import *
 
@@ -66,13 +67,16 @@ def newrepo(request):
     'login': get_login(request)})
 
 @login_required
-def files(request, username, repo):
-  user_dir = '/user_data/%s/%s' %(username, repo)
-  if not os.path.exists(user_dir):
-    os.makedirs(user_dir)
+def files(request, repo_owner, repo):
+  repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
+  if not os.path.exists(repo_dir):
+    os.makedirs(repo_dir)
   
-  uploaded_files = [f for f in os.listdir(user_dir)]
-  res= {'login': get_login(request), 'username': get_login(request), 'repo':repo, 'files': uploaded_files}
+  uploaded_files = [f for f in os.listdir(repo_dir)]
+  res= {'login': get_login(request),
+        'repo_owner': repo_owner,
+        'repo':repo,
+        'files': uploaded_files}
   res.update(csrf(request))
   return render_to_response("files.html", res)
 
@@ -113,62 +117,48 @@ def service_json(request):
           {'error': str(e)}),
         mimetype="application/json")
 
+def get_manager(request, repo_owner):
+  login = get_login(request)
+  manager = DataHubManager(user=login, database=repo_owner)
+  return manager
 
-def user(request, username):
+def user(request, repo_owner):
   try:
-    if(username):
-      login = get_login(request)
-      
-      res = None
-      if login: 
-        res = manager.has_user_access_privilege(login, username, 'connect')
+    manager = get_manager(request, repo_owner)
 
-      if (not res) or (not res['tuples'][0][0]):
-        return HttpResponse(json.dumps(
-            {'error': 'Access denied (missing required privileges).'}),
-            mimetype="application/json")
+    res = manager.list_repos()
+    repos = [{'name':t[0], 'owner': repo_owner} for t in res['tuples']]
 
-      res = manager.list_repos(username)
-      repos = [{'name':t[0], 'owner': username} for t in res['tuples']]
-
-      res = manager.list_shared_repos(username)
-      shared_repos = [{'name':t[1], 'owner': t[0]} for t in res['tuples']]
-      return render_to_response("user.html", {
-          'login': get_login(request),
-          'username': username,
-          'repos': repos,
-          'shared_repos': shared_repos})      
+    shared_repos = None
+    #res = manager.list_shared_repos(username)
+    #shared_repos = [{'name':t[1], 'owner': t[0]} for t in res['tuples']]
+    
+    return render_to_response("user.html", {
+        'login': get_login(request),
+        'repo_owner': repo_owner,
+        'repos': repos,
+        'shared_repos': shared_repos})      
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),
         mimetype="application/json")
 
-def repo(request, username, repo):
+def repo(request, repo_owner, repo):
   try:
-    login = get_login(request)
-
-    res = None
-    if login: 
-      res = manager.has_repo_privilege(login, username, repo, 'usage')
+    manager = get_manager(request, repo_owner)
     
-    if (not res) or (not res['tuples'][0][0]):
-      return HttpResponse(
-        json.dumps(
-            {'error': 'Access denied (missing required privileges).'}),
-            mimetype="application/json")
-    
-    res = manager.list_tables(username, repo)
+    res = manager.list_tables(repo)
     tables = [t[0] for t in res['tuples']]
 
-    user_dir = '/user_data/%s/%s' %(username, repo)
-    if not os.path.exists(user_dir):
+    repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
+    if not os.path.exists(repo_dir):
       os.makedirs(user_dir)
     
-    uploaded_files = [f for f in os.listdir(user_dir)]
+    uploaded_files = [f for f in os.listdir(repo_dir)]
     
     res = {
         'login': get_login(request),
-        'username': username,
+        'repo_owner': repo_owner,
         'repo': repo,
         'tables': tables,
         'files': uploaded_files}
@@ -178,25 +168,15 @@ def repo(request, username, repo):
         {'error': str(e)}),
         mimetype="application/json")
 
-def settings_repo(request, username, repo):
+def settings_repo(request, repo_owner, repo):
   try:
-    login = get_login(request)
-
-    res = None
-    if login: 
-      res = manager.has_repo_privilege(login, username, repo, 'create')
+    manager = get_manager(request, repo_owner)
     
-    if (not res) or (not res['tuples'][0][0]):
-      return HttpResponse(
-        json.dumps(
-            {'error': 'Access denied (missing required privileges).'}),
-            mimetype="application/json")
-    
-    res = manager.list_tables(username, repo)
+    res = manager.list_tables(repo)
     tables = [t[0] for t in res['tuples']]
     res = {
         'login': get_login(request),
-        'username': username,
+        'repo_owner': repo_owner,
         'repo': repo,
         'tables': tables}
     return render_to_response("settings_repo.html", res)
@@ -205,7 +185,7 @@ def settings_repo(request, username, repo):
         {'error': str(e)}),
         mimetype="application/json")
 
-def table(request, username, repo, table, page='1'):
+def table(request, repo_owner, repo, table, page='1'):
   current_page = 1
   try:
     current_page = int(page)
@@ -220,22 +200,10 @@ def table(request, username, repo, table, page='1'):
     start_page = 1
 
   try:
-    login = get_login(request)
-
-    res = None
-    if login:
-      res = manager.has_table_privilege(
-          login, username, '%s.%s' %(repo, table), 'select')
-    
-    if (not res) or (not res['tuples'][0][0]):
-      return HttpResponse(
-        json.dumps(
-            {'error': 'Access denied (missing required privileges).'}),
-            mimetype="application/json")
+    manager = get_manager(request, repo_owner)
 
     res = manager.execute_sql(
-        username=username,
-        query='SELECT count(*) from %s.%s.%s' %(username, repo, table))
+        query='SELECT count(*) from %s.%s' %(repo, table))
     
     count = res['tuples'][0][0]
     total_pages = 1 + (int(count) / 100)
@@ -244,13 +212,13 @@ def table(request, username, repo, table, page='1'):
       end_page = total_pages
       
     res = manager.execute_sql(
-        username=username,
-        query='SELECT * from %s.%s.%s LIMIT 100 OFFSET %s' %(username, repo, table, (current_page -1) * 100))
+        query='SELECT * from %s.%s.%s LIMIT 100 OFFSET %s'
+        %(repo, table, (current_page -1) * 100))
     column_names = [field['name'] for field in res['fields']]
     tuples = res['tuples']
     return render_to_response("table.html", {
         'login': get_login(request),
-        'username': username,
+        'repo_owner': repo_owner,
         'repo': repo,
         'table': table,
         'column_names': column_names,
@@ -263,12 +231,12 @@ def table(request, username, repo, table, page='1'):
         mimetype="application/json")
 
 
-def save_uploaded_file(username, repo, data_file):
-  user_dir = '/user_data/%s/%s' %(username, repo)
-  if not os.path.exists(user_dir):
-    os.makedirs(user_dir)
+def save_uploaded_file(repo_owner, repo, data_file):
+  repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
+  if not os.path.exists(repo_dir):
+    os.makedirs(repo_dir)
   
-  file_name = '%s/%s' %(user_dir, data_file.name)
+  file_name = '%s/%s' %(repo_dir, data_file.name)
   with open(file_name, 'wb+') as destination:
     for chunk in data_file.chunks():
       destination.write(chunk)
@@ -279,10 +247,10 @@ def handle_file_upload(request):
     if request.method == 'POST':
       data_file = request.FILES['data_file']
       repo = request.POST['repo']
-      username = request.POST['username']
-      save_uploaded_file(username, repo, data_file)
+      repo_owner = request.POST['repo_owner']
+      save_uploaded_file(repo_owner, repo, data_file)
     
-    return HttpResponseRedirect('/files/%s/%s' %(username,repo))
+    return HttpResponseRedirect('/files/%s/%s' %(repo_owner, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -290,15 +258,15 @@ def handle_file_upload(request):
         mimetype="application/json")
 
 @login_required
-def file_import(request, username, repo):
+def file_import(request, repo_owner, repo):
   try:
     login = get_login(request)
     file_name = request.GET['file']
-    user_dir = '/user_data/%s/%s' %(username, repo)
-    file_path = '%s/%s' %(user_dir, file_name)
+    repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
+    file_path = '%s/%s' %(repo_owner, file_name)
     table_name, _ = os.path.splitext(file_name)
     table_name = clean_str(table_name, 'table')
-    dh_table_name = '%s.%s.%s' %(username, repo, table_name)
+    dh_table_name = '%s.%s.%s' %(repo_owner, repo, table_name)
     f = codecs.open(file_path, 'r', 'ISO-8859-1')
     data = csv.reader(f)
     cells = data.next()
@@ -308,9 +276,11 @@ def file_import(request, username, repo):
     for i in range(1, len(columns)):
       query += ', %s %s' %(columns[i], 'text')
     query += ')'
-    manager.execute_sql(username=username, query=query)
-    manager.import_file(username=username, path=file_path, table_name=dh_table_name)
-    return HttpResponseRedirect('/browse/%s/%s' %(username, repo))
+    
+    manager = get_manager(request, repo_owner)
+    manager.execute_sql(query=query)
+    manager.import_file(path=file_path, table_name=dh_table_name)
+    return HttpResponseRedirect('/browse/%s/%s' %(repo_owner, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -318,14 +288,14 @@ def file_import(request, username, repo):
         mimetype="application/json")
 
 @login_required
-def file_delete(request, username, repo):
+def file_delete(request, repo_owner, repo):
   try:
     login = get_login(request)
     file_name = request.GET['file']
-    user_dir = '/user_data/%s/%s' %(username, repo)
-    file_path = '%s/%s' %(user_dir, file_name)
+    repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
+    file_path = '%s/%s' %(repo_dir, file_name)
     os.remove(file_path)
-    return HttpResponseRedirect('/browse/%s/%s' %(username, repo))
+    return HttpResponseRedirect('/browse/%s/%s' %(repo_owner, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -333,13 +303,14 @@ def file_delete(request, username, repo):
         mimetype="application/json")
 
 @login_required
-def table_delete(request, username, repo, table_name):
+def table_delete(request, repo_owner, repo, table_name):
   try:
-    login = get_login(request)
-    dh_table_name = '%s.%s.%s' %(username, repo, table_name)
+    manager = get_manager(request, repo_owner)
+    
+    dh_table_name = '%s.%s.%s' %(repo_owner, repo, table_name)
     query = '''DROP TABLE %s''' %(dh_table_name)
-    manager.execute_sql(username=login, query=query)
-    return HttpResponseRedirect('/browse/%s/%s' %(username, repo))
+    manager.execute_sql(query=query)
+    return HttpResponseRedirect('/browse/%s/%s' %(repo_owner, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -347,12 +318,12 @@ def table_delete(request, username, repo, table_name):
         mimetype="application/json")
 
 @login_required
-def file_download(request, username, repo):
+def file_download(request, repo_owner, repo):
   try:
     login = get_login(request)
     file_name = request.GET['file']
-    user_dir = '/user_data/%s/%s' %(username, repo)
-    file_path = '%s/%s' %(user_dir, file_name)
+    repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
+    file_path = '%s/%s' %(repo_dir, file_name)
     response = HttpResponse(
         open(file_path).read(), mimetype='application/force-download')
     response['Content-Disposition'] = 'attachment; filename="%s"' %(file_name)
@@ -364,18 +335,20 @@ def file_download(request, username, repo):
         mimetype="application/json")
 
 @login_required
-def file_export(request, username, repo, table_name):
+def file_export(request, repo_owner, repo, table_name):
   try:
     login = get_login(request)
-    user_dir = '/user_data/%s/%s' %(username, repo)
+    repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
     
     if not os.path.exists(user_dir):
-      os.makedirs(user_dir)
+      os.makedirs(repo_dir)
     
-    file_path = '%s/%s.csv' %(user_dir, table_name)
-    dh_table_name = '%s.%s.%s' %(username, repo, table_name)
-    manager.export_file(username=username, path=file_path, table_name=dh_table_name)
-    return HttpResponseRedirect('/browse/%s/%s' %(username, repo))
+    file_path = '%s/%s.csv' %(repo_dir, table_name)
+    dh_table_name = '%s.%s.%s' %(repo_owner, repo, table_name)
+    manager = get_manager(request, repo_owner)
+    manager.export_file(
+        repo_owner=repo_owner, path=file_path, table_name=dh_table_name)
+    return HttpResponseRedirect('/browse/%s/%s' %(repo_owner, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(

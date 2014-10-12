@@ -22,20 +22,13 @@ class PGBackend:
 
     self.__open_connection__()
 
-  def __open_connection__(self):
-    if self.database:
-      self.connection = psycopg2.connect(
-          user=self.user,
-          password=self.password,
-          host=self.host,
-          port=self.port,
-          database=self.database)
-    else:
-      self.connection = psycopg2.connect(
-          user=self.user,
-          password=self.password,
-          host=self.host,
-          port=self.port)
+  def __open_connection__(self):    
+    self.connection = psycopg2.connect(
+        user=self.user,
+        password=self.password,
+        host=self.host,
+        port=self.port,
+        database=self.database)
 
     self.connection.set_isolation_level(
         psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -43,6 +36,9 @@ class PGBackend:
   def reset_connection(self, database):
     self.database=database
     self.__open_connection__()
+
+  def close_connection(self):    
+    self.connection.close()
 
   def create_repo(self, repo):
     query = ''' CREATE SCHEMA %s ''' %(repo)
@@ -59,6 +55,20 @@ class PGBackend:
     query = ''' DROP SCHEMA %s %s
             ''' %(repo, 'CASCADE' if force else '')
     return self.execute_sql(query)
+
+  def share_repo(self, repo, username, privileges, auto_in_future):
+    query = ''' GRANT USAGE ON SCHEMA %s TO %s;
+            ''' %(repo, username)
+    self.execute_sql(query)
+    privileges_str = ', '.join(privileges)
+    query = ''' GRANT %s ON ALL TABLES
+                in SCHEMA %s TO %s;
+            ''' %(privileges_str, repo, username)
+    self.execute_sql(query)
+    query = ''' ALTER DEFAULT PRIVILEGES IN SCHEMA %s
+                GRANT %s ON TABLES TO %s;
+            ''' %(repo, privileges_str, username)
+    self.execute_sql(query)
 
   def list_tables(self, repo):
     res = self.list_repos()
@@ -193,9 +203,6 @@ class PGBackend:
     create_new = True
     errfile = None
 
-    return import_datafiles([path], create_new, table_name, errfile, PGMethods,
-                    **dbsettings)
-
-  def close(self):    
-    self.connection.close()
+    return import_datafiles([path], create_new, table_name, errfile,
+        PGMethods, **dbsettings)
 

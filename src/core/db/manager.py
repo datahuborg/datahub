@@ -1,6 +1,6 @@
 import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
+from config import settings
 from core.db.connection import *
 from schema.models import *
 
@@ -11,85 +11,93 @@ Datahub DB Manager
 @author: Anant Bhardwaj
 @date: Mar 21, 2013
 '''
-def create_repo(username, repo):
-  user = User.objects.get(username=username)
-  con = Connection(
-      user=username,
-      password=user.password)
-  return con.create_repo(repo=repo)
 
-def list_repos(username):
-  user = User.objects.get(username=username)
-  con = Connection(
-      user=username,
-      password=user.password)
-  res = con.list_repos()
-  return res
+# A superuser connection for superuser tasks
+superuser_con = Connection(
+    user=settings.DATABASES['default']['USER'],
+    password=settings.DATABASES['default']['USER'])
 
-def delete_repo(username, repo, force):
-  user = User.objects.get(username=username)
-  con = Connection(
-      user=username,
-      password=user.password)
-  return con.delete_repo(repo=repo, force=force)
+class DataHubManager:
+  def __init__(self, user, database=None):
+    self.user = User.objects.get(username=user)
+    self.user_con = Connection(
+        user=self.user.username,
+        database=database,
+        password=self.user.password)
+  
+  def reset_connection(self, database):
+    self.user_con.reset_connection(database=database)
 
-def list_tables(username, repo):
-  user = User.objects.get(username=username)
-  con = Connection(
-      user=username,
-      password=user.password)
-  res = con.list_tables(repo=repo)
-  return res
+  def close_connection(self):    
+    self.user_con.close()
+  
+  def create_repo(self, repo):  
+    return user_con.create_repo(repo=repo)
 
-def print_schema(username, table):
-  user = User.objects.get(username=username)
-  con = Connection(
-      user=username,
-      password=user.password)
-  res = con.print_schema(table=table)
-  return res
+  def list_repos(self):
+    return self.user_con.list_repos()
 
-def execute_sql(username, query, params=None):
-  user = User.objects.get(username=username)
-  con = Connection(
-      user=username,
-      password=user.password)
-  res = con.execute_sql(query=query, params=params)
-  return res
+  def delete_repo(self, repo, force=False):
+    return self.user_con.delete_repo(repo=repo, force=force)
 
-'''
-SUPERUSER operations (be careful)
-'''
+  def list_tables(self, repo):
+    return self.user_con.list_tables(repo=repo)
 
-def import_file(username, path, table_name):
-  return Connection.import_file(
-      username=username, path=path, table_name=table_name)
+  def print_schema(self, table):
+    return self.user_con.print_schema(table=table)
 
-def export_file(username, path, table_name):
-  return Connection.export_file(
-      username=username, path=path, table_name=table_name)
+  def execute_sql(self, query, params=None):
+    return self.user_con.execute_sql(query=query, params=params)
 
-def create_user(username, password):
-  return Connection.create_user(username=username, password=password)
 
-def change_password(username, password):
-  return Connection.change_password(username=username, password=password)
+  '''
+  The following methods run in superuser mode
+  '''
+  
+  @staticmethod
+  def import_file(repo_owner, path, table_name):
+    superuser_con.reset_connection(database=repo_owner)
+    return superuser_con.import_file(
+        username=username, path=path, table_name=table_name)
 
-def list_shared_repos(username):
-  return Connection.list_shared_repos(username=username)
+  @staticmethod
+  def export_file(repo_owner, path, table_name):
+    superuser_con.reset_connection(database=repo_owner)
+    return superuser_con.export_file(
+        username=username, path=path, table_name=table_name)
 
-def has_user_access_privilege(login, username, privilege):
-  return Connection.has_user_access_privilege(
-      login=login, username=username, privilege=privilege)
+  @staticmethod
+  def create_user(username, password):
+    return superuser_con.create_user(username=username, password=password)
 
-def has_repo_privilege(login, username, repo, privilege):
-  return Connection.has_repo_privilege(
-      login=login, username=username, repo=repo, privilege=privilege)
+  @staticmethod
+  def change_password(username, password):
+    return superuser_con.change_password(username=username, password=password)
 
-def has_table_privilege(login, username, table, privilege):
-  return Connection.has_table_privilege(
-      login=login, username=username, table=table, privilege=privilege)
+  @staticmethod
+  def list_shared_repos(username):
+    superuser_con.reset_connection(database=username)
+    return superuser_con.list_shared_repos(username=username)
 
-def has_column_privilege(login, username, repo, column, privilege):
-  return Connection.has_column_privilege(login=login,
-      username=username, table=table, column=column, privilege=privilege)
+  @staticmethod
+  def has_user_access_privilege(login, repo_owner, privilege):
+    return superuser_con.has_user_access_privilege(
+        login=login, username=repo_owner, privilege=privilege)
+
+  @staticmethod
+  def has_repo_privilege(login, repo_owner, repo, privilege):
+    superuser_con.reset_connection(database=repo_owner)
+    return superuser_con.has_repo_privilege(
+        login=login, username=username, repo=repo, privilege=privilege)
+
+  @staticmethod
+  def has_table_privilege(login, repo_owner, table, privilege):
+    superuser_con.reset_connection(database=repo_owner)
+    return superuser_con.has_table_privilege(
+        login=login, username=username, table=table, privilege=privilege)
+
+  @staticmethod
+  def has_column_privilege(login, repo_owner, repo, column, privilege):
+    superuser_con.reset_connection(database=repo_owner)
+    return superuser_con.has_column_privilege(login=login,
+        username=username, table=table, column=column, privilege=privilege)

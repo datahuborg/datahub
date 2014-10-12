@@ -42,13 +42,18 @@ class DataHubHandler:
           user=con_params.user,
           password=hashlib.sha1(con_params.password).hexdigest())
 
-      con = Connection(user=con_params.user)
+      con = Connection(
+          user=con_params.user,
+          repo_owner=con_params.repo_owner,
+          repo=con_params.repo)
+      
       return con
     except Exception, e:
       raise DBException(message=str(e))
   
   def create_repo(self, con, repo_name):
     try:
+      manager = DataHubManager(user=con.user, database=con.repo_owner)
       res = manager.create_repo(username=con.user, repo=repo_name)
       return construct_result_set(res)
     except Exception, e:
@@ -56,37 +61,40 @@ class DataHubHandler:
 
   def list_repos(self, con):
     try:
-      res = manager.list_repos(username=con.user)
+      manager = DataHubManager(user=con.user, database=con.repo_owner)
+      res = manager.list_repos()
       return construct_result_set(res)
     except Exception, e:
       raise DBException(message=str(e))
 
   def delete_repo(self, con, repo_name, force_if_non_empty):
     try:
-      res = manager.delete_repo(
-          username=con.user, repo=repo_name, force=force_if_non_empty)
+      manager = DataHubManager(user=con.user, database=con.repo_owner)
+      res = manager.delete_repo(repo=repo_name, force=force_if_non_empty)
       return construct_result_set(res)
     except Exception, e:
       raise DBException(message=str(e))
 
   def list_tables(self, con, repo_name):
     try:
-      res = manager.list_tables(username=con.user, repo=repo_name)
+      manager = DataHubManager(user=con.user, database=con.repo_owner)
+      res = manager.list_tables(repo=repo_name)
       return construct_result_set(res)
     except Exception, e:
       raise DBException(message=str(e))
 
   def print_schema(self, con, table_name):
     try:
-      res = manager.print_schema(username=con.user, table=table_name)
+      manager = DataHubManager(user=con.user, database=con.repo_owner)
+      res = manager.print_schema(table=table_name)
       return construct_result_set(res)
     except Exception, e:
       raise DBException(message=str(e))
 
   def execute_sql(self, con, query, query_params=None):
     try:
-      res = manager.execute_sql(
-          username=con.user, query=query, params=query_params)
+      manager = DataHubManager(user=con.user, database=con.repo_owner)
+      res = manager.execute_sql(query=query, params=query_params)
       return construct_result_set(res)
     except Exception, e:
       raise DBException(message=str(e))

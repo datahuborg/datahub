@@ -29,15 +29,15 @@
 </script>
 
 <div id="content">
-  <a class="blue bold" href="/browse/{{username}}">{{username}}</a> / 
-  <a class="blue bold" href="/browse/{{username}}/{{repo}}">{{repo}}</a> /  
-  <a class="blue bold" href="/browse/{{username}}/{{repo}}/{{table}}">{{table}}</a>
+  <a class="blue bold" href="/browse/{{repo_owner}}">{{repo_owner}}</a> / 
+  <a class="blue bold" href="/browse/{{repo_owner}}/{{repo}}">{{repo}}</a> /  
+  <a class="blue bold" href="/browse/{{repo_owner}}/{{repo}}/{{table}}">{{table}}</a>
   <hr class="light" />
   <br />
   <br />
   <div>
   <a class="button inactive" href="/console">Launch SQL Console</a>
-  <a class="button active" href="/dbwipes/{{username}}/{{repo}}/{{table}}">DBWipes</a>
+  <a class="button active" href="/dbwipes/{{repo_owner}}/{{repo}}/{{table}}">DBWipes</a>
   </div>
   <br />
   <table id="table_data">
@@ -65,7 +65,7 @@
     {% if page == current_page %}
       {{current_page}}&nbsp;&nbsp;  
     {% else %}
-        <a class="blue bold" href="/browse/{{username}}/{{repo}}/{{table}}/{{page}}">{{page}}</a>&nbsp;&nbsp;
+        <a class="blue bold" href="/browse/{{repo_owner}}/{{repo}}/{{table}}/{{page}}">{{page}}</a>&nbsp;&nbsp;
       {% endif %}
   {% endfor %}
   

@@ -35,14 +35,14 @@
 
 
 <div id="content">
-  <a class="blue bold" href=/browse/{{username}}>{{username}}</a> / <a class = "blue bold" href=/browse/{{username}}/{{repo}}>{{repo}}</a> /
+  <a class="blue bold" href=/browse/{{repo_owner}}>{{repo_owner}}</a> / <a class = "blue bold" href=/browse/{{repo_owner}}/{{repo}}>{{repo}}</a> /
   <hr class="light" />
   <br />
   <br />
   <div>
-  <a class="button inactive" href="/console">Create Table with SQL</a> &nbsp; &nbsp; <a class="button inactive" href="/files/{{username}}/{{repo}}">Upload Files</a> &nbsp; &nbsp; <a class="button inactive" href="/data-refiner">Launch Data Refiner</a>
+  <a class="button inactive" href="/console">Create Table with SQL</a> &nbsp; &nbsp; <a class="button inactive" href="/files/{{repo_owner}}/{{repo}}">Upload Files</a> &nbsp; &nbsp; <a class="button inactive" href="/data-refiner">Launch Data Refiner</a>
   <!--
-  <a class="button inactive" href="/settings/{{username}}/{{repo}}">Manage Settings</a>
+  <a class="button inactive" href="/settings/{{repo_owner}}/{{repo}}">Manage Settings</a>
   -->
   </div>
   <br />
@@ -56,8 +56,8 @@
     <tbody>
     {% for table in tables %}
     <tr>
-      <td><a class="blue link" href="/browse/{{username}}/{{repo}}/{{table}}">{{table}}</a></td>
-      <td><a class="table-icon" href="/browse/{{username}}/{{repo}}/{{table}}" title="View Table"></a> &nbsp; <a class="csv-icon" href="/export/{{username}}/{{repo}}/{{table}}" title="Export to CSV"></a> &nbsp; <a class="delete-icon" href="/delete-table/{{username}}/{{repo}}/{{table}}" title="Delete"></a></td>
+      <td><a class="blue link" href="/browse/{{repo_owner}}/{{repo}}/{{table}}">{{table}}</a></td>
+      <td><a class="table-icon" href="/browse/{{repo_owner}}/{{repo}}/{{table}}" title="View Table"></a> &nbsp; <a class="csv-icon" href="/export/{{repo_owner}}/{{repo}}/{{table}}" title="Export to CSV"></a> &nbsp; <a class="delete-icon" href="/delete-table/{{repo_owner}}/{{repo}}/{{table}}" title="Delete"></a></td>
     </tr>
     {% endfor %}
     </tbody>
@@ -74,8 +74,8 @@
     <tbody>
     {% for file in files %}
     <tr>
-      <td><a class="blue link" href="/download/{{username}}/{{repo}}?file={{file}}">{{file}}</a></td>
-      <td><a class="database-table-icon" href="/import/{{username}}/{{repo}}?file={{file}}" title="Import to DataHub as Table"></a> &nbsp; <a class="download-icon" href="/download/{{username}}/{{repo}}?file={{file}}" title="Download"></a> &nbsp; <a class="delete-icon" href="/delete/{{username}}/{{repo}}?file={{file}}" title="Delete"></a></td>
+      <td><a class="blue link" href="/download/{{repo_owner}}/{{repo}}?file={{file}}">{{file}}</a></td>
+      <td><a class="database-table-icon" href="/import/{{repo_owner}}/{{repo}}?file={{file}}" title="Import to DataHub as Table"></a> &nbsp; <a class="download-icon" href="/download/{{repo_owner}}/{{repo}}?file={{file}}" title="Download"></a> &nbsp; <a class="delete-icon" href="/delete/{{repo_owner}}/{{repo}}?file={{file}}" title="Delete"></a></td>
     </tr>
     {% endfor %}
     </tbody>
