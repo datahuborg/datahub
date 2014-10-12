@@ -297,7 +297,7 @@ def file_import(request, username, repo):
     user_dir = '/user_data/%s/%s' %(username, repo)
     file_path = '%s/%s' %(user_dir, file_name)
     table_name, _ = os.path.splitext(file_name)
-    clean_str(table_name)
+    table_name = clean_str(table_name)
     dh_table_name = '%s.%s.%s' %(username, repo, table_name)
     f = codecs.open(file_path, 'r', 'ISO-8859-1')
     data = csv.reader(f)
