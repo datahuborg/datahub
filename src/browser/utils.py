@@ -27,8 +27,13 @@ def decrypt_text (crypt_text):
 
 def clean_str(text):
   s = text.strip().lower()
+  
+  # replace whitespce with '_'
+  s = re.sub(' ', '_', s)
+  
   # remove invalid characters
   s = re.sub('[^0-9a-zA-Z_]', '', s)
+  
   # remove leading characters until a letter or underscore
   s = re.sub('^[^a-zA-Z_]+', '', s)
 
