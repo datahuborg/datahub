@@ -25,7 +25,7 @@ def decrypt_text (crypt_text):
 	plain_text = cipher.decrypt(crypt_text.decode('hex'))[iv_len:]
 	return plain_text
 
-def clean_str(text):
+def clean_str(text, prefix):
   s = text.strip().lower()
   
   # replace whitespce with '_'
@@ -33,12 +33,12 @@ def clean_str(text):
   
   # remove invalid characters
   s = re.sub('[^0-9a-zA-Z_]', '', s)
-  
+
   # remove leading characters until a letter or underscore
   s = re.sub('^[^a-zA-Z_]+', '', s)
 
   if s == '':
-    return clean_str('col_' + text)
+    return clean_str(prefix + text)
   
   return s
 
