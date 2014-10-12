@@ -46,7 +46,7 @@ class DataHubHandler:
           user=con_params.user,
           repo_owner=con_params.repo_owner,
           repo=con_params.repo)
-      
+      print con
       return con
     except Exception, e:
       raise DBException(message=str(e))

@@ -66,6 +66,7 @@ function print_result (res, term) {
 $(document).ready(function($) {
   var kCmdList = [
       '** Any SQL Query **',
+      'connect &lt;repo-owner&gt; \t -- connect to a repository base of a user (repo-owner)',
       'mkrepo &lt;repo-name&gt; \t -- to create a new repository',
       'rm &lt;repo-name [-f]&gt; \t\t -- to remove a repository',
       'ls \t\t\t\t\t -- to list repositories',
@@ -77,7 +78,7 @@ $(document).ready(function($) {
   var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
   var protocol = new Thrift.Protocol(transport);
   var client = new DataHubClient(protocol);
-  var con = new Connection({'user':login})
+  var con = new Connection({'user': login});
 
   $('#dh-console').terminal(
     function (command, term) {
@@ -87,11 +88,19 @@ $(document).ready(function($) {
         if (cmd == ''){
           return
         }
-
-        if (cmd.startsWith('mkrepo')) {
+        if (cmd.startsWith('connect')) {
+          var args = cmd.split(' ', 2)
+          if (args.length > 1) {
+            con.repo_owner = args[1]
+            term.echo("Connection changed to: " + con.repo_owner)
+          } else {
+            term.error ('HELP: connect &lt;repo-owner&gt;')
+          }
+        } else if (cmd.startsWith('mkrepo')) {
           var args = cmd.split(' ', 2)
           if (args.length > 1) {
             res = client.create_repo(con, args[1])
+            con = res.con
             print_result(res, term)
           } else {
             term.error ('HELP: mkrepo &lt;repo-name&gt;')
@@ -104,6 +113,7 @@ $(document).ready(function($) {
               force = true
             }
             res = client.delete_repo(con, args[1], force)
+            con = res.con
             print_result(res, term)
           } else {
             term.error ('HELP: rm &lt;repo-name&gt; [-f]')
@@ -112,6 +122,7 @@ $(document).ready(function($) {
           var args = cmd.split(' ', 2)
           if (args.length > 1) {
             res = client.print_schema(con, args[1])
+            con = res.con
             print_result(res, term)
           } else {
             term.error ('HELP: desc &lt;table-name&gt;')
@@ -121,6 +132,7 @@ $(document).ready(function($) {
           res = null
           if (args.length > 1) {
             res = client.list_tables(con, args[1])
+            con = res.con
           } else {
             res = client.list_repos(con)
           }
@@ -131,9 +143,10 @@ $(document).ready(function($) {
           }
         } else {
           res = client.execute_sql(con, cmd);
+          con = res.con
           print_result(res, term) 
         }
-      }catch(error){
+      } catch(error){
         term.error(error.message);
       }
     }, { 
