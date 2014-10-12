@@ -193,27 +193,30 @@ def table(request, repo_owner, repo, table, page='1'):
     pass
 
   if current_page < 1:
-      current_page = 1
+    current_page = 1
 
   start_page = current_page - 5
   if start_page < 1:
     start_page = 1
 
+  end_page = start_page + 10
+
   try:
     manager = get_manager(request, repo_owner)
 
     res = manager.execute_sql(
-        query='SELECT count(*) from %s.%s' %(repo, table))
+        query='SELECT count(*) from %s.%s.%s' %(repo_owner, repo, table))    
     
-    count = res['tuples'][0][0]
-    total_pages = 1 + (int(count) / 100)
-    end_page = start_page + 10
+    count = res['tuples'][0][0]    
+    total_pages = 1 + (int(count) / 50)
+    
     if end_page > total_pages:
       end_page = total_pages
       
     res = manager.execute_sql(
         query='SELECT * from %s.%s.%s LIMIT 100 OFFSET %s'
         %(repo_owner, repo, table, (current_page -1) * 100))
+    
     column_names = [field['name'] for field in res['fields']]
     tuples = res['tuples']
     return render_to_response("table.html", {
