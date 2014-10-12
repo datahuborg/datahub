@@ -282,7 +282,7 @@ def file_import(request, repo_owner, repo):
     
     manager = get_manager(request, repo_owner)
     manager.execute_sql(query=query)
-    DataHubManager.import_file(
+    manager.import_file(
         repo_owner=repo_owner, table_name=dh_table_name, file_path=file_path)
     return HttpResponseRedirect('/browse/%s/%s' %(repo_owner, repo))
   except Exception, e:
@@ -349,7 +349,7 @@ def file_export(request, repo_owner, repo, table_name):
     
     file_path = '%s/%s.csv' %(repo_dir, table_name)
     dh_table_name = '%s.%s.%s' %(repo_owner, repo, table_name)
-    DataHubManager.export_file(
+    manager.export_file(
         repo_owner=repo_owner, table_name=dh_table_name, file_path=file_path)
     return HttpResponseRedirect('/browse/%s/%s' %(repo_owner, repo))
   except Exception, e:

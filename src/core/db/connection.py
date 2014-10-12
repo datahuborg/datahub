@@ -43,19 +43,19 @@ class Connection:
   def execute_sql(self, query, params=None):
     return self.backend.execute_sql(query, params)
 
-  def has_access_privilege(login, privilege):
+  def has_access_privilege(self, login, privilege):
     return self.backend.has_access_privilege(
         login=login, privilege=privilege)
 
-  def has_repo_privilege(login, repo, privilege):
+  def has_repo_privilege(self, login, repo, privilege):
     return self.backend.has_repo_privilege(
         login=login, repo=repo, privilege=privilege)
 
-  def has_table_privilege(login, table, privilege):
+  def has_table_privilege(self, login, table, privilege):
     return self.backend.has_table_privilege(
         login=login, table=table, privilege=privilege)
 
-  def has_column_privilege(login, table, column, privilege):
+  def has_column_privilege(self, login, table, column, privilege):
     return self.backend.has_column_privilege(
         login=login, table=table, column=column, privilege=privilege)
 
@@ -64,17 +64,17 @@ class Connection:
   The following methods works only in superuser mode
   '''
 
-  def create_user(username, password):
+  def create_user(self, username, password):
     return self.backend.create_user(username, password)
 
-  def change_password(username, password):
+  def change_password(self, username, password):
     return self.backend.change_password(username, password)
 
-  def import_file(table_name, file_path):
+  def import_file(self, table_name, file_path):
     return self.backend.import_file(table_name=table_name, file_path=file_path)
 
-  def export_file(table_name, file_path):
+  def export_file(self, table_name, file_path):
     return self.backend.export_file(table_name=table_name, file_path=file_path)
 
-  def list_shared_repos(username):
+  def list_shared_repos(self, username):
     return self.backend.list_shared_repos(username)
