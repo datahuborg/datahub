@@ -38,7 +38,7 @@ def clean_str(text, prefix):
   s = re.sub('^[^a-zA-Z_]+', '', s)
 
   if s == '':
-    return clean_str(prefix + text)
+    return clean_str(prefix + text, '')
   
   return s
 
