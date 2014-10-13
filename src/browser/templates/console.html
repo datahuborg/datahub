@@ -145,8 +145,8 @@ $(document).ready(function($) {
         term.error(error.message);
       }
     }, { 
-      prompt: '{{login}}@{{con.repo_base}}> ',
-      greetings: 'Connected to: ' + con.repo_base + '\nWelcome to DataHub!'}
+      prompt: '{{login}}@' + con.repo_base + '> ',
+      greetings: 'Welcome to DataHub!\nConnected to: ' + con.repo_base}
   );
   
 });
