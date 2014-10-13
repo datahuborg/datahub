@@ -305,7 +305,13 @@ def file_delete(request, repo_base, repo):
 @login_required
 def table_delete(request, repo_base, repo, table_name):
   try:
-    manager = get_manager(request, repo_base)
+    res = DataHubManager.has_table_privilege(
+        login, repo_base, dh_table_name, 'DELETE')
+    
+    if not (res and res['tuples'][0][0]):
+      raise Exception('Access denied. Missing required privileges.')
+
+    manager = DataHubManager(user=repo_base)
     
     dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
     query = '''DROP TABLE %s''' %(dh_table_name)
