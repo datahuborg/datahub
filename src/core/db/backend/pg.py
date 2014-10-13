@@ -88,7 +88,7 @@ class PGBackend:
             ''' %(repo)
     return self.execute_sql(query)
 
-  def print_schema(self, table):
+  def get_schema(self, table):
     tokens = table.split('.')
     
     if len(tokens) < 2:

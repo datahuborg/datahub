@@ -91,7 +91,7 @@ service DataHub {
   ResultSet list_tables (1: Connection con, 2: string repo_name)
       throws (1: DBException ex)
 
-  ResultSet print_schema (1: Connection con, 2: string table_name)
+  ResultSet get_schema (1: Connection con, 2: string table_name)
       throws (1: DBException ex)
 
   ResultSet execute_sql (

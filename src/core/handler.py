@@ -82,10 +82,10 @@ class DataHubHandler:
     except Exception, e:
       raise DBException(message=str(e))
 
-  def print_schema(self, con, table_name):
+  def get_schema(self, con, table_name):
     try:
       manager = DataHubManager(user=con.user, repo_base=con.repo_base)
-      res = manager.print_schema(table=table_name)
+      res = manager.get_schema(table=table_name)
       return construct_result_set(res)
     except Exception, e:
       raise DBException(message=str(e))

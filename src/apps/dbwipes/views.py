@@ -13,7 +13,7 @@ import numpy as np
 from browser.auth import *
 from django.db import connection
 
-
+from core.db.manager import DataHubManager
 from core.handler import DataHubHandler
 from refiner import inference
 from datahub import DataHub
@@ -107,16 +107,18 @@ def has_scorpion():
 @returns_json
 def dbs(request):
   username = get_login(request)
-  dbnames = pick(manager.list_repos(username)['tuples'], 0)
+  manager = DataHubManager(user=username)
+  dbnames = pick(manager.list_repos()['tuples'], 0)
   #q = "SELECT datname FROM pg_database where datistemplate = false;"
-  #dbnames = [str(row[0]) for row in manager.execute_sql(username=username, query=q)['tuples']]
+  #dbnames = [str(row[0]) for row in manager.execute_sql(query=q)['tuples']]
   return {'databases': dbnames}
 
 
 
 @returns_json
 def tables(request):
-  username = get_login(request) 
+  username = get_login(request)
+  manager = DataHubManager(user=username)
   repo = request.GET.get('repo')
   tables = [str(row[0]) for row in manager.list_tables(repo)['tuples']]
   return {'tables': tables}
@@ -125,7 +127,8 @@ def tables(request):
 
 def get_schema(repo, table, username):
   full_tablename = "%s.%s" % (repo, table)
-  pairs = manager.print_schema(username, full_tablename)['tuples']
+  manager = DataHubManager(user=username)
+  pairs = manager.get_schema(full_tablename)['tuples']
   schema = {}
   for col, typ in pairs:
     if typ == 'text':
@@ -220,7 +223,8 @@ def api_tuples(request):
   query = query % (full_tablename, where, full_tablename, where)
   params = params + params
 
-  res = manager.execute_sql(username, query, params=params)
+  manager = DataHubManager(user=username)
+  res = manager.execute_sql(query, params=params)
   rows = res['tuples']
   cols = [field['name'] for field in res['fields']]
 
@@ -257,7 +261,8 @@ def api_query(request):
     print "query: no db/table/query.  giving up"
     return ret
 
-  res = manager.execute_sql(username, query, params)
+  manager = DataHubManager(user=username)
+  res = manager.execute_sql(query, params)
   rows = res['tuples']
   cols = pick(res['fields'], 'name')
 

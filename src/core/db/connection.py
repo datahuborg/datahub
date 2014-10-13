@@ -37,8 +37,8 @@ class DataHubConnection:
   def list_tables(self, repo):
     return self.backend.list_tables(repo=repo)
 
-  def print_schema(self, table):
-    return self.backend.print_schema(table=table)
+  def get_schema(self, table):
+    return self.backend.get_schema(table=table)
 
   def execute_sql(self, query, params=None):
     return self.backend.execute_sql(query, params)

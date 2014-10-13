@@ -3,7 +3,7 @@ import bsddb
 import json
 import pdb
 
-from core.db import manager
+from core.db.manager import DataHubManager
 from django.db import connection
 
 from util import pick
@@ -12,8 +12,8 @@ from util import pick
 
 def get_cache(username):
   try:
-    manager.execute_sql(
-      username, 
+    manager = DataHubManager(user=username)
+    manager.execute_sql( 
       "create table _dbwipes_cache(key varchar, val text)")
   except:
     pass
@@ -23,8 +23,8 @@ def make_cache(f):
   def _f(self, *args, **kwargs):
     try:
       key = str(map(str, (f.__name__, self.dbname, self.tablename, self.where, self.nbuckets, map(str, args))))
+      manager = DataHubManager(user=self.username)
       vals = manager.execute_sql(
-          self.username,
           'select val from _dbwipes_cache where key = %s', 
           params = (key,))['tuples']
 
@@ -36,8 +36,8 @@ def make_cache(f):
 
     res = f(self, *args, **kwargs)
     if key:
+      manager = DataHubManager(user=self.username)
       manager.execute_sql(
-        self.username,
         'insert into _dbwipes_cache values(%s, %s)', 
         params = (key, json.dumps(res, default=json_handler)))
     return res
@@ -84,13 +84,15 @@ class Summary(object):
 
   def reset_cache(self):
     q = """delete from cache where key like '%%%%%s%%%%%s%%%%'""" % (str(self.engine), self.tablename)
-    manager.execute_sql(self.username, q)
+    manager = DataHubManager(user=self.username)
+    manager.execute_sql(q)
 
   def query(self, q, *args):
     """
     Summaries using other engines only need to override this method
     """
-    return manager.execute_sql(self.username, q, params=args)['tuples']
+    manager = DataHubManager(user=self.username)
+    return manager.execute_sql(q, params=args)['tuples']
 
 
   @make_cache
@@ -116,7 +118,8 @@ class Summary(object):
 
   @make_cache
   def get_columns_and_types(self):
-    rows = manager.desc_table(self.username, self.tablename)['tuples']
+    manager = DataHubManager(user=self.username)
+    rows = manager.get_schema(self.tablename)['tuples']
     ret = []
     for col, typ in rows:
       if typ == 'text':
