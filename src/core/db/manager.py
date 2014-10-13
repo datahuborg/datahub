@@ -70,20 +70,20 @@ class DataHubManager:
   ''' Import/Export Files '''
   
   @staticmethod
-  def import_file(repo_owner, table_name, file_path):
+  def import_file(repo_base, table_name, file_path):
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
         password=settings.DATABASES['default']['USER'],
-        repo_base=repo_owner)
+        repo_base=repo_base)
     return superuser_con.import_file(
         table_name=table_name, file_path=file_path)
 
   @staticmethod
-  def export_file(repo_owner, table_name, file_path):
+  def export_file(repo_base, table_name, file_path):
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
         password=settings.DATABASES['default']['USER'],
-        repo_base=repo_owner)
+        repo_base=repo_base)
     return superuser_con.export_file(
         table_name=table_name, file_path=file_path)
 
@@ -102,7 +102,7 @@ class DataHubManager:
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
         password=settings.DATABASES['default']['USER'],
-        repo_base=repo_owner)
+        repo_base=repo_base)
     return superuser_con.has_repo_privilege(
         login=login, repo=repo, privilege=privilege)
 
@@ -111,7 +111,7 @@ class DataHubManager:
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
         password=settings.DATABASES['default']['USER'],
-        repo_base=repo_owner)
+        repo_base=repo_base)
     return superuser_con.has_table_privilege(
         login=login, table=table, privilege=privilege)
 
@@ -120,7 +120,7 @@ class DataHubManager:
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
         password=settings.DATABASES['default']['USER'],
-        repo_base=repo_owner)
+        repo_base=repo_base)
     return superuser_con.has_column_privilege(login=login,
         table=table, column=column, privilege=privilege)
 
