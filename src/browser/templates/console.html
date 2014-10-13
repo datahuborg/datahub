@@ -79,7 +79,6 @@ $(document).ready(function($) {
   var protocol = new Thrift.Protocol(transport);
   var client = new DataHubClient(protocol);
   var con = new Connection({'user': login, 'repo_base': login});
-  term.echo("Connected to: " + con.repo_base)
 
   $('#dh-console').terminal(
     function (command, term) {
@@ -147,7 +146,7 @@ $(document).ready(function($) {
       }
     }, { 
       prompt: '{{login}}@{{con.repo_base}}> ',
-      greetings: 'Welcome to DataHub!'}
+      greetings: 'Connected to: ' + con.repo_base + '\nWelcome to DataHub!'}
   );
   
 });
