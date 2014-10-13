@@ -66,7 +66,7 @@ function print_result (res, term) {
 $(document).ready(function($) {
   var kCmdList = [
       '** Any SQL Query **',
-      'connect &lt;repo-owner&gt; \t -- connect to a repository base of a user (repo-owner)',
+      'connect &lt;repo-base&gt; \t -- connect to a repository base of a user (repo-base)',
       'mkrepo &lt;repo-name&gt; \t -- to create a new repository',
       'rm &lt;repo-name [-f]&gt; \t\t -- to remove a repository',
       'ls \t\t\t\t\t -- to list repositories',
@@ -91,8 +91,8 @@ $(document).ready(function($) {
         if (cmd.startsWith('connect')) {
           var args = cmd.split(' ', 2)
           if (args.length > 1) {
-            con.repo_owner = args[1]
-            term.echo("Connection changed to: " + con.repo_owner)
+            con.repo_base = args[1]
+            term.echo("Connection changed to: " + con.repo_base)
           } else {
             term.error ('HELP: connect &lt;repo-owner&gt;')
           }

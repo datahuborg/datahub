@@ -20,12 +20,12 @@
 </script>
 
 <div id="content">
-  <a class="blue bold" href=/browse/{{repo_owner}}>{{repo_owner}}</a> / <a class = "blue bold" href=/browse/{{repo_owner}}/{{repo}}>{{repo}}</a> /
+  <a class="blue bold" href=/browse/{{repo_base}}>{{repo_base}}</a> / <a class = "blue bold" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a> /
   <hr class="light" />
   <form class="form-container" method="POST" action="/handle-file-upload" enctype='multipart/form-data'>
   <h3 style="padding-bottom:0.5em;">Upload Files to DataHub</h3>
   {% csrf_token %}
-  <input type="hidden" name="repo_owner" value="{{repo_owner}}" />
+  <input type="hidden" name="repo_base" value="{{repo_base}}" />
   <input type="hidden" name="repo" value="{{repo}}" />
   <div id="error">
     {% for error in errors %}<span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
@@ -39,7 +39,7 @@
   <br />
   <br />
   <div>
-  <a class="button inactive" href=/browse/{{repo_owner}}/{{repo}}>Back to Repository</a>
+  <a class="button inactive" href=/browse/{{repo_base}}/{{repo}}>Back to Repository</a>
   </div>
   <br />
   <table id="files">
@@ -52,8 +52,8 @@
     <tbody>
     {% for file in files %}
     <tr>
-      <td><a class="blue link" href="/download/{{repo_owner}}/{{repo}}?file={{file}}">{{file}}</a></td>
-      <td><a class="database-table-icon" href="/import/{{repo_owner}}/{{repo}}?file={{file}}" title="Import to DataHub as Table"></a> &nbsp; <a class="download-icon" href="/download/{{repo_owner}}/{{repo}}?file={{file}}" title="Download"></a> &nbsp; <a class="delete-icon" href="/delete/{{repo_owner}}/{{repo}}?file={{file}}" title="Delete"></a></td>
+      <td><a class="blue link" href="/download/{{repo_base}}/{{repo}}?file={{file}}">{{file}}</a></td>
+      <td><a class="database-table-icon" href="/import/{{repo_base}}/{{repo}}?file={{file}}" title="Import to DataHub as Table"></a> &nbsp; <a class="download-icon" href="/download/{{repo_base}}/{{repo}}?file={{file}}" title="Download"></a> &nbsp; <a class="delete-icon" href="/delete/{{repo_base}}/{{repo}}?file={{file}}" title="Delete"></a></td>
     </tr>
     {% endfor %}
     </tbody>
