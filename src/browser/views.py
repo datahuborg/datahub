@@ -118,13 +118,16 @@ def service_json(request):
         mimetype="application/json")
 
 def get_manager(request, repo_owner):
-  login = get_login(request)
-  manager = DataHubManager(user=login, repo_base=repo_owner)
+  manager = DataHubManager(user=repo_owner)
   return manager
 
 def user(request, repo_owner):
   try:
+    login = get_login(request)
     manager = get_manager(request, repo_owner)
+
+    if not manager.has_user_access_privilege(login, 'CONNECT'):
+      raise Exception('Access denied. Missing required privileges.')
 
     res = manager.list_repos()
     print res
@@ -146,7 +149,11 @@ def user(request, repo_owner):
 
 def repo(request, repo_owner, repo):
   try:
+    login = get_login(request)
     manager = get_manager(request, repo_owner)
+
+    if not manager.has_repo_privilege(login, 'USAGE'):
+      raise Exception('Access denied. Missing required privileges.')
     
     res = manager.list_tables(repo)
     tables = [t[0] for t in res['tuples']]
@@ -171,7 +178,11 @@ def repo(request, repo_owner, repo):
 
 def settings_repo(request, repo_owner, repo):
   try:
+    login = get_login(request)
     manager = get_manager(request, repo_owner)
+
+    if not manager.has_repo_privilege(login, 'USAGE'):
+      raise Exception('Access denied. Missing required privileges.')
     
     res = manager.list_tables(repo)
     tables = [t[0] for t in res['tuples']]
@@ -203,7 +214,11 @@ def table(request, repo_owner, repo, table, page='1'):
   end_page = start_page + 10
 
   try:
+    login = get_login(request)
     manager = get_manager(request, repo_owner)
+
+    if not manager.has_table_privilege(login, 'SELECT'):
+      raise Exception('Access denied. Missing required privileges.')
 
     res = manager.execute_sql(
         query='SELECT count(*) from %s.%s.%s' %(repo_owner, repo, table))    
