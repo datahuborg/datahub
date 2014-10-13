@@ -126,7 +126,8 @@ def user(request, repo_owner):
     login = get_login(request)
     manager = get_manager(request, repo_owner)
 
-    if not manager.has_connect_privilege(login, 'CONNECT'):
+    res = manager.has_connect_privilege(login, 'CONNECT')
+    if not (res and res.tuples[0][0]):
       raise Exception('Access denied. Missing required privileges.')
 
     res = manager.list_repos()
@@ -152,7 +153,8 @@ def repo(request, repo_owner, repo):
     login = get_login(request)
     manager = get_manager(request, repo_owner)
 
-    if not manager.has_repo_privilege(login, repo, 'USAGE'):
+    res = manager.has_repo_privilege(login, repo, 'USAGE')
+    if not (res and res.tuples[0][0]):
       raise Exception('Access denied. Missing required privileges.')
     
     res = manager.list_tables(repo)
@@ -181,7 +183,8 @@ def settings_repo(request, repo_owner, repo):
     login = get_login(request)
     manager = get_manager(request, repo_owner)
 
-    if not manager.has_repo_privilege(login, repo, 'USAGE'):
+    res = manager.has_repo_privilege(login, repo, 'USAGE')
+    if not (res and res.tuples[0][0]):
       raise Exception('Access denied. Missing required privileges.')
     
     res = manager.list_tables(repo)
@@ -217,7 +220,10 @@ def table(request, repo_owner, repo, table, page='1'):
     login = get_login(request)
     manager = get_manager(request, repo_owner)
 
-    if not manager.has_table_privilege(login, table, 'SELECT'):
+    dh_table_name = '%s.%s.%s' %(repo_owner, repo, table)
+    
+    res = manager.has_table_privilege(login, dh_table_name, 'SELECT')
+    if not (res and res.tuples[0][0]):
       raise Exception('Access denied. Missing required privileges.')
 
     res = manager.execute_sql(
