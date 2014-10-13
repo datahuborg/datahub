@@ -52,15 +52,15 @@ class DataHubManager:
     return self.user_con.has_connect_privilege(
         login=login, privilege=privilege)
 
-  def has_repo_privilege(self, login, repo_owner, repo, privilege):
+  def has_repo_privilege(self, login, repo, privilege):
     return self.user_con.has_repo_privilege(
         login=login, repo=repo, privilege=privilege)
 
-  def has_table_privilege(self, login, repo_owner, table, privilege):
+  def has_table_privilege(self, login, table, privilege):
     return self.user_con.has_table_privilege(
         login=login, table=table, privilege=privilege)
 
-  def has_column_privilege(self, login, repo_owner, repo, column, privilege):
+  def has_column_privilege(self, login, table, column, privilege):
     return self.user_con.has_column_privilege(login=login,
         table=table, column=column, privilege=privilege)
 
