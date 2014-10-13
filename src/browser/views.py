@@ -243,7 +243,7 @@ def table(request, repo_base, repo, table, page='1'):
 def table_delete(request, repo_base, repo, table_name):
   try:
     login = get_login(request)
-    dh_table_name = '%s.%s.%s' %(repo_base, repo, table)
+    dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
     
     res = DataHubManager.has_table_privilege(
         login, repo_base, dh_table_name, 'DELETE')
@@ -253,7 +253,6 @@ def table_delete(request, repo_base, repo, table_name):
 
     manager = DataHubManager(user=repo_base)
     
-    dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
     query = '''DROP TABLE %s''' %(dh_table_name)
     manager.execute_sql(query=query)
     return HttpResponseRedirect('/browse/%s/%s' %(repo_base, repo))
