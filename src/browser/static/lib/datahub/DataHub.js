@@ -773,7 +773,7 @@ DataHub_list_tables_result.prototype.write = function(output) {
   return;
 };
 
-DataHub_print_schema_args = function(args) {
+DataHub_get_schema_args = function(args) {
   this.con = null;
   this.table_name = null;
   if (args) {
@@ -785,8 +785,8 @@ DataHub_print_schema_args = function(args) {
     }
   }
 };
-DataHub_print_schema_args.prototype = {};
-DataHub_print_schema_args.prototype.read = function(input) {
+DataHub_get_schema_args.prototype = {};
+DataHub_get_schema_args.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -823,8 +823,8 @@ DataHub_print_schema_args.prototype.read = function(input) {
   return;
 };
 
-DataHub_print_schema_args.prototype.write = function(output) {
-  output.writeStructBegin('DataHub_print_schema_args');
+DataHub_get_schema_args.prototype.write = function(output) {
+  output.writeStructBegin('DataHub_get_schema_args');
   if (this.con !== null && this.con !== undefined) {
     output.writeFieldBegin('con', Thrift.Type.STRUCT, 1);
     this.con.write(output);
@@ -840,7 +840,7 @@ DataHub_print_schema_args.prototype.write = function(output) {
   return;
 };
 
-DataHub_print_schema_result = function(args) {
+DataHub_get_schema_result = function(args) {
   this.success = null;
   this.ex = null;
   if (args instanceof DBException) {
@@ -856,8 +856,8 @@ DataHub_print_schema_result = function(args) {
     }
   }
 };
-DataHub_print_schema_result.prototype = {};
-DataHub_print_schema_result.prototype.read = function(input) {
+DataHub_get_schema_result.prototype = {};
+DataHub_get_schema_result.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -895,8 +895,8 @@ DataHub_print_schema_result.prototype.read = function(input) {
   return;
 };
 
-DataHub_print_schema_result.prototype.write = function(output) {
-  output.writeStructBegin('DataHub_print_schema_result');
+DataHub_get_schema_result.prototype.write = function(output) {
+  output.writeStructBegin('DataHub_get_schema_result');
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.STRUCT, 0);
     this.success.write(output);
@@ -1442,14 +1442,14 @@ DataHubClient.prototype.recv_list_tables = function() {
   }
   throw 'list_tables failed: unknown result';
 };
-DataHubClient.prototype.print_schema = function(con, table_name) {
-  this.send_print_schema(con, table_name);
-  return this.recv_print_schema();
+DataHubClient.prototype.get_schema = function(con, table_name) {
+  this.send_get_schema(con, table_name);
+  return this.recv_get_schema();
 };
 
-DataHubClient.prototype.send_print_schema = function(con, table_name) {
-  this.output.writeMessageBegin('print_schema', Thrift.MessageType.CALL, this.seqid);
-  var args = new DataHub_print_schema_args();
+DataHubClient.prototype.send_get_schema = function(con, table_name) {
+  this.output.writeMessageBegin('get_schema', Thrift.MessageType.CALL, this.seqid);
+  var args = new DataHub_get_schema_args();
   args.con = con;
   args.table_name = table_name;
   args.write(this.output);
@@ -1457,7 +1457,7 @@ DataHubClient.prototype.send_print_schema = function(con, table_name) {
   return this.output.getTransport().flush();
 };
 
-DataHubClient.prototype.recv_print_schema = function() {
+DataHubClient.prototype.recv_get_schema = function() {
   var ret = this.input.readMessageBegin();
   var fname = ret.fname;
   var mtype = ret.mtype;
@@ -1468,7 +1468,7 @@ DataHubClient.prototype.recv_print_schema = function() {
     this.input.readMessageEnd();
     throw x;
   }
-  var result = new DataHub_print_schema_result();
+  var result = new DataHub_get_schema_result();
   result.read(this.input);
   this.input.readMessageEnd();
 
@@ -1478,7 +1478,7 @@ DataHubClient.prototype.recv_print_schema = function() {
   if (null !== result.success) {
     return result.success;
   }
-  throw 'print_schema failed: unknown result';
+  throw 'get_schema failed: unknown result';
 };
 DataHubClient.prototype.execute_sql = function(con, query, query_params) {
   this.send_execute_sql(con, query, query_params);
