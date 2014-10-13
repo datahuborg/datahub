@@ -48,14 +48,10 @@ def is_valid_username (username):
 
   return False
 
-
 def login_required (f):
   def wrap (request, *args, **kwargs):
-      if kEmail not in request.session.keys():
-        if(len(args)>0):
-          redirect_url = urlquote_plus("/%s/%s" %(args[0], f.__name__))
-        else:
-          redirect_url = "/"
+      if kLogIn not in request.session.keys():        
+        redirect_url = urlquote_plus(request.get_full_path())        
         return HttpResponseRedirect("/login?redirect_url=%s" %(redirect_url))
       return f(request, *args, **kwargs)
   wrap.__doc__ = f.__doc__
