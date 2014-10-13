@@ -71,7 +71,7 @@ $(document).ready(function($) {
     try {
       res = client.create_repo(con, db_name)
       if (res.status) {
-        window.location.href='/'
+        window.location.href='/browse/{{repo_base}}'
       }
     }catch(error){
       $('#error').html('<span class="error">' + error.message + '</span>');
