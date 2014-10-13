@@ -53,7 +53,7 @@
     {% for file in files %}
     <tr>
       <td><a class="blue link" href="/download/{{repo_base}}/{{repo}}?file={{file}}">{{file}}</a></td>
-      <td><a class="database-table-icon" href="/import/{{repo_base}}/{{repo}}?file={{file}}" title="Import to DataHub as Table"></a> &nbsp; <a class="download-icon" href="/download/{{repo_base}}/{{repo}}?file={{file}}" title="Download"></a> &nbsp; <a class="delete-icon" href="/delete/{{repo_base}}/{{repo}}?file={{file}}" title="Delete"></a></td>
+      <td><a class="download-icon" href="/download/{{repo_base}}/{{repo}}?file={{file}}" title="Download"></a> &nbsp; <a class="delete-icon" href="/delete/{{repo_base}}/{{repo}}?file={{file}}" title="Delete"></a></td>
     </tr>
     {% endfor %}
     </tbody>
