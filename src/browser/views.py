@@ -92,12 +92,10 @@ def service_json(request):
 Repository Base
 '''
 
+@login_required
 def user(request, repo_base):
   try:
     login = get_login(request)
-
-    if not login:
-      login = 'public'
 
     res = DataHubManager.has_connect_privilege(login, repo_base, 'CONNECT')
     if not (res and res['tuples'][0][0]):
@@ -126,6 +124,7 @@ def user(request, repo_base):
 Repository
 '''
 
+@login_required
 def repo(request, repo_base, repo):
   try:
     login = get_login(request)
@@ -156,10 +155,12 @@ def repo(request, repo_base, repo):
         {'error': str(e)}),
         mimetype="application/json")
 
+@login_required
 def newrepo(request, repo_base):
   return render_to_response("newrepo.html", {
     'repo_base': repo_base})
 
+@login_required
 def settings_repo(request, repo_base, repo):
   try:
     login = get_login(request)
@@ -187,6 +188,7 @@ def settings_repo(request, repo_base, repo):
 Tables
 '''
 
+@login_required
 def table(request, repo_base, repo, table, page='1'):
   try:
     login = get_login(request)
@@ -243,6 +245,7 @@ def table(request, repo_base, repo, table, page='1'):
         {'error': str(e)}),
         mimetype="application/json")
 
+@login_required
 def table_delete(request, repo_base, repo, table_name):
   try:
     login = get_login(request)
@@ -269,6 +272,7 @@ def table_delete(request, repo_base, repo, table_name):
 Files Related Stuff
 '''
 
+@login_required
 def files(request, repo_base, repo):
   repo_dir = '/user_data/%s/%s' %(repo_base, repo)
   if not os.path.exists(repo_dir):
@@ -292,6 +296,7 @@ def save_uploaded_file(repo_base, repo, data_file):
     for chunk in data_file.chunks():
       destination.write(chunk)
 
+@login_required
 def handle_file_upload(request):
   try:
     if request.method == 'POST':
@@ -307,6 +312,7 @@ def handle_file_upload(request):
           {'error': str(e)}),
         mimetype="application/json")
 
+@login_required
 def file_import(request, repo_base, repo):
   try:
     login = get_login(request)
@@ -342,6 +348,7 @@ def file_import(request, repo_base, repo):
           {'error': str(e)}),
         mimetype="application/json")
 
+@login_required
 def file_delete(request, repo_base, repo):
   try:
     login = get_login(request)
@@ -361,6 +368,7 @@ def file_delete(request, repo_base, repo):
           {'error': str(e)}),
         mimetype="application/json")
 
+@login_required
 def file_download(request, repo_base, repo):
   try:
     file_name = request.GET['file']
@@ -376,6 +384,7 @@ def file_download(request, repo_base, repo):
           {'error': str(e)}),
         mimetype="application/json")
 
+@login_required
 def file_export(request, repo_base, repo, table_name):
   try:
     login = get_login(request)
