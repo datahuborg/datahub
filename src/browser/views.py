@@ -96,6 +96,9 @@ def user(request, repo_base):
   try:
     login = get_login(request)
 
+    if not login:
+      login = 'public'
+
     res = DataHubManager.has_connect_privilege(login, repo_base, 'CONNECT')
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
@@ -410,7 +413,7 @@ def console(request):
 '''
 Visualizations
 '''
-
+@login_required
 def visualize(request):
   return render_to_response("visualize.html", {
     'login': get_login(request)})
