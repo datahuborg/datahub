@@ -48,8 +48,8 @@ class DataHubManager:
 
   ''' Access Privilege Checks '''
 
-  def has_user_access_privilege(self, login, privilege):
-    return self.user_con.has_user_access_privilege(
+  def has_connect_privilege(self, login, privilege):
+    return self.user_con.has_connect_privilege(
         login=login, privilege=privilege)
 
   def has_repo_privilege(self, login, repo_owner, repo, privilege):

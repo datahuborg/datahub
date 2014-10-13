@@ -126,7 +126,7 @@ def user(request, repo_owner):
     login = get_login(request)
     manager = get_manager(request, repo_owner)
 
-    if not manager.has_user_access_privilege(login, 'CONNECT'):
+    if not manager.has_connect_privilege(login, 'CONNECT'):
       raise Exception('Access denied. Missing required privileges.')
 
     res = manager.list_repos()
