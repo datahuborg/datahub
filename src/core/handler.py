@@ -44,7 +44,7 @@ class DataHubHandler:
 
       con = Connection(
           user=con_params.user,
-          repo_owner=con_params.repo_owner,
+          repo_base=con_params.repo_base,
           repo=con_params.repo)
 
       return con
