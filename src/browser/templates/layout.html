@@ -40,34 +40,36 @@ DataHub Template Layout
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
 <body>
-	<div id="dropdown-nav" class="dropdown-menu has-tip">
-	    <ul>
-	        <li><a href="/">Home</a></li>
-	        <li class="divider"></li>
-	        <li><a href="/logout">Log out</a></li>
-	    </ul>
-	</div>
-<div id="header">
-	<div id="wrap">  
-		<span id="headlink-left">
-			<a id="logo" href="/">DataHub</a>
-		</span>    
-		<span id="headlink-right">
-    {% block headlink-right %}
-	
-	  {% if login %}
-	   <a href="/" class="blue bold navitem">{{ login }}</a> &nbsp; &nbsp;
-	   <a class="newrepo-icon" href="/newrepo" title="New Repository"></a>
-	   <a class="console-icon" href="/console" title="DataHub Console"></a>
-	   <!--
-	   <a class="visualize-icon" href="/visualize" title="Visualize"></a> -->
-	   <a class="logout-icon" href="/logout" title="Log out"></a>
-	  {% else %}
-	  <a class="button" href="/login">Log In</a>
-	  {% endif %}			
-    {% endblock %}
-		</span>
-	</div>
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" id="logo" href="/">DataHub</a>
+  </div>
+  
+  <div class="navbar-collapse collapse">
+    <div class="navbar-right">
+      {% block headlink-right %}
+      <ul class="nav navbar-nav">
+        {% if login %}
+          <li><a href="/" class="blue bold navitem">{{ login }}</a></li>
+        {% endif %}
+      </ul>
+      {% if login %}
+        <a href="/console" title="DataHub Console" class="btn btn-default navbar-btn"><span class="glyphicon glyphicon-tasks"></span></a>
+        <a href="/logout" title="Log Out" class="btn btn-default navbar-btn"><span class="glyphicon glyphicon-log-out"></span></a>
+      {% else %}
+        <a href="/login" title="Log In" class="btn btn-default navbar-btn">Sign In</a>
+      {% endif %}
+      {% endblock %}
+    </div>
+  </div>
+  </div>
 </div>
 
 <div id="page">

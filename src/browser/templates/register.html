@@ -1,7 +1,6 @@
 {% extends "login-layout.html" %}
-{% block headlink-right %}
-<a class="button inactive" href="/login">Sign in</a>		
-{% endblock %}
+% block headlink-right %}
+  <a href="/login" title="Sign In" class="btn btn-default navbar-btn">Sign In</a>
 {% block content %}
 <form class="center-container" method="POST" action="/register" autocomplete="off">
 	{% csrf_token %}
@@ -19,7 +18,7 @@
 	<input type="text" name="email" id="email" placeholder="Your email address" {% if values.email %}value="{{values.email}}"{% endif %}/><br /><br />
 	<label for="password">Password</label><br />
 	<input type="password" name="password" id="password" placeholder="Create a password" {% if values.password %}value="{{values.password}}"{% endif %}/><br /><br />
-	<input type="submit" class="button" value="Sign up for DataHub" />
+	<input type="submit" class="button" value="Sign Up for DataHub" />
 	<br />
 	<br />
 	<div>
