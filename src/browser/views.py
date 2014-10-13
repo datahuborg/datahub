@@ -67,14 +67,14 @@ def newrepo(request):
     'login': get_login(request)})
 
 @login_required
-def files(request, repo_owner, repo):
-  repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
+def files(request, repo_base, repo):
+  repo_dir = '/user_data/%s/%s' %(repo_base, repo)
   if not os.path.exists(repo_dir):
     os.makedirs(repo_dir)
   
   uploaded_files = [f for f in os.listdir(repo_dir)]
   res= {'login': get_login(request),
-        'repo_owner': repo_owner,
+        'repo_base': repo_base,
         'repo':repo,
         'files': uploaded_files}
   res.update(csrf(request))
@@ -117,22 +117,17 @@ def service_json(request):
           {'error': str(e)}),
         mimetype="application/json")
 
-def get_manager(request, repo_owner):
-  manager = DataHubManager(user=repo_owner)
-  return manager
-
-def user(request, repo_owner):
+def user(request, repo_base):
   try:
     login = get_login(request)
-    manager = get_manager(request, repo_owner)
 
-    res = manager.has_connect_privilege(login, 'CONNECT')
+    res = DataHubManager.has_connect_privilege(login, repo_base, 'CONNECT')
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
 
+    manager = DataHubManager(user=repo_base)
     res = manager.list_repos()
-    print res
-    repos = [{'name':t[0], 'owner': repo_owner} for t in res['tuples']]
+    repos = [{'name':t[0], 'owner': repo_base} for t in res['tuples']]
 
     shared_repos = None
     #res = manager.list_shared_repos(username)
@@ -140,7 +135,7 @@ def user(request, repo_owner):
     
     return render_to_response("user.html", {
         'login': get_login(request),
-        'repo_owner': repo_owner,
+        'repo_base': repo_base,
         'repos': repos,
         'shared_repos': shared_repos})      
   except Exception, e:
@@ -148,19 +143,19 @@ def user(request, repo_owner):
         {'error': str(e)}),
         mimetype="application/json")
 
-def repo(request, repo_owner, repo):
+def repo(request, repo_base, repo):
   try:
     login = get_login(request)
-    manager = get_manager(request, repo_owner)
 
-    res = manager.has_repo_privilege(login, repo, 'USAGE')
+    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'USAGE')
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
     
+    manager = DataHubManager(user=repo_base)
     res = manager.list_tables(repo)
     tables = [t[0] for t in res['tuples']]
 
-    repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
+    repo_dir = '/user_data/%s/%s' %(repo_base, repo)
     if not os.path.exists(repo_dir):
       os.makedirs(repo_dir)
     
@@ -168,7 +163,7 @@ def repo(request, repo_owner, repo):
     
     res = {
         'login': get_login(request),
-        'repo_owner': repo_owner,
+        'repo_base': repo_base,
         'repo': repo,
         'tables': tables,
         'files': uploaded_files}
@@ -178,72 +173,51 @@ def repo(request, repo_owner, repo):
         {'error': str(e)}),
         mimetype="application/json")
 
-def settings_repo(request, repo_owner, repo):
+def table(request, repo_base, repo, table, page='1'):
   try:
     login = get_login(request)
-    manager = get_manager(request, repo_owner)
-
-    res = manager.has_repo_privilege(login, repo, 'USAGE')
-    if not (res and res['tuples'][0][0]):
-      raise Exception('Access denied. Missing required privileges.')
+    dh_table_name = '%s.%s.%s' %(repo_base, repo, table)
     
-    res = manager.list_tables(repo)
-    tables = [t[0] for t in res['tuples']]
-    res = {
-        'login': get_login(request),
-        'repo_owner': repo_owner,
-        'repo': repo,
-        'tables': tables}
-    return render_to_response("settings_repo.html", res)
-  except Exception, e:
-    return HttpResponse(json.dumps(
-        {'error': str(e)}),
-        mimetype="application/json")
-
-def table(request, repo_owner, repo, table, page='1'):
-  current_page = 1
-  try:
-    current_page = int(page)
-  except:
-    pass
-
-  if current_page < 1:
-    current_page = 1
-
-  start_page = current_page - 5
-  if start_page < 1:
-    start_page = 1
-
-  end_page = start_page + 10
-
-  try:
-    login = get_login(request)
-    manager = get_manager(request, repo_owner)
-
-    dh_table_name = '%s.%s.%s' %(repo_owner, repo, table)
+    res = DataHubManager.has_table_privilege(
+        login, repo_base, dh_table_name, 'SELECT')
     
-    res = manager.has_table_privilege(login, dh_table_name, 'SELECT')
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
 
+    manager = DataHubManager(user=repo_base)
     res = manager.execute_sql(
-        query='SELECT count(*) from %s.%s.%s' %(repo_owner, repo, table))    
+        query='SELECT count(*) from %s' %(dh_table_name))    
     
     count = res['tuples'][0][0]    
     total_pages = 1 + (int(count) / 50)
+
+    current_page = 1
+    try:
+      current_page = int(page)
+    except:
+      pass
+
+    if current_page < 1:
+      current_page = 1
+
+    start_page = current_page - 5
+    if start_page < 1:
+      start_page = 1
+
+    end_page = start_page + 10
     
     if end_page > total_pages:
       end_page = total_pages
       
     res = manager.execute_sql(
-        query='SELECT * from %s.%s.%s LIMIT 100 OFFSET %s'
-        %(repo_owner, repo, table, (current_page -1) * 100))
+        query='SELECT * from %s LIMIT 100 OFFSET %s'
+        %(dh_table_name, (current_page -1) * 100))
     
     column_names = [field['name'] for field in res['fields']]
     tuples = res['tuples']
     return render_to_response("table.html", {
         'login': get_login(request),
-        'repo_owner': repo_owner,
+        'repo_base': repo_base,
         'repo': repo,
         'table': table,
         'column_names': column_names,
@@ -256,8 +230,8 @@ def table(request, repo_owner, repo, table, page='1'):
         mimetype="application/json")
 
 
-def save_uploaded_file(repo_owner, repo, data_file):
-  repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
+def save_uploaded_file(repo_base, repo, data_file):
+  repo_dir = '/user_data/%s/%s' %(repo_base, repo)
   if not os.path.exists(repo_dir):
     os.makedirs(repo_dir)
   
@@ -272,10 +246,10 @@ def handle_file_upload(request):
     if request.method == 'POST':
       data_file = request.FILES['data_file']
       repo = request.POST['repo']
-      repo_owner = request.POST['repo_owner']
-      save_uploaded_file(repo_owner, repo, data_file)
+      repo_base = request.POST['repo_base']
+      save_uploaded_file(repo_base, repo, data_file)
     
-    return HttpResponseRedirect('/files/%s/%s' %(repo_owner, repo))
+    return HttpResponseRedirect('/files/%s/%s' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -283,15 +257,15 @@ def handle_file_upload(request):
         mimetype="application/json")
 
 @login_required
-def file_import(request, repo_owner, repo):
+def file_import(request, repo_base, repo):
   try:
     login = get_login(request)
     file_name = request.GET['file']
-    repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
+    repo_dir = '/user_data/%s/%s' %(repo_base, repo)
     file_path = '%s/%s' %(repo_dir, file_name)
     table_name, _ = os.path.splitext(file_name)
     table_name = clean_str(table_name, 'table')
-    dh_table_name = '%s.%s.%s' %(repo_owner, repo, table_name)
+    dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
     f = codecs.open(file_path, 'r', 'ISO-8859-1')
     data = csv.reader(f)
     cells = data.next()
@@ -302,11 +276,11 @@ def file_import(request, repo_owner, repo):
       query += ', %s %s' %(columns[i], 'text')
     query += ')'
     
-    manager = get_manager(request, repo_owner)
+    manager = get_manager(request, repo_base)
     manager.execute_sql(query=query)
     manager.import_file(
-        repo_owner=repo_owner, table_name=dh_table_name, file_path=file_path)
-    return HttpResponseRedirect('/browse/%s/%s' %(repo_owner, repo))
+        repo_base=repo_base, table_name=dh_table_name, file_path=file_path)
+    return HttpResponseRedirect('/browse/%s/%s' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -314,14 +288,14 @@ def file_import(request, repo_owner, repo):
         mimetype="application/json")
 
 @login_required
-def file_delete(request, repo_owner, repo):
+def file_delete(request, repo_base, repo):
   try:
     login = get_login(request)
     file_name = request.GET['file']
-    repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
+    repo_dir = '/user_data/%s/%s' %(repo_base, repo)
     file_path = '%s/%s' %(repo_dir, file_name)
     os.remove(file_path)
-    return HttpResponseRedirect('/browse/%s/%s' %(repo_owner, repo))
+    return HttpResponseRedirect('/browse/%s/%s' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -329,14 +303,14 @@ def file_delete(request, repo_owner, repo):
         mimetype="application/json")
 
 @login_required
-def table_delete(request, repo_owner, repo, table_name):
+def table_delete(request, repo_base, repo, table_name):
   try:
-    manager = get_manager(request, repo_owner)
+    manager = get_manager(request, repo_base)
     
-    dh_table_name = '%s.%s.%s' %(repo_owner, repo, table_name)
+    dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
     query = '''DROP TABLE %s''' %(dh_table_name)
     manager.execute_sql(query=query)
-    return HttpResponseRedirect('/browse/%s/%s' %(repo_owner, repo))
+    return HttpResponseRedirect('/browse/%s/%s' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -344,11 +318,11 @@ def table_delete(request, repo_owner, repo, table_name):
         mimetype="application/json")
 
 @login_required
-def file_download(request, repo_owner, repo):
+def file_download(request, repo_base, repo):
   try:
     login = get_login(request)
     file_name = request.GET['file']
-    repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
+    repo_dir = '/user_data/%s/%s' %(repo_base, repo)
     file_path = '%s/%s' %(repo_dir, file_name)
     response = HttpResponse(
         open(file_path).read(), mimetype='application/force-download')
@@ -361,23 +335,45 @@ def file_download(request, repo_owner, repo):
         mimetype="application/json")
 
 @login_required
-def file_export(request, repo_owner, repo, table_name):
+def file_export(request, repo_base, repo, table_name):
   try:
     login = get_login(request)
-    repo_dir = '/user_data/%s/%s' %(repo_owner, repo)
+    repo_dir = '/user_data/%s/%s' %(repo_base, repo)
     
     if not os.path.exists(repo_dir):
       os.makedirs(repo_dir)
     
     file_path = '%s/%s.csv' %(repo_dir, table_name)
-    dh_table_name = '%s.%s.%s' %(repo_owner, repo, table_name)
+    dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
     DataHubManager.export_file(
-        repo_owner=repo_owner, table_name=dh_table_name, file_path=file_path)
-    return HttpResponseRedirect('/browse/%s/%s' %(repo_owner, repo))
+        repo_base=repo_base, table_name=dh_table_name, file_path=file_path)
+    return HttpResponseRedirect('/browse/%s/%s' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
+        mimetype="application/json")
+
+def settings_repo(request, repo_base, repo):
+  try:
+    login = get_login(request)
+
+    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'USAGE')
+    if not (res and res['tuples'][0][0]):
+      raise Exception('Access denied. Missing required privileges.')
+    
+    manager = DataHubManager(user=repo_base)
+    res = manager.list_tables(repo)
+    tables = [t[0] for t in res['tuples']]
+    res = {
+        'login': get_login(request),
+        'repo_base': repo_base,
+        'repo': repo,
+        'tables': tables}
+    return render_to_response("settings_repo.html", res)
+  except Exception, e:
+    return HttpResponse(json.dumps(
+        {'error': str(e)}),
         mimetype="application/json")
 
 @csrf_exempt
@@ -392,8 +388,10 @@ def refine_data(request):
       if 'record_separator' in request.POST:
         record_separator = request.POST['record_separator']
 
-      o_fields_structure, i_structure = inference.learn_mapping(training_input, training_output)
-      out = inference.extract(test_data, o_fields_structure, sep=record_separator)
+      o_fields_structure, i_structure = inference.learn_mapping(
+          training_input, training_output)
+      out = inference.extract(
+          test_data, o_fields_structure, sep=record_separator)
 
       csv_lines = []
       for row in out:

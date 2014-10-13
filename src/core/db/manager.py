@@ -46,24 +46,6 @@ class DataHubManager:
   def execute_sql(self, query, params=None):
     return self.user_con.execute_sql(query=query, params=params)
 
-  ''' Access Privilege Checks '''
-
-  def has_connect_privilege(self, login, privilege):
-    return self.user_con.has_connect_privilege(
-        login=login, privilege=privilege)
-
-  def has_repo_privilege(self, login, repo, privilege):
-    return self.user_con.has_repo_privilege(
-        login=login, repo=repo, privilege=privilege)
-
-  def has_table_privilege(self, login, table, privilege):
-    return self.user_con.has_table_privilege(
-        login=login, table=table, privilege=privilege)
-
-  def has_column_privilege(self, login, table, column, privilege):
-    return self.user_con.has_column_privilege(login=login,
-        table=table, column=column, privilege=privilege)
-
 
   '''
   The following methods run in superuser mode only
@@ -104,6 +86,43 @@ class DataHubManager:
         repo_base=repo_owner)
     return superuser_con.export_file(
         table_name=table_name, file_path=file_path)
+
+  ''' Access Privilege Checks '''
+
+  @staticmethod
+  def has_connect_privilege(login, repo_base, privilege):
+    superuser_con = DataHubConnection(
+        user=settings.DATABASES['default']['USER'],
+        password=settings.DATABASES['default']['USER'])
+    return superuser_con.has_connect_privilege(
+        login=login, privilege=privilege)
+
+  @staticmethod
+  def has_repo_privilege(login, repo_base, repo, privilege):
+    superuser_con = DataHubConnection(
+        user=settings.DATABASES['default']['USER'],
+        password=settings.DATABASES['default']['USER'],
+        repo_base=repo_owner)
+    return superuser_con.has_repo_privilege(
+        login=login, repo=repo, privilege=privilege)
+
+  @staticmethod
+  def has_table_privilege(login, repo_base, table, privilege):
+    superuser_con = DataHubConnection(
+        user=settings.DATABASES['default']['USER'],
+        password=settings.DATABASES['default']['USER'],
+        repo_base=repo_owner)
+    return superuser_con.has_table_privilege(
+        login=login, table=table, privilege=privilege)
+
+  @staticmethod
+  def has_column_privilege(login, repo_base, table, column, privilege):
+    superuser_con = DataHubConnection(
+        user=settings.DATABASES['default']['USER'],
+        password=settings.DATABASES['default']['USER'],
+        repo_base=repo_owner)
+    return superuser_con.has_column_privilege(login=login,
+        table=table, column=column, privilege=privilege)
 
   @staticmethod
   def list_shared_repos(username):
