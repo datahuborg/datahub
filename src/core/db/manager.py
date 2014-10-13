@@ -14,6 +14,7 @@ Datahub DB Manager
 
 class DataHubManager:
   def __init__(self, user, repo_base=None):
+    settings.configure()
     self.user = User.objects.get(username=user)
     self.user_con = DataHubConnection(
         user=self.user.username,
