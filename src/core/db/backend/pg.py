@@ -67,10 +67,12 @@ class PGBackend:
             ''' %(repo, username)
     self.execute_sql(query)
     privileges_str = ', '.join(privileges)
+    
     query = ''' GRANT %s ON ALL TABLES
                 in SCHEMA %s TO %s;
             ''' %(privileges_str, repo, username)
     self.execute_sql(query)
+    
     query = ''' ALTER DEFAULT PRIVILEGES IN SCHEMA %s
                 GRANT %s ON TABLES TO %s;
             ''' %(repo, privileges_str, username)
@@ -148,11 +150,10 @@ class PGBackend:
             ''' %(username, password)
     return self.execute_sql(query)
 
-  def list_shared_repos(self, username):
-    query = ''' SELECT DISTINCT table_catalog, table_schema
-                FROM information_schema.table_privileges
-                WHERE grantee='%s'
-            ''' %(username)
+  def list_collaborators(self, repo_base, repo):
+    query = ''' SELECT DISTINCT grantee FROM information_schema.table_privileges
+                WHERE grantor='%s' AND grantee!='%s' AND table_schema='%s';
+            ''' %(repo_base, repo_base, repo)
     return self.execute_sql(query)
 
   def has_connect_privilege(self, login, privilege):

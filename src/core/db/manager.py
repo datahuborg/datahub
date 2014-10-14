@@ -126,8 +126,8 @@ class DataHubManager:
         table=table, column=column, privilege=privilege)
 
   @staticmethod
-  def list_shared_repos(username):
+  def list_collaborators(repo_base, repo):
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
         password=settings.DATABASES['default']['USER'])
-    return superuser_con.list_shared_repos(username=username)
+    return superuser_con.list_collaborators(repo_base=repo_base, repo=repo)

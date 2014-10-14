@@ -103,17 +103,24 @@ def user(request, repo_base):
 
     manager = DataHubManager(user=repo_base)
     res = manager.list_repos()
-    repos = [{'name':t[0], 'owner': repo_base} for t in res['tuples']]
+    repos = [{
+        'name':t[0],
+        'owner': repo_base,
+        'public': False,
+        'num_collaborators': 0} for t in res['tuples']]
 
-    shared_repos = None
-    #res = manager.list_shared_repos(username)
-    #shared_repos = [{'name':t[1], 'owner': t[0]} for t in res['tuples']]
+    for repo in repos:
+      res = manager.list_collaborators(repo_base, repo['name'])
+      collaborators = [t[0] for t in res['tuples']]
+      repo['collaborators'] = collaborators
+      repo['collaborators_str'] = ', '.join(collaborators)
+      repo['num_collaborators'] = len(collaborators)
+      repo['public'] = True if 'PUBLIC' in collaborators else False
     
     return render_to_response("user.html", {
         'login': get_login(request),
         'repo_base': repo_base,
-        'repos': repos,
-        'shared_repos': shared_repos})      
+        'repos': repos})      
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),

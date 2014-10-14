@@ -76,5 +76,5 @@ class DataHubConnection:
   def export_file(self, table_name, file_path):
     return self.backend.export_file(table_name=table_name, file_path=file_path)
 
-  def list_shared_repos(self, username):
-    return self.backend.list_shared_repos(username)
+  def list_collaborators(self, repo_base, repo):
+    return self.backend.list_collaborators(repo_base=repo_base, repo=repo)

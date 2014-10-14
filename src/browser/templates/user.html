@@ -20,7 +20,16 @@
             {% for repo in repos %}
               <tr>
               <td><a class="blue link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
-              <td class="text-right"></td>
+              {% if repo.public %}
+                <td>Private</td>
+              {% else %}
+                <td>Private</td>
+              {% endif %}
+              {% if repo.collaborators_str %}
+                <td><a href="#" title="Shared with {{repo.collaborators_str}}">{{repo.num_collaborators}} collaborators</a></td>
+              {% else %}
+                <td>{{repo.num_collaborators}} collaborators</td>
+              {% endif %}
               </tr>
             {% endfor %}
         </tbody>
