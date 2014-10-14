@@ -19,12 +19,16 @@
     </tr>
     </thead>
     <tbody>
+    {% if repo|length > 0 %}
       {% for repo in repos %}
         <tr>
         <td><a class="blue link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
         <td>{{repo.owner}}</td>
         </tr>
-      {% endfor %}    
+      {% endfor %}
+    {% else %}
+      <p class="error">{{repo_base}} doesn't have any repository yet.</p>
+    {% endif %}   
     </tbody>
   </table>
   </div>

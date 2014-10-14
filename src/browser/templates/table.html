@@ -23,13 +23,17 @@
     </tr>
     </thead>
     <tbody>
-    {% for tuple in tuples %}
-    <tr>
-      {% for cell in tuple %}
-        <td class="strong">{{cell}}</td>
+    {% if tuples|length > 0 %}
+      {% for tuple in tuples %}
+      <tr>
+        {% for cell in tuple %}
+          <td class="strong">{{cell}}</td>
+        {% endfor %}
+      </tr>
       {% endfor %}
-    </tr>
-    {% endfor %}
+    {% else %}
+      <p class="error">The table {{table}} is empty.</p>
+    {% endif %}
     </tbody>
   </table>
   <ul class="pagination pagination-sm">

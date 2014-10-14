@@ -38,12 +38,16 @@
     </tr>
     </thead>
     <tbody>
-    {% for file in files %}
-    <tr>
-      <td><a class="blue link" href="/download/{{repo_base}}/{{repo}}?file={{file}}">{{file}}</a></td>
-      <td><a class="download-icon" href="/download/{{repo_base}}/{{repo}}?file={{file}}" title="Download"></a> &nbsp; <a class="delete-icon" href="/delete/{{repo_base}}/{{repo}}?file={{file}}" title="Delete"></a></td>
-    </tr>
-    {% endfor %}
+    {% if files|length > 0 %}
+      {% for file in files %}
+      <tr>
+        <td><a class="blue link" href="/download/{{repo_base}}/{{repo}}?file={{file}}">{{file}}</a></td>
+        <td><a class="download-icon" href="/download/{{repo_base}}/{{repo}}?file={{file}}" title="Download"></a> &nbsp; <a class="delete-icon" href="/delete/{{repo_base}}/{{repo}}?file={{file}}" title="Delete"></a></td>
+      </tr>
+      {% endfor %}
+    {% else %}
+      <p class="error">{{repo_base}} doesn't have any files in {{repo}}.</p>
+    {% endif %}
     </tbody>
   </table>
   </div>
