@@ -1,7 +1,6 @@
 {% extends "login-layout.html" %}
 {% block headlink-right %}
 <a href="/login" title="Sign In" class="btn btn-default navbar-btn">Sign In</a>
-<a href="/register" title="Sign In" class="btn btn-default navbar-btn">Sign Up</a>
 {% endblock %}
 {% block content %}
 <form class="form-signin" method="POST" action="/reset/{{encrypted_email}}">

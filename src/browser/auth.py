@@ -231,7 +231,7 @@ def logout (request):
   clear_session(request)
   c = {
     'msg_title': 'Thank you for using DataHub!',
-    'msg_body': 'Your have been logged out.<br /><br /><ul><li><a class= "blue bold" href="/login">Click Here</a> to sign in again.</li></ul>'
+    'msg_body': 'Your have been logged out.<br /><br /><a href="/login">Click Here</a> to sign in again.'
   } 
   c.update(csrf(request))
   return render_to_response('confirmation.html', c)
@@ -295,7 +295,7 @@ def verify (request, encrypted_email):
     user_email = decrypt_text(encrypted_email)
     user = User.objects.get(email=user_email)
     c.update({
-        'msg_body': 'Thanks for verifying your email address!<br /> <br /><a class= "blue bold" href="/">Click Here</a> to start using DataHub.'
+        'msg_body': 'Thanks for verifying your email address!<br /> <br /><a href="/">Click Here</a> to start using DataHub.'
     })
     clear_session(request)
     request.session[kEmail] = user.email

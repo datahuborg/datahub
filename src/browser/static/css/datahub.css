@@ -2,12 +2,8 @@
 @author: Anant Bhardwaj
 @date: 08/11/2012
 */
-@font-face {
-  font-family: 'Cantora One';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Cantora One'), local('CantoraOne-Regular'), url(/static/fonts/cantoraone.woff) format('woff');
-}
+
+/* Logo */
 
 #logo{
   color: #000;
@@ -16,9 +12,15 @@
   font-size: 2em;
 }
 
-textarea {
-  resize: none;
+@font-face {
+  font-family: 'Cantora One';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Cantora One'), local('CantoraOne-Regular'), url(/static/fonts/cantoraone.woff) format('woff');
 }
+
+
+/* Sign In/Sign Up/Password Reset Forms */
 
 .form-signin {
   max-width: 330px;
@@ -56,25 +58,10 @@ textarea {
 }
 
 
-
-.blue {
-  color: #447EAC !important;
-}
-
-.black {
-  color: #000 !important;
-}
-
-.bold {
-  font-weight: bold;
-}
-
-
-
 #page{
 	position: relative;
 	margin:0 auto;
-	top: 3em;
+	top: 6em;
 	right: 0;
 	bottom: 0;
 	left: 0;
@@ -82,58 +69,15 @@ textarea {
 	background-color: #fff;
 }
 
-#content{
-	padding: 1.5em;
-	background-color: #FFF;
+textarea {
+  resize: none;
 }
-
-.gray {
-  color: #737373;
-}
-
-.blue{
-	color: #447EAC;
-}
-
-.link{
-	text-decoration: none;
-}
-
-
-.content{
-	padding:0.7em;
-	padding-bottom: 1em;
-}
-
 
 .error{
   color: red;	
 }
 
-.collapsible-title{
-	background:#2B2B2B;
-  font-weight:normal;
-	/*background:#3D7AA6;*/
-	cursor: pointer;
-	border: 1px solid #ccc;
-	color: #F6F6F6;
-	padding: 0.7em;
-}
-
-.collapsible-title span{
-  display: inline-block;
-  margin-bottom: 0.3em;
-}
-
-
-.link{
-  cursor: pointer;
-}
-
-.link:hover{
-  color: #447EAC;
-}
-
+/* DataHub Console */
 
 #dh-console-container {
   margin: 0 auto;
@@ -164,6 +108,8 @@ textarea {
   box-shadow: 0px 5px 5px #eee;
 }
 
+
+/* Icons */
 
 .newrepo-icon{
   display: inline-block;
@@ -285,13 +231,4 @@ textarea {
   width: 1.2em;
   height: 1.2em;
 }
-
-
-.dataTables_wrapper {
-  overflow-x: auto;
-}
-
-
-
-
 

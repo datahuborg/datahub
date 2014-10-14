@@ -1,19 +1,15 @@
-{% extends "login-layout.html" %}
-{% block links %}
-{% endblock %}
+{% extends "minimal-layout.html" %}
 {% block content %}
-<script type="text/javascript">
-</script>
-<form class="center-container" method="POST" action="/reset">
-	{% csrf_token %}
-	<input type="hidden" name="redirect_url" value="{{redirect_url}}" />
-	<h3>{{msg_title}}</h3>
-	<hr />
-	<div id="msg">
-    {% for error in errors %}<span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
+<form class="form-signin">
+  {% csrf_token %}
+  <input type="hidden" name="redirect_url" value="{{redirect_url}}" />
+  <h3>{{msg_title}}</h3>
+  <div id="msg">
+    {% for error in errors %}
+      <span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
     {% endfor %}
     <br />
-		{% autoescape off %}{{msg_body}}{% endautoescape %}
-  </div>
+  {% autoescape off %}{{msg_body}}{% endautoescape %}
+    </div>
 </form>
 {% endblock %}
