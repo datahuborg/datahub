@@ -8,7 +8,8 @@
   <a class="btn btn-primary" role="button" href="/newrepo/{{repo_base}}">Create New Repository</a>
   </div>
   <br />
-  <table id="repos" class="table">
+  <div class="table-responsive">
+  <table id="repos" class="table table-striped">
     <thead>
     <tr>
       <th>Your Repositories</th>
@@ -24,6 +25,7 @@
       {% endfor %}    
     </tbody>
   </table>
+  </div>
   <br />
   <br />
   <!--

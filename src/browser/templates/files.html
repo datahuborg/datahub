@@ -24,7 +24,8 @@
   <a class="btn btn-primary" role="button" href=/browse/{{repo_base}}/{{repo}}>Back to Repository</a>
   </div>
   <br />
-  <table id="files" class="table">
+  <div class="table-responsive">
+  <table id="files" class="table table-striped">
     <thead>
     <tr>
       <th>Files</th>
@@ -40,6 +41,7 @@
     {% endfor %}
     </tbody>
   </table>
+  </div>
 </div>
 {% endblock %}
 
