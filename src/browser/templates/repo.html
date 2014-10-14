@@ -9,9 +9,9 @@
   </h3>
   
   <div class="pull-right">
-    <a class="btn btn-primary" type="button" href="/console">Create Table with SQL</a>
-    <a class="btn btn-primary" type="button" href="/browse/{{repo_base}}/{{repo}}#files">Upload Files</a>
-    <a class="btn btn-primary" type="button" href="/data-refiner">Launch Data Refiner</a>  
+    <a class="btn btn-primary btn-sm" type="button" href="/console">Create Table with SQL</a>
+    <a class="btn btn-primary btn-sm" type="button" href="/browse/{{repo_base}}/{{repo}}#files">Upload Files</a>
+    <a class="btn btn-primary btn-sm" type="button" href="/data-refiner">Launch Data Refiner</a>  
   </div>
   <hr />
   <br />
@@ -31,7 +31,7 @@
             {% if tables|length > 0 %}
               {% for table in tables %}
               <tr>
-                <td><a class="blue link" href="/browse/{{repo_base}}/{{repo}}/{{table}}">{{table}}</a></td>
+                <td><a href="/browse/{{repo_base}}/{{repo}}/{{table}}">{{table}}</a></td>
                 <td class="text-right"><a class="table-icon" href="/browse/{{repo_base}}/{{repo}}/{{table}}" title="View Table"></a> &nbsp; <a class="csv-icon" href="/export/{{repo_base}}/{{repo}}/{{table}}" title="Export to CSV"></a> &nbsp; <a class="delete-icon" href="/delete-table/{{repo_base}}/{{repo}}/{{table}}" title="Delete"></a></td>
               </tr>
               {% endfor %}
