@@ -8,7 +8,6 @@ urlpatterns = patterns('',
 
     url(r'^forgot', 'browser.auth.forgot'),
     url(r'^reset/(\w+)', 'browser.auth.reset'),
-    url(r'^settings', 'browser.auth.settings'),
     url(r'^verify/(\w+)', 'browser.auth.verify'),
 
     url(r'^$', 'browser.views.home'),
