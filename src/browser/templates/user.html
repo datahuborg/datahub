@@ -30,9 +30,9 @@
                 <td class="text-right"><a class="btn btn-default btn-xs" href=/settings/{{repo.owner}}/{{repo.name}} title="Manage Settings"><span class="glyphicon glyphicon-cog"></a></td>
                 
                 {% if repo.collaborators_str %}
-                  <td class="text-left" style="max-width:15em;"><a href="#" title="Shared with {{repo.collaborators_str}}">{{repo.num_collaborators}} collaborators</a></td>
+                  <td class="text-left" style="width: 10em; max-width: 15em;"><a href="#" title="Shared with {{repo.collaborators_str}}">{{repo.num_collaborators}} collaborators</a></td>
                 {% else %}
-                  <td class="text-left" style="max-width:15em;">{{repo.num_collaborators}} collaborators</td>
+                  <td class="text-left" style="width: 10em; max-width: 15em;">{{repo.num_collaborators}} collaborators</td>
                 {% endif %}
                 
               </tr>
