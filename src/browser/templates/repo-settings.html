@@ -1,17 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
 <div id="content">
-  <a class="blue bold" href=/browse/{{repo_base}}>{{repo_base}}</a> / <a class = "blue bold" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a> /
-  <hr class="light" />
-  <br />
-  <br />
+  <h3 class="inline-block">
+    <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
+    <a class="link" href=/browse/{{repo_base}}>/</a>
+  </h3>
+  <hr />
+  <h3>Create a new repository</h3>
   <table cellspacing=0>
-    <tr>
-    <td style="padding-top:1em; padding-bottom:1em;">
-    <h3>Settings for {{repo_base}}/{{repo}}</h3>
-    </td>
-    <td></td>
-    </tr>
     <tr>
       <td>
       </td>
@@ -21,17 +17,17 @@
     </tr>
     <tr>
       <td style="padding-top:0.5em; padding-bottom:0.5em;">
-        <h4 class="gray">User </h4>
+        <label>Owner: </label>
       </td>
       <td style="padding-left:2em; padding-top:0.5em; padding-bottom:0.5em;">
         <select>
-          <option class="strong" value="{{login}}">{{login}}</option>        
+          <option class="strong" value="{{repo_base}}">{{repo_base}}</option>        
         </select>
       </td>
     </tr>
     <tr>
       <td style="padding-top:0.5em; padding-bottom:0.5em;">
-        <h4 class="gray">Name of the new repository: </h4>
+        <label>Name of the new repository: </label>
       </td>
       <td style="padding-left:2em; padding-top:0.5em; padding-bottom:0.5em;">
         <input type="text" id="db-name" />
@@ -39,16 +35,16 @@
     </tr>
     <tr>
       <td style="padding-top:0.5em; padding-bottom:0.5em;">
-        <h4 class="gray">Sharing: </h4>
+        <label>Sharing: </label>
       </td>
       <td style="padding-left:2em; padding-top:0.5em; padding-bottom:0.5em;">
-        <input type="radio" name="public" value="true" checked> Public <br />
-        <input type="radio" name="public" value="false"> Private
+        <input type="radio" name="public" value="false" checked> Private <br />
+        <input type="radio" name="public" value="true"> Public
       </td>
     </tr>
     <tr>
       <td style="padding-top:2em">
-        <button type="button" id="btn-create-repo" style="margin-left:0px;">Create Repository</button>
+        <button type="button" class="btn btn-primary" id="btn-create-repo" style="margin-left:0px;">Create Repository</button>
       </td>
     </tr>
   </table>
@@ -60,18 +56,18 @@
 
 
 $(document).ready(function($) {
-  var login = '{{login}}'
+  var repo_base = '{{repo_base}}'
   var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
   var protocol = new Thrift.Protocol(transport);
   var client = new DataHubClient(protocol);
-  var con = new Connection({'user':login})
+  var con = new Connection({'user':repo_base})
  
   var create_repo = function(){
     var db_name = $('#db-name').val();
     try {
       res = client.create_repo(con, db_name)
       if (res.status) {
-        window.location.href='/'
+        window.location.href='/browse/{{repo_base}}'
       }
     }catch(error){
       $('#error').html('<span class="error">' + error.message + '</span>');
