@@ -33,7 +33,7 @@
                   <td class="text-right">{{repo.num_collaborators}} collaborators</td>
                 {% endif %}
                 
-                <td class="text-left"><a class="btn btn-default btn-xs" href=/settings/{{repo.owner}}/{{repo.name}} title="Manage Settings"><span class="glyphicon glyphicon-cog"></a></td>
+                <td class="text-left" style="max-width:15em;"><a class="btn btn-default btn-xs" href=/settings/{{repo.owner}}/{{repo.name}} title="Manage Settings"><span class="glyphicon glyphicon-cog"></a></td>
               </tr>
             {% endfor %}
         </tbody>
