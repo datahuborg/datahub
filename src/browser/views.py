@@ -205,8 +205,10 @@ def table(request, repo_base, repo, table, page='1'):
     res = manager.execute_sql(
         query='SELECT count(*) from %s' %(dh_table_name))    
     
+    limit = 50
+    
     count = res['tuples'][0][0]    
-    total_pages = 1 + (int(count) / 50)
+    total_pages = 1 + (int(count) / limit)
 
     current_page = 1
     try:
@@ -227,8 +229,8 @@ def table(request, repo_base, repo, table, page='1'):
       end_page = total_pages
       
     res = manager.execute_sql(
-        query='SELECT * from %s LIMIT 100 OFFSET %s'
-        %(dh_table_name, (current_page -1) * 100))
+        query='SELECT * from %s LIMIT %s OFFSET %s'
+        %(dh_table_name, limit, (current_page -1) * limit))
     
     column_names = [field['name'] for field in res['fields']]
     tuples = res['tuples']
@@ -240,7 +242,10 @@ def table(request, repo_base, repo, table, page='1'):
         'column_names': column_names,
         'tuples': tuples,
         'current_page': current_page,
-        'pages': range(start_page, end_page)})
+        'next_page': current_page + 1,
+        'prev_page': current_page - 1,
+        'total_pages': total_pages,
+        'pages': range(start_page, end_page + 1)})
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),
