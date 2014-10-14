@@ -17,17 +17,17 @@
   <br />
   <div class="panel panel-default">
     <div class="panel-heading"><h4>{{table}}</h4></div>
-    <div class="table-responsive">
-    <table id="table_data" class="table table-condensed table-bordered">
-      <thead>
-      <tr>
-        {% for column_name in column_names %}
-        <th>{{column_name}}</th>
-        {% endfor %}
-      </tr>
-      </thead>
-      <tbody>
-        {% if tuples|length > 0 %}
+    {% if tuples|length > 0 %}
+      <div class="table-responsive">
+      <table id="table_data" class="table table-condensed table-bordered">
+        <thead>
+        <tr>
+          {% for column_name in column_names %}
+          <th>{{column_name}}</th>
+          {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
           {% for tuple in tuples %}
           <tr>
             {% for cell in tuple %}
@@ -35,12 +35,12 @@
             {% endfor %}
           </tr>
           {% endfor %}
-        {% else %}
-          <tr class="warning"><td>The <strong>{{table}}</strong> table is empty.</td></tr>
-        {% endif %}
-      </tbody>
-    </table>
-    </div> 
+        </tbody>
+      </table>
+      </div>
+    {% else %}
+      <p class="bg-warning">The <strong>{{table}}</strong> table is empty.</p>
+    {% endif %}
   </div>
   <ul class="pagination pagination-sm">
     {% if pages|length > 1 %}

@@ -25,22 +25,22 @@
     <div class="tab-pane active" id="tables">
       <div class="panel panel-default">
       <div class="panel-heading"><h4>Tables</h4></div>
+      {% if tables|length > 0 %}
         <div class="table-responsive">
           <table class="table">
             <tbody>
-            {% if tables|length > 0 %}
               {% for table in tables %}
               <tr>
                 <td><a href="/browse/{{repo_base}}/{{repo}}/{{table}}">{{table}}</a></td>
                 <td class="text-right"><a class="table-icon" href="/browse/{{repo_base}}/{{repo}}/{{table}}" title="View Table"></a> &nbsp; <a class="csv-icon" href="/export/{{repo_base}}/{{repo}}/{{table}}" title="Export to CSV"></a> &nbsp; <a class="delete-icon" href="/delete-table/{{repo_base}}/{{repo}}/{{table}}" title="Delete"></a></td>
               </tr>
               {% endfor %}
-            {% else %}
-              <tr class="warning"><td>No table in <strong>{{repo_base}}.{{repo}}</strong></td></tr>
-            {% endif %}
             </tbody>
           </table>
         </div>
+      {% else %}
+        <p class="bg-warning">No table in <strong>{{repo_base}}.{{repo}}</strong></p>
+      {% endif %}
     </div>
     </div>
 
@@ -57,22 +57,22 @@
 
       <div class="panel panel-default">
       <div class="panel-heading"><h4>Files</h4></div>
+      {% if files|length > 0 %}
         <div class="table-responsive">
           <table class="table">
-            <tbody>
-            {% if files|length > 0 %}
+            <tbody>            
               {% for file in files %}
               <tr>
                 <td><a class="blue link" href="/download/{{repo_base}}/{{repo}}?file={{file}}">{{file}}</a></td>
                 <td class="text-right"><a class="database-table-icon" href="/import/{{repo_base}}/{{repo}}?file={{file}}" title="Import to DataHub as Table"></a> &nbsp; <a class="download-icon" href="/download/{{repo_base}}/{{repo}}?file={{file}}" title="Download"></a> &nbsp; <a class="delete-icon" href="/delete/{{repo_base}}/{{repo}}?file={{file}}" title="Delete"></a></td>
               </tr>
               {% endfor %}
-            {% else %}
-              <tr class="warning"><td>No file in <strong>{{repo_base}}.{{repo}}</strong></td></tr>
-            {% endif %}
             </tbody>
           </table>
         </div>
+      {% else %}
+        <p class="bg-warning">No file in <strong>{{repo_base}}.{{repo}}</strong></p>
+      {% endif %}
       </div>
     </div>
   </div>

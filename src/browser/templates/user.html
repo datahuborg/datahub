@@ -13,22 +13,22 @@
   <br />
   <div class="panel panel-default">
   <div class="panel-heading"><h4>Repositories</h4></div>
+  {% if repos|length > 0 %}
     <div class="table-responsive">
       <table id="repos" class="table">
-        <tbody>
-          {% if repos|length > 0 %}
+        <tbody>            
             {% for repo in repos %}
               <tr>
               <td><a class="blue link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
               <td class="text-right"></td>
               </tr>
             {% endfor %}
-          {% else %}
-            <tr class="warning"><td>No repository in <strong>{{repo_base}}</strong></td></tr>
-          {% endif %} 
         </tbody>
       </table>
     </div>
+  {% else %}
+    <p class="bg-warning">No repository in <strong>{{repo_base}}</strong></p>
+  {% endif %} 
   </div>
   <!--
   <table id="shared_repos">
