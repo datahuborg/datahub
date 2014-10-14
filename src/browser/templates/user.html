@@ -1,45 +1,15 @@
 {% extends "layout.html" %}
 {% block content %}
-
-<script type="text/javascript">
-
-  $(document).ready(function(){
-    var repos = $('#repos').dataTable({
-      "sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
-      "bPaginate": false,
-      "bFilter": true,
-      "bInfo": false,
-      "bJQueryUI": true,
-      "sWidth": "100%"      
-    });
-
-    /*
-    
-    var shared_repos = $('#shared_repos').dataTable({
-      "sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
-      "bPaginate": false,
-      "bFilter": true,
-      "bInfo": false,
-      "sWidth": "100%"      
-    });
-
-    */
-    $('.dataTables_filter input').attr("placeholder", "filter by keyword tokens");
-
-  });
-</script>
-
-
 <div id="content">
   <a class="blue bold" href=/browse/{{repo_base}}>{{repo_base}}</a> /
   <hr class="light"/>
   <br />
   <br />
   <div>
-  <a class="button inactive" href="/newrepo/{{repo_base}}">Create New Repository</a>
+  <a class="btn btn-primary" role="button" href="/newrepo/{{repo_base}}">Create New Repository</a>
   </div>
   <br />
-  <table id="repos">
+  <table id="repos" class="table">
     <thead>
     <tr>
       <th>Your Repositories</th>

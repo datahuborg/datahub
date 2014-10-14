@@ -1,24 +1,5 @@
 {% extends "layout.html" %}
 {% block content %}
-<script type="text/javascript">
-  $(document).ready(function() {
-    var files = $('#files').dataTable({
-      "sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
-      "bPaginate": false,
-      "bFilter": true,
-      "bInfo": false,
-      "sWidth": "100%",
-      "bJQueryUI": true,
-      "aoColumns": [                 
-        {"bSortable": true},
-        {"bSortable": false, "sWidth": "10em"},
-      ]     
-    });
-
-    $('.dataTables_filter input').attr("placeholder", "filter by keyword tokens");
-  });
-</script>
-
 <div id="content">
   <a class="blue bold" href=/browse/{{repo_base}}>{{repo_base}}</a> / <a class = "blue bold" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a> /
   <hr class="light" />
@@ -42,7 +23,7 @@
   <a class="button inactive" href=/browse/{{repo_base}}/{{repo}}>Back to Repository</a>
   </div>
   <br />
-  <table id="files">
+  <table id="files" class="table">
     <thead>
     <tr>
       <th>Files</th>

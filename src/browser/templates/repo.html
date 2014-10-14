@@ -1,52 +1,20 @@
 {% extends "layout.html" %}
 {% block content %}
-
-<script type="text/javascript">
-  $(document).ready(function(){
-    var tables = $('#tables').dataTable({
-      "sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
-      "bPaginate": false,
-      "bFilter": true,
-      "bInfo": false,
-      "bJQueryUI": true,
-      "sWidth": "100%",
-      "aoColumns": [                 
-        {"bSortable": true},
-        {"bSortable": false, "sWidth": "10em"},
-      ]       
-    });
-
-    var files = $('#files').dataTable({
-      "sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
-      "bPaginate": false,
-      "bFilter": true,
-      "bInfo": false,
-      "bJQueryUI": true,
-      "sWidth": "100%",
-      "aoColumns": [                 
-        {"bSortable": true},
-        {"bSortable": false, "sWidth": "10em"},
-      ]      
-    });
-
-    $('.dataTables_filter input').attr("placeholder", "filter by keyword tokens");
-  });
-</script>
-
-
 <div id="content">
   <a class="blue bold" href=/browse/{{repo_base}}>{{repo_base}}</a> / <a class = "blue bold" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a> /
   <hr class="light" />
   <br />
   <br />
   <div>
-  <a class="button inactive" href="/console">Create Table with SQL</a> &nbsp; &nbsp; <a class="button inactive" href="/files/{{repo_base}}/{{repo}}">Upload Files</a> &nbsp; &nbsp; <a class="button inactive" href="/data-refiner">Launch Data Refiner</a>
+  <a class="btn btn-primary" role="button" href="/console">Create Table with SQL</a>
+  <a class="btn btn-primary" role="button" href="/files/{{repo_base}}/{{repo}}">Upload Files</a>
+  <a class="btn btn-primary" role="button" href="/data-refiner">Launch Data Refiner</a>
   <!--
   <a class="button inactive" href="/settings/{{repo_base}}/{{repo}}">Manage Settings</a>
   -->
   </div>
   <br />
-  <table id="tables">
+  <table id="tables" class="table">
     <thead>
     <tr>
       <th>Tables</th>
@@ -64,7 +32,7 @@
   </table>
   <br />
   <br />
-  <table id="files">
+  <table id="files" class="table">
     <thead>
     <tr>
       <th>Files</th>

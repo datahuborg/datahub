@@ -1,29 +1,5 @@
 {% extends "layout.html" %}
 {% block content %}
-
-<script type="text/javascript">
-  $(document).ready(function() {  
-    var table_data = $('#table_data').dataTable({
-      "sDom": '<"top"f<"clear">>rt<"bottom"ilp<"clear">>',
-      "bPaginate": false,
-      "bFilter": false,
-      "bInfo": false,
-      "sWidth": "100%"      
-    });
-    $('.dataTables_filter input').attr("placeholder", "filter by keyword tokens");
-    
-    $('td', table_data.fnGetNodes()).editable(
-      function(value, settings) { 
-        var pos = table_data.fnGetPosition(this);
-        table_data.fnUpdate(value, pos[0], pos[1]);
-        return(value);
-      }, {
-        height: '1.2em'
-      }
-    );
-  });
-</script>
-
 <div id="content">
   <a class="blue bold" href="/browse/{{repo_base}}">{{repo_base}}</a> / 
   <a class="blue bold" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a> /  
@@ -32,11 +8,20 @@
   <br />
   <br />
   <div>
-  <a class="button inactive" href="/console">Launch SQL Console</a>
-  <a class="button active" href="/dbwipes/{{repo_base}}/{{repo}}/{{table}}">DBWipes</a>
+  <a class="btn btn-primary" role="button" href="/console">Launch SQL Console</a>
+  <a class="btn btn-primary" role="button" href="/dbwipes/{{repo_base}}/{{repo}}/{{table}}">DBWipes</a>
   </div>
   <br />
-  <table id="table_data">
+  <ul class="pagination">
+  {% for page in pages %}
+    {% if page == current_page %}
+      <li class="active"><a href="#">{{page}}</a></li>
+    {% else %}
+      <li><a href="/browse/{{repo_base}}/{{repo}}/{{table}}/{{page}}">{{page}}</a></li>
+    {% endif %}
+  {% endfor %}
+  </ul>
+  <table id="table_data" class="table">
     <thead>
     <tr>
       {% for column_name in column_names %}
@@ -53,18 +38,7 @@
     </tr>
     {% endfor %}
     </tbody>
-  </table>
-  <br /><br />
-  
-
-  {% for page in pages %}
-    {% if page == current_page %}
-      {{current_page}}&nbsp;&nbsp;  
-    {% else %}
-        <a class="blue bold" href="/browse/{{repo_base}}/{{repo}}/{{table}}/{{page}}">{{page}}</a>&nbsp;&nbsp;
-      {% endif %}
-  {% endfor %}
-  
+  </table>  
 </div>
 {% endblock %}
 
