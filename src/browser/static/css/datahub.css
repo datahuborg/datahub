@@ -75,6 +75,10 @@ textarea {
   color: red;	
 }
 
+p.bg-warning {
+  padding: 10px;
+}
+
 .inline-block {
     margin: 0;
     display:inline-block;
