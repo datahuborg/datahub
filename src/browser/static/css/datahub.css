@@ -59,6 +59,8 @@
 }
 
 
+/* GLOBAL */
+
 #page{
 	position: relative;
 	margin:0 auto;
@@ -83,6 +85,10 @@ textarea {
     display:inline-block;
     padding-top: 0;
     padding-bottom: 0;
+}
+
+.table-responsive {
+  overflow: auto;
 }
 
 /* DataHub Console */
