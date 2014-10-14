@@ -30,9 +30,12 @@ class DataHubConnection:
   def delete_repo(self, repo, force=False):
     return self.backend.delete_repo(repo=repo, force=force)
 
-  def share_repo(self, repo, username, auto_in_future=True):
-    return self.backend.share_repo(
-        repo=repo, username=username, auto_in_future=auto_in_future)
+  def add_collaborator(self, repo, username, privileges, auto_in_future=True):
+    return self.backend.add_collaborator(
+        repo=repo,
+        username=username,
+        privileges=privileges,
+        auto_in_future=auto_in_future)
 
   def list_tables(self, repo):
     return self.backend.list_tables(repo=repo)

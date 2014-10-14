@@ -29,10 +29,8 @@
           <span class="label label-default">{{collaborator}}</span> <br />
         {% endfor %}
         <br />
-        <form class="form-inline" role="form" method="POST" action="/add-collaborator">
+        <form class="form-inline" role="form" method="POST" action="/add-collaborator/{{repo_base}}/{{repo}}">
           {% csrf_token %}
-          <input type="hidden" name="repo_base" value="{{repo_base}}" />
-          <input type="hidden" name="repo" value="{{repo}}" />
           <input type="text" class="form-control" name="collaborator_username" placeholder="Username">
           <button class="btn btn-primary btn-xsm" type="submit">Add</button>
         </form>     

@@ -62,7 +62,7 @@ class PGBackend:
             ''' %(repo, 'CASCADE' if force else '')
     return self.execute_sql(query)
 
-  def share_repo(self, repo, username, privileges, auto_in_future):
+  def add_collaborator(self, repo, username, privileges, auto_in_future=True):
     query = ''' GRANT USAGE ON SCHEMA %s TO %s;
             ''' %(repo, username)
     self.execute_sql(query)
