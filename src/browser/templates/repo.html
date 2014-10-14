@@ -40,7 +40,7 @@
           </table>
         </div>
       {% else %}
-        <p class="error">{{repo_base}} doesn't have any tables in {{repo}}.</p>
+        <span class="label label-warning">{{repo_base}} doesn't have any tables in {{repo}}.</span>
       {% endif %}
     </div>
 
@@ -75,7 +75,7 @@
           </table>
         </div>
       {% else %}
-        <p class="error">{{repo_base}} doesn't have any files in {{repo}}.</p>
+        <span class="label label-warning">{{repo_base}} doesn't have any files in {{repo}}.</span>
       {% endif %}
     </div>
   </div>

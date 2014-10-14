@@ -9,29 +9,29 @@
     <a class="btn btn-primary pull-right" role="button" href="/newrepo/{{repo_base}}">Create New Repository</a>
   </div>
   <hr />
-  <h3>Repositories</h3>
-  <div class="table-responsive">
-  <table id="repos" class="table table-striped table-bordered">
-    <thead>
-    <tr>
-      <th>Repo Name</th>
-      <th>Owner</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% if repo|length > 0 %}
-      {% for repo in repos %}
+  {% if repo|length > 0 %}
+    <h3>Repositories</h3>
+    <div class="table-responsive">
+      <table id="repos" class="table table-striped table-bordered">
+        <thead>
         <tr>
-        <td><a class="blue link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
-        <td>{{repo.owner}}</td>
+          <th>Repo Name</th>
+          <th>Owner</th>
         </tr>
-      {% endfor %}
-    {% else %}
-      <p class="error">{{repo_base}} doesn't have any repository yet.</p>
-    {% endif %}   
-    </tbody>
-  </table>
-  </div>
+        </thead>
+        <tbody>
+          {% for repo in repos %}
+            <tr>
+            <td><a class="blue link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
+            <td>{{repo.owner}}</td>
+            </tr>
+          {% endfor %}  
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <span class="label label-warning">{{repo_base}} doesn't have any repository yet.</span>
+  {% endif %} 
   <br />
   <br />
   <!--
