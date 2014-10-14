@@ -1,14 +1,14 @@
 {% extends "layout.html" %}
 {% block content %}
 <div id="content">
-  <a class="btn btn-default" role="button" href="/browse/{{repo_base}}">{{repo_base}}</a> / 
-  <a class="btn btn-default" role="button" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a> /  
-  <a class="btn btn-default" role="button" href="/browse/{{repo_base}}/{{repo}}/{{table}}">{{table}}</a>
-
   <a class="btn btn-primary pull-right" role="button" href="/console">Launch SQL Console</a>
   <a class="btn btn-primary pull-right" role="button" href="/dbwipes/{{repo_base}}/{{repo}}/{{table}}">DBWipes</a>
   <hr />
-  <h3>{{repo_base}}.{{repo}}.{{table}}</h3>
+  <h3>
+    <a class="btn btn-default" role="button" href="/browse/{{repo_base}}">{{repo_base}}</a> / 
+    <a class="btn btn-default" role="button" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a> /  
+    <a class="btn btn-default" role="button" href="/browse/{{repo_base}}/{{repo}}/{{table}}">{{table}}</a>
+  </h3>
   <ul class="pagination pagination-sm">
   {% for page in pages %}
     {% if page == current_page %}
