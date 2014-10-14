@@ -213,6 +213,23 @@ def add_collaborator(request, repo_base, repo):
           {'error': str(e)}),
         mimetype="application/json")
 
+@login_required
+def delete_collaborator(request, repo_base, repo, username):
+  try:
+    login = get_login(request)
+    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'DELETE')
+    
+    if not (res and res['tuples'][0][0]):
+      raise Exception('Access denied. Missing required privileges.')
+    
+    manager = DataHubManager(user=repo_base)
+    manager.delete_collaborator(repo, username)
+    return HttpResponseRedirect('/settings/%s/%s' %(repo_base, repo))
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
 '''
 Tables
 '''

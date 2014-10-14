@@ -30,6 +30,7 @@ urlpatterns = patterns('',
     url(r'^handle-file-upload$', 'browser.views.handle_file_upload'),
 
     url(r'^add-collaborator/(\w+)/(\w+)$', 'browser.views.add_collaborator'),
+    url(r'^delete-collaborator/(\w+)/(\w+)/(\w+)$', 'browser.views.delete_collaborator'),
 
     url(r'^import/(\w+)/(\w+)', 'browser.views.file_import'),
     url(r'^delete/(\w+)/(\w+)', 'browser.views.file_delete'),

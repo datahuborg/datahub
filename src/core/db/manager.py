@@ -55,9 +55,7 @@ class DataHubManager:
         auto_in_future=auto_in_future)
 
   def delete_collaborator(self, repo, username):
-    return self.user_con.delete_collaborator(
-        repo=repo,
-        username=username)
+    return self.user_con.delete_collaborator(repo=repo, username=username)
 
 
   '''

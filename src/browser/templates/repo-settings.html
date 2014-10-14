@@ -25,10 +25,13 @@
         Collaborators:
       </td>
       <td class="cell-right">
-        {% for collaborator in collaborators %}
-          <span class="label label-default">{{collaborator}}</span> <br />
-        {% endfor %}
-        <br />
+        {% if collaborators|length > 0 %}
+          {% for collaborator in collaborators %}
+            <span class="label label-default">{{collaborator}}</span> &nbsp; &nbsp; <a href="/delete-collaborator/{{repo_base}}/{{repo}}/{{collaborator}}" title="Remove"><span class="glyphicon glyphicon-remove"></span></a></li>
+            <br />
+          {% endfor %}
+          <br />
+        {% endif %}
         <form class="form-inline" role="form" method="POST" action="/add-collaborator/{{repo_base}}/{{repo}}">
           {% csrf_token %}
           <input type="text" class="form-control" name="collaborator_username" placeholder="Username">

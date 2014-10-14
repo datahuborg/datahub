@@ -78,6 +78,24 @@ class PGBackend:
             ''' %(repo, privileges_str, username)
     self.execute_sql(query)
 
+  def delete_collaborator(
+      self, repo, username, privileges=['SELECT', 'INSERT', 'UPDATE']):
+    privileges_str = ', '.join(privileges)
+    
+    query = ''' REVOKE %s ON ALL TABLES
+                in SCHEMA %s FROM %s;
+            ''' %(privileges_str, repo, username)
+    self.execute_sql(query)
+
+    query = ''' REVOKE USAGE ON SCHEMA %s FROM %s;
+            ''' %(repo, username)
+    self.execute_sql(query)
+    
+    query = ''' ALTER DEFAULT PRIVILEGES IN SCHEMA %s
+                REVOKE %s ON TABLES FROM %s;
+            ''' %(repo, privileges_str, username)
+    self.execute_sql(query)
+
   def list_tables(self, repo):
     res = self.list_repos()
 

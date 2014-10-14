@@ -37,6 +37,9 @@ class DataHubConnection:
         privileges=privileges,
         auto_in_future=auto_in_future)
 
+  def delete_collaborator(self, repo, username):
+    return self.backend.delete_collaborator(repo=repo, username=username)
+
   def list_tables(self, repo):
     return self.backend.list_tables(repo=repo)
 
