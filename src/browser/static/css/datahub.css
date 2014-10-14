@@ -97,7 +97,13 @@ textarea {
   box-shadow: 0px 5px 20px #333;
 }
 
-.ascii-art {
+.ascii-art-home {
+  color: #E9E581;
+  background-color: #000;
+  border: none;
+}
+
+.ascii-art-console {
   color: #666;
   background-color: #000;
   border: none;
@@ -115,7 +121,7 @@ textarea {
 }
 
 #welcome .punch {
-  color: #E9E581;
+  color: #666;
 }
 
 
