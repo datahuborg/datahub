@@ -75,6 +75,19 @@ textarea {
   color: red;	
 }
 
+.cell-left {
+  vertical-align: top;
+  padding-top:0.5em;
+  padding-bottom:0.5em;"
+}
+
+.cell-right {
+  vertical-align: top;
+  padding-left:2em;
+  padding-top:0.5em;
+  padding-bottom:0.5em;"
+}
+
 p.bg-warning {
   padding: 10px;
 }

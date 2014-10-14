@@ -186,6 +186,7 @@ def settings_repo(request, repo_base, repo):
         'repo_base': repo_base,
         'repo': repo,
         'collaborators': collaborators}
+    res.update(csrf(request))
     return render_to_response("repo-settings.html", res)
   except Exception, e:
     return HttpResponse(json.dumps(

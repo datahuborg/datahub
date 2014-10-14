@@ -7,44 +7,20 @@
   </h3>
   <hr />
   <h3>Create a new repository</h3>
-  <table cellspacing=0>
+  <p id="error"></p>
+  <table>
     <tr>
-      <td>
-      </td>
-      <td style="padding-left:2em;">
-         <div id="error"></div>
-      </td>
+      <td class="cell-left">Owner: </td>
+      <td class="cell-right"><span class="label label-default">{{repo_base}}</span>
     </tr>
     <tr>
-      <td style="padding-top:0.5em; padding-bottom:0.5em;">
-        <label>Owner: </label>
-      </td>
-      <td style="padding-left:2em; padding-top:0.5em; padding-bottom:0.5em;">
-        <select>
-          <option class="strong" value="{{repo_base}}">{{repo_base}}</option>        
-        </select>
-      </td>
+      <td class="cell-left">Name of the new repository: </td>
+      <td class="cell-right"><input type="text" id="db-name" class="form-control" /></td>
     </tr>
     <tr>
-      <td style="padding-top:0.5em; padding-bottom:0.5em;">
-        <label>Name of the new repository: </label>
-      </td>
-      <td style="padding-left:2em; padding-top:0.5em; padding-bottom:0.5em;">
-        <input type="text" id="db-name" />
-      </td>
-    </tr>
-    <tr>
-      <td style="padding-top:0.5em; padding-bottom:0.5em;">
-        <label>Sharing: </label>
-      </td>
-      <td style="padding-left:2em; padding-top:0.5em; padding-bottom:0.5em;">
-        <input type="radio" name="public" value="false" checked> Private <br />
-        <input type="radio" name="public" value="true"> Public
-      </td>
-    </tr>
-    <tr>
-      <td style="padding-top:2em">
-        <button type="button" class="btn btn-primary" id="btn-create-repo" style="margin-left:0px;">Create Repository</button>
+      <td class="cell-left">
+        <br />
+        <button type="button" class="btn btn-primary" id="btn-create-repo">Create Repository</button>
       </td>
     </tr>
   </table>
