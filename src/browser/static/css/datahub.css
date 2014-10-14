@@ -91,6 +91,11 @@ textarea {
   overflow: auto;
 }
 
+.table thead tr th {
+    background-color: #f9f9f9;
+    color: #000;
+}
+
 /* DataHub Console */
 
 #dh-console-container {
