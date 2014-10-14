@@ -21,31 +21,27 @@
   </ul>
 
   <div class="tab-content">
+    <br />
     <div class="tab-pane active" id="tables">
-      <h3>Tables</h3>
-      <br />
-      {% if tables|length > 0 %}
+      <div class="panel panel-default">
+      <div class="panel-heading"><h4>Tables</h4></div>
         <div class="table-responsive">
           <table class="table">
-            <thead>
-            <tr>
-              <th>Table Name</th>
-              <th></th>
-            </tr>
-            </thead>
             <tbody>
-            {% for table in tables %}
-            <tr>
-              <td><a class="blue link" href="/browse/{{repo_base}}/{{repo}}/{{table}}">{{table}}</a></td>
-              <td class="text-right"><a class="table-icon" href="/browse/{{repo_base}}/{{repo}}/{{table}}" title="View Table"></a> &nbsp; <a class="csv-icon" href="/export/{{repo_base}}/{{repo}}/{{table}}" title="Export to CSV"></a> &nbsp; <a class="delete-icon" href="/delete-table/{{repo_base}}/{{repo}}/{{table}}" title="Delete"></a></td>
-            </tr>
-            {% endfor %}
+            {% if tables|length > 0 %}
+              {% for table in tables %}
+              <tr>
+                <td><a class="blue link" href="/browse/{{repo_base}}/{{repo}}/{{table}}">{{table}}</a></td>
+                <td class="text-right"><a class="table-icon" href="/browse/{{repo_base}}/{{repo}}/{{table}}" title="View Table"></a> &nbsp; <a class="csv-icon" href="/export/{{repo_base}}/{{repo}}/{{table}}" title="Export to CSV"></a> &nbsp; <a class="delete-icon" href="/delete-table/{{repo_base}}/{{repo}}/{{table}}" title="Delete"></a></td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr class="warning"><td>No table in <strong>{{repo_base}}.{{repo}}</strong></td></tr>
+            {% endif %}
             </tbody>
           </table>
         </div>
-      {% else %}
-        <span class="label label-warning">{{repo_base}} doesn't have any tables in {{repo}}.</span>
-      {% endif %}
+    </div>
     </div>
 
     <div class="tab-pane" id="files">
@@ -55,34 +51,29 @@
         <input type="hidden" name="repo_base" value="{{repo_base}}" />
         <input type="hidden" name="repo" value="{{repo}}" />
         <input type="file" class="form-control" name="data_file" placeholder="Data File">
-        <button class="btn btn-primary" type="submit">Upload File</button>
+        <button class="btn btn-primary btn-sm" type="submit">Upload File</button>
       </form>
       <br />
 
-      <h3>Files</h3>
-      <br />
-      {% if files|length > 0 %}
+      <div class="panel panel-default">
+      <div class="panel-heading"><h4>Files</h4></div>
         <div class="table-responsive">
           <table class="table">
-            <thead>
-            <tr>
-              <th>File Name</th>
-              <th></th>
-            </tr>
-            </thead>
             <tbody>
-            {% for file in files %}
-            <tr>
-              <td><a class="blue link" href="/download/{{repo_base}}/{{repo}}?file={{file}}">{{file}}</a></td>
-              <td class="text-right"><a class="database-table-icon" href="/import/{{repo_base}}/{{repo}}?file={{file}}" title="Import to DataHub as Table"></a> &nbsp; <a class="download-icon" href="/download/{{repo_base}}/{{repo}}?file={{file}}" title="Download"></a> &nbsp; <a class="delete-icon" href="/delete/{{repo_base}}/{{repo}}?file={{file}}" title="Delete"></a></td>
-            </tr>
-            {% endfor %}
+            {% if files|length > 0 %}
+              {% for file in files %}
+              <tr>
+                <td><a class="blue link" href="/download/{{repo_base}}/{{repo}}?file={{file}}">{{file}}</a></td>
+                <td class="text-right"><a class="database-table-icon" href="/import/{{repo_base}}/{{repo}}?file={{file}}" title="Import to DataHub as Table"></a> &nbsp; <a class="download-icon" href="/download/{{repo_base}}/{{repo}}?file={{file}}" title="Download"></a> &nbsp; <a class="delete-icon" href="/delete/{{repo_base}}/{{repo}}?file={{file}}" title="Delete"></a></td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr class="warning"><td>No file in <strong>{{repo_base}}.{{repo}}</strong></td></tr>
+            {% endif %}
             </tbody>
           </table>
         </div>
-      {% else %}
-        <span class="label label-warning">{{repo_base}} doesn't have any files in {{repo}}.</span>
-      {% endif %}
+      </div>
     </div>
   </div>
 </div>

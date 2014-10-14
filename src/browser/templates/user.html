@@ -10,32 +10,26 @@
     <a class="btn btn-primary" role="button" href="/newrepo/{{repo_base}}">Create New Repository</a>
   </div>
   <hr />
-  <h3>Repositories</h3>
   <br />
-  {% if repos|length > 0 %}
+  <div class="panel panel-default">
+  <div class="panel-heading"><h4>Repositories</h4></div>
     <div class="table-responsive">
       <table id="repos" class="table">
-        <thead>
-        <tr>
-          <th>Repo Name</th>
-          <th></th>
-        </tr>
-        </thead>
         <tbody>
-          {% for repo in repos %}
-            <tr>
-            <td><a class="blue link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
-            <td class="text-right"></td>
-            </tr>
-          {% endfor %}  
+          {% if repos|length > 0 %}
+            {% for repo in repos %}
+              <tr>
+              <td><a class="blue link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
+              <td class="text-right"></td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr class="warning"><td>No repository in <strong>{{repo_base}}</strong></td></tr>
+          {% endif %} 
         </tbody>
       </table>
     </div>
-  {% else %}
-    <span class="label label-warning">{{repo_base}} doesn't have any repository yet.</span>
-  {% endif %} 
-  <br />
-  <br />
+  </div>
   <!--
   <table id="shared_repos">
     <thead>

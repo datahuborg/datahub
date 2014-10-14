@@ -14,9 +14,9 @@
     <a class="btn btn-primary" role="button" href="/dbwipes/{{repo_base}}/{{repo}}/{{table}}">DBWipes</a>
   </div>
   <hr />
-  <h3>Table Data</h3>
   <br />
-  {% if tuples|length > 0 %}
+  <div class="panel panel-default">
+    <div class="panel-heading"><h4>{{table}}</h4></div>
     <div class="table-responsive">
     <table id="table_data" class="table table-condensed table-bordered">
       <thead>
@@ -27,16 +27,22 @@
       </tr>
       </thead>
       <tbody>
-        {% for tuple in tuples %}
-        <tr>
-          {% for cell in tuple %}
-            <td class="strong">{{cell}}</td>
+        {% if tuples|length > 0 %}
+          {% for tuple in tuples %}
+          <tr>
+            {% for cell in tuple %}
+              <td class="strong">{{cell}}</td>
+            {% endfor %}
+          </tr>
           {% endfor %}
-        </tr>
-        {% endfor %}
+        {% else %}
+          <tr class="warning"><td>The <strong>{{table}}</strong> table is empty.</td></tr>
+        {% endif %}
       </tbody>
     </table>
-    <ul class="pagination pagination-sm">
+    </div> 
+  </div>
+  <ul class="pagination pagination-sm">
     {% if pages|length > 1 %}
       {% for page in pages %}
         {% if page == current_page %}
@@ -46,15 +52,6 @@
         {% endif %}
       {% endfor %}
     {% endif %}
-  {% else %}
-    <span class="label label-warning">The {{table}} table is empty.</span>
-  {% endif %}
   </ul>
-  </div> 
 </div>
 {% endblock %}
-
-
-
-
-
