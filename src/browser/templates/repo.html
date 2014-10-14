@@ -8,7 +8,7 @@
   
   <div class="pull-right">
     <a class="btn btn-primary" type="button" href="/console">Create Table with SQL</a>
-    <a class="btn btn-primary" type="button" href="/files/{{repo_base}}/{{repo}}">Upload Files</a>
+    <a class="btn btn-primary" type="button" href="/browse/{{repo_base}}/{{repo}}#files">Upload Files</a>
     <a class="btn btn-primary" type="button" href="/data-refiner">Launch Data Refiner</a>  
   </div>
   <hr />
@@ -45,6 +45,15 @@
     </div>
 
     <div class="tab-pane" id="files">
+      <br />
+      <form class="form-inline" role="form" method="POST" action="/handle-file-upload" enctype='multipart/form-data'>
+        {% csrf_token %}
+        <input type="hidden" name="repo_base" value="{{repo_base}}" />
+        <input type="hidden" name="repo" value="{{repo}}" />
+        <input type="file" class="form-control" name="data_file" placeholder="Data File">
+        <button class="btn btn-primary" type="submit">Upload File</button>
+      </form>
+
       <h3>Files</h3>
       {% if files|length > 0 %}
         <div class="table-responsive">
@@ -71,6 +80,27 @@
     </div>
   </div>
 </div>
+<script>
+$(function(){
+  var hash = window.location.hash;
+  hash && $('ul.nav a[href="' + hash + '"]').tab('show');
+
+  $('.nav-tabs a').click(function (e) {
+    $(this).tab('show');
+    var scrollmem = $('body').scrollTop();
+    window.location.hash = this.hash;
+    $('html,body').scrollTop(scrollmem);
+  });
+
+  var tabs$ = $(".nav-tabs a");
+  $( window ).on("hashchange", function() {
+      var hash = window.location.hash, // get current hash
+          menu_item$ = tabs$.filter("[href=" + hash + "]"); // get the menu element
+
+      menu_item$.tab("show"); // call bootstrap to show the tab
+  }).trigger("hashchange");
+});
+</script
 {% endblock %}
 
 

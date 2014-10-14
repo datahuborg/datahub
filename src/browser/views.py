@@ -149,6 +149,7 @@ def repo(request, repo_base, repo):
         'repo': repo,
         'tables': tables,
         'files': uploaded_files}
+    res.update(csrf(request))
     return render_to_response("repo.html", res)
   except Exception, e:
     return HttpResponse(json.dumps(
@@ -272,20 +273,6 @@ def table_delete(request, repo_base, repo, table_name):
 Files Related Stuff
 '''
 
-@login_required
-def files(request, repo_base, repo):
-  repo_dir = '/user_data/%s/%s' %(repo_base, repo)
-  if not os.path.exists(repo_dir):
-    os.makedirs(repo_dir)
-  
-  uploaded_files = [f for f in os.listdir(repo_dir)]
-  res= {'login': get_login(request),
-        'repo_base': repo_base,
-        'repo':repo,
-        'files': uploaded_files}
-  res.update(csrf(request))
-  return render_to_response("files.html", res)
-
 def save_uploaded_file(repo_base, repo, data_file):
   repo_dir = '/user_data/%s/%s' %(repo_base, repo)
   if not os.path.exists(repo_dir):
@@ -305,7 +292,7 @@ def handle_file_upload(request):
       repo_base = request.POST['repo_base']
       save_uploaded_file(repo_base, repo, data_file)
     
-    return HttpResponseRedirect('/files/%s/%s' %(repo_base, repo))
+    return HttpResponseRedirect('/browse/%s/%s#files' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -361,7 +348,7 @@ def file_delete(request, repo_base, repo):
     repo_dir = '/user_data/%s/%s' %(repo_base, repo)
     file_path = '%s/%s' %(repo_dir, file_name)
     os.remove(file_path)
-    return HttpResponseRedirect('/browse/%s/%s' %(repo_base, repo))
+    return HttpResponseRedirect('/browse/%s/%s#files' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -402,7 +389,7 @@ def file_export(request, repo_base, repo, table_name):
     dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
     DataHubManager.export_file(
         repo_base=repo_base, table_name=dh_table_name, file_path=file_path)
-    return HttpResponseRedirect('/browse/%s/%s' %(repo_base, repo))
+    return HttpResponseRedirect('/browse/%s/%s#files' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(

@@ -28,9 +28,6 @@ urlpatterns = patterns('',
     url(r'^refine-data$', 'browser.views.refine_data'),
     url(r'^refine-data/$', 'browser.views.refine_data'),
 
-    url(r'^files/(\w+)/(\w+)$', 'browser.views.files'),
-    url(r'^files/(\w+)/(\w+)/$', 'browser.views.files'),
-
     url(r'^handle-file-upload$', 'browser.views.handle_file_upload'),
 
     url(r'^import/(\w+)/(\w+)', 'browser.views.file_import'),
