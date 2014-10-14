@@ -64,12 +64,7 @@
 #page{
 	position: relative;
 	margin:0 auto;
-	top: 6em;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	width: 100%;
-	background-color: #fff;
+  margin-top: 70px;
 }
 
 textarea {
