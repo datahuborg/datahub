@@ -82,12 +82,7 @@ class PGBackend:
       self, repo, username, privileges=['SELECT', 'INSERT', 'UPDATE']):
     privileges_str = ', '.join(privileges)
     
-    query = ''' REVOKE %s ON ALL TABLES
-                in SCHEMA %s FROM %s;
-            ''' %(privileges_str, repo, username)
-    self.execute_sql(query)
-
-    query = ''' REVOKE USAGE ON SCHEMA %s FROM %s;
+    query = ''' REVOKE USAGE ON SCHEMA %s FROM %s CASCADE;
             ''' %(repo, username)
     self.execute_sql(query)
     
