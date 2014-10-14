@@ -1,12 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
 <div id="content">
-  <a class="btn btn-default" role="button" href=/browse/{{repo_base}}>{{repo_base}}</a> .
-  <a class="btn btn-default" role="button" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a> .
+  <a class="btn btn-primary" role="button" href=/browse/{{repo_base}}>{{repo_base}}</a> .
+  <a class="btn btn-primary" role="button" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a> .
+  
   <div class="pull-right">
-  <a class="btn btn-primary" type="button" href="/console">Create Table with SQL</a>
-  <a class="btn btn-primary" type="button" href="/files/{{repo_base}}/{{repo}}">Upload Files</a>
-  <a class="btn btn-primary" type="button" href="/data-refiner">Launch Data Refiner</a>  
+    <a class="btn btn-primary" type="button" href="/console">Create Table with SQL</a>
+    <a class="btn btn-primary" type="button" href="/files/{{repo_base}}/{{repo}}">Upload Files</a>
+    <a class="btn btn-primary" type="button" href="/data-refiner">Launch Data Refiner</a>  
   </div>
   <hr />
   <h3>Tables</h3>
