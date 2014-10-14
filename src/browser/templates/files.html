@@ -3,27 +3,27 @@
 <div id="content">
   <a class="btn btn-info" role="button" href=/browse/{{repo_base}}>{{repo_base}}</a> /
   <a class="btn btn-info" role="button" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a> /
-
-  <form class="form-container" method="POST" action="/handle-file-upload" enctype='multipart/form-data'>
-  <h3 style="padding-bottom:0.5em;">Upload Files to DataHub</h3>
-  {% csrf_token %}
-  <input type="hidden" name="repo_base" value="{{repo_base}}" />
-  <input type="hidden" name="repo" value="{{repo}}" />
-  <div id="error">
-    {% for error in errors %}<span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
-        {% endfor %}
-        <br />
-    </div>
-  <label for="data_file">Data File</label><br />
-  <input type="file" name="data_file" placeholder="Data File"> <br /> <br />
-  <input class="button" type="submit" value="Upload File"/>
-  </form>
   <br />
   <br />
   <div>
   <a class="btn btn-primary" role="button" href=/browse/{{repo_base}}/{{repo}}>Back to Repository</a>
   </div>
-  <br />
+
+  <form method="POST" action="/handle-file-upload" enctype='multipart/form-data'>
+    <h3 style="padding-bottom:0.5em;">Upload Files to DataHub</h3>
+    {% csrf_token %}
+    <input type="hidden" class="form-control" name="repo_base" value="{{repo_base}}" />
+    <input type="hidden" class="form-control" name="repo" value="{{repo}}" />
+    <div id="error">
+      {% for error in errors %}
+        <span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
+      {% endfor %}
+    </div>
+    <br />
+    <label for="data_file">Data File</label><br />
+    <input type="file" class="form-control" name="data_file" placeholder="Data File"> <br /> <br />
+    <button class="btn btn-lg btn-primary" type="submit">Upload File</button>
+  </form>
   <div class="table-responsive">
   <table id="files" class="table table-striped">
     <thead>
