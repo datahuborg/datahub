@@ -97,7 +97,7 @@ textarea {
   box-shadow: 0px 5px 20px #333;
 }
 
-#dh-console pre {
+.ascii-art {
   background-color: #000;
   border: none;
 }
