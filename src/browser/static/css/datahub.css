@@ -88,6 +88,8 @@ textarea {
 
 #dh-console {
   margin: 0 auto;
+  min-height: 30em;
+  max-height: 50em;
   height: 50em;
   color: #E9E581;
   background-color: #000;
