@@ -1,19 +1,14 @@
 {% extends "layout.html" %}
 {% block content %}
 <div id="content">
-  <a class="btn btn-info" role="button" href=/browse/{{repo_base}}>{{repo_base}}</a> /
-  <a class="btn btn-info" role="button" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a> /
+  <a class="btn btn-default" role="button" href=/browse/{{repo_base}}>{{repo_base}}</a> /
+  <a class="btn btn-default" role="button" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a> /
+
+  <a class="btn btn-primary pull-right" role="button" href="/console">Create Table with SQL</a>
+  <a class="btn btn-primary pull-right" role="button" href="/files/{{repo_base}}/{{repo}}">Upload Files</a>
+  <a class="btn btn-primary pull-right" role="button" href="/data-refiner">Launch Data Refiner</a>
   <hr />
-  <br />
-  <div>
-  <a class="btn btn-primary" role="button" href="/console">Create Table with SQL</a>
-  <a class="btn btn-primary" role="button" href="/files/{{repo_base}}/{{repo}}">Upload Files</a>
-  <a class="btn btn-primary" role="button" href="/data-refiner">Launch Data Refiner</a>
-  <!--
-  <a class="button inactive" href="/settings/{{repo_base}}/{{repo}}">Manage Settings</a>
-  -->
-  </div>
-  <br />
+  <h3>{{repo_base}}.{{repo}}</h3>
   <div class="table-responsive">
   <table id="tables" class="table table-striped">
     <thead>

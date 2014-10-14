@@ -1,18 +1,15 @@
 {% extends "layout.html" %}
 {% block content %}
 <div id="content">
-  <a class="btn btn-info" role="button" href=/browse/{{repo_base}}>{{repo_base}}</a> /
+  <a class="btn btn-default" role="button" href=/browse/{{repo_base}}>{{repo_base}}</a> /
+  <a class="btn btn-primary pull-right" role="button" href="/newrepo/{{repo_base}}">Create New Repository</a>
   <hr />
-  <br />
-  <div>
-  <a class="btn btn-primary" role="button" href="/newrepo/{{repo_base}}">Create New Repository</a>
-  </div>
-  <br />
+  <h3>{{repo_base}}</h3>
   <div class="table-responsive">
   <table id="repos" class="table table-striped">
     <thead>
     <tr>
-      <th>Your Repositories</th>
+      <th>Repo Name</th>
       <th>Owner</th>
     </tr>
     </thead>
