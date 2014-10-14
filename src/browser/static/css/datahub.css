@@ -78,6 +78,13 @@ textarea {
   color: red;	
 }
 
+.inline-block {
+    margin: 0;
+    display:inline-block;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
 /* DataHub Console */
 
 #dh-console-container {
