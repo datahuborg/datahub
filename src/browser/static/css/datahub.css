@@ -88,11 +88,11 @@ textarea {
 
 #dh-console {
   margin: 0 auto;
+  margin-bottom: 4em;
   width: 850px;
   color: #E9E581;
   background-color: #000;
   border-radius: 0.5em;
-  height: 40em;
   overflow-y: scroll !important;
   box-shadow: 0px 5px 20px #333;
 }
@@ -120,10 +120,9 @@ textarea {
   box-shadow: 0px 5px 5px #eee;
 }
 
-#welcome .punch {
+#dh-console .punch, #welcome .punch {
   color: #999;
 }
-
 
 /* Icons */
 
