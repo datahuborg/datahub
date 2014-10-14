@@ -1,8 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
 <div id="content">
-  <a class="btn btn-default btn-xs" role="button" href=/browse/{{repo_base}}>{{repo_base}}</a> /
-  <a class="btn btn-default btn-xs" role="button" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a> /
+  <a class="btn btn-default" role="button" href=/browse/{{repo_base}}>{{repo_base}}</a> /
+  <a class="btn btn-default" role="button" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a> /
 
   <form class="form-container" method="POST" action="/handle-file-upload" enctype='multipart/form-data'>
   <h3 style="padding-bottom:0.5em;">Upload Files to DataHub</h3>
