@@ -4,23 +4,21 @@
 <a href="/register" title="Sign In" class="btn btn-default navbar-btn">Sign Up</a>
 {% endblock %}
 {% block content %}
-<script type="text/javascript">
-</script>
-<form class="center-container"  method="POST" action="/reset/{{encrypted_email}}">
-	{% csrf_token %}
-	<input type="hidden" name="redirect_url" value="{{redirect_url}}" />
-	<h3>DataHub Reset Password</h3>
-	<hr />
-	<div id="error">
-		{% for error in errors %}<span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
-        {% endfor %}
-        <br />
-    </div>
-	<input type="hidden" name="user_email" id="user_email" value="{{user_email}}" />
-	<label for="new_password">New Password</label><br />
-	<input type="password" name="new_password" id="new_password" placeholder="New password"/><br /><br />
-	<label for="new_password2">Confirm New Password</label><br />
-	<input type="password" name="new_password2" id="new_password2" placeholder="Enter password again"/><br /><br />
-	<input type="submit" class="button" value="Reset" />
+<form class="form-signin" method="POST" action="/reset/{{encrypted_email}}">
+  {% csrf_token %}
+  <input type="hidden" class="form-control" name="redirect_url" value="{{redirect_url}}" />
+  <h3>DataHub Reset Password</h3>
+  <div id="error">
+    {% for error in errors %}
+      <span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
+    {% endfor %}
+  </div>
+  <br />
+  <input type="hidden" class="form-control" name="user_email" id="user_email" value="{{user_email}}" />
+  <label for="new_password">New Password</label><br />
+  <input type="password" class="form-control" name="new_password" id="new_password" placeholder="New password"/><br /><br />
+  <label for="new_password2">Confirm New Password</label><br />
+  <input type="password" class="form-control" name="new_password2" id="new_password2" placeholder="Enter password again"/><br /><br />
+  <button type="submit" class="btn btn-lg btn-primary btn-block">Reset</button>
 </form>
 {% endblock %}
