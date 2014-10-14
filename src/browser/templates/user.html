@@ -19,17 +19,21 @@
         <tbody>            
             {% for repo in repos %}
               <tr>
-              <td><a class="link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
-              {% if repo.public %}
-                <td class="text-right">Public</td>
-              {% else %}
-                <td class="text-right">Private</td>
-              {% endif %}
-              {% if repo.collaborators_str %}
-                <td class="text-right"><a href="#" title="Shared with {{repo.collaborators_str}}">{{repo.num_collaborators}} collaborators</a></td>
-              {% else %}
-                <td class="text-right">{{repo.num_collaborators}} collaborators</td>
-              {% endif %}
+                <td><a class="link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
+                
+                {% if repo.public %}
+                  <td>Public</td>
+                {% else %}
+                  <td>Private</td>
+                {% endif %}
+                
+                {% if repo.collaborators_str %}
+                  <td class="text-right"><a href="#" title="Shared with {{repo.collaborators_str}}">{{repo.num_collaborators}} collaborators</a></td>
+                {% else %}
+                  <td class="text-right">{{repo.num_collaborators}} collaborators</td>
+                {% endif %}
+                
+                <td class="text-left"><a class="btn btn-default btn-xs" href=/settings/{{repo.owner}}/{{repo.name}} title="Manage Settings"><span class="glyphicon glyphicon-cog"></a></td>
               </tr>
             {% endfor %}
         </tbody>
