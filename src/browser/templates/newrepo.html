@@ -1,7 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
 <div id="content">
-  <a class="btn btn-default" role="button" href=/browse/{{repo_base}}>{{repo_base}}</a> .
+  <h3>
+    <a class="btn btn-default" role="button" href=/browse/{{repo_base}}>{{repo_base}}</a> .
+  </h3>
   <hr />
   <h3>Create a new repository</h3>
   <table cellspacing=0>
@@ -41,7 +43,7 @@
     </tr>
     <tr>
       <td style="padding-top:2em">
-        <button type="button" class="btn btn-primary" id="btn-create-repo" style="margin-left:0px;">Create Repository</button>
+        <button type="button" class="btn btn-default" id="btn-create-repo" style="margin-left:0px;">Create Repository</button>
       </td>
     </tr>
   </table>
