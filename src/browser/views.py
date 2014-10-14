@@ -178,14 +178,15 @@ def settings_repo(request, repo_base, repo):
       raise Exception('Access denied. Missing required privileges.')
     
     manager = DataHubManager(user=repo_base)
-    res = manager.list_tables(repo)
-    tables = [t[0] for t in res['tuples']]
+    res = manager.list_collaborators(repo_base, repo)
+    collaborators = [t[0] for t in res['tuples']]
+
     res = {
         'login': get_login(request),
         'repo_base': repo_base,
         'repo': repo,
-        'tables': tables}
-    return render_to_response("settings_repo.html", res)
+        'collaborators': collaborators}
+    return render_to_response("repo-settings.html", res)
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),
