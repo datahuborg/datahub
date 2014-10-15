@@ -468,32 +468,44 @@ Reported crime in 'Wyoming',
 </div>
 
 <div id="content">
-  <a class="blue bold" href=/browse/{{login}}>{{login}}</a> /
-  <hr class="light" /> 
-  <div style="padding-top:1em; padding-bottom:1em;">
-  <h3>Paste data below (or, select an example data)</h3>
+  <h3 class="inline-block">
+    <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
+    <a class="link" href=/browse/{{repo_base}}>/</a>
+    <a class="link" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a>
+    <a class="link" href=/browse/{{repo_base}}/{{repo}}>/</a>
+  </h3>
+  
+  <div class="pull-right">
+    <a class="btn btn-primary btn-sm" type="button" href="/console">Create Table with SQL</a>
+    <a class="btn btn-primary btn-sm" type="button" href="/browse/{{repo_base}}/{{repo}}#files">Upload Files</a> 
   </div>
+  <hr />
+  <h3>Paste data below (or, select an example data)</h3>
   <div style="padding-top:1em; padding-bottom:1em;">
-  <h4> Example Data: </h4>
-  <select id="select_example">
-  <option value="hadoop">Hadoop Log</option>
-  <option value="crime">Crime</option>
-  </select>
+    <h4> Example Data: </h4>
+    <select id="select_example">
+    <option value="hadoop">Hadoop Log</option>
+    <option value="crime">Crime</option>
+    </select>
   </div>
   <div id="error"></div>
   <table cellspacing="0" style="width:100%">
-  <tr>
-  <td style="width:50%">
-  <h4>Example Input</h4>
-  </td>
-  <td style="width:50%">
-  <h4>Example Output</h4>
-  </td>
-  </tr>
-  <tr>
-  <td><textarea id="training_input" style="width:100%; height:200px;"></textarea></td>
-  <td><textarea id="training_output" style="width:100%; height:200px;"></textarea></td>
-  </tr>
+    <tr>
+      <td style="width:50%">
+        <h4>Example Input</h4>
+      </td>
+      <td style="width:50%">
+        <h4>Example Output</h4>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <textarea id="training_input" style="width:100%; height:200px;"></textarea>
+      </td>
+      <td>
+        <textarea id="training_output" style="width:100%; height:200px;"></textarea>
+      </td>
+    </tr>
   </table>
   <table cellspacing="0" style="width:100%">
   <tr><td style="width:100%"><h4>Data</h4></td></tr>
@@ -505,7 +517,7 @@ Reported crime in 'Wyoming',
   </table>
   <br />
   <br />
-  <button type="button" id="btn-refine-data" style="margin-left:0px;">Refine</button>
+  <button class="btn btn-primary" type="button" id="btn-refine-data" style="margin-left:0px;">Refine</button>
   <br />
   <br />
   <div id="results_container">
@@ -519,60 +531,19 @@ Reported crime in 'Wyoming',
   </table>
   <br />
   <br />
-  <table cellspacing="0" style="width:100%">
-  <tr>
-  <td><h4>Save resuts as DataHub Table</h4></td><td></td>
-  </tr>
-  <tr>
-  <td></td>
+  <h4>Save resuts as DataHub Table</h4>
   <div id="error_results"></div>
-  <td></td>
-  </tr>
-  <tr>
-  <td>
-    <h5> Select Repository: </h4>
-  </td>
-  <td><h5> Table Name </h4></td>
-  </tr>
-  <tr>
-  <td>
-  <select id="repo_name">
-  </select>
-  </td>
-  <td>
-    <input type="text" id="table_name" placeholder="Table Name"><br /><br />
-  </td>
-  </tr>
-  </table>
-  <br />
-  <br />
-  <button type="button" id="btn-create-table" style="margin-left:0px;">Create Table</button>
+  <h5> Table Name </h4></td>
+  <input type="text" id="table_name" placeholder="Table Name"><br /><br />
+  <button class="btn btn-primary" type="button" id="btn-create-table" style="margin-left:0px;">Create Table</button>
   </div>
+  <br />
+  <br />
 </div>
   
 <script type="text/javascript">
 
 $(document).ready(function($) { 
-  var login = '{{login}}'
-  var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
-  var protocol = new Thrift.Protocol(transport);
-  var client = new DataHubClient(protocol);
-  var con = new Connection({'user':login})
-  try {
-    res = client.list_repos(con)
-    if (res.num_tuples >= 0) {
-      $("#repo_name").html('')
-      $.each(res.tuples, function(idx, tuple) {
-        var repo = tuple.cells[0]
-        $("#repo_name").append('<option value="'+ repo +'">' + repo +' </option>')
-      });
-    }
-  }catch(error){
-    $('#error_results').html('<span class="error">' + error.message + '</span>');
-  }
- 
-
-
   $("#results_container").hide()
   var selected = $('#select_example').find(":selected").val()
   var record_separator = '\n'
@@ -627,12 +598,13 @@ $(document).ready(function($) {
       async: false, 
       cache: false,
       data:{
-        'repo': $('#repo_name').find(":selected").val(),
+        'repo_base': {{repo_base}},
+        'repo': {{repo}},
         'table_name': $("#table_name").val(),
         'data': $("#results_data").val(),
       },
       success: function(res) {
-        window.location.href= '/browse/' + login + '/' + $('#repo_name').find(":selected").val()   
+        window.location.href= '/browse/' + {{repo_base}} + '/' + {{repo}} 
       }
     });
   }

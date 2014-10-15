@@ -470,9 +470,12 @@ Data Refiner
 '''
 
 @login_required
-def data_refiner(request):
+def data_refiner(request, repo_base, repo):
   return render_to_response("data-refiner.html", {
-    'login': get_login(request)})
+    'login': get_login(request),
+    'repo_base': repo_base,
+    'repo': repo
+    })
 
 @csrf_exempt
 def refine_data(request):

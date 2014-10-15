@@ -21,8 +21,8 @@ urlpatterns = patterns('',
     url(r'^newrepo/(\w+)$', 'browser.views.newrepo'),
     url(r'^newrepo/(\w+)/$', 'browser.views.newrepo'),
 
-    url(r'^data-refiner$', 'browser.views.data_refiner'),
-    url(r'^data-refiner/$', 'browser.views.data_refiner'),
+    url(r'^data-refiner/(\w+)/(\w+)$', 'browser.views.data_refiner'),
+    url(r'^data-refiner/(\w+)/(\w+)/$', 'browser.views.data_refiner'),
 
     url(r'^refine-data$', 'browser.views.refine_data'),
     url(r'^refine-data/$', 'browser.views.refine_data'),
