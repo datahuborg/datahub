@@ -42,17 +42,17 @@
                       class="modal-link"
                       target-modal="#confirm-modal"
                       target-modal-title="Confirm CSV Export"
-                      target-modal-body="This will export the table <strong>{{repo_base}}/{{repo}}/{{table}}</strong> as a CSV file. The operation will overwite any existing file with the same name. Are you sure?"
+                      target-modal-body="This will export the table <strong>{{table}}</strong> as a CSV file inside the <strong>{{repo_base}}/{{repo}}</strong> repository. The operation will overwrite any existing file with the same name. Are you sure?"
                       target-modal-operation="CSV Export"
                       target-url="/export/{{repo_base}}/{{repo}}/{{table}}"
-                      title="Export as CSV">
+                      title="Export">
                     <span class="csv-icon"></span>
                   </span>&nbsp;&nbsp;
                   <span
                       class="modal-link"
                       target-modal="#confirm-modal"
                       target-modal-title="Confirm Delete"
-                      target-modal-body="This will permanently delete the table <strong>{{repo_base}}/{{repo}}/{{table}}</strong>. Are you sure?"
+                      target-modal-body="This will permanently delete the table <strong>{{repo_base}}/{{repo}}/{{table}}</strong>. The operation can't be undone. Are you sure?"
                       target-modal-operation="Delete"
                       target-url="/delete-table/{{repo_base}}/{{repo}}/{{table}}"
                       title="Delete">
@@ -97,8 +97,8 @@
                       class="modal-link"
                       target-modal="#confirm-modal"
                       target-modal-title="Confirm Import"
-                      target-modal-body="This will import the file <strong>{{repo_base}}/{{repo}}</strong> to DataHub as a table. Are you sure?"
-                      target-modal-operation="Import"
+                      target-modal-body="This will import the file <strong>{{repo_base}}/{{repo}}/{{file}}</strong> to DataHub as a table."
+                      target-modal-operation="OK"
                       target-url="/import/{{repo_base}}/{{repo}}?file={{file}}"
                       title="Import to DataHub as Table">
                     <span class="database-table-icon"></span>
@@ -110,7 +110,7 @@
                       class="modal-link"
                       target-modal="#confirm-modal"
                       target-modal-title="Confirm Delete"
-                      target-modal-body="This will permanently delete the file <strong>{{repo_base}}/{{repo}}</strong>. Are you sure?"
+                      target-modal-body="This will permanently delete the file <strong>{{repo_base}}/{{repo}}/{{file}}</strong>. The operation can't be undone. Are you sure?"
                       target-modal-operation="Delete"
                       target-url="/delete/{{repo_base}}/{{repo}}?file={{file}}"
                       title="Delete">
