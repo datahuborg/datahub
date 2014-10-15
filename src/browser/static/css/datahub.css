@@ -103,6 +103,10 @@ p.bg-warning {
   overflow: auto;
 }
 
+.modal-link {
+  cursor: pointer;
+}
+
 .table thead tr th {
     background-color: #f9f9f9;
     color: #000;
@@ -155,125 +159,112 @@ p.bg-warning {
 }
 
 /* Icons */
-
 .newrepo-icon{
   display: inline-block;
-  margin-right: 0.7em;
   background-image:url(/static/images/newrepo.png);
   background-repeat: no-repeat;
-  background-size: 1.2em 1.2em;
+  background-size: 17px 17px;
   border-radius: 0.25em;
-  width: 1.2em;
-  height: 1.2em;
+  width: 17px;
+  height: 17px;
 }
 
 .csv-icon{
   display: inline-block;
-  margin-right: 0.7em;
   background-image:url(/static/images/csv.png);
   background-repeat: no-repeat;
-  background-size: 1.2em 1.2em;
+  background-size: 17px 17px;
   border-radius: 0.25em;
-  width: 1.2em;
-  height: 1.2em;
+  width: 17px;
+  height: 17px;
 }
 
 .open-icon{
   display: inline-block;
-  margin-right: 0.7em;
   background-image:url(/static/images/open.png);
   background-repeat: no-repeat;
-  background-size: 1.2em 1.2em;
+  background-size: 17px 17px;
   border-radius: 0.25em;
-  width: 1.2em;
-  height: 1.2em;
+  width: 17px;
+  height: 17px;
 }
 
 .download-icon{
   display: inline-block;
-  margin-right: 0.7em;
   background-image:url(/static/images/download.png);
   background-repeat: no-repeat;
-  background-size: 1.2em 1.2em;
+  background-size: 17px 17px;
   border-radius: 0.25em;
-  width: 1.2em;
-  height: 1.2em;
+  width: 17px;
+  height: 17px;
 }
 
 .delete-icon{
   display: inline-block;
-  margin-right: 0.7em;
   background-image:url(/static/images/delete.png);
   background-repeat: no-repeat;
-  background-size: 1.2em 1.2em;
+  background-size: 17px 17px;
   border-radius: 0.25em;
-  width: 1.2em;
-  height: 1.2em;
+  width: 17px;
+  height: 17px;
 }
 
 .database-icon{
   display: inline-block;
-  margin-right: 0.7em;
   background-image:url(/static/images/database.png);
   background-repeat: no-repeat;
-  background-size: 1.2em 1.2em;
+  background-size: 17px 17px;
   border-radius: 0.25em;
-  width: 1.2em;
-  height: 1.2em;
+  width: 17px;
+  height: 17px;
 }
 
 .table-icon{
   display: inline-block;
-  margin-right: 0.7em;
   background-image:url(/static/images/table.png);
   background-repeat: no-repeat;
-  background-size: 1.2em 1.2em;
+  background-size: 17px 17px;
   border-radius: 0.25em;
-  width: 1.2em;
-  height: 1.2em;
+  width: 17px;
+  height: 17px;
 }
 
 .database-table-icon{
   display: inline-block;
-  margin-right: 0.7em;
   background-image:url(/static/images/database-table.png);
   background-repeat: no-repeat;
-  background-size: 1.2em 1.2em;
+  background-size: 17px 17px;
   border-radius: 0.25em;
-  width: 1.2em;
-  height: 1.2em;
+  width: 17px;
+  height: 17px;
 }
 
 .console-icon{
   display: inline-block;
-  margin-right: 0.7em;
   background-image:url(/static/images/terminal.png);
   background-repeat: no-repeat;
-  background-size: 1.2em 1.2em;
-  border-radius: 0.25em;
-  width: 1.2em;
-  height: 1.2em;
+  background-size: 17px 17px;
+  width: 17px;
+  height: 17px;
 }
 
 .visualize-icon{
   display: inline-block;
-  margin-right: 0.7em;
   background-image:url(/static/images/visualize.png);
   background-repeat: no-repeat;
-  background-size: 1.2em 1.2em;
+  background-size: 17px 17px;
   border-radius: 0.25em;
-  width: 1.2em;
-  height: 1.2em;
+  width: 17px;
+  height: 17px;
 }
 
 .logout-icon{
   display: inline-block;
-  margin-right: 0.7em;
   background-image:url(/static/images/logout.png);
   background-repeat: no-repeat;
-  background-size: 1.2em 1.2em;
+  background-size: 17px 17px;
   border-radius: 0.25em;
-  width: 1.2em;
-  height: 1.2em;
+  width: 17px;
+  height: 17px;
 }
 

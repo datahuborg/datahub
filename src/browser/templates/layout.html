@@ -57,10 +57,10 @@ DataHub Template Layout
       {% block headlink-right %}
       {% if login %}
         <a href="/"><strong>{{ login }}</strong></a>  &nbsp; &nbsp;
-        <a href="/console" class="btn btn-default navbar-btn" title="SQL Console"><span class="glyphicon glyphicon-tasks"></span></a></li>
-        <a href="/logout" class="btn btn-default navbar-btn" title="Log Out"><span class="glyphicon glyphicon-log-out"></span></a></li>
+        <a href="/console" class="btn navbar-btn" title="SQL Console"><span class="glyphicon glyphicon-tasks"></span></a></li>
+        <a href="/logout" class="btn navbar-btn" title="Log Out"><span class="glyphicon glyphicon-log-out"></span></a></li>
       {% else %}
-        <a href="/login" title="Log In" class="btn btn-default navbar-btn">Sign In</a>
+        <a href="/login" title="Log In" class="btn navbar-btn">Sign In</a>
       {% endif %}
       {% endblock %}
     </div>
