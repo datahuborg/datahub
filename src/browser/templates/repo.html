@@ -31,8 +31,34 @@
             <tbody>
               {% for table in tables %}
               <tr>
-                <td><a href="/browse/{{repo_base}}/{{repo}}/{{table}}">{{table}}</a></td>
-                <td class="text-right"><a class="table-icon" href="/browse/{{repo_base}}/{{repo}}/{{table}}" title="View Table"></a> &nbsp; <a class="csv-icon" href="/export/{{repo_base}}/{{repo}}/{{table}}" title="Export to CSV"></a> &nbsp; <a class="delete-icon" href="/delete-table/{{repo_base}}/{{repo}}/{{table}}" title="Delete"></a></td>
+                <td>
+                  <a href="/browse/{{repo_base}}/{{repo}}/{{table}}">{{table}}</a>
+                </td>
+                <td class="text-right">
+                  <a href="/browse/{{repo_base}}/{{repo}}/{{table}}" title="View Table">
+                    <span class="table-icon"></span>
+                  </a> &nbsp;&nbsp;
+                  <span
+                      class="modal-link"
+                      target-modal="#confirm-modal"
+                      target-modal-title="Confirm CSV Export"
+                      target-modal-body="This will export the table <strong>{{repo_base}}/{{repo}}/{{table}}</strong> as a CSV file. The operation will overwite any existing file with the same name. Are you sure?"
+                      target-modal-operation="CSV Export"
+                      target-url="/export/{{repo_base}}/{{repo}}/{{table}}"
+                      title="Export as CSV">
+                    <span class="csv-icon"></span>
+                  </span>&nbsp;&nbsp;
+                  <span
+                      class="modal-link"
+                      target-modal="#confirm-modal"
+                      target-modal-title="Confirm Delete"
+                      target-modal-body="This will permanently delete the table <strong>{{repo_base}}/{{repo}}</strong>. Are you sure?"
+                      target-modal-operation="Delete"
+                      target-url="/delete-table/{{repo_base}}/{{repo}}/{{table}}"
+                      title="Delete">
+                    <span class="delete-icon"></span>
+                  </span>&nbsp;&nbsp;
+                </td>
               </tr>
               {% endfor %}
             </tbody>
@@ -77,14 +103,7 @@
                       title="Import to DataHub as Table">
                     <span class="database-table-icon"></span>
                   </span>&nbsp;&nbsp;
-                  <span
-                      class="modal-link"
-                      target-modal="#confirm-modal"
-                      target-modal-title="Confirm Download"
-                      target-modal-body="This will download the file <strong>{{repo_base}}/{{repo}}</strong> on your local disk. Are you sure?"
-                      target-modal-operation="Download"
-                      target-url="/download/{{repo_base}}/{{repo}}?file={{file}}"
-                      title="Download">
+                  <a href="/download/{{repo_base}}/{{repo}}?file={{file}}" title="Download">
                     <span class="download-icon"></span>
                   </span>&nbsp;&nbsp;
                   <span
