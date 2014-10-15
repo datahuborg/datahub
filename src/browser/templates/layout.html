@@ -74,10 +74,60 @@ DataHub Template Layout
 
 {% block credits %}
 {% endblock %}
-
-{% block javascript %}
-{% endblock %}
 </div>
+
+<!-- Common Modal Dialogs -->
+<div
+    class="modal" id="confirm-modal" 
+    tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="confirm-modal-title"></h4>
+      </div>
+      <div class="modal-body" id="confirm-modal-body">
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+            class="btn btn-primary" id="confirm-modal-operation"></button>
+        <button type="button"
+            class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+$(function() {
+  function show_modal(
+        modal_id, modal_title, modal_body, modal_operation, target_url) {
+    $(modal_id + '-title').html(modal_title)
+    $(modal_id + '-body').html(modal_body)
+    $(modal_id + '-operation').html(modal_operation)
+
+    $(modal_id).off('click');
+    
+    $(modal_id).modal({keyboard: true})
+      .on('click', modal_id + '-operation', function (e) {
+          window.location.href = window.location.protocol + '//' + window.location.host + target_url
+      });
+  }
+
+  $('.modal-link').on('click', function(e){
+    var modal_id = $(this).attr('target-modal')
+    var modal_title = $(this).attr('target-modal-title')
+    var modal_body = $(this).attr('target-modal-body')
+    var modal_operation = $(this).attr('target-modal-operation')
+    var target_url = $(this).attr('target-url')
+
+    show_modal(modal_id, modal_title, modal_body, modal_operation, target_url)
+  });
+});
+</script>
+
 </div>
 </body>
 </html>
