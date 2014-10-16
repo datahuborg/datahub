@@ -39,7 +39,7 @@
                     <span class="table-icon"></span>
                   </a> &nbsp;&nbsp;
                   <span
-                      class="modal-link"
+                      class="modal-link modal-confirm-dialog"
                       target-modal="#confirm-modal"
                       target-modal-title="Confirm CSV Export"
                       target-modal-body="This will export the table <label>{{table}}</label> as a CSV file inside the <strong>{{repo_base}}/{{repo}}</strong> repository. The operation will overwrite any existing file with the same name. Are you sure?"
@@ -49,7 +49,7 @@
                     <span class="csv-icon"></span>
                   </span>&nbsp;&nbsp;
                   <span
-                      class="modal-link"
+                      class="modal-link modal-confirm-dialog"
                       target-modal="#confirm-modal"
                       target-modal-title="Confirm Delete"
                       target-modal-body="This will permanently delete the table <label>{{repo_base}}/{{repo}}/{{table}}</label>. The operation can't be undone. Are you sure?"
@@ -94,12 +94,10 @@
                 </td>
                 <td class="text-right">
                   <span
-                      class="modal-link"
-                      target-modal="#confirm-modal"
-                      target-modal-title="Confirm Import"
-                      target-modal-body="This will import the file <label>{{repo_base}}/{{repo}}/{{file}}</label> to DataHub as a table."
-                      target-modal-operation="OK"
-                      target-url="/import/{{repo_base}}/{{repo}}?file={{file}}"
+                      class="modal-link modal-import-dialog"
+                      target-modal="#import-modal"
+                      target-url="/import/{{repo_base}}/{{repo}}"
+                      target-file="{{file}}"
                       title="Import to DataHub as Table">
                     <span class="database-table-icon"></span>
                   </span>&nbsp;&nbsp;
@@ -107,7 +105,7 @@
                     <span class="download-icon"></span>
                   </a>&nbsp;&nbsp;
                   <span
-                      class="modal-link"
+                      class="modal-link modal-confirm-dialog"
                       target-modal="#confirm-modal"
                       target-modal-title="Confirm Delete"
                       target-modal-body="This will permanently delete the file <label>{{repo_base}}/{{repo}}/{{file}}</label>. The operation can't be undone. Are you sure?"
