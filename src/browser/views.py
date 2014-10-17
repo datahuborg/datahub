@@ -368,8 +368,8 @@ def file_import(request, repo_base, repo):
     dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
 
     f = codecs.open(file_path, 'r', 'ISO-8859-1')
-    data = f.readline()
-    cells = data.split(delimiter)
+    data = csv.reader(f, delimiter=delimiter)
+    cells = data.next()
     columns = [clean_str(str(i), 'column') for i in range(0, len(cells))]
     if header:
       columns = map(lambda x: clean_str(x, 'column'), cells)
