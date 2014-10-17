@@ -128,6 +128,52 @@
   </div>
 </div>
 
+<div
+    class="modal" id="import-modal" 
+    tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="confirm-modal-title">DataHub Import</h4>
+      </div>
+      <div class="modal-body" id="confirm-modal-body">
+        <form id="frm-import" role="form" method="GET" action="#">
+          <p>This will import the file as a DataHub table to <strong>{{repo_base}}/{{repo}}</strong> repository.
+          <br />
+          <br />
+          Please provide the following details:
+          <br />
+          <input type="hidden" name="file" id="import-file-name" />
+          <label for="delemiter">Delemiter: </label>&nbsp;
+          <select id="import-delemiter" name="delimiter">
+            <option value=",">Comma [,]</option>
+            <option value="\t">Tabs [\t]</option>
+            <option value=":">Colon [:]</option>
+            <option value=";">Semi Colon [;]</option>
+            <option value="|">Vertical Bar [|]</option>
+            <option value=" ">White Space [ ])</option>
+          </select><br />
+          <label for="has_header">Has Header: </label>&nbsp;
+          <select id="has-header" name="has_header">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+            class="btn btn-primary" id="import-modal-operation">Import</button>
+        <button type="button"
+            class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript">
 $(function() {
   $('.nav-tabs a').click(function (e) {
@@ -141,6 +187,21 @@ $(function() {
     var hash = window.location.hash;
     var tab_item = $(".nav-tabs a").filter("[href=" + hash + "]").tab("show");
   }).trigger("hashchange");
+
+  $('.modal-import-dialog').on('click', function(e){
+    var modal_id = $(this).attr('target-modal')
+    var target_url = $(this).attr('target-url')
+    var target_file = $(this).attr('target-file')
+
+    $(modal_id).off('click');
+    
+    $(modal_id).modal({keyboard: true})
+      .on('click', modal_id + '-operation', function (e) {
+        $("#import-file-name").val(target_file)
+        $("#frm-import").attr("action", target_url)
+        $("#frm-import").submit()     
+      });
+  });
 });
 </script
 {% endblock %}

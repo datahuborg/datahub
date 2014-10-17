@@ -76,11 +76,22 @@ class DataHubConnection:
   def change_password(self, username, password):
     return self.backend.change_password(username, password)
 
-  def import_file(self, table_name, file_path):
-    return self.backend.import_file(table_name=table_name, file_path=file_path)
+  def import_file(self, table_name, file_path, file_format='CSV',
+      delimiter=',', header=True, encoding='ISO-8859-1'):
+    return self.backend.import_file(
+        table_name=table_name,
+        file_path=file_path,
+        file_format=file_format,
+        delimiter=delimiter,
+        encoding=encoding)
 
-  def export_file(self, table_name, file_path):
-    return self.backend.export_file(table_name=table_name, file_path=file_path)
+  def export_file(self, table_name, file_path, file_format='CSV',
+        delimiter=',', header=True):
+    return self.backend.export_file(
+      table_name=table_name,
+      file_path=file_path,
+      file_format=file_format,
+      delimiter=delimiter)
 
   def list_collaborators(self, repo_base, repo):
     return self.backend.list_collaborators(repo_base=repo_base, repo=repo)

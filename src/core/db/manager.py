@@ -81,22 +81,33 @@ class DataHubManager:
   ''' Import/Export Files '''
   
   @staticmethod
-  def import_file(repo_base, table_name, file_path):
+  def import_file(repo_base, table_name, file_path, file_format='CSV',
+        delimiter=',', header=True, encoding='ISO-8859-1'):
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
         password=settings.DATABASES['default']['USER'],
         repo_base=repo_base)
     return superuser_con.import_file(
-        table_name=table_name, file_path=file_path)
+        table_name=table_name,
+        file_path=file_path,
+        file_format=file_format,
+        delimiter=delimiter,
+        header=header,
+        encoding=encoding)
 
   @staticmethod
-  def export_file(repo_base, table_name, file_path):
+  def export_file(repo_base, table_name, file_path, file_format='CSV',
+      delimiter=',', header=True):
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
         password=settings.DATABASES['default']['USER'],
         repo_base=repo_base)
     return superuser_con.export_file(
-        table_name=table_name, file_path=file_path)
+        table_name=table_name,
+        file_path=file_path,
+        file_format=file_format,
+        delimiter=delimiter,
+        header=header)
 
   ''' Access Privilege Checks '''
 

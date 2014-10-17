@@ -200,11 +200,16 @@ class PGBackend:
               WITH %s %s DELIMITER '%s' ENCODING '%s';
           ''' %(table_name, file_path, file_format,
                 header_option, delimiter, encoding))
-    except:
+    except Exception, e:
+      self.execute_sql(
+          ''' DROP TABLE IF EXISTS %s;
+          ''' %(table_name))
+      raise ImportError(e);
+
       """
       Try importing using dbtruck.
       """
-      return self.import_file_w_dbtruck(table_name, file_path)
+      # return self.import_file_w_dbtruck(table_name, file_path)
 
   def import_file_w_dbtruck(self, table_name, file_path):
     from dbtruck.dbtruck import import_datafiles

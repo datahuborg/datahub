@@ -359,16 +359,23 @@ def file_import(request, repo_base, repo):
       raise Exception('Access denied. Missing required privileges.')
     
     file_name = request.GET['file']
+    delimiter = request.GET['delimiter']
+    header = True if request.GET['has_header'] == "true" else False
     repo_dir = '/user_data/%s/%s' %(repo_base, repo)
     file_path = '%s/%s' %(repo_dir, file_name)
     table_name, _ = os.path.splitext(file_name)
     table_name = clean_str(table_name, 'table')
     dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
+
     f = codecs.open(file_path, 'r', 'ISO-8859-1')
-    data = csv.reader(f)
-    cells = data.next()
-    columns = map(lambda x: clean_str(x, 'column'), cells)
+    data = f.readline()
+    cells = data.split(delimiter)
+    columns = [clean_str(str(i), 'column') for i in range(0, len(cells))]
+    if header:
+      columns = map(lambda x: clean_str(x, 'column'), cells)
+    
     columns = rename_duplicates(columns)
+    
     query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
     for i in range(1, len(columns)):
       query += ', %s %s' %(columns[i], 'text')
@@ -377,7 +384,11 @@ def file_import(request, repo_base, repo):
     manager = DataHubManager(user=repo_base)
     manager.execute_sql(query=query)
     manager.import_file(
-        repo_base=repo_base, table_name=dh_table_name, file_path=file_path)
+        repo_base=repo_base,
+        table_name=dh_table_name,
+        file_path=file_path,
+        delimiter=delimiter,
+        header=header)
     return HttpResponseRedirect('/browse/%s/%s' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
