@@ -359,7 +359,7 @@ def file_import(request, repo_base, repo):
       raise Exception('Access denied. Missing required privileges.')
     
     file_name = request.GET['file']
-    delimiter = request.GET['delimiter']
+    delimiter = str(request.GET['delimiter'])
     header = True if request.GET['has_header'] == "true" else False
     repo_dir = '/user_data/%s/%s' %(repo_base, repo)
     file_path = '%s/%s' %(repo_dir, file_name)
