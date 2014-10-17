@@ -359,8 +359,17 @@ def file_import(request, repo_base, repo):
       raise Exception('Access denied. Missing required privileges.')
     
     file_name = request.GET['file']
-    delimiter = str(request.GET['delimiter'])
+    
+    delimiter = str(request.GET['delimiter'])    
+    if delimiter == '':
+      delimiter = str(request.GET['other_delimiter'])
+    
     header = True if request.GET['has_header'] == "true" else False
+    
+    quote_character = request.GET['quote_character']
+    if quote_character == '':
+      quote_character = request.GET['other_quote_character']
+    
     repo_dir = '/user_data/%s/%s' %(repo_base, repo)
     file_path = '%s/%s' %(repo_dir, file_name)
     table_name, _ = os.path.splitext(file_name)
@@ -388,7 +397,8 @@ def file_import(request, repo_base, repo):
         table_name=dh_table_name,
         file_path=file_path,
         delimiter=delimiter,
-        header=header)
+        header=header,
+        quote_character=quote_character)
     return HttpResponseRedirect('/browse/%s/%s' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(

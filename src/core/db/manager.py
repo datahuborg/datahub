@@ -82,7 +82,7 @@ class DataHubManager:
   
   @staticmethod
   def import_file(repo_base, table_name, file_path, file_format='CSV',
-        delimiter=',', header=True, encoding='ISO-8859-1'):
+      delimiter=',', header=True, encoding='ISO-8859-1', quote_character='"'):
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
         password=settings.DATABASES['default']['USER'],
@@ -93,7 +93,8 @@ class DataHubManager:
         file_format=file_format,
         delimiter=delimiter,
         header=header,
-        encoding=encoding)
+        encoding=encoding,
+        quote_character=quote_character)
 
   @staticmethod
   def export_file(repo_base, table_name, file_path, file_format='CSV',

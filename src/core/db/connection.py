@@ -77,13 +77,14 @@ class DataHubConnection:
     return self.backend.change_password(username, password)
 
   def import_file(self, table_name, file_path, file_format='CSV',
-      delimiter=',', header=True, encoding='ISO-8859-1'):
+      delimiter=',', header=True, encoding='ISO-8859-1', quote_character='"'):
     return self.backend.import_file(
         table_name=table_name,
         file_path=file_path,
         file_format=file_format,
         delimiter=delimiter,
-        encoding=encoding)
+        encoding=encoding,
+        quote_character=quote_character)
 
   def export_file(self, table_name, file_path, file_format='CSV',
         delimiter=',', header=True):

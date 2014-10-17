@@ -192,14 +192,16 @@ class PGBackend:
         ''' %(table_name, file_path, file_format, header_option, delimiter))
 
   def import_file(self, table_name, file_path, file_format='CSV',
-      delimiter=',', header=True, encoding='ISO-8859-1'):
+      delimiter=',', header=True, encoding='ISO-8859-1', quote_character='"'):
     try:
       header_option = 'HEADER' if header else ''
+      if quote_character == "'":
+        quote_character = "''"
       return self.execute_sql(
           ''' COPY %s FROM '%s'
-              WITH %s %s DELIMITER '%s' ENCODING '%s';
+              WITH %s %s DELIMITER '%s' ENCODING '%s' QUOTE '%s';
           ''' %(table_name, file_path, file_format,
-                header_option, delimiter, encoding))
+                header_option, delimiter, encoding, quote_character))
     except Exception, e:
       self.execute_sql(
           ''' DROP TABLE IF EXISTS %s;

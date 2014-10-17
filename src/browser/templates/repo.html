@@ -156,12 +156,24 @@
             <option value=";">Semi Colon [;]</option>
             <option value="|">Vertical Bar [|]</option>
             <option value=" ">White Space [ ])</option>
-          </select><br />
-          <label for="has_header">Has Header: </label>&nbsp;
+            <option value="">Other</option>
+          </select>&nbsp;&nbsp;
+          <label for="other-import-delemiter">Other: </label>&nbsp;
+          <input type="text" name="other_delimiter" id="other-import-delemiter"/>
+          <br />
+          <label for="has-header">Has Header: </label>&nbsp;
           <select id="has-header" name="has_header">
             <option value="true">Yes</option>
             <option value="false">No</option>
-          </select>
+          </select> <br />
+          <label for="quote-character">Quote Character: </label>&nbsp;
+          <select id="quote-character" name="quote_character">
+            <option value='"'>Double Quote ["]</option>
+            <option value="'">Single Quote[']</option>
+            <option value="">Other</option>
+          </select>&nbsp;&nbsp;
+          <label for="other-quote-character">Other: </label>&nbsp;
+          <input type="text" name="other_quote_character" id="other-quote-character"/>
         </form>
       </div>
       <div class="modal-footer">
