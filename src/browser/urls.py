@@ -88,11 +88,11 @@ urlpatterns = patterns('',
     url(r'^api/requestid/$', 'dbwipes.views.requestid'),
     url(r'^api/status/$', 'dbwipes.views.api_status'),
     url(r'^api/scorpion$', 'dbwipes.views.scorpion'),
-    url(r'^api/scorpion/$', 'dbwipes.views.scorpion')
+    url(r'^api/scorpion/$', 'dbwipes.views.scorpion'),
 
     ### start web-page urls ###
 
-    url(r'^about$', 'www.views.home')
-    url(r'^about/$', 'www.views.home')
+    url(r'^about$', 'www.views.home'),
+    url(r'^about/$', 'www.views.home'),
     url(r'^about/team$', 'www.views.team')
 )
