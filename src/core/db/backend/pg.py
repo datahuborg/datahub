@@ -197,11 +197,16 @@ class PGBackend:
       header_option = 'HEADER' if header else ''
       if quote_character == "'":
         quote_character = "''"
+
+      escape = ''
+      if delimiter.startswith('\\'):
+        escape = 'E'
+      
       return self.execute_sql(
           ''' COPY %s FROM '%s'
-              WITH %s %s DELIMITER '%s' ENCODING '%s' QUOTE '%s';
+              WITH %s %s DELIMITER %s'%s' ENCODING '%s' QUOTE '%s';
           ''' %(table_name, file_path, file_format,
-                header_option, delimiter, encoding, quote_character))
+                header_option, escape, delimiter, encoding, quote_character))
     except Exception, e:
       self.execute_sql(
           ''' DROP TABLE IF EXISTS %s;

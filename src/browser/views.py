@@ -369,6 +369,8 @@ def file_import(request, repo_base, repo):
     quote_character = request.GET['quote_character']
     if quote_character == '':
       quote_character = request.GET['other_quote_character']
+
+    delimiter = delimiter.decode('string_escape')
     
     repo_dir = '/user_data/%s/%s' %(repo_base, repo)
     file_path = '%s/%s' %(repo_dir, file_name)
@@ -377,15 +379,18 @@ def file_import(request, repo_base, repo):
     dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
 
     f = codecs.open(file_path, 'r', 'ISO-8859-1')
+
     data = csv.reader(f, delimiter=delimiter)
     cells = data.next()
-    columns = [clean_str(str(i), 'column') for i in range(0, len(cells))]
+    
+    columns = [clean_str(str(i), 'col') for i in range(0, len(cells))]
     if header:
-      columns = map(lambda x: clean_str(x, 'column'), cells)
+      columns = map(lambda x: clean_str(x, 'col'), cells)
     
     columns = rename_duplicates(columns)
     
     query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
+
     for i in range(1, len(columns)):
       query += ', %s %s' %(columns[i], 'text')
     query += ')'
