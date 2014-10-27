@@ -111,7 +111,10 @@ def user(request, repo_base):
 
     for repo in repos:
       res = manager.list_collaborators(repo_base, repo['name'])
-      collaborators = [t[0] for t in res['tuples']]
+      collaborators_arr = res['tuples'][0][0]
+      collaborators = collaborators_arr.split(',')
+      collaborators = [c.split('=')[0] for c in collaborators]
+      collaborators = filter(lambda x: x.strip()!='', collaborators)
       repo['collaborators'] = collaborators
       repo['collaborators_str'] = ', '.join(collaborators)
       repo['num_collaborators'] = len(collaborators)

@@ -160,9 +160,9 @@ class PGBackend:
     return self.execute_sql(query)
 
   def list_collaborators(self, repo_base, repo):
-    query = ''' SELECT DISTINCT grantee FROM information_schema.table_privileges
-                WHERE grantor='%s' AND grantee!='%s' AND table_schema='%s';
-            ''' %(repo_base, repo_base, repo)
+    query = ''' SELECT  array_to_string(nspacl, ',') FROM
+                pg_namespace WHERE nspname='%s';
+            ''' %(repo)
     return self.execute_sql(query)
 
   def has_connect_privilege(self, login, privilege):
