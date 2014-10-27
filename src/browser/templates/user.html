@@ -27,7 +27,7 @@
                   <td>Private</td>
                 {% endif %}
                 
-                <td class="text-right" style="width: 10em; max-width: 15em;"><a href="/settings/{{repo.owner}}/{{repo.name}}" title="Shared with {{repo.collaborators_str}}">{{repo.num_collaborators}} collaborators</a></td>
+                <td class="text-right" style="width: 10em; max-width: 15em;"><a href="/settings/{{repo.owner}}/{{repo.name}}" title="Shared with {{repo.collaborators_str}}">{{repo.num_collaborators}} collaborators</a> &nbsp; &nbsp; <a href="/settings/{{repo.owner}}/{{repo.name}}" title="Add new collaborators"><span class="glyphicon glyphicon-add"></span></a></td>
                 
               </tr>
             {% endfor %}
