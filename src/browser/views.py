@@ -217,7 +217,7 @@ def add_collaborator(request, repo_base, repo):
 def delete_collaborator(request, repo_base, repo, username):
   try:
     login = get_login(request)
-    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'DELETE')
+    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
     
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')

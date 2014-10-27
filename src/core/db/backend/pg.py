@@ -69,7 +69,7 @@ class PGBackend:
     privileges_str = ', '.join(privileges)
     
     query = ''' GRANT %s ON ALL TABLES
-                in SCHEMA %s TO %s;
+                IN SCHEMA %s TO %s;
             ''' %(privileges_str, repo, username)
     self.execute_sql(query)
     
@@ -80,8 +80,10 @@ class PGBackend:
 
   def delete_collaborator(
       self, repo, username):
-    privileges_str = ', '.join(privileges)
-    query = ''' REVOKE ALL ON ALL TABLES in SCHEMA %s FROM %s CASCADE;
+    query = ''' REVOKE ALL ON ALL TABLES IN SCHEMA %s FROM %s CASCADE;
+            ''' %(repo, username)
+    self.execute_sql(query)
+    query = ''' REVOKE ALL ON SCHEMA %s FROM %s CASCADE;
             ''' %(repo, username)
     self.execute_sql(query)
 
