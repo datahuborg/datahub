@@ -27,7 +27,7 @@
       <td class="cell-right">
         {% if collaborators|length > 0 %}
           {% for collaborator in collaborators %}
-            <span class="label label-default">{{collaborator}}</span> &nbsp; &nbsp; <a href="/delete-collaborator/{{repo_base}}/{{repo}}/{{collaborator}}" title="Manage Collaboration"><span class="glyphicon glyphicon-remove"></span></a></li>
+            <span class="label label-default">{{collaborator}}</span> &nbsp; &nbsp; <a href="/delete-collaborator/{{repo_base}}/{{repo}}/{{collaborator}}" title="Remove"><span class="glyphicon glyphicon-remove"></span></a></li>
             <br />
           {% endfor %}
           <br />
