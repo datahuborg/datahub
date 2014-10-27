@@ -66,10 +66,10 @@ class PGBackend:
     query = ''' GRANT USAGE ON SCHEMA %s TO %s;
             ''' %(repo, username)
     self.execute_sql(query)
+    
     privileges_str = ', '.join(privileges)
     
-    query = ''' GRANT %s ON ALL TABLES
-                IN SCHEMA %s TO %s;
+    query = ''' GRANT %s ON ALL TABLES IN SCHEMA %s TO %s;
             ''' %(privileges_str, repo, username)
     self.execute_sql(query)
     
