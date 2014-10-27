@@ -103,28 +103,34 @@ def user(request, repo_base):
 
     manager = DataHubManager(user=repo_base)
     res = manager.list_repos()
-    repos = [{
-        'name':t[0],
-        'owner': repo_base,
-        'public': False,
-        'num_collaborators': 0} for t in res['tuples']]
+    repos = [t[0] for t in res['tuples']]
 
+    visible_repos = []
+    
     for repo in repos:
-      res = manager.list_collaborators(repo_base, repo['name'])
+      res = manager.list_collaborators(repo_base, repo)
       collaborators_arr = res['tuples'][0][0]
       collaborators = collaborators_arr.split(',')
       collaborators = [(c.split('=')[0]).strip() for c in collaborators]
       collaborators = filter(lambda x: x!='' and x!=repo_base, collaborators)
-      
-      repo['collaborators'] = collaborators
-      repo['collaborators_str'] = ', '.join(collaborators)
-      repo['num_collaborators'] = len(collaborators)
-      repo['public'] = True if 'PUBLIC' in collaborators else False
+
+      if login not in collaborators:
+        continue
+
+      visible_repos.append({
+          'name':repo,
+          'owner': repo_base,
+          'public': True if 'PUBLIC' in collaborators else False,
+          'collaborators': collaborators,
+          'collaborators_str': ', '.join(collaborators),
+          'num_collaborators': len(collaborators)
+      })
     
     return render_to_response("user.html", {
         'login': get_login(request),
         'repo_base': repo_base,
-        'repos': repos})      
+        'repos': visible_repos})    
+  
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),
