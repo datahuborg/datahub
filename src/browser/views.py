@@ -181,7 +181,8 @@ def settings_repo(request, repo_base, repo):
       raise Exception('Access denied. Missing required privileges.')
     
     manager = DataHubManager(user=repo_base)
-    res = manager.list_collaborators(repo_base, repo['name'])
+    res = manager.list_collaborators(repo_base, repo)
+    
     collaborators_arr = res['tuples'][0][0]
     collaborators = collaborators_arr.split(',')
     collaborators = [c.split('=')[0] for c in collaborators]
