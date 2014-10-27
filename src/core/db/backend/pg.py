@@ -81,7 +81,7 @@ class PGBackend:
   def delete_collaborator(
       self, repo, username):
     privileges_str = ', '.join(privileges)
-    query = ''' REVOKE USAGE ON SCHEMA %s FROM %s CASCADE;
+    query = ''' REVOKE GRANT OPTION FOR USAGE ON SCHEMA %s FROM %s CASCADE;
             ''' %(repo, username)
     self.execute_sql(query)
 
