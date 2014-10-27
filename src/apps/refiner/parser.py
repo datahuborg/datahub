@@ -9,7 +9,7 @@ parse a given text and return lexical tokens
 
 def parse(text):
   token_generator = tokenize.generate_tokens(iter([text]).next)   # tokenize the string
-  chunks = [(token.tok_name[t[0]], t[1]) for t in token_generator]
+  chunks = [(token.tok_name[t[0]], t[1], t[2][1], t[3][1]) for t in token_generator]
   return chunks
 
 if __name__ == "__main__":
