@@ -112,11 +112,10 @@ def user(request, repo_base):
       collaborators_arr = res['tuples'][0][0]
       collaborators = collaborators_arr.split(',')
       collaborators = [(c.split('=')[0]).strip() for c in collaborators]
-
-      if login not in collaborators:
-        continue
-
       collaborators = filter(lambda x: x!='' and x!=repo_base, collaborators)
+
+      if login not in collaborators and login != repo_base:
+        continue
 
       visible_repos.append({
           'name':repo,
