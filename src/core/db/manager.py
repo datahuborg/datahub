@@ -54,9 +54,6 @@ class DataHubManager:
         privileges=privileges,
         auto_in_future=auto_in_future)
 
-  def delete_collaborator(self, repo, username):
-    return self.user_con.delete_collaborator(repo=repo, username=username)
-
 
   '''
   The following methods run in superuser mode only
@@ -154,3 +151,12 @@ class DataHubManager:
         password=settings.DATABASES['default']['USER'],
         repo_base=repo_base)
     return superuser_con.list_collaborators(repo_base=repo_base, repo=repo)
+
+  @staticmethod
+  def delete_collaborator(self, repo, username):
+    superuser_con = DataHubConnection(
+        user=settings.DATABASES['default']['USER'],
+        password=settings.DATABASES['default']['USER'],
+        repo_base=repo_base)
+    return superuser_con.user_con.delete_collaborator(
+        repo=repo, username=username)
