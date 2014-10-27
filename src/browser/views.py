@@ -113,8 +113,9 @@ def user(request, repo_base):
       res = manager.list_collaborators(repo_base, repo['name'])
       collaborators_arr = res['tuples'][0][0]
       collaborators = collaborators_arr.split(',')
-      collaborators = [c.split('=')[0] for c in collaborators]
-      collaborators = filter(lambda x: x.strip()!='', collaborators)
+      collaborators = [(c.split('=')[0]).strip() for c in collaborators]
+      collaborators = filter(lambda x: x!='' and x!=repo_base, collaborators)
+      
       repo['collaborators'] = collaborators
       repo['collaborators_str'] = ', '.join(collaborators)
       repo['num_collaborators'] = len(collaborators)
@@ -182,11 +183,11 @@ def settings_repo(request, repo_base, repo):
     
     manager = DataHubManager(user=repo_base)
     res = manager.list_collaborators(repo_base, repo)
-    
+
     collaborators_arr = res['tuples'][0][0]
     collaborators = collaborators_arr.split(',')
-    collaborators = [c.split('=')[0] for c in collaborators]
-    collaborators = filter(lambda x: x.strip()!='', collaborators)
+    collaborators = [(c.split('=')[0]).strip() for c in collaborators]
+    collaborators = filter(lambda x: x!='' and x!=repo_base, collaborators)
 
     res = {
         'login': get_login(request),
