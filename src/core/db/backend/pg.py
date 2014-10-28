@@ -165,7 +165,7 @@ class PGBackend:
             ''' %(repo)
     return self.execute_sql(query)
 
-  def has_connect_privilege(self, login, privilege):
+  def has_base_privilege(self, login, privilege):
     query = ''' SELECT has_database_privilege('%s', '%s')
             ''' %(login, privilege)
     return self.execute_sql(query)

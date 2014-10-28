@@ -49,8 +49,8 @@ class DataHubConnection:
   def execute_sql(self, query, params=None):
     return self.backend.execute_sql(query, params)
 
-  def has_connect_privilege(self, login, privilege):
-    return self.backend.has_connect_privilege(
+  def has_base_privilege(self, login, privilege):
+    return self.backend.has_base_privilege(
         login=login, privilege=privilege)
 
   def has_repo_privilege(self, login, repo, privilege):
