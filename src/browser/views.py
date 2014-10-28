@@ -50,8 +50,9 @@ def home(request):
         mimetype="application/json")
 
 def about(request):
-  try:    
-    return render_to_response("about.html")
+  try:
+    c = {'login': get_login(request)} 
+    return render_to_response("about.html", c)
   except Exception, e:
     return HttpResponse(
         json.dumps({'error': str(e)}),
@@ -72,8 +73,7 @@ def service_binary(request):
     return resp
   except Exception, e:
     return HttpResponse(
-        json.dumps(
-          {'error': str(e)}),
+        json.dumps({'error': str(e)}),
         mimetype="application/json")
 
 @csrf_exempt
@@ -89,8 +89,7 @@ def service_json(request):
     return resp
   except Exception, e:
     return HttpResponse(
-        json.dumps(
-          {'error': str(e)}),
+        json.dumps({'error': str(e)}),
         mimetype="application/json")
 
 
