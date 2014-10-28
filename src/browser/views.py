@@ -189,9 +189,11 @@ def newrepo(request, repo_base):
 
       return HttpResponseRedirect('/browse/%s' %(repo_base))
 
-    else:    
-      return render_to_response("newrepo.html", {
-        'repo_base': repo_base})
+    else:
+      res = {'repo_base': repo_base}
+      res.update(csrf(request))
+      return render_to_response("newrepo.html", res)
+  
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),
