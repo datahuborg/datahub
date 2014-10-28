@@ -106,13 +106,16 @@ def user(request, repo_base):
     repos = [t[0] for t in res['tuples']]
 
     visible_repos = []
+    collaborators = []
     
     for repo in repos:
       res = manager.list_collaborators(repo_base, repo)
-      collaborators_arr = res['tuples'][0][0]
-      collaborators = collaborators_arr.split(',')
-      collaborators = [(c.split('=')[0]).strip() for c in collaborators]
-      collaborators = filter(lambda x: x!='' and x!=repo_base, collaborators)
+
+      if res and res['tuples'][0][0]:
+        collaborators_arr = res['tuples'][0][0]
+        collaborators = collaborators_arr.split(',')
+        collaborators = [(c.split('=')[0]).strip() for c in collaborators]
+        collaborators = filter(lambda x: x!='' and x!=repo_base, collaborators)
 
       if login not in collaborators and login != repo_base:
         continue
