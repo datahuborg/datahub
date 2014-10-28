@@ -3,6 +3,10 @@
 @date: 08/11/2012
 */
 
+body {
+  padding-bottom: 60px;
+}
+
 /* Logo */
 
 #logo{
