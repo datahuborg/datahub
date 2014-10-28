@@ -206,9 +206,8 @@ def repo(request, repo_base, repo):
 @login_required
 def newrepo(request, repo_base):
   try:
+    login = get_login(request)
     if request.method == "POST":
-      login = get_login(request)
-
       if login != repo_base:
         raise Exception(
             'Permission denied. '
