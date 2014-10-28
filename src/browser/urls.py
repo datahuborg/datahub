@@ -14,8 +14,6 @@ urlpatterns = patterns('',
     url(r'^about$', 'browser.views.about'),
     url(r'^developer$', 'browser.views.developer_apis'),
     url(r'^developer/$', 'browser.views.developer_apis'),
-    url(r'^developer/apis$', 'browser.views.developer_apis'),
-    url(r'^developer/apps$', 'browser.views.developer_apps'),
 
     url(r'^console$', 'browser.views.console'),
     url(r'^console/$', 'browser.views.console'),
