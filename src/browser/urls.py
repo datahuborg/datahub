@@ -12,7 +12,6 @@ urlpatterns = patterns('',
 
     url(r'^$', 'browser.views.home'),
     url(r'^about$', 'browser.views.about'),
-    url(r'^team$', 'browser.views.team'),
     url(r'^developer$', 'browser.views.developer_apis'),
     url(r'^developer/$', 'browser.views.developer_apis'),
     url(r'^developer/apis$', 'browser.views.developer_apis'),
