@@ -110,7 +110,7 @@ def user(request, repo_base):
     for repo in repos:
       res = manager.list_collaborators(repo_base, repo)
 
-      collaborators = [(c.split('=')[0]).strip() for c[0] in res['tuples']]
+      collaborators = [(c[0].split('=')[0]).strip() for c in res['tuples']]
       collaborators = filter(lambda x: x!='' and x!=repo_base, collaborators)
 
       if login not in collaborators and login != repo_base:
@@ -210,7 +210,7 @@ def settings_repo(request, repo_base, repo):
     manager = DataHubManager(user=repo_base)
     res = manager.list_collaborators(repo_base, repo)
     
-    collaborators = [(c.split('=')[0]).strip() for c[0] in res['tuples']]
+    collaborators = [(c[0].split('=')[0]).strip() for c in res['tuples']]
     collaborators = filter(lambda x: x!='' and x!=repo_base, collaborators)
 
     res = {
