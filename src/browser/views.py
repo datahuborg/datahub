@@ -58,6 +58,32 @@ def about(request):
         json.dumps({'error': str(e)}),
         mimetype="application/json")
 
+def team(request):
+  try:
+    c = {'login': get_login(request)} 
+    return render_to_response("team.html", c)
+  except Exception, e:
+    return HttpResponse(
+        json.dumps({'error': str(e)}),
+        mimetype="application/json")
+
+def developer_apis(request):
+  try:
+    c = {'login': get_login(request)} 
+    return render_to_response("apis.html", c)
+  except Exception, e:
+    return HttpResponse(
+        json.dumps({'error': str(e)}),
+        mimetype="application/json")
+
+def developer_apps(request):
+  try:
+    c = {'login': get_login(request)} 
+    return render_to_response("apps.html", c)
+  except Exception, e:
+    return HttpResponse(
+        json.dumps({'error': str(e)}),
+        mimetype="application/json")
 '''
 APIs and Services
 '''

@@ -12,6 +12,11 @@ urlpatterns = patterns('',
 
     url(r'^$', 'browser.views.home'),
     url(r'^about$', 'browser.views.about'),
+    url(r'^team$', 'browser.views.team'),
+    url(r'^developer$', 'browser.views.developer_apis'),
+    url(r'^developer/$', 'browser.views.developer_apis'),
+    url(r'^developer/api$', 'browser.views.developer_apis'),
+    url(r'^developer/apps$', 'browser.views.developer_apps'),
 
     url(r'^console$', 'browser.views.console'),
     url(r'^console/$', 'browser.views.console'),
