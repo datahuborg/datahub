@@ -38,6 +38,7 @@ urlpatterns = patterns('',
     url(r'^export/(\w+)/(\w+)/(\w+)', 'browser.views.file_export'),
 
     url(r'^delete-table/(\w+)/(\w+)/(\w+)', 'browser.views.table_delete'),
+    url(r'^delete-repo/(\w+)/(\w+)', 'browser.views.repo_delete'),
 
     url(r'^service$', 'browser.views.service_binary'),
     url(r'^service/binary$', 'browser.views.service_binary'),

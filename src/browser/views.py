@@ -200,6 +200,25 @@ def newrepo(request, repo_base):
         mimetype="application/json")
 
 @login_required
+def repo_delete(request, repo_base, repo):
+  try:
+    login = get_login(request)
+
+    if login != repo_base:
+      raise Exception(
+          'Permission denied. '
+          '%s can\'t delete repository %s in %s.' %(login, repo, repo_base))
+
+    manager = DataHubManager(user=repo_base)
+    manager.delete_repo(repo=repo, force=True)
+    return HttpResponseRedirect('/browse/%s' %(repo_base))
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
+
+@login_required
 def settings_repo(request, repo_base, repo):
   try:
     login = get_login(request)
