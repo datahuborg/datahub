@@ -97,7 +97,7 @@ def user(request, repo_base):
   try:
     login = get_login(request)
 
-    res = DataHubManager.has_connect_privilege(login, repo_base, 'CONNECT')
+    res = DataHubManager.has_base_privilege(login, repo_base, 'CONNECT')
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
 
@@ -175,8 +175,27 @@ def repo(request, repo_base, repo):
 
 @login_required
 def newrepo(request, repo_base):
-  return render_to_response("newrepo.html", {
-    'repo_base': repo_base})
+  try:
+    if request.method == "POST":
+      login = get_login(request)
+
+      res = DataHubManager.has_base_privilege(login, repo_base, 'CREATE')
+      if not (res and res['tuples'][0][0]):
+        raise Exception('Access denied. Missing required privileges.')
+
+      repo = request.POST['repo']
+      manager = DataHubManager(user=repo_base)
+      manager.create_repo(repo)
+
+      return HttpResponseRedirect('/browse/%s' %(repo_base))
+
+    else:    
+      return render_to_response("newrepo.html", {
+        'repo_base': repo_base})
+  except Exception, e:
+    return HttpResponse(json.dumps(
+        {'error': str(e)}),
+        mimetype="application/json")
 
 @login_required
 def settings_repo(request, repo_base, repo):

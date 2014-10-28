@@ -8,6 +8,8 @@
   <hr />
   <h3>Create a new repository</h3>
   <p id="error"></p>
+  <form role="form" method="POST" action="/newrepo/{{repo_base}}">
+  {% csrf_token %}
   <table>
     <tr>
       <td class="cell-left">Owner: </td>
@@ -20,40 +22,12 @@
     <tr>
       <td class="cell-left">
         <br />
-        <button type="button" class="btn btn-primary" id="btn-create-repo">Create Repository</button>
+        <button type="submit" class="btn btn-primary">Create Repository</button>
       </td>
     </tr>
   </table>
+  </form>
   <br />
   <br />
 </div>
-  
-<script type="text/javascript">
-
-
-$(document).ready(function($) {
-  var repo_base = '{{repo_base}}'
-  var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
-  var protocol = new Thrift.Protocol(transport);
-  var client = new DataHubClient(protocol);
-  var con = new Connection({'user':repo_base})
- 
-  var create_repo = function(){
-    var db_name = $('#db-name').val();
-    try {
-      res = client.create_repo(con, db_name)
-      if (res.status) {
-        window.location.href='/browse/{{repo_base}}'
-      }
-    }catch(error){
-      $('#error').html('<span class="error">' + error.message + '</span>');
-    }
-  }
-  $("#btn-create-repo").click(create_repo);
-});
-
-
-</script>
 {% endblock %}
-
-

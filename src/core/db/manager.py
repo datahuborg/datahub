@@ -113,11 +113,11 @@ class DataHubManager:
   ''' Access Privilege Checks '''
 
   @staticmethod
-  def has_connect_privilege(login, repo_base, privilege):
+  def has_base_privilege(login, repo_base, privilege):
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
         password=settings.DATABASES['default']['USER'])
-    return superuser_con.has_connect_privilege(
+    return superuser_con.has_base_privilege(
         login=login, privilege=privilege)
 
   @staticmethod
