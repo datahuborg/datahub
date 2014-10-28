@@ -114,7 +114,7 @@ INSTALLED_APPS = (
   'browser',
   'dbwipes',
   'refiner',
-  'schema'
+  'inventory'
 )
 
 # A sample logging configuration. The only tangible logging

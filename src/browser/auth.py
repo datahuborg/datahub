@@ -19,7 +19,7 @@ from multiprocessing import Pool
 
 from browser.utils import *
 from core.db.manager import DataHubManager
-from schema.models import *
+from inventory.models import *
 
 p = os.path.abspath(os.path.dirname(__file__))
 

@@ -3,7 +3,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 from config import settings
 from core.db.connection import DataHubConnection
-from schema.models import *
+from inventory.models import *
 
 
 '''
