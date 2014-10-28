@@ -43,13 +43,19 @@ def home(request):
     if login:
       return HttpResponseRedirect('/browse/%s' %(login))
     else:
-      return render_to_response("home.html")
+      return HttpResponseRedirect('/about')
   except Exception, e:
     return HttpResponse(
-        json.dumps(
-          {'error': str(e)}),
+        json.dumps({'error': str(e)}),
         mimetype="application/json")
 
+def about(request):
+  try:    
+    return render_to_response("about.html")
+  except Exception, e:
+    return HttpResponse(
+        json.dumps({'error': str(e)}),
+        mimetype="application/json")
 
 '''
 APIs and Services

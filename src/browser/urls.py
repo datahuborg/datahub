@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     url(r'^verify/(\w+)', 'browser.auth.verify'),
 
     url(r'^$', 'browser.views.home'),
+    url(r'^about$', 'browser.views.about'),
 
     url(r'^console$', 'browser.views.console'),
     url(r'^console/$', 'browser.views.console'),
