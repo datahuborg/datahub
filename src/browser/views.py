@@ -178,9 +178,10 @@ def newrepo(request, repo_base):
     if request.method == "POST":
       login = get_login(request)
 
-      res = DataHubManager.has_base_privilege(login, repo_base, 'CREATE')
-      if not (res and res['tuples'][0][0]):
-        raise Exception('Access denied. Missing required privileges.')
+      if login != repo_base:
+      raise Exception(
+        'Access denied.'
+        'You can create new repository only in your repo_base.')
 
       repo = request.POST['repo']
       manager = DataHubManager(user=repo_base)
@@ -202,11 +203,10 @@ def newrepo(request, repo_base):
 def settings_repo(request, repo_base, repo):
   try:
     login = get_login(request)
+    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
     
-    if login != repo_base:
-      raise Exception(
-        'Access denied.'
-        'You can create new repository only in your repo_base.')
+    if not (res and res['tuples'][0][0]):
+      raise Exception('Access denied. Missing required privileges.')
     
     manager = DataHubManager(user=repo_base)
     res = manager.list_collaborators(repo_base, repo)
