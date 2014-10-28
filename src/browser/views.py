@@ -179,8 +179,7 @@ def newrepo(request, repo_base):
       login = get_login(request)
 
       if login != repo_base:
-      raise Exception(
-        'Access denied.'
+      raise Exception('Access denied.'
         'You can create new repository only in your repo_base.')
 
       repo = request.POST['repo']
