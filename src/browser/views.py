@@ -106,16 +106,12 @@ def user(request, repo_base):
     repos = [t[0] for t in res['tuples']]
 
     visible_repos = []
-    collaborators = []
     
     for repo in repos:
       res = manager.list_collaborators(repo_base, repo)
 
-      if res and res['tuples'][0][0]:
-        collaborators_arr = res['tuples'][0][0]
-        collaborators = collaborators_arr.split(',')
-        collaborators = [(c.split('=')[0]).strip() for c in collaborators]
-        collaborators = filter(lambda x: x!='' and x!=repo_base, collaborators)
+      collaborators = [(c.split('=')[0]).strip() for c[0] in res['tuples']]
+      collaborators = filter(lambda x: x!='' and x!=repo_base, collaborators)
 
       if login not in collaborators and login != repo_base:
         continue
@@ -211,15 +207,11 @@ def settings_repo(request, repo_base, repo):
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
     
-    collaborators = []
     manager = DataHubManager(user=repo_base)
     res = manager.list_collaborators(repo_base, repo)
-
-    if res and res['tuples'][0][0]:
-      collaborators_arr = res['tuples'][0][0]
-      collaborators = collaborators_arr.split(',')
-      collaborators = [(c.split('=')[0]).strip() for c in collaborators]
-      collaborators = filter(lambda x: x!='' and x!=repo_base, collaborators)
+    
+    collaborators = [(c.split('=')[0]).strip() for c[0] in res['tuples']]
+    collaborators = filter(lambda x: x!='' and x!=repo_base, collaborators)
 
     res = {
         'login': get_login(request),

@@ -160,7 +160,7 @@ class PGBackend:
     return self.execute_sql(query)
 
   def list_collaborators(self, repo_base, repo):
-    query = ''' SELECT  array_to_string(nspacl, ',') FROM
+    query = ''' SELECT unnest(nspacl) FROM
                 pg_namespace WHERE nspname='%s';
             ''' %(repo)
     return self.execute_sql(query)
