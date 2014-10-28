@@ -1,24 +1,15 @@
 {% extends "layout.html" %}
+{% block body-tag %}
+<body class="bs-docs-home">
+{% endblock %}
 {% block content %}
-<style>
-body, #content {
-	background-color: #FFF;
-}
-</style>
-<div id="content">
-<div id="welcome">
-<pre class="ascii-art-home">
- _____        _        _    _       _     
-|  __ \      | |      | |  | |     | |    
-| |  | | __ _| |_ __ _| |__| |_   _| |__  
-| |  | |/ _` | __/ _` |  __  | | | | '_ \ 
-| |__| | (_| | || (_| | |  | | |_| | |_) |
-|_____/ \__,_|\__\__,_|_|  |_|\__,_|_.__/ 
-</pre> 
-<br /><br />
-<div class="punch">DataHub is a (GitHub like) hosted platform for organizing, managing, sharing, collaborating, and making sense of data.
-</div>
-<br />
-<br />
-<a class="btn btn-lg btn-primary" href="/register">Sign Up for DataHub</a>
+<main class="bs-docs-masthead" id="content" role="main">
+  <div class="container">
+    <p class="lead">
+    <span class="logo-home center-block"></span>
+    <br />
+    DataHub is a (GitHub like) hosted platform for organizing, managing, sharing, collaborating, and making sense of data.</p>
+  </div>
+</main>
+
 {% endblock %}

@@ -1,5 +1,6 @@
 {% extends "minimal-layout.html" %}
 {% block content %}
+<div class="container">
 <form class="form-signin">
   {% csrf_token %}
   <input type="hidden" name="redirect_url" value="{{redirect_url}}" />
@@ -12,4 +13,5 @@
   {% autoescape off %}{{msg_body}}{% endautoescape %}
     </div>
 </form>
+</div>
 {% endblock %}

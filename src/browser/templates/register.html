@@ -3,6 +3,7 @@
   <a href="/login" title="Sign In" class="btn btn-default navbar-btn">Sign In</a>
 {% endblock %}
 {% block content %}
+<div class="container">
 <form class="form-signin" method="POST" action="/register" autocomplete="off">
   {% csrf_token %}
   <input type="hidden" class="form-control" name="redirect_url" value="{{redirect_url}}" />
@@ -22,4 +23,5 @@
   <button type="submit" class="btn btn-lg btn-primary btn-block">Sign Up for DataHub</button>
   <br />
 </form>
+</div>
 {% endblock %}

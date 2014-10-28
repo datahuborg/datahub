@@ -3,6 +3,7 @@
   <a href="/register" title="Sign In" class="btn btn-default navbar-btn">Sign Up</a>
 {% endblock %}
 {% block content %}
+<div class="container">
 <form class="form-signin" role="form" method="POST" action="/login">
   {% csrf_token %}
   <input type="hidden" name="redirect_url" value="{{redirect_url}}" />
@@ -19,4 +20,5 @@
   <input type="password" class="form-control" name="login_password" id="login_password" placeholder="Your password" {% if values.login_password %}value="{{values.login_password}}"{% endif %}/><br />
   <button class="btn btn-lg btn-primary btn-block" type="submit">Sign In</button>
 </form>
+</div>
 {% endblock %}

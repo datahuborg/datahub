@@ -51,12 +51,10 @@ Confer Login/Register Template Layout
 </div>
 <body>
 <div id="page">
-  <div id="content">
   {% block content %}
   {% endblock %}
   {% block credits %}
   {% endblock %}
-  </div>
 </div>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -71,12 +69,12 @@ Confer Login/Register Template Layout
 
 <div class="navbar navbar-default navbar-fixed-bottom text-center">
   <div class="container">
-  <div class="navbar-footer">
-    <a href="/about" class="btn navbar-btn">About</a> &nbsp; &nbsp;
-    <a href="/team" class="btn navbar-btn">Team</a> &nbsp; &nbsp;
-    <a href="/developer/apis" class="btn navbar-btn">Developer APIs</a> &nbsp; &nbsp;
-    <a href="/developer/apps" class="btn navbar-btn">Apps</a>
-  </div>
+    <div class="navbar-footer">
+      <a href="/about" class="btn navbar-btn">About</a> &nbsp; &nbsp;
+      <a href="/team" class="btn navbar-btn">Team</a> &nbsp; &nbsp;
+      <a href="/developer/apis" class="btn navbar-btn">Developer APIs</a> &nbsp; &nbsp;
+      <a href="/developer/apps" class="btn navbar-btn">Apps</a>
+    </div>
   </div>
 </div>
 </body>

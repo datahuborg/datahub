@@ -272,3 +272,12 @@ p.bg-warning {
   height: 17px;
 }
 
+.logo-home{
+  display: block;
+  background-image:url(/static/images/datahub-logo.png);
+  background-repeat: no-repeat;
+  background-size: 200px 200px;
+  width: 200px;
+  height: 200px;
+}
+
