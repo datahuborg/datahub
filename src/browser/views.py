@@ -180,8 +180,8 @@ def newrepo(request, repo_base):
 
       if login != repo_base:
         raise Exception(
-            'Access denied.'
-            'You can create new repository only in your repo_base.')
+            'Permission denied. '
+            '%s can\'t create new repository in %s.' %(login, repo_base))
 
       repo = request.POST['repo']
       manager = DataHubManager(user=repo_base)
