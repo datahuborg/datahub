@@ -2,7 +2,7 @@
 
 DataHub
 ===========
-DataHub is a (GitHub like) hosted platform for organizing, managing, sharing, collaborating, and making sense of data. It provides an efficient platform and easy to use tools/interfaces for:
+DataHub is an experimental hosted platform (GitHub-like) for organizing, managing, sharing, collaborating, and making sense of data. It provides an efficient platform and easy to use tools/interfaces for:
 
 * Publishing of your own data (hosting, sharing, collaboration)
 * Using other’s data (querying, linking)
