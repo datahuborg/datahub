@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-import views
+import dbwipes
 
 urlpatterns = patterns('',
     url(r'^login', 'browser.auth.login'),
@@ -93,10 +93,4 @@ urlpatterns = patterns('',
     url(r'^api/status/$', 'dbwipes.views.api_status'),
     url(r'^api/scorpion$', 'dbwipes.views.scorpion'),
     url(r'^api/scorpion/$', 'dbwipes.views.scorpion'),
-
-    ### start web-page urls ###
-
-    url(r'^about$', 'www.views.home'),
-    url(r'^about/$', 'www.views.home'),
-    url(r'^about/team$', 'www.views.team')
 )
