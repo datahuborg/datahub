@@ -290,7 +290,7 @@ def forgot (request):
 
 def verify (request, encrypted_email):
   errors = []
-  c = {'msg_title': 'DaatHub Account Verification'}
+  c = {'msg_title': 'DataHub Account Verification'}
   try:
     user_email = decrypt_text(encrypted_email)
     user = User.objects.get(email=user_email)
