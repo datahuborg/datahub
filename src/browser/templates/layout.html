@@ -15,7 +15,7 @@ DataHub Template Layout
 <meta name="HandheldFriendly" content="true" />
 <meta name="viewport" content="initial-scale=1.0 user-scalable=no" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="Description" content="DataHub is a (GitHub like) hosted platform for organizing, managing, sharing, collaborating, and making sense of data. It provides an efficient platform and easy to use tools/interfaces for publishing of your own data (hosting, sharing, collaboration), using other’s data (querying, linking), and making sense of data (analysis, visualization)" />
+<meta name="Description" content="DataHub is a (GitHub-like) hosted platform for organizing, managing, sharing, collaborating, and making sense of data. It provides an efficient platform and easy to use tools/interfaces for publishing of your own data (hosting, sharing, collaboration), using other’s data (querying, linking), and making sense of data (analysis, visualization)" />
 
 
 <link rel="stylesheet" type="text/css" href="/static/css/datahub.css" />
@@ -46,10 +46,12 @@ DataHub Template Layout
 {% block body-tag %}
 <body>
 {% endblock %}
+
 {% block header-tag %}
-<div class="navbar navbar-default navbar-static-top">
+<div class="navbar navbar-default navbar-fixed-top">
 {% endblock %}
-  <div class="container">
+
+<div class="container">
   <div class="navbar-header">
     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
       <span class="sr-only">Toggle navigation</span>
@@ -61,21 +63,28 @@ DataHub Template Layout
   </div>
   
   <div class="navbar-collapse collapse">
-    <div class="navbar-right">
-      {% block headlink-right %}
+    {% block headlink-right %}
       {% if login %}
-        <a href="/"><strong>{{ login }}</strong></a>  &nbsp; &nbsp;
-        <a href="/console" class="btn navbar-btn" title="SQL Console"><span class="glyphicon glyphicon-tasks"></span></a>
-        <a href="/logout" class="btn navbar-btn" title="Log Out"><span class="glyphicon glyphicon-log-out"></span></a>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/"><strong>{{ login }}</strong></a></li>
+          <li><a href="/" title="Sign Out"><span class="glyphicon glyphicon-home"></span></a></li>          
+          <li><a href="/logout" title="Sign Out"><span class="glyphicon glyphicon-log-out"></span></a></li>          
+        </ul>
       {% else %}
-        <a href="/login" title="Sign In" class="btn navbar-btn btn-primary">Sign In</a>
-        <a href="/register" title="Sign Up" class="btn navbar-btn btn-success">Sign Up</a>
+        <div class="nav navbar-nav navbar-right">
+          <a href="/login" title="Sign In" class="btn navbar-btn btn-primary">Sign In</a>
+          <a href="/register" title="Sign Up" class="btn navbar-btn btn-success">Sign Up</a>
+        </div>
       {% endif %}
-      {% endblock %}
-    </div>
-  </div>
+    {% endblock %}    
   </div>
 </div>
+</div>
+
+{% block push %}
+<div class="push"></div>
+{% endblock %}
+
 {% block content %}
 {% endblock %}
 
@@ -155,10 +164,8 @@ ga('create', 'UA-55860060-1', 'auto');
 ga('send', 'pageview');
 </script>
 
+<div class="push"></div>
 <div class="container">
-  <br />
-  <br />
-  <br />
   <div class="navbar navbar-default navbar-static-bottom text-center">
   <div class="navbar-footer">
     <a href="/about" class="btn navbar-btn">About</a> &nbsp; &nbsp;
@@ -166,5 +173,6 @@ ga('send', 'pageview');
   </div>
   </div>
 </div>
+
 </body>
 </html>

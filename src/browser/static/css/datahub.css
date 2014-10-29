@@ -26,6 +26,11 @@ body {
 
 /* Sign In/Sign Up/Password Reset Forms */
 
+.push {
+  height: 80px;
+  min-height: 80px;
+}
+
 .form-signin {
   max-width: 330px;
   padding: 15px;
