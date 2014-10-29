@@ -1,5 +1,4 @@
 from django.conf.urls import patterns, include, url
-import dbwipes.views
 
 urlpatterns = patterns('',
     url(r'^login', 'browser.auth.login'),
