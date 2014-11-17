@@ -23,6 +23,46 @@ class User(models.Model):
     db_table = "users"
 
 
+class View(models.Model):
+  id = models.AutoField(primary_key=True)
+  timestamp = models.DateTimeField(auto_now=True)
+  url_path = models.CharField (max_length=200, unique = True)
+  repo_base = models.CharField(max_length=50)
+  repo_name = models.CharField(max_length=50)
+  view_name = models.CharField (max_length=50)
+
+  def __unicode__(self):
+    return self.=url_path
+
+  class Meta:
+    db_table = "views"
+
+
+class Annotation(models.Model):
+  id = models.AutoField(primary_key=True)
+  timestamp = models.DateTimeField(auto_now=True)
+  url_path = models.CharField (max_length=500, unique = True)
+  url_blurb = models.TextField ()
+
+  def __unicode__(self):
+    return self.id
+
+  class Meta:
+    db_table = "annotations"
+
+
+class Comments(models.Model):
+  id = models.AutoField(primary_key=True)
+  timestamp = models.DateTimeField(auto_now=True)
+  url_path = models.CharField (max_length=500)
+  comment = models.TextField ()
+
+  def __unicode__(self):
+    return self.id
+
+  class Meta:
+    db_table = "comments"
+
 class App(models.Model):
   id = models.AutoField(primary_key=True)
   timestamp = models.DateTimeField(auto_now=True)
