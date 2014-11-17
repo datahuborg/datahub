@@ -32,7 +32,7 @@ class View(models.Model):
   view_name = models.CharField (max_length=50)
 
   def __unicode__(self):
-    return self.=url_path
+    return self.url_path
 
   class Meta:
     db_table = "views"
