@@ -33,8 +33,10 @@
           <br />
         {% endif %}
         <form class="form-inline" role="form" method="POST" action="/add-collaborator/{{repo_base}}/{{repo}}">
-          {% csrf_token %}
-          <input type="text" class="form-control" name="collaborator_username" placeholder="Username">
+          <div class="form-group">
+            {% csrf_token %}
+            <input type="text" class="form-control" name="collaborator_username" placeholder="Username">
+          </div>
           <button class="btn btn-primary btn-xsm" type="submit">Add</button>
         </form>
       </td>

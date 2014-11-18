@@ -77,10 +77,10 @@
       <br />
       <form role="form" class="form-inline" method="POST" action="/handle-file-upload" enctype='multipart/form-data'>
         <div class="form-group">
-        {% csrf_token %}
-        <input type="hidden" name="repo_base" value="{{repo_base}}" />
-        <input type="hidden" name="repo" value="{{repo}}" />
-        <input type="file" class="form-control" name="data_file" placeholder="Data File">
+          {% csrf_token %}
+          <input type="hidden" name="repo_base" value="{{repo_base}}" />
+          <input type="hidden" name="repo" value="{{repo}}" />
+          <input type="file" class="form-control" name="data_file" placeholder="Data File">
         </div>
         <button class="btn btn-primary btn-sm" type="submit">Upload File</button>
       </form>
