@@ -344,7 +344,8 @@ def table(request, repo_base, repo, table, page='1'):
     
     column_names = [field['name'] for field in res['fields']]
     tuples = res['tuples']
-    return render_to_response("table.html", {
+
+    data = {
         'login': get_login(request),
         'repo_base': repo_base,
         'repo': repo,
@@ -355,11 +356,80 @@ def table(request, repo_base, repo, table, page='1'):
         'next_page': current_page + 1,
         'prev_page': current_page - 1,
         'total_pages': total_pages,
-        'pages': range(start_page, end_page + 1)})
+        'pages': range(start_page, end_page + 1)}
+
+    data.update(csrf(request))
+    return render_to_response("table.html", data)
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),
         mimetype="application/json")
+
+@login_required
+def query(request, repo_base, repo):
+  try:
+    login = get_login(request)
+    data = {
+        'login': get_login(request),
+        'repo_base': repo_base,
+        'repo': repo}
+    
+    if 'query' in request.REQUEST:
+      query = request.REQUEST['query']    
+    
+      manager = DataHubManager(user=repo_base)
+      res = manager.execute_sql(
+          query='EXPLAIN %s' %(query))    
+      
+      limit = 50
+      
+      num_rows = re.match(r'.*rows=(\d+).*', res['tuples'][0][0]).group(1)
+      count = int(num_rows)    
+      total_pages = 1 + (int(count) / limit)
+
+      current_page = 1
+      try:
+        current_page = int(request.REQUEST['page'])
+      except:
+        pass
+
+      if current_page < 1:
+        current_page = 1
+
+      start_page = current_page - 5
+      if start_page < 1:
+        start_page = 1
+
+      end_page = start_page + 10
+      
+      if end_page > total_pages:
+        end_page = total_pages
+        
+      res = manager.execute_sql(
+          query='%s LIMIT %s OFFSET %s'
+          %(query, limit, (current_page -1) * limit))
+      
+      column_names = [field['name'] for field in res['fields']]
+      tuples = res['tuples']
+
+      data.update({
+          'query': query,
+          'column_names': column_names,
+          'tuples': tuples,
+          'current_page': current_page,
+          'next_page': current_page + 1,
+          'prev_page': current_page - 1,
+          'total_pages': total_pages,
+          'pages': range(start_page, end_page + 1)})
+
+    data.update(csrf(request))
+    return render_to_response("query.html", data)
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
+
 
 @login_required
 def table_delete(request, repo_base, repo, table_name):

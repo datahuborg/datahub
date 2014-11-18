@@ -5,8 +5,6 @@
     <a class="link" href="/browse/{{repo_base}}">{{repo_base}}</a>
     <a class="link" href="/browse/{{repo_base}}">/</a>
     <a class="link" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a>
-    <a class="link" href="/browse/{{repo_base}}/{{repo}}">/</a>
-    <a class="link" href="/browse/{{repo_base}}/{{repo}}/{{table}}">{{table}}</a>
   </h3>
   
   <div class="pull-right">
@@ -27,14 +25,14 @@
     
     </div>
   </form>
-
+  {% if tuples and tuples|length > 0 %}
   <div class="panel panel-default">
-    <div class="panel-heading">
-    <div>
-    <h4>{{table}}</h4>
-    </div>
-    </div>
-    {% if tuples|length > 0 %}
+      <div class="panel-heading">
+      <div>
+      <pre><code class="language-sql" data-lang="sql">{{query}}</code></pre>
+      </div>
+      </div>
+      
       <div class="table-responsive">
       <table id="table_data" class="table table-condensed table-bordered">
         <thead>
@@ -55,26 +53,24 @@
         </tbody>
       </table>
       </div>
-    {% else %}
-      <p class="bg-warning">The <strong>{{table}}</strong> table is empty.</p>
     {% endif %}
   </div>
   <ul class="pagination pagination-sm">
     {% if pages|length > 1 %}
       {% if prev_page > 0 %}
-        <li><a href="/browse/{{repo_base}}/{{repo}}/{{table}}/{{prev_page}}">&laquo;</a></li>
+        <li><a href="/query/{{repo_base}}/{{repo}}?query={{query}}&amp;page={{prev_page}}">&laquo;</a></li>
       {% endif %}
       
       {% for page in pages %}
         {% if page == current_page %}
           <li class="active"><a href="#">{{page}}</a></li>
         {% else %}
-          <li><a href="/browse/{{repo_base}}/{{repo}}/{{table}}/{{page}}">{{page}}</a></li>
+          <li><a href="/query/{{repo_base}}/{{repo}}?query={{query}}&amp;page={{page}}">{{page}}</a></li>
         {% endif %}
       {% endfor %}
       
       {% if next_page < total_pages %}
-        <li><a href="/browse/{{repo_base}}/{{repo}}/{{table}}/{{next_page}}">&raquo;</a></li>
+        <li><a href="/query/{{repo_base}}/{{repo}}?query={{query}}&amp;page=">&raquo;</a></li>
       {% endif %}
     {% endif %}
   </ul>
