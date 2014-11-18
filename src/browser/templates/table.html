@@ -33,6 +33,13 @@
     <div>
     <h4>{{table}}</h4>
     </div>
+
+    {% if annotation %}
+      <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}"><span class="glyphicon glyphicon-edit"></span></span>
+    {% else %}
+      <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Add Description"><span class="glyphicon glyphicon-edit"></span></span>
+    {% endif %}
+    
     </div>
     {% if tuples|length > 0 %}
       <div class="table-responsive">
@@ -79,4 +86,53 @@
     {% endif %}
   </ul>
 </div>
+
+<div
+    class="modal" id="annotation-modal" 
+    tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="annotation-modal-title">Annotation</h4>
+      </div>
+      <div class="modal-body" id="annotation-modal-body">
+        <form role="form" method="POST" action="/save-annotation" id="frm-annotation">
+          <div class="form-group">
+            {% csrf_token %}
+            <input type="hidden" name="url" value="/browse/{{repo_base}}/{{repo}}/{{table}}" />
+            <input type="text" class="form-control" name="annotation" placeholder="Enter text description" id="annotation-modal-input" />
+          </div>        
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+            class="btn btn-primary" id="annotation-modal-operation">Save</button>
+        <button type="button"
+            class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+$('.modal-dialog').on('click', function(e){
+    var modal_id = $(this).attr('target-modal')
+    var title = $(this).attr('title')
+    var placeholder = $(this).attr('placeholder')
+    
+    $(modal_id + '-title').text(title)
+    $(modal_id + '-input').val(placeholder)
+
+    $(modal_id).off('click');
+    
+    $(modal_id).modal({keyboard: true})
+      .on('click', modal_id + '-operation', function (e) {
+        $("#frm-annotation").submit()
+        $(modal_id).modal('hide')
+        $("#wait-dialog").modal()  
+      });
+  });
+</script>
 {% endblock %}

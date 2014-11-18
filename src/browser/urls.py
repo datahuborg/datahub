@@ -30,6 +30,7 @@ urlpatterns = patterns('',
     url(r'^refine-data/$', 'browser.views.refine_data'),
 
     url(r'^handle-file-upload$', 'browser.views.handle_file_upload'),
+    url(r'^save-annotation$', 'browser.views.save_annotation'),
 
     url(r'^add-collaborator/(\w+)/(\w+)$', 'browser.views.add_collaborator'),
     url(r'^delete-collaborator/(\w+)/(\w+)/(\w+)$', 'browser.views.delete_collaborator'),

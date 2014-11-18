@@ -345,6 +345,14 @@ def table(request, repo_base, repo, table, page='1'):
     column_names = [field['name'] for field in res['fields']]
     tuples = res['tuples']
 
+    annotation_text = None
+
+    try:
+      annotation = Annotation.objects.get(url_path='/browse/%s/%s/%s' %(repo_base, repo, table))
+      annotation_text = annotation.url_blurb
+    except:
+      pass
+
     data = {
         'login': get_login(request),
         'repo_base': repo_base,
@@ -352,6 +360,7 @@ def table(request, repo_base, repo, table, page='1'):
         'table': table,
         'column_names': column_names,
         'tuples': tuples,
+        'annotation': annotation_text,
         'current_page': current_page,
         'next_page': current_page + 1,
         'prev_page': current_page - 1,
@@ -448,6 +457,29 @@ def table_delete(request, repo_base, repo, table_name):
     query = '''DROP TABLE %s''' %(dh_table_name)
     manager.execute_sql(query=query)
     return HttpResponseRedirect('/browse/%s/%s' %(repo_base, repo))
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
+
+
+@login_required
+def save_annotation(request):
+  try:
+    if request.method == 'POST':
+      url = request.POST['url']
+      annotation_text = request.POST['annotation']
+      
+      try:
+        annotation = Annotation.objects.get(url_path=url)
+        annotation.url_blurb = annotation_text
+        annotation.save()
+      except Annotation.DoesNotExist:
+        annotation = Annotation(url_path=url, url_blurb=annotation_text)
+        annotation.save()
+    
+    return HttpResponseRedirect(url)
   except Exception, e:
     return HttpResponse(
         json.dumps(
