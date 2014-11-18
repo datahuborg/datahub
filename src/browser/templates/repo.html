@@ -7,12 +7,7 @@
     <a class="link" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a>
     <a class="link" href=/browse/{{repo_base}}/{{repo}}>/</a>
   </h3>
-  
-  <div class="pull-right">
-    <a class="btn btn-primary btn-sm" type="button" href="/console">Create Table with SQL</a>
-    <a class="btn btn-primary btn-sm" type="button" href="/browse/{{repo_base}}/{{repo}}#files">Upload Files</a>
-    <a class="btn btn-primary btn-sm" type="button" href="/data-refiner/{{repo_base}}/{{repo}}">Launch Data Refiner</a>  
-  </div>
+
   <hr />
   <br />
   <ul class="nav nav-tabs" role="tablist">
@@ -24,7 +19,15 @@
     <br />
     <div class="tab-pane active" id="tables">
       <div class="panel panel-default">
-      <div class="panel-heading"><h4>Tables</h4></div>
+      <div class="panel-heading"><h4>Tables &nbsp; <a class="btn btn-primary" href="/browse/{{repo_base}}/{{repo}}#files" title="Create a New Repository"><span class="glyphicon glyphicon-plus"></span></a>
+        <!--
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="glyphicon glyphicon-plus"></span> <span class="caret"></span></button></h4>
+        <ul class="dropdown-menu" role="menu">
+          <li><a href="#">Dropdown link</a></li>
+          <li><a href="#">Dropdown link</a></li>
+        </ul-->
+      </div>
+      
       {% if tables|length > 0 %}
         <div class="table-responsive">
           <table class="table">
@@ -72,11 +75,13 @@
 
     <div class="tab-pane" id="files">
       <br />
-      <form class="form-inline" role="form" method="POST" action="/handle-file-upload" enctype='multipart/form-data'>
+      <form role="form" class="form-inline" method="POST" action="/handle-file-upload" enctype='multipart/form-data'>
+        <div class="form-group">
         {% csrf_token %}
         <input type="hidden" name="repo_base" value="{{repo_base}}" />
         <input type="hidden" name="repo" value="{{repo}}" />
         <input type="file" class="form-control" name="data_file" placeholder="Data File">
+        </div>
         <button class="btn btn-primary btn-sm" type="submit">Upload File</button>
       </form>
       <br />

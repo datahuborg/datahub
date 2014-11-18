@@ -6,13 +6,10 @@
     <a class="link" href=/browse/{{repo_base}}>/</a>
   </h3>
   
-  <div class="pull-right">
-    <a class="btn btn-primary btn-sm" role="button" href="/newrepo/{{repo_base}}">Create New Repository</a>
-  </div>
   <hr />
   <br />
   <div class="panel panel-default">
-  <div class="panel-heading"><h4>Repositories</h4></div>
+  <div class="panel-heading"><h4>Repositories &nbsp; <a class="btn btn-primary" href="/newrepo/{{repo_base}}" title="Create a New Repository"><span class="glyphicon glyphicon-plus"></span></a></h4></div>
   {% if repos|length > 0 %}
     <div class="table-responsive">
       <table id="repos" class="table">
