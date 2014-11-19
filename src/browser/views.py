@@ -517,15 +517,13 @@ def handle_file_upload(request):
         mimetype="application/json")
 
 @login_required
-def file_import(request, repo_base, repo):
+def file_import(request, repo_base, repo, file_name):
   try:
     login = get_login(request)
     res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
     
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
-    
-    file_name = request.GET['file']
     
     delimiter = str(request.GET['delimiter'])    
     if delimiter == '':

@@ -65,15 +65,15 @@ urlpatterns = patterns('',
     url(r'^delete/(\w+)/(\w+)/table/(\w+)$', 'browser.views.table_delete'),
     url(r'^delete/(\w+)/(\w+)/table/(\w+)/$', 'browser.views.table_delete'),
     
-    url(r'^delete/(\w+)/(\w+)/file/(\w+)$', 'browser.views.file_delete'),
-    url(r'^delete/(\w+)/(\w+)/file/(\w+)/$', 'browser.views.file_delete'),
+    url(r'^delete/(\w+)/(\w+)/file/([\w\d\-\.]+)$', 'browser.views.file_delete'),
+    url(r'^delete/(\w+)/(\w+)/file/([\w\d\-\.]+)/$', 'browser.views.file_delete'),
     ### END DELETE ####
 
 
     ### START IMPORT/EXPORT/DOWNLOAD ####
-    url(r'^import/(\w+)/(\w+)/file/(\w+)', 'browser.views.file_import'),   
+    url(r'^import/(\w+)/(\w+)/file/([\w\d\-\.]+)', 'browser.views.file_import'),   
     url(r'^export/(\w+)/(\w+)/table/(\w+)', 'browser.views.file_export'),
-    url(r'^download/(\w+)/(\w+)/file/(\w+)', 'browser.views.file_download'),
+    url(r'^download/(\w+)/(\w+)/file/([\w\d\-\.]+)', 'browser.views.file_download'),
     ### END IMPORT/EXPORT/DOWNLOAD ####
 
 
