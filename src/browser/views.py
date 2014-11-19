@@ -300,7 +300,7 @@ Tables
 '''
 
 @login_required
-def table(request, repo_base, repo, table, page='1'):
+def table(request, repo_base, repo, table):
   try:
     login = get_login(request)
     dh_table_name = '%s.%s.%s' %(repo_base, repo, table)
@@ -322,7 +322,7 @@ def table(request, repo_base, repo, table, page='1'):
 
     current_page = 1
     try:
-      current_page = int(page)
+      current_page = int(request.REQUEST['page'])
     except:
       pass
 
@@ -348,7 +348,7 @@ def table(request, repo_base, repo, table, page='1'):
     annotation_text = None
 
     try:
-      annotation = Annotation.objects.get(url_path='/browse/%s/%s/%s' %(repo_base, repo, table))
+      annotation = Annotation.objects.get(url_path='/browse/%s/%s/table/%s' %(repo_base, repo, table))
       annotation_text = annotation.url_blurb
     except:
       pass
@@ -579,15 +579,14 @@ def file_import(request, repo_base, repo):
         mimetype="application/json")
 
 @login_required
-def file_delete(request, repo_base, repo):
+def file_delete(request, repo_base, repo, file_name):
   try:
     login = get_login(request)
     res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
     
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
-    
-    file_name = request.GET['file']
+
     repo_dir = '/user_data/%s/%s' %(repo_base, repo)
     file_path = '%s/%s' %(repo_dir, file_name)
     os.remove(file_path)
@@ -599,9 +598,8 @@ def file_delete(request, repo_base, repo):
         mimetype="application/json")
 
 @login_required
-def file_download(request, repo_base, repo):
+def file_download(request, repo_base, repo, file_name):
   try:
-    file_name = request.GET['file']
     repo_dir = '/user_data/%s/%s' %(repo_base, repo)
     file_path = '%s/%s' %(repo_dir, file_name)
     response = HttpResponse(

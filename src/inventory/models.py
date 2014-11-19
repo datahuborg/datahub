@@ -7,7 +7,7 @@ Datahub Models
 @date: Mar 21, 2013
 '''
 
-class User(models.Model):
+class User (models.Model):
   id = models.AutoField(primary_key=True)
   email = models.CharField(max_length=100, unique = True)
   username = models.CharField(max_length=50, unique = True)
@@ -16,54 +16,83 @@ class User(models.Model):
   password = models.CharField(max_length=50)
   active = models.BooleanField(default=False)
   
-  def __unicode__(self):
+  def __unicode__ (self):
     return self.username
 
   class Meta:
     db_table = "users"
 
 
-class View(models.Model):
+class Card (models.Model):
   id = models.AutoField(primary_key=True)
   timestamp = models.DateTimeField(auto_now=True)
   url_path = models.CharField (max_length=200, unique = True)
   repo_base = models.CharField(max_length=50)
   repo_name = models.CharField(max_length=50)
-  view_name = models.CharField (max_length=50)
+  card_name = models.CharField (max_length=50)
 
-  def __unicode__(self):
+  def __unicode__ (self):
     return self.url_path
 
   class Meta:
-    db_table = "views"
+    db_table = "cards"
 
 
-class Annotation(models.Model):
+class Dashboard (models.Model):
+  id = models.AutoField(primary_key=True)
+  timestamp = models.DateTimeField(auto_now=True)
+  url_path = models.CharField (max_length=200, unique = True)
+  repo_base = models.CharField(max_length=50)
+  repo_name = models.CharField(max_length=50)
+  dashboard_name = models.CharField (max_length=50)
+
+  def __unicode__ (self):
+    return self.url_path
+
+  class Meta:
+    db_table = "dashboards"
+
+
+class DashboardCard (models.Model):
+  id = models.AutoField(primary_key=True)
+  timestamp = models.DateTimeField(auto_now=True)
+  card = models.ForeignKey ('Card')
+  dashboard = models.ForeignKey ('Dashboard')
+  
+  def __unicode__ (self):
+    return self.id
+
+  class Meta:
+    db_table = "dashboard_cards"
+
+
+class Annotation (models.Model):
   id = models.AutoField(primary_key=True)
   timestamp = models.DateTimeField(auto_now=True)
   url_path = models.CharField (max_length=500, unique = True)
-  url_blurb = models.TextField ()
+  annotation_text = models.TextField ()
 
-  def __unicode__(self):
+  def __unicode__ (self):
     return self.id
 
   class Meta:
     db_table = "annotations"
 
 
-class Comments(models.Model):
+class Comments (models.Model):
   id = models.AutoField(primary_key=True)
   timestamp = models.DateTimeField(auto_now=True)
   url_path = models.CharField (max_length=500)
   comment = models.TextField ()
 
-  def __unicode__(self):
+  def __unicode__ (self):
     return self.id
 
   class Meta:
     db_table = "comments"
 
-class App(models.Model):
+
+class App (models.Model):
   id = models.AutoField(primary_key=True)
   timestamp = models.DateTimeField(auto_now=True)
   app_id = models.CharField (max_length=100, unique = True)
@@ -78,7 +107,7 @@ class App(models.Model):
     db_table = "apps"
 
 
-class Permission(models.Model):
+class Permission (models.Model):
   id = models.AutoField(primary_key=True)
   timestamp = models.DateTimeField(auto_now=True)
   user = models.ForeignKey('User')

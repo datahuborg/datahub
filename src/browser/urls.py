@@ -17,9 +17,6 @@ urlpatterns = patterns('',
     url(r'^console$', 'browser.views.console'),
     url(r'^console/$', 'browser.views.console'),
 
-    url(r'^visualize$', 'browser.views.visualize'),
-    url(r'^visualize/$', 'browser.views.visualize'),
-
     url(r'^newrepo/(\w+)$', 'browser.views.newrepo'),
     url(r'^newrepo/(\w+)/$', 'browser.views.newrepo'),
 
@@ -35,31 +32,52 @@ urlpatterns = patterns('',
     url(r'^add-collaborator/(\w+)/(\w+)$', 'browser.views.add_collaborator'),
     url(r'^delete-collaborator/(\w+)/(\w+)/(\w+)$', 'browser.views.delete_collaborator'),
 
-    url(r'^import/(\w+)/(\w+)', 'browser.views.file_import'),
-    url(r'^delete/(\w+)/(\w+)', 'browser.views.file_delete'),
-    url(r'^download/(\w+)/(\w+)', 'browser.views.file_download'),
-    url(r'^export/(\w+)/(\w+)/(\w+)', 'browser.views.file_export'),
-
-    url(r'^delete-table/(\w+)/(\w+)/(\w+)', 'browser.views.table_delete'),
-    url(r'^delete-repo/(\w+)/(\w+)', 'browser.views.repo_delete'),
-
     url(r'^service$', 'browser.views.service_binary'),
     url(r'^service/binary$', 'browser.views.service_binary'),
     url(r'^service/json$', 'browser.views.service_json'),
 
-    url(r'^browse/(\w+)/(\w+)/(\w+)$', 'browser.views.table'),
-    url(r'^browse/(\w+)/(\w+)/(\w+)/(\w+)$', 'browser.views.table'),
-    url(r'^browse/(\w+)/(\w+)/(\w+)/(\w+)/$', 'browser.views.table'),
+    
+    #### BROWSE ####
+    url(r'^browse/(\w+)/(\w+)/table/(\w+)$', 'browser.views.table'),
+    url(r'^browse/(\w+)/(\w+)/table/(\w+)/$', 'browser.views.table'),
 
-    url(r'^query/(\w+)/(\w+)$', 'browser.views.query'),
-    url(r'^query/(\w+)/(\w+)/$', 'browser.views.query'),
+    url(r'^browse/(\w+)/(\w+)/query/(\w+)$', 'browser.views.query'),
+    url(r'^browse/(\w+)/(\w+)/query/(\w+)/$', 'browser.views.query'),
+
+    url(r'^browse/(\w+)/(\w+)/card/(\w+)$', 'browser.views.card'),
+    url(r'^browse/(\w+)/(\w+)/card/(\w+)/$', 'browser.views.card'),
+
+    url(r'^browse/(\w+)/(\w+)/dashboard/(\w+)$', 'browser.views.dashboard'),
+    url(r'^browse/(\w+)/(\w+)/dashboard/(\w+)/$', 'browser.views.dashboard'),
 
     url(r'^browse/(\w+)/(\w+)$', 'browser.views.repo'),
     url(r'^browse/(\w+)/(\w+)/$', 'browser.views.repo'),
 
     url(r'^browse/(\w+)$', 'browser.views.user'),
     url(r'^browse/(\w+)/$', 'browser.views.user'),
+    #### END BROWSE ####
 
+
+    ### START DELETE ####
+    url(r'^delete/(\w+)/(\w+)$', 'browser.views.repo_delete'),
+    url(r'^delete/(\w+)/(\w+)/$', 'browser.views.repo_delete'),
+    
+    url(r'^delete/(\w+)/(\w+)/table/(\w+)$', 'browser.views.table_delete'),
+    url(r'^delete/(\w+)/(\w+)/table/(\w+)/$', 'browser.views.table_delete'),
+    
+    url(r'^delete/(\w+)/(\w+)/file/(\w+)$', 'browser.views.file_delete'),
+    url(r'^delete/(\w+)/(\w+)/file/(\w+)/$', 'browser.views.file_delete'),
+    ### END DELETE ####
+
+
+    ### START IMPORT/EXPORT/DOWNLOAD ####
+    url(r'^import/(\w+)/(\w+)/file/(\w+)', 'browser.views.file_import'),   
+    url(r'^export/(\w+)/(\w+)/table/(\w+)', 'browser.views.file_export'),
+    url(r'^download/(\w+)/(\w+)/file/(\w+)', 'browser.views.file_download'),
+    ### END IMPORT/EXPORT/DOWNLOAD ####
+
+
+    #### SETTINGS ####
     url(r'^settings/(\w+)/(\w+)/(\w+)$', 'browser.views.settings_table'),
     url(r'^settings/(\w+)/(\w+)/(\w+)/(\w+)$', 'browser.views.settings_table'),
     url(r'^settings/(\w+)/(\w+)/(\w+)/(\w+)/$', 'browser.views.settings_table'),
@@ -69,10 +87,10 @@ urlpatterns = patterns('',
 
     url(r'^settings/(\w+)$', 'browser.views.settings_database'),
     url(r'^settings/(\w+)/$', 'browser.views.settings_database'),
+    #### END SETTINGS ####
 
 
     ### start dbwipes urls ###
-
     url(r'^dbwipes/(\w+)/(\w+)$', 'browser.views.repo'),
     url(r'^dbwipes/(\w+)/(\w+)/$', 'browser.views.repo'),
 

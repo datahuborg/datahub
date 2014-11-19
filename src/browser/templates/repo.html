@@ -35,19 +35,19 @@
               {% for table in tables %}
               <tr>
                 <td>
-                  <a href="/browse/{{repo_base}}/{{repo}}/{{table}}">{{table}}</a>
+                  <a href="/browse/{{repo_base}}/{{repo}}/table/{{table}}">{{table}}</a>
                 </td>
                 <td class="text-right">
-                  <a href="/browse/{{repo_base}}/{{repo}}/{{table}}" title="View Table">
+                  <a href="/browse/{{repo_base}}/{{repo}}/table/{{table}}" title="View Table">
                     <span class="table-icon"></span>
                   </a> &nbsp;&nbsp;
                   <span
                       class="modal-link modal-confirm-dialog"
                       target-modal="#confirm-modal"
                       target-modal-title="Confirm CSV Export"
-                      target-modal-body="This will export the table <label>{{table}}</label> as a CSV file inside the <strong>{{repo_base}}/{{repo}}</strong> repository. The operation will overwrite any existing file with the same name. Are you sure?"
+                      target-modal-body="This will export the table <label>{{table}}</label> to a CSV file named <label>{{table}}.csv</label> inside the <strong>{{repo_base}}/{{repo}}</strong> repository. The operation will overwrite any existing file with the same name. Are you sure?"
                       target-modal-operation="Export"
-                      target-url="/export/{{repo_base}}/{{repo}}/{{table}}"
+                      target-url="/export/{{repo_base}}/{{repo}}/table/{{table}}"
                       title="CSV Export">
                     <span class="csv-icon"></span>
                   </span>&nbsp;&nbsp;
@@ -55,9 +55,9 @@
                       class="modal-link modal-confirm-dialog"
                       target-modal="#confirm-modal"
                       target-modal-title="Confirm Delete"
-                      target-modal-body="This will permanently delete the table <label>{{repo_base}}/{{repo}}/{{table}}</label>. The operation can't be undone. Are you sure?"
+                      target-modal-body="This will permanently delete the table <label>{{table}}</label> from the repository <label>{{repo_base}}/{{repo}}</label>. The operation can't be undone. Are you sure?"
                       target-modal-operation="Delete"
-                      target-url="/delete-table/{{repo_base}}/{{repo}}/{{table}}"
+                      target-url="/delete/{{repo_base}}/{{repo}}/table/{{table}}"
                       title="Delete">
                     <span class="delete-icon"></span>
                   </span>&nbsp;&nbsp;
@@ -95,7 +95,7 @@
               {% for file in files %}
               <tr>
                 <td>
-                  <a href="/download/{{repo_base}}/{{repo}}?file={{file}}">{{file}}</a>
+                  <a href="/download/{{repo_base}}/{{repo}}/file/{{file}}">{{file}}</a>
                 </td>
                 <td class="text-right">
                   <span
@@ -106,16 +106,16 @@
                       title="Import to DataHub as Table">
                     <span class="database-table-icon"></span>
                   </span>&nbsp;&nbsp;
-                  <a href="/download/{{repo_base}}/{{repo}}?file={{file}}" title="Download">
+                  <a href="/download/{{repo_base}}/{{repo}}/file/{{file}}" title="Download">
                     <span class="download-icon"></span>
                   </a>&nbsp;&nbsp;
                   <span
                       class="modal-link modal-confirm-dialog"
                       target-modal="#confirm-modal"
                       target-modal-title="Confirm Delete"
-                      target-modal-body="This will permanently delete the file <label>{{repo_base}}/{{repo}}/{{file}}</label>. The operation can't be undone. Are you sure?"
+                      target-modal-body="This will permanently delete the file <label>{{repo_base}}/{{repo}}/file/{{file}}</label>. The operation can't be undone. Are you sure?"
                       target-modal-operation="Delete"
-                      target-url="/delete/{{repo_base}}/{{repo}}?file={{file}}"
+                      target-url="/delete/{{repo_base}}/{{repo}}/file/{{file}}"
                       title="Delete">
                     <span class="delete-icon"></span>
                   </span>&nbsp;&nbsp;
@@ -126,7 +126,7 @@
           </table>
         </div>
       {% else %}
-        <p class="bg-warning">No file in <strong>{{repo_base}}.{{repo}}</strong></p>
+        <p class="bg-warning">No file in <strong>{{repo_base}}/{{repo}}</strong></p>
       {% endif %}
       </div>
     </div>
