@@ -5,13 +5,17 @@
     <a class="link" href="/browse/{{repo_base}}">{{repo_base}}</a>
     <a class="link" href="/browse/{{repo_base}}">/</a>
     <a class="link" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a>
+    {% block table %}
     <a class="link" href="/browse/{{repo_base}}/{{repo}}">/</a>
     <a class="link" href="/browse/{{repo_base}}/{{repo}}/table/{{table}}">{{table}}</a>
+    {% endblock %}
   </h3>
   
+  {% block apps %}
   <div class="pull-right">
     <a class="btn btn-primary btn-sm" role="button" href="/dbwipes/{{repo_base}}/{{repo}}/{{table}}">DBWipes</a>
   </div>
+  {% endblock %}
   <hr />
   <br />
 
@@ -29,18 +33,20 @@
   </form>
 
   <div class="panel panel-default">
-    <div class="panel-heading">
-    <div>
-    <h4>{{table}}</h4>
-    </div>
-
-    {% if annotation %}
-      <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}"><span class="glyphicon glyphicon-edit"></span></span>
-    {% else %}
-      <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Add Description"><span class="glyphicon glyphicon-edit"></span></span>
-    {% endif %}
     
+    <div class="panel-heading">
+      {% block pannel-heading %}      
+        
+        <h4>{{table}}</h4>
+        {% if annotation %}
+          <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}"><span class="glyphicon glyphicon-edit"></span></span>
+        {% else %}
+          <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Add Description"><span class="glyphicon glyphicon-edit"></span></span>
+        {% endif %}    
+      
+      {% endblock %}
     </div>
+    
     {% if tuples|length > 0 %}
       <div class="table-responsive">
       <table id="table_data" class="table table-condensed table-bordered">
@@ -66,29 +72,31 @@
       <p class="bg-warning">The <strong>{{table}}</strong> table is empty.</p>
     {% endif %}
   </div>
+
+  {% block pagenation %}
   <ul class="pagination pagination-sm">
     {% if pages|length > 1 %}
       {% if prev_page > 0 %}
-        <li><a href="/browse/{{repo_base}}/{{repo}}/table/{{table}}?page={{prev_page}}">&laquo;</a></li>
+        <li><a href="{{url_path}}?page={{prev_page}}">&laquo;</a></li>
       {% endif %}
       
       {% for page in pages %}
         {% if page == current_page %}
           <li class="active"><a href="#">{{page}}</a></li>
         {% else %}
-          <li><a href="/browse/{{repo_base}}/{{repo}}/table/{{table}}?page={{page}}">{{page}}</a></li>
+          <li><a href="{{url_path}}?page={{page}}">{{page}}</a></li>
         {% endif %}
       {% endfor %}
       
       {% if next_page < total_pages %}
-        <li><a href="/browse/{{repo_base}}/{{repo}}/table/{{table}}?page={{next_page}}">&raquo;</a></li>
+        <li><a href="{{url_path}}?page={{next_page}}">&raquo;</a></li>
       {% endif %}
     {% endif %}
   </ul>
+  {% endblock %}
 </div>
 
-<div
-    class="modal" id="annotation-modal" 
+<div class="modal" id="annotation-modal" 
     tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -135,4 +143,6 @@ $('.modal-dialog').on('click', function(e){
       });
   });
 </script>
+{% block extra %}
+{% endblock %}
 {% endblock %}

@@ -346,9 +346,9 @@ def table(request, repo_base, repo, table):
     tuples = res['tuples']
 
     annotation_text = None
-
+    url_path = '/browse/%s/%s/table/%s' %(repo_base, repo, table)
     try:
-      annotation = Annotation.objects.get(url_path='/browse/%s/%s/table/%s' %(repo_base, repo, table))
+      annotation = Annotation.objects.get(url_path=url_path)
       annotation_text = annotation.annotation_text
     except:
       pass
@@ -364,6 +364,7 @@ def table(request, repo_base, repo, table):
         'current_page': current_page,
         'next_page': current_page + 1,
         'prev_page': current_page - 1,
+        'url_path': url_path,
         'total_pages': total_pages,
         'pages': range(start_page, end_page + 1)}
 
@@ -421,10 +422,13 @@ def query(request, repo_base, repo):
       column_names = [field['name'] for field in res['fields']]
       tuples = res['tuples']
 
+      url_path = '/browse/%s/%s/query' %(repo_base, repo)
+
       data.update({
           'query': query,
           'column_names': column_names,
           'tuples': tuples,
+          'url_path': url_path,
           'current_page': current_page,
           'next_page': current_page + 1,
           'prev_page': current_page - 1,
