@@ -69,19 +69,19 @@
   <ul class="pagination pagination-sm">
     {% if pages|length > 1 %}
       {% if prev_page > 0 %}
-        <li><a href="/browse/{{repo_base}}/{{repo}}/{{table}}/{{prev_page}}">&laquo;</a></li>
+        <li><a href="/browse/{{repo_base}}/{{repo}}/table/{{table}}?page={{prev_page}}">&laquo;</a></li>
       {% endif %}
       
       {% for page in pages %}
         {% if page == current_page %}
           <li class="active"><a href="#">{{page}}</a></li>
         {% else %}
-          <li><a href="/browse/{{repo_base}}/{{repo}}/{{table}}/{{page}}">{{page}}</a></li>
+          <li><a href="/browse/{{repo_base}}/{{repo}}/table/{{table}}?page={{page}}">{{page}}</a></li>
         {% endif %}
       {% endfor %}
       
       {% if next_page < total_pages %}
-        <li><a href="/browse/{{repo_base}}/{{repo}}/{{table}}/{{next_page}}">&raquo;</a></li>
+        <li><a href="/browse/{{repo_base}}/{{repo}}/table/{{table}}?page={{next_page}}">&raquo;</a></li>
       {% endif %}
     {% endif %}
   </ul>
