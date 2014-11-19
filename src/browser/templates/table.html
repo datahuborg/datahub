@@ -103,7 +103,7 @@
         <form role="form" method="POST" action="/save-annotation" id="frm-annotation">
           <div class="form-group">
             {% csrf_token %}
-            <input type="hidden" name="url" value="/browse/{{repo_base}}/{{repo}}/{{table}}" />
+            <input type="hidden" name="url" value="/browse/{{repo_base}}/{{repo}}/table/{{table}}" />
             <input type="text" class="form-control" name="annotation" placeholder="Enter text description" id="annotation-modal-input" />
           </div>        
       </div>

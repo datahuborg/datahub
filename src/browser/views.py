@@ -349,7 +349,7 @@ def table(request, repo_base, repo, table):
 
     try:
       annotation = Annotation.objects.get(url_path='/browse/%s/%s/table/%s' %(repo_base, repo, table))
-      annotation_text = annotation.url_blurb
+      annotation_text = annotation.annotation_text
     except:
       pass
 
@@ -473,10 +473,10 @@ def save_annotation(request):
       
       try:
         annotation = Annotation.objects.get(url_path=url)
-        annotation.url_blurb = annotation_text
+        annotation.annotation_text = annotation_text
         annotation.save()
       except Annotation.DoesNotExist:
-        annotation = Annotation(url_path=url, url_blurb=annotation_text)
+        annotation = Annotation(url_path=url, annotation_text=annotation_text)
         annotation.save()
     
     return HttpResponseRedirect(url)
