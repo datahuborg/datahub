@@ -383,8 +383,8 @@ def query(request, repo_base, repo):
         'repo_base': repo_base,
         'repo': repo}
     
-    if 'query' in request.REQUEST:
-      query = request.REQUEST['query']    
+    if 'q' in request.REQUEST:
+      query = request.REQUEST['q']    
     
       manager = DataHubManager(user=repo_base)
       res = manager.execute_sql(
