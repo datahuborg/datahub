@@ -108,7 +108,7 @@
         <h4 class="modal-title" id="annotation-modal-title">Annotation</h4>
       </div>
       <div class="modal-body" id="annotation-modal-body">
-        <form role="form" method="POST" action="/save-annotation" id="frm-annotation">
+        <form role="form" method="POST" action="/create/annotation" id="frm-annotation">
           <div class="form-group">
             {% csrf_token %}
             <input type="hidden" name="url" value="/browse/{{repo_base}}/{{repo}}/table/{{table}}" />

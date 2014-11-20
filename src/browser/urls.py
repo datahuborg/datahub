@@ -44,6 +44,9 @@ urlpatterns = patterns('',
 
     url(r'^create/dashboard/(\w+)/(\w+)/(\w+)$', 'browser.views.dashboard_create'),
     url(r'^create/dashboard/(\w+)/(\w+)/(\w+)/$', 'browser.views.dashboard_create'),
+
+    url(r'^create/annotation$', 'browser.views.create_annotation'),
+    url(r'^create/annotation/$', 'browser.views.create_annotation'),
     #### End Create ####
  
 
@@ -121,12 +124,6 @@ urlpatterns = patterns('',
     url(r'^collaborator/repo/(\w+)/(\w+)/remove/(\w+)$', 'browser.views.repo_collaborators_remove'),
     url(r'^collaborator/repo/(\w+)/(\w+)/remove/(\w+)/$', 'browser.views.repo_collaborators_remove'),
     ### End Collaborators ###
-
-
-    ### Annotations ####
-    url(r'^save-annotation$', 'browser.views.save_annotation'),
-    ### End Annotations ####
-
 
     #### Apps ####
     url(r'^console$', 'browser.views.console'),
