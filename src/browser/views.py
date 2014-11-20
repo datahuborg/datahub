@@ -187,7 +187,7 @@ def repo(request, repo_base, repo):
         mimetype="application/json")
 
 @login_required
-def newrepo(request, repo_base):
+def repo_create(request, repo_base):
   try:
     login = get_login(request)
     if request.method == "POST":
@@ -205,7 +205,7 @@ def newrepo(request, repo_base):
     else:
       res = {'repo_base': repo_base, 'login':login}
       res.update(csrf(request))
-      return render_to_response("newrepo.html", res)
+      return render_to_response("create-repo.html", res)
   
   except Exception, e:
     return HttpResponse(json.dumps(
@@ -232,7 +232,7 @@ def repo_delete(request, repo_base, repo):
         mimetype="application/json")
 
 @login_required
-def settings_repo(request, repo_base, repo):
+def repo_settings(request, repo_base, repo):
   try:
     login = get_login(request)
     res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
@@ -259,7 +259,7 @@ def settings_repo(request, repo_base, repo):
         mimetype="application/json")
 
 @login_required
-def add_collaborator(request, repo_base, repo):
+def repo_collaborators_add(request, repo_base, repo):
   try:
     login = get_login(request)
     res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
@@ -279,7 +279,7 @@ def add_collaborator(request, repo_base, repo):
         mimetype="application/json")
 
 @login_required
-def delete_collaborator(request, repo_base, repo, username):
+def repo_collaborators_remove(request, repo_base, repo, username):
   try:
     login = get_login(request)
     res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
@@ -376,6 +376,58 @@ def table(request, repo_base, repo, table):
         mimetype="application/json")
 
 @login_required
+def table_export(request, repo_base, repo, table_name):
+  try:
+    login = get_login(request)
+    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
+    
+    if not (res and res['tuples'][0][0]):
+      raise Exception('Access denied. Missing required privileges.')
+    
+    repo_dir = '/user_data/%s/%s' %(repo_base, repo)
+    
+    if not os.path.exists(repo_dir):
+      os.makedirs(repo_dir)
+    
+    file_path = '%s/%s.csv' %(repo_dir, table_name)
+    dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
+    DataHubManager.export_file(
+        repo_base=repo_base, table_name=dh_table_name, file_path=file_path)
+    return HttpResponseRedirect('/browse/%s/%s#files' %(repo_base, repo))
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
+
+@login_required
+def table_delete(request, repo_base, repo, table_name):
+  try:
+    login = get_login(request)
+    dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
+    
+    res = DataHubManager.has_table_privilege(
+        login, repo_base, dh_table_name, 'DELETE')
+    
+    if not (res and res['tuples'][0][0]):
+      raise Exception('Access denied. Missing required privileges.')
+
+    manager = DataHubManager(user=repo_base)
+    
+    query = '''DROP TABLE %s''' %(dh_table_name)
+    manager.execute_sql(query=query)
+    return HttpResponseRedirect('/browse/%s/%s' %(repo_base, repo))
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
+
+
+'''
+Query 
+'''
+@login_required
 def query(request, repo_base, repo):
   try:
     login = get_login(request)
@@ -444,29 +496,9 @@ def query(request, repo_base, repo):
         mimetype="application/json")
 
 
-@login_required
-def table_delete(request, repo_base, repo, table_name):
-  try:
-    login = get_login(request)
-    dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
-    
-    res = DataHubManager.has_table_privilege(
-        login, repo_base, dh_table_name, 'DELETE')
-    
-    if not (res and res['tuples'][0][0]):
-      raise Exception('Access denied. Missing required privileges.')
-
-    manager = DataHubManager(user=repo_base)
-    
-    query = '''DROP TABLE %s''' %(dh_table_name)
-    manager.execute_sql(query=query)
-    return HttpResponseRedirect('/browse/%s/%s' %(repo_base, repo))
-  except Exception, e:
-    return HttpResponse(
-        json.dumps(
-          {'error': str(e)}),
-        mimetype="application/json")
-
+'''
+Annotations
+'''
 
 @login_required
 def save_annotation(request):
@@ -491,10 +523,10 @@ def save_annotation(request):
         mimetype="application/json")
 
 '''
-Files Related Stuff
+File Related Stuff
 '''
 
-def save_uploaded_file(repo_base, repo, data_file):
+def file_save(repo_base, repo, data_file):
   repo_dir = '/user_data/%s/%s' %(repo_base, repo)
   if not os.path.exists(repo_dir):
     os.makedirs(repo_dir)
@@ -505,14 +537,10 @@ def save_uploaded_file(repo_base, repo, data_file):
       destination.write(chunk)
 
 @login_required
-def handle_file_upload(request):
-  try:
-    if request.method == 'POST':
-      data_file = request.FILES['data_file']
-      repo = request.POST['repo']
-      repo_base = request.POST['repo_base']
-      save_uploaded_file(repo_base, repo, data_file)
-    
+def file_upload(request, repo_base, repo):
+  try:    
+    data_file = request.FILES['data_file']
+    file_save(repo_base, repo, data_file)    
     return HttpResponseRedirect('/browse/%s/%s#files' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
@@ -613,32 +641,6 @@ def file_download(request, repo_base, repo, file_name):
         json.dumps(
           {'error': str(e)}),
         mimetype="application/json")
-
-@login_required
-def file_export(request, repo_base, repo, table_name):
-  try:
-    login = get_login(request)
-    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
-    
-    if not (res and res['tuples'][0][0]):
-      raise Exception('Access denied. Missing required privileges.')
-    
-    repo_dir = '/user_data/%s/%s' %(repo_base, repo)
-    
-    if not os.path.exists(repo_dir):
-      os.makedirs(repo_dir)
-    
-    file_path = '%s/%s.csv' %(repo_dir, table_name)
-    dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
-    DataHubManager.export_file(
-        repo_base=repo_base, table_name=dh_table_name, file_path=file_path)
-    return HttpResponseRedirect('/browse/%s/%s#files' %(repo_base, repo))
-  except Exception, e:
-    return HttpResponse(
-        json.dumps(
-          {'error': str(e)}),
-        mimetype="application/json")
-
 
 '''
 Console
