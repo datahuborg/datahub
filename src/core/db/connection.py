@@ -96,7 +96,7 @@ class DataHubConnection:
 
   def export_query(self, query, file_path, file_format='CSV',
         delimiter=',', header=True):
-    return self.backend.export_file(
+    return self.backend.export_query(
       query=query,
       file_path=file_path,
       file_format=file_format,

@@ -736,7 +736,7 @@ def card_export(request, repo_base, repo, card_name):
       os.makedirs(repo_dir)
     
     file_path = '%s/%s.csv' %(repo_dir, card_name)
-    DataHubManager.export_file(
+    DataHubManager.export_query(
         repo_base=repo_base, query=query, file_path=file_path)
     return HttpResponseRedirect('/browse/%s/%s#files' %(repo_base, repo))
   except Exception, e:

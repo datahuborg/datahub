@@ -197,7 +197,7 @@ class PGBackend:
       delimiter=',', header=True):
     header_option = 'HEADER' if header else ''
     return self.execute_sql(
-        ''' COPY %s TO '%s'
+        ''' COPY (%s) TO '%s'
             WITH %s %s DELIMITER '%s';
         ''' %(query, file_path, file_format, header_option, delimiter))
 
