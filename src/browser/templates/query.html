@@ -4,10 +4,7 @@
 {% block apps %}
 {% endblock %}
 
-{% if not query %}
-  {% block panel %}
-  {% endblock %}
-{% else %}
+
   {% block panel-heading %}
   <div class="panel-heading">
   <div class="row">
@@ -42,7 +39,6 @@
       {% endif %}
     </ul>
   {% endblock %}
-{% endif %}
 
 {% block extra %}
 <div class="modal" id="publish-modal" 

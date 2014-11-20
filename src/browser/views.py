@@ -592,7 +592,7 @@ def query(request, repo_base, repo):
           'prev_page': current_page - 1,
           'total_pages': total_pages,
           'pages': range(start_page, end_page + 1)})
-
+    
     data.update(csrf(request))
     return render_to_response("query.html", data)
   except Exception, e:
