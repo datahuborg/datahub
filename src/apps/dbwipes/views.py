@@ -15,7 +15,6 @@ from django.db import connection
 
 from core.db.manager import DataHubManager
 from core.handler import DataHubHandler
-from refiner import inference
 from datahub import DataHub
 
 from django.http import *
