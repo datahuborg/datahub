@@ -1,0 +1,43 @@
+{% extends "table.html" %}
+{% block table %}
+<a class="link" href="/browse/{{repo_base}}/{{repo}}">/</a>
+<a class="link" href="/browse/{{repo_base}}/{{repo}}/card/{{card}}">{{card}}</a>
+{% endblock %}
+{% block apps %}
+{% endblock %}
+
+
+  {% block panel-heading %}
+  <div class="panel-heading">
+    <h4>{{card_name}}</h4>
+    {% if annotation %}
+      <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}"><span class="glyphicon glyphicon-edit"></span></span>
+    {% else %}
+      <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Add Description"><span class="glyphicon glyphicon-edit"></span></span>
+    {% endif %}    
+  </div>
+  {% endblock %}
+
+  {% block pagenation %}
+  <ul class="pagination pagination-sm">
+    {% if pages|length > 1 %}
+      {% if prev_page > 0 %}
+        <li><a href="{{url_path}}?page={{prev_page}}">&laquo;</a></li>
+      {% endif %}
+      
+      {% for page in pages %}
+        {% if page == current_page %}
+          <li class="active"><a href="#">{{page}}</a></li>
+        {% else %}
+          <li><a href="{{url_path}}?page={{page}}">{{page}}</a></li>
+        {% endif %}
+      {% endfor %}
+      
+      {% if next_page < total_pages %}
+        <li><a href="{{url_path}}?page={{next_page}}">&raquo;</a></li>
+      {% endif %}
+    {% endif %}
+  </ul>
+    
+  {% endblock %}
+
