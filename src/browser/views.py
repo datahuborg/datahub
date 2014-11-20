@@ -691,7 +691,7 @@ def card(request, repo_base, repo, card_name):
         'repo_base': repo_base,
         'repo': repo,
         'card_name': card_name,
-        'annotation_text': annotation_text,
+        'annotation': annotation_text,
         'query': query,
         'column_names': column_names,
         'tuples': tuples,
