@@ -4,7 +4,9 @@
 {% block apps %}
 {% endblock %}
 
+{% if query %}
 {% block pannel-heading %}
+<div class="panel-heading">
 <div class="row">
   <div class="form-group col-sm-10">
     <pre><code class="language-sql" data-lang="sql">{{query}}</code></pre>
@@ -12,6 +14,7 @@
   <div class="col-sm-2">
     <button class="btn btn-default btn-xsm modal-link" type="button" target-modal="#publish-modal" title="Publish Dashboard">Publish</button>
   </div>
+</div>
 </div>
 {% endblock %}
 
@@ -86,4 +89,5 @@ $('.modal-link').on('click', function(e){
       });
   });
 </script>
+{% endif %}
 {% endblock %}

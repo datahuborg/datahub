@@ -33,19 +33,16 @@
   </form>
 
   <div class="panel panel-default">
-    
-    <div class="panel-heading">
-      {% block pannel-heading %}      
-        
+    {% block pannel-heading %}      
+      <div class="panel-heading">
         <h4>{{table}}</h4>
         {% if annotation %}
           <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}"><span class="glyphicon glyphicon-edit"></span></span>
         {% else %}
           <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Add Description"><span class="glyphicon glyphicon-edit"></span></span>
         {% endif %}    
-      
-      {% endblock %}
-    </div>
+      </div>
+    {% endblock %}
     
     {% if tuples|length > 0 %}
       <div class="table-responsive">
