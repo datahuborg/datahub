@@ -154,8 +154,8 @@ def repo(request, repo_base, repo):
       os.makedirs(repo_dir)
     
     uploaded_files = [f for f in os.listdir(repo_dir)]
-
-    #cards = [c.card_name for Card.objects.filter(repo_base=repo_base, repo=repo)]
+    #cards = []
+    cards = [c.card_name for Card.objects.all().filter(repo_base=repo_base, repo=repo)]
     
     res = {
         'login': get_login(request),
