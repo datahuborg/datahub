@@ -37,9 +37,9 @@
       <div class="panel-heading">
         <h4>{{table}}</h4>
         {% if annotation %}
-          <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}"  url-path="/browse/{{repo_base}}/{{repo}}/table/{{table}}"><span class="glyphicon glyphicon-edit"></span></span>
+          <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}"  url-path="/browse/{{repo_base}}/{{repo}}/table/{{table}}"><span class="glyphicon glyphicon-edit"></span></span>
         {% else %}
-          <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Add Description"  url-path="/browse/{{repo_base}}/{{repo}}/table/{{table}}"><span class="glyphicon glyphicon-edit"></span></span>
+          <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Add Description"  url-path="/browse/{{repo_base}}/{{repo}}/table/{{table}}"><span class="glyphicon glyphicon-edit"></span></span>
         {% endif %}    
       </div>
     {% endblock %}
@@ -109,7 +109,7 @@
         <form role="form" method="POST" action="/create/annotation" id="frm-annotation">
           <div class="form-group">
             {% csrf_token %}
-            <input type="hidden" name="url" value="" id="annotation-modal-input-url"/>
+            <input type="hidden" name="url" id="annotation-modal-input-url"/>
             <input type="text" class="form-control" name="annotation" placeholder="Enter text description" id="annotation-modal-input-annotation" />
           </div>
         </form>      
@@ -124,7 +124,7 @@
   </div>
 </div>
 <script type="text/javascript">
-$('.modal-dialog').on('click', function(e){
+$('.annotation-modal-dialog').on('click', function(e){
     var modal_id = $(this).attr('target-modal')
     var title = $(this).attr('title')
     var placeholder = $(this).attr('placeholder')
