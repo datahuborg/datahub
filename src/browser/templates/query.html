@@ -15,6 +15,28 @@
 </div>
 {% endblock %}
 
+{% block pagenation %}
+  <ul class="pagination pagination-sm">
+    {% if pages|length > 1 %}
+      {% if prev_page > 0 %}
+        <li><a href="{{url_path}}?q={{query}}&amp;page={{prev_page}}">&laquo;</a></li>
+      {% endif %}
+      
+      {% for page in pages %}
+        {% if page == current_page %}
+          <li class="active"><a href="#">{{page}}</a></li>
+        {% else %}
+          <li><a href="{{url_path}}?q={{query}}&amp;page={{page}}">{{page}}</a></li>
+        {% endif %}
+      {% endfor %}
+      
+      {% if next_page < total_pages %}
+        <li><a href="{{url_path}}?q={{query}}&amp;page={{next_page}}">&raquo;</a></li>
+      {% endif %}
+    {% endif %}
+  </ul>
+{% endblock %}
+
 {% block extra %}
 <div class="modal" id="publish-modal" 
     tabindex="-1" role="dialog" aria-hidden="true">
