@@ -378,7 +378,7 @@ def table_export(request, repo_base, repo, table_name):
     
     file_path = '%s/%s.csv' %(repo_dir, table_name)
     dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
-    DataHubManager.export_file(
+    DataHubManager.export_table(
         repo_base=repo_base, table_name=dh_table_name, file_path=file_path)
     return HttpResponseRedirect('/browse/%s/%s#files' %(repo_base, repo))
   except Exception, e:
@@ -713,6 +713,51 @@ def card_create(request, repo_base, repo):
         repo_base=repo_base, repo_name=repo, card_name=card_name, query=query)
     card.save()    
     return HttpResponseRedirect(url)
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
+
+@login_required
+def card_export(request, repo_base, repo, card_name):
+  try:
+    login = get_login(request)
+    card = Card.objects.get(repo_base=repo_base, repo_name=repo, card_name=card_name)
+    query = card.query
+    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
+    
+    if not (res and res['tuples'][0][0]):
+      raise Exception('Access denied. Missing required privileges.')
+    
+    repo_dir = '/user_data/%s/%s' %(repo_base, repo)
+    
+    if not os.path.exists(repo_dir):
+      os.makedirs(repo_dir)
+    
+    file_path = '%s/%s.csv' %(repo_dir, card_name)
+    DataHubManager.export_file(
+        repo_base=repo_base, query=query, file_path=file_path)
+    return HttpResponseRedirect('/browse/%s/%s#files' %(repo_base, repo))
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
+
+@login_required
+def card_delete(request, repo_base, repo, card_name):
+  try:    
+    login = get_login(request)
+    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
+    
+    if not (res and res['tuples'][0][0]):
+      raise Exception('Access denied. Missing required privileges.')
+
+    card = Card.objects.get(repo_base=repo_base, repo_name=repo, card_name=card_name)
+    card.delete()
+
+    return HttpResponseRedirect('/browse/%s/%s#cards' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(

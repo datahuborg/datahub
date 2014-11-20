@@ -86,10 +86,18 @@ class DataHubConnection:
         encoding=encoding,
         quote_character=quote_character)
 
-  def export_file(self, table_name, file_path, file_format='CSV',
+  def export_table(self, table_name, file_path, file_format='CSV',
+        delimiter=',', header=True):
+    return self.backend.export_table(
+      table_name=table_name,
+      file_path=file_path,
+      file_format=file_format,
+      delimiter=delimiter)
+
+  def export_query(self, query, file_path, file_format='CSV',
         delimiter=',', header=True):
     return self.backend.export_file(
-      table_name=table_name,
+      query=query,
       file_path=file_path,
       file_format=file_format,
       delimiter=delimiter)

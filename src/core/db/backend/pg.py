@@ -185,13 +185,21 @@ class PGBackend:
             ''' %(login, table, column, privilege)
     return self.execute_sql(query)
 
-  def export_file(self, table_name, file_path, file_format='CSV',
+  def export_table(self, table_name, file_path, file_format='CSV',
       delimiter=',', header=True):
     header_option = 'HEADER' if header else ''
     return self.execute_sql(
         ''' COPY %s TO '%s'
             WITH %s %s DELIMITER '%s';
         ''' %(table_name, file_path, file_format, header_option, delimiter))
+
+  def export_query(self, query, file_path, file_format='CSV',
+      delimiter=',', header=True):
+    header_option = 'HEADER' if header else ''
+    return self.execute_sql(
+        ''' COPY %s TO '%s'
+            WITH %s %s DELIMITER '%s';
+        ''' %(query, file_path, file_format, header_option, delimiter))
 
   def import_file(self, table_name, file_path, file_format='CSV',
       delimiter=',', header=True, encoding='ISO-8859-1', quote_character='"'):

@@ -97,14 +97,28 @@ class DataHubManager:
         quote_character=quote_character)
 
   @staticmethod
-  def export_file(repo_base, table_name, file_path, file_format='CSV',
+  def export_table(repo_base, table_name, file_path, file_format='CSV',
       delimiter=',', header=True):
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
         password=settings.DATABASES['default']['USER'],
         repo_base=repo_base)
-    return superuser_con.export_file(
+    return superuser_con.export_table(
         table_name=table_name,
+        file_path=file_path,
+        file_format=file_format,
+        delimiter=delimiter,
+        header=header)
+
+  @staticmethod
+  def export_query(repo_base, query, file_path, file_format='CSV',
+      delimiter=',', header=True):
+    superuser_con = DataHubConnection(
+        user=settings.DATABASES['default']['USER'],
+        password=settings.DATABASES['default']['USER'],
+        repo_base=repo_base)
+    return superuser_con.export_query(
+        query=query,
         file_path=file_path,
         file_format=file_format,
         delimiter=delimiter,
