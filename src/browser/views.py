@@ -539,7 +539,8 @@ def query(request, repo_base, repo):
     data = {
         'login': get_login(request),
         'repo_base': repo_base,
-        'repo': repo}
+        'repo': repo,
+        'query': None}
     
     if 'q' in request.REQUEST:
       query = request.REQUEST['q']    
