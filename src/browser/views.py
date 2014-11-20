@@ -677,13 +677,21 @@ def card(request, repo_base, repo, card_name):
     column_names = [field['name'] for field in res['fields']]
     tuples = res['tuples']
 
+    annotation_text = None
     url_path = '/browse/%s/%s/card/%s' %(repo_base, repo, card_name)
+    try:
+      annotation = Annotation.objects.get(url_path=url_path)
+      annotation_text = annotation.annotation_text
+    except:
+      pass
+
 
     data = {
         'login': get_login(request),
         'repo_base': repo_base,
         'repo': repo,
         'card_name': card_name,
+        'annotation_text': annotation_text,
         'query': query,
         'column_names': column_names,
         'tuples': tuples,
