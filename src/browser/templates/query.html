@@ -4,90 +4,93 @@
 {% block apps %}
 {% endblock %}
 
-{% if query != '' %}
-{% block pannel-heading %}
-<div class="panel-heading">
-<div class="row">
-  <div class="form-group col-sm-10">
-    <pre><code class="language-sql" data-lang="sql">{{query}}</code></pre>
+{% if query == '' %}
+  {% block pannel %}
+  {% endblock %}
+{% else %}
+  {% block pannel-heading %}
+  <div class="panel-heading">
+  <div class="row">
+    <div class="form-group col-sm-10">
+      <pre><code class="language-sql" data-lang="sql">{{query}}</code></pre>
+    </div>
+    <div class="col-sm-2">
+      <button class="btn btn-default btn-xsm modal-link" type="button" target-modal="#publish-modal" title="Publish Dashboard">Publish</button>
+    </div>
   </div>
-  <div class="col-sm-2">
-    <button class="btn btn-default btn-xsm modal-link" type="button" target-modal="#publish-modal" title="Publish Dashboard">Publish</button>
   </div>
-</div>
-</div>
-{% endblock %}
+  {% endblock %}
 
-{% block pagenation %}
-  <ul class="pagination pagination-sm">
-    {% if pages|length > 1 %}
-      {% if prev_page > 0 %}
-        <li><a href="{{url_path}}?q={{query}}&amp;page={{prev_page}}">&laquo;</a></li>
-      {% endif %}
-      
-      {% for page in pages %}
-        {% if page == current_page %}
-          <li class="active"><a href="#">{{page}}</a></li>
-        {% else %}
-          <li><a href="{{url_path}}?q={{query}}&amp;page={{page}}">{{page}}</a></li>
+  {% block pagenation %}
+    <ul class="pagination pagination-sm">
+      {% if pages|length > 1 %}
+        {% if prev_page > 0 %}
+          <li><a href="{{url_path}}?q={{query}}&amp;page={{prev_page}}">&laquo;</a></li>
         {% endif %}
-      {% endfor %}
-      
-      {% if next_page < total_pages %}
-        <li><a href="{{url_path}}?q={{query}}&amp;page={{next_page}}">&raquo;</a></li>
+        
+        {% for page in pages %}
+          {% if page == current_page %}
+            <li class="active"><a href="#">{{page}}</a></li>
+          {% else %}
+            <li><a href="{{url_path}}?q={{query}}&amp;page={{page}}">{{page}}</a></li>
+          {% endif %}
+        {% endfor %}
+        
+        {% if next_page < total_pages %}
+          <li><a href="{{url_path}}?q={{query}}&amp;page={{next_page}}">&raquo;</a></li>
+        {% endif %}
       {% endif %}
-    {% endif %}
-  </ul>
-{% endblock %}
+    </ul>
+  {% endblock %}
 
-{% block extra %}
-<div class="modal" id="publish-modal" 
-    tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
-          <span class="sr-only">Close</span>
-        </button>
-        <h4 class="modal-title" id="publish-modal-title">Publish Dashboard</h4>
-      </div>
-      <div class="modal-body" id="publish-modal-body">
-        <form role="form" method="POST" action="/publish-dashboard" id="frm-publish">
-          <div class="form-group">
-            {% csrf_token %}
-            <input type="hidden" name="url" value="/browse/{{repo_base}}/{{repo}}/{{table}}" />
-            <input type="text" class="form-control" name="dashboard-name" placeholder="Enter text description" id="publish-modal-input" />
-          </div>        
-      </div>
-      <div class="modal-footer">
-        <button type="button"
-            class="btn btn-primary" id="publish-modal-operation">Publish</button>
-        <button type="button"
-            class="btn btn-default" data-dismiss="modal">Cancel</button>
+  {% block extra %}
+  <div class="modal" id="publish-modal" 
+      tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span>
+            <span class="sr-only">Close</span>
+          </button>
+          <h4 class="modal-title" id="publish-modal-title">Publish Dashboard</h4>
+        </div>
+        <div class="modal-body" id="publish-modal-body">
+          <form role="form" method="POST" action="/publish-dashboard" id="frm-publish">
+            <div class="form-group">
+              {% csrf_token %}
+              <input type="hidden" name="url" value="/browse/{{repo_base}}/{{repo}}/{{table}}" />
+              <input type="text" class="form-control" name="dashboard-name" placeholder="Enter text description" id="publish-modal-input" />
+            </div>        
+        </div>
+        <div class="modal-footer">
+          <button type="button"
+              class="btn btn-primary" id="publish-modal-operation">Publish</button>
+          <button type="button"
+              class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<script type="text/javascript">
-$('.modal-link').on('click', function(e){
-    var modal_id = $(this).attr('target-modal')
-    var title = $(this).attr('title')
-    var placeholder = $(this).attr('placeholder')
-    
-    $(modal_id + '-title').text(title)
-    $(modal_id + '-input').val(placeholder)
+  <script type="text/javascript">
+  $('.modal-link').on('click', function(e){
+      var modal_id = $(this).attr('target-modal')
+      var title = $(this).attr('title')
+      var placeholder = $(this).attr('placeholder')
+      
+      $(modal_id + '-title').text(title)
+      $(modal_id + '-input').val(placeholder)
 
-    $(modal_id).off('click');
-    
-    $(modal_id).modal({keyboard: true})
-      .on('click', modal_id + '-operation', function (e) {
-        $("#frm-publish").submit()
-        $(modal_id).modal('hide')
-        $("#wait-dialog").modal()  
-      });
-  });
-</script>
-{% endblock %}
+      $(modal_id).off('click');
+      
+      $(modal_id).modal({keyboard: true})
+        .on('click', modal_id + '-operation', function (e) {
+          $("#frm-publish").submit()
+          $(modal_id).modal('hide')
+          $("#wait-dialog").modal()  
+        });
+    });
+  </script>
+  {% endblock %}
 {% endif %}

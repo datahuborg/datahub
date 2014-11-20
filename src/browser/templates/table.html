@@ -31,7 +31,7 @@
     
     </div>
   </form>
-
+  {% block panel %}
   <div class="panel panel-default">
     {% block pannel-heading %}      
       <div class="panel-heading">
@@ -69,6 +69,7 @@
       <p class="bg-warning">The <strong>{{table}}</strong> table is empty.</p>
     {% endif %}
   </div>
+  {% endblock %}
 
   {% block pagenation %}
   <ul class="pagination pagination-sm">
