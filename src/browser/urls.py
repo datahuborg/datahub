@@ -34,23 +34,23 @@ urlpatterns = patterns('',
 
 
     #### Create ####
-    url(r'^create/repo/(\w+)$', 'browser.views.repo_create'),
-    url(r'^create/repo/(\w+)/$', 'browser.views.repo_create'),
+    url(r'^create/(\w+)/repo$', 'browser.views.repo_create'),
+    url(r'^create/(\w+)/repo/$', 'browser.views.repo_create'),
+
+    url(r'^create/(\w+)/(\w+)/card/(\w+)$', 'browser.views.card_create'),
+    url(r'^create/(\w+)/(\w+)/card/(\w+)/$', 'browser.views.card_create'),
+
+    url(r'^create/(\w+)/(\w+)/dashboard/(\w+)$', 'browser.views.dashboard_create'),
+    url(r'^create/(\w+)/(\w+)/dashboard/(\w+)/$', 'browser.views.dashboard_create'),
 
     url(r'^create/organization/(\w+)$', 'browser.views.organization_create'),
     url(r'^create/organization/(\w+)/$', 'browser.views.organization_create'),
 
-    url(r'^create/group/(\w+)/(\w+)$', 'browser.views.group_create'),
-    url(r'^create/group/(\w+)/(\w+)/$', 'browser.views.group_create'),
+    url(r'^create/(\w+)/group/(\w+)$', 'browser.views.group_create'),
+    url(r'^create/(\w+)/group/(\w+)/$', 'browser.views.group_create'),
 
     url(r'^create/app/(\w+)$', 'browser.views.app_create'),
     url(r'^create/app/(\w+)/$', 'browser.views.app_create'),
-
-    url(r'^create/card/(\w+)/(\w+)/(\w+)$', 'browser.views.card_create'),
-    url(r'^create/card/(\w+)/(\w+)/(\w+)/$', 'browser.views.card_create'),
-
-    url(r'^create/dashboard/(\w+)/(\w+)/(\w+)$', 'browser.views.dashboard_create'),
-    url(r'^create/dashboard/(\w+)/(\w+)/(\w+)/$', 'browser.views.dashboard_create'),
 
     url(r'^create/annotation$', 'browser.views.create_annotation'),
     url(r'^create/annotation/$', 'browser.views.create_annotation'),

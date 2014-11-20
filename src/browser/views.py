@@ -154,11 +154,14 @@ def repo(request, repo_base, repo):
       os.makedirs(repo_dir)
     
     uploaded_files = [f for f in os.listdir(repo_dir)]
+
+    cards = [c.card_name for Card.objects.filter(repo_base=repo_base, repo=repo)]
     
     res = {
         'login': get_login(request),
         'repo_base': repo_base,
         'repo': repo,
+        'cards': cards,
         'tables': tables,
         'files': uploaded_files}
     res.update(csrf(request))
@@ -592,7 +595,7 @@ def query(request, repo_base, repo):
           'prev_page': current_page - 1,
           'total_pages': total_pages,
           'pages': range(start_page, end_page + 1)})
-    
+
     data.update(csrf(request))
     return render_to_response("query.html", data)
   except Exception, e:
@@ -608,19 +611,104 @@ Annotations
 
 @login_required
 def create_annotation(request):
-  try:
-    if request.method == 'POST':
-      url = request.POST['url']
-      annotation_text = request.POST['annotation']
-      
-      try:
-        annotation = Annotation.objects.get(url_path=url)
-        annotation.annotation_text = annotation_text
-        annotation.save()
-      except Annotation.DoesNotExist:
-        annotation = Annotation(url_path=url, annotation_text=annotation_text)
-        annotation.save()
+  try:    
+    url = request.POST['url']
+    annotation_text = request.POST['annotation']
     
+    try:
+      annotation = Annotation.objects.get(url_path=url)
+      annotation.annotation_text = annotation_text
+      annotation.save()
+    except Annotation.DoesNotExist:
+      annotation = Annotation(
+          url_path=url, annotation_text=annotation_text)
+      annotation.save()
+    
+    return HttpResponseRedirect(url)
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
+
+
+'''
+Cards
+'''
+
+@login_required
+def card(request, repo_base, repo, card):
+  try:
+    login = get_login(request)
+    card = Card.objects.get(repo_base=repo_base, repo=repo, card_name=card_name)
+    query = card.query  
+    manager = DataHubManager(user=repo_base)
+    res = manager.execute_sql(
+        query='EXPLAIN %s' %(query))    
+    
+    limit = 50
+    
+    num_rows = re.match(r'.*rows=(\d+).*', res['tuples'][0][0]).group(1)
+    count = int(num_rows)    
+    total_pages = 1 + (int(count) / limit)
+
+    current_page = 1
+    try:
+      current_page = int(request.REQUEST['page'])
+    except:
+      pass
+
+    if current_page < 1:
+      current_page = 1
+
+    start_page = current_page - 5
+    if start_page < 1:
+      start_page = 1
+
+    end_page = start_page + 10
+    
+    if end_page > total_pages:
+      end_page = total_pages
+      
+    res = manager.execute_sql(
+        query='%s LIMIT %s OFFSET %s'
+        %(query, limit, (current_page -1) * limit))
+    
+    column_names = [field['name'] for field in res['fields']]
+    tuples = res['tuples']
+
+    url_path = '/browse/%s/%s/card/%s' %(repo_base, repo, card_name)
+
+    data.update({
+        'card_name': card_name,
+        'query': query,
+        'column_names': column_names,
+        'tuples': tuples,
+        'url_path': url_path,
+        'current_page': current_page,
+        'next_page': current_page + 1,
+        'prev_page': current_page - 1,
+        'total_pages': total_pages,
+        'pages': range(start_page, end_page + 1)})
+
+    data.update(csrf(request))
+    return render_to_response("query.html", data)    
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
+
+@login_required
+def create_card(request, repo_base, repo):
+  try:    
+    card_name = request.POST['card_name']
+    query = request.POST['query']
+    url = '/browse/%s/%s/card/%s' %(repo_base, repo, card_name)
+
+    card = Card(
+        repo_base=repo_base, repo=repo, card_name=card_name, query=Query)
+    card.save()    
     return HttpResponseRedirect(url)
   except Exception, e:
     return HttpResponse(
