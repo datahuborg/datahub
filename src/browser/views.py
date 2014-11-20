@@ -637,10 +637,10 @@ Cards
 '''
 
 @login_required
-def card(request, repo_base, repo, card):
+def card(request, repo_base, repo, card_name):
   try:
     login = get_login(request)
-    card = Card.objects.get(repo_base=repo_base, repo=repo, card_name=card_name)
+    card = Card.objects.get(repo_base=repo_base, repo_name=repo, card_name=card_name)
     query = card.query  
     manager = DataHubManager(user=repo_base)
     res = manager.execute_sql(
@@ -679,7 +679,10 @@ def card(request, repo_base, repo, card):
 
     url_path = '/browse/%s/%s/card/%s' %(repo_base, repo, card_name)
 
-    data.update({
+    data = {
+        'login': get_login(request),
+        'repo_base': repo_base,
+        'repo': repo,
         'card_name': card_name,
         'query': query,
         'column_names': column_names,
@@ -689,10 +692,10 @@ def card(request, repo_base, repo, card):
         'next_page': current_page + 1,
         'prev_page': current_page - 1,
         'total_pages': total_pages,
-        'pages': range(start_page, end_page + 1)})
+        'pages': range(start_page, end_page + 1)}
 
     data.update(csrf(request))
-    return render_to_response("query.html", data)    
+    return render_to_response("card.html", data)    
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -702,12 +705,12 @@ def card(request, repo_base, repo, card):
 @login_required
 def card_create(request, repo_base, repo):
   try:    
-    card_name = request.POST['card_name']
+    card_name = request.POST['card-name']
     query = request.POST['query']
     url = '/browse/%s/%s/card/%s' %(repo_base, repo, card_name)
 
     card = Card(
-        repo_base=repo_base, repo=repo, card_name=card_name, query=Query)
+        repo_base=repo_base, repo_name=repo, card_name=card_name, query=query)
     card.save()    
     return HttpResponseRedirect(url)
   except Exception, e:
