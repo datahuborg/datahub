@@ -700,7 +700,7 @@ def card(request, repo_base, repo, card):
         mimetype="application/json")
 
 @login_required
-def create_card(request, repo_base, repo):
+def card_create(request, repo_base, repo):
   try:    
     card_name = request.POST['card_name']
     query = request.POST['query']

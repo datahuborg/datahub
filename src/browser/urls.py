@@ -37,8 +37,8 @@ urlpatterns = patterns('',
     url(r'^create/(\w+)/repo$', 'browser.views.repo_create'),
     url(r'^create/(\w+)/repo/$', 'browser.views.repo_create'),
 
-    url(r'^create/(\w+)/(\w+)/card/(\w+)$', 'browser.views.card_create'),
-    url(r'^create/(\w+)/(\w+)/card/(\w+)/$', 'browser.views.card_create'),
+    url(r'^create/(\w+)/(\w+)/card$', 'browser.views.card_create'),
+    url(r'^create/(\w+)/(\w+)/card/$', 'browser.views.card_create'),
 
     url(r'^create/(\w+)/(\w+)/dashboard/(\w+)$', 'browser.views.dashboard_create'),
     url(r'^create/(\w+)/(\w+)/dashboard/(\w+)/$', 'browser.views.dashboard_create'),
