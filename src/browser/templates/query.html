@@ -53,7 +53,7 @@
         <h4 class="modal-title" id="save-card-modal-title">Save as Card</h4>
       </div>
       <div class="modal-body" id="save-card-modal-body">
-        <form role="form" method="POST" action="/create/{{repo_base}}/repo/card" id="save-card-modal-form">
+        <form role="form" method="POST" action="/create/{{repo_base}}/{{repo}}/card" id="save-card-modal-form">
           <div class="form-group">
             {% csrf_token %}
             <input type="hidden" name="query" value="{{query}}" />
