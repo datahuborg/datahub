@@ -131,7 +131,7 @@ define(function(require) {
       $("#scorpion-slider").hide();
       $("#slider-container").hide();
 
-      $.get('/api/requestid', function(resp) {
+      $.get('/dbwipes/api/requestid', function(resp) {
         var requestid = resp.requestid;
         console.log("got reqid " + requestid)
         _this.model.fetch({

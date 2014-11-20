@@ -33,7 +33,7 @@ define(function(require) {
 
 
   var TupleQuery = Backbone.Model.extend({
-    url: "/api/tuples/",
+    url: "/dbwipes/api/tuples/",
 
     defaults: function() {
       return {

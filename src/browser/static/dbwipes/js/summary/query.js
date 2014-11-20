@@ -25,7 +25,7 @@ define(function(require) {
   }
 
   var Query = Backbone.Model.extend({
-    url: '/api/query',
+    url: '/dbwipes/api/query',
 
     defaults: function() {
       return {
@@ -117,7 +117,7 @@ define(function(require) {
     },
 
 
-    // parse /api/query/ results
+    // parse /dbwipes/api/query/ results
     parse: function(resp, opts) {
       var xcol = this.get('x'),
           schema = resp.schema || this.get('schema');

@@ -9,7 +9,7 @@ define(function(require) {
 
 
   var DBModel = Backbone.Model.extend({
-    url: '/api/databases',
+    url: '/dbwipes/api/databases',
     defaults: function() {
       return {
         dbs: {}   // dbname -> [ tablename,... ]

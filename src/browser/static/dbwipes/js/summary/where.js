@@ -8,7 +8,7 @@ define(function(require) {
 
   var Where = Backbone.Collection.extend({
     model: CStat,
-    url: '/api/schema/',
+    url: '/dbwipes/api/schema/',
 
     initialize: function(attrs) {
       var _this = this;

@@ -6,7 +6,7 @@ define(function(require) {
       ScorpionResult = require('summary/scorpionresult');
   
   var Status = Backbone.Model.extend({
-    url: '/api/status',
+    url: '/dbwipes/api/status',
 
     defaults: function() {
       return {
