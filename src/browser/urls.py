@@ -1,12 +1,18 @@
 from django.conf.urls import patterns, include, url
 
-urlpatterns = patterns('', 
-    #### WWW pages ####
+urlpatterns = patterns('',
+    
+    ########################################################################################
+    ######## ------------------------------ DataHub Core ------------------------- #########
+    ########################################################################################
+    
+    #### Home Page ####
     url(r'^$', 'browser.views.home'),
-    url(r'^about$', 'browser.views.about'),
-    url(r'^developer$', 'browser.views.developer_apis'),
-    url(r'^developer/$', 'browser.views.developer_apis'),
-    #### End WWW pages ####
+    #### End Home ####
+
+    #### WWW Pages ####
+    url(r'^www/', include('www.urls')),
+    #### End WWW Pages ####
 
     #### Account Related ####
     url(r'^login', 'browser.auth.login'),
@@ -125,40 +131,15 @@ urlpatterns = patterns('',
     url(r'^collaborator/repo/(\w+)/(\w+)/remove/(\w+)/$', 'browser.views.repo_collaborators_remove'),
     ### End Collaborators ###
 
+
+    ########################################################################################
+    ######## ------------------------------ END DataHub Core --------------------- #########
+    ########################################################################################
+
+
     #### Apps ####
-    url(r'^console$', 'browser.views.console'),
-    url(r'^console/$', 'browser.views.console'),
-
-    url(r'^data-refiner/(\w+)/(\w+)$', 'browser.views.data_refiner'),
-    url(r'^data-refiner/(\w+)/(\w+)/$', 'browser.views.data_refiner'),
-
-    url(r'^refine-data$', 'browser.views.refine_data'),
-    url(r'^refine-data/$', 'browser.views.refine_data'),
+    url(r'^apps/console/', include('console.urls')), # console app
+    url(r'^apps/refiner/', include('refiner.urls')), # refiner app
+    # url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app  
     #### End Apps ####
-
-
-    ### start dbwipes urls ###
-    url(r'^dbwipes/(\w+)/(\w+)$', 'browser.views.repo'),
-    url(r'^dbwipes/(\w+)/(\w+)/$', 'browser.views.repo'),
-
-    url(r'^dbwipes/(\w+)$', 'browser.views.user'),
-    url(r'^dbwipes/(\w+)/$', 'browser.views.user'),
-
-    url(r'^dbwipes/(\w+)/(\w+)/(\w+)$', 'dbwipes.views.index'),
-    url(r'^dbwipes/(\w+)/(\w+)/(\w+)/$', 'dbwipes.views.index'),
-
-    url(r'^api/databases$', 'dbwipes.views.dbs'),
-    url(r'^api/databases/$', 'dbwipes.views.dbs'),
-    url(r'^api/tables$', 'dbwipes.views.tables'),
-    url(r'^api/tables/$', 'dbwipes.views.tables'),
-    url(r'^api/schema$', 'dbwipes.views.schema'),
-    url(r'^api/schema/$', 'dbwipes.views.schema'),
-    url(r'^api/tuples/$', 'dbwipes.views.api_tuples'),
-    url(r'^api/query/$', 'dbwipes.views.api_query'),
-    url(r'^api/column_distribution/$', 'dbwipes.views.column_distribution'),
-    url(r'^api/column_distributions/$', 'dbwipes.views.column_distributions'),
-    url(r'^api/requestid/$', 'dbwipes.views.requestid'),
-    url(r'^api/status/$', 'dbwipes.views.api_status'),
-    url(r'^api/scorpion$', 'dbwipes.views.scorpion'),
-    url(r'^api/scorpion/$', 'dbwipes.views.scorpion'),
 )

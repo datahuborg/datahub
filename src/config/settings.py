@@ -110,11 +110,13 @@ INSTALLED_APPS = (
   'django.contrib.sites',
   'django.contrib.messages',
   'django.contrib.staticfiles',
+  'console',
   'south',
   'browser',
   'dbwipes',
   'refiner',
-  'inventory'
+  'inventory',
+  'www'
 )
 
 # A sample logging configuration. The only tangible logging

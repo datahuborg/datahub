@@ -20,7 +20,6 @@ from thrift.protocol import TJSONProtocol
 from thrift.transport import TTransport
 from thrift.transport.TTransport import TMemoryBuffer
 
-from apps.refiner import inference
 from auth import *
 from core.db.manager import DataHubManager
 from core.handler import DataHubHandler
@@ -43,29 +42,12 @@ def home(request):
     if login:
       return HttpResponseRedirect('/browse/%s' %(login))
     else:
-      return HttpResponseRedirect('/about')
+      return HttpResponseRedirect('/www')
   except Exception, e:
     return HttpResponse(
         json.dumps({'error': str(e)}),
         mimetype="application/json")
 
-def about(request):
-  try:
-    c = {'login': get_login(request)} 
-    return render_to_response("about.html", c)
-  except Exception, e:
-    return HttpResponse(
-        json.dumps({'error': str(e)}),
-        mimetype="application/json")
-
-def developer_apis(request):
-  try:
-    c = {'login': get_login(request)} 
-    return render_to_response("apis.html", c)
-  except Exception, e:
-    return HttpResponse(
-        json.dumps({'error': str(e)}),
-        mimetype="application/json")
 
 '''
 APIs and Services
@@ -644,64 +626,3 @@ def create_annotation(request):
         json.dumps(
           {'error': str(e)}),
         mimetype="application/json")
-
-
-'''
-Console
-'''
-
-@login_required
-def console(request):
-  return render_to_response("console.html", {
-    'login': get_login(request)})
-
-'''
-Visualizations
-'''
-@login_required
-def visualize(request):
-  return render_to_response("visualize.html", {
-    'login': get_login(request)})
-
-
-'''
-Data Refiner
-'''
-
-@login_required
-def data_refiner(request, repo_base, repo):
-  return render_to_response("data-refiner.html", {
-    'login': get_login(request),
-    'repo_base': repo_base,
-    'repo': repo
-    })
-
-@csrf_exempt
-def refine_data(request):
-  res  = {'error': None}
-  try:
-    if request.method == 'POST':
-      training_input = request.POST['training_input']
-      training_output = request.POST['training_output']
-      test_data = request.POST['test_data']
-      record_separator = '\n'
-      if 'record_separator' in request.POST:
-        record_separator = request.POST['record_separator']
-
-      o_fields_structure, i_structure = inference.learn_mapping(
-          training_input, training_output)
-      out = inference.extract(
-          test_data, o_fields_structure, sep=record_separator)
-
-      csv_lines = []
-      for row in out:
-        csv_lines.append(','.join(row.values()))
-
-      csv_str = '\n'.join(csv_lines)
-      res['output'] = csv_str
-    else:
-      res['error'] = 'Invalid HTTP Method'      
-  except Exception, e:
-    res['error'] = str(e)
-
-  return HttpResponse(json.dumps(res), mimetype="application/json")
