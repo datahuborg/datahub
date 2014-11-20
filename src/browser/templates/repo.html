@@ -30,7 +30,7 @@
         </ul-->
       </div>
       
-      {% if tables|length > 0 %}
+      {% if tables and tables|length > 0 %}
         <div class="table-responsive">
           <table class="table">
             <tbody>
@@ -88,7 +88,7 @@
 
       <div class="panel panel-default">
       <div class="panel-heading"><h4>Files</h4></div>
-      {% if files|length > 0 %}
+      {% if files and files|length > 0 %}
         <div class="table-responsive">
           <table class="table">
             <tbody>            
@@ -135,7 +135,7 @@
       <br />
       <div class="panel panel-default">
       <div class="panel-heading"><h4>Cards</h4></div>
-      {% if cards|length > 0 %}
+      {% if cards and cards|length > 0 %}
         <div class="table-responsive">
           <table class="table">
             <tbody>            
@@ -184,7 +184,7 @@
       <br />
       <div class="panel panel-default">
       <div class="panel-heading"><h4>Dashboards</h4></div>
-      {% if dashboards|length > 0 %}
+      {% if dashboards and dashboards|length > 0 %}
         <div class="table-responsive">
           <table class="table">
             <tbody>            
