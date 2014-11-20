@@ -1,6 +1,6 @@
 from django.shortcuts import render_to_response
 
-from browser.auth import *
+from account.auth import *
 from distill import *
 
 

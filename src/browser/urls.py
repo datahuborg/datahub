@@ -15,13 +15,7 @@ urlpatterns = patterns('',
     #### End WWW Pages ####
 
     #### Account Related ####
-    url(r'^login', 'browser.auth.login'),
-    url(r'^register', 'browser.auth.register'),
-    url(r'^logout', 'browser.auth.logout'),
-
-    url(r'^forgot', 'browser.auth.forgot'),
-    url(r'^reset/(\w+)', 'browser.auth.reset'),
-    url(r'^verify/(\w+)', 'browser.auth.verify'),
+    url(r'^account/', include('account.urls')),
     #### End Account Related ####
 
 
@@ -140,6 +134,6 @@ urlpatterns = patterns('',
     #### Apps ####
     url(r'^apps/console/', include('console.urls')), # console app
     url(r'^apps/refiner/', include('refiner.urls')), # refiner app
-    url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app  
+    #url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app  
     #### End Apps ####
 )

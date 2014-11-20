@@ -10,7 +10,6 @@ import psycopg2
 import traceback
 import numpy as np
 
-from browser.auth import *
 from django.db import connection
 
 from core.db.manager import DataHubManager

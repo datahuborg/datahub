@@ -1,10 +1,10 @@
 {% extends "minimal-layout.html" %}
 {% block headlink-right %}
-  <a href="/register" title="Sign In" class="btn btn-success navbar-btn">Sign Up</a>
+  <a href="/account/register" title="Sign In" class="btn btn-success navbar-btn">Sign Up</a>
 {% endblock %}
 {% block content %}
 <div class="container">
-<form class="form-signin" role="form" method="POST" action="/login">
+<form class="form-signin" role="form" method="POST" action="/account/login">
   {% csrf_token %}
   <input type="hidden" name="redirect_url" value="{{redirect_url}}" />
   <h3>Returning User -- Sign in</h3>

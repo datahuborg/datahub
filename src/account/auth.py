@@ -52,7 +52,7 @@ def login_required (f):
   def wrap (request, *args, **kwargs):
       if kEmail not in request.session.keys():        
         redirect_url = urlquote_plus(request.get_full_path())        
-        return HttpResponseRedirect("/login?redirect_url=%s" %(redirect_url))
+        return HttpResponseRedirect("/account/login?redirect_url=%s" %(redirect_url))
       return f(request, *args, **kwargs)
   wrap.__doc__ = f.__doc__
   wrap.__name__ = f.__name__
@@ -108,13 +108,13 @@ def login (request):
           User.objects.get(username=login_id)
         errors.append(
             'Wrong password. Please try again.<br /><br />'
-            '<a class="blue bold" href="/forgot">Click Here</a> '
+            '<a class="blue bold" href="/account/forgot">Click Here</a> '
             'to reset your password.')
       except User.DoesNotExist:
         errors.append(
             'Could not find any account associated with login_id: '
             '%s.<br /><br /><a class="blue bold" '
-            'href="/register?redirect_url=%s">Click Here</a> '
+            'href="/account/register?redirect_url=%s">Click Here</a> '
             'to create an account.' %(login_id,
                 urllib.quote_plus(redirect_url)))
       return login_form(
@@ -196,7 +196,7 @@ def register (request):
 
       Please click the link below to start using DataHub:
 
-      %s://%s/verify/%s
+      %s://%s/account/verify/%s
 
       ''' % (
           user.email,
@@ -209,7 +209,7 @@ def register (request):
       return HttpResponseRedirect(redirect_url)
     except IntegrityError:
       errors.append(
-          'Account with the email address <a href="mailto:%s">%s</a> already exists.<br /> <br />Please <a class="blue bold" href="/login?login_email=%s">Sign In</a>.'
+          'Account with the email address <a href="mailto:%s">%s</a> already exists.<br /> <br />Please <a class="blue bold" href="/account/login?login_email=%s">Sign In</a>.'
           % (email, email, urllib.quote_plus(email)))
       return register_form(request, redirect_url = urllib.quote_plus(redirect_url), errors = errors)
     except Exception, e:
@@ -231,7 +231,7 @@ def logout (request):
   clear_session(request)
   c = {
     'msg_title': 'Thank you for using DataHub!',
-    'msg_body': 'Your have been logged out.<br /><br /><a href="/login">Click Here</a> to sign in again.'
+    'msg_body': 'Your have been logged out.<br /><br /><a href="/account/login">Click Here</a> to sign in again.'
   } 
   c.update(csrf(request))
   return render_to_response('confirmation.html', c)
@@ -253,7 +253,7 @@ def forgot (request):
 
       Please click the link below to reset your DataHub password:
 
-      %s://%s/reset/%s
+      %s://%s/account/reset/%s
 
       ''' % (
           user.email,
@@ -359,7 +359,7 @@ def reset (request, encrypted_email):
         c = {
           'msg_title': 'DataHub Reset Password',
           'msg_body': 'Your password has been changed successfully.<br /> <br />'
-                      '<a href="/login" class="blue bold">Click Here</a>'
+                      '<a href="/account/login" class="blue bold">Click Here</a>'
                       ' to sign in.'
         } 
         c.update(csrf(request))

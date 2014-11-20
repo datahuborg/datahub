@@ -110,12 +110,13 @@ INSTALLED_APPS = (
   'django.contrib.sites',
   'django.contrib.messages',
   'django.contrib.staticfiles',
+  'account',
   'console',
-  'south',
   'browser',
   'dbwipes',
-  'refiner',
   'inventory',
+  'refiner',
+  'south',
   'www'
 )
 

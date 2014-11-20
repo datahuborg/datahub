@@ -20,7 +20,7 @@ from thrift.protocol import TJSONProtocol
 from thrift.transport import TTransport
 from thrift.transport.TTransport import TMemoryBuffer
 
-from auth import *
+from account.auth import *
 from core.db.manager import DataHubManager
 from core.handler import DataHubHandler
 from datahub import DataHub
