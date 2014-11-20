@@ -7,7 +7,7 @@ define(function(require) {
   require('date');
 
   var CStat = Backbone.Model.extend({
-    url: '/dbwipes/api/column_distribution/',
+    url: '/apps/dbwipes/api/column_distribution/',
 
     defaults: function() {
       return {

@@ -10,7 +10,7 @@ define(function(require) {
 
 
   var ScorpionQuery = Backbone.Model.extend({
-    url: '/dbwipes/api/scorpion/',
+    url: '/apps/dbwipes/api/scorpion/',
 
     defaults: function() {
       return {

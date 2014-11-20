@@ -25,7 +25,7 @@ define(function(require) {
   }
 
   var Query = Backbone.Model.extend({
-    url: '/dbwipes/api/query',
+    url: '/apps/dbwipes/api/query',
 
     defaults: function() {
       return {
