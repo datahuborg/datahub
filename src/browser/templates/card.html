@@ -11,9 +11,9 @@
   <div class="panel-heading">
     <h4>{{card_name}}</h4>
     {% if annotation %}
-      <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}"><span class="glyphicon glyphicon-edit"></span></span>
+      <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}"  url-path="/browse/{{repo_base}}/{{repo}}/card/{{card-name}}"><span class="glyphicon glyphicon-edit"></span></span>
     {% else %}
-      <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Add Description"><span class="glyphicon glyphicon-edit"></span></span>
+      <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link modal-dialog" target-modal="#annotation-modal" title="Add Description"  url-path="/browse/{{repo_base}}/{{repo}}/card/{{card-name}}"><span class="glyphicon glyphicon-edit"></span></span>
     {% endif %}    
   </div>
   {% endblock %}
