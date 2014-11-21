@@ -93,6 +93,7 @@
         <span class="lead">Files</span>
       </div>
 
+      <br />
       <form role="form" class="form-inline" method="POST" action="/upload/{{repo_base}}/{{repo}}/file" enctype='multipart/form-data'>
         <div class="form-group">
           {% csrf_token %}
@@ -100,6 +101,8 @@
         </div>
         <button class="btn btn-primary btn-sm" type="submit">Upload File</button>
       </form>
+      
+      <br />
       
       {% if files and files|length > 0 %}
         <div class="table-responsive">
