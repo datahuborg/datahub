@@ -3,7 +3,9 @@
 <div class="container">
   <h4 class="inline-block">
     <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
-    / {{repo}} /
+    /
+    <a class="link" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a>
+    /
     {% block table-name %}
       table / {{table}}
     {% endblock %}
