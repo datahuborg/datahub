@@ -1,0 +1,51 @@
+{% extends "table.html" %}
+{% block table %}
+card / {{card_name}}
+{% endblock %}
+{% block apps %}
+{% endblock %}
+
+{% block tabs %}
+<ul class="nav nav-tabs" role="tablist">
+  <li><a href="/browse/{{repo_base}}/{{repo}}/tables" role="tab">Tables</a></li>
+  <li><a href="/browse/{{repo_base}}/{{repo}}/files" role="tab">Files</a></li>
+  <li class="active"><a href="/browse/{{repo_base}}/{{repo}}/cards" role="tab">Cards</a></li>
+  <li><a href="/browse/{{repo_base}}/{{repo}}/dashboards" role="tab">Dashboards</a></li>
+</ul>
+{% endblock %}
+
+
+{% block panel-heading %}
+<div class="panel-heading">
+  <span class="lead">{{card_name}}</span> <br />
+  {% if annotation %}
+    <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}" url-path="/browse/{{repo_base}}/{{repo}}/card/{{card_name}}"><span class="glyphicon glyphicon-edit"></span></span>
+  {% else %}
+    <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Add Description" url-path="/browse/{{repo_base}}/{{repo}}/card/{{card_name}}"><span class="glyphicon glyphicon-edit"></span></span>
+  {% endif %}    
+</div>
+{% endblock %}
+
+{% block pagenation %}
+<ul class="pagination pagination-sm">
+  {% if pages|length > 1 %}
+    {% if prev_page > 0 %}
+      <li><a href="{{url_path}}?page={{prev_page}}">&laquo;</a></li>
+    {% endif %}
+    
+    {% for page in pages %}
+      {% if page == current_page %}
+        <li class="active"><a href="#">{{page}}</a></li>
+      {% else %}
+        <li><a href="{{url_path}}?page={{page}}">{{page}}</a></li>
+      {% endif %}
+    {% endfor %}
+    
+    {% if next_page < total_pages %}
+      <li><a href="{{url_path}}?page={{next_page}}">&raquo;</a></li>
+    {% endif %}
+  {% endif %}
+</ul>
+  
+{% endblock %}
+

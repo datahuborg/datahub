@@ -1,0 +1,161 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+  <h4 class="inline-block">
+    <a class="link" href="/browse/{{repo_base}}">{{repo_base}}</a>
+    /
+    <a class="link" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a>
+    /
+    {% block table %}
+    table / {{table}}
+    {% endblock %}
+  </h4>
+  
+  {% block apps %}
+  <div class="pull-right">
+    <a class="btn btn-primary btn-sm" role="button" href="/apps/dbwipes/page/{{repo_base}}/{{repo}}/{{table}}">DBWipes</a>
+  </div>
+  {% endblock %}
+  <hr />
+  <br />
+
+  <form role="form" method="GET" action="/browse/{{repo_base}}/{{repo}}/query">
+    <div class="row">
+    <div class="form-group col-sm-10">
+      <input type="text" class="form-control" name="q" placeholder="Type SQL here">
+    </div>
+    
+    <div class="col-sm-2">
+      <button class="btn btn-primary btn-xsm" type="submit">Run</button>
+    </div>
+    
+    </div>
+  </form>
+  <br />
+  {% block tabs %}
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="active"><a href="/browse/{{repo_base}}/{{repo}}/tables" role="tab">Tables</a></li>
+    <li><a href="/browse/{{repo_base}}/{{repo}}/files" role="tab">Files</a></li>
+    <li><a href="/browse/{{repo_base}}/{{repo}}/cards" role="tab">Cards</a></li>
+    <li><a href="/browse/{{repo_base}}/{{repo}}/dashboards" role="tab">Dashboards</a></li>
+  </ul>
+  {% endblock %}
+  <br />
+  {% block panel %}
+  <div class="panel panel-default">
+    {% block panel-heading %}      
+      <div class="panel-heading">
+        <span class="lead">{{table}}</span><br />
+        {% if annotation %}
+          <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}" url-path="/browse/{{repo_base}}/{{repo}}/table/{{table}}"><span class="glyphicon glyphicon-edit"></span></span>
+        {% else %}
+          <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Add Description" url-path="/browse/{{repo_base}}/{{repo}}/table/{{table}}"><span class="glyphicon glyphicon-edit"></span></span>
+        {% endif %}    
+      </div>
+    {% endblock %}
+    
+    {% if tuples and tuples|length > 0 %}
+      <div class="table-responsive">
+      <table id="table_data" class="table table-condensed table-bordered">
+        <thead>
+        <tr>
+          {% for column_name in column_names %}
+          <th>{{column_name}}</th>
+          {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+          {% for tuple in tuples %}
+          <tr>
+            {% for cell in tuple %}
+              <td class="strong">{{cell}}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      </div>
+    {% else %}
+      {% block warning %}
+      <p class="bg-warning">The <strong>{{table}}</strong> table is empty.</p>
+      {% endblock %}
+    {% endif %}
+  </div>
+  {% endblock %}
+
+  {% block pagenation %}
+  <ul class="pagination pagination-sm">
+    {% if pages|length > 1 %}
+      {% if prev_page > 0 %}
+        <li><a href="{{url_path}}?page={{prev_page}}">&laquo;</a></li>
+      {% endif %}
+      
+      {% for page in pages %}
+        {% if page == current_page %}
+          <li class="active"><a href="#">{{page}}</a></li>
+        {% else %}
+          <li><a href="{{url_path}}?page={{page}}">{{page}}</a></li>
+        {% endif %}
+      {% endfor %}
+      
+      {% if next_page < total_pages %}
+        <li><a href="{{url_path}}?page={{next_page}}">&raquo;</a></li>
+      {% endif %}
+    {% endif %}
+  </ul>
+  {% endblock %}
+</div>
+
+<div class="modal" id="annotation-modal" 
+    tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="annotation-modal-title">Annotation</h4>
+      </div>
+      <div class="modal-body" id="annotation-modal-body">
+        <form role="form" method="POST" action="/create/annotation" id="frm-annotation">
+          <div class="form-group">
+            {% csrf_token %}
+            <input type="hidden" name="url" id="annotation-modal-input-url"/>
+            <input type="text" class="form-control" name="annotation" placeholder="Enter text description" id="annotation-modal-input-annotation" />
+          </div>
+        </form>      
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+            class="btn btn-primary" id="annotation-modal-operation">Save</button>
+        <button type="button"
+            class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+$('.annotation-modal-dialog').on('click', function(e){
+    var modal_id = $(this).attr('target-modal')
+    var title = $(this).attr('title')
+    var placeholder = $(this).attr('placeholder')
+    var url_path = $(this).attr('url-path')
+    
+    $(modal_id + '-title').text(title)
+    $(modal_id + '-input-annotation').val(placeholder)
+    $(modal_id + '-input-url').val(url_path)
+
+    $(modal_id).off('click');
+    
+    $(modal_id).modal({keyboard: true})
+      .on('click', modal_id + '-operation', function (e) {
+        $("#frm-annotation").submit()
+        $(modal_id).modal('hide')
+        $("#wait-dialog").modal()  
+      });
+  });
+</script>
+{% block extra %}
+{% endblock %}
+{% endblock %}
