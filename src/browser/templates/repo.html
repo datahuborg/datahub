@@ -88,17 +88,18 @@
     </div>
 
     <div class="tab-pane" id="files">
-      <form role="form" class="form-inline" method="POST" action="/upload/{{repo_base}}/{{repo}}/file" enctype='multipart/form-data'>
-        <div class="form-group">
-          {% csrf_token %}
-          <input type="file" class="form-control" name="data_file" placeholder="Data File">
-        </div>
-        <button class="btn btn-primary btn-sm" type="submit">Upload File</button>
-      </form>
-      <br />
-
       <div class="panel panel-default">
-      <div class="panel-heading"><span class="lead">Files</span></div>
+      <div class="panel-heading">
+        <span class="lead">Files</span> <br />
+        <form role="form" class="form-inline" method="POST" action="/upload/{{repo_base}}/{{repo}}/file" enctype='multipart/form-data'>
+          <div class="form-group">
+            {% csrf_token %}
+            <input type="file" class="form-control" name="data_file" placeholder="Data File">
+          </div>
+          <button class="btn btn-primary btn-sm" type="submit">Upload File</button>
+        </form>
+      <br />
+      </div>
       {% if files and files|length > 0 %}
         <div class="table-responsive">
           <table class="table">
