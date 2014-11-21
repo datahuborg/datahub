@@ -2,20 +2,19 @@
 {% block content %}
 <div class="container">
   <h4 class="inline-block">
-    <a class="link" href="/browse/{{repo_base}}">{{repo_base}}</a>
-    /
-    <a class="link" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a>
-    /
-    {% block table %}
-    table / {{table}}
+    <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
+    / {{repo}} /
+    {% block table-name %}
+      table / {{table}}
     {% endblock %}
   </h4>
-  
+
   {% block apps %}
   <div class="pull-right">
     <a class="btn btn-primary btn-sm" role="button" href="/apps/dbwipes/page/{{repo_base}}/{{repo}}/{{table}}">DBWipes</a>
   </div>
   {% endblock %}
+
   <hr />
   <br />
 
@@ -32,56 +31,57 @@
     </div>
   </form>
   <br />
+  
   {% block tabs %}
-  <ul class="nav nav-tabs" role="tablist">
-    <li class="active"><a href="/browse/{{repo_base}}/{{repo}}/tables" role="tab">Tables</a></li>
-    <li><a href="/browse/{{repo_base}}/{{repo}}/files" role="tab">Files</a></li>
-    <li><a href="/browse/{{repo_base}}/{{repo}}/cards" role="tab">Cards</a></li>
-    <li><a href="/browse/{{repo_base}}/{{repo}}/dashboards" role="tab">Dashboards</a></li>
-  </ul>
   {% endblock %}
+  
   <br />
-  {% block panel %}
-  <div class="panel panel-default">
-    {% block panel-heading %}      
-      <div class="panel-heading">
+
+  <div class="panel panel-default">    
+    <div class="panel-heading">
+      {% block panel-title %}
         <span class="lead">{{table}}</span><br />
+      {% endblock %}
+      
+      {% block annotation %}
         {% if annotation %}
           <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}" url-path="/browse/{{repo_base}}/{{repo}}/table/{{table}}"><span class="glyphicon glyphicon-edit"></span></span>
         {% else %}
           <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Add Description" url-path="/browse/{{repo_base}}/{{repo}}/table/{{table}}"><span class="glyphicon glyphicon-edit"></span></span>
-        {% endif %}    
-      </div>
-    {% endblock %}
+        {% endif %}
+      {% endblock %}  
+    </div>    
     
     {% if tuples and tuples|length > 0 %}
-      <div class="table-responsive">
-      <table id="table_data" class="table table-condensed table-bordered">
-        <thead>
-        <tr>
-          {% for column_name in column_names %}
-          <th>{{column_name}}</th>
-          {% endfor %}
-        </tr>
-        </thead>
-        <tbody>
-          {% for tuple in tuples %}
+      {% block table-data %}
+        <div class="table-responsive">
+        <table id="table_data" class="table table-condensed table-bordered">
+          <thead>
           <tr>
-            {% for cell in tuple %}
-              <td class="strong">{{cell}}</td>
+            {% for column_name in column_names %}
+            <th>{{column_name}}</th>
             {% endfor %}
           </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      </div>
+          </thead>
+          <tbody>
+            {% for tuple in tuples %}
+            <tr>
+              {% for cell in tuple %}
+                <td class="strong">{{cell}}</td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        </div>
+      {% endblock %}
     {% else %}
-      {% block warning %}
+      {% block table-empty-warning %}
       <p class="bg-warning">The <strong>{{table}}</strong> table is empty.</p>
       {% endblock %}
     {% endif %}
+  
   </div>
-  {% endblock %}
 
   {% block pagenation %}
   <ul class="pagination pagination-sm">
@@ -106,8 +106,7 @@
   {% endblock %}
 </div>
 
-<div class="modal" id="annotation-modal" 
-    tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal" id="annotation-modal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -156,6 +155,9 @@ $('.annotation-modal-dialog').on('click', function(e){
       });
   });
 </script>
+
 {% block extra %}
 {% endblock %}
+
+
 {% endblock %}

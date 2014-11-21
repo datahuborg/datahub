@@ -1,34 +1,42 @@
-{% extends "table-browse.html" %}
-{% block table %}
+{% extends "table-browse-template.html" %}
+{% block table-name %}
+card / {{card_name}}
 {% endblock %}
 {% block apps %}
 {% endblock %}
+
 {% block tabs %}
+<ul class="nav nav-tabs" role="tablist">
+  <li><a href="/browse/{{repo_base}}/{{repo}}/tables" role="tab">Tables</a></li>
+  <li><a href="/browse/{{repo_base}}/{{repo}}/files" role="tab">Files</a></li>
+  <li class="active"><a href="/browse/{{repo_base}}/{{repo}}/cards" role="tab">Cards</a></li>
+  <li><a href="/browse/{{repo_base}}/{{repo}}/dashboards" role="tab">Dashboards</a></li>
+</ul>
 {% endblock %}
 
-{% block panel-heading %}
-{% if query %}
-<div class="panel-heading">
-<div class="row">
-  <div class="form-group col-sm-10"><span class="lead">Query:
-  [<code class="language-sql" data-lang="sql">{{query}}</code>]</span>
+{% block panel-title %}
+  {% if query %}
+  <div class="row">
+    <div class="col-sm-10">
+      <span class="lead">
+        Query:
+        [<code class="language-sql" data-lang="sql">{{query}}</code>]
+      </span>
+    </div>
+    {% if select_query %}
+    <div class="col-sm-2">
+      <button class="btn btn-default btn-xsm modal-link" type="button" target-modal="#save-card-modal" title="Save as Card">Save as Card</button>
+    </div>
+    {% endif %}
   </div>
-  {% if select_query %}
-  <div class="col-sm-2">
-    <button class="btn btn-default btn-xsm modal-link" type="button" target-modal="#save-card-modal" title="Save as Card">Save as Card</button>
-  </div>
-  {% endif %}
-</div>
-</div>
-{% endif %}
 {% endblock %}
 
 {% block warning %}
-{% if query %}
-  <p class="bg-warning">The query return empty resultset.</p>
-{% else %}
-  <p class="bg-warning">No results to show -- enter your query above to see results.</p>
-{% endif %}
+  {% if query %}
+    <p class="bg-warning">The query return empty resultset.</p>
+  {% else %}
+    <p class="bg-warning">No results to show -- enter your query above to see results.</p>
+  {% endif %}
 {% endblock %}
 
 {% block pagenation %}
@@ -87,12 +95,6 @@
 <script type="text/javascript">
 $('.modal-link').on('click', function(e){
     var modal_id = $(this).attr('target-modal')
-    //var title = $(this).attr('title')
-    //var placeholder = $(this).attr('placeholder')
-    
-    //$(modal_id + '-title').text(title)
-    //$(modal_id + '-input').val(placeholder)
-
     $(modal_id).off('click');
     
     $(modal_id).modal({keyboard: true})
