@@ -300,7 +300,7 @@ def table(request, repo_base, repo, table):
 
     manager = DataHubManager(user=repo_base)
     res = manager.execute_sql(
-          query='EXPLAIN SELECT count(*) from %s' %(dh_table_name))    
+        query='EXPLAIN SELECT * FROM %s' %(dh_table_name))    
       
     limit = 50
     
