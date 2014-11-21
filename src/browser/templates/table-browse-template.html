@@ -42,9 +42,9 @@
   <div class="panel panel-default">    
     <div class="panel-heading">
       {% block panel-title %}
-        <span class="lead">{{table}}</span><br />
+        <span class="lead">{{table}}</span>
       {% endblock %}
-      
+      <br />
       {% block annotation %}
         {% if annotation %}
           <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}" url-path="/browse/{{repo_base}}/{{repo}}/table/{{table}}"><span class="glyphicon glyphicon-edit"></span></span>
