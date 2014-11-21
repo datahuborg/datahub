@@ -16,7 +16,10 @@ card / {{card_name}}
 
 
 {% block panel-title %}
-<span class="lead">{{card_name}}</span>
+  <span class="lead">
+    {{card-name}} &nbsp;
+    <a class="btn btn-primary" href="/browse/{{repo_base}}/{{repo}}/tables" title="Back to All Tables"><span class="glyphicon glyphicon-left-arrow"></span></a>
+  </span>
 {% endblock %}
 
 {% block annotation %}

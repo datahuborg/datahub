@@ -42,7 +42,10 @@
   <div class="panel panel-default">    
     <div class="panel-heading">
       {% block panel-title %}
-        <span class="lead">{{table}}</span>
+        <span class="lead">
+          {{table}} &nbsp;
+          <a class="btn btn-primary" href="/browse/{{repo_base}}/{{repo}}/tables" title="Back to All Tables"><span class="glyphicon glyphicon-left-arrow"></span></a>
+        </span>
       {% endblock %}
       <br />
       {% block annotation %}
