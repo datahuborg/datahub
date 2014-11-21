@@ -3,10 +3,11 @@
 <div class="container">
   <h3 class="inline-block">
     <a class="link" href="/browse/{{repo_base}}">{{repo_base}}</a>
-    <a class="link" href="/browse/{{repo_base}}">/</a>
+    /
     <a class="link" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a>
+    /
     {% block table %}
-    <a class="link" href="/browse/{{repo_base}}/{{repo}}">/</a>
+    table /
     <a class="link" href="/browse/{{repo_base}}/{{repo}}/table/{{table}}">{{table}}</a>
     {% endblock %}
   </h3>
