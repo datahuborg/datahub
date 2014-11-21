@@ -544,20 +544,29 @@ def query(request, repo_base, repo):
     data = {
         'login': get_login(request),
         'repo_base': repo_base,
-        'repo': repo}
+        'repo': repo,
+        'select_query': False,
+        'query': None}
     
     if 'q' in request.REQUEST:
       query = request.REQUEST['q']
       query = query.strip().rstrip(';')
     
       manager = DataHubManager(user=repo_base)
-      res = manager.execute_sql(
-          query='EXPLAIN %s' %(query))    
+
+      select_query = False
+      if (query.split()[0]).lower() == 'select':
+        select_query = True
       
+
+      count = 0
       limit = 50
+
+      if select_query:
+        res = manager.execute_sql(query='EXPLAIN %s' %(query))
+        num_rows = re.match(r'.*rows=(\d+).*', res['tuples'][0][0]).group(1)
+        count = int(num_rows)   
       
-      num_rows = re.match(r'.*rows=(\d+).*', res['tuples'][0][0]).group(1)
-      count = int(num_rows)    
       total_pages = 1 + (int(count) / limit)
 
       current_page = 1
@@ -578,16 +587,25 @@ def query(request, repo_base, repo):
       if end_page > total_pages:
         end_page = total_pages
         
-      res = manager.execute_sql(
-          query='%s LIMIT %s OFFSET %s'
-          %(query, limit, (current_page -1) * limit))
+      db_query = query
+
+      if select_query:
+        db_query = '%s LIMIT %s OFFSET %s' %(
+            query, limit, (current_page -1) * limit)
       
-      column_names = [field['name'] for field in res['fields']]
-      tuples = res['tuples']
+      res = manager.execute_sql(query=db_query)
+      
+      if select_query or res['row_count'] > 0:
+        column_names = [field['name'] for field in res['fields']]
+        tuples = res['tuples']
+      else:
+        column_names = ['status']
+        tuples = [['success' if res['status'] else res['error']]]
 
       url_path = '/browse/%s/%s/query' %(repo_base, repo)
 
       data.update({
+          'select_query': select_query,
           'query': query,
           'column_names': column_names,
           'tuples': tuples,

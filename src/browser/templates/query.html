@@ -4,41 +4,52 @@
 {% block apps %}
 {% endblock %}
 
-
-  {% block panel-heading %}
-  <div class="panel-heading">
-  <div class="row">
-    <div class="form-group col-sm-10">
-      <pre><code class="language-sql" data-lang="sql">{{query}}</code></pre>
-    </div>
-    <div class="col-sm-2">
-      <button class="btn btn-default btn-xsm modal-link" type="button" target-modal="#save-card-modal" title="Save as Card">Save as Card</button>
-    </div>
+{% block panel-heading %}
+{% if query %}
+<div class="panel-heading">
+<div class="row">
+  <div class="form-group col-sm-10"><span class="lead">Query:
+  [<code class="language-sql" data-lang="sql">{{query}}</code>]</span>
   </div>
+  {% if select_query %}
+  <div class="col-sm-2">
+    <button class="btn btn-default btn-xsm modal-link" type="button" target-modal="#save-card-modal" title="Save as Card">Save as Card</button>
   </div>
-  {% endblock %}
+  {% endif %}
+</div>
+</div>
+{% endif %}
+{% endblock %}
 
-  {% block pagenation %}
-    <ul class="pagination pagination-sm">
-      {% if pages|length > 1 %}
-        {% if prev_page > 0 %}
-          <li><a href="{{url_path}}?q={{query}}&amp;page={{prev_page}}">&laquo;</a></li>
-        {% endif %}
-        
-        {% for page in pages %}
-          {% if page == current_page %}
-            <li class="active"><a href="#">{{page}}</a></li>
-          {% else %}
-            <li><a href="{{url_path}}?q={{query}}&amp;page={{page}}">{{page}}</a></li>
-          {% endif %}
-        {% endfor %}
-        
-        {% if next_page < total_pages %}
-          <li><a href="{{url_path}}?q={{query}}&amp;page={{next_page}}">&raquo;</a></li>
-        {% endif %}
+{% block warning %}
+{% if query %}
+  <p class="bg-warning">The query return empty resultset.</p>
+{% else %}
+  <p class="bg-warning">No results to show -- enter your query above to see results.</p>
+{% endif %}
+{% endblock %}
+
+{% block pagenation %}
+  <ul class="pagination pagination-sm">
+    {% if pages|length > 1 %}
+      {% if prev_page > 0 %}
+        <li><a href="{{url_path}}?q={{query}}&amp;page={{prev_page}}">&laquo;</a></li>
       {% endif %}
-    </ul>
-  {% endblock %}
+      
+      {% for page in pages %}
+        {% if page == current_page %}
+          <li class="active"><a href="#">{{page}}</a></li>
+        {% else %}
+          <li><a href="{{url_path}}?q={{query}}&amp;page={{page}}">{{page}}</a></li>
+        {% endif %}
+      {% endfor %}
+      
+      {% if next_page < total_pages %}
+        <li><a href="{{url_path}}?q={{query}}&amp;page={{next_page}}">&raquo;</a></li>
+      {% endif %}
+    {% endif %}
+  </ul>
+{% endblock %}
 
 {% block extra %}
 <div class="modal" id="save-card-modal" 
