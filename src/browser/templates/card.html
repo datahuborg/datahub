@@ -8,7 +8,7 @@ card / {{card_name}}
 
   {% block panel-heading %}
   <div class="panel-heading">
-    <h4>{{card_name}}</h4>
+    <span class="lead">{{card_name}}</span>
     {% if annotation %}
       <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}" url-path="/browse/{{repo_base}}/{{repo}}/card/{{card_name}}"><span class="glyphicon glyphicon-edit"></span></span>
     {% else %}
