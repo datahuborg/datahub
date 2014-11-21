@@ -19,7 +19,8 @@ card / {{card_name}}
   <span class="lead">
     {{card_name}} &nbsp;
     <a class="btn btn-default" href="/browse/{{repo_base}}/{{repo}}/cards" title="Back to All Tables"><span class="glyphicon glyphicon-arrow-left"></span></a>
-  </span>
+  </span><br />
+  [<code class="language-sql" data-lang="sql">{{query}}</code>]
 {% endblock %}
 
 {% block annotation %}
