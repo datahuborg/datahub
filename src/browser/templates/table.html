@@ -35,7 +35,7 @@
   <div class="panel panel-default">
     {% block panel-heading %}      
       <div class="panel-heading">
-        <span class="lead">{{table}}</span>
+        <span class="lead">{{table}}</span><br />
         {% if annotation %}
           <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}" url-path="/browse/{{repo_base}}/{{repo}}/table/{{table}}"><span class="glyphicon glyphicon-edit"></span></span>
         {% else %}
