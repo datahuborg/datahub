@@ -459,7 +459,7 @@ def table_export(request, repo_base, repo, table_name):
     dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
     DataHubManager.export_table(
         repo_base=repo_base, table_name=dh_table_name, file_path=file_path)
-    return HttpResponseRedirect('/browse/%s/%s#files' %(repo_base, repo))
+    return HttpResponseRedirect('/browse/%s/%s/files' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -509,7 +509,7 @@ def file_upload(request, repo_base, repo):
   try:    
     data_file = request.FILES['data_file']
     file_save(repo_base, repo, data_file)    
-    return HttpResponseRedirect('/browse/%s/%s#files' %(repo_base, repo))
+    return HttpResponseRedirect('/browse/%s/%s/files' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -588,7 +588,7 @@ def file_delete(request, repo_base, repo, file_name):
     repo_dir = '/user_data/%s/%s' %(repo_base, repo)
     file_path = '%s/%s' %(repo_dir, file_name)
     os.remove(file_path)
-    return HttpResponseRedirect('/browse/%s/%s#files' %(repo_base, repo))
+    return HttpResponseRedirect('/browse/%s/%s/files' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -843,7 +843,7 @@ def card_export(request, repo_base, repo, card_name):
     file_path = '%s/%s.csv' %(repo_dir, card_name)
     DataHubManager.export_query(
         repo_base=repo_base, query=query, file_path=file_path)
-    return HttpResponseRedirect('/browse/%s/%s#files' %(repo_base, repo))
+    return HttpResponseRedirect('/browse/%s/%s/files' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
@@ -862,7 +862,7 @@ def card_delete(request, repo_base, repo, card_name):
     card = Card.objects.get(repo_base=repo_base, repo_name=repo, card_name=card_name)
     card.delete()
 
-    return HttpResponseRedirect('/browse/%s/%s#cards' %(repo_base, repo))
+    return HttpResponseRedirect('/browse/%s/%s/cards' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
         json.dumps(
