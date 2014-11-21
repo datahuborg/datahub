@@ -90,20 +90,9 @@
     <div class="tab-pane" id="files">
       <div class="panel panel-default">
       <div class="panel-heading">
-        <span class="lead">Files</span>
+        <span class="lead">Files</span> &nbsp; <button class="btn btn-default btn-xsm modal-upload-dialog" type="button" target-modal="#file-upload-modal" title="Upload a New File">+</button>
       </div>
 
-      <br />
-      <form role="form" class="form-inline" method="POST" action="/upload/{{repo_base}}/{{repo}}/file" enctype='multipart/form-data'>
-        <div class="form-group">
-          {% csrf_token %}
-          <input type="file" class="form-control" name="data_file" placeholder="Data File">
-        </div>
-        <button class="btn btn-primary btn-sm" type="submit">Upload File</button>
-      </form>
-      
-      <br />
-      
       {% if files and files|length > 0 %}
         <div class="table-responsive">
           <table class="table">
@@ -237,8 +226,7 @@
   </div>
 </div>
 
-<div
-    class="modal" id="import-modal" 
+<div class="modal" id="import-modal" 
     tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -295,6 +283,35 @@
   </div>
 </div>
 
+<div class="modal" id="file-upload-modal" 
+    tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="file-upload-modal-title">Upload File</h4>
+      </div>
+      <div class="modal-body" id="file-upload-modal-body">
+        <form role="form" method="POST" action="/upload/{{repo_base}}/{{repo}}/file" enctype='multipart/form-data' id="file-upload-modal-form">
+          <div class="form-group">
+            {% csrf_token %}
+            <input type="file" class="form-control" name="data_file" placeholder="Data File">
+          </div>
+        </form>   
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+            class="btn btn-primary" id="file-upload-modal-operation">Upload</button>
+        <button type="button"
+            class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript">
 $(function() {
   $('.nav-tabs a').click(function (e) {
@@ -325,6 +342,18 @@ $(function() {
         $("#wait-dialog").modal()  
       });
   });
+});
+
+$('.modal-upload-dialog').on('click', function(e){
+  var modal_id = $(this).attr('target-modal')
+  $(modal_id).off('click');
+
+  $(modal_id).modal({keyboard: true})
+    .on('click', modal_id + '-operation', function (e) {
+      $(modal_id + '-form').submit()
+      $(modal_id).modal('hide')
+      $("#wait-dialog").modal()  
+    });
 });
 </script
 {% endblock %}
