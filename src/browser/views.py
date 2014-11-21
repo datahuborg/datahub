@@ -190,7 +190,7 @@ def repo_create(request, repo_base):
     else:
       res = {'repo_base': repo_base, 'login':login}
       res.update(csrf(request))
-      return render_to_response("create-repo.html", res)
+      return render_to_response("repo-create.html", res)
   
   except Exception, e:
     return HttpResponse(json.dumps(

@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container">
-  <h3 class="inline-block">
+  <h4 class="inline-block">
     <a class="link" href="/browse/{{repo_base}}">{{repo_base}}</a>
     /
     <a class="link" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a>
@@ -9,7 +9,7 @@
     {% block table %}
     table / {{table}}
     {% endblock %}
-  </h3>
+  </h4>
   
   {% block apps %}
   <div class="pull-right">
