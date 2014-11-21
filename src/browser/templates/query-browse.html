@@ -16,19 +16,20 @@ card / {{card_name}}
 
 {% block panel-title %}
   {% if query %}
-  <div class="row">
-    <div class="col-sm-10">
-      <span class="lead">
-        Query:
-        [<code class="language-sql" data-lang="sql">{{query}}</code>]
-      </span>
+    <div class="row">
+      <div class="col-sm-10">
+        <span class="lead">
+          Query:
+          [<code class="language-sql" data-lang="sql">{{query}}</code>]
+        </span>
+      </div>
+      {% if select_query %}
+      <div class="col-sm-2">
+        <button class="btn btn-default btn-xsm modal-link" type="button" target-modal="#save-card-modal" title="Save as Card">Save as Card</button>
+      </div>
+      {% endif %}
     </div>
-    {% if select_query %}
-    <div class="col-sm-2">
-      <button class="btn btn-default btn-xsm modal-link" type="button" target-modal="#save-card-modal" title="Save as Card">Save as Card</button>
-    </div>
-    {% endif %}
-  </div>
+  {% endif %}
 {% endblock %}
 
 {% block warning %}
