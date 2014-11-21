@@ -5,6 +5,15 @@ card / {{card_name}}
 {% block apps %}
 {% endblock %}
 
+{% block tabs %}
+<ul class="nav nav-tabs" role="tablist">
+  <li><a href="#tables" role="tab" data-toggle="tab">Tables</a></li>
+  <li><a href="#files" role="tab" data-toggle="tab">Files</a></li>
+  <li class="active"><a href="#cards" role="tab" data-toggle="tab">Cards</a></li>
+  <li><a href="#dashboards" role="tab" data-toggle="tab">Dashboards</a></li>
+</ul>
+{% endblock %}
+
 
   {% block panel-heading %}
   <div class="panel-heading">
