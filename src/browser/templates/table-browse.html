@@ -1,5 +1,12 @@
 {% extends "table-browse-template.html" %}
 
+{% block panel-title %}
+  <span class="lead">
+    {{table}} &nbsp;
+    <a class="btn btn-primary" href="/browse/{{repo_base}}/{{repo}}/tables" title="Back to All Tables"><span class="glyphicon glyphicon-arrow-left"></span></a>
+  </span>
+{% endblock %}
+
 {% block tabs %}
 <ul class="nav nav-tabs" role="tablist">
   <li class="active"><a href="/browse/{{repo_base}}/{{repo}}/tables" role="tab">Tables</a></li>
