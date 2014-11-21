@@ -28,9 +28,9 @@
     <li><a href="#cards" role="tab" data-toggle="tab">Cards</a></li>
     <li><a href="#dashboards" role="tab" data-toggle="tab">Dashboards</a></li>
   </ul>
+  <br />
 
   <div class="tab-content">
-    <br />
     <div class="tab-pane active" id="tables">
       <div class="panel panel-default">
       <div class="panel-heading"><span class="lead">Tables &nbsp; <a class="btn btn-primary" href="/browse/{{repo_base}}/{{repo}}#files" title="Create a New Table"><span class="glyphicon glyphicon-plus"></span></a></span>
@@ -88,7 +88,6 @@
     </div>
 
     <div class="tab-pane" id="files">
-      <br />
       <form role="form" class="form-inline" method="POST" action="/upload/{{repo_base}}/{{repo}}/file" enctype='multipart/form-data'>
         <div class="form-group">
           {% csrf_token %}
@@ -144,7 +143,6 @@
     </div>
 
     <div class="tab-pane" id="cards">
-      <br />
       <div class="panel panel-default">
       <div class="panel-heading"><span class="lead">Cards &nbsp; <a class="btn btn-primary" href="/browse/{{repo_base}}/{{repo}}/query" title="Create a New Card"><span class="glyphicon glyphicon-plus"></span></a></span></div>
       {% if cards and cards|length > 0 %}
@@ -193,7 +191,6 @@
     </div>
 
     <div class="tab-pane" id="dashboards">
-      <br />
       <div class="panel panel-default">
       <div class="panel-heading"><span class="lead">Dashboards</span></div>
       {% if dashboards and dashboards|length > 0 %}
