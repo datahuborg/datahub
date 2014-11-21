@@ -694,7 +694,7 @@ def query(request, repo_base, repo):
           'pages': range(start_page, end_page + 1)})
 
     data.update(csrf(request))
-    return render_to_response("query.html", data)
+    return render_to_response("query-browse.html", data)
   except Exception, e:
     return HttpResponse(
         json.dumps(
