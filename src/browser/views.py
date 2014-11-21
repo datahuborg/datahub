@@ -300,11 +300,13 @@ def table(request, repo_base, repo, table):
 
     manager = DataHubManager(user=repo_base)
     res = manager.execute_sql(
-        query='SELECT count(*) from %s' %(dh_table_name))    
-    
+          query='EXPLAIN SELECT count(*) from %s' %(dh_table_name))    
+      
     limit = 50
     
-    count = res['tuples'][0][0]    
+    num_rows = re.match(r'.*rows=(\d+).*', res['tuples'][0][0]).group(1)
+    count = int(num_rows)    
+      
     total_pages = 1 + (int(count) / limit)
 
     current_page = 1
