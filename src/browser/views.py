@@ -542,11 +542,11 @@ def query(request, repo_base, repo):
     data = {
         'login': get_login(request),
         'repo_base': repo_base,
-        'repo': repo,
-        'query': None}
+        'repo': repo}
     
     if 'q' in request.REQUEST:
-      query = request.REQUEST['q']    
+      query = request.REQUEST['q']
+      query = query.strip().rstrip(';')
     
       manager = DataHubManager(user=repo_base)
       res = manager.execute_sql(
