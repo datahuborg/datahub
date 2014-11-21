@@ -138,7 +138,8 @@ Repository
 
 @login_required
 def repo(request, repo_base, repo):
-  return HttpResponseRedirect('/browse/repo_base/repo/tables')
+  return HttpResponseRedirect(
+      '/browse/%s/%s/tables' %(repo_base, repo))
 
 @login_required
 def repo_tables(request, repo_base, repo):
