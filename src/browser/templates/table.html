@@ -22,7 +22,7 @@
   <form role="form" method="GET" action="/browse/{{repo_base}}/{{repo}}/query">
     <div class="row">
     <div class="form-group col-sm-10">
-      <input type="text" class="form-control" name="q" placeholder="Type SQL query here">
+      <input type="text" class="form-control" name="q" placeholder="Type SQL here">
     </div>
     
     <div class="col-sm-2">
@@ -31,6 +31,7 @@
     
     </div>
   </form>
+  <br />
   {% block panel %}
   <div class="panel panel-default">
     {% block panel-heading %}      

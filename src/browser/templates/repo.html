@@ -8,6 +8,20 @@
 
   <hr />
   <br />
+
+  <form role="form" method="GET" action="/browse/{{repo_base}}/{{repo}}/query">
+    <div class="row">
+    <div class="form-group col-sm-10">
+      <input type="text" class="form-control" name="q" placeholder="Type SQL here">
+    </div>
+    
+    <div class="col-sm-2">
+      <button class="btn btn-primary btn-xsm" type="submit">Run</button>
+    </div>
+    
+    </div>
+  </form>
+  <br />
   <ul class="nav nav-tabs" role="tablist">
     <li class="active"><a href="#tables" role="tab" data-toggle="tab">Tables</a></li>
     <li><a href="#files" role="tab" data-toggle="tab">Files</a></li>
