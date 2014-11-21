@@ -121,7 +121,7 @@ def user(request, repo_base):
           'num_collaborators': len(collaborators)
       })
     
-    return render_to_response("user.html", {
+    return render_to_response("user-browse.html", {
         'login': get_login(request),
         'repo_base': repo_base,
         'repos': visible_repos})    
@@ -435,7 +435,7 @@ def table(request, repo_base, repo, table):
         'pages': range(start_page, end_page + 1)}
 
     data.update(csrf(request))
-    return render_to_response("table.html", data)
+    return render_to_response("table-browse.html", data)
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),
@@ -800,7 +800,7 @@ def card(request, repo_base, repo, card_name):
         'pages': range(start_page, end_page + 1)}
 
     data.update(csrf(request))
-    return render_to_response("card.html", data)    
+    return render_to_response("card-browse.html", data)    
   except Exception, e:
     return HttpResponse(
         json.dumps(
