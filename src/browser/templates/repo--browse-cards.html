@@ -1,0 +1,68 @@
+{% extends "repo-browse.html" %}
+{% block tabs %}
+<ul class="nav nav-tabs" role="tablist">
+  <li><a href="/browse/{{repo_base}}/{{repo}}/tables" role="tab">Tables</a></li>
+  <li><a href="/browse/{{repo_base}}/{{repo}}/files" role="tab">Files</a></li>
+  <li class="active"><a href="/browse/{{repo_base}}/{{repo}}/cards" role="tab">Cards</a></li>
+  <li><a href="/browse/{{repo_base}}/{{repo}}/dashboards" role="tab">Dashboards</a></li>
+</ul>
+{% endblock %}
+
+{% block tab-content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <span class="lead">
+      Cards &nbsp;
+      <a class="btn btn-primary" href="/browse/{{repo_base}}/{{repo}}/query" title="Create a New Card"><span class="glyphicon glyphicon-plus"></span></a>
+    </span>
+  </div>
+  {% if cards and cards|length > 0 %}
+    <div class="table-responsive">
+      <table class="table">
+        <tbody>            
+          {% for card in cards %}
+          <tr>
+            <td>
+              <a href="/browse/{{repo_base}}/{{repo}}/card/{{card}}">{{card}}</a>
+            </td>
+            <td class="text-right">
+              <a href="/browse/{{repo_base}}/{{repo}}/card/{{card}}" title="View Card">
+                <span class="table-icon"></span>
+              </a> &nbsp;&nbsp;
+              
+              <span class="modal-link modal-confirm-dialog"
+                  target-modal="#confirm-modal"
+                  target-modal-title="Confirm CSV Export"
+                  target-modal-body="This will export the card <strong><em>{{card}}</em></strong> to a CSV file named <strong><em>{{table}}.csv</em></strong> inside the <strong><em>{{repo_base}}/{{repo}}</em></strong> repository. The operation will overwrite any existing file with the same name. Are you sure?"
+                  target-modal-operation="Export"
+                  target-url="/export/{{repo_base}}/{{repo}}/card/{{card}}"
+                  title="CSV Export">
+                <span class="csv-icon"></span>
+              </span>&nbsp;&nbsp;
+              
+              <span class="modal-link modal-confirm-dialog"
+                  target-modal="#confirm-modal"
+                  target-modal-title="Confirm Delete"
+                  target-modal-body="This will permanently delete the card <strong><em>{{card}}</em></strong> from the repository <strong><em>{{repo_base}}/{{repo}}</em></strong>. The operation can't be undone. Are you sure?"
+                  target-modal-operation="Delete"
+                  target-url="/delete/{{repo_base}}/{{repo}}/card/{{card}}"
+                  title="Delete">
+                <span class="delete-icon"></span>
+              </span>&nbsp;&nbsp;                  
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="bg-warning">No card in <strong>{{repo_base}}/{{repo}}</strong></p>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+
+
+
+

@@ -138,6 +138,10 @@ Repository
 
 @login_required
 def repo(request, repo_base, repo):
+  return HttpResponseRedirect('/browse/repo_base/repo/tables')
+
+@login_required
+def repo_tables(request, repo_base, repo):
   try:
     login = get_login(request)
 
@@ -148,24 +152,96 @@ def repo(request, repo_base, repo):
     manager = DataHubManager(user=repo_base)
     res = manager.list_tables(repo)
     tables = [t[0] for t in res['tuples']]
+    
+    res = {
+        'login': get_login(request),
+        'repo_base': repo_base,
+        'repo': repo,
+        'tables': tables}
+    
+    res.update(csrf(request))
+    return render_to_response("repo-browse-tables.html", res)
+  
+  except Exception, e:
+    return HttpResponse(json.dumps(
+        {'error': str(e)}),
+        mimetype="application/json")
+
+@login_required
+def repo_files(request, repo_base, repo):
+  try:
+    login = get_login(request)
+
+    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'USAGE')
+    if not (res and res['tuples'][0][0]):
+      raise Exception('Access denied. Missing required privileges.')
 
     repo_dir = '/user_data/%s/%s' %(repo_base, repo)
     if not os.path.exists(repo_dir):
       os.makedirs(repo_dir)
     
     uploaded_files = [f for f in os.listdir(repo_dir)]
-    #cards = []
-    cards = [c.card_name for c in Card.objects.all().filter(repo_base=repo_base, repo_name=repo)]
     
     res = {
         'login': get_login(request),
         'repo_base': repo_base,
         'repo': repo,
-        'cards': cards,
-        'tables': tables,
         'files': uploaded_files}
+    
     res.update(csrf(request))
-    return render_to_response("repo.html", res)
+    return render_to_response("repo-browse-files.html", res)
+  
+  except Exception, e:
+    return HttpResponse(json.dumps(
+        {'error': str(e)}),
+        mimetype="application/json")
+
+@login_required
+def repo_cards(request, repo_base, repo):
+  try:
+    login = get_login(request)
+
+    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'USAGE')
+    if not (res and res['tuples'][0][0]):
+      raise Exception('Access denied. Missing required privileges.')
+
+    cards = Card.objects.all().filter(
+        repo_base=repo_base, repo_name=repo)
+    
+    cards = [c.card_name for c in cards]
+    
+    res = {
+        'login': get_login(request),
+        'repo_base': repo_base,
+        'repo': repo,
+        'cards': cards}
+    
+    res.update(csrf(request))
+    return render_to_response("repo-browse-cards.html", res)
+  
+  except Exception, e:
+    return HttpResponse(json.dumps(
+        {'error': str(e)}),
+        mimetype="application/json")
+
+@login_required
+def repo_dashboards(request, repo_base, repo):
+  try:
+    login = get_login(request)
+
+    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'USAGE')
+    if not (res and res['tuples'][0][0]):
+      raise Exception('Access denied. Missing required privileges.')
+    
+    res = {
+        'login': get_login(request),
+        'repo_base': repo_base,
+        'repo': repo,
+        'dashboards': []}
+    
+    res.update(csrf(request))
+    return render_to_response("repo-browse-dashboards.html", res)
+  
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),

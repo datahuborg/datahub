@@ -73,6 +73,18 @@ urlpatterns = patterns('',
     url(r'^browse/(\w+)/(\w+)$', 'browser.views.repo'),
     url(r'^browse/(\w+)/(\w+)/$', 'browser.views.repo'),
 
+    url(r'^browse/(\w+)/(\w+)/tables$', 'browser.views.repo_tables'),
+    url(r'^browse/(\w+)/(\w+)/tables/$', 'browser.views.repo_tables'),
+
+    url(r'^browse/(\w+)/(\w+)/files$', 'browser.views.repo_files'),
+    url(r'^browse/(\w+)/(\w+)/files/$', 'browser.views.repo_files'),
+
+    url(r'^browse/(\w+)/(\w+)/cards$', 'browser.views.repo_cards'),
+    url(r'^browse/(\w+)/(\w+)/cards/$', 'browser.views.repo_cards'),
+
+    url(r'^browse/(\w+)/(\w+)/dashboards$', 'browser.views.repo_dashboards'),
+    url(r'^browse/(\w+)/(\w+)/dashboards/$', 'browser.views.repo_dashboards'),
+
     url(r'^browse/(\w+)$', 'browser.views.user'),
     url(r'^browse/(\w+)/$', 'browser.views.user'),
     #### End Browse ####
