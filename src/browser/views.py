@@ -48,6 +48,9 @@ def home(request):
         json.dumps({'error': str(e)}),
         mimetype="application/json")
 
+# just for backward compatibility
+def about(request):
+  return HttpResponseRedirect('/www')
 
 '''
 APIs and Services

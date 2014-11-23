@@ -15,7 +15,7 @@ urlpatterns = patterns('',
     
     #### Home Page ####
     url(r'^$', 'browser.views.home'),
-    url(r'^about$', include('www.urls')),
+    url(r'^about$', 'browser.views.about'),  # for backward compatibility
     #### End Home ####
 
     #### WWW Pages ####
