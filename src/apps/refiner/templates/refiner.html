@@ -577,7 +577,7 @@ $(document).ready(function($) {
   var refine_data = function(){
     $.ajax({
       type:'POST',
-      url:'/refine-data',
+      url:'/apps/refiner/refine-data',
       async: false, 
       cache: false,
       data:{
@@ -593,25 +593,9 @@ $(document).ready(function($) {
     });
   }
 
-  var create_table = function(){
-    $.ajax({
-      type:'POST',
-      url:'/create-table-from-file-data',
-      async: false, 
-      cache: false,
-      data:{
-        'repo_base': {{repo_base}},
-        'repo': {{repo}},
-        'table_name': $("#table_name").val(),
-        'data': $("#results_data").val(),
-      },
-      success: function(res) {
-        window.location.href= '/browse/' + {{repo_base}} + '/' + {{repo}} 
-      }
-    });
-  }
+  
   $("#btn-refine-data").click(refine_data);
-  $("#btn-create-table").click(create_table);
+  //$("#btn-create-table").click(create_table);
 });
 
 

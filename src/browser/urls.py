@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     
     #### Home Page ####
     url(r'^$', 'browser.views.home'),
+    url(r'^about$', include('www.urls')),
     #### End Home ####
 
     #### WWW Pages ####
@@ -153,6 +154,6 @@ urlpatterns = patterns('',
     #### Apps ####
     url(r'^apps/console/', include('console.urls')), # console app
     url(r'^apps/refiner/', include('refiner.urls')), # refiner app
-    url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app  
+    #url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app  
     #### End Apps ####
 )
