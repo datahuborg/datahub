@@ -28,7 +28,19 @@
   <div id="options">
     <div class="row">
       <div class="form-group col-sm-10">
-        <input type="text" class="form-control" name="q" id="input-options" placeholder="Type Viz Options">
+        <label class="form-control">Select Viz Type</label>
+        <select class="form-control" id="viz-type">
+          <option value="bar_chart">Bar Chart</option>
+          <option value="column_chart">Column Chart</option>
+          <option value="histogram">Histogram</option>
+          <option value="area_chart">Area Chart</option>
+          <option value="scatter_plot">Scatter Plot</option>
+          <option value="pie_chart">Pie Chart</option>
+          <option value="map">Map</option>
+          <option value="timeline">Timeline</option>
+        </select> <br />
+        <label class="form-control">Optional Viz Config</label>
+        <input type="text" class="form-control" id="viz-config" placeholder="Type Viz Config (Optional)">
       </div>
     
       <div class="col-sm-2">
