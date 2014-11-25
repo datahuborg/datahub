@@ -26,7 +26,6 @@
   <div id="table_div"></div>
   <div id="viz_div"></div>
 
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
 <script type="text/javascript">
 $(document).ready(function($) {
@@ -47,9 +46,9 @@ $(document).ready(function($) {
       results.push(tuple.cells)
     });
     
-    data_table = google.visualization.arrayToDataTable(results_arr);
-    var table = new google.visualization.Table(document.getElementById('table_div'));
-    table.draw(data_table, {showRowNumber: true});
+    //data_table = google.visualization.arrayToDataTable(results_arr);
+    //var table = new google.visualization.Table(document.getElementById('table_div'));
+    //table.draw(data_table, {showRowNumber: true});
   });
 
 });
