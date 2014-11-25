@@ -32,10 +32,11 @@
         <select class="form-control" id="viz-type">
           <option value="bar_chart">Bar Chart</option>
           <option value="column_chart">Column Chart</option>
-          <option value="histogram">Histogram</option>
+          <option value="line_chart">Line Chart</option>
           <option value="area_chart">Area Chart</option>
-          <option value="scatter_plot">Scatter Plot</option>
           <option value="pie_chart">Pie Chart</option>
+          <option value="scatter_plot">Scatter Plot</option>
+          <option value="histogram">Histogram</option>
           <option value="map">Map</option>
           <option value="timeline">Timeline</option>
         </select> <br />
@@ -64,6 +65,7 @@ $(document).ready(function($) {
 
   var run_query = function(){
     $("#options").hide();
+    $("#viz-div").html();
   	var results_arr = []
   	res = client.execute_sql(con, $("#input-query").val());
   	results_arr.push(res.field_names)
@@ -89,24 +91,46 @@ $(document).ready(function($) {
 
 
   var draw_viz = function(){
+    $("#viz-div").html();
     var viz_type = $("#viz-type").val()
     var viz_div = document.getElementById('viz-div')
+    var options = eval($("#viz-config").val())
     switch(viz_type) {
       case "bar_chart":
         var chart = new google.visualization.BarChart(viz_div);
-        chart.draw(data, {});
+        chart.draw(data, options);
         break;
       case "column_chart":
         var chart = new google.visualization.ColumnChart(viz_div);
-        chart.draw(data, {});
+        chart.draw(data, options);
+        break;
+      case "line_chart":
+        var chart = new google.visualization.LineChart(viz_div);
+        chart.draw(data, options);
         break;
       case "area_chart":
         var chart = new google.visualization.AreaChart(viz_div);
-        chart.draw(data, {});
+        chart.draw(data, options);
         break;
       case "histogram":
         var chart = new google.visualization.Histogram(viz_div);
-        chart.draw(data, {});
+        chart.draw(data, options);
+        break;
+      case "scatter_plot":
+        var chart = new google.visualization.ScatterChart(viz_div);
+        chart.draw(data, options);
+        break;
+      case "pie_chart":
+        var chart = new google.visualization.PieChart(viz_div);
+        chart.draw(data, options);
+        break;
+      case "map":
+        var chart = new google.visualization.Map(viz_div);
+        chart.draw(data, options);
+        break;
+      case "timeline":
+        var chart = new google.visualization.Timeline(viz_div);
+        chart.draw(data, options);
         break;
       default:
         console.log("nothing selected")
