@@ -23,7 +23,7 @@
 
   <br />
 
-  <div id="table_div"></div>
+  <div id="table-div"></div>
   <br />
   <div id="options">
     
@@ -48,7 +48,7 @@
     </div>
   </div>
   <br />
-  <div id="viz_div"></div>
+  <div id="viz-div"></div>
 
 
 <script type="text/javascript">
@@ -72,13 +72,37 @@ $(document).ready(function($) {
     });
     
     data_table = google.visualization.arrayToDataTable(results_arr);
-    var table = new google.visualization.Table(document.getElementById('table_div'));
+    var table = new google.visualization.Table(document.getElementById('table-div'));
     table.draw(data_table);
     $("#input-options").val('');
     $("#options").show();
   }
 
+
+  var draw_viz = function(){
+    var viz_type = $("#viz-type").val()
+    var viz_div = document.getElementById('viz-div')
+    switch(viz_type) {
+      case "bar_chart":
+        var chart = new google.visualization.BarChart(viz_div);
+        chart.draw(data, {});
+      case "column_chart":
+        var chart = new google.visualization.ColumnChart(viz_div);
+        chart.draw(data, {});
+      case "area_chart":
+        var chart = new google.visualization.AreaChart(viz_div);
+        chart.draw(data, {});
+      case "histogram":
+        var chart = new google.visualization.Histogram(viz_div);
+        chart.draw(data, {});
+      default:
+        console.log("nothing selected")
+    }
+  }
+
   $("#btn-run-query").click(run_query);
+
+  $("#btn-draw-viz").click(draw_viz);
 
   $("#input-query").on("keypress", function(e) {
      if (e.which == 13) {
