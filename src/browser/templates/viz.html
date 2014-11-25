@@ -60,7 +60,7 @@ $(document).ready(function($) {
   var client = new DataHubClient(protocol);
   var con = new Connection({'user': login, 'repo_base': login});
 
-  var data;
+  data = null
 
   var run_query = function(){
     $("#options").hide();
