@@ -47,9 +47,9 @@ $(document).ready(function($) {
     });
     console.log(results_arr)
     
-    //data_table = google.visualization.arrayToDataTable(results_arr);
-    //var table = new google.visualization.Table(document.getElementById('table_div'));
-    //table.draw(data_table, {showRowNumber: true});
+    data_table = google.visualization.arrayToDataTable(results_arr);
+    var table = new google.visualization.Table(document.getElementById('table_div'));
+    table.draw(data_table, {showRowNumber: true});
   });
 
 });
