@@ -35,6 +35,7 @@ $(document).ready(function($) {
   var client = new DataHubClient(protocol);
   var con = new Connection({'user': login, 'repo_base': login});
 
+  google.load("visualization", "1", {packages:["corechart", "table"]});
   var data_table;
 
   $("#btn-run-query").click(function(){
@@ -48,7 +49,7 @@ $(document).ready(function($) {
     
     data_table = google.visualization.arrayToDataTable(results_arr);
     var table = new google.visualization.Table(document.getElementById('table_div'));
-    table.draw(data_table, {showRowNumber: true});
+    table.draw(data_table);
   });
 
 });
