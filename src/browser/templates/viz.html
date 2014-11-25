@@ -60,7 +60,7 @@ $(document).ready(function($) {
   var client = new DataHubClient(protocol);
   var con = new Connection({'user': login, 'repo_base': login});
 
-  var data_table;
+  var data;
 
   var run_query = function(){
     $("#options").hide();
@@ -71,9 +71,9 @@ $(document).ready(function($) {
       results_arr.push(tuple.cells)
     });
     
-    data_table = google.visualization.arrayToDataTable(results_arr);
+    data = google.visualization.arrayToDataTable(results_arr);
     var table = new google.visualization.Table(document.getElementById('table-div'));
-    table.draw(data_table);
+    table.draw(data);
     $("#input-options").val('');
     $("#options").show();
   }
