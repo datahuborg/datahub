@@ -72,6 +72,7 @@ $(document).ready(function($) {
     });
     
     data = google.visualization.arrayToDataTable(results_arr);
+    console.log(data)
     var table = new google.visualization.Table(document.getElementById('table-div'));
     table.draw(data);
     $("#input-options").val('');
