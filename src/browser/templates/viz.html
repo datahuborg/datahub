@@ -37,18 +37,25 @@ $(document).ready(function($) {
 
   var data_table;
 
-  $("#btn-run-query").click(function(){
+  var run_query = function(){
   	var results_arr = []
   	res = client.execute_sql(con, $("#input-query").val());
   	results_arr.push(res.field_names)
   	$.each(res.tuples, function(tuple_idx, tuple) {
       results_arr.push(tuple.cells)
     });
-    console.log(results_arr)
     
     data_table = google.visualization.arrayToDataTable(results_arr);
     var table = new google.visualization.Table(document.getElementById('table_div'));
     table.draw(data_table);
+  }
+
+  $("#btn-run-query").click(run_query);
+
+  $("#input-query").on("keypress", function(e) {
+     if (e.which == 13) {
+        run_query();
+     }
   });
 
 });
