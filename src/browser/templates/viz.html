@@ -29,7 +29,6 @@
 
 <script type="text/javascript">
 $(document).ready(function($) {
-  google.load("visualization", "1", {packages:["corechart", "table"]});
   var login = '{{login}}'
   var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
   var protocol = new Thrift.Protocol(transport);
