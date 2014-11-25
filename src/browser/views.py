@@ -627,6 +627,8 @@ def query(request, repo_base, repo):
         'repo': repo,
         'select_query': False,
         'query': None}
+
+    data.update(csrf(request))
     
     if 'q' in request.REQUEST:
       query = request.REQUEST['q']
@@ -694,10 +696,10 @@ def query(request, repo_base, repo):
           'next_page': current_page + 1,
           'prev_page': current_page - 1,
           'total_pages': total_pages,
-          'pages': range(start_page, end_page + 1)})
-
-    data.update(csrf(request))
-    return render_to_response("query-browse.html", data)
+          'pages': range(start_page, end_page + 1)})    
+      return render_to_response("query-browse-results.html", data)
+    else:
+      return render_to_response("query.html", data)
   except Exception, e:
     return HttpResponse(
         json.dumps(
