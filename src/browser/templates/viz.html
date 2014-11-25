@@ -87,15 +87,19 @@ $(document).ready(function($) {
       case "bar_chart":
         var chart = new google.visualization.BarChart(viz_div);
         chart.draw(data, {});
+        break;
       case "column_chart":
         var chart = new google.visualization.ColumnChart(viz_div);
         chart.draw(data, {});
+        break;
       case "area_chart":
         var chart = new google.visualization.AreaChart(viz_div);
         chart.draw(data, {});
+        break;
       case "histogram":
         var chart = new google.visualization.Histogram(viz_div);
         chart.draw(data, {});
+        break;
       default:
         console.log("nothing selected")
     }
