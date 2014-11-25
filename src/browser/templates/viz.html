@@ -71,7 +71,7 @@ $(document).ready(function($) {
       var cell_arr = []
       $.each(tuple.cells, function(cell_idx, cell) {
         var val = parseFloat(cell)
-        if isNaN(val) {
+        if (isNaN(val)) {
           cell_arr.push(cell)
         } else {
           cell_arr.push(val)
