@@ -24,11 +24,25 @@
   <br />
 
   <div id="table_div"></div>
+
+  <div id="options">
+    <div class="row">
+      <div class="form-group col-sm-10">
+        <input type="text" class="form-control" name="q" id="input-options" placeholder="Type Viz Options">
+      </div>
+    
+      <div class="col-sm-2">
+        <button class="btn btn-primary btn-xsm" id="btn-draw-viz" type="button">Draw Viz</button>
+      </div>    
+    </div>
+  </div>
+
   <div id="viz_div"></div>
 
 
 <script type="text/javascript">
 $(document).ready(function($) {
+  $("#options").hide();
   var login = '{{login}}'
   var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
   var protocol = new Thrift.Protocol(transport);
@@ -38,6 +52,8 @@ $(document).ready(function($) {
   var data_table;
 
   var run_query = function(){
+    $("#options").hide();
+    $("#input-options").val('');
   	var results_arr = []
   	res = client.execute_sql(con, $("#input-query").val());
   	results_arr.push(res.field_names)
@@ -48,6 +64,7 @@ $(document).ready(function($) {
     data_table = google.visualization.arrayToDataTable(results_arr);
     var table = new google.visualization.Table(document.getElementById('table_div'));
     table.draw(data_table);
+    $("#options").show();
   }
 
   $("#btn-run-query").click(run_query);
