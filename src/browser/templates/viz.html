@@ -26,10 +26,11 @@
   <div id="table_div"></div>
   <div id="viz_div"></div>
 
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
 <script type="text/javascript">
 $(document).ready(function($) {
-  //google.load("visualization", "1", {packages:["corechart", "table"]});
+  google.load("visualization", "1", {packages:["corechart", "table"]});
   var login = '{{login}}'
   var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
   var protocol = new Thrift.Protocol(transport);
@@ -47,9 +48,9 @@ $(document).ready(function($) {
     });
     console.log(results_arr)
     
-    //data_table = google.visualization.arrayToDataTable(results_arr);
-    //var table = new google.visualization.Table(document.getElementById('table_div'));
-    //table.draw(data_table, {showRowNumber: true});
+    data_table = google.visualization.arrayToDataTable(results_arr);
+    var table = new google.visualization.Table(document.getElementById('table_div'));
+    table.draw(data_table, {showRowNumber: true});
   });
 
 });
