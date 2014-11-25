@@ -34,8 +34,8 @@ $(document).ready(function($) {
   var login = '{{login}}'
   var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
   var protocol = new Thrift.Protocol(transport);
-  client = new DataHubClient(protocol);
-  con = new Connection({'user': login, 'repo_base': login});
+  var client = new DataHubClient(protocol);
+  var con = new Connection({'user': login, 'repo_base': login});
 
   var data_table;
 
@@ -51,6 +51,7 @@ $(document).ready(function($) {
     table.draw(data_table, {showRowNumber: true});
   });
 
+});
 </script>
 {% endblock %}
 
