@@ -33,6 +33,7 @@
           <option value="bar_chart">Bar Chart</option>
           <option value="column_chart">Column Chart</option>
           <option value="line_chart">Line Chart</option>
+          <option value="combo_chart">Combo Chart</option>
           <option value="area_chart">Area Chart</option>
           <option value="pie_chart">Pie Chart</option>
           <option value="scatter_plot">Scatter Plot</option>
@@ -106,6 +107,10 @@ $(document).ready(function($) {
         break;
       case "line_chart":
         var chart = new google.visualization.LineChart(viz_div);
+        chart.draw(data, options);
+        break;
+      case "combo_chart":
+        var chart = new google.visualization.ComboChart(viz_div);
         chart.draw(data, options);
         break;
       case "area_chart":
