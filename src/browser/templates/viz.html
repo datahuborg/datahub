@@ -68,11 +68,19 @@ $(document).ready(function($) {
   	res = client.execute_sql(con, $("#input-query").val());
   	results_arr.push(res.field_names)
   	$.each(res.tuples, function(tuple_idx, tuple) {
-      results_arr.push(tuple.cells)
+      var cell_arr = []
+      $.each(tuple.cells, function(cell_idx, cell) {
+        var val = parseFloat(cell)
+        if isNaN(val) {
+          cell_arr.push(cell)
+        } else {
+          cell_arr.push(val)
+        }
+      });
+      results_arr.push(cell_arr)
     });
     
     data = google.visualization.arrayToDataTable(results_arr);
-    console.log(data)
     var table = new google.visualization.Table(document.getElementById('table-div'));
     table.draw(data);
     $("#input-options").val('');
@@ -82,8 +90,6 @@ $(document).ready(function($) {
 
   var draw_viz = function(){
     var viz_type = $("#viz-type").val()
-    console.log(viz_type)
-    console.log(data)
     var viz_div = document.getElementById('viz-div')
     switch(viz_type) {
       case "bar_chart":
