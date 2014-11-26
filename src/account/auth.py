@@ -401,5 +401,11 @@ def get_login(request):
 
   return login
 
+@login_required
+def jdbc_password(request):
+  login = request.session[kUsername]
+  user = User.objects.get(username=login)
+  return HttpResponse(user.password)
+
 
 

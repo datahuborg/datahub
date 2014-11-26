@@ -6,6 +6,7 @@ urlpatterns = patterns('',
     url(r'^logout', 'account.auth.logout'),
 
     url(r'^forgot', 'account.auth.forgot'),
+    url(r'^jdbc_password', 'account.auth.jdbc_password'),
     url(r'^reset/(\w+)', 'account.auth.reset'),
     url(r'^verify/(\w+)', 'account.auth.verify'),
 )
