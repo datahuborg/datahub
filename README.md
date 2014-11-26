@@ -8,6 +8,10 @@ DataHub is an experimental hosted platform (GitHub-like) for organizing, managin
 * Using other’s data (querying, linking)
 * Making sense of data (analysis, visualization)
 
+### Get Started
+
++ [https://github.com/abhardwaj/datahub/wiki/Getting-Started](https://github.com/abhardwaj/datahub/wiki/Getting-Started)
+
 ### Demo
 + [http://datahub.csail.mit.edu](http://datahub.csail.mit.edu)
 

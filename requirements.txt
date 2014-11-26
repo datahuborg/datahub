@@ -1,0 +1,9 @@
+django==1.5
+south
+psycopg2
+numpy
+thrift
+sqlalchemy
+scorpionsql
+python-dateutil
+pycrypto
