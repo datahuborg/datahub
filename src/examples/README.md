@@ -21,3 +21,11 @@
 ### JavaScript Sample Code
 * `cd javascript`
 * open `SampleClient.html` in a browser
+
+### Objective-C Sample Code
+* `cd objc`
+* `open DataHub-Example`
+* run
+* When integrating thrift, in Build Settings:
+ * Always Search User Path: `YES`
+ * Framework Search Paths: add `$(SRCROOT)` and `$(inherited)`
