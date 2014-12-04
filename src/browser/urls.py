@@ -65,9 +65,6 @@ urlpatterns = patterns('',
     url(r'^browse/(\w+)/(\w+)/query$', 'browser.views.query'),
     url(r'^browse/(\w+)/(\w+)/query/$', 'browser.views.query'),
 
-    url(r'^browse/(\w+)/(\w+)/viz$', 'browser.views.viz'),
-    url(r'^browse/(\w+)/(\w+)/viz/$', 'browser.views.viz'),
-
     url(r'^browse/(\w+)/(\w+)/card/(\w+)$', 'browser.views.card'),
     url(r'^browse/(\w+)/(\w+)/card/(\w+)/$', 'browser.views.card'),
 
@@ -158,5 +155,6 @@ urlpatterns = patterns('',
     url(r'^apps/console/', include('console.urls')), # console app
     url(r'^apps/refiner/', include('refiner.urls')), # refiner app
     url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app  
+    url(r'^apps/viz/', include('viz.urls')), # viz app 
     #### End Apps ####
 )

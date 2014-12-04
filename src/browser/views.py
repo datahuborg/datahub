@@ -734,16 +734,6 @@ def create_annotation(request):
         mimetype="application/json")
 
 
-@login_required
-def viz(request, repo_base, repo):
-  login = get_login(request)
-  return render_to_response("viz.html", {
-      'login': login,
-      'repo_base': repo_base,
-      'repo': repo
-  })
-
-
 '''
 Cards
 '''
