@@ -14,7 +14,7 @@ DataHub is an experimental hosted platform (GitHub-like) for organizing, managin
 
 ### Example Code
 
-+[https://github.com/abhardwaj/datahub/tree/master/src/examples](https://github.com/abhardwaj/datahub/tree/master/src/examples)
++ [https://github.com/abhardwaj/datahub/tree/master/src/examples](https://github.com/abhardwaj/datahub/tree/master/src/examples)
 
 ### Demo
 + [http://datahub.csail.mit.edu](http://datahub.csail.mit.edu)
