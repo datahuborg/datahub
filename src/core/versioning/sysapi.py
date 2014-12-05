@@ -21,6 +21,9 @@ class SystemVersioning:
       v_id = version
     self.backend.add_table(repo, user, v_id, table_name, create_sql)
     
+  def freeze_table(self, table_real_name):    
+    return self.backend.freeze_table(table_real_name)  
+    
   def freeze_tables(self, v_id):    
     return self.backend.freeze_tables(v_id)
   
@@ -29,7 +32,7 @@ class SystemVersioning:
     self.freeze_table(table_real_name)
     #Create table 
     #return table_real_name
-    return self.backend.clone_table(self, table_real_name, new_name)
+    return self.backend.clone_table(table_real_name, new_name)
     
   def get_query_trace(self, v_id1, v_id2):
     return self.backend.get_query_trace(v_id1, v_id2)

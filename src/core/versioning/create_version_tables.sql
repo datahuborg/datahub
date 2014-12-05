@@ -2,6 +2,7 @@ drop table if exists versions CASCADE;
 drop table if exists version_parent CASCADE;
 drop table if exists query_log CASCADE;
 drop table if exists versioned_table CASCADE;
+drop table if exists versions_table CASCADE;
 drop table if exists versioned_table_parent CASCADE;
 drop table if exists table_metadata CASCADE;
 drop table if exists user_head CASCADE;
@@ -33,10 +34,15 @@ create table query_log (
 create table versioned_table (
   real_name varchar(110) primary key,
   display_name varchar(100),
-  v_id integer references versions(v_id),
+  repo varchar(100),
   copy_on_write boolean default false,
-  ts timestamp default current_timestamp,
-  constraint uniq_repo_table unique (display_name,v_id)
+  ts timestamp default current_timestamp
+);
+
+create table versions_table (
+  real_name varchar(110) references versioned_table(real_name),
+  v_id integer references versions(v_id),
+  constraint uniq_ver_table_map unique (real_name, v_id)
 );
 
 create table versioned_table_parent (
