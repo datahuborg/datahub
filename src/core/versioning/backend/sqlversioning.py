@@ -3,8 +3,10 @@ import psycopg2
 import logging
 import string
 import random
+import re
 
 log = logging.getLogger('dh')
+logging.basicConfig()
 log.setLevel(logging.INFO)
 
 
@@ -14,9 +16,12 @@ CREATE_VERSION_PARENT = "insert into version_parent (child_id, parent_id) values
 CREATE_VERSIONED_TABLE = "insert into versioned_table (real_name, display_name, repo) values (%s,%s,%s)"
 CREATE_VERSIONS_TABLE = "insert into versions_table (real_name, v_id) values (%s,%s)"
 FREEZE_TABLES = "update versioned_table set copy_on_write = true where real_name in (select real_name from versions_table where v_id = %s)"
-FREEZE_TABLE = "update versioned_table set copy_on_write = true where real_name %s"
+FREEZE_TABLE =  "update versioned_table set copy_on_write = true where real_name = %s"
 COPY_VERSIONS = "insert into versions_table (real_name, v_id) select real_name, %s from versions_table where v_id = %s" 
 GET_TABLE = "select real_name, display_name, repo, copy_on_write from versioned_table where real_name = %s"
+GET_TABLE_DISP_COUNT = "select count(*) from versioned_table where display_name = %s and repo=%s"
+MOD_TABLE_DH_ATTRS = "alter table %s add column _dh_delbit boolean default false;"
+CLONE_TABLE = "CREATE TABLE %s as select * from %s with no data"
 CREATE_TABLE_PARENT= "insert into versioned_table_parent (child_table, parent_table) values (%s,%s)"
 GET_V_ID = "select v_id from versions where repo = %s and name = %s"
 
@@ -115,6 +120,37 @@ class SQLVersioning:
       log.error(e)      
     cur.close()
 
+  def replace_table_name(self, old_table, new_table, sql):
+    return re.sub(old_table, new_table, sql)
+
+  def validate_extend_create_sql(self, sql):
+    log.error("TODO")
+    return sql
+
+  def create_table(self, user, repo, table_display_name, create_sql, v_id):
+    log.info("Create table")
+    rn = None
+    cur = self.connection.cursor()
+    try:
+      cur.execute(GET_TABLE_DISP_COUNT,(table_display_name,repo))
+      cnt = cur.fetchone()[0]
+      if cnt != 0:
+        raise Exception("Table with display_name %s already exists in repo %s" % (table_display_name,repo))
+      rn = self.gen_string(table_display_name)
+      cur.execute(CREATE_VERSIONED_TABLE,(rn, table_display_name, repo))   
+      cur.execute(CREATE_VERSIONS_TABLE, (rn,v_id))
+      mod_sql = self.replace_table_name(table_display_name, rn, create_sql)
+      mod_sql = self.validate_extend_create_sql(mod_sql)
+      #log.info(mod_sql)
+      cur.execute(mod_sql)
+      cur.execute(MOD_TABLE_DH_ATTRS%rn)
+      self.connection.commit()
+    except Exception, e:
+      log.error(e)
+      rn = None
+    cur.close()
+    return rn    
+
   def clone_table(self,table_real_name, new_name=None):
     cur = self.connection.cursor()
     try:
@@ -123,13 +159,13 @@ class SQLVersioning:
       rn = self.gen_string(r[1])
       cur.execute(CREATE_VERSIONED_TABLE,(rn, r[1], r[2]))
       cur.execute(CREATE_TABLE_PARENT, (rn,table_real_name))
-      log.info("TODO CREATE TABLE")
-      #Create table name
-      #CREATE TABLE [x] as 'qry' with no data
-      #return table_real_name
+      sql = CLONE_TABLE%(rn, table_real_name)
+      log.info(sql)
+      cur.execute(sql)
       self.connection.commit()
     except Exception, e:
       log.error(e)
+      rn = None
     cur.close()
     return rn
     

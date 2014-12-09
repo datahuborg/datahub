@@ -27,6 +27,9 @@ class SystemVersioning:
   def freeze_tables(self, v_id):    
     return self.backend.freeze_tables(v_id)
   
+  def create_table(self, user, repo, table_display_name, create_sql, v_id):
+    return self.backend.create_table(user, repo, table_display_name, create_sql, v_id)
+
   def clone_table(self,table_real_name, new_name=None):
     #Assert froze
     self.freeze_table(table_real_name)
