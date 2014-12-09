@@ -14,18 +14,20 @@ class SystemVersioning:
   def get_rs(self,sql):
     return self.backend(sql)
   
-  def add_table(self, table_name, create_sql, version, repo, user):
-    if isinstance(version, basestring):
-      v_id = self.backend.get_v_id(repo,v_name)
-    else:
-      v_id = version
-    self.backend.add_table(repo, user, v_id, table_name, create_sql)
+
     
   def freeze_table(self, table_real_name):    
     return self.backend.freeze_table(table_real_name)  
     
   def freeze_tables(self, v_id):    
     return self.backend.freeze_tables(v_id)
+
+  def add_table(self, table_name, create_sql, version, repo, user):
+    if isinstance(version, basestring):
+      v_id = self.backend.get_v_id(repo,v_name)
+    else:
+      v_id = version
+    self.create_table( user, repo, table_name, create_sql, v_id)
   
   def create_table(self, user, repo, table_display_name, create_sql, v_id):
     return self.backend.create_table(user, repo, table_display_name, create_sql, v_id)

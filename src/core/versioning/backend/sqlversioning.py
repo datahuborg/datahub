@@ -35,7 +35,8 @@ class SQLVersioning:
         port=settings.DATABASES['default']['PORT'],
         database=settings.DATABASES['default']['NAME'])
 
-  def create_version(self, user, repo, v_name, parent_v_id):
+  #Create a new version. may not have a parent
+  def create_version(self, user, repo, v_name, parent_v_id=None):
     cur = self.connection.cursor()
     id = None
     try:
@@ -48,8 +49,11 @@ class SQLVersioning:
       log.error(e)
     if r and parent_v_id:
       try:
-        cur.execute(CREATE_VERSION_PARENT,(id, parent_v_id))  
-        cur.execute(COPY_VERSIONS, (id,parent_v_id))
+        if isinstance(parent_v_id, int):
+          cur.execute(CREATE_VERSION_PARENT,(id, parent_v_id))  
+          cur.execute(COPY_VERSIONS, (id,parent_v_id))
+        else:
+          raise Exception("not supported parent type %s " % parent_v_id)
       except Exception, e:
         r = False
         log.error(e)      
@@ -58,6 +62,7 @@ class SQLVersioning:
     cur.close()
     return id
   
+  #Find the version id for a named version
   def get_v_id(self,repo,v_name):
     cur = self.connection.cursor()
     v = None
@@ -70,6 +75,8 @@ class SQLVersioning:
     cur.close()
     return v
   
+  
+  #Find the active table to insert into given a version and table name
   def find_active_table(self, version, display_table_name):
     raise Exception("TODO find_active_table")
   
@@ -79,22 +86,6 @@ class SQLVersioning:
                       
   def gen_string(self,base='', n=6):
     return "%s_%s" % (base,''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(n)))
-
-  
-  def add_table(self, repo, user, v_id, table_name, create_sql):
-    cur = self.connection.cursor()
-    try:
-      rn = self.gen_string(table_name)
-      cur.execute(CREATE_VERSIONED_TABLE,(rn, table_name, repo))
-      cur.execute(CREATE_VERSIONS_TABLE, (rn, v_id))
-      log.info("todo add deleted and create")
-      self.connection.commit()
-    except Exception, e:
-      rn = None
-      log.error(e)      
-    cur.close()
-    return rn
-  
   
   def build_table_query(self, table_tail):
     raise Exception("TODO")
@@ -102,6 +93,7 @@ class SQLVersioning:
   def get_rs(self,sql):
     raise Exception("TODO")
     
+  #Freeze all the tables associated with a version
   def freeze_tables(self, v_id):
     cur = self.connection.cursor()
     try:
@@ -120,29 +112,36 @@ class SQLVersioning:
       log.error(e)      
     cur.close()
 
+  #placeholder for proper SQL parsing
   def replace_table_name(self, old_table, new_table, sql):
     return re.sub(old_table, new_table, sql)
 
+  #Any validation of DH create statements
   def validate_extend_create_sql(self, sql):
     log.error("TODO")
     return sql
 
+  #Create a new table associated with a version
   def create_table(self, user, repo, table_display_name, create_sql, v_id):
     log.info("Create table")
     rn = None
     cur = self.connection.cursor()
     try:
+      #Ensure that no other display name exists in the repo
       cur.execute(GET_TABLE_DISP_COUNT,(table_display_name,repo))
       cnt = cur.fetchone()[0]
       if cnt != 0:
         raise Exception("Table with display_name %s already exists in repo %s" % (table_display_name,repo))
       rn = self.gen_string(table_display_name)
+      #Create the metadata for versioned table
       cur.execute(CREATE_VERSIONED_TABLE,(rn, table_display_name, repo))   
       cur.execute(CREATE_VERSIONS_TABLE, (rn,v_id))
+      #Update create statement
       mod_sql = self.replace_table_name(table_display_name, rn, create_sql)
       mod_sql = self.validate_extend_create_sql(mod_sql)
-      #log.info(mod_sql)
+      #create the db
       cur.execute(mod_sql)
+      # add Delete bit
       cur.execute(MOD_TABLE_DH_ATTRS%rn)
       self.connection.commit()
     except Exception, e:
@@ -151,16 +150,19 @@ class SQLVersioning:
     cur.close()
     return rn    
 
+  #clone a table 
   def clone_table(self,table_real_name, new_name=None):
     cur = self.connection.cursor()
     try:
+      #find the table information for source table
       cur.execute(GET_TABLE,(table_real_name,))
       r = cur.fetchone()
       rn = self.gen_string(r[1])
+      #create the meta data
       cur.execute(CREATE_VERSIONED_TABLE,(rn, r[1], r[2]))
       cur.execute(CREATE_TABLE_PARENT, (rn,table_real_name))
+      #create a copy of source table
       sql = CLONE_TABLE%(rn, table_real_name)
-      log.info(sql)
       cur.execute(sql)
       self.connection.commit()
     except Exception, e:
