@@ -32,6 +32,14 @@ select v2.child_table, v2.parent_table from versioned_table_parent v, versioned_
 v.child_table = v2.parent_table
 )
 select * from vtp;'''
+GET_VERSION_CHAIN = '''with recursive ver( version, vp) as (
+select v.child_id, v.parent_id from version_parent v where v.child_id = %s
+union all
+select v2.child_id, v2.parent_id from version_parent v, version_parent v2 where                               
+v2.child_id = v.parent_id
+)
+select * from ver;'''
+
 
 
 class SQLVersioning:
