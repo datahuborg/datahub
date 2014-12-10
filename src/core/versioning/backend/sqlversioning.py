@@ -15,6 +15,7 @@ CREATE_VERSION_SQL = "insert into versions (name, repo, user_id) values (%s,%s,%
 CREATE_VERSION_PARENT = "insert into version_parent (child_id, parent_id) values (%s,%s)"
 CREATE_VERSIONED_TABLE = "insert into versioned_table (real_name, display_name, repo) values (%s,%s,%s)"
 CREATE_VERSIONS_TABLE = "insert into versions_table (real_name, v_id) values (%s,%s)"
+UPDATE_VERSIONS_TABLE = "update versions_table set real_name = %s where real_name = %s and v_id = %s " 
 FREEZE_TABLES = "update versioned_table set copy_on_write = true where real_name in (select real_name from versions_table where v_id = %s)"
 FREEZE_TABLE =  "update versioned_table set copy_on_write = true where real_name = %s"
 COPY_VERSIONS = "insert into versions_table (real_name, v_id) select real_name, %s from versions_table where v_id = %s" 
@@ -24,6 +25,14 @@ MOD_TABLE_DH_ATTRS = "alter table %s add column _dh_delbit boolean default false
 CLONE_TABLE = "CREATE TABLE %s as select * from %s with no data"
 CREATE_TABLE_PARENT= "insert into versioned_table_parent (child_table, parent_table) values (%s,%s)"
 GET_V_ID = "select v_id from versions where repo = %s and name = %s"
+GET_V_TABLES = '''with recursive vtp( child_table, parent_table) as (
+select v.child_table, v.parent_table from versioned_table_parent v where v.parent_table = '%s'
+union all
+select v2.child_table, v2.parent_table from versioned_table_parent v, versioned_table_parent v2 where                               
+v.child_table = v2.parent_table
+)
+select * from vtp;'''
+
 
 class SQLVersioning:
   
@@ -51,12 +60,14 @@ class SQLVersioning:
       try:
         if isinstance(parent_v_id, int):
           cur.execute(CREATE_VERSION_PARENT,(id, parent_v_id))  
-          cur.execute(COPY_VERSIONS, (id,parent_v_id))
+          cur.execute(COPY_VERSIONS, (id,parent_v_id))  
+          cur.execute(FREEZE_TABLES,(parent_v_id,))
         else:
           raise Exception("not supported parent type %s " % parent_v_id)
       except Exception, e:
         r = False
-        log.error(e)      
+        log.error(e)
+        self.connection.rollback()      
     if r:
       self.connection.commit()
     cur.close()
@@ -71,7 +82,8 @@ class SQLVersioning:
       v = cur.fetchone()[0]
       self.connection.commit()
     except Exception, e:
-      log.error(e)      
+      log.error(e)
+      self.connection.rollback()      
     cur.close()
     return v
   
@@ -100,7 +112,8 @@ class SQLVersioning:
       cur.execute(FREEZE_TABLES,(v_id,))
       self.connection.commit()
     except Exception, e:
-      log.error(e)      
+      log.error(e)
+      self.connection.rollback()      
     cur.close()
 
   def freeze_table(self,table_real_name):
@@ -109,7 +122,8 @@ class SQLVersioning:
       cur.execute(FREEZE_TABLE,(table_real_name,))
       self.connection.commit()
     except Exception, e:
-      log.error(e)      
+      log.error(e)
+      self.connection.rollback()      
     cur.close()
 
   #placeholder for proper SQL parsing
@@ -147,20 +161,26 @@ class SQLVersioning:
     except Exception, e:
       log.error(e)
       rn = None
+      self.connection.rollback()
     cur.close()
     return rn    
 
   #clone a table 
-  def clone_table(self,table_real_name, new_name=None):
+  def clone_table(self,table_real_name, new_v_id, new_name=None):
     cur = self.connection.cursor()
     try:
       #find the table information for source table
       cur.execute(GET_TABLE,(table_real_name,))
       r = cur.fetchone()
-      rn = self.gen_string(r[1])
+      if new_name:
+        rn = new_name
+      else:
+        rn = self.gen_string(r[1])
       #create the meta data
       cur.execute(CREATE_VERSIONED_TABLE,(rn, r[1], r[2]))
-      cur.execute(CREATE_TABLE_PARENT, (rn,table_real_name))
+      cur.execute(CREATE_TABLE_PARENT, (rn,table_real_name))   
+      #update version pointer for table
+      cur.execute(UPDATE_VERSIONS_TABLE, (rn, table_real_name, new_v_id))
       #create a copy of source table
       sql = CLONE_TABLE%(rn, table_real_name)
       cur.execute(sql)
@@ -168,6 +188,7 @@ class SQLVersioning:
     except Exception, e:
       log.error(e)
       rn = None
+      self.connection.rollback()
     cur.close()
     return rn
     

@@ -32,12 +32,12 @@ class SystemVersioning:
   def create_table(self, user, repo, table_display_name, create_sql, v_id):
     return self.backend.create_table(user, repo, table_display_name, create_sql, v_id)
 
-  def clone_table(self,table_real_name, new_name=None):
+  def clone_table(self,table_real_name, new_v_id, new_name=None):
     #Assert froze
     self.freeze_table(table_real_name)
     #Create table 
     #return table_real_name
-    return self.backend.clone_table(table_real_name, new_name)
+    return self.backend.clone_table(table_real_name, new_v_id, new_name)
     
   def get_query_trace(self, v_id1, v_id2):
     return self.backend.get_query_trace(v_id1, v_id2)
