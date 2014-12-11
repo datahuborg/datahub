@@ -13,12 +13,13 @@ from datahub_session import DataHubSession
 versioning cli interface
 '''
 CMD_LIST = {
-    'clone':    'clone <table_name>   -- clone a table with HEAD as the ID',
-    'checkout': 'checkout <ID>        -- checkout a table with a different ID',
-    'sql':      'sql <query>          -- run a sql command on the checked out version',
-    'commit':   'commit               -- commits all the local changes',
-    'stash':    'stash                -- undo all local changes',
-    'diff':     'diff [ID]            -- diff with the HEAD or a a ID'
+    'init':     'init <table>            -- initialize versioning for the table',
+    'clone':    'clone <table>           -- clone the table (version=HEAD)',
+    'checkout': 'checkout <table> <v>    -- check out version v of the table',
+    'sql':      'sql <query>             -- run a sql command on the checked out version',
+    'commit':   'commit <table>          -- commit all the local changes to the table',
+    'stash':    'stash <table>           -- undo all uncommitted changes to the table',
+    'diff':     'diff <table> [v]        -- diff version v and HEAD of the table'
 }
 
 def authenticate(login_required=True):
@@ -44,6 +45,19 @@ class CmdTerminal(cmd.Cmd):
     self.prompt = "datahub> "
 
   @authenticate()
+  def do_init(self, args):
+    try:
+      table_name = args.strip()
+
+      if table_name == '':
+        self.do_help('init')
+      
+      self.session.init(table_name)
+
+    except Exception, e:
+      self.print_line('error: %s' % (e.message))
+
+  @authenticate()
   def do_clone(self, args):
     try:
       table_name = args.strip()
@@ -59,12 +73,15 @@ class CmdTerminal(cmd.Cmd):
   @authenticate()
   def do_checkout(self, args):
     try:
-      v_id = args.strip()
+      argv = args.strip().split()
 
-      if v_id == '':
+      if len(argv) < 2:
         self.do_help('checkout')
       
-      self.session.checkout(v_id)
+      table_name = argv[0]
+      v_id = argv[1]
+      
+      self.session.checkout(table_name, v_id)
 
     except Exception, e:
       self.print_line('error: %s' % (e.message))
@@ -72,7 +89,12 @@ class CmdTerminal(cmd.Cmd):
   @authenticate()
   def do_commit(self, args):
     try:
-      self.session.commit()
+      table_name = args.strip()
+
+      if table_name == '':
+        self.do_help('commit')
+      
+      self.session.commit(table_name)
 
     except Exception, e:
       self.print_line('error: %s' % (e.message))
@@ -80,7 +102,12 @@ class CmdTerminal(cmd.Cmd):
   @authenticate()
   def do_stash(self, args):
     try:
-      self.session.stash()
+      table_name = args.strip()
+
+      if table_name == '':
+        self.do_help('stash')
+      
+      self.session.stash(table_name)
 
     except Exception, e:
       self.print_line('error: %s' % (e.message))
@@ -88,10 +115,15 @@ class CmdTerminal(cmd.Cmd):
   @authenticate()
   def do_diff(self, args):
     try:
-      argv = args.strip()      
-      v_id = argv if argv != '' else None
+      argv = args.strip().split()
+      
+      table_name = argv[0]
 
-      self.session.diff(v_id)
+      if table_name == '':
+        self.do_help('diff')
+
+      v_id = argv[1] if len(argv) > 1 else None
+      self.session.diff(table_name, v_id)
     except Exception, e:
       self.print_line('error: %s' % (e.message))
   
