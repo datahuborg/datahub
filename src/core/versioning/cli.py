@@ -4,20 +4,22 @@ import os
 import shlex
 import sys
 
+from datahub_session import DataHubSession
+
 '''
 @author: anant bhardwaj
 @date: Dec 8, 2014
 
 versioning cli interface
 '''
-CMD_LIST = [
-    'clone <table_name>'
-    'checkout <table_name> [version_no]'
-    'sql <query>',
-    'commit',
-    'stash',
-    'diff [version 1] [version 2]'
-]
+CMD_LIST = {
+    'clone':    'clone <table_name>   -- clone a table with HEAD as the ID',
+    'checkout': 'checkout <ID>        -- checkout a table with a different ID',
+    'sql':      'sql <query>          -- run a sql command on the checked out version',
+    'commit':   'commit               -- commits all the local changes',
+    'stash':    'stash                -- undo all local changes',
+    'diff':     'diff [ID]            -- diff with the HEAD or a a ID'
+}
 
 def authenticate(login_required=True):
   def response(f):
@@ -38,13 +40,18 @@ def authenticate(login_required=True):
 class CmdTerminal(cmd.Cmd):
   def __init__(self):
     cmd.Cmd.__init__(self, completekey='tab')
+    self.session = DataHubSession()
     self.prompt = "datahub> "
 
   @authenticate()
   def do_clone(self, args):
     try:
       table_name = args.strip()
-      # do clone_table
+
+      if table_name == '':
+        self.do_help('clone')
+      
+      self.session.clone(table_name)
 
     except Exception, e:
       self.print_line('error: %s' % (e.message))
@@ -52,14 +59,12 @@ class CmdTerminal(cmd.Cmd):
   @authenticate()
   def do_checkout(self, args):
     try:
-      argv = args.strip().split()
-      table_name = argv[0]
+      v_id = args.strip()
 
-      if len(argv) > 1:
-        version = argv[1]
-
-      # execute checkout(table_name, version=version)
-      # default is HEAD
+      if v_id == '':
+        self.do_help('checkout')
+      
+      self.session.checkout(v_id)
 
     except Exception, e:
       self.print_line('error: %s' % (e.message))
@@ -67,8 +72,7 @@ class CmdTerminal(cmd.Cmd):
   @authenticate()
   def do_commit(self, args):
     try:
-      table_name = args.strip()
-      # execute commit_table
+      self.session.commit()
 
     except Exception, e:
       self.print_line('error: %s' % (e.message))
@@ -76,8 +80,7 @@ class CmdTerminal(cmd.Cmd):
   @authenticate()
   def do_stash(self, args):
     try:
-      # execute stash
-      pass
+      self.session.stash()
 
     except Exception, e:
       self.print_line('error: %s' % (e.message))
@@ -85,18 +88,10 @@ class CmdTerminal(cmd.Cmd):
   @authenticate()
   def do_diff(self, args):
     try:
-      argv = args.strip().split()
-      
-      if len(argv) > 0:
-        version_1 = argv[0]
+      argv = args.strip()      
+      v_id = argv if argv != '' else None
 
-      if len(argv) > 1:
-        version_2 = argv[1]
-
-      # execute diff(version_1, version_2)
-      # default version_1 is HEAD
-      # default version_2 is USER's uncommited version
-
+      self.session.diff(v_id)
     except Exception, e:
       self.print_line('error: %s' % (e.message))
   
@@ -105,17 +100,20 @@ class CmdTerminal(cmd.Cmd):
   def do_sql(self, args):
     try:
       query = args.strip()  
-      # execute_sql(query=query)
-      # print result
+      self.session.sql(query)
     except Exception, e:
       self.print_line('error: %s' % (e.message))
 
   def do_exit(self, args):
     return True
 
-  def do_help(self, line): 
+  def do_help(self, args):
+    if args in CMD_LIST.keys():
+      self.print_line(CMD_LIST[args])
+      return
+
     for cmd in CMD_LIST:
-      self.print_line(cmd)
+      self.print_line(CMD_LIST[cmd])
 
   def print_line(self, line):
     self.stdout.write(line)
