@@ -95,7 +95,6 @@ class CmdTerminal(cmd.Cmd):
     except Exception, e:
       self.print_line('error: %s' % (e.message))
   
-
   @authenticate()
   def do_sql(self, args):
     try:
