@@ -24,6 +24,8 @@ GET_TABLE_DISP_COUNT = "select count(*) from versioned_table where display_name 
 MOD_TABLE_DH_ATTRS = "alter table %s add column _dh_delbit boolean default false;"
 CLONE_TABLE = "CREATE TABLE %s as select * from %s with no data"
 CREATE_TABLE_PARENT= "insert into versioned_table_parent (child_table, parent_table) values (%s,%s)"
+GET_TABLE_PARENT= "select parent_table from versioned_table_parent where child_table = %s"
+GET_ACTIVE_TABLE = "select vt.real_name from versions_table vt, versioned_table tbl where vt.v_id = %s and tbl.display_name = %s and vt.real_name = tbl.real_name; " 
 GET_V_ID = "select v_id from versions where repo = %s and name = %s"
 GET_V_TABLES = '''with recursive vtp( child_table, parent_table) as (
 select v.child_table, v.parent_table from versioned_table_parent v where v.parent_table = '%s'
@@ -97,18 +99,81 @@ class SQLVersioning:
   
   
   #Find the active table to insert into given a version and table name
-  def find_active_table(self, version, display_table_name):
-    raise Exception("TODO find_active_table")
+  def find_active_table(self, v_id, display_table_name):
+    cur = self.connection.cursor()
+    rn = None
+    try:
+      cur.execute(GET_ACTIVE_TABLE,(v_id,display_table_name))
+      rn = cur.fetchone()[0]
+      self.connection.commit()
+    except Exception, e:
+      log.error(e)
+      self.connection.rollback()      
+    cur.close()
+    return rn
+    
   
   def get_list_tables(self, v_id):
+    #Not needed now
     log.error("TODO get_list_tables")
     return []
                       
   def gen_string(self,base='', n=6):
     return "%s_%s" % (base,''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(n)))
   
-  def build_table_query(self, table_tail):
-    raise Exception("TODO")
+  #**********************
+  #*** Table chain queries
+  #************************
+  
+  def get_read_query(self,table_chain, pk):
+    base = 'select * from %s'
+    limiter = 'where %s.%s not in (%s)' % ( '%s',pk,'%s')
+    queries = []
+    if len(table_chain) == 1 :
+      return base % table_chain[0]
+    else:
+      for j,table in enumerate(table_chain):
+        query = base % table
+        if j > 0:
+          query = "%s %s" % (query,limiter)
+          excludes = self.getIds(table_chain[:j], pk)
+          query = query % (table,excludes)
+        queries.append(query)
+    return ' union '.join(queries)
+
+  def getIds(self,tables, pk):
+    select_sql = 'select %s from %s' % (pk, '%s')
+    if type(tables) == list:
+      return ' union '.join(select_sql % t for t in tables)
+    else:
+      return select_sql % tables
+
+  
+  
+  def get_table_chain(self, table_tail):
+    cur = self.connection.cursor()
+    try:
+      cur.execute(GET_TABLE_PARENT,(table_tail,))
+      #TODO if has more than one parent
+      res = [table_tail]
+      r = cur.fetchone()
+      while r:
+        p = r[0]
+        res.append(p)
+        cur.execute(GET_TABLE_PARENT,(p,))
+        r = cur.fetchone()
+      self.connection.commit()
+    except Exception, e:
+      log.error(e)
+      self.connection.rollback()      
+    cur.close()
+    return res
+
+  #TODO this assumes id exists. we need a flexible way to check for PK and if none, just union
+  def build_table_query(self, table_tail, pk = 'id'):
+    table_chain = self.get_table_chain(table_tail)
+    query = self.get_read_query(table_chain, pk)
+    return query
   
   def get_rs(self,sql):
     raise Exception("TODO")
@@ -140,6 +205,7 @@ class SQLVersioning:
 
   #Any validation of DH create statements
   def validate_extend_create_sql(self, sql):
+    #Not needed now
     log.error("TODO")
     return sql
 
@@ -201,14 +267,15 @@ class SQLVersioning:
     return rn
     
   def get_query_trace(self, v_id1, v_id2):
+    #Not needed now
     raise Exception("TODO")
   
   def update_user_head(self, user, repo, v_id, v_name):
+    #Not needed now??
     raise Exception("TODO")
-  
-
   
   def commit(self, query_list, v_id):
     #update query log
     #insert into active table of v
+    #Not needed now??
     raise Exception("TODO")
