@@ -38,8 +38,8 @@ class SystemVersioning:
     self.create_table( user, repo, table_name, create_sql, v_id)
   
   #add a new table to a version
-  def create_table(self, user, repo, table_display_name, create_sql, v_id):
-    return self.backend.create_table(user, repo, table_display_name, create_sql, v_id)
+  def create_table(self, user, repo, table_display_name, create_sql, v_id, rn = None):
+    return self.backend.create_table(user, repo, table_display_name, create_sql, v_id, rn)
 
   #Call when a COW frozen table needs to be cloned for an insert. returns new table real name
   def clone_table(self,table_real_name, new_v_id, new_name=None):

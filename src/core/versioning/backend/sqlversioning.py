@@ -210,7 +210,7 @@ class SQLVersioning:
     return sql
 
   #Create a new table associated with a version
-  def create_table(self, user, repo, table_display_name, create_sql, v_id):
+  def create_table(self, user, repo, table_display_name, create_sql, v_id, provided_rn = None):
     log.info("Create table")
     rn = None
     cur = self.connection.cursor()
@@ -220,7 +220,10 @@ class SQLVersioning:
       cnt = cur.fetchone()[0]
       if cnt != 0:
         raise Exception("Table with display_name %s already exists in repo %s" % (table_display_name,repo))
-      rn = self.gen_string(table_display_name)
+      if provided_rn:
+        rn = provided_rn
+      else:
+        rn = self.gen_string(table_display_name)
       #Create the metadata for versioned table
       cur.execute(CREATE_VERSIONED_TABLE,(rn, table_display_name, repo))   
       cur.execute(CREATE_VERSIONS_TABLE, (rn,v_id))
