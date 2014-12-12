@@ -78,8 +78,7 @@ class PGBackend:
             ''' %(repo, privileges_str, username)
     self.execute_sql(query)
 
-  def delete_collaborator(
-      self, repo, username):
+  def delete_collaborator(self, repo, username):
     query = ''' REVOKE ALL ON ALL TABLES IN SCHEMA %s FROM %s CASCADE;
             ''' %(repo, username)
     self.execute_sql(query)
