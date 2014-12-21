@@ -3,10 +3,10 @@
   position: absolute;
   overflow-y: scroll;
   overflow-x: hidden;
-  top: 5%;
+  top: 60px;
   left: 5%;
   width: 90%;
-  height: 90%;
+  height: 700px;
   background-color: white;
   padding-bottom: 50px;
 }
