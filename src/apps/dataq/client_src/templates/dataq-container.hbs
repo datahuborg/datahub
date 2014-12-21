@@ -1,0 +1,72 @@
+<!-- HTML file containing the overall DataQ interface -->
+
+<!-- Create a translucent black background -->
+<div class="dq-black-background"></div>
+
+<!-- The DataQ container -->
+<div class="dataq container-fluid">
+
+  <!-- Section 1: Select columns -->
+  <div class="row dq-section">
+    <div class="dq-circle hidden-xs col-sm-1">1</div>
+    <h3 class="dq-title col-xs-11">Select columns</h3>
+  </div>
+
+  <!-- The table section HTML goes inside this div -->
+  <div class="dq-table-section-container">
+  </div>
+
+  <!-- Section 2: Filter out rows -->
+  <div class="row dq-section">
+    <div class="dq-circle hidden-xs col-sm-1">2</div>
+    <h3 class="dq-title col-xs-11">Filter out some rows</h3>
+  </div>
+
+  <!-- The filter section HTML goes inside this div -->
+  <div class="dq-selected-filters">
+      <ul class="dq-filter-list"></ul>
+  </div>
+
+  <!-- Button to add a new filter -->
+  <div class="row">
+    <button class="btn btn-primary dq-btn-add-filter col-xs-offset-1">Add Filter</button>
+  </div>
+
+  <!-- Section 3: Groupings -->
+  <div class="row dq-section">
+    <div class="dq-circle hidden-xs col-sm-1">3</div>
+    <h3 class="dq-title col-xs-11">Perform groupings</h3>
+  </div>
+
+  <!-- Button for adding groupings -->
+  <div class="row">
+    <button class="btn btn-primary dq-btn-edit-grouping col-xs-offset-1">Edit Grouping</button>
+  </div>
+
+  <!-- The grouping is displayed this header -->
+  <div class="dq-grouping-section-container">
+    <h4 class="row col-xs-offset-1 dq-grouping-text">No Groupings...</h4>
+  </div>
+
+  <!-- Section 4: Sorting -->
+  <div class="row dq-section">
+    <div class="dq-circle hidden-xs col-sm-1">4</div>
+    <h3 class="dq-title col-xs-11">Sort by column</h3>
+  </div>
+
+  <!-- Button to add a sorting -->
+  <div class="row">
+    <button class="btn btn-primary dq-btn-edit-sorting col-xs-offset-1">Edit Sorting</button>
+  </div>
+
+  <!-- The sorting is displayed in this header -->
+  <div class="dq-sorting-section-container">
+    <h4 class="row col-xs-offset-1 dq-sorting-text">No Sorting...</h4>
+  </div>
+
+  <!-- Button to run query -->
+  <div class="row">
+    <button class="btn btn-warning col-xs-3 col-xs-offset-3 dq-btn-cancel-query">Cancel</button>
+    <button class="btn btn-success col-xs-3 dq-btn-run-query">Query</button>
+  </div>
+</div>

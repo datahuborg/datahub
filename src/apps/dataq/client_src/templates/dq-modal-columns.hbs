@@ -1,0 +1,8 @@
+<!-- Create list of columns in the given table. This is used by the table modal -->
+{{#each columns}}
+<li class="dq-modal-column" data-columnname={{this.[0]}} data-columntype={{this.[1]}} data-currentaggregate="none">
+  <!-- Display a checkbox and a button (to toggle the aggregate operator) -->
+  <input type="checkbox">
+  <button class="btn btn-default">{{this.[0]}}</button>
+</li>
+{{/each}}

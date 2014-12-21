@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/css/bootstrap.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.1/skins/square/green.css">
+  <link rel="stylesheet" href="/static/dataq/css/style.css">
+  <title>DataQ</title>
+</head>
+<body>
+  <div class="container-fluid">
+    <p id="query-text">This is the main text.</p>
+  </div>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.runtime.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/js/bootstrap.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.1/icheck.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/blueimp-md5/1.0.1/js/md5.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/html5sortable/0.1.8/html.sortable.min.js"></script>
+  <script src="/static/dataq/templates.js"></script>
+  <script src="/static/dataq/js/dataq.min.js"></script>
+  <script>
+(function() {
+  $(document).ready(function() {
+    DataQ.DQ("wifi", function(query) {
+      console.log(query);
+      $("#query-text").html(query);
+
+      });
+  });
+})();
+  </script>
+</body>
+</html>
