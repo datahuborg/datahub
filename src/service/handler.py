@@ -1,5 +1,6 @@
 import hashlib
 
+from account.manager import *
 from core.db.connection import DataHubConnection
 from core.db.manager import DataHubManager
 
@@ -97,3 +98,10 @@ class DataHubHandler:
       return construct_result_set(res)
     except Exception, e:
       raise DBException(message=str(e))
+
+  def create_user (self, username, email, password, app_id=None, app_token=None):
+    try:
+      register_user(username, email, password)
+      return True
+    except Exception, e:
+      raise AccountException(message=str(e))

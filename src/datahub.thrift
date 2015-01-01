@@ -56,8 +56,15 @@ struct ResultSet {
   7: optional list <string> field_types
 }
 
-// any exception from the DataHub core is wrapped as DBException
+// Error in DB Operation
 exception DBException {
+  1: optional i32 error_code,
+  2: optional string message,
+  3: optional string details
+}
+
+// Error in Account Creation
+exception AccountException {
   1: optional i32 error_code,
   2: optional string message,
   3: optional string details
@@ -92,19 +99,7 @@ service DataHub {
 
   bool close_connection (1: Connection con)
       throws (1: DBException ex)
-}
 
-
-/* DataHub Account */
-
-// exception
-exception AccountException {
-  1: optional i32 error_code,
-  2: optional string message,
-  3: optional string details
-}
-
-service Account {
   bool create_user (
       1: string username,
       2: string email,
