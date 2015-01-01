@@ -4,4 +4,4 @@ basepath=$(cd "$abspath/../.."; pwd)
 
 rm -rf $abspath/gen-cocoa
 
-thrift --gen cocoa -o $abspath $basepath/datahub.thrift
+thrift --gen cocoa -o $abspath $basepath/thrift/datahub.thrift

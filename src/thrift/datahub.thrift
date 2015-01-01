@@ -1,23 +1,20 @@
 /**
  * datahub.thrift
- * IDL for DataHub Services
+ * IDL for DataHub Core DB Services
  *
  * @author: Anant Bhardwaj
  * @date: 10/09/2013
  *
  */
 
+include "shared/types.thrift"
+
+namespace cocoa datahub
 namespace cpp datahub
+namespace go datahub
 namespace java datahub
-namespace php datahub
-namespace perl datahub
 namespace py datahub
 namespace rb datahub
-
-/* DataHub Global Constants */
-
-// version info
-const double VERSION = 1.0
 
 
 /* DataHub Core */
@@ -63,13 +60,6 @@ exception DBException {
   3: optional string details
 }
 
-// Error in Account Creation
-exception AccountException {
-  1: optional i32 error_code,
-  2: optional string message,
-  3: optional string details
-}
-
 // service APIs
 service DataHub {
   double get_version()
@@ -99,16 +89,4 @@ service DataHub {
       3: list <binary> query_params) throws (1: DBException ex)
 
   bool close_connection (1: Connection con) throws (1: DBException ex)
-
-  bool create_account (
-      1: string username,
-      2: string email,
-      3: string password,
-      4: string app_id,
-      5: string app_token) throws (1: AccountException ex)
-
-  bool remove_account (
-      1: string username,
-      2: string app_id,
-      3: string app_token) throws (1: AccountException ex)
 }

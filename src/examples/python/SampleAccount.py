@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-from datahub import DataHub
-from datahub.constants import *
+from datahub.account import AccountService
+from datahub.account.constants import *
 from thrift import Thrift
 from thrift.protocol import TBinaryProtocol
 from thrift.transport import THttpClient
@@ -18,7 +18,7 @@ try:
   transport = THttpClient.THttpClient('http://datahub.csail.mit.edu/service')
   transport = TTransport.TBufferedTransport(transport)
   protocol = TBinaryProtocol.TBinaryProtocol(transport)
-  client = DataHub.Client(protocol)
+  client = AccountService.Client(protocol)
   
   print "Version: %s" %(client.get_version())
   
