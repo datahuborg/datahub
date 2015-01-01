@@ -73,6 +73,9 @@ class DataHubConnection:
   def create_user(self, username, password):
     return self.backend.create_user(username, password)
 
+  def remove_user(self, username):
+    return self.backend.remove_user(username)
+
   def change_password(self, username, password):
     return self.backend.change_password(username, password)
 

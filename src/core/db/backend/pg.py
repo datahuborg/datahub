@@ -153,6 +153,12 @@ class PGBackend:
     query = ''' CREATE DATABASE %s WITH OWNER=%s ''' %(username, username)
     return self.execute_sql(query)
 
+  def remove_user(self, username):
+    query = ''' DROP OWNED BY %s CASCADE ''' %(username)
+    self.execute_sql(query)
+    query = ''' DROP ROLE %s ''' %(username)
+    return self.execute_sql(query)
+
   def change_password(self, username, password):
     query = ''' ALTER ROLE %s WITH PASSWORD '%s'
             ''' %(username, password)
