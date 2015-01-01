@@ -154,7 +154,7 @@ class PGBackend:
     return self.execute_sql(query)
 
   def remove_user(self, username):
-    query = ''' DROP OWNED BY %s CASCADE ''' %(username)
+    query = ''' DROP DATABASE %s ''' %(username)
     self.execute_sql(query)
     query = ''' DROP ROLE %s ''' %(username)
     return self.execute_sql(query)

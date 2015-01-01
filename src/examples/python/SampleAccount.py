@@ -22,15 +22,15 @@ try:
   
   print "Version: %s" %(client.get_version())
   
-  client.create_account(username="test_account",
-                        password="test",
-                        email="test@test.com",
-                        app_id=None,
-                        app_token=None)
+  print client.create_account(username="test_account",
+                              password="test",
+                              email="test@test.com",
+                              app_id=None,
+                              app_token=None)
 
-  client.remove_account(username="test_account",
-                        app_id=None,
-                        app_token=None)
+  print client.remove_account(username="test_account",
+                              app_id=None,
+                              app_token=None)
 
 except Exception, e:
     print 'Something went wrong : %s' % (e)
