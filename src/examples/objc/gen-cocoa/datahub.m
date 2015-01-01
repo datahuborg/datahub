@@ -15,10 +15,11 @@
 #import "TObjective-C.h"
 #import "TBase.h"
 
+#import "types.h"
 
 #import "datahub.h"
 
-@implementation ConnectionParams
+@implementation datahubConnectionParams
 
 - (id) init
 {
@@ -324,7 +325,7 @@
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"ConnectionParams("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubConnectionParams("];
   [ms appendString: @"client_id:"];
   [ms appendFormat: @"\"%@\"", __client_id];
   [ms appendString: @",seq_id:"];
@@ -341,7 +342,7 @@
 
 @end
 
-@implementation Connection
+@implementation datahubConnection
 
 - (id) init
 {
@@ -640,7 +641,7 @@
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"Connection("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubConnection("];
   [ms appendString: @"client_id:"];
   [ms appendFormat: @"\"%@\"", __client_id];
   [ms appendString: @",seq_id:"];
@@ -657,7 +658,7 @@
 
 @end
 
-@implementation Tuple
+@implementation datahubTuple
 
 - (id) init
 {
@@ -789,7 +790,7 @@
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"Tuple("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubTuple("];
   [ms appendString: @"cells:"];
   [ms appendFormat: @"%@", __cells];
   [ms appendString: @")"];
@@ -798,7 +799,7 @@
 
 @end
 
-@implementation ResultSet
+@implementation datahubResultSet
 
 - (id) init
 {
@@ -808,7 +809,7 @@
   return self;
 }
 
-- (id) initWithStatus: (BOOL) status con: (Connection *) con num_tuples: (int64_t) num_tuples num_more_tuples: (int64_t) num_more_tuples tuples: (NSMutableArray *) tuples field_names: (NSMutableArray *) field_names field_types: (NSMutableArray *) field_types
+- (id) initWithStatus: (BOOL) status con: (datahubConnection *) con num_tuples: (int64_t) num_tuples num_more_tuples: (int64_t) num_more_tuples tuples: (NSMutableArray *) tuples field_names: (NSMutableArray *) field_names field_types: (NSMutableArray *) field_types
 {
   self = [super init];
   __status = status;
@@ -927,11 +928,11 @@
   __status_isset = NO;
 }
 
-- (Connection *) con {
+- (datahubConnection *) con {
   return [[__con retain_stub] autorelease_stub];
 }
 
-- (void) setCon: (Connection *) con {
+- (void) setCon: (datahubConnection *) con {
   [con retain_stub];
   [__con release_stub];
   __con = con;
@@ -1070,7 +1071,7 @@
         break;
       case 2:
         if (fieldType == TType_STRUCT) {
-          Connection *fieldValue = [[Connection alloc] init];
+          datahubConnection *fieldValue = [[datahubConnection alloc] init];
           [fieldValue read: inProtocol];
           [self setCon: fieldValue];
           [fieldValue release_stub];
@@ -1102,7 +1103,7 @@
           int _i6;
           for (_i6 = 0; _i6 < _size5; ++_i6)
           {
-            Tuple *_elem7 = [[Tuple alloc] init];
+            datahubTuple *_elem7 = [[datahubTuple alloc] init];
             [_elem7 read: inProtocol];
             [fieldValue addObject: _elem7];
             [_elem7 release_stub];
@@ -1241,7 +1242,7 @@
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"ResultSet("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubResultSet("];
   [ms appendString: @"status:"];
   [ms appendFormat: @"%i", __status];
   [ms appendString: @",con:"];
@@ -1262,11 +1263,11 @@
 
 @end
 
-@implementation DBException
+@implementation datahubDBException
 
 - (id) init
 {
-  return [super initWithName: @"DBException" reason: @"unknown" userInfo: nil];
+  return [super initWithName: @"datahubDBException" reason: @"unknown" userInfo: nil];
 }
 
 - (id) initWithError_code: (int32_t) error_code message: (NSString *) message details: (NSString *) details
@@ -1463,7 +1464,7 @@
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"DBException("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubDBException("];
   [ms appendString: @"error_code:"];
   [ms appendFormat: @"%i", __error_code];
   [ms appendString: @",message:"];
@@ -1476,231 +1477,13 @@
 
 @end
 
-@implementation AccountException
 
-- (id) init
-{
-  return [super initWithName: @"AccountException" reason: @"unknown" userInfo: nil];
-}
-
-- (id) initWithError_code: (int32_t) error_code message: (NSString *) message details: (NSString *) details
-{
-  self = [self init];
-  __error_code = error_code;
-  __error_code_isset = YES;
-  __message = [message retain_stub];
-  __message_isset = YES;
-  __details = [details retain_stub];
-  __details_isset = YES;
-  return self;
-}
-
-- (id) initWithCoder: (NSCoder *) decoder
-{
-  self = [super initWithCoder: decoder];
-  if ([decoder containsValueForKey: @"error_code"])
-  {
-    __error_code = [decoder decodeInt32ForKey: @"error_code"];
-    __error_code_isset = YES;
-  }
-  if ([decoder containsValueForKey: @"message"])
-  {
-    __message = [[decoder decodeObjectForKey: @"message"] retain_stub];
-    __message_isset = YES;
-  }
-  if ([decoder containsValueForKey: @"details"])
-  {
-    __details = [[decoder decodeObjectForKey: @"details"] retain_stub];
-    __details_isset = YES;
-  }
-  return self;
-}
-
-- (void) encodeWithCoder: (NSCoder *) encoder
-{
-  [super encodeWithCoder: encoder];
-  if (__error_code_isset)
-  {
-    [encoder encodeInt32: __error_code forKey: @"error_code"];
-  }
-  if (__message_isset)
-  {
-    [encoder encodeObject: __message forKey: @"message"];
-  }
-  if (__details_isset)
-  {
-    [encoder encodeObject: __details forKey: @"details"];
-  }
-}
-
-- (void) dealloc
-{
-  [__message release_stub];
-  [__details release_stub];
-  [super dealloc_stub];
-}
-
-- (int32_t) error_code {
-  return __error_code;
-}
-
-- (void) setError_code: (int32_t) error_code {
-  __error_code = error_code;
-  __error_code_isset = YES;
-}
-
-- (BOOL) error_codeIsSet {
-  return __error_code_isset;
-}
-
-- (void) unsetError_code {
-  __error_code_isset = NO;
-}
-
-- (NSString *) message {
-  return [[__message retain_stub] autorelease_stub];
-}
-
-- (void) setMessage: (NSString *) message {
-  [message retain_stub];
-  [__message release_stub];
-  __message = message;
-  __message_isset = YES;
-}
-
-- (BOOL) messageIsSet {
-  return __message_isset;
-}
-
-- (void) unsetMessage {
-  [__message release_stub];
-  __message = nil;
-  __message_isset = NO;
-}
-
-- (NSString *) details {
-  return [[__details retain_stub] autorelease_stub];
-}
-
-- (void) setDetails: (NSString *) details {
-  [details retain_stub];
-  [__details release_stub];
-  __details = details;
-  __details_isset = YES;
-}
-
-- (BOOL) detailsIsSet {
-  return __details_isset;
-}
-
-- (void) unsetDetails {
-  [__details release_stub];
-  __details = nil;
-  __details_isset = NO;
-}
-
-- (void) read: (id <TProtocol>) inProtocol
-{
-  NSString * fieldName;
-  int fieldType;
-  int fieldID;
-
-  [inProtocol readStructBeginReturningName: NULL];
-  while (true)
-  {
-    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
-    if (fieldType == TType_STOP) { 
-      break;
-    }
-    switch (fieldID)
-    {
-      case 1:
-        if (fieldType == TType_I32) {
-          int32_t fieldValue = [inProtocol readI32];
-          [self setError_code: fieldValue];
-        } else { 
-          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        }
-        break;
-      case 2:
-        if (fieldType == TType_STRING) {
-          NSString * fieldValue = [inProtocol readString];
-          [self setMessage: fieldValue];
-        } else { 
-          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        }
-        break;
-      case 3:
-        if (fieldType == TType_STRING) {
-          NSString * fieldValue = [inProtocol readString];
-          [self setDetails: fieldValue];
-        } else { 
-          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        }
-        break;
-      default:
-        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        break;
-    }
-    [inProtocol readFieldEnd];
-  }
-  [inProtocol readStructEnd];
-}
-
-- (void) write: (id <TProtocol>) outProtocol {
-  [outProtocol writeStructBeginWithName: @"AccountException"];
-  if (__error_code_isset) {
-    [outProtocol writeFieldBeginWithName: @"error_code" type: TType_I32 fieldID: 1];
-    [outProtocol writeI32: __error_code];
-    [outProtocol writeFieldEnd];
-  }
-  if (__message_isset) {
-    if (__message != nil) {
-      [outProtocol writeFieldBeginWithName: @"message" type: TType_STRING fieldID: 2];
-      [outProtocol writeString: __message];
-      [outProtocol writeFieldEnd];
-    }
-  }
-  if (__details_isset) {
-    if (__details != nil) {
-      [outProtocol writeFieldBeginWithName: @"details" type: TType_STRING fieldID: 3];
-      [outProtocol writeString: __details];
-      [outProtocol writeFieldEnd];
-    }
-  }
-  [outProtocol writeFieldStop];
-  [outProtocol writeStructEnd];
-}
-
-- (void) validate {
-  // check for required fields
-}
-
-- (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"AccountException("];
-  [ms appendString: @"error_code:"];
-  [ms appendFormat: @"%i", __error_code];
-  [ms appendString: @",message:"];
-  [ms appendFormat: @"\"%@\"", __message];
-  [ms appendString: @",details:"];
-  [ms appendFormat: @"\"%@\"", __details];
-  [ms appendString: @")"];
-  return [NSString stringWithString: ms];
-}
-
-@end
-
-static double VERSION = 1;
-
-@implementation datahubConstants
+@implementation datahubdatahubConstants
 + (void) initialize {
 }
-+ (double) VERSION{
-  return VERSION;
-}
 @end
 
-@interface get_version_args : NSObject <TBase, NSCoding> {
+@interface datahubget_version_args : NSObject <TBase, NSCoding> {
 }
 
 - (id) init;
@@ -1712,7 +1495,7 @@ static double VERSION = 1;
 
 @end
 
-@implementation get_version_args
+@implementation datahubget_version_args
 
 - (id) init
 {
@@ -1765,14 +1548,14 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"get_version_args("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubget_version_args("];
   [ms appendString: @")"];
   return [NSString stringWithString: ms];
 }
 
 @end
 
-@interface Get_version_result : NSObject <TBase, NSCoding> {
+@interface datahubGet_version_result : NSObject <TBase, NSCoding> {
   double __success;
 
   BOOL __success_isset;
@@ -1798,7 +1581,7 @@ static double VERSION = 1;
 
 @end
 
-@implementation Get_version_result
+@implementation datahubGet_version_result
 
 - (id) init
 {
@@ -1906,7 +1689,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"Get_version_result("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubGet_version_result("];
   [ms appendString: @"success:"];
   [ms appendFormat: @"%f", __success];
   [ms appendString: @")"];
@@ -1915,18 +1698,18 @@ static double VERSION = 1;
 
 @end
 
-@interface open_connection_args : NSObject <TBase, NSCoding> {
-  ConnectionParams * __con_params;
+@interface datahubopen_connection_args : NSObject <TBase, NSCoding> {
+  datahubConnectionParams * __con_params;
 
   BOOL __con_params_isset;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=con_params, setter=setCon_params:) ConnectionParams * con_params;
+@property (nonatomic, retain, getter=con_params, setter=setCon_params:) datahubConnectionParams * con_params;
 #endif
 
 - (id) init;
-- (id) initWithCon_params: (ConnectionParams *) con_params;
+- (id) initWithCon_params: (datahubConnectionParams *) con_params;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -1934,14 +1717,14 @@ static double VERSION = 1;
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (ConnectionParams *) con_params;
-- (void) setCon_params: (ConnectionParams *) con_params;
+- (datahubConnectionParams *) con_params;
+- (void) setCon_params: (datahubConnectionParams *) con_params;
 #endif
 - (BOOL) con_paramsIsSet;
 
 @end
 
-@implementation open_connection_args
+@implementation datahubopen_connection_args
 
 - (id) init
 {
@@ -1951,7 +1734,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithCon_params: (ConnectionParams *) con_params
+- (id) initWithCon_params: (datahubConnectionParams *) con_params
 {
   self = [super init];
   __con_params = [con_params retain_stub];
@@ -1984,11 +1767,11 @@ static double VERSION = 1;
   [super dealloc_stub];
 }
 
-- (ConnectionParams *) con_params {
+- (datahubConnectionParams *) con_params {
   return [[__con_params retain_stub] autorelease_stub];
 }
 
-- (void) setCon_params: (ConnectionParams *) con_params {
+- (void) setCon_params: (datahubConnectionParams *) con_params {
   [con_params retain_stub];
   [__con_params release_stub];
   __con_params = con_params;
@@ -2022,7 +1805,7 @@ static double VERSION = 1;
     {
       case 1:
         if (fieldType == TType_STRUCT) {
-          ConnectionParams *fieldValue = [[ConnectionParams alloc] init];
+          datahubConnectionParams *fieldValue = [[datahubConnectionParams alloc] init];
           [fieldValue read: inProtocol];
           [self setCon_params: fieldValue];
           [fieldValue release_stub];
@@ -2057,7 +1840,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"open_connection_args("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubopen_connection_args("];
   [ms appendString: @"con_params:"];
   [ms appendFormat: @"%@", __con_params];
   [ms appendString: @")"];
@@ -2066,21 +1849,21 @@ static double VERSION = 1;
 
 @end
 
-@interface Open_connection_result : NSObject <TBase, NSCoding> {
-  Connection * __success;
-  DBException * __ex;
+@interface datahubOpen_connection_result : NSObject <TBase, NSCoding> {
+  datahubConnection * __success;
+  datahubDBException * __ex;
 
   BOOL __success_isset;
   BOOL __ex_isset;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=success, setter=setSuccess:) Connection * success;
-@property (nonatomic, retain, getter=ex, setter=setEx:) DBException * ex;
+@property (nonatomic, retain, getter=success, setter=setSuccess:) datahubConnection * success;
+@property (nonatomic, retain, getter=ex, setter=setEx:) datahubDBException * ex;
 #endif
 
 - (id) init;
-- (id) initWithSuccess: (Connection *) success ex: (DBException *) ex;
+- (id) initWithSuccess: (datahubConnection *) success ex: (datahubDBException *) ex;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -2088,20 +1871,20 @@ static double VERSION = 1;
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (Connection *) success;
-- (void) setSuccess: (Connection *) success;
+- (datahubConnection *) success;
+- (void) setSuccess: (datahubConnection *) success;
 #endif
 - (BOOL) successIsSet;
 
 #if !__has_feature(objc_arc)
-- (DBException *) ex;
-- (void) setEx: (DBException *) ex;
+- (datahubDBException *) ex;
+- (void) setEx: (datahubDBException *) ex;
 #endif
 - (BOOL) exIsSet;
 
 @end
 
-@implementation Open_connection_result
+@implementation datahubOpen_connection_result
 
 - (id) init
 {
@@ -2111,7 +1894,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithSuccess: (Connection *) success ex: (DBException *) ex
+- (id) initWithSuccess: (datahubConnection *) success ex: (datahubDBException *) ex
 {
   self = [super init];
   __success = [success retain_stub];
@@ -2156,11 +1939,11 @@ static double VERSION = 1;
   [super dealloc_stub];
 }
 
-- (Connection *) success {
+- (datahubConnection *) success {
   return [[__success retain_stub] autorelease_stub];
 }
 
-- (void) setSuccess: (Connection *) success {
+- (void) setSuccess: (datahubConnection *) success {
   [success retain_stub];
   [__success release_stub];
   __success = success;
@@ -2177,11 +1960,11 @@ static double VERSION = 1;
   __success_isset = NO;
 }
 
-- (DBException *) ex {
+- (datahubDBException *) ex {
   return [[__ex retain_stub] autorelease_stub];
 }
 
-- (void) setEx: (DBException *) ex {
+- (void) setEx: (datahubDBException *) ex {
   [ex retain_stub];
   [__ex release_stub];
   __ex = ex;
@@ -2215,7 +1998,7 @@ static double VERSION = 1;
     {
       case 0:
         if (fieldType == TType_STRUCT) {
-          Connection *fieldValue = [[Connection alloc] init];
+          datahubConnection *fieldValue = [[datahubConnection alloc] init];
           [fieldValue read: inProtocol];
           [self setSuccess: fieldValue];
           [fieldValue release_stub];
@@ -2225,7 +2008,7 @@ static double VERSION = 1;
         break;
       case 1:
         if (fieldType == TType_STRUCT) {
-          DBException *fieldValue = [[DBException alloc] init];
+          datahubDBException *fieldValue = [[datahubDBException alloc] init];
           [fieldValue read: inProtocol];
           [self setEx: fieldValue];
           [fieldValue release_stub];
@@ -2267,7 +2050,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"Open_connection_result("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubOpen_connection_result("];
   [ms appendString: @"success:"];
   [ms appendFormat: @"%@", __success];
   [ms appendString: @",ex:"];
@@ -2278,8 +2061,8 @@ static double VERSION = 1;
 
 @end
 
-@interface create_repo_args : NSObject <TBase, NSCoding> {
-  Connection * __con;
+@interface datahubcreate_repo_args : NSObject <TBase, NSCoding> {
+  datahubConnection * __con;
   NSString * __repo_name;
 
   BOOL __con_isset;
@@ -2287,12 +2070,12 @@ static double VERSION = 1;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=con, setter=setCon:) Connection * con;
+@property (nonatomic, retain, getter=con, setter=setCon:) datahubConnection * con;
 @property (nonatomic, retain, getter=repo_name, setter=setRepo_name:) NSString * repo_name;
 #endif
 
 - (id) init;
-- (id) initWithCon: (Connection *) con repo_name: (NSString *) repo_name;
+- (id) initWithCon: (datahubConnection *) con repo_name: (NSString *) repo_name;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -2300,8 +2083,8 @@ static double VERSION = 1;
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (Connection *) con;
-- (void) setCon: (Connection *) con;
+- (datahubConnection *) con;
+- (void) setCon: (datahubConnection *) con;
 #endif
 - (BOOL) conIsSet;
 
@@ -2313,7 +2096,7 @@ static double VERSION = 1;
 
 @end
 
-@implementation create_repo_args
+@implementation datahubcreate_repo_args
 
 - (id) init
 {
@@ -2323,7 +2106,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithCon: (Connection *) con repo_name: (NSString *) repo_name
+- (id) initWithCon: (datahubConnection *) con repo_name: (NSString *) repo_name
 {
   self = [super init];
   __con = [con retain_stub];
@@ -2368,11 +2151,11 @@ static double VERSION = 1;
   [super dealloc_stub];
 }
 
-- (Connection *) con {
+- (datahubConnection *) con {
   return [[__con retain_stub] autorelease_stub];
 }
 
-- (void) setCon: (Connection *) con {
+- (void) setCon: (datahubConnection *) con {
   [con retain_stub];
   [__con release_stub];
   __con = con;
@@ -2427,7 +2210,7 @@ static double VERSION = 1;
     {
       case 1:
         if (fieldType == TType_STRUCT) {
-          Connection *fieldValue = [[Connection alloc] init];
+          datahubConnection *fieldValue = [[datahubConnection alloc] init];
           [fieldValue read: inProtocol];
           [self setCon: fieldValue];
           [fieldValue release_stub];
@@ -2477,7 +2260,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"create_repo_args("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubcreate_repo_args("];
   [ms appendString: @"con:"];
   [ms appendFormat: @"%@", __con];
   [ms appendString: @",repo_name:"];
@@ -2488,21 +2271,21 @@ static double VERSION = 1;
 
 @end
 
-@interface Create_repo_result : NSObject <TBase, NSCoding> {
-  ResultSet * __success;
-  DBException * __ex;
+@interface datahubCreate_repo_result : NSObject <TBase, NSCoding> {
+  datahubResultSet * __success;
+  datahubDBException * __ex;
 
   BOOL __success_isset;
   BOOL __ex_isset;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=success, setter=setSuccess:) ResultSet * success;
-@property (nonatomic, retain, getter=ex, setter=setEx:) DBException * ex;
+@property (nonatomic, retain, getter=success, setter=setSuccess:) datahubResultSet * success;
+@property (nonatomic, retain, getter=ex, setter=setEx:) datahubDBException * ex;
 #endif
 
 - (id) init;
-- (id) initWithSuccess: (ResultSet *) success ex: (DBException *) ex;
+- (id) initWithSuccess: (datahubResultSet *) success ex: (datahubDBException *) ex;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -2510,20 +2293,20 @@ static double VERSION = 1;
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (ResultSet *) success;
-- (void) setSuccess: (ResultSet *) success;
+- (datahubResultSet *) success;
+- (void) setSuccess: (datahubResultSet *) success;
 #endif
 - (BOOL) successIsSet;
 
 #if !__has_feature(objc_arc)
-- (DBException *) ex;
-- (void) setEx: (DBException *) ex;
+- (datahubDBException *) ex;
+- (void) setEx: (datahubDBException *) ex;
 #endif
 - (BOOL) exIsSet;
 
 @end
 
-@implementation Create_repo_result
+@implementation datahubCreate_repo_result
 
 - (id) init
 {
@@ -2533,7 +2316,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithSuccess: (ResultSet *) success ex: (DBException *) ex
+- (id) initWithSuccess: (datahubResultSet *) success ex: (datahubDBException *) ex
 {
   self = [super init];
   __success = [success retain_stub];
@@ -2578,11 +2361,11 @@ static double VERSION = 1;
   [super dealloc_stub];
 }
 
-- (ResultSet *) success {
+- (datahubResultSet *) success {
   return [[__success retain_stub] autorelease_stub];
 }
 
-- (void) setSuccess: (ResultSet *) success {
+- (void) setSuccess: (datahubResultSet *) success {
   [success retain_stub];
   [__success release_stub];
   __success = success;
@@ -2599,11 +2382,11 @@ static double VERSION = 1;
   __success_isset = NO;
 }
 
-- (DBException *) ex {
+- (datahubDBException *) ex {
   return [[__ex retain_stub] autorelease_stub];
 }
 
-- (void) setEx: (DBException *) ex {
+- (void) setEx: (datahubDBException *) ex {
   [ex retain_stub];
   [__ex release_stub];
   __ex = ex;
@@ -2637,7 +2420,7 @@ static double VERSION = 1;
     {
       case 0:
         if (fieldType == TType_STRUCT) {
-          ResultSet *fieldValue = [[ResultSet alloc] init];
+          datahubResultSet *fieldValue = [[datahubResultSet alloc] init];
           [fieldValue read: inProtocol];
           [self setSuccess: fieldValue];
           [fieldValue release_stub];
@@ -2647,7 +2430,7 @@ static double VERSION = 1;
         break;
       case 1:
         if (fieldType == TType_STRUCT) {
-          DBException *fieldValue = [[DBException alloc] init];
+          datahubDBException *fieldValue = [[datahubDBException alloc] init];
           [fieldValue read: inProtocol];
           [self setEx: fieldValue];
           [fieldValue release_stub];
@@ -2689,7 +2472,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"Create_repo_result("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubCreate_repo_result("];
   [ms appendString: @"success:"];
   [ms appendFormat: @"%@", __success];
   [ms appendString: @",ex:"];
@@ -2700,18 +2483,18 @@ static double VERSION = 1;
 
 @end
 
-@interface list_repos_args : NSObject <TBase, NSCoding> {
-  Connection * __con;
+@interface datahublist_repos_args : NSObject <TBase, NSCoding> {
+  datahubConnection * __con;
 
   BOOL __con_isset;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=con, setter=setCon:) Connection * con;
+@property (nonatomic, retain, getter=con, setter=setCon:) datahubConnection * con;
 #endif
 
 - (id) init;
-- (id) initWithCon: (Connection *) con;
+- (id) initWithCon: (datahubConnection *) con;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -2719,14 +2502,14 @@ static double VERSION = 1;
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (Connection *) con;
-- (void) setCon: (Connection *) con;
+- (datahubConnection *) con;
+- (void) setCon: (datahubConnection *) con;
 #endif
 - (BOOL) conIsSet;
 
 @end
 
-@implementation list_repos_args
+@implementation datahublist_repos_args
 
 - (id) init
 {
@@ -2736,7 +2519,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithCon: (Connection *) con
+- (id) initWithCon: (datahubConnection *) con
 {
   self = [super init];
   __con = [con retain_stub];
@@ -2769,11 +2552,11 @@ static double VERSION = 1;
   [super dealloc_stub];
 }
 
-- (Connection *) con {
+- (datahubConnection *) con {
   return [[__con retain_stub] autorelease_stub];
 }
 
-- (void) setCon: (Connection *) con {
+- (void) setCon: (datahubConnection *) con {
   [con retain_stub];
   [__con release_stub];
   __con = con;
@@ -2807,7 +2590,7 @@ static double VERSION = 1;
     {
       case 1:
         if (fieldType == TType_STRUCT) {
-          Connection *fieldValue = [[Connection alloc] init];
+          datahubConnection *fieldValue = [[datahubConnection alloc] init];
           [fieldValue read: inProtocol];
           [self setCon: fieldValue];
           [fieldValue release_stub];
@@ -2842,7 +2625,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"list_repos_args("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahublist_repos_args("];
   [ms appendString: @"con:"];
   [ms appendFormat: @"%@", __con];
   [ms appendString: @")"];
@@ -2851,21 +2634,21 @@ static double VERSION = 1;
 
 @end
 
-@interface List_repos_result : NSObject <TBase, NSCoding> {
-  ResultSet * __success;
-  DBException * __ex;
+@interface datahubList_repos_result : NSObject <TBase, NSCoding> {
+  datahubResultSet * __success;
+  datahubDBException * __ex;
 
   BOOL __success_isset;
   BOOL __ex_isset;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=success, setter=setSuccess:) ResultSet * success;
-@property (nonatomic, retain, getter=ex, setter=setEx:) DBException * ex;
+@property (nonatomic, retain, getter=success, setter=setSuccess:) datahubResultSet * success;
+@property (nonatomic, retain, getter=ex, setter=setEx:) datahubDBException * ex;
 #endif
 
 - (id) init;
-- (id) initWithSuccess: (ResultSet *) success ex: (DBException *) ex;
+- (id) initWithSuccess: (datahubResultSet *) success ex: (datahubDBException *) ex;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -2873,20 +2656,20 @@ static double VERSION = 1;
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (ResultSet *) success;
-- (void) setSuccess: (ResultSet *) success;
+- (datahubResultSet *) success;
+- (void) setSuccess: (datahubResultSet *) success;
 #endif
 - (BOOL) successIsSet;
 
 #if !__has_feature(objc_arc)
-- (DBException *) ex;
-- (void) setEx: (DBException *) ex;
+- (datahubDBException *) ex;
+- (void) setEx: (datahubDBException *) ex;
 #endif
 - (BOOL) exIsSet;
 
 @end
 
-@implementation List_repos_result
+@implementation datahubList_repos_result
 
 - (id) init
 {
@@ -2896,7 +2679,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithSuccess: (ResultSet *) success ex: (DBException *) ex
+- (id) initWithSuccess: (datahubResultSet *) success ex: (datahubDBException *) ex
 {
   self = [super init];
   __success = [success retain_stub];
@@ -2941,11 +2724,11 @@ static double VERSION = 1;
   [super dealloc_stub];
 }
 
-- (ResultSet *) success {
+- (datahubResultSet *) success {
   return [[__success retain_stub] autorelease_stub];
 }
 
-- (void) setSuccess: (ResultSet *) success {
+- (void) setSuccess: (datahubResultSet *) success {
   [success retain_stub];
   [__success release_stub];
   __success = success;
@@ -2962,11 +2745,11 @@ static double VERSION = 1;
   __success_isset = NO;
 }
 
-- (DBException *) ex {
+- (datahubDBException *) ex {
   return [[__ex retain_stub] autorelease_stub];
 }
 
-- (void) setEx: (DBException *) ex {
+- (void) setEx: (datahubDBException *) ex {
   [ex retain_stub];
   [__ex release_stub];
   __ex = ex;
@@ -3000,7 +2783,7 @@ static double VERSION = 1;
     {
       case 0:
         if (fieldType == TType_STRUCT) {
-          ResultSet *fieldValue = [[ResultSet alloc] init];
+          datahubResultSet *fieldValue = [[datahubResultSet alloc] init];
           [fieldValue read: inProtocol];
           [self setSuccess: fieldValue];
           [fieldValue release_stub];
@@ -3010,7 +2793,7 @@ static double VERSION = 1;
         break;
       case 1:
         if (fieldType == TType_STRUCT) {
-          DBException *fieldValue = [[DBException alloc] init];
+          datahubDBException *fieldValue = [[datahubDBException alloc] init];
           [fieldValue read: inProtocol];
           [self setEx: fieldValue];
           [fieldValue release_stub];
@@ -3052,7 +2835,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"List_repos_result("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubList_repos_result("];
   [ms appendString: @"success:"];
   [ms appendFormat: @"%@", __success];
   [ms appendString: @",ex:"];
@@ -3063,8 +2846,8 @@ static double VERSION = 1;
 
 @end
 
-@interface delete_repo_args : NSObject <TBase, NSCoding> {
-  Connection * __con;
+@interface datahubdelete_repo_args : NSObject <TBase, NSCoding> {
+  datahubConnection * __con;
   NSString * __repo_name;
   BOOL __force_if_non_empty;
 
@@ -3074,13 +2857,13 @@ static double VERSION = 1;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=con, setter=setCon:) Connection * con;
+@property (nonatomic, retain, getter=con, setter=setCon:) datahubConnection * con;
 @property (nonatomic, retain, getter=repo_name, setter=setRepo_name:) NSString * repo_name;
 @property (nonatomic, getter=force_if_non_empty, setter=setForce_if_non_empty:) BOOL force_if_non_empty;
 #endif
 
 - (id) init;
-- (id) initWithCon: (Connection *) con repo_name: (NSString *) repo_name force_if_non_empty: (BOOL) force_if_non_empty;
+- (id) initWithCon: (datahubConnection *) con repo_name: (NSString *) repo_name force_if_non_empty: (BOOL) force_if_non_empty;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -3088,8 +2871,8 @@ static double VERSION = 1;
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (Connection *) con;
-- (void) setCon: (Connection *) con;
+- (datahubConnection *) con;
+- (void) setCon: (datahubConnection *) con;
 #endif
 - (BOOL) conIsSet;
 
@@ -3107,7 +2890,7 @@ static double VERSION = 1;
 
 @end
 
-@implementation delete_repo_args
+@implementation datahubdelete_repo_args
 
 - (id) init
 {
@@ -3117,7 +2900,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithCon: (Connection *) con repo_name: (NSString *) repo_name force_if_non_empty: (BOOL) force_if_non_empty
+- (id) initWithCon: (datahubConnection *) con repo_name: (NSString *) repo_name force_if_non_empty: (BOOL) force_if_non_empty
 {
   self = [super init];
   __con = [con retain_stub];
@@ -3173,11 +2956,11 @@ static double VERSION = 1;
   [super dealloc_stub];
 }
 
-- (Connection *) con {
+- (datahubConnection *) con {
   return [[__con retain_stub] autorelease_stub];
 }
 
-- (void) setCon: (Connection *) con {
+- (void) setCon: (datahubConnection *) con {
   [con retain_stub];
   [__con release_stub];
   __con = con;
@@ -3249,7 +3032,7 @@ static double VERSION = 1;
     {
       case 1:
         if (fieldType == TType_STRUCT) {
-          Connection *fieldValue = [[Connection alloc] init];
+          datahubConnection *fieldValue = [[datahubConnection alloc] init];
           [fieldValue read: inProtocol];
           [self setCon: fieldValue];
           [fieldValue release_stub];
@@ -3312,7 +3095,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"delete_repo_args("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubdelete_repo_args("];
   [ms appendString: @"con:"];
   [ms appendFormat: @"%@", __con];
   [ms appendString: @",repo_name:"];
@@ -3325,21 +3108,21 @@ static double VERSION = 1;
 
 @end
 
-@interface Delete_repo_result : NSObject <TBase, NSCoding> {
-  ResultSet * __success;
-  DBException * __ex;
+@interface datahubDelete_repo_result : NSObject <TBase, NSCoding> {
+  datahubResultSet * __success;
+  datahubDBException * __ex;
 
   BOOL __success_isset;
   BOOL __ex_isset;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=success, setter=setSuccess:) ResultSet * success;
-@property (nonatomic, retain, getter=ex, setter=setEx:) DBException * ex;
+@property (nonatomic, retain, getter=success, setter=setSuccess:) datahubResultSet * success;
+@property (nonatomic, retain, getter=ex, setter=setEx:) datahubDBException * ex;
 #endif
 
 - (id) init;
-- (id) initWithSuccess: (ResultSet *) success ex: (DBException *) ex;
+- (id) initWithSuccess: (datahubResultSet *) success ex: (datahubDBException *) ex;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -3347,20 +3130,20 @@ static double VERSION = 1;
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (ResultSet *) success;
-- (void) setSuccess: (ResultSet *) success;
+- (datahubResultSet *) success;
+- (void) setSuccess: (datahubResultSet *) success;
 #endif
 - (BOOL) successIsSet;
 
 #if !__has_feature(objc_arc)
-- (DBException *) ex;
-- (void) setEx: (DBException *) ex;
+- (datahubDBException *) ex;
+- (void) setEx: (datahubDBException *) ex;
 #endif
 - (BOOL) exIsSet;
 
 @end
 
-@implementation Delete_repo_result
+@implementation datahubDelete_repo_result
 
 - (id) init
 {
@@ -3370,7 +3153,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithSuccess: (ResultSet *) success ex: (DBException *) ex
+- (id) initWithSuccess: (datahubResultSet *) success ex: (datahubDBException *) ex
 {
   self = [super init];
   __success = [success retain_stub];
@@ -3415,11 +3198,11 @@ static double VERSION = 1;
   [super dealloc_stub];
 }
 
-- (ResultSet *) success {
+- (datahubResultSet *) success {
   return [[__success retain_stub] autorelease_stub];
 }
 
-- (void) setSuccess: (ResultSet *) success {
+- (void) setSuccess: (datahubResultSet *) success {
   [success retain_stub];
   [__success release_stub];
   __success = success;
@@ -3436,11 +3219,11 @@ static double VERSION = 1;
   __success_isset = NO;
 }
 
-- (DBException *) ex {
+- (datahubDBException *) ex {
   return [[__ex retain_stub] autorelease_stub];
 }
 
-- (void) setEx: (DBException *) ex {
+- (void) setEx: (datahubDBException *) ex {
   [ex retain_stub];
   [__ex release_stub];
   __ex = ex;
@@ -3474,7 +3257,7 @@ static double VERSION = 1;
     {
       case 0:
         if (fieldType == TType_STRUCT) {
-          ResultSet *fieldValue = [[ResultSet alloc] init];
+          datahubResultSet *fieldValue = [[datahubResultSet alloc] init];
           [fieldValue read: inProtocol];
           [self setSuccess: fieldValue];
           [fieldValue release_stub];
@@ -3484,7 +3267,7 @@ static double VERSION = 1;
         break;
       case 1:
         if (fieldType == TType_STRUCT) {
-          DBException *fieldValue = [[DBException alloc] init];
+          datahubDBException *fieldValue = [[datahubDBException alloc] init];
           [fieldValue read: inProtocol];
           [self setEx: fieldValue];
           [fieldValue release_stub];
@@ -3526,7 +3309,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"Delete_repo_result("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubDelete_repo_result("];
   [ms appendString: @"success:"];
   [ms appendFormat: @"%@", __success];
   [ms appendString: @",ex:"];
@@ -3537,8 +3320,8 @@ static double VERSION = 1;
 
 @end
 
-@interface list_tables_args : NSObject <TBase, NSCoding> {
-  Connection * __con;
+@interface datahublist_tables_args : NSObject <TBase, NSCoding> {
+  datahubConnection * __con;
   NSString * __repo_name;
 
   BOOL __con_isset;
@@ -3546,12 +3329,12 @@ static double VERSION = 1;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=con, setter=setCon:) Connection * con;
+@property (nonatomic, retain, getter=con, setter=setCon:) datahubConnection * con;
 @property (nonatomic, retain, getter=repo_name, setter=setRepo_name:) NSString * repo_name;
 #endif
 
 - (id) init;
-- (id) initWithCon: (Connection *) con repo_name: (NSString *) repo_name;
+- (id) initWithCon: (datahubConnection *) con repo_name: (NSString *) repo_name;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -3559,8 +3342,8 @@ static double VERSION = 1;
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (Connection *) con;
-- (void) setCon: (Connection *) con;
+- (datahubConnection *) con;
+- (void) setCon: (datahubConnection *) con;
 #endif
 - (BOOL) conIsSet;
 
@@ -3572,7 +3355,7 @@ static double VERSION = 1;
 
 @end
 
-@implementation list_tables_args
+@implementation datahublist_tables_args
 
 - (id) init
 {
@@ -3582,7 +3365,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithCon: (Connection *) con repo_name: (NSString *) repo_name
+- (id) initWithCon: (datahubConnection *) con repo_name: (NSString *) repo_name
 {
   self = [super init];
   __con = [con retain_stub];
@@ -3627,11 +3410,11 @@ static double VERSION = 1;
   [super dealloc_stub];
 }
 
-- (Connection *) con {
+- (datahubConnection *) con {
   return [[__con retain_stub] autorelease_stub];
 }
 
-- (void) setCon: (Connection *) con {
+- (void) setCon: (datahubConnection *) con {
   [con retain_stub];
   [__con release_stub];
   __con = con;
@@ -3686,7 +3469,7 @@ static double VERSION = 1;
     {
       case 1:
         if (fieldType == TType_STRUCT) {
-          Connection *fieldValue = [[Connection alloc] init];
+          datahubConnection *fieldValue = [[datahubConnection alloc] init];
           [fieldValue read: inProtocol];
           [self setCon: fieldValue];
           [fieldValue release_stub];
@@ -3736,7 +3519,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"list_tables_args("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahublist_tables_args("];
   [ms appendString: @"con:"];
   [ms appendFormat: @"%@", __con];
   [ms appendString: @",repo_name:"];
@@ -3747,21 +3530,21 @@ static double VERSION = 1;
 
 @end
 
-@interface List_tables_result : NSObject <TBase, NSCoding> {
-  ResultSet * __success;
-  DBException * __ex;
+@interface datahubList_tables_result : NSObject <TBase, NSCoding> {
+  datahubResultSet * __success;
+  datahubDBException * __ex;
 
   BOOL __success_isset;
   BOOL __ex_isset;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=success, setter=setSuccess:) ResultSet * success;
-@property (nonatomic, retain, getter=ex, setter=setEx:) DBException * ex;
+@property (nonatomic, retain, getter=success, setter=setSuccess:) datahubResultSet * success;
+@property (nonatomic, retain, getter=ex, setter=setEx:) datahubDBException * ex;
 #endif
 
 - (id) init;
-- (id) initWithSuccess: (ResultSet *) success ex: (DBException *) ex;
+- (id) initWithSuccess: (datahubResultSet *) success ex: (datahubDBException *) ex;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -3769,20 +3552,20 @@ static double VERSION = 1;
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (ResultSet *) success;
-- (void) setSuccess: (ResultSet *) success;
+- (datahubResultSet *) success;
+- (void) setSuccess: (datahubResultSet *) success;
 #endif
 - (BOOL) successIsSet;
 
 #if !__has_feature(objc_arc)
-- (DBException *) ex;
-- (void) setEx: (DBException *) ex;
+- (datahubDBException *) ex;
+- (void) setEx: (datahubDBException *) ex;
 #endif
 - (BOOL) exIsSet;
 
 @end
 
-@implementation List_tables_result
+@implementation datahubList_tables_result
 
 - (id) init
 {
@@ -3792,7 +3575,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithSuccess: (ResultSet *) success ex: (DBException *) ex
+- (id) initWithSuccess: (datahubResultSet *) success ex: (datahubDBException *) ex
 {
   self = [super init];
   __success = [success retain_stub];
@@ -3837,11 +3620,11 @@ static double VERSION = 1;
   [super dealloc_stub];
 }
 
-- (ResultSet *) success {
+- (datahubResultSet *) success {
   return [[__success retain_stub] autorelease_stub];
 }
 
-- (void) setSuccess: (ResultSet *) success {
+- (void) setSuccess: (datahubResultSet *) success {
   [success retain_stub];
   [__success release_stub];
   __success = success;
@@ -3858,11 +3641,11 @@ static double VERSION = 1;
   __success_isset = NO;
 }
 
-- (DBException *) ex {
+- (datahubDBException *) ex {
   return [[__ex retain_stub] autorelease_stub];
 }
 
-- (void) setEx: (DBException *) ex {
+- (void) setEx: (datahubDBException *) ex {
   [ex retain_stub];
   [__ex release_stub];
   __ex = ex;
@@ -3896,7 +3679,7 @@ static double VERSION = 1;
     {
       case 0:
         if (fieldType == TType_STRUCT) {
-          ResultSet *fieldValue = [[ResultSet alloc] init];
+          datahubResultSet *fieldValue = [[datahubResultSet alloc] init];
           [fieldValue read: inProtocol];
           [self setSuccess: fieldValue];
           [fieldValue release_stub];
@@ -3906,7 +3689,7 @@ static double VERSION = 1;
         break;
       case 1:
         if (fieldType == TType_STRUCT) {
-          DBException *fieldValue = [[DBException alloc] init];
+          datahubDBException *fieldValue = [[datahubDBException alloc] init];
           [fieldValue read: inProtocol];
           [self setEx: fieldValue];
           [fieldValue release_stub];
@@ -3948,7 +3731,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"List_tables_result("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubList_tables_result("];
   [ms appendString: @"success:"];
   [ms appendFormat: @"%@", __success];
   [ms appendString: @",ex:"];
@@ -3959,8 +3742,8 @@ static double VERSION = 1;
 
 @end
 
-@interface get_schema_args : NSObject <TBase, NSCoding> {
-  Connection * __con;
+@interface datahubget_schema_args : NSObject <TBase, NSCoding> {
+  datahubConnection * __con;
   NSString * __table_name;
 
   BOOL __con_isset;
@@ -3968,12 +3751,12 @@ static double VERSION = 1;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=con, setter=setCon:) Connection * con;
+@property (nonatomic, retain, getter=con, setter=setCon:) datahubConnection * con;
 @property (nonatomic, retain, getter=table_name, setter=setTable_name:) NSString * table_name;
 #endif
 
 - (id) init;
-- (id) initWithCon: (Connection *) con table_name: (NSString *) table_name;
+- (id) initWithCon: (datahubConnection *) con table_name: (NSString *) table_name;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -3981,8 +3764,8 @@ static double VERSION = 1;
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (Connection *) con;
-- (void) setCon: (Connection *) con;
+- (datahubConnection *) con;
+- (void) setCon: (datahubConnection *) con;
 #endif
 - (BOOL) conIsSet;
 
@@ -3994,7 +3777,7 @@ static double VERSION = 1;
 
 @end
 
-@implementation get_schema_args
+@implementation datahubget_schema_args
 
 - (id) init
 {
@@ -4004,7 +3787,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithCon: (Connection *) con table_name: (NSString *) table_name
+- (id) initWithCon: (datahubConnection *) con table_name: (NSString *) table_name
 {
   self = [super init];
   __con = [con retain_stub];
@@ -4049,11 +3832,11 @@ static double VERSION = 1;
   [super dealloc_stub];
 }
 
-- (Connection *) con {
+- (datahubConnection *) con {
   return [[__con retain_stub] autorelease_stub];
 }
 
-- (void) setCon: (Connection *) con {
+- (void) setCon: (datahubConnection *) con {
   [con retain_stub];
   [__con release_stub];
   __con = con;
@@ -4108,7 +3891,7 @@ static double VERSION = 1;
     {
       case 1:
         if (fieldType == TType_STRUCT) {
-          Connection *fieldValue = [[Connection alloc] init];
+          datahubConnection *fieldValue = [[datahubConnection alloc] init];
           [fieldValue read: inProtocol];
           [self setCon: fieldValue];
           [fieldValue release_stub];
@@ -4158,7 +3941,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"get_schema_args("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubget_schema_args("];
   [ms appendString: @"con:"];
   [ms appendFormat: @"%@", __con];
   [ms appendString: @",table_name:"];
@@ -4169,21 +3952,21 @@ static double VERSION = 1;
 
 @end
 
-@interface Get_schema_result : NSObject <TBase, NSCoding> {
-  ResultSet * __success;
-  DBException * __ex;
+@interface datahubGet_schema_result : NSObject <TBase, NSCoding> {
+  datahubResultSet * __success;
+  datahubDBException * __ex;
 
   BOOL __success_isset;
   BOOL __ex_isset;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=success, setter=setSuccess:) ResultSet * success;
-@property (nonatomic, retain, getter=ex, setter=setEx:) DBException * ex;
+@property (nonatomic, retain, getter=success, setter=setSuccess:) datahubResultSet * success;
+@property (nonatomic, retain, getter=ex, setter=setEx:) datahubDBException * ex;
 #endif
 
 - (id) init;
-- (id) initWithSuccess: (ResultSet *) success ex: (DBException *) ex;
+- (id) initWithSuccess: (datahubResultSet *) success ex: (datahubDBException *) ex;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -4191,20 +3974,20 @@ static double VERSION = 1;
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (ResultSet *) success;
-- (void) setSuccess: (ResultSet *) success;
+- (datahubResultSet *) success;
+- (void) setSuccess: (datahubResultSet *) success;
 #endif
 - (BOOL) successIsSet;
 
 #if !__has_feature(objc_arc)
-- (DBException *) ex;
-- (void) setEx: (DBException *) ex;
+- (datahubDBException *) ex;
+- (void) setEx: (datahubDBException *) ex;
 #endif
 - (BOOL) exIsSet;
 
 @end
 
-@implementation Get_schema_result
+@implementation datahubGet_schema_result
 
 - (id) init
 {
@@ -4214,7 +3997,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithSuccess: (ResultSet *) success ex: (DBException *) ex
+- (id) initWithSuccess: (datahubResultSet *) success ex: (datahubDBException *) ex
 {
   self = [super init];
   __success = [success retain_stub];
@@ -4259,11 +4042,11 @@ static double VERSION = 1;
   [super dealloc_stub];
 }
 
-- (ResultSet *) success {
+- (datahubResultSet *) success {
   return [[__success retain_stub] autorelease_stub];
 }
 
-- (void) setSuccess: (ResultSet *) success {
+- (void) setSuccess: (datahubResultSet *) success {
   [success retain_stub];
   [__success release_stub];
   __success = success;
@@ -4280,11 +4063,11 @@ static double VERSION = 1;
   __success_isset = NO;
 }
 
-- (DBException *) ex {
+- (datahubDBException *) ex {
   return [[__ex retain_stub] autorelease_stub];
 }
 
-- (void) setEx: (DBException *) ex {
+- (void) setEx: (datahubDBException *) ex {
   [ex retain_stub];
   [__ex release_stub];
   __ex = ex;
@@ -4318,7 +4101,7 @@ static double VERSION = 1;
     {
       case 0:
         if (fieldType == TType_STRUCT) {
-          ResultSet *fieldValue = [[ResultSet alloc] init];
+          datahubResultSet *fieldValue = [[datahubResultSet alloc] init];
           [fieldValue read: inProtocol];
           [self setSuccess: fieldValue];
           [fieldValue release_stub];
@@ -4328,7 +4111,7 @@ static double VERSION = 1;
         break;
       case 1:
         if (fieldType == TType_STRUCT) {
-          DBException *fieldValue = [[DBException alloc] init];
+          datahubDBException *fieldValue = [[datahubDBException alloc] init];
           [fieldValue read: inProtocol];
           [self setEx: fieldValue];
           [fieldValue release_stub];
@@ -4370,7 +4153,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"Get_schema_result("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubGet_schema_result("];
   [ms appendString: @"success:"];
   [ms appendFormat: @"%@", __success];
   [ms appendString: @",ex:"];
@@ -4381,8 +4164,8 @@ static double VERSION = 1;
 
 @end
 
-@interface execute_sql_args : NSObject <TBase, NSCoding> {
-  Connection * __con;
+@interface datahubexecute_sql_args : NSObject <TBase, NSCoding> {
+  datahubConnection * __con;
   NSString * __query;
   NSMutableArray * __query_params;
 
@@ -4392,13 +4175,13 @@ static double VERSION = 1;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=con, setter=setCon:) Connection * con;
+@property (nonatomic, retain, getter=con, setter=setCon:) datahubConnection * con;
 @property (nonatomic, retain, getter=query, setter=setQuery:) NSString * query;
 @property (nonatomic, retain, getter=query_params, setter=setQuery_params:) NSMutableArray * query_params;
 #endif
 
 - (id) init;
-- (id) initWithCon: (Connection *) con query: (NSString *) query query_params: (NSMutableArray *) query_params;
+- (id) initWithCon: (datahubConnection *) con query: (NSString *) query query_params: (NSMutableArray *) query_params;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -4406,8 +4189,8 @@ static double VERSION = 1;
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (Connection *) con;
-- (void) setCon: (Connection *) con;
+- (datahubConnection *) con;
+- (void) setCon: (datahubConnection *) con;
 #endif
 - (BOOL) conIsSet;
 
@@ -4425,7 +4208,7 @@ static double VERSION = 1;
 
 @end
 
-@implementation execute_sql_args
+@implementation datahubexecute_sql_args
 
 - (id) init
 {
@@ -4435,7 +4218,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithCon: (Connection *) con query: (NSString *) query query_params: (NSMutableArray *) query_params
+- (id) initWithCon: (datahubConnection *) con query: (NSString *) query query_params: (NSMutableArray *) query_params
 {
   self = [super init];
   __con = [con retain_stub];
@@ -4492,11 +4275,11 @@ static double VERSION = 1;
   [super dealloc_stub];
 }
 
-- (Connection *) con {
+- (datahubConnection *) con {
   return [[__con retain_stub] autorelease_stub];
 }
 
-- (void) setCon: (Connection *) con {
+- (void) setCon: (datahubConnection *) con {
   [con retain_stub];
   [__con release_stub];
   __con = con;
@@ -4572,7 +4355,7 @@ static double VERSION = 1;
     {
       case 1:
         if (fieldType == TType_STRUCT) {
-          Connection *fieldValue = [[Connection alloc] init];
+          datahubConnection *fieldValue = [[datahubConnection alloc] init];
           [fieldValue read: inProtocol];
           [self setCon: fieldValue];
           [fieldValue release_stub];
@@ -4655,7 +4438,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"execute_sql_args("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubexecute_sql_args("];
   [ms appendString: @"con:"];
   [ms appendFormat: @"%@", __con];
   [ms appendString: @",query:"];
@@ -4668,21 +4451,21 @@ static double VERSION = 1;
 
 @end
 
-@interface Execute_sql_result : NSObject <TBase, NSCoding> {
-  ResultSet * __success;
-  DBException * __ex;
+@interface datahubExecute_sql_result : NSObject <TBase, NSCoding> {
+  datahubResultSet * __success;
+  datahubDBException * __ex;
 
   BOOL __success_isset;
   BOOL __ex_isset;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=success, setter=setSuccess:) ResultSet * success;
-@property (nonatomic, retain, getter=ex, setter=setEx:) DBException * ex;
+@property (nonatomic, retain, getter=success, setter=setSuccess:) datahubResultSet * success;
+@property (nonatomic, retain, getter=ex, setter=setEx:) datahubDBException * ex;
 #endif
 
 - (id) init;
-- (id) initWithSuccess: (ResultSet *) success ex: (DBException *) ex;
+- (id) initWithSuccess: (datahubResultSet *) success ex: (datahubDBException *) ex;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -4690,20 +4473,20 @@ static double VERSION = 1;
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (ResultSet *) success;
-- (void) setSuccess: (ResultSet *) success;
+- (datahubResultSet *) success;
+- (void) setSuccess: (datahubResultSet *) success;
 #endif
 - (BOOL) successIsSet;
 
 #if !__has_feature(objc_arc)
-- (DBException *) ex;
-- (void) setEx: (DBException *) ex;
+- (datahubDBException *) ex;
+- (void) setEx: (datahubDBException *) ex;
 #endif
 - (BOOL) exIsSet;
 
 @end
 
-@implementation Execute_sql_result
+@implementation datahubExecute_sql_result
 
 - (id) init
 {
@@ -4713,7 +4496,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithSuccess: (ResultSet *) success ex: (DBException *) ex
+- (id) initWithSuccess: (datahubResultSet *) success ex: (datahubDBException *) ex
 {
   self = [super init];
   __success = [success retain_stub];
@@ -4758,11 +4541,11 @@ static double VERSION = 1;
   [super dealloc_stub];
 }
 
-- (ResultSet *) success {
+- (datahubResultSet *) success {
   return [[__success retain_stub] autorelease_stub];
 }
 
-- (void) setSuccess: (ResultSet *) success {
+- (void) setSuccess: (datahubResultSet *) success {
   [success retain_stub];
   [__success release_stub];
   __success = success;
@@ -4779,11 +4562,11 @@ static double VERSION = 1;
   __success_isset = NO;
 }
 
-- (DBException *) ex {
+- (datahubDBException *) ex {
   return [[__ex retain_stub] autorelease_stub];
 }
 
-- (void) setEx: (DBException *) ex {
+- (void) setEx: (datahubDBException *) ex {
   [ex retain_stub];
   [__ex release_stub];
   __ex = ex;
@@ -4817,7 +4600,7 @@ static double VERSION = 1;
     {
       case 0:
         if (fieldType == TType_STRUCT) {
-          ResultSet *fieldValue = [[ResultSet alloc] init];
+          datahubResultSet *fieldValue = [[datahubResultSet alloc] init];
           [fieldValue read: inProtocol];
           [self setSuccess: fieldValue];
           [fieldValue release_stub];
@@ -4827,7 +4610,7 @@ static double VERSION = 1;
         break;
       case 1:
         if (fieldType == TType_STRUCT) {
-          DBException *fieldValue = [[DBException alloc] init];
+          datahubDBException *fieldValue = [[datahubDBException alloc] init];
           [fieldValue read: inProtocol];
           [self setEx: fieldValue];
           [fieldValue release_stub];
@@ -4869,7 +4652,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"Execute_sql_result("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubExecute_sql_result("];
   [ms appendString: @"success:"];
   [ms appendFormat: @"%@", __success];
   [ms appendString: @",ex:"];
@@ -4880,18 +4663,18 @@ static double VERSION = 1;
 
 @end
 
-@interface close_connection_args : NSObject <TBase, NSCoding> {
-  Connection * __con;
+@interface datahubclose_connection_args : NSObject <TBase, NSCoding> {
+  datahubConnection * __con;
 
   BOOL __con_isset;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=con, setter=setCon:) Connection * con;
+@property (nonatomic, retain, getter=con, setter=setCon:) datahubConnection * con;
 #endif
 
 - (id) init;
-- (id) initWithCon: (Connection *) con;
+- (id) initWithCon: (datahubConnection *) con;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -4899,14 +4682,14 @@ static double VERSION = 1;
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (Connection *) con;
-- (void) setCon: (Connection *) con;
+- (datahubConnection *) con;
+- (void) setCon: (datahubConnection *) con;
 #endif
 - (BOOL) conIsSet;
 
 @end
 
-@implementation close_connection_args
+@implementation datahubclose_connection_args
 
 - (id) init
 {
@@ -4916,7 +4699,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithCon: (Connection *) con
+- (id) initWithCon: (datahubConnection *) con
 {
   self = [super init];
   __con = [con retain_stub];
@@ -4949,11 +4732,11 @@ static double VERSION = 1;
   [super dealloc_stub];
 }
 
-- (Connection *) con {
+- (datahubConnection *) con {
   return [[__con retain_stub] autorelease_stub];
 }
 
-- (void) setCon: (Connection *) con {
+- (void) setCon: (datahubConnection *) con {
   [con retain_stub];
   [__con release_stub];
   __con = con;
@@ -4987,7 +4770,7 @@ static double VERSION = 1;
     {
       case 1:
         if (fieldType == TType_STRUCT) {
-          Connection *fieldValue = [[Connection alloc] init];
+          datahubConnection *fieldValue = [[datahubConnection alloc] init];
           [fieldValue read: inProtocol];
           [self setCon: fieldValue];
           [fieldValue release_stub];
@@ -5022,7 +4805,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"close_connection_args("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubclose_connection_args("];
   [ms appendString: @"con:"];
   [ms appendFormat: @"%@", __con];
   [ms appendString: @")"];
@@ -5031,9 +4814,9 @@ static double VERSION = 1;
 
 @end
 
-@interface Close_connection_result : NSObject <TBase, NSCoding> {
+@interface datahubClose_connection_result : NSObject <TBase, NSCoding> {
   BOOL __success;
-  DBException * __ex;
+  datahubDBException * __ex;
 
   BOOL __success_isset;
   BOOL __ex_isset;
@@ -5041,11 +4824,11 @@ static double VERSION = 1;
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
 @property (nonatomic, getter=success, setter=setSuccess:) BOOL success;
-@property (nonatomic, retain, getter=ex, setter=setEx:) DBException * ex;
+@property (nonatomic, retain, getter=ex, setter=setEx:) datahubDBException * ex;
 #endif
 
 - (id) init;
-- (id) initWithSuccess: (BOOL) success ex: (DBException *) ex;
+- (id) initWithSuccess: (BOOL) success ex: (datahubDBException *) ex;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -5059,14 +4842,14 @@ static double VERSION = 1;
 - (BOOL) successIsSet;
 
 #if !__has_feature(objc_arc)
-- (DBException *) ex;
-- (void) setEx: (DBException *) ex;
+- (datahubDBException *) ex;
+- (void) setEx: (datahubDBException *) ex;
 #endif
 - (BOOL) exIsSet;
 
 @end
 
-@implementation Close_connection_result
+@implementation datahubClose_connection_result
 
 - (id) init
 {
@@ -5076,7 +4859,7 @@ static double VERSION = 1;
   return self;
 }
 
-- (id) initWithSuccess: (BOOL) success ex: (DBException *) ex
+- (id) initWithSuccess: (BOOL) success ex: (datahubDBException *) ex
 {
   self = [super init];
   __success = success;
@@ -5137,11 +4920,11 @@ static double VERSION = 1;
   __success_isset = NO;
 }
 
-- (DBException *) ex {
+- (datahubDBException *) ex {
   return [[__ex retain_stub] autorelease_stub];
 }
 
-- (void) setEx: (DBException *) ex {
+- (void) setEx: (datahubDBException *) ex {
   [ex retain_stub];
   [__ex release_stub];
   __ex = ex;
@@ -5183,7 +4966,7 @@ static double VERSION = 1;
         break;
       case 1:
         if (fieldType == TType_STRUCT) {
-          DBException *fieldValue = [[DBException alloc] init];
+          datahubDBException *fieldValue = [[datahubDBException alloc] init];
           [fieldValue read: inProtocol];
           [self setEx: fieldValue];
           [fieldValue release_stub];
@@ -5223,7 +5006,7 @@ static double VERSION = 1;
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"Close_connection_result("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubClose_connection_result("];
   [ms appendString: @"success:"];
   [ms appendFormat: @"%i", __success];
   [ms appendString: @",ex:"];
@@ -5234,1065 +5017,7 @@ static double VERSION = 1;
 
 @end
 
-@interface create_account_args : NSObject <TBase, NSCoding> {
-  NSString * __username;
-  NSString * __email;
-  NSString * __password;
-  NSString * __app_id;
-  NSString * __app_token;
-
-  BOOL __username_isset;
-  BOOL __email_isset;
-  BOOL __password_isset;
-  BOOL __app_id_isset;
-  BOOL __app_token_isset;
-}
-
-#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=username, setter=setUsername:) NSString * username;
-@property (nonatomic, retain, getter=email, setter=setEmail:) NSString * email;
-@property (nonatomic, retain, getter=password, setter=setPassword:) NSString * password;
-@property (nonatomic, retain, getter=app_id, setter=setApp_id:) NSString * app_id;
-@property (nonatomic, retain, getter=app_token, setter=setApp_token:) NSString * app_token;
-#endif
-
-- (id) init;
-- (id) initWithUsername: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token;
-
-- (void) read: (id <TProtocol>) inProtocol;
-- (void) write: (id <TProtocol>) outProtocol;
-
-- (void) validate;
-
-#if !__has_feature(objc_arc)
-- (NSString *) username;
-- (void) setUsername: (NSString *) username;
-#endif
-- (BOOL) usernameIsSet;
-
-#if !__has_feature(objc_arc)
-- (NSString *) email;
-- (void) setEmail: (NSString *) email;
-#endif
-- (BOOL) emailIsSet;
-
-#if !__has_feature(objc_arc)
-- (NSString *) password;
-- (void) setPassword: (NSString *) password;
-#endif
-- (BOOL) passwordIsSet;
-
-#if !__has_feature(objc_arc)
-- (NSString *) app_id;
-- (void) setApp_id: (NSString *) app_id;
-#endif
-- (BOOL) app_idIsSet;
-
-#if !__has_feature(objc_arc)
-- (NSString *) app_token;
-- (void) setApp_token: (NSString *) app_token;
-#endif
-- (BOOL) app_tokenIsSet;
-
-@end
-
-@implementation create_account_args
-
-- (id) init
-{
-  self = [super init];
-#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-#endif
-  return self;
-}
-
-- (id) initWithUsername: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token
-{
-  self = [super init];
-  __username = [username retain_stub];
-  __username_isset = YES;
-  __email = [email retain_stub];
-  __email_isset = YES;
-  __password = [password retain_stub];
-  __password_isset = YES;
-  __app_id = [app_id retain_stub];
-  __app_id_isset = YES;
-  __app_token = [app_token retain_stub];
-  __app_token_isset = YES;
-  return self;
-}
-
-- (id) initWithCoder: (NSCoder *) decoder
-{
-  self = [super init];
-  if ([decoder containsValueForKey: @"username"])
-  {
-    __username = [[decoder decodeObjectForKey: @"username"] retain_stub];
-    __username_isset = YES;
-  }
-  if ([decoder containsValueForKey: @"email"])
-  {
-    __email = [[decoder decodeObjectForKey: @"email"] retain_stub];
-    __email_isset = YES;
-  }
-  if ([decoder containsValueForKey: @"password"])
-  {
-    __password = [[decoder decodeObjectForKey: @"password"] retain_stub];
-    __password_isset = YES;
-  }
-  if ([decoder containsValueForKey: @"app_id"])
-  {
-    __app_id = [[decoder decodeObjectForKey: @"app_id"] retain_stub];
-    __app_id_isset = YES;
-  }
-  if ([decoder containsValueForKey: @"app_token"])
-  {
-    __app_token = [[decoder decodeObjectForKey: @"app_token"] retain_stub];
-    __app_token_isset = YES;
-  }
-  return self;
-}
-
-- (void) encodeWithCoder: (NSCoder *) encoder
-{
-  if (__username_isset)
-  {
-    [encoder encodeObject: __username forKey: @"username"];
-  }
-  if (__email_isset)
-  {
-    [encoder encodeObject: __email forKey: @"email"];
-  }
-  if (__password_isset)
-  {
-    [encoder encodeObject: __password forKey: @"password"];
-  }
-  if (__app_id_isset)
-  {
-    [encoder encodeObject: __app_id forKey: @"app_id"];
-  }
-  if (__app_token_isset)
-  {
-    [encoder encodeObject: __app_token forKey: @"app_token"];
-  }
-}
-
-- (void) dealloc
-{
-  [__username release_stub];
-  [__email release_stub];
-  [__password release_stub];
-  [__app_id release_stub];
-  [__app_token release_stub];
-  [super dealloc_stub];
-}
-
-- (NSString *) username {
-  return [[__username retain_stub] autorelease_stub];
-}
-
-- (void) setUsername: (NSString *) username {
-  [username retain_stub];
-  [__username release_stub];
-  __username = username;
-  __username_isset = YES;
-}
-
-- (BOOL) usernameIsSet {
-  return __username_isset;
-}
-
-- (void) unsetUsername {
-  [__username release_stub];
-  __username = nil;
-  __username_isset = NO;
-}
-
-- (NSString *) email {
-  return [[__email retain_stub] autorelease_stub];
-}
-
-- (void) setEmail: (NSString *) email {
-  [email retain_stub];
-  [__email release_stub];
-  __email = email;
-  __email_isset = YES;
-}
-
-- (BOOL) emailIsSet {
-  return __email_isset;
-}
-
-- (void) unsetEmail {
-  [__email release_stub];
-  __email = nil;
-  __email_isset = NO;
-}
-
-- (NSString *) password {
-  return [[__password retain_stub] autorelease_stub];
-}
-
-- (void) setPassword: (NSString *) password {
-  [password retain_stub];
-  [__password release_stub];
-  __password = password;
-  __password_isset = YES;
-}
-
-- (BOOL) passwordIsSet {
-  return __password_isset;
-}
-
-- (void) unsetPassword {
-  [__password release_stub];
-  __password = nil;
-  __password_isset = NO;
-}
-
-- (NSString *) app_id {
-  return [[__app_id retain_stub] autorelease_stub];
-}
-
-- (void) setApp_id: (NSString *) app_id {
-  [app_id retain_stub];
-  [__app_id release_stub];
-  __app_id = app_id;
-  __app_id_isset = YES;
-}
-
-- (BOOL) app_idIsSet {
-  return __app_id_isset;
-}
-
-- (void) unsetApp_id {
-  [__app_id release_stub];
-  __app_id = nil;
-  __app_id_isset = NO;
-}
-
-- (NSString *) app_token {
-  return [[__app_token retain_stub] autorelease_stub];
-}
-
-- (void) setApp_token: (NSString *) app_token {
-  [app_token retain_stub];
-  [__app_token release_stub];
-  __app_token = app_token;
-  __app_token_isset = YES;
-}
-
-- (BOOL) app_tokenIsSet {
-  return __app_token_isset;
-}
-
-- (void) unsetApp_token {
-  [__app_token release_stub];
-  __app_token = nil;
-  __app_token_isset = NO;
-}
-
-- (void) read: (id <TProtocol>) inProtocol
-{
-  NSString * fieldName;
-  int fieldType;
-  int fieldID;
-
-  [inProtocol readStructBeginReturningName: NULL];
-  while (true)
-  {
-    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
-    if (fieldType == TType_STOP) { 
-      break;
-    }
-    switch (fieldID)
-    {
-      case 1:
-        if (fieldType == TType_STRING) {
-          NSString * fieldValue = [inProtocol readString];
-          [self setUsername: fieldValue];
-        } else { 
-          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        }
-        break;
-      case 2:
-        if (fieldType == TType_STRING) {
-          NSString * fieldValue = [inProtocol readString];
-          [self setEmail: fieldValue];
-        } else { 
-          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        }
-        break;
-      case 3:
-        if (fieldType == TType_STRING) {
-          NSString * fieldValue = [inProtocol readString];
-          [self setPassword: fieldValue];
-        } else { 
-          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        }
-        break;
-      case 4:
-        if (fieldType == TType_STRING) {
-          NSString * fieldValue = [inProtocol readString];
-          [self setApp_id: fieldValue];
-        } else { 
-          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        }
-        break;
-      case 5:
-        if (fieldType == TType_STRING) {
-          NSString * fieldValue = [inProtocol readString];
-          [self setApp_token: fieldValue];
-        } else { 
-          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        }
-        break;
-      default:
-        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        break;
-    }
-    [inProtocol readFieldEnd];
-  }
-  [inProtocol readStructEnd];
-}
-
-- (void) write: (id <TProtocol>) outProtocol {
-  [outProtocol writeStructBeginWithName: @"create_account_args"];
-  if (__username_isset) {
-    if (__username != nil) {
-      [outProtocol writeFieldBeginWithName: @"username" type: TType_STRING fieldID: 1];
-      [outProtocol writeString: __username];
-      [outProtocol writeFieldEnd];
-    }
-  }
-  if (__email_isset) {
-    if (__email != nil) {
-      [outProtocol writeFieldBeginWithName: @"email" type: TType_STRING fieldID: 2];
-      [outProtocol writeString: __email];
-      [outProtocol writeFieldEnd];
-    }
-  }
-  if (__password_isset) {
-    if (__password != nil) {
-      [outProtocol writeFieldBeginWithName: @"password" type: TType_STRING fieldID: 3];
-      [outProtocol writeString: __password];
-      [outProtocol writeFieldEnd];
-    }
-  }
-  if (__app_id_isset) {
-    if (__app_id != nil) {
-      [outProtocol writeFieldBeginWithName: @"app_id" type: TType_STRING fieldID: 4];
-      [outProtocol writeString: __app_id];
-      [outProtocol writeFieldEnd];
-    }
-  }
-  if (__app_token_isset) {
-    if (__app_token != nil) {
-      [outProtocol writeFieldBeginWithName: @"app_token" type: TType_STRING fieldID: 5];
-      [outProtocol writeString: __app_token];
-      [outProtocol writeFieldEnd];
-    }
-  }
-  [outProtocol writeFieldStop];
-  [outProtocol writeStructEnd];
-}
-
-- (void) validate {
-  // check for required fields
-}
-
-- (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"create_account_args("];
-  [ms appendString: @"username:"];
-  [ms appendFormat: @"\"%@\"", __username];
-  [ms appendString: @",email:"];
-  [ms appendFormat: @"\"%@\"", __email];
-  [ms appendString: @",password:"];
-  [ms appendFormat: @"\"%@\"", __password];
-  [ms appendString: @",app_id:"];
-  [ms appendFormat: @"\"%@\"", __app_id];
-  [ms appendString: @",app_token:"];
-  [ms appendFormat: @"\"%@\"", __app_token];
-  [ms appendString: @")"];
-  return [NSString stringWithString: ms];
-}
-
-@end
-
-@interface Create_account_result : NSObject <TBase, NSCoding> {
-  BOOL __success;
-  AccountException * __ex;
-
-  BOOL __success_isset;
-  BOOL __ex_isset;
-}
-
-#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, getter=success, setter=setSuccess:) BOOL success;
-@property (nonatomic, retain, getter=ex, setter=setEx:) AccountException * ex;
-#endif
-
-- (id) init;
-- (id) initWithSuccess: (BOOL) success ex: (AccountException *) ex;
-
-- (void) read: (id <TProtocol>) inProtocol;
-- (void) write: (id <TProtocol>) outProtocol;
-
-- (void) validate;
-
-#if !__has_feature(objc_arc)
-- (BOOL) success;
-- (void) setSuccess: (BOOL) success;
-#endif
-- (BOOL) successIsSet;
-
-#if !__has_feature(objc_arc)
-- (AccountException *) ex;
-- (void) setEx: (AccountException *) ex;
-#endif
-- (BOOL) exIsSet;
-
-@end
-
-@implementation Create_account_result
-
-- (id) init
-{
-  self = [super init];
-#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-#endif
-  return self;
-}
-
-- (id) initWithSuccess: (BOOL) success ex: (AccountException *) ex
-{
-  self = [super init];
-  __success = success;
-  __success_isset = YES;
-  __ex = [ex retain_stub];
-  __ex_isset = YES;
-  return self;
-}
-
-- (id) initWithCoder: (NSCoder *) decoder
-{
-  self = [super init];
-  if ([decoder containsValueForKey: @"success"])
-  {
-    __success = [decoder decodeBoolForKey: @"success"];
-    __success_isset = YES;
-  }
-  if ([decoder containsValueForKey: @"ex"])
-  {
-    __ex = [[decoder decodeObjectForKey: @"ex"] retain_stub];
-    __ex_isset = YES;
-  }
-  return self;
-}
-
-- (void) encodeWithCoder: (NSCoder *) encoder
-{
-  if (__success_isset)
-  {
-    [encoder encodeBool: __success forKey: @"success"];
-  }
-  if (__ex_isset)
-  {
-    [encoder encodeObject: __ex forKey: @"ex"];
-  }
-}
-
-- (void) dealloc
-{
-  [__ex release_stub];
-  [super dealloc_stub];
-}
-
-- (BOOL) success {
-  return __success;
-}
-
-- (void) setSuccess: (BOOL) success {
-  __success = success;
-  __success_isset = YES;
-}
-
-- (BOOL) successIsSet {
-  return __success_isset;
-}
-
-- (void) unsetSuccess {
-  __success_isset = NO;
-}
-
-- (AccountException *) ex {
-  return [[__ex retain_stub] autorelease_stub];
-}
-
-- (void) setEx: (AccountException *) ex {
-  [ex retain_stub];
-  [__ex release_stub];
-  __ex = ex;
-  __ex_isset = YES;
-}
-
-- (BOOL) exIsSet {
-  return __ex_isset;
-}
-
-- (void) unsetEx {
-  [__ex release_stub];
-  __ex = nil;
-  __ex_isset = NO;
-}
-
-- (void) read: (id <TProtocol>) inProtocol
-{
-  NSString * fieldName;
-  int fieldType;
-  int fieldID;
-
-  [inProtocol readStructBeginReturningName: NULL];
-  while (true)
-  {
-    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
-    if (fieldType == TType_STOP) { 
-      break;
-    }
-    switch (fieldID)
-    {
-      case 0:
-        if (fieldType == TType_BOOL) {
-          BOOL fieldValue = [inProtocol readBool];
-          [self setSuccess: fieldValue];
-        } else { 
-          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        }
-        break;
-      case 1:
-        if (fieldType == TType_STRUCT) {
-          AccountException *fieldValue = [[AccountException alloc] init];
-          [fieldValue read: inProtocol];
-          [self setEx: fieldValue];
-          [fieldValue release_stub];
-        } else { 
-          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        }
-        break;
-      default:
-        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        break;
-    }
-    [inProtocol readFieldEnd];
-  }
-  [inProtocol readStructEnd];
-}
-
-- (void) write: (id <TProtocol>) outProtocol {
-  [outProtocol writeStructBeginWithName: @"Create_account_result"];
-
-  if (__success_isset) {
-    [outProtocol writeFieldBeginWithName: @"success" type: TType_BOOL fieldID: 0];
-    [outProtocol writeBool: __success];
-    [outProtocol writeFieldEnd];
-  } else if (__ex_isset) {
-    if (__ex != nil) {
-      [outProtocol writeFieldBeginWithName: @"ex" type: TType_STRUCT fieldID: 1];
-      [__ex write: outProtocol];
-      [outProtocol writeFieldEnd];
-    }
-  }
-  [outProtocol writeFieldStop];
-  [outProtocol writeStructEnd];
-}
-
-- (void) validate {
-  // check for required fields
-}
-
-- (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"Create_account_result("];
-  [ms appendString: @"success:"];
-  [ms appendFormat: @"%i", __success];
-  [ms appendString: @",ex:"];
-  [ms appendFormat: @"%@", __ex];
-  [ms appendString: @")"];
-  return [NSString stringWithString: ms];
-}
-
-@end
-
-@interface remove_account_args : NSObject <TBase, NSCoding> {
-  NSString * __username;
-  NSString * __app_id;
-  NSString * __app_token;
-
-  BOOL __username_isset;
-  BOOL __app_id_isset;
-  BOOL __app_token_isset;
-}
-
-#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=username, setter=setUsername:) NSString * username;
-@property (nonatomic, retain, getter=app_id, setter=setApp_id:) NSString * app_id;
-@property (nonatomic, retain, getter=app_token, setter=setApp_token:) NSString * app_token;
-#endif
-
-- (id) init;
-- (id) initWithUsername: (NSString *) username app_id: (NSString *) app_id app_token: (NSString *) app_token;
-
-- (void) read: (id <TProtocol>) inProtocol;
-- (void) write: (id <TProtocol>) outProtocol;
-
-- (void) validate;
-
-#if !__has_feature(objc_arc)
-- (NSString *) username;
-- (void) setUsername: (NSString *) username;
-#endif
-- (BOOL) usernameIsSet;
-
-#if !__has_feature(objc_arc)
-- (NSString *) app_id;
-- (void) setApp_id: (NSString *) app_id;
-#endif
-- (BOOL) app_idIsSet;
-
-#if !__has_feature(objc_arc)
-- (NSString *) app_token;
-- (void) setApp_token: (NSString *) app_token;
-#endif
-- (BOOL) app_tokenIsSet;
-
-@end
-
-@implementation remove_account_args
-
-- (id) init
-{
-  self = [super init];
-#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-#endif
-  return self;
-}
-
-- (id) initWithUsername: (NSString *) username app_id: (NSString *) app_id app_token: (NSString *) app_token
-{
-  self = [super init];
-  __username = [username retain_stub];
-  __username_isset = YES;
-  __app_id = [app_id retain_stub];
-  __app_id_isset = YES;
-  __app_token = [app_token retain_stub];
-  __app_token_isset = YES;
-  return self;
-}
-
-- (id) initWithCoder: (NSCoder *) decoder
-{
-  self = [super init];
-  if ([decoder containsValueForKey: @"username"])
-  {
-    __username = [[decoder decodeObjectForKey: @"username"] retain_stub];
-    __username_isset = YES;
-  }
-  if ([decoder containsValueForKey: @"app_id"])
-  {
-    __app_id = [[decoder decodeObjectForKey: @"app_id"] retain_stub];
-    __app_id_isset = YES;
-  }
-  if ([decoder containsValueForKey: @"app_token"])
-  {
-    __app_token = [[decoder decodeObjectForKey: @"app_token"] retain_stub];
-    __app_token_isset = YES;
-  }
-  return self;
-}
-
-- (void) encodeWithCoder: (NSCoder *) encoder
-{
-  if (__username_isset)
-  {
-    [encoder encodeObject: __username forKey: @"username"];
-  }
-  if (__app_id_isset)
-  {
-    [encoder encodeObject: __app_id forKey: @"app_id"];
-  }
-  if (__app_token_isset)
-  {
-    [encoder encodeObject: __app_token forKey: @"app_token"];
-  }
-}
-
-- (void) dealloc
-{
-  [__username release_stub];
-  [__app_id release_stub];
-  [__app_token release_stub];
-  [super dealloc_stub];
-}
-
-- (NSString *) username {
-  return [[__username retain_stub] autorelease_stub];
-}
-
-- (void) setUsername: (NSString *) username {
-  [username retain_stub];
-  [__username release_stub];
-  __username = username;
-  __username_isset = YES;
-}
-
-- (BOOL) usernameIsSet {
-  return __username_isset;
-}
-
-- (void) unsetUsername {
-  [__username release_stub];
-  __username = nil;
-  __username_isset = NO;
-}
-
-- (NSString *) app_id {
-  return [[__app_id retain_stub] autorelease_stub];
-}
-
-- (void) setApp_id: (NSString *) app_id {
-  [app_id retain_stub];
-  [__app_id release_stub];
-  __app_id = app_id;
-  __app_id_isset = YES;
-}
-
-- (BOOL) app_idIsSet {
-  return __app_id_isset;
-}
-
-- (void) unsetApp_id {
-  [__app_id release_stub];
-  __app_id = nil;
-  __app_id_isset = NO;
-}
-
-- (NSString *) app_token {
-  return [[__app_token retain_stub] autorelease_stub];
-}
-
-- (void) setApp_token: (NSString *) app_token {
-  [app_token retain_stub];
-  [__app_token release_stub];
-  __app_token = app_token;
-  __app_token_isset = YES;
-}
-
-- (BOOL) app_tokenIsSet {
-  return __app_token_isset;
-}
-
-- (void) unsetApp_token {
-  [__app_token release_stub];
-  __app_token = nil;
-  __app_token_isset = NO;
-}
-
-- (void) read: (id <TProtocol>) inProtocol
-{
-  NSString * fieldName;
-  int fieldType;
-  int fieldID;
-
-  [inProtocol readStructBeginReturningName: NULL];
-  while (true)
-  {
-    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
-    if (fieldType == TType_STOP) { 
-      break;
-    }
-    switch (fieldID)
-    {
-      case 1:
-        if (fieldType == TType_STRING) {
-          NSString * fieldValue = [inProtocol readString];
-          [self setUsername: fieldValue];
-        } else { 
-          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        }
-        break;
-      case 2:
-        if (fieldType == TType_STRING) {
-          NSString * fieldValue = [inProtocol readString];
-          [self setApp_id: fieldValue];
-        } else { 
-          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        }
-        break;
-      case 3:
-        if (fieldType == TType_STRING) {
-          NSString * fieldValue = [inProtocol readString];
-          [self setApp_token: fieldValue];
-        } else { 
-          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        }
-        break;
-      default:
-        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        break;
-    }
-    [inProtocol readFieldEnd];
-  }
-  [inProtocol readStructEnd];
-}
-
-- (void) write: (id <TProtocol>) outProtocol {
-  [outProtocol writeStructBeginWithName: @"remove_account_args"];
-  if (__username_isset) {
-    if (__username != nil) {
-      [outProtocol writeFieldBeginWithName: @"username" type: TType_STRING fieldID: 1];
-      [outProtocol writeString: __username];
-      [outProtocol writeFieldEnd];
-    }
-  }
-  if (__app_id_isset) {
-    if (__app_id != nil) {
-      [outProtocol writeFieldBeginWithName: @"app_id" type: TType_STRING fieldID: 2];
-      [outProtocol writeString: __app_id];
-      [outProtocol writeFieldEnd];
-    }
-  }
-  if (__app_token_isset) {
-    if (__app_token != nil) {
-      [outProtocol writeFieldBeginWithName: @"app_token" type: TType_STRING fieldID: 3];
-      [outProtocol writeString: __app_token];
-      [outProtocol writeFieldEnd];
-    }
-  }
-  [outProtocol writeFieldStop];
-  [outProtocol writeStructEnd];
-}
-
-- (void) validate {
-  // check for required fields
-}
-
-- (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"remove_account_args("];
-  [ms appendString: @"username:"];
-  [ms appendFormat: @"\"%@\"", __username];
-  [ms appendString: @",app_id:"];
-  [ms appendFormat: @"\"%@\"", __app_id];
-  [ms appendString: @",app_token:"];
-  [ms appendFormat: @"\"%@\"", __app_token];
-  [ms appendString: @")"];
-  return [NSString stringWithString: ms];
-}
-
-@end
-
-@interface Remove_account_result : NSObject <TBase, NSCoding> {
-  BOOL __success;
-  AccountException * __ex;
-
-  BOOL __success_isset;
-  BOOL __ex_isset;
-}
-
-#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, getter=success, setter=setSuccess:) BOOL success;
-@property (nonatomic, retain, getter=ex, setter=setEx:) AccountException * ex;
-#endif
-
-- (id) init;
-- (id) initWithSuccess: (BOOL) success ex: (AccountException *) ex;
-
-- (void) read: (id <TProtocol>) inProtocol;
-- (void) write: (id <TProtocol>) outProtocol;
-
-- (void) validate;
-
-#if !__has_feature(objc_arc)
-- (BOOL) success;
-- (void) setSuccess: (BOOL) success;
-#endif
-- (BOOL) successIsSet;
-
-#if !__has_feature(objc_arc)
-- (AccountException *) ex;
-- (void) setEx: (AccountException *) ex;
-#endif
-- (BOOL) exIsSet;
-
-@end
-
-@implementation Remove_account_result
-
-- (id) init
-{
-  self = [super init];
-#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-#endif
-  return self;
-}
-
-- (id) initWithSuccess: (BOOL) success ex: (AccountException *) ex
-{
-  self = [super init];
-  __success = success;
-  __success_isset = YES;
-  __ex = [ex retain_stub];
-  __ex_isset = YES;
-  return self;
-}
-
-- (id) initWithCoder: (NSCoder *) decoder
-{
-  self = [super init];
-  if ([decoder containsValueForKey: @"success"])
-  {
-    __success = [decoder decodeBoolForKey: @"success"];
-    __success_isset = YES;
-  }
-  if ([decoder containsValueForKey: @"ex"])
-  {
-    __ex = [[decoder decodeObjectForKey: @"ex"] retain_stub];
-    __ex_isset = YES;
-  }
-  return self;
-}
-
-- (void) encodeWithCoder: (NSCoder *) encoder
-{
-  if (__success_isset)
-  {
-    [encoder encodeBool: __success forKey: @"success"];
-  }
-  if (__ex_isset)
-  {
-    [encoder encodeObject: __ex forKey: @"ex"];
-  }
-}
-
-- (void) dealloc
-{
-  [__ex release_stub];
-  [super dealloc_stub];
-}
-
-- (BOOL) success {
-  return __success;
-}
-
-- (void) setSuccess: (BOOL) success {
-  __success = success;
-  __success_isset = YES;
-}
-
-- (BOOL) successIsSet {
-  return __success_isset;
-}
-
-- (void) unsetSuccess {
-  __success_isset = NO;
-}
-
-- (AccountException *) ex {
-  return [[__ex retain_stub] autorelease_stub];
-}
-
-- (void) setEx: (AccountException *) ex {
-  [ex retain_stub];
-  [__ex release_stub];
-  __ex = ex;
-  __ex_isset = YES;
-}
-
-- (BOOL) exIsSet {
-  return __ex_isset;
-}
-
-- (void) unsetEx {
-  [__ex release_stub];
-  __ex = nil;
-  __ex_isset = NO;
-}
-
-- (void) read: (id <TProtocol>) inProtocol
-{
-  NSString * fieldName;
-  int fieldType;
-  int fieldID;
-
-  [inProtocol readStructBeginReturningName: NULL];
-  while (true)
-  {
-    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
-    if (fieldType == TType_STOP) { 
-      break;
-    }
-    switch (fieldID)
-    {
-      case 0:
-        if (fieldType == TType_BOOL) {
-          BOOL fieldValue = [inProtocol readBool];
-          [self setSuccess: fieldValue];
-        } else { 
-          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        }
-        break;
-      case 1:
-        if (fieldType == TType_STRUCT) {
-          AccountException *fieldValue = [[AccountException alloc] init];
-          [fieldValue read: inProtocol];
-          [self setEx: fieldValue];
-          [fieldValue release_stub];
-        } else { 
-          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        }
-        break;
-      default:
-        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
-        break;
-    }
-    [inProtocol readFieldEnd];
-  }
-  [inProtocol readStructEnd];
-}
-
-- (void) write: (id <TProtocol>) outProtocol {
-  [outProtocol writeStructBeginWithName: @"Remove_account_result"];
-
-  if (__success_isset) {
-    [outProtocol writeFieldBeginWithName: @"success" type: TType_BOOL fieldID: 0];
-    [outProtocol writeBool: __success];
-    [outProtocol writeFieldEnd];
-  } else if (__ex_isset) {
-    if (__ex != nil) {
-      [outProtocol writeFieldBeginWithName: @"ex" type: TType_STRUCT fieldID: 1];
-      [__ex write: outProtocol];
-      [outProtocol writeFieldEnd];
-    }
-  }
-  [outProtocol writeFieldStop];
-  [outProtocol writeStructEnd];
-}
-
-- (void) validate {
-  // check for required fields
-}
-
-- (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"Remove_account_result("];
-  [ms appendString: @"success:"];
-  [ms appendFormat: @"%i", __success];
-  [ms appendString: @",ex:"];
-  [ms appendFormat: @"%@", __ex];
-  [ms appendString: @")"];
-  return [NSString stringWithString: ms];
-}
-
-@end
-
-@implementation DataHubClient
+@implementation datahubDataHubClient
 - (id) initWithProtocol: (id <TProtocol>) protocol
 {
   return [self initWithInProtocol: protocol outProtocol: protocol];
@@ -6332,7 +5057,7 @@ static double VERSION = 1;
     [inProtocol readMessageEnd];
     @throw x;
   }
-  Get_version_result * result = [[[Get_version_result alloc] init] autorelease_stub];
+  datahubGet_version_result * result = [[[datahubGet_version_result alloc] init] autorelease_stub];
   [result read: inProtocol];
   [inProtocol readMessageEnd];
   if ([result successIsSet]) {
@@ -6348,7 +5073,7 @@ static double VERSION = 1;
   return [self recv_get_version];
 }
 
-- (void) send_open_connection: (ConnectionParams *) con_params
+- (void) send_open_connection: (datahubConnectionParams *) con_params
 {
   [outProtocol writeMessageBeginWithName: @"open_connection" type: TMessageType_CALL sequenceID: 0];
   [outProtocol writeStructBeginWithName: @"open_connection_args"];
@@ -6363,7 +5088,7 @@ static double VERSION = 1;
   [[outProtocol transport] flush];
 }
 
-- (Connection *) recv_open_connection
+- (datahubConnection *) recv_open_connection
 {
   int msgType = 0;
   [inProtocol readMessageBeginReturningName: nil type: &msgType sequenceID: NULL];
@@ -6372,7 +5097,7 @@ static double VERSION = 1;
     [inProtocol readMessageEnd];
     @throw x;
   }
-  Open_connection_result * result = [[[Open_connection_result alloc] init] autorelease_stub];
+  datahubOpen_connection_result * result = [[[datahubOpen_connection_result alloc] init] autorelease_stub];
   [result read: inProtocol];
   [inProtocol readMessageEnd];
   if ([result successIsSet]) {
@@ -6385,13 +5110,13 @@ static double VERSION = 1;
                                            reason: @"open_connection failed: unknown result"];
 }
 
-- (Connection *) open_connection: (ConnectionParams *) con_params
+- (datahubConnection *) open_connection: (datahubConnectionParams *) con_params
 {
   [self send_open_connection : con_params];
   return [self recv_open_connection];
 }
 
-- (void) send_create_repo: (Connection *) con repo_name: (NSString *) repo_name
+- (void) send_create_repo: (datahubConnection *) con repo_name: (NSString *) repo_name
 {
   [outProtocol writeMessageBeginWithName: @"create_repo" type: TMessageType_CALL sequenceID: 0];
   [outProtocol writeStructBeginWithName: @"create_repo_args"];
@@ -6411,7 +5136,7 @@ static double VERSION = 1;
   [[outProtocol transport] flush];
 }
 
-- (ResultSet *) recv_create_repo
+- (datahubResultSet *) recv_create_repo
 {
   int msgType = 0;
   [inProtocol readMessageBeginReturningName: nil type: &msgType sequenceID: NULL];
@@ -6420,7 +5145,7 @@ static double VERSION = 1;
     [inProtocol readMessageEnd];
     @throw x;
   }
-  Create_repo_result * result = [[[Create_repo_result alloc] init] autorelease_stub];
+  datahubCreate_repo_result * result = [[[datahubCreate_repo_result alloc] init] autorelease_stub];
   [result read: inProtocol];
   [inProtocol readMessageEnd];
   if ([result successIsSet]) {
@@ -6433,13 +5158,13 @@ static double VERSION = 1;
                                            reason: @"create_repo failed: unknown result"];
 }
 
-- (ResultSet *) create_repo: (Connection *) con repo_name: (NSString *) repo_name
+- (datahubResultSet *) create_repo: (datahubConnection *) con repo_name: (NSString *) repo_name
 {
   [self send_create_repo : con repo_name: repo_name];
   return [self recv_create_repo];
 }
 
-- (void) send_list_repos: (Connection *) con
+- (void) send_list_repos: (datahubConnection *) con
 {
   [outProtocol writeMessageBeginWithName: @"list_repos" type: TMessageType_CALL sequenceID: 0];
   [outProtocol writeStructBeginWithName: @"list_repos_args"];
@@ -6454,7 +5179,7 @@ static double VERSION = 1;
   [[outProtocol transport] flush];
 }
 
-- (ResultSet *) recv_list_repos
+- (datahubResultSet *) recv_list_repos
 {
   int msgType = 0;
   [inProtocol readMessageBeginReturningName: nil type: &msgType sequenceID: NULL];
@@ -6463,7 +5188,7 @@ static double VERSION = 1;
     [inProtocol readMessageEnd];
     @throw x;
   }
-  List_repos_result * result = [[[List_repos_result alloc] init] autorelease_stub];
+  datahubList_repos_result * result = [[[datahubList_repos_result alloc] init] autorelease_stub];
   [result read: inProtocol];
   [inProtocol readMessageEnd];
   if ([result successIsSet]) {
@@ -6476,13 +5201,13 @@ static double VERSION = 1;
                                            reason: @"list_repos failed: unknown result"];
 }
 
-- (ResultSet *) list_repos: (Connection *) con
+- (datahubResultSet *) list_repos: (datahubConnection *) con
 {
   [self send_list_repos : con];
   return [self recv_list_repos];
 }
 
-- (void) send_delete_repo: (Connection *) con repo_name: (NSString *) repo_name force_if_non_empty: (BOOL) force_if_non_empty
+- (void) send_delete_repo: (datahubConnection *) con repo_name: (NSString *) repo_name force_if_non_empty: (BOOL) force_if_non_empty
 {
   [outProtocol writeMessageBeginWithName: @"delete_repo" type: TMessageType_CALL sequenceID: 0];
   [outProtocol writeStructBeginWithName: @"delete_repo_args"];
@@ -6505,7 +5230,7 @@ static double VERSION = 1;
   [[outProtocol transport] flush];
 }
 
-- (ResultSet *) recv_delete_repo
+- (datahubResultSet *) recv_delete_repo
 {
   int msgType = 0;
   [inProtocol readMessageBeginReturningName: nil type: &msgType sequenceID: NULL];
@@ -6514,7 +5239,7 @@ static double VERSION = 1;
     [inProtocol readMessageEnd];
     @throw x;
   }
-  Delete_repo_result * result = [[[Delete_repo_result alloc] init] autorelease_stub];
+  datahubDelete_repo_result * result = [[[datahubDelete_repo_result alloc] init] autorelease_stub];
   [result read: inProtocol];
   [inProtocol readMessageEnd];
   if ([result successIsSet]) {
@@ -6527,13 +5252,13 @@ static double VERSION = 1;
                                            reason: @"delete_repo failed: unknown result"];
 }
 
-- (ResultSet *) delete_repo: (Connection *) con repo_name: (NSString *) repo_name force_if_non_empty: (BOOL) force_if_non_empty
+- (datahubResultSet *) delete_repo: (datahubConnection *) con repo_name: (NSString *) repo_name force_if_non_empty: (BOOL) force_if_non_empty
 {
   [self send_delete_repo : con repo_name: repo_name force_if_non_empty: force_if_non_empty];
   return [self recv_delete_repo];
 }
 
-- (void) send_list_tables: (Connection *) con repo_name: (NSString *) repo_name
+- (void) send_list_tables: (datahubConnection *) con repo_name: (NSString *) repo_name
 {
   [outProtocol writeMessageBeginWithName: @"list_tables" type: TMessageType_CALL sequenceID: 0];
   [outProtocol writeStructBeginWithName: @"list_tables_args"];
@@ -6553,7 +5278,7 @@ static double VERSION = 1;
   [[outProtocol transport] flush];
 }
 
-- (ResultSet *) recv_list_tables
+- (datahubResultSet *) recv_list_tables
 {
   int msgType = 0;
   [inProtocol readMessageBeginReturningName: nil type: &msgType sequenceID: NULL];
@@ -6562,7 +5287,7 @@ static double VERSION = 1;
     [inProtocol readMessageEnd];
     @throw x;
   }
-  List_tables_result * result = [[[List_tables_result alloc] init] autorelease_stub];
+  datahubList_tables_result * result = [[[datahubList_tables_result alloc] init] autorelease_stub];
   [result read: inProtocol];
   [inProtocol readMessageEnd];
   if ([result successIsSet]) {
@@ -6575,13 +5300,13 @@ static double VERSION = 1;
                                            reason: @"list_tables failed: unknown result"];
 }
 
-- (ResultSet *) list_tables: (Connection *) con repo_name: (NSString *) repo_name
+- (datahubResultSet *) list_tables: (datahubConnection *) con repo_name: (NSString *) repo_name
 {
   [self send_list_tables : con repo_name: repo_name];
   return [self recv_list_tables];
 }
 
-- (void) send_get_schema: (Connection *) con table_name: (NSString *) table_name
+- (void) send_get_schema: (datahubConnection *) con table_name: (NSString *) table_name
 {
   [outProtocol writeMessageBeginWithName: @"get_schema" type: TMessageType_CALL sequenceID: 0];
   [outProtocol writeStructBeginWithName: @"get_schema_args"];
@@ -6601,7 +5326,7 @@ static double VERSION = 1;
   [[outProtocol transport] flush];
 }
 
-- (ResultSet *) recv_get_schema
+- (datahubResultSet *) recv_get_schema
 {
   int msgType = 0;
   [inProtocol readMessageBeginReturningName: nil type: &msgType sequenceID: NULL];
@@ -6610,7 +5335,7 @@ static double VERSION = 1;
     [inProtocol readMessageEnd];
     @throw x;
   }
-  Get_schema_result * result = [[[Get_schema_result alloc] init] autorelease_stub];
+  datahubGet_schema_result * result = [[[datahubGet_schema_result alloc] init] autorelease_stub];
   [result read: inProtocol];
   [inProtocol readMessageEnd];
   if ([result successIsSet]) {
@@ -6623,13 +5348,13 @@ static double VERSION = 1;
                                            reason: @"get_schema failed: unknown result"];
 }
 
-- (ResultSet *) get_schema: (Connection *) con table_name: (NSString *) table_name
+- (datahubResultSet *) get_schema: (datahubConnection *) con table_name: (NSString *) table_name
 {
   [self send_get_schema : con table_name: table_name];
   return [self recv_get_schema];
 }
 
-- (void) send_execute_sql: (Connection *) con query: (NSString *) query query_params: (NSMutableArray *) query_params
+- (void) send_execute_sql: (datahubConnection *) con query: (NSString *) query query_params: (NSMutableArray *) query_params
 {
   [outProtocol writeMessageBeginWithName: @"execute_sql" type: TMessageType_CALL sequenceID: 0];
   [outProtocol writeStructBeginWithName: @"execute_sql_args"];
@@ -6662,7 +5387,7 @@ static double VERSION = 1;
   [[outProtocol transport] flush];
 }
 
-- (ResultSet *) recv_execute_sql
+- (datahubResultSet *) recv_execute_sql
 {
   int msgType = 0;
   [inProtocol readMessageBeginReturningName: nil type: &msgType sequenceID: NULL];
@@ -6671,7 +5396,7 @@ static double VERSION = 1;
     [inProtocol readMessageEnd];
     @throw x;
   }
-  Execute_sql_result * result = [[[Execute_sql_result alloc] init] autorelease_stub];
+  datahubExecute_sql_result * result = [[[datahubExecute_sql_result alloc] init] autorelease_stub];
   [result read: inProtocol];
   [inProtocol readMessageEnd];
   if ([result successIsSet]) {
@@ -6684,13 +5409,13 @@ static double VERSION = 1;
                                            reason: @"execute_sql failed: unknown result"];
 }
 
-- (ResultSet *) execute_sql: (Connection *) con query: (NSString *) query query_params: (NSMutableArray *) query_params
+- (datahubResultSet *) execute_sql: (datahubConnection *) con query: (NSString *) query query_params: (NSMutableArray *) query_params
 {
   [self send_execute_sql : con query: query query_params: query_params];
   return [self recv_execute_sql];
 }
 
-- (void) send_close_connection: (Connection *) con
+- (void) send_close_connection: (datahubConnection *) con
 {
   [outProtocol writeMessageBeginWithName: @"close_connection" type: TMessageType_CALL sequenceID: 0];
   [outProtocol writeStructBeginWithName: @"close_connection_args"];
@@ -6714,7 +5439,7 @@ static double VERSION = 1;
     [inProtocol readMessageEnd];
     @throw x;
   }
-  Close_connection_result * result = [[[Close_connection_result alloc] init] autorelease_stub];
+  datahubClose_connection_result * result = [[[datahubClose_connection_result alloc] init] autorelease_stub];
   [result read: inProtocol];
   [inProtocol readMessageEnd];
   if ([result successIsSet]) {
@@ -6727,133 +5452,17 @@ static double VERSION = 1;
                                            reason: @"close_connection failed: unknown result"];
 }
 
-- (BOOL) close_connection: (Connection *) con
+- (BOOL) close_connection: (datahubConnection *) con
 {
   [self send_close_connection : con];
   return [self recv_close_connection];
 }
 
-- (void) send_create_account: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token
-{
-  [outProtocol writeMessageBeginWithName: @"create_account" type: TMessageType_CALL sequenceID: 0];
-  [outProtocol writeStructBeginWithName: @"create_account_args"];
-  if (username != nil)  {
-    [outProtocol writeFieldBeginWithName: @"username" type: TType_STRING fieldID: 1];
-    [outProtocol writeString: username];
-    [outProtocol writeFieldEnd];
-  }
-  if (email != nil)  {
-    [outProtocol writeFieldBeginWithName: @"email" type: TType_STRING fieldID: 2];
-    [outProtocol writeString: email];
-    [outProtocol writeFieldEnd];
-  }
-  if (password != nil)  {
-    [outProtocol writeFieldBeginWithName: @"password" type: TType_STRING fieldID: 3];
-    [outProtocol writeString: password];
-    [outProtocol writeFieldEnd];
-  }
-  if (app_id != nil)  {
-    [outProtocol writeFieldBeginWithName: @"app_id" type: TType_STRING fieldID: 4];
-    [outProtocol writeString: app_id];
-    [outProtocol writeFieldEnd];
-  }
-  if (app_token != nil)  {
-    [outProtocol writeFieldBeginWithName: @"app_token" type: TType_STRING fieldID: 5];
-    [outProtocol writeString: app_token];
-    [outProtocol writeFieldEnd];
-  }
-  [outProtocol writeFieldStop];
-  [outProtocol writeStructEnd];
-  [outProtocol writeMessageEnd];
-  [[outProtocol transport] flush];
-}
-
-- (BOOL) recv_create_account
-{
-  int msgType = 0;
-  [inProtocol readMessageBeginReturningName: nil type: &msgType sequenceID: NULL];
-  if (msgType == TMessageType_EXCEPTION) {
-    TApplicationException * x = [TApplicationException read: inProtocol];
-    [inProtocol readMessageEnd];
-    @throw x;
-  }
-  Create_account_result * result = [[[Create_account_result alloc] init] autorelease_stub];
-  [result read: inProtocol];
-  [inProtocol readMessageEnd];
-  if ([result successIsSet]) {
-    return [result success];
-  }
-  if ([result exIsSet]) {
-    @throw [result ex];
-  }
-  @throw [TApplicationException exceptionWithType: TApplicationException_MISSING_RESULT
-                                           reason: @"create_account failed: unknown result"];
-}
-
-- (BOOL) create_account: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token
-{
-  [self send_create_account : username email: email password: password app_id: app_id app_token: app_token];
-  return [self recv_create_account];
-}
-
-- (void) send_remove_account: (NSString *) username app_id: (NSString *) app_id app_token: (NSString *) app_token
-{
-  [outProtocol writeMessageBeginWithName: @"remove_account" type: TMessageType_CALL sequenceID: 0];
-  [outProtocol writeStructBeginWithName: @"remove_account_args"];
-  if (username != nil)  {
-    [outProtocol writeFieldBeginWithName: @"username" type: TType_STRING fieldID: 1];
-    [outProtocol writeString: username];
-    [outProtocol writeFieldEnd];
-  }
-  if (app_id != nil)  {
-    [outProtocol writeFieldBeginWithName: @"app_id" type: TType_STRING fieldID: 2];
-    [outProtocol writeString: app_id];
-    [outProtocol writeFieldEnd];
-  }
-  if (app_token != nil)  {
-    [outProtocol writeFieldBeginWithName: @"app_token" type: TType_STRING fieldID: 3];
-    [outProtocol writeString: app_token];
-    [outProtocol writeFieldEnd];
-  }
-  [outProtocol writeFieldStop];
-  [outProtocol writeStructEnd];
-  [outProtocol writeMessageEnd];
-  [[outProtocol transport] flush];
-}
-
-- (BOOL) recv_remove_account
-{
-  int msgType = 0;
-  [inProtocol readMessageBeginReturningName: nil type: &msgType sequenceID: NULL];
-  if (msgType == TMessageType_EXCEPTION) {
-    TApplicationException * x = [TApplicationException read: inProtocol];
-    [inProtocol readMessageEnd];
-    @throw x;
-  }
-  Remove_account_result * result = [[[Remove_account_result alloc] init] autorelease_stub];
-  [result read: inProtocol];
-  [inProtocol readMessageEnd];
-  if ([result successIsSet]) {
-    return [result success];
-  }
-  if ([result exIsSet]) {
-    @throw [result ex];
-  }
-  @throw [TApplicationException exceptionWithType: TApplicationException_MISSING_RESULT
-                                           reason: @"remove_account failed: unknown result"];
-}
-
-- (BOOL) remove_account: (NSString *) username app_id: (NSString *) app_id app_token: (NSString *) app_token
-{
-  [self send_remove_account : username app_id: app_id app_token: app_token];
-  return [self recv_remove_account];
-}
-
 @end
 
-@implementation DataHubProcessor
+@implementation datahubDataHubProcessor
 
-- (id) initWithDataHub: (id <DataHub>) service
+- (id) initWithDataHub: (id <datahubDataHub>) service
 {
   self = [super init];
   if (!self) {
@@ -6933,26 +5542,10 @@ static double VERSION = 1;
     [invocation retainArguments];
     [mMethodMap setValue: invocation forKey: @"close_connection"];
   }
-  {
-    SEL s = @selector(process_create_account_withSequenceID:inProtocol:outProtocol:);
-    NSMethodSignature * sig = [self methodSignatureForSelector: s];
-    NSInvocation * invocation = [NSInvocation invocationWithMethodSignature: sig];
-    [invocation setSelector: s];
-    [invocation retainArguments];
-    [mMethodMap setValue: invocation forKey: @"create_account"];
-  }
-  {
-    SEL s = @selector(process_remove_account_withSequenceID:inProtocol:outProtocol:);
-    NSMethodSignature * sig = [self methodSignatureForSelector: s];
-    NSInvocation * invocation = [NSInvocation invocationWithMethodSignature: sig];
-    [invocation setSelector: s];
-    [invocation retainArguments];
-    [mMethodMap setValue: invocation forKey: @"remove_account"];
-  }
   return self;
 }
 
-- (id<DataHub>) service
+- (id<datahubDataHub>) service
 {
   return [[mService retain_stub] autorelease_stub];
 }
@@ -6992,10 +5585,10 @@ static double VERSION = 1;
 
 - (void) process_get_version_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
 {
-  get_version_args * args = [[get_version_args alloc] init];
+  datahubget_version_args * args = [[datahubget_version_args alloc] init];
   [args read: inProtocol];
   [inProtocol readMessageEnd];
-  Get_version_result * result = [[Get_version_result alloc] init];
+  datahubGet_version_result * result = [[datahubGet_version_result alloc] init];
   [result setSuccess: [mService get_version]];
   [outProtocol writeMessageBeginWithName: @"get_version"
                                     type: TMessageType_REPLY
@@ -7009,10 +5602,10 @@ static double VERSION = 1;
 
 - (void) process_open_connection_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
 {
-  open_connection_args * args = [[open_connection_args alloc] init];
+  datahubopen_connection_args * args = [[datahubopen_connection_args alloc] init];
   [args read: inProtocol];
   [inProtocol readMessageEnd];
-  Open_connection_result * result = [[Open_connection_result alloc] init];
+  datahubOpen_connection_result * result = [[datahubOpen_connection_result alloc] init];
   [result setSuccess: [mService open_connection: [args con_params]]];
   [outProtocol writeMessageBeginWithName: @"open_connection"
                                     type: TMessageType_REPLY
@@ -7026,10 +5619,10 @@ static double VERSION = 1;
 
 - (void) process_create_repo_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
 {
-  create_repo_args * args = [[create_repo_args alloc] init];
+  datahubcreate_repo_args * args = [[datahubcreate_repo_args alloc] init];
   [args read: inProtocol];
   [inProtocol readMessageEnd];
-  Create_repo_result * result = [[Create_repo_result alloc] init];
+  datahubCreate_repo_result * result = [[datahubCreate_repo_result alloc] init];
   [result setSuccess: [mService create_repo: [args con] repo_name: [args repo_name]]];
   [outProtocol writeMessageBeginWithName: @"create_repo"
                                     type: TMessageType_REPLY
@@ -7043,10 +5636,10 @@ static double VERSION = 1;
 
 - (void) process_list_repos_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
 {
-  list_repos_args * args = [[list_repos_args alloc] init];
+  datahublist_repos_args * args = [[datahublist_repos_args alloc] init];
   [args read: inProtocol];
   [inProtocol readMessageEnd];
-  List_repos_result * result = [[List_repos_result alloc] init];
+  datahubList_repos_result * result = [[datahubList_repos_result alloc] init];
   [result setSuccess: [mService list_repos: [args con]]];
   [outProtocol writeMessageBeginWithName: @"list_repos"
                                     type: TMessageType_REPLY
@@ -7060,10 +5653,10 @@ static double VERSION = 1;
 
 - (void) process_delete_repo_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
 {
-  delete_repo_args * args = [[delete_repo_args alloc] init];
+  datahubdelete_repo_args * args = [[datahubdelete_repo_args alloc] init];
   [args read: inProtocol];
   [inProtocol readMessageEnd];
-  Delete_repo_result * result = [[Delete_repo_result alloc] init];
+  datahubDelete_repo_result * result = [[datahubDelete_repo_result alloc] init];
   [result setSuccess: [mService delete_repo: [args con] repo_name: [args repo_name] force_if_non_empty: [args force_if_non_empty]]];
   [outProtocol writeMessageBeginWithName: @"delete_repo"
                                     type: TMessageType_REPLY
@@ -7077,10 +5670,10 @@ static double VERSION = 1;
 
 - (void) process_list_tables_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
 {
-  list_tables_args * args = [[list_tables_args alloc] init];
+  datahublist_tables_args * args = [[datahublist_tables_args alloc] init];
   [args read: inProtocol];
   [inProtocol readMessageEnd];
-  List_tables_result * result = [[List_tables_result alloc] init];
+  datahubList_tables_result * result = [[datahubList_tables_result alloc] init];
   [result setSuccess: [mService list_tables: [args con] repo_name: [args repo_name]]];
   [outProtocol writeMessageBeginWithName: @"list_tables"
                                     type: TMessageType_REPLY
@@ -7094,10 +5687,10 @@ static double VERSION = 1;
 
 - (void) process_get_schema_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
 {
-  get_schema_args * args = [[get_schema_args alloc] init];
+  datahubget_schema_args * args = [[datahubget_schema_args alloc] init];
   [args read: inProtocol];
   [inProtocol readMessageEnd];
-  Get_schema_result * result = [[Get_schema_result alloc] init];
+  datahubGet_schema_result * result = [[datahubGet_schema_result alloc] init];
   [result setSuccess: [mService get_schema: [args con] table_name: [args table_name]]];
   [outProtocol writeMessageBeginWithName: @"get_schema"
                                     type: TMessageType_REPLY
@@ -7111,10 +5704,10 @@ static double VERSION = 1;
 
 - (void) process_execute_sql_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
 {
-  execute_sql_args * args = [[execute_sql_args alloc] init];
+  datahubexecute_sql_args * args = [[datahubexecute_sql_args alloc] init];
   [args read: inProtocol];
   [inProtocol readMessageEnd];
-  Execute_sql_result * result = [[Execute_sql_result alloc] init];
+  datahubExecute_sql_result * result = [[datahubExecute_sql_result alloc] init];
   [result setSuccess: [mService execute_sql: [args con] query: [args query] query_params: [args query_params]]];
   [outProtocol writeMessageBeginWithName: @"execute_sql"
                                     type: TMessageType_REPLY
@@ -7128,46 +5721,12 @@ static double VERSION = 1;
 
 - (void) process_close_connection_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
 {
-  close_connection_args * args = [[close_connection_args alloc] init];
+  datahubclose_connection_args * args = [[datahubclose_connection_args alloc] init];
   [args read: inProtocol];
   [inProtocol readMessageEnd];
-  Close_connection_result * result = [[Close_connection_result alloc] init];
+  datahubClose_connection_result * result = [[datahubClose_connection_result alloc] init];
   [result setSuccess: [mService close_connection: [args con]]];
   [outProtocol writeMessageBeginWithName: @"close_connection"
-                                    type: TMessageType_REPLY
-                              sequenceID: seqID];
-  [result write: outProtocol];
-  [outProtocol writeMessageEnd];
-  [[outProtocol transport] flush];
-  [result release_stub];
-  [args release_stub];
-}
-
-- (void) process_create_account_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
-{
-  create_account_args * args = [[create_account_args alloc] init];
-  [args read: inProtocol];
-  [inProtocol readMessageEnd];
-  Create_account_result * result = [[Create_account_result alloc] init];
-  [result setSuccess: [mService create_account: [args username] email: [args email] password: [args password] app_id: [args app_id] app_token: [args app_token]]];
-  [outProtocol writeMessageBeginWithName: @"create_account"
-                                    type: TMessageType_REPLY
-                              sequenceID: seqID];
-  [result write: outProtocol];
-  [outProtocol writeMessageEnd];
-  [[outProtocol transport] flush];
-  [result release_stub];
-  [args release_stub];
-}
-
-- (void) process_remove_account_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
-{
-  remove_account_args * args = [[remove_account_args alloc] init];
-  [args read: inProtocol];
-  [inProtocol readMessageEnd];
-  Remove_account_result * result = [[Remove_account_result alloc] init];
-  [result setSuccess: [mService remove_account: [args username] app_id: [args app_id] app_token: [args app_token]]];
-  [outProtocol writeMessageBeginWithName: @"remove_account"
                                     type: TMessageType_REPLY
                               sequenceID: seqID];
   [result write: outProtocol];

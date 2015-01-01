@@ -15,8 +15,9 @@
 #import "TObjective-C.h"
 #import "TBase.h"
 
+#import "types.h"
 
-@interface ConnectionParams : NSObject <TBase, NSCoding> {
+@interface datahubConnectionParams : NSObject <TBase, NSCoding> {
   NSString * __client_id;
   NSString * __seq_id;
   NSString * __user;
@@ -78,7 +79,7 @@
 
 @end
 
-@interface Connection : NSObject <TBase, NSCoding> {
+@interface datahubConnection : NSObject <TBase, NSCoding> {
   NSString * __client_id;
   NSString * __seq_id;
   NSString * __user;
@@ -140,7 +141,7 @@
 
 @end
 
-@interface Tuple : NSObject <TBase, NSCoding> {
+@interface datahubTuple : NSObject <TBase, NSCoding> {
   NSMutableArray * __cells;
 
   BOOL __cells_isset;
@@ -166,9 +167,9 @@
 
 @end
 
-@interface ResultSet : NSObject <TBase, NSCoding> {
+@interface datahubResultSet : NSObject <TBase, NSCoding> {
   BOOL __status;
-  Connection * __con;
+  datahubConnection * __con;
   int64_t __num_tuples;
   int64_t __num_more_tuples;
   NSMutableArray * __tuples;
@@ -186,7 +187,7 @@
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
 @property (nonatomic, getter=status, setter=setStatus:) BOOL status;
-@property (nonatomic, retain, getter=con, setter=setCon:) Connection * con;
+@property (nonatomic, retain, getter=con, setter=setCon:) datahubConnection * con;
 @property (nonatomic, getter=num_tuples, setter=setNum_tuples:) int64_t num_tuples;
 @property (nonatomic, getter=num_more_tuples, setter=setNum_more_tuples:) int64_t num_more_tuples;
 @property (nonatomic, retain, getter=tuples, setter=setTuples:) NSMutableArray * tuples;
@@ -195,7 +196,7 @@
 #endif
 
 - (id) init;
-- (id) initWithStatus: (BOOL) status con: (Connection *) con num_tuples: (int64_t) num_tuples num_more_tuples: (int64_t) num_more_tuples tuples: (NSMutableArray *) tuples field_names: (NSMutableArray *) field_names field_types: (NSMutableArray *) field_types;
+- (id) initWithStatus: (BOOL) status con: (datahubConnection *) con num_tuples: (int64_t) num_tuples num_more_tuples: (int64_t) num_more_tuples tuples: (NSMutableArray *) tuples field_names: (NSMutableArray *) field_names field_types: (NSMutableArray *) field_types;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -209,8 +210,8 @@
 - (BOOL) statusIsSet;
 
 #if !__has_feature(objc_arc)
-- (Connection *) con;
-- (void) setCon: (Connection *) con;
+- (datahubConnection *) con;
+- (void) setCon: (datahubConnection *) con;
 #endif
 - (BOOL) conIsSet;
 
@@ -246,7 +247,7 @@
 
 @end
 
-@interface DBException : NSException <TBase, NSCoding> {
+@interface datahubDBException : NSException <TBase, NSCoding> {
   int32_t __error_code;
   NSString * __message;
   NSString * __details;
@@ -290,65 +291,19 @@
 
 @end
 
-@interface AccountException : NSException <TBase, NSCoding> {
-  int32_t __error_code;
-  NSString * __message;
-  NSString * __details;
-
-  BOOL __error_code_isset;
-  BOOL __message_isset;
-  BOOL __details_isset;
-}
-
-#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, getter=error_code, setter=setError_code:) int32_t error_code;
-@property (nonatomic, retain, getter=message, setter=setMessage:) NSString * message;
-@property (nonatomic, retain, getter=details, setter=setDetails:) NSString * details;
-#endif
-
-- (id) init;
-- (id) initWithError_code: (int32_t) error_code message: (NSString *) message details: (NSString *) details;
-
-- (void) read: (id <TProtocol>) inProtocol;
-- (void) write: (id <TProtocol>) outProtocol;
-
-- (void) validate;
-
-#if !__has_feature(objc_arc)
-- (int32_t) error_code;
-- (void) setError_code: (int32_t) error_code;
-#endif
-- (BOOL) error_codeIsSet;
-
-#if !__has_feature(objc_arc)
-- (NSString *) message;
-- (void) setMessage: (NSString *) message;
-#endif
-- (BOOL) messageIsSet;
-
-#if !__has_feature(objc_arc)
-- (NSString *) details;
-- (void) setDetails: (NSString *) details;
-#endif
-- (BOOL) detailsIsSet;
-
-@end
-
-@protocol DataHub <NSObject>
+@protocol datahubDataHub <NSObject>
 - (double) get_version;  // throws TException
-- (Connection *) open_connection: (ConnectionParams *) con_params;  // throws DBException *, TException
-- (ResultSet *) create_repo: (Connection *) con repo_name: (NSString *) repo_name;  // throws DBException *, TException
-- (ResultSet *) list_repos: (Connection *) con;  // throws DBException *, TException
-- (ResultSet *) delete_repo: (Connection *) con repo_name: (NSString *) repo_name force_if_non_empty: (BOOL) force_if_non_empty;  // throws DBException *, TException
-- (ResultSet *) list_tables: (Connection *) con repo_name: (NSString *) repo_name;  // throws DBException *, TException
-- (ResultSet *) get_schema: (Connection *) con table_name: (NSString *) table_name;  // throws DBException *, TException
-- (ResultSet *) execute_sql: (Connection *) con query: (NSString *) query query_params: (NSMutableArray *) query_params;  // throws DBException *, TException
-- (BOOL) close_connection: (Connection *) con;  // throws DBException *, TException
-- (BOOL) create_account: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token;  // throws AccountException *, TException
-- (BOOL) remove_account: (NSString *) username app_id: (NSString *) app_id app_token: (NSString *) app_token;  // throws AccountException *, TException
+- (datahubConnection *) open_connection: (datahubConnectionParams *) con_params;  // throws datahubDBException *, TException
+- (datahubResultSet *) create_repo: (datahubConnection *) con repo_name: (NSString *) repo_name;  // throws datahubDBException *, TException
+- (datahubResultSet *) list_repos: (datahubConnection *) con;  // throws datahubDBException *, TException
+- (datahubResultSet *) delete_repo: (datahubConnection *) con repo_name: (NSString *) repo_name force_if_non_empty: (BOOL) force_if_non_empty;  // throws datahubDBException *, TException
+- (datahubResultSet *) list_tables: (datahubConnection *) con repo_name: (NSString *) repo_name;  // throws datahubDBException *, TException
+- (datahubResultSet *) get_schema: (datahubConnection *) con table_name: (NSString *) table_name;  // throws datahubDBException *, TException
+- (datahubResultSet *) execute_sql: (datahubConnection *) con query: (NSString *) query query_params: (NSMutableArray *) query_params;  // throws datahubDBException *, TException
+- (BOOL) close_connection: (datahubConnection *) con;  // throws datahubDBException *, TException
 @end
 
-@interface DataHubClient : NSObject <DataHub> {
+@interface datahubDataHubClient : NSObject <datahubDataHub> {
   id <TProtocol> inProtocol;
   id <TProtocol> outProtocol;
 }
@@ -356,15 +311,14 @@
 - (id) initWithInProtocol: (id <TProtocol>) inProtocol outProtocol: (id <TProtocol>) outProtocol;
 @end
 
-@interface DataHubProcessor : NSObject <TProcessor> {
-  id <DataHub> mService;
+@interface datahubDataHubProcessor : NSObject <TProcessor> {
+  id <datahubDataHub> mService;
   NSDictionary * mMethodMap;
 }
-- (id) initWithDataHub: (id <DataHub>) service;
-- (id<DataHub>) service;
+- (id) initWithDataHub: (id <datahubDataHub>) service;
+- (id<datahubDataHub>) service;
 @end
 
-@interface datahubConstants : NSObject {
+@interface datahubdatahubConstants : NSObject {
 }
-+ (double) VERSION;
 @end
