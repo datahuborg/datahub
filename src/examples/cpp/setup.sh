@@ -6,5 +6,4 @@ rm -rf $abspath/bin
 rm -rf $abspath/gen-cpp
 
 thrift --gen cpp -o $abspath $basepath/thrift/datahub.thrift
-
-make
+thrift --gen cpp -o $abspath $basepath/thrift/account.thrift
