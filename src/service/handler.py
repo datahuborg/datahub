@@ -99,9 +99,17 @@ class DataHubHandler:
     except Exception, e:
       raise DBException(message=str(e))
 
-  def create_user (self, username, email, password, app_id=None, app_token=None):
+  def create_account(
+      self, username, email, password, app_id=None, app_token=None):
     try:
-      register_user(username, email, password)
+      account_register(username, email, password)
+      return True
+    except Exception, e:
+      raise AccountException(message=str(e))
+
+  def remove_account(self, username, app_id=None, app_token=None):
+    try:
+      account_remove(username)
       return True
     except Exception, e:
       raise AccountException(message=str(e))
