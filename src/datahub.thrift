@@ -100,10 +100,15 @@ service DataHub {
   bool close_connection (1: Connection con)
       throws (1: DBException ex)
 
-  bool create_user (
+  bool create_account (
       1: string username,
       2: string email,
       3: string password,
       4: string app_id,
       5: string app_token) throws (1: AccountException ex)
+
+  bool remove_account (
+      1: string username,
+      2: string app_id,
+      3: string app_token) throws (1: AccountException ex)
 }
