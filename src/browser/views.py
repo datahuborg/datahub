@@ -22,8 +22,8 @@ from thrift.transport.TTransport import TMemoryBuffer
 
 from account.auth import *
 from core.db.manager import DataHubManager
-from core.handler import DataHubHandler
 from datahub import DataHub
+from service.handler import DataHubHandler
 from utils import *
 
 '''

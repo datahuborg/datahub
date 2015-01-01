@@ -14,13 +14,13 @@ namespace perl datahub
 namespace py datahub
 namespace rb datahub
 
-/* DataHub constants */
+/* DataHub Global Constants */
 
 // version info
 const double VERSION = 1.0
 
 
-/* Database Connection */
+/* DataHub Core */
 
 // connection parameters
 struct ConnectionParams {
@@ -40,9 +40,6 @@ struct Connection {
   5: optional i64 cursor
 }
 
-
-/* ResultSet */
-
 // a tuple
 struct Tuple {
   1: optional list <binary> cells
@@ -59,19 +56,14 @@ struct ResultSet {
   7: optional list <string> field_types
 }
 
-
-/* DataHub Exceptions */
-
-// generic exception
+// any exception from the DataHub core is wrapped as DBException
 exception DBException {
   1: optional i32 error_code,
   2: optional string message,
   3: optional string details
 }
 
-
-/* DataHub service APIs */
-
+// service APIs
 service DataHub {
   double get_version()
 
@@ -100,4 +92,23 @@ service DataHub {
 
   bool close_connection (1: Connection con)
       throws (1: DBException ex)
+}
+
+
+/* DataHub Account */
+
+// exception
+exception AccountException {
+  1: optional i32 error_code,
+  2: optional string message,
+  3: optional string details
+}
+
+service Account {
+  bool create_user (
+      1: string username,
+      2: string email,
+      3: string password,
+      4: string app_id,
+      5: string app_token) throws (1: AccountException ex)
 }

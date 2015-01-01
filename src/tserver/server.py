@@ -1,6 +1,6 @@
 #!/usr/bin/python
-from core.handler import DataHubHandler
 from datahub import DataHub
+from service.handler import DataHubHandler
 
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
@@ -11,7 +11,7 @@ from thrift.transport import TTransport
 @author: anant bhardwaj
 @date: Oct 9, 2013
 
-DataHub Server
+DataHub Server (TCP Mode)
 '''
 
 handler = DataHubHandler()
