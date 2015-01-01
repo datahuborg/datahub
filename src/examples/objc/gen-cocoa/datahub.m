@@ -1476,6 +1476,220 @@
 
 @end
 
+@implementation AccountException
+
+- (id) init
+{
+  return [super initWithName: @"AccountException" reason: @"unknown" userInfo: nil];
+}
+
+- (id) initWithError_code: (int32_t) error_code message: (NSString *) message details: (NSString *) details
+{
+  self = [self init];
+  __error_code = error_code;
+  __error_code_isset = YES;
+  __message = [message retain_stub];
+  __message_isset = YES;
+  __details = [details retain_stub];
+  __details_isset = YES;
+  return self;
+}
+
+- (id) initWithCoder: (NSCoder *) decoder
+{
+  self = [super initWithCoder: decoder];
+  if ([decoder containsValueForKey: @"error_code"])
+  {
+    __error_code = [decoder decodeInt32ForKey: @"error_code"];
+    __error_code_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"message"])
+  {
+    __message = [[decoder decodeObjectForKey: @"message"] retain_stub];
+    __message_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"details"])
+  {
+    __details = [[decoder decodeObjectForKey: @"details"] retain_stub];
+    __details_isset = YES;
+  }
+  return self;
+}
+
+- (void) encodeWithCoder: (NSCoder *) encoder
+{
+  [super encodeWithCoder: encoder];
+  if (__error_code_isset)
+  {
+    [encoder encodeInt32: __error_code forKey: @"error_code"];
+  }
+  if (__message_isset)
+  {
+    [encoder encodeObject: __message forKey: @"message"];
+  }
+  if (__details_isset)
+  {
+    [encoder encodeObject: __details forKey: @"details"];
+  }
+}
+
+- (void) dealloc
+{
+  [__message release_stub];
+  [__details release_stub];
+  [super dealloc_stub];
+}
+
+- (int32_t) error_code {
+  return __error_code;
+}
+
+- (void) setError_code: (int32_t) error_code {
+  __error_code = error_code;
+  __error_code_isset = YES;
+}
+
+- (BOOL) error_codeIsSet {
+  return __error_code_isset;
+}
+
+- (void) unsetError_code {
+  __error_code_isset = NO;
+}
+
+- (NSString *) message {
+  return [[__message retain_stub] autorelease_stub];
+}
+
+- (void) setMessage: (NSString *) message {
+  [message retain_stub];
+  [__message release_stub];
+  __message = message;
+  __message_isset = YES;
+}
+
+- (BOOL) messageIsSet {
+  return __message_isset;
+}
+
+- (void) unsetMessage {
+  [__message release_stub];
+  __message = nil;
+  __message_isset = NO;
+}
+
+- (NSString *) details {
+  return [[__details retain_stub] autorelease_stub];
+}
+
+- (void) setDetails: (NSString *) details {
+  [details retain_stub];
+  [__details release_stub];
+  __details = details;
+  __details_isset = YES;
+}
+
+- (BOOL) detailsIsSet {
+  return __details_isset;
+}
+
+- (void) unsetDetails {
+  [__details release_stub];
+  __details = nil;
+  __details_isset = NO;
+}
+
+- (void) read: (id <TProtocol>) inProtocol
+{
+  NSString * fieldName;
+  int fieldType;
+  int fieldID;
+
+  [inProtocol readStructBeginReturningName: NULL];
+  while (true)
+  {
+    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
+    if (fieldType == TType_STOP) { 
+      break;
+    }
+    switch (fieldID)
+    {
+      case 1:
+        if (fieldType == TType_I32) {
+          int32_t fieldValue = [inProtocol readI32];
+          [self setError_code: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 2:
+        if (fieldType == TType_STRING) {
+          NSString * fieldValue = [inProtocol readString];
+          [self setMessage: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 3:
+        if (fieldType == TType_STRING) {
+          NSString * fieldValue = [inProtocol readString];
+          [self setDetails: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      default:
+        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        break;
+    }
+    [inProtocol readFieldEnd];
+  }
+  [inProtocol readStructEnd];
+}
+
+- (void) write: (id <TProtocol>) outProtocol {
+  [outProtocol writeStructBeginWithName: @"AccountException"];
+  if (__error_code_isset) {
+    [outProtocol writeFieldBeginWithName: @"error_code" type: TType_I32 fieldID: 1];
+    [outProtocol writeI32: __error_code];
+    [outProtocol writeFieldEnd];
+  }
+  if (__message_isset) {
+    if (__message != nil) {
+      [outProtocol writeFieldBeginWithName: @"message" type: TType_STRING fieldID: 2];
+      [outProtocol writeString: __message];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__details_isset) {
+    if (__details != nil) {
+      [outProtocol writeFieldBeginWithName: @"details" type: TType_STRING fieldID: 3];
+      [outProtocol writeString: __details];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+}
+
+- (void) validate {
+  // check for required fields
+}
+
+- (NSString *) description {
+  NSMutableString * ms = [NSMutableString stringWithString: @"AccountException("];
+  [ms appendString: @"error_code:"];
+  [ms appendFormat: @"%i", __error_code];
+  [ms appendString: @",message:"];
+  [ms appendFormat: @"\"%@\"", __message];
+  [ms appendString: @",details:"];
+  [ms appendFormat: @"\"%@\"", __details];
+  [ms appendString: @")"];
+  return [NSString stringWithString: ms];
+}
+
+@end
+
 static double VERSION = 1;
 
 @implementation datahubConstants
@@ -5020,6 +5234,1064 @@ static double VERSION = 1;
 
 @end
 
+@interface create_account_args : NSObject <TBase, NSCoding> {
+  NSString * __username;
+  NSString * __email;
+  NSString * __password;
+  NSString * __app_id;
+  NSString * __app_token;
+
+  BOOL __username_isset;
+  BOOL __email_isset;
+  BOOL __password_isset;
+  BOOL __app_id_isset;
+  BOOL __app_token_isset;
+}
+
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+@property (nonatomic, retain, getter=username, setter=setUsername:) NSString * username;
+@property (nonatomic, retain, getter=email, setter=setEmail:) NSString * email;
+@property (nonatomic, retain, getter=password, setter=setPassword:) NSString * password;
+@property (nonatomic, retain, getter=app_id, setter=setApp_id:) NSString * app_id;
+@property (nonatomic, retain, getter=app_token, setter=setApp_token:) NSString * app_token;
+#endif
+
+- (id) init;
+- (id) initWithUsername: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token;
+
+- (void) read: (id <TProtocol>) inProtocol;
+- (void) write: (id <TProtocol>) outProtocol;
+
+- (void) validate;
+
+#if !__has_feature(objc_arc)
+- (NSString *) username;
+- (void) setUsername: (NSString *) username;
+#endif
+- (BOOL) usernameIsSet;
+
+#if !__has_feature(objc_arc)
+- (NSString *) email;
+- (void) setEmail: (NSString *) email;
+#endif
+- (BOOL) emailIsSet;
+
+#if !__has_feature(objc_arc)
+- (NSString *) password;
+- (void) setPassword: (NSString *) password;
+#endif
+- (BOOL) passwordIsSet;
+
+#if !__has_feature(objc_arc)
+- (NSString *) app_id;
+- (void) setApp_id: (NSString *) app_id;
+#endif
+- (BOOL) app_idIsSet;
+
+#if !__has_feature(objc_arc)
+- (NSString *) app_token;
+- (void) setApp_token: (NSString *) app_token;
+#endif
+- (BOOL) app_tokenIsSet;
+
+@end
+
+@implementation create_account_args
+
+- (id) init
+{
+  self = [super init];
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+#endif
+  return self;
+}
+
+- (id) initWithUsername: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token
+{
+  self = [super init];
+  __username = [username retain_stub];
+  __username_isset = YES;
+  __email = [email retain_stub];
+  __email_isset = YES;
+  __password = [password retain_stub];
+  __password_isset = YES;
+  __app_id = [app_id retain_stub];
+  __app_id_isset = YES;
+  __app_token = [app_token retain_stub];
+  __app_token_isset = YES;
+  return self;
+}
+
+- (id) initWithCoder: (NSCoder *) decoder
+{
+  self = [super init];
+  if ([decoder containsValueForKey: @"username"])
+  {
+    __username = [[decoder decodeObjectForKey: @"username"] retain_stub];
+    __username_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"email"])
+  {
+    __email = [[decoder decodeObjectForKey: @"email"] retain_stub];
+    __email_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"password"])
+  {
+    __password = [[decoder decodeObjectForKey: @"password"] retain_stub];
+    __password_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"app_id"])
+  {
+    __app_id = [[decoder decodeObjectForKey: @"app_id"] retain_stub];
+    __app_id_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"app_token"])
+  {
+    __app_token = [[decoder decodeObjectForKey: @"app_token"] retain_stub];
+    __app_token_isset = YES;
+  }
+  return self;
+}
+
+- (void) encodeWithCoder: (NSCoder *) encoder
+{
+  if (__username_isset)
+  {
+    [encoder encodeObject: __username forKey: @"username"];
+  }
+  if (__email_isset)
+  {
+    [encoder encodeObject: __email forKey: @"email"];
+  }
+  if (__password_isset)
+  {
+    [encoder encodeObject: __password forKey: @"password"];
+  }
+  if (__app_id_isset)
+  {
+    [encoder encodeObject: __app_id forKey: @"app_id"];
+  }
+  if (__app_token_isset)
+  {
+    [encoder encodeObject: __app_token forKey: @"app_token"];
+  }
+}
+
+- (void) dealloc
+{
+  [__username release_stub];
+  [__email release_stub];
+  [__password release_stub];
+  [__app_id release_stub];
+  [__app_token release_stub];
+  [super dealloc_stub];
+}
+
+- (NSString *) username {
+  return [[__username retain_stub] autorelease_stub];
+}
+
+- (void) setUsername: (NSString *) username {
+  [username retain_stub];
+  [__username release_stub];
+  __username = username;
+  __username_isset = YES;
+}
+
+- (BOOL) usernameIsSet {
+  return __username_isset;
+}
+
+- (void) unsetUsername {
+  [__username release_stub];
+  __username = nil;
+  __username_isset = NO;
+}
+
+- (NSString *) email {
+  return [[__email retain_stub] autorelease_stub];
+}
+
+- (void) setEmail: (NSString *) email {
+  [email retain_stub];
+  [__email release_stub];
+  __email = email;
+  __email_isset = YES;
+}
+
+- (BOOL) emailIsSet {
+  return __email_isset;
+}
+
+- (void) unsetEmail {
+  [__email release_stub];
+  __email = nil;
+  __email_isset = NO;
+}
+
+- (NSString *) password {
+  return [[__password retain_stub] autorelease_stub];
+}
+
+- (void) setPassword: (NSString *) password {
+  [password retain_stub];
+  [__password release_stub];
+  __password = password;
+  __password_isset = YES;
+}
+
+- (BOOL) passwordIsSet {
+  return __password_isset;
+}
+
+- (void) unsetPassword {
+  [__password release_stub];
+  __password = nil;
+  __password_isset = NO;
+}
+
+- (NSString *) app_id {
+  return [[__app_id retain_stub] autorelease_stub];
+}
+
+- (void) setApp_id: (NSString *) app_id {
+  [app_id retain_stub];
+  [__app_id release_stub];
+  __app_id = app_id;
+  __app_id_isset = YES;
+}
+
+- (BOOL) app_idIsSet {
+  return __app_id_isset;
+}
+
+- (void) unsetApp_id {
+  [__app_id release_stub];
+  __app_id = nil;
+  __app_id_isset = NO;
+}
+
+- (NSString *) app_token {
+  return [[__app_token retain_stub] autorelease_stub];
+}
+
+- (void) setApp_token: (NSString *) app_token {
+  [app_token retain_stub];
+  [__app_token release_stub];
+  __app_token = app_token;
+  __app_token_isset = YES;
+}
+
+- (BOOL) app_tokenIsSet {
+  return __app_token_isset;
+}
+
+- (void) unsetApp_token {
+  [__app_token release_stub];
+  __app_token = nil;
+  __app_token_isset = NO;
+}
+
+- (void) read: (id <TProtocol>) inProtocol
+{
+  NSString * fieldName;
+  int fieldType;
+  int fieldID;
+
+  [inProtocol readStructBeginReturningName: NULL];
+  while (true)
+  {
+    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
+    if (fieldType == TType_STOP) { 
+      break;
+    }
+    switch (fieldID)
+    {
+      case 1:
+        if (fieldType == TType_STRING) {
+          NSString * fieldValue = [inProtocol readString];
+          [self setUsername: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 2:
+        if (fieldType == TType_STRING) {
+          NSString * fieldValue = [inProtocol readString];
+          [self setEmail: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 3:
+        if (fieldType == TType_STRING) {
+          NSString * fieldValue = [inProtocol readString];
+          [self setPassword: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 4:
+        if (fieldType == TType_STRING) {
+          NSString * fieldValue = [inProtocol readString];
+          [self setApp_id: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 5:
+        if (fieldType == TType_STRING) {
+          NSString * fieldValue = [inProtocol readString];
+          [self setApp_token: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      default:
+        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        break;
+    }
+    [inProtocol readFieldEnd];
+  }
+  [inProtocol readStructEnd];
+}
+
+- (void) write: (id <TProtocol>) outProtocol {
+  [outProtocol writeStructBeginWithName: @"create_account_args"];
+  if (__username_isset) {
+    if (__username != nil) {
+      [outProtocol writeFieldBeginWithName: @"username" type: TType_STRING fieldID: 1];
+      [outProtocol writeString: __username];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__email_isset) {
+    if (__email != nil) {
+      [outProtocol writeFieldBeginWithName: @"email" type: TType_STRING fieldID: 2];
+      [outProtocol writeString: __email];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__password_isset) {
+    if (__password != nil) {
+      [outProtocol writeFieldBeginWithName: @"password" type: TType_STRING fieldID: 3];
+      [outProtocol writeString: __password];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__app_id_isset) {
+    if (__app_id != nil) {
+      [outProtocol writeFieldBeginWithName: @"app_id" type: TType_STRING fieldID: 4];
+      [outProtocol writeString: __app_id];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__app_token_isset) {
+    if (__app_token != nil) {
+      [outProtocol writeFieldBeginWithName: @"app_token" type: TType_STRING fieldID: 5];
+      [outProtocol writeString: __app_token];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+}
+
+- (void) validate {
+  // check for required fields
+}
+
+- (NSString *) description {
+  NSMutableString * ms = [NSMutableString stringWithString: @"create_account_args("];
+  [ms appendString: @"username:"];
+  [ms appendFormat: @"\"%@\"", __username];
+  [ms appendString: @",email:"];
+  [ms appendFormat: @"\"%@\"", __email];
+  [ms appendString: @",password:"];
+  [ms appendFormat: @"\"%@\"", __password];
+  [ms appendString: @",app_id:"];
+  [ms appendFormat: @"\"%@\"", __app_id];
+  [ms appendString: @",app_token:"];
+  [ms appendFormat: @"\"%@\"", __app_token];
+  [ms appendString: @")"];
+  return [NSString stringWithString: ms];
+}
+
+@end
+
+@interface Create_account_result : NSObject <TBase, NSCoding> {
+  BOOL __success;
+  AccountException * __ex;
+
+  BOOL __success_isset;
+  BOOL __ex_isset;
+}
+
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+@property (nonatomic, getter=success, setter=setSuccess:) BOOL success;
+@property (nonatomic, retain, getter=ex, setter=setEx:) AccountException * ex;
+#endif
+
+- (id) init;
+- (id) initWithSuccess: (BOOL) success ex: (AccountException *) ex;
+
+- (void) read: (id <TProtocol>) inProtocol;
+- (void) write: (id <TProtocol>) outProtocol;
+
+- (void) validate;
+
+#if !__has_feature(objc_arc)
+- (BOOL) success;
+- (void) setSuccess: (BOOL) success;
+#endif
+- (BOOL) successIsSet;
+
+#if !__has_feature(objc_arc)
+- (AccountException *) ex;
+- (void) setEx: (AccountException *) ex;
+#endif
+- (BOOL) exIsSet;
+
+@end
+
+@implementation Create_account_result
+
+- (id) init
+{
+  self = [super init];
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+#endif
+  return self;
+}
+
+- (id) initWithSuccess: (BOOL) success ex: (AccountException *) ex
+{
+  self = [super init];
+  __success = success;
+  __success_isset = YES;
+  __ex = [ex retain_stub];
+  __ex_isset = YES;
+  return self;
+}
+
+- (id) initWithCoder: (NSCoder *) decoder
+{
+  self = [super init];
+  if ([decoder containsValueForKey: @"success"])
+  {
+    __success = [decoder decodeBoolForKey: @"success"];
+    __success_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"ex"])
+  {
+    __ex = [[decoder decodeObjectForKey: @"ex"] retain_stub];
+    __ex_isset = YES;
+  }
+  return self;
+}
+
+- (void) encodeWithCoder: (NSCoder *) encoder
+{
+  if (__success_isset)
+  {
+    [encoder encodeBool: __success forKey: @"success"];
+  }
+  if (__ex_isset)
+  {
+    [encoder encodeObject: __ex forKey: @"ex"];
+  }
+}
+
+- (void) dealloc
+{
+  [__ex release_stub];
+  [super dealloc_stub];
+}
+
+- (BOOL) success {
+  return __success;
+}
+
+- (void) setSuccess: (BOOL) success {
+  __success = success;
+  __success_isset = YES;
+}
+
+- (BOOL) successIsSet {
+  return __success_isset;
+}
+
+- (void) unsetSuccess {
+  __success_isset = NO;
+}
+
+- (AccountException *) ex {
+  return [[__ex retain_stub] autorelease_stub];
+}
+
+- (void) setEx: (AccountException *) ex {
+  [ex retain_stub];
+  [__ex release_stub];
+  __ex = ex;
+  __ex_isset = YES;
+}
+
+- (BOOL) exIsSet {
+  return __ex_isset;
+}
+
+- (void) unsetEx {
+  [__ex release_stub];
+  __ex = nil;
+  __ex_isset = NO;
+}
+
+- (void) read: (id <TProtocol>) inProtocol
+{
+  NSString * fieldName;
+  int fieldType;
+  int fieldID;
+
+  [inProtocol readStructBeginReturningName: NULL];
+  while (true)
+  {
+    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
+    if (fieldType == TType_STOP) { 
+      break;
+    }
+    switch (fieldID)
+    {
+      case 0:
+        if (fieldType == TType_BOOL) {
+          BOOL fieldValue = [inProtocol readBool];
+          [self setSuccess: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 1:
+        if (fieldType == TType_STRUCT) {
+          AccountException *fieldValue = [[AccountException alloc] init];
+          [fieldValue read: inProtocol];
+          [self setEx: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      default:
+        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        break;
+    }
+    [inProtocol readFieldEnd];
+  }
+  [inProtocol readStructEnd];
+}
+
+- (void) write: (id <TProtocol>) outProtocol {
+  [outProtocol writeStructBeginWithName: @"Create_account_result"];
+
+  if (__success_isset) {
+    [outProtocol writeFieldBeginWithName: @"success" type: TType_BOOL fieldID: 0];
+    [outProtocol writeBool: __success];
+    [outProtocol writeFieldEnd];
+  } else if (__ex_isset) {
+    if (__ex != nil) {
+      [outProtocol writeFieldBeginWithName: @"ex" type: TType_STRUCT fieldID: 1];
+      [__ex write: outProtocol];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+}
+
+- (void) validate {
+  // check for required fields
+}
+
+- (NSString *) description {
+  NSMutableString * ms = [NSMutableString stringWithString: @"Create_account_result("];
+  [ms appendString: @"success:"];
+  [ms appendFormat: @"%i", __success];
+  [ms appendString: @",ex:"];
+  [ms appendFormat: @"%@", __ex];
+  [ms appendString: @")"];
+  return [NSString stringWithString: ms];
+}
+
+@end
+
+@interface remove_account_args : NSObject <TBase, NSCoding> {
+  NSString * __username;
+  NSString * __app_id;
+  NSString * __app_token;
+
+  BOOL __username_isset;
+  BOOL __app_id_isset;
+  BOOL __app_token_isset;
+}
+
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+@property (nonatomic, retain, getter=username, setter=setUsername:) NSString * username;
+@property (nonatomic, retain, getter=app_id, setter=setApp_id:) NSString * app_id;
+@property (nonatomic, retain, getter=app_token, setter=setApp_token:) NSString * app_token;
+#endif
+
+- (id) init;
+- (id) initWithUsername: (NSString *) username app_id: (NSString *) app_id app_token: (NSString *) app_token;
+
+- (void) read: (id <TProtocol>) inProtocol;
+- (void) write: (id <TProtocol>) outProtocol;
+
+- (void) validate;
+
+#if !__has_feature(objc_arc)
+- (NSString *) username;
+- (void) setUsername: (NSString *) username;
+#endif
+- (BOOL) usernameIsSet;
+
+#if !__has_feature(objc_arc)
+- (NSString *) app_id;
+- (void) setApp_id: (NSString *) app_id;
+#endif
+- (BOOL) app_idIsSet;
+
+#if !__has_feature(objc_arc)
+- (NSString *) app_token;
+- (void) setApp_token: (NSString *) app_token;
+#endif
+- (BOOL) app_tokenIsSet;
+
+@end
+
+@implementation remove_account_args
+
+- (id) init
+{
+  self = [super init];
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+#endif
+  return self;
+}
+
+- (id) initWithUsername: (NSString *) username app_id: (NSString *) app_id app_token: (NSString *) app_token
+{
+  self = [super init];
+  __username = [username retain_stub];
+  __username_isset = YES;
+  __app_id = [app_id retain_stub];
+  __app_id_isset = YES;
+  __app_token = [app_token retain_stub];
+  __app_token_isset = YES;
+  return self;
+}
+
+- (id) initWithCoder: (NSCoder *) decoder
+{
+  self = [super init];
+  if ([decoder containsValueForKey: @"username"])
+  {
+    __username = [[decoder decodeObjectForKey: @"username"] retain_stub];
+    __username_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"app_id"])
+  {
+    __app_id = [[decoder decodeObjectForKey: @"app_id"] retain_stub];
+    __app_id_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"app_token"])
+  {
+    __app_token = [[decoder decodeObjectForKey: @"app_token"] retain_stub];
+    __app_token_isset = YES;
+  }
+  return self;
+}
+
+- (void) encodeWithCoder: (NSCoder *) encoder
+{
+  if (__username_isset)
+  {
+    [encoder encodeObject: __username forKey: @"username"];
+  }
+  if (__app_id_isset)
+  {
+    [encoder encodeObject: __app_id forKey: @"app_id"];
+  }
+  if (__app_token_isset)
+  {
+    [encoder encodeObject: __app_token forKey: @"app_token"];
+  }
+}
+
+- (void) dealloc
+{
+  [__username release_stub];
+  [__app_id release_stub];
+  [__app_token release_stub];
+  [super dealloc_stub];
+}
+
+- (NSString *) username {
+  return [[__username retain_stub] autorelease_stub];
+}
+
+- (void) setUsername: (NSString *) username {
+  [username retain_stub];
+  [__username release_stub];
+  __username = username;
+  __username_isset = YES;
+}
+
+- (BOOL) usernameIsSet {
+  return __username_isset;
+}
+
+- (void) unsetUsername {
+  [__username release_stub];
+  __username = nil;
+  __username_isset = NO;
+}
+
+- (NSString *) app_id {
+  return [[__app_id retain_stub] autorelease_stub];
+}
+
+- (void) setApp_id: (NSString *) app_id {
+  [app_id retain_stub];
+  [__app_id release_stub];
+  __app_id = app_id;
+  __app_id_isset = YES;
+}
+
+- (BOOL) app_idIsSet {
+  return __app_id_isset;
+}
+
+- (void) unsetApp_id {
+  [__app_id release_stub];
+  __app_id = nil;
+  __app_id_isset = NO;
+}
+
+- (NSString *) app_token {
+  return [[__app_token retain_stub] autorelease_stub];
+}
+
+- (void) setApp_token: (NSString *) app_token {
+  [app_token retain_stub];
+  [__app_token release_stub];
+  __app_token = app_token;
+  __app_token_isset = YES;
+}
+
+- (BOOL) app_tokenIsSet {
+  return __app_token_isset;
+}
+
+- (void) unsetApp_token {
+  [__app_token release_stub];
+  __app_token = nil;
+  __app_token_isset = NO;
+}
+
+- (void) read: (id <TProtocol>) inProtocol
+{
+  NSString * fieldName;
+  int fieldType;
+  int fieldID;
+
+  [inProtocol readStructBeginReturningName: NULL];
+  while (true)
+  {
+    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
+    if (fieldType == TType_STOP) { 
+      break;
+    }
+    switch (fieldID)
+    {
+      case 1:
+        if (fieldType == TType_STRING) {
+          NSString * fieldValue = [inProtocol readString];
+          [self setUsername: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 2:
+        if (fieldType == TType_STRING) {
+          NSString * fieldValue = [inProtocol readString];
+          [self setApp_id: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 3:
+        if (fieldType == TType_STRING) {
+          NSString * fieldValue = [inProtocol readString];
+          [self setApp_token: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      default:
+        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        break;
+    }
+    [inProtocol readFieldEnd];
+  }
+  [inProtocol readStructEnd];
+}
+
+- (void) write: (id <TProtocol>) outProtocol {
+  [outProtocol writeStructBeginWithName: @"remove_account_args"];
+  if (__username_isset) {
+    if (__username != nil) {
+      [outProtocol writeFieldBeginWithName: @"username" type: TType_STRING fieldID: 1];
+      [outProtocol writeString: __username];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__app_id_isset) {
+    if (__app_id != nil) {
+      [outProtocol writeFieldBeginWithName: @"app_id" type: TType_STRING fieldID: 2];
+      [outProtocol writeString: __app_id];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__app_token_isset) {
+    if (__app_token != nil) {
+      [outProtocol writeFieldBeginWithName: @"app_token" type: TType_STRING fieldID: 3];
+      [outProtocol writeString: __app_token];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+}
+
+- (void) validate {
+  // check for required fields
+}
+
+- (NSString *) description {
+  NSMutableString * ms = [NSMutableString stringWithString: @"remove_account_args("];
+  [ms appendString: @"username:"];
+  [ms appendFormat: @"\"%@\"", __username];
+  [ms appendString: @",app_id:"];
+  [ms appendFormat: @"\"%@\"", __app_id];
+  [ms appendString: @",app_token:"];
+  [ms appendFormat: @"\"%@\"", __app_token];
+  [ms appendString: @")"];
+  return [NSString stringWithString: ms];
+}
+
+@end
+
+@interface Remove_account_result : NSObject <TBase, NSCoding> {
+  BOOL __success;
+  AccountException * __ex;
+
+  BOOL __success_isset;
+  BOOL __ex_isset;
+}
+
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+@property (nonatomic, getter=success, setter=setSuccess:) BOOL success;
+@property (nonatomic, retain, getter=ex, setter=setEx:) AccountException * ex;
+#endif
+
+- (id) init;
+- (id) initWithSuccess: (BOOL) success ex: (AccountException *) ex;
+
+- (void) read: (id <TProtocol>) inProtocol;
+- (void) write: (id <TProtocol>) outProtocol;
+
+- (void) validate;
+
+#if !__has_feature(objc_arc)
+- (BOOL) success;
+- (void) setSuccess: (BOOL) success;
+#endif
+- (BOOL) successIsSet;
+
+#if !__has_feature(objc_arc)
+- (AccountException *) ex;
+- (void) setEx: (AccountException *) ex;
+#endif
+- (BOOL) exIsSet;
+
+@end
+
+@implementation Remove_account_result
+
+- (id) init
+{
+  self = [super init];
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+#endif
+  return self;
+}
+
+- (id) initWithSuccess: (BOOL) success ex: (AccountException *) ex
+{
+  self = [super init];
+  __success = success;
+  __success_isset = YES;
+  __ex = [ex retain_stub];
+  __ex_isset = YES;
+  return self;
+}
+
+- (id) initWithCoder: (NSCoder *) decoder
+{
+  self = [super init];
+  if ([decoder containsValueForKey: @"success"])
+  {
+    __success = [decoder decodeBoolForKey: @"success"];
+    __success_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"ex"])
+  {
+    __ex = [[decoder decodeObjectForKey: @"ex"] retain_stub];
+    __ex_isset = YES;
+  }
+  return self;
+}
+
+- (void) encodeWithCoder: (NSCoder *) encoder
+{
+  if (__success_isset)
+  {
+    [encoder encodeBool: __success forKey: @"success"];
+  }
+  if (__ex_isset)
+  {
+    [encoder encodeObject: __ex forKey: @"ex"];
+  }
+}
+
+- (void) dealloc
+{
+  [__ex release_stub];
+  [super dealloc_stub];
+}
+
+- (BOOL) success {
+  return __success;
+}
+
+- (void) setSuccess: (BOOL) success {
+  __success = success;
+  __success_isset = YES;
+}
+
+- (BOOL) successIsSet {
+  return __success_isset;
+}
+
+- (void) unsetSuccess {
+  __success_isset = NO;
+}
+
+- (AccountException *) ex {
+  return [[__ex retain_stub] autorelease_stub];
+}
+
+- (void) setEx: (AccountException *) ex {
+  [ex retain_stub];
+  [__ex release_stub];
+  __ex = ex;
+  __ex_isset = YES;
+}
+
+- (BOOL) exIsSet {
+  return __ex_isset;
+}
+
+- (void) unsetEx {
+  [__ex release_stub];
+  __ex = nil;
+  __ex_isset = NO;
+}
+
+- (void) read: (id <TProtocol>) inProtocol
+{
+  NSString * fieldName;
+  int fieldType;
+  int fieldID;
+
+  [inProtocol readStructBeginReturningName: NULL];
+  while (true)
+  {
+    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
+    if (fieldType == TType_STOP) { 
+      break;
+    }
+    switch (fieldID)
+    {
+      case 0:
+        if (fieldType == TType_BOOL) {
+          BOOL fieldValue = [inProtocol readBool];
+          [self setSuccess: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 1:
+        if (fieldType == TType_STRUCT) {
+          AccountException *fieldValue = [[AccountException alloc] init];
+          [fieldValue read: inProtocol];
+          [self setEx: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      default:
+        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        break;
+    }
+    [inProtocol readFieldEnd];
+  }
+  [inProtocol readStructEnd];
+}
+
+- (void) write: (id <TProtocol>) outProtocol {
+  [outProtocol writeStructBeginWithName: @"Remove_account_result"];
+
+  if (__success_isset) {
+    [outProtocol writeFieldBeginWithName: @"success" type: TType_BOOL fieldID: 0];
+    [outProtocol writeBool: __success];
+    [outProtocol writeFieldEnd];
+  } else if (__ex_isset) {
+    if (__ex != nil) {
+      [outProtocol writeFieldBeginWithName: @"ex" type: TType_STRUCT fieldID: 1];
+      [__ex write: outProtocol];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+}
+
+- (void) validate {
+  // check for required fields
+}
+
+- (NSString *) description {
+  NSMutableString * ms = [NSMutableString stringWithString: @"Remove_account_result("];
+  [ms appendString: @"success:"];
+  [ms appendFormat: @"%i", __success];
+  [ms appendString: @",ex:"];
+  [ms appendFormat: @"%@", __ex];
+  [ms appendString: @")"];
+  return [NSString stringWithString: ms];
+}
+
+@end
+
 @implementation DataHubClient
 - (id) initWithProtocol: (id <TProtocol>) protocol
 {
@@ -5461,6 +6733,122 @@ static double VERSION = 1;
   return [self recv_close_connection];
 }
 
+- (void) send_create_account: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token
+{
+  [outProtocol writeMessageBeginWithName: @"create_account" type: TMessageType_CALL sequenceID: 0];
+  [outProtocol writeStructBeginWithName: @"create_account_args"];
+  if (username != nil)  {
+    [outProtocol writeFieldBeginWithName: @"username" type: TType_STRING fieldID: 1];
+    [outProtocol writeString: username];
+    [outProtocol writeFieldEnd];
+  }
+  if (email != nil)  {
+    [outProtocol writeFieldBeginWithName: @"email" type: TType_STRING fieldID: 2];
+    [outProtocol writeString: email];
+    [outProtocol writeFieldEnd];
+  }
+  if (password != nil)  {
+    [outProtocol writeFieldBeginWithName: @"password" type: TType_STRING fieldID: 3];
+    [outProtocol writeString: password];
+    [outProtocol writeFieldEnd];
+  }
+  if (app_id != nil)  {
+    [outProtocol writeFieldBeginWithName: @"app_id" type: TType_STRING fieldID: 4];
+    [outProtocol writeString: app_id];
+    [outProtocol writeFieldEnd];
+  }
+  if (app_token != nil)  {
+    [outProtocol writeFieldBeginWithName: @"app_token" type: TType_STRING fieldID: 5];
+    [outProtocol writeString: app_token];
+    [outProtocol writeFieldEnd];
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+  [outProtocol writeMessageEnd];
+  [[outProtocol transport] flush];
+}
+
+- (BOOL) recv_create_account
+{
+  int msgType = 0;
+  [inProtocol readMessageBeginReturningName: nil type: &msgType sequenceID: NULL];
+  if (msgType == TMessageType_EXCEPTION) {
+    TApplicationException * x = [TApplicationException read: inProtocol];
+    [inProtocol readMessageEnd];
+    @throw x;
+  }
+  Create_account_result * result = [[[Create_account_result alloc] init] autorelease_stub];
+  [result read: inProtocol];
+  [inProtocol readMessageEnd];
+  if ([result successIsSet]) {
+    return [result success];
+  }
+  if ([result exIsSet]) {
+    @throw [result ex];
+  }
+  @throw [TApplicationException exceptionWithType: TApplicationException_MISSING_RESULT
+                                           reason: @"create_account failed: unknown result"];
+}
+
+- (BOOL) create_account: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token
+{
+  [self send_create_account : username email: email password: password app_id: app_id app_token: app_token];
+  return [self recv_create_account];
+}
+
+- (void) send_remove_account: (NSString *) username app_id: (NSString *) app_id app_token: (NSString *) app_token
+{
+  [outProtocol writeMessageBeginWithName: @"remove_account" type: TMessageType_CALL sequenceID: 0];
+  [outProtocol writeStructBeginWithName: @"remove_account_args"];
+  if (username != nil)  {
+    [outProtocol writeFieldBeginWithName: @"username" type: TType_STRING fieldID: 1];
+    [outProtocol writeString: username];
+    [outProtocol writeFieldEnd];
+  }
+  if (app_id != nil)  {
+    [outProtocol writeFieldBeginWithName: @"app_id" type: TType_STRING fieldID: 2];
+    [outProtocol writeString: app_id];
+    [outProtocol writeFieldEnd];
+  }
+  if (app_token != nil)  {
+    [outProtocol writeFieldBeginWithName: @"app_token" type: TType_STRING fieldID: 3];
+    [outProtocol writeString: app_token];
+    [outProtocol writeFieldEnd];
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+  [outProtocol writeMessageEnd];
+  [[outProtocol transport] flush];
+}
+
+- (BOOL) recv_remove_account
+{
+  int msgType = 0;
+  [inProtocol readMessageBeginReturningName: nil type: &msgType sequenceID: NULL];
+  if (msgType == TMessageType_EXCEPTION) {
+    TApplicationException * x = [TApplicationException read: inProtocol];
+    [inProtocol readMessageEnd];
+    @throw x;
+  }
+  Remove_account_result * result = [[[Remove_account_result alloc] init] autorelease_stub];
+  [result read: inProtocol];
+  [inProtocol readMessageEnd];
+  if ([result successIsSet]) {
+    return [result success];
+  }
+  if ([result exIsSet]) {
+    @throw [result ex];
+  }
+  @throw [TApplicationException exceptionWithType: TApplicationException_MISSING_RESULT
+                                           reason: @"remove_account failed: unknown result"];
+}
+
+- (BOOL) remove_account: (NSString *) username app_id: (NSString *) app_id app_token: (NSString *) app_token
+{
+  [self send_remove_account : username app_id: app_id app_token: app_token];
+  return [self recv_remove_account];
+}
+
 @end
 
 @implementation DataHubProcessor
@@ -5544,6 +6932,22 @@ static double VERSION = 1;
     [invocation setSelector: s];
     [invocation retainArguments];
     [mMethodMap setValue: invocation forKey: @"close_connection"];
+  }
+  {
+    SEL s = @selector(process_create_account_withSequenceID:inProtocol:outProtocol:);
+    NSMethodSignature * sig = [self methodSignatureForSelector: s];
+    NSInvocation * invocation = [NSInvocation invocationWithMethodSignature: sig];
+    [invocation setSelector: s];
+    [invocation retainArguments];
+    [mMethodMap setValue: invocation forKey: @"create_account"];
+  }
+  {
+    SEL s = @selector(process_remove_account_withSequenceID:inProtocol:outProtocol:);
+    NSMethodSignature * sig = [self methodSignatureForSelector: s];
+    NSInvocation * invocation = [NSInvocation invocationWithMethodSignature: sig];
+    [invocation setSelector: s];
+    [invocation retainArguments];
+    [mMethodMap setValue: invocation forKey: @"remove_account"];
   }
   return self;
 }
@@ -5730,6 +7134,40 @@ static double VERSION = 1;
   Close_connection_result * result = [[Close_connection_result alloc] init];
   [result setSuccess: [mService close_connection: [args con]]];
   [outProtocol writeMessageBeginWithName: @"close_connection"
+                                    type: TMessageType_REPLY
+                              sequenceID: seqID];
+  [result write: outProtocol];
+  [outProtocol writeMessageEnd];
+  [[outProtocol transport] flush];
+  [result release_stub];
+  [args release_stub];
+}
+
+- (void) process_create_account_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
+{
+  create_account_args * args = [[create_account_args alloc] init];
+  [args read: inProtocol];
+  [inProtocol readMessageEnd];
+  Create_account_result * result = [[Create_account_result alloc] init];
+  [result setSuccess: [mService create_account: [args username] email: [args email] password: [args password] app_id: [args app_id] app_token: [args app_token]]];
+  [outProtocol writeMessageBeginWithName: @"create_account"
+                                    type: TMessageType_REPLY
+                              sequenceID: seqID];
+  [result write: outProtocol];
+  [outProtocol writeMessageEnd];
+  [[outProtocol transport] flush];
+  [result release_stub];
+  [args release_stub];
+}
+
+- (void) process_remove_account_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
+{
+  remove_account_args * args = [[remove_account_args alloc] init];
+  [args read: inProtocol];
+  [inProtocol readMessageEnd];
+  Remove_account_result * result = [[Remove_account_result alloc] init];
+  [result setSuccess: [mService remove_account: [args username] app_id: [args app_id] app_token: [args app_token]]];
+  [outProtocol writeMessageBeginWithName: @"remove_account"
                                     type: TMessageType_REPLY
                               sequenceID: seqID];
   [result write: outProtocol];

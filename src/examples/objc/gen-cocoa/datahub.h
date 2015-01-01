@@ -290,6 +290,50 @@
 
 @end
 
+@interface AccountException : NSException <TBase, NSCoding> {
+  int32_t __error_code;
+  NSString * __message;
+  NSString * __details;
+
+  BOOL __error_code_isset;
+  BOOL __message_isset;
+  BOOL __details_isset;
+}
+
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+@property (nonatomic, getter=error_code, setter=setError_code:) int32_t error_code;
+@property (nonatomic, retain, getter=message, setter=setMessage:) NSString * message;
+@property (nonatomic, retain, getter=details, setter=setDetails:) NSString * details;
+#endif
+
+- (id) init;
+- (id) initWithError_code: (int32_t) error_code message: (NSString *) message details: (NSString *) details;
+
+- (void) read: (id <TProtocol>) inProtocol;
+- (void) write: (id <TProtocol>) outProtocol;
+
+- (void) validate;
+
+#if !__has_feature(objc_arc)
+- (int32_t) error_code;
+- (void) setError_code: (int32_t) error_code;
+#endif
+- (BOOL) error_codeIsSet;
+
+#if !__has_feature(objc_arc)
+- (NSString *) message;
+- (void) setMessage: (NSString *) message;
+#endif
+- (BOOL) messageIsSet;
+
+#if !__has_feature(objc_arc)
+- (NSString *) details;
+- (void) setDetails: (NSString *) details;
+#endif
+- (BOOL) detailsIsSet;
+
+@end
+
 @protocol DataHub <NSObject>
 - (double) get_version;  // throws TException
 - (Connection *) open_connection: (ConnectionParams *) con_params;  // throws DBException *, TException
@@ -300,6 +344,8 @@
 - (ResultSet *) get_schema: (Connection *) con table_name: (NSString *) table_name;  // throws DBException *, TException
 - (ResultSet *) execute_sql: (Connection *) con query: (NSString *) query query_params: (NSMutableArray *) query_params;  // throws DBException *, TException
 - (BOOL) close_connection: (Connection *) con;  // throws DBException *, TException
+- (BOOL) create_account: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token;  // throws AccountException *, TException
+- (BOOL) remove_account: (NSString *) username app_id: (NSString *) app_id app_token: (NSString *) app_token;  // throws AccountException *, TException
 @end
 
 @interface DataHubClient : NSObject <DataHub> {
