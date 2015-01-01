@@ -53,6 +53,62 @@ struct ResultSet {
   7: optional list <string> field_types
 }
 
+enum TablePrivilegeType {
+  NONE,
+  SELECT,
+  INSERT,
+  UPDATE,
+  DELETE,
+  ALL
+}
+
+enum RepoPrivilegeType {
+  NONE,
+  LIST,  // allows listing of all the objects within a repo
+  CREATE,  // allows creation of new object within a repo
+  ALL
+}
+
+const list<TablePrivilegeType> DEFAULT_PRIVILEGES_TABLE = [
+    TablePrivilegeType.SELECT,
+    TablePrivilegeType.INSERT,
+    TablePrivilegeType.UPDATE,
+    TablePrivilegeType.DELETE]
+
+struct AddRepoPrivilege {
+  1: optional string repo_name,
+  2: optional list<RepoPrivilegeType> privileges = [RepoPrivilegeType.CREATE]
+}
+
+struct AddTablePrivilege {
+  1: optional list <TablePrivilegeType> privileges = DEFAULT_PRIVILEGES_TABLE,
+  2: optional list <string> tables = ['ALL']
+}
+
+// privileges assigned while adding a collaborator
+struct AddPrivilege {
+  1: optional AddRepoPrivilege repo_privilege,
+  2: optional AddTablePrivilege table_privilege,
+  3: optional list <TablePrivilegeType>
+      new_table_default_privileges = DEFAULT_PRIVILEGES_TABLE
+}
+
+struct RemoveRepoPrivilege {
+  1: optional string repo_name,
+  2: optional list<RepoPrivilegeType> privileges = [RepoPrivilegeType.ALL]
+}
+
+struct RemoveTablePrivilege {
+  1: optional list <TablePrivilegeType> privileges = TablePrivilegeType.ALL,
+  2: optional list <string> tables = ['ALL']
+}
+
+// privileges removed while removing a collaborator
+struct RemovePrivilege {
+  1: optional RemoveRepoPrivilege repo_privilege,
+  2: optional RemoveTablePrivilege table_privilege
+}
+
 // Error in DB Operation
 exception DBException {
   1: optional i32 error_code,
@@ -77,8 +133,15 @@ service DataHub {
       2: string repo_name,
       3: bool force_if_non_empty) throws (1: DBException ex)
 
-  ResultSet list_tables (
-      1: Connection con, 2: string repo_name) throws (1: DBException ex)
+  ResultSet add_collaborator (
+      1: Connection con,
+      2: string username,
+      3: AddPrivilege privilege) throws (1: DBException ex)
+
+  ResultSet remove_collaborator (
+      1: Connection con,
+      2: string username,
+      3: RemovePrivilege privilege) throws (1: DBException ex)
 
   ResultSet get_schema (
       1: Connection con, 2: string table_name) throws (1: DBException ex)

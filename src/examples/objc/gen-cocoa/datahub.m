@@ -1263,6 +1263,1246 @@
 
 @end
 
+@implementation datahubAddRepoPrivilege
+
+- (id) init
+{
+  self = [super init];
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+  self.privileges = [[[NSMutableArray alloc] initWithCapacity:1] autorelease_stub];
+  [self.privileges addObject:[NSNumber numberWithInt: 2]];
+
+#endif
+  return self;
+}
+
+- (id) initWithRepo_name: (NSString *) repo_name privileges: (NSMutableArray *) privileges
+{
+  self = [super init];
+  __repo_name = [repo_name retain_stub];
+  __repo_name_isset = YES;
+  __privileges = [privileges retain_stub];
+  __privileges_isset = YES;
+  return self;
+}
+
+- (id) initWithCoder: (NSCoder *) decoder
+{
+  self = [super init];
+  if ([decoder containsValueForKey: @"repo_name"])
+  {
+    __repo_name = [[decoder decodeObjectForKey: @"repo_name"] retain_stub];
+    __repo_name_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"privileges"])
+  {
+    __privileges = [[decoder decodeObjectForKey: @"privileges"] retain_stub];
+    __privileges_isset = YES;
+  }
+  return self;
+}
+
+- (void) encodeWithCoder: (NSCoder *) encoder
+{
+  if (__repo_name_isset)
+  {
+    [encoder encodeObject: __repo_name forKey: @"repo_name"];
+  }
+  if (__privileges_isset)
+  {
+    [encoder encodeObject: __privileges forKey: @"privileges"];
+  }
+}
+
+- (void) dealloc
+{
+  [__repo_name release_stub];
+  [__privileges release_stub];
+  [super dealloc_stub];
+}
+
+- (NSString *) repo_name {
+  return [[__repo_name retain_stub] autorelease_stub];
+}
+
+- (void) setRepo_name: (NSString *) repo_name {
+  [repo_name retain_stub];
+  [__repo_name release_stub];
+  __repo_name = repo_name;
+  __repo_name_isset = YES;
+}
+
+- (BOOL) repo_nameIsSet {
+  return __repo_name_isset;
+}
+
+- (void) unsetRepo_name {
+  [__repo_name release_stub];
+  __repo_name = nil;
+  __repo_name_isset = NO;
+}
+
+- (NSMutableArray *) privileges {
+  return [[__privileges retain_stub] autorelease_stub];
+}
+
+- (void) setPrivileges: (NSMutableArray *) privileges {
+  [privileges retain_stub];
+  [__privileges release_stub];
+  __privileges = privileges;
+  __privileges_isset = YES;
+}
+
+- (BOOL) privilegesIsSet {
+  return __privileges_isset;
+}
+
+- (void) unsetPrivileges {
+  [__privileges release_stub];
+  __privileges = nil;
+  __privileges_isset = NO;
+}
+
+- (void) read: (id <TProtocol>) inProtocol
+{
+  NSString * fieldName;
+  int fieldType;
+  int fieldID;
+
+  [inProtocol readStructBeginReturningName: NULL];
+  while (true)
+  {
+    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
+    if (fieldType == TType_STOP) { 
+      break;
+    }
+    switch (fieldID)
+    {
+      case 1:
+        if (fieldType == TType_STRING) {
+          NSString * fieldValue = [inProtocol readString];
+          [self setRepo_name: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 2:
+        if (fieldType == TType_LIST) {
+          int _size20;
+          [inProtocol readListBeginReturningElementType: NULL size: &_size20];
+          NSMutableArray * fieldValue = [[NSMutableArray alloc] initWithCapacity: _size20];
+          int _i21;
+          for (_i21 = 0; _i21 < _size20; ++_i21)
+          {
+            int _elem22 = [inProtocol readI32];
+            [fieldValue addObject: [NSNumber numberWithInt: _elem22]];
+          }
+          [inProtocol readListEnd];
+          [self setPrivileges: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      default:
+        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        break;
+    }
+    [inProtocol readFieldEnd];
+  }
+  [inProtocol readStructEnd];
+}
+
+- (void) write: (id <TProtocol>) outProtocol {
+  [outProtocol writeStructBeginWithName: @"AddRepoPrivilege"];
+  if (__repo_name_isset) {
+    if (__repo_name != nil) {
+      [outProtocol writeFieldBeginWithName: @"repo_name" type: TType_STRING fieldID: 1];
+      [outProtocol writeString: __repo_name];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__privileges_isset) {
+    if (__privileges != nil) {
+      [outProtocol writeFieldBeginWithName: @"privileges" type: TType_LIST fieldID: 2];
+      {
+        [outProtocol writeListBeginWithElementType: TType_I32 size: [__privileges count]];
+        int i24;
+        for (i24 = 0; i24 < [__privileges count]; i24++)
+        {
+          [outProtocol writeI32: [[__privileges objectAtIndex: i24] intValue]];
+        }
+        [outProtocol writeListEnd];
+      }
+      [outProtocol writeFieldEnd];
+    }
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+}
+
+- (void) validate {
+  // check for required fields
+}
+
+- (NSString *) description {
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubAddRepoPrivilege("];
+  [ms appendString: @"repo_name:"];
+  [ms appendFormat: @"\"%@\"", __repo_name];
+  [ms appendString: @",privileges:"];
+  [ms appendFormat: @"%@", __privileges];
+  [ms appendString: @")"];
+  return [NSString stringWithString: ms];
+}
+
+@end
+
+@implementation datahubAddTablePrivilege
+
+- (id) init
+{
+  self = [super init];
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+  self.privileges = [[[NSMutableArray alloc] initWithCapacity:0] autorelease_stub];
+
+  self.tables = [[[NSMutableArray alloc] initWithCapacity:1] autorelease_stub];
+  [self.tables addObject:@"ALL"];
+
+#endif
+  return self;
+}
+
+- (id) initWithPrivileges: (NSMutableArray *) privileges tables: (NSMutableArray *) tables
+{
+  self = [super init];
+  __privileges = [privileges retain_stub];
+  __privileges_isset = YES;
+  __tables = [tables retain_stub];
+  __tables_isset = YES;
+  return self;
+}
+
+- (id) initWithCoder: (NSCoder *) decoder
+{
+  self = [super init];
+  if ([decoder containsValueForKey: @"privileges"])
+  {
+    __privileges = [[decoder decodeObjectForKey: @"privileges"] retain_stub];
+    __privileges_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"tables"])
+  {
+    __tables = [[decoder decodeObjectForKey: @"tables"] retain_stub];
+    __tables_isset = YES;
+  }
+  return self;
+}
+
+- (void) encodeWithCoder: (NSCoder *) encoder
+{
+  if (__privileges_isset)
+  {
+    [encoder encodeObject: __privileges forKey: @"privileges"];
+  }
+  if (__tables_isset)
+  {
+    [encoder encodeObject: __tables forKey: @"tables"];
+  }
+}
+
+- (void) dealloc
+{
+  [__privileges release_stub];
+  [__tables release_stub];
+  [super dealloc_stub];
+}
+
+- (NSMutableArray *) privileges {
+  return [[__privileges retain_stub] autorelease_stub];
+}
+
+- (void) setPrivileges: (NSMutableArray *) privileges {
+  [privileges retain_stub];
+  [__privileges release_stub];
+  __privileges = privileges;
+  __privileges_isset = YES;
+}
+
+- (BOOL) privilegesIsSet {
+  return __privileges_isset;
+}
+
+- (void) unsetPrivileges {
+  [__privileges release_stub];
+  __privileges = nil;
+  __privileges_isset = NO;
+}
+
+- (NSMutableArray *) tables {
+  return [[__tables retain_stub] autorelease_stub];
+}
+
+- (void) setTables: (NSMutableArray *) tables {
+  [tables retain_stub];
+  [__tables release_stub];
+  __tables = tables;
+  __tables_isset = YES;
+}
+
+- (BOOL) tablesIsSet {
+  return __tables_isset;
+}
+
+- (void) unsetTables {
+  [__tables release_stub];
+  __tables = nil;
+  __tables_isset = NO;
+}
+
+- (void) read: (id <TProtocol>) inProtocol
+{
+  NSString * fieldName;
+  int fieldType;
+  int fieldID;
+
+  [inProtocol readStructBeginReturningName: NULL];
+  while (true)
+  {
+    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
+    if (fieldType == TType_STOP) { 
+      break;
+    }
+    switch (fieldID)
+    {
+      case 1:
+        if (fieldType == TType_LIST) {
+          int _size25;
+          [inProtocol readListBeginReturningElementType: NULL size: &_size25];
+          NSMutableArray * fieldValue = [[NSMutableArray alloc] initWithCapacity: _size25];
+          int _i26;
+          for (_i26 = 0; _i26 < _size25; ++_i26)
+          {
+            int _elem27 = [inProtocol readI32];
+            [fieldValue addObject: [NSNumber numberWithInt: _elem27]];
+          }
+          [inProtocol readListEnd];
+          [self setPrivileges: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 2:
+        if (fieldType == TType_LIST) {
+          int _size28;
+          [inProtocol readListBeginReturningElementType: NULL size: &_size28];
+          NSMutableArray * fieldValue = [[NSMutableArray alloc] initWithCapacity: _size28];
+          int _i29;
+          for (_i29 = 0; _i29 < _size28; ++_i29)
+          {
+            NSString * _elem30 = [inProtocol readString];
+            [fieldValue addObject: _elem30];
+          }
+          [inProtocol readListEnd];
+          [self setTables: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      default:
+        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        break;
+    }
+    [inProtocol readFieldEnd];
+  }
+  [inProtocol readStructEnd];
+}
+
+- (void) write: (id <TProtocol>) outProtocol {
+  [outProtocol writeStructBeginWithName: @"AddTablePrivilege"];
+  if (__privileges_isset) {
+    if (__privileges != nil) {
+      [outProtocol writeFieldBeginWithName: @"privileges" type: TType_LIST fieldID: 1];
+      {
+        [outProtocol writeListBeginWithElementType: TType_I32 size: [__privileges count]];
+        int i32;
+        for (i32 = 0; i32 < [__privileges count]; i32++)
+        {
+          [outProtocol writeI32: [[__privileges objectAtIndex: i32] intValue]];
+        }
+        [outProtocol writeListEnd];
+      }
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__tables_isset) {
+    if (__tables != nil) {
+      [outProtocol writeFieldBeginWithName: @"tables" type: TType_LIST fieldID: 2];
+      {
+        [outProtocol writeListBeginWithElementType: TType_STRING size: [__tables count]];
+        int i34;
+        for (i34 = 0; i34 < [__tables count]; i34++)
+        {
+          [outProtocol writeString: [__tables objectAtIndex: i34]];
+        }
+        [outProtocol writeListEnd];
+      }
+      [outProtocol writeFieldEnd];
+    }
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+}
+
+- (void) validate {
+  // check for required fields
+}
+
+- (NSString *) description {
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubAddTablePrivilege("];
+  [ms appendString: @"privileges:"];
+  [ms appendFormat: @"%@", __privileges];
+  [ms appendString: @",tables:"];
+  [ms appendFormat: @"%@", __tables];
+  [ms appendString: @")"];
+  return [NSString stringWithString: ms];
+}
+
+@end
+
+@implementation datahubAddPrivilege
+
+- (id) init
+{
+  self = [super init];
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+  self.new_table_default_privileges = [[[NSMutableArray alloc] initWithCapacity:0] autorelease_stub];
+
+#endif
+  return self;
+}
+
+- (id) initWithRepo_privilege: (datahubAddRepoPrivilege *) repo_privilege table_privilege: (datahubAddTablePrivilege *) table_privilege new_table_default_privileges: (NSMutableArray *) new_table_default_privileges
+{
+  self = [super init];
+  __repo_privilege = [repo_privilege retain_stub];
+  __repo_privilege_isset = YES;
+  __table_privilege = [table_privilege retain_stub];
+  __table_privilege_isset = YES;
+  __new_table_default_privileges = [new_table_default_privileges retain_stub];
+  __new_table_default_privileges_isset = YES;
+  return self;
+}
+
+- (id) initWithCoder: (NSCoder *) decoder
+{
+  self = [super init];
+  if ([decoder containsValueForKey: @"repo_privilege"])
+  {
+    __repo_privilege = [[decoder decodeObjectForKey: @"repo_privilege"] retain_stub];
+    __repo_privilege_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"table_privilege"])
+  {
+    __table_privilege = [[decoder decodeObjectForKey: @"table_privilege"] retain_stub];
+    __table_privilege_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"new_table_default_privileges"])
+  {
+    __new_table_default_privileges = [[decoder decodeObjectForKey: @"new_table_default_privileges"] retain_stub];
+    __new_table_default_privileges_isset = YES;
+  }
+  return self;
+}
+
+- (void) encodeWithCoder: (NSCoder *) encoder
+{
+  if (__repo_privilege_isset)
+  {
+    [encoder encodeObject: __repo_privilege forKey: @"repo_privilege"];
+  }
+  if (__table_privilege_isset)
+  {
+    [encoder encodeObject: __table_privilege forKey: @"table_privilege"];
+  }
+  if (__new_table_default_privileges_isset)
+  {
+    [encoder encodeObject: __new_table_default_privileges forKey: @"new_table_default_privileges"];
+  }
+}
+
+- (void) dealloc
+{
+  [__repo_privilege release_stub];
+  [__table_privilege release_stub];
+  [__new_table_default_privileges release_stub];
+  [super dealloc_stub];
+}
+
+- (datahubAddRepoPrivilege *) repo_privilege {
+  return [[__repo_privilege retain_stub] autorelease_stub];
+}
+
+- (void) setRepo_privilege: (datahubAddRepoPrivilege *) repo_privilege {
+  [repo_privilege retain_stub];
+  [__repo_privilege release_stub];
+  __repo_privilege = repo_privilege;
+  __repo_privilege_isset = YES;
+}
+
+- (BOOL) repo_privilegeIsSet {
+  return __repo_privilege_isset;
+}
+
+- (void) unsetRepo_privilege {
+  [__repo_privilege release_stub];
+  __repo_privilege = nil;
+  __repo_privilege_isset = NO;
+}
+
+- (datahubAddTablePrivilege *) table_privilege {
+  return [[__table_privilege retain_stub] autorelease_stub];
+}
+
+- (void) setTable_privilege: (datahubAddTablePrivilege *) table_privilege {
+  [table_privilege retain_stub];
+  [__table_privilege release_stub];
+  __table_privilege = table_privilege;
+  __table_privilege_isset = YES;
+}
+
+- (BOOL) table_privilegeIsSet {
+  return __table_privilege_isset;
+}
+
+- (void) unsetTable_privilege {
+  [__table_privilege release_stub];
+  __table_privilege = nil;
+  __table_privilege_isset = NO;
+}
+
+- (NSMutableArray *) new_table_default_privileges {
+  return [[__new_table_default_privileges retain_stub] autorelease_stub];
+}
+
+- (void) setNew_table_default_privileges: (NSMutableArray *) new_table_default_privileges {
+  [new_table_default_privileges retain_stub];
+  [__new_table_default_privileges release_stub];
+  __new_table_default_privileges = new_table_default_privileges;
+  __new_table_default_privileges_isset = YES;
+}
+
+- (BOOL) new_table_default_privilegesIsSet {
+  return __new_table_default_privileges_isset;
+}
+
+- (void) unsetNew_table_default_privileges {
+  [__new_table_default_privileges release_stub];
+  __new_table_default_privileges = nil;
+  __new_table_default_privileges_isset = NO;
+}
+
+- (void) read: (id <TProtocol>) inProtocol
+{
+  NSString * fieldName;
+  int fieldType;
+  int fieldID;
+
+  [inProtocol readStructBeginReturningName: NULL];
+  while (true)
+  {
+    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
+    if (fieldType == TType_STOP) { 
+      break;
+    }
+    switch (fieldID)
+    {
+      case 1:
+        if (fieldType == TType_STRUCT) {
+          datahubAddRepoPrivilege *fieldValue = [[datahubAddRepoPrivilege alloc] init];
+          [fieldValue read: inProtocol];
+          [self setRepo_privilege: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 2:
+        if (fieldType == TType_STRUCT) {
+          datahubAddTablePrivilege *fieldValue = [[datahubAddTablePrivilege alloc] init];
+          [fieldValue read: inProtocol];
+          [self setTable_privilege: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 3:
+        if (fieldType == TType_LIST) {
+          int _size35;
+          [inProtocol readListBeginReturningElementType: NULL size: &_size35];
+          NSMutableArray * fieldValue = [[NSMutableArray alloc] initWithCapacity: _size35];
+          int _i36;
+          for (_i36 = 0; _i36 < _size35; ++_i36)
+          {
+            int _elem37 = [inProtocol readI32];
+            [fieldValue addObject: [NSNumber numberWithInt: _elem37]];
+          }
+          [inProtocol readListEnd];
+          [self setNew_table_default_privileges: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      default:
+        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        break;
+    }
+    [inProtocol readFieldEnd];
+  }
+  [inProtocol readStructEnd];
+}
+
+- (void) write: (id <TProtocol>) outProtocol {
+  [outProtocol writeStructBeginWithName: @"AddPrivilege"];
+  if (__repo_privilege_isset) {
+    if (__repo_privilege != nil) {
+      [outProtocol writeFieldBeginWithName: @"repo_privilege" type: TType_STRUCT fieldID: 1];
+      [__repo_privilege write: outProtocol];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__table_privilege_isset) {
+    if (__table_privilege != nil) {
+      [outProtocol writeFieldBeginWithName: @"table_privilege" type: TType_STRUCT fieldID: 2];
+      [__table_privilege write: outProtocol];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__new_table_default_privileges_isset) {
+    if (__new_table_default_privileges != nil) {
+      [outProtocol writeFieldBeginWithName: @"new_table_default_privileges" type: TType_LIST fieldID: 3];
+      {
+        [outProtocol writeListBeginWithElementType: TType_I32 size: [__new_table_default_privileges count]];
+        int i39;
+        for (i39 = 0; i39 < [__new_table_default_privileges count]; i39++)
+        {
+          [outProtocol writeI32: [[__new_table_default_privileges objectAtIndex: i39] intValue]];
+        }
+        [outProtocol writeListEnd];
+      }
+      [outProtocol writeFieldEnd];
+    }
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+}
+
+- (void) validate {
+  // check for required fields
+}
+
+- (NSString *) description {
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubAddPrivilege("];
+  [ms appendString: @"repo_privilege:"];
+  [ms appendFormat: @"%@", __repo_privilege];
+  [ms appendString: @",table_privilege:"];
+  [ms appendFormat: @"%@", __table_privilege];
+  [ms appendString: @",new_table_default_privileges:"];
+  [ms appendFormat: @"%@", __new_table_default_privileges];
+  [ms appendString: @")"];
+  return [NSString stringWithString: ms];
+}
+
+@end
+
+@implementation datahubRemoveRepoPrivilege
+
+- (id) init
+{
+  self = [super init];
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+  self.privileges = [[[NSMutableArray alloc] initWithCapacity:1] autorelease_stub];
+  [self.privileges addObject:[NSNumber numberWithInt: 3]];
+
+#endif
+  return self;
+}
+
+- (id) initWithRepo_name: (NSString *) repo_name privileges: (NSMutableArray *) privileges
+{
+  self = [super init];
+  __repo_name = [repo_name retain_stub];
+  __repo_name_isset = YES;
+  __privileges = [privileges retain_stub];
+  __privileges_isset = YES;
+  return self;
+}
+
+- (id) initWithCoder: (NSCoder *) decoder
+{
+  self = [super init];
+  if ([decoder containsValueForKey: @"repo_name"])
+  {
+    __repo_name = [[decoder decodeObjectForKey: @"repo_name"] retain_stub];
+    __repo_name_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"privileges"])
+  {
+    __privileges = [[decoder decodeObjectForKey: @"privileges"] retain_stub];
+    __privileges_isset = YES;
+  }
+  return self;
+}
+
+- (void) encodeWithCoder: (NSCoder *) encoder
+{
+  if (__repo_name_isset)
+  {
+    [encoder encodeObject: __repo_name forKey: @"repo_name"];
+  }
+  if (__privileges_isset)
+  {
+    [encoder encodeObject: __privileges forKey: @"privileges"];
+  }
+}
+
+- (void) dealloc
+{
+  [__repo_name release_stub];
+  [__privileges release_stub];
+  [super dealloc_stub];
+}
+
+- (NSString *) repo_name {
+  return [[__repo_name retain_stub] autorelease_stub];
+}
+
+- (void) setRepo_name: (NSString *) repo_name {
+  [repo_name retain_stub];
+  [__repo_name release_stub];
+  __repo_name = repo_name;
+  __repo_name_isset = YES;
+}
+
+- (BOOL) repo_nameIsSet {
+  return __repo_name_isset;
+}
+
+- (void) unsetRepo_name {
+  [__repo_name release_stub];
+  __repo_name = nil;
+  __repo_name_isset = NO;
+}
+
+- (NSMutableArray *) privileges {
+  return [[__privileges retain_stub] autorelease_stub];
+}
+
+- (void) setPrivileges: (NSMutableArray *) privileges {
+  [privileges retain_stub];
+  [__privileges release_stub];
+  __privileges = privileges;
+  __privileges_isset = YES;
+}
+
+- (BOOL) privilegesIsSet {
+  return __privileges_isset;
+}
+
+- (void) unsetPrivileges {
+  [__privileges release_stub];
+  __privileges = nil;
+  __privileges_isset = NO;
+}
+
+- (void) read: (id <TProtocol>) inProtocol
+{
+  NSString * fieldName;
+  int fieldType;
+  int fieldID;
+
+  [inProtocol readStructBeginReturningName: NULL];
+  while (true)
+  {
+    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
+    if (fieldType == TType_STOP) { 
+      break;
+    }
+    switch (fieldID)
+    {
+      case 1:
+        if (fieldType == TType_STRING) {
+          NSString * fieldValue = [inProtocol readString];
+          [self setRepo_name: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 2:
+        if (fieldType == TType_LIST) {
+          int _size40;
+          [inProtocol readListBeginReturningElementType: NULL size: &_size40];
+          NSMutableArray * fieldValue = [[NSMutableArray alloc] initWithCapacity: _size40];
+          int _i41;
+          for (_i41 = 0; _i41 < _size40; ++_i41)
+          {
+            int _elem42 = [inProtocol readI32];
+            [fieldValue addObject: [NSNumber numberWithInt: _elem42]];
+          }
+          [inProtocol readListEnd];
+          [self setPrivileges: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      default:
+        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        break;
+    }
+    [inProtocol readFieldEnd];
+  }
+  [inProtocol readStructEnd];
+}
+
+- (void) write: (id <TProtocol>) outProtocol {
+  [outProtocol writeStructBeginWithName: @"RemoveRepoPrivilege"];
+  if (__repo_name_isset) {
+    if (__repo_name != nil) {
+      [outProtocol writeFieldBeginWithName: @"repo_name" type: TType_STRING fieldID: 1];
+      [outProtocol writeString: __repo_name];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__privileges_isset) {
+    if (__privileges != nil) {
+      [outProtocol writeFieldBeginWithName: @"privileges" type: TType_LIST fieldID: 2];
+      {
+        [outProtocol writeListBeginWithElementType: TType_I32 size: [__privileges count]];
+        int i44;
+        for (i44 = 0; i44 < [__privileges count]; i44++)
+        {
+          [outProtocol writeI32: [[__privileges objectAtIndex: i44] intValue]];
+        }
+        [outProtocol writeListEnd];
+      }
+      [outProtocol writeFieldEnd];
+    }
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+}
+
+- (void) validate {
+  // check for required fields
+}
+
+- (NSString *) description {
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubRemoveRepoPrivilege("];
+  [ms appendString: @"repo_name:"];
+  [ms appendFormat: @"\"%@\"", __repo_name];
+  [ms appendString: @",privileges:"];
+  [ms appendFormat: @"%@", __privileges];
+  [ms appendString: @")"];
+  return [NSString stringWithString: ms];
+}
+
+@end
+
+@implementation datahubRemoveTablePrivilege
+
+- (id) init
+{
+  self = [super init];
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+  self.privileges = [[[NSMutableArray alloc] initWithCapacity:0] autorelease_stub];
+
+  self.tables = [[[NSMutableArray alloc] initWithCapacity:1] autorelease_stub];
+  [self.tables addObject:@"ALL"];
+
+#endif
+  return self;
+}
+
+- (id) initWithPrivileges: (NSMutableArray *) privileges tables: (NSMutableArray *) tables
+{
+  self = [super init];
+  __privileges = [privileges retain_stub];
+  __privileges_isset = YES;
+  __tables = [tables retain_stub];
+  __tables_isset = YES;
+  return self;
+}
+
+- (id) initWithCoder: (NSCoder *) decoder
+{
+  self = [super init];
+  if ([decoder containsValueForKey: @"privileges"])
+  {
+    __privileges = [[decoder decodeObjectForKey: @"privileges"] retain_stub];
+    __privileges_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"tables"])
+  {
+    __tables = [[decoder decodeObjectForKey: @"tables"] retain_stub];
+    __tables_isset = YES;
+  }
+  return self;
+}
+
+- (void) encodeWithCoder: (NSCoder *) encoder
+{
+  if (__privileges_isset)
+  {
+    [encoder encodeObject: __privileges forKey: @"privileges"];
+  }
+  if (__tables_isset)
+  {
+    [encoder encodeObject: __tables forKey: @"tables"];
+  }
+}
+
+- (void) dealloc
+{
+  [__privileges release_stub];
+  [__tables release_stub];
+  [super dealloc_stub];
+}
+
+- (NSMutableArray *) privileges {
+  return [[__privileges retain_stub] autorelease_stub];
+}
+
+- (void) setPrivileges: (NSMutableArray *) privileges {
+  [privileges retain_stub];
+  [__privileges release_stub];
+  __privileges = privileges;
+  __privileges_isset = YES;
+}
+
+- (BOOL) privilegesIsSet {
+  return __privileges_isset;
+}
+
+- (void) unsetPrivileges {
+  [__privileges release_stub];
+  __privileges = nil;
+  __privileges_isset = NO;
+}
+
+- (NSMutableArray *) tables {
+  return [[__tables retain_stub] autorelease_stub];
+}
+
+- (void) setTables: (NSMutableArray *) tables {
+  [tables retain_stub];
+  [__tables release_stub];
+  __tables = tables;
+  __tables_isset = YES;
+}
+
+- (BOOL) tablesIsSet {
+  return __tables_isset;
+}
+
+- (void) unsetTables {
+  [__tables release_stub];
+  __tables = nil;
+  __tables_isset = NO;
+}
+
+- (void) read: (id <TProtocol>) inProtocol
+{
+  NSString * fieldName;
+  int fieldType;
+  int fieldID;
+
+  [inProtocol readStructBeginReturningName: NULL];
+  while (true)
+  {
+    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
+    if (fieldType == TType_STOP) { 
+      break;
+    }
+    switch (fieldID)
+    {
+      case 1:
+        if (fieldType == TType_LIST) {
+          int _size45;
+          [inProtocol readListBeginReturningElementType: NULL size: &_size45];
+          NSMutableArray * fieldValue = [[NSMutableArray alloc] initWithCapacity: _size45];
+          int _i46;
+          for (_i46 = 0; _i46 < _size45; ++_i46)
+          {
+            int _elem47 = [inProtocol readI32];
+            [fieldValue addObject: [NSNumber numberWithInt: _elem47]];
+          }
+          [inProtocol readListEnd];
+          [self setPrivileges: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 2:
+        if (fieldType == TType_LIST) {
+          int _size48;
+          [inProtocol readListBeginReturningElementType: NULL size: &_size48];
+          NSMutableArray * fieldValue = [[NSMutableArray alloc] initWithCapacity: _size48];
+          int _i49;
+          for (_i49 = 0; _i49 < _size48; ++_i49)
+          {
+            NSString * _elem50 = [inProtocol readString];
+            [fieldValue addObject: _elem50];
+          }
+          [inProtocol readListEnd];
+          [self setTables: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      default:
+        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        break;
+    }
+    [inProtocol readFieldEnd];
+  }
+  [inProtocol readStructEnd];
+}
+
+- (void) write: (id <TProtocol>) outProtocol {
+  [outProtocol writeStructBeginWithName: @"RemoveTablePrivilege"];
+  if (__privileges_isset) {
+    if (__privileges != nil) {
+      [outProtocol writeFieldBeginWithName: @"privileges" type: TType_LIST fieldID: 1];
+      {
+        [outProtocol writeListBeginWithElementType: TType_I32 size: [__privileges count]];
+        int i52;
+        for (i52 = 0; i52 < [__privileges count]; i52++)
+        {
+          [outProtocol writeI32: [[__privileges objectAtIndex: i52] intValue]];
+        }
+        [outProtocol writeListEnd];
+      }
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__tables_isset) {
+    if (__tables != nil) {
+      [outProtocol writeFieldBeginWithName: @"tables" type: TType_LIST fieldID: 2];
+      {
+        [outProtocol writeListBeginWithElementType: TType_STRING size: [__tables count]];
+        int i54;
+        for (i54 = 0; i54 < [__tables count]; i54++)
+        {
+          [outProtocol writeString: [__tables objectAtIndex: i54]];
+        }
+        [outProtocol writeListEnd];
+      }
+      [outProtocol writeFieldEnd];
+    }
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+}
+
+- (void) validate {
+  // check for required fields
+}
+
+- (NSString *) description {
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubRemoveTablePrivilege("];
+  [ms appendString: @"privileges:"];
+  [ms appendFormat: @"%@", __privileges];
+  [ms appendString: @",tables:"];
+  [ms appendFormat: @"%@", __tables];
+  [ms appendString: @")"];
+  return [NSString stringWithString: ms];
+}
+
+@end
+
+@implementation datahubRemovePrivilege
+
+- (id) init
+{
+  self = [super init];
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+#endif
+  return self;
+}
+
+- (id) initWithRepo_privilege: (datahubRemoveRepoPrivilege *) repo_privilege table_privilege: (datahubRemoveTablePrivilege *) table_privilege
+{
+  self = [super init];
+  __repo_privilege = [repo_privilege retain_stub];
+  __repo_privilege_isset = YES;
+  __table_privilege = [table_privilege retain_stub];
+  __table_privilege_isset = YES;
+  return self;
+}
+
+- (id) initWithCoder: (NSCoder *) decoder
+{
+  self = [super init];
+  if ([decoder containsValueForKey: @"repo_privilege"])
+  {
+    __repo_privilege = [[decoder decodeObjectForKey: @"repo_privilege"] retain_stub];
+    __repo_privilege_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"table_privilege"])
+  {
+    __table_privilege = [[decoder decodeObjectForKey: @"table_privilege"] retain_stub];
+    __table_privilege_isset = YES;
+  }
+  return self;
+}
+
+- (void) encodeWithCoder: (NSCoder *) encoder
+{
+  if (__repo_privilege_isset)
+  {
+    [encoder encodeObject: __repo_privilege forKey: @"repo_privilege"];
+  }
+  if (__table_privilege_isset)
+  {
+    [encoder encodeObject: __table_privilege forKey: @"table_privilege"];
+  }
+}
+
+- (void) dealloc
+{
+  [__repo_privilege release_stub];
+  [__table_privilege release_stub];
+  [super dealloc_stub];
+}
+
+- (datahubRemoveRepoPrivilege *) repo_privilege {
+  return [[__repo_privilege retain_stub] autorelease_stub];
+}
+
+- (void) setRepo_privilege: (datahubRemoveRepoPrivilege *) repo_privilege {
+  [repo_privilege retain_stub];
+  [__repo_privilege release_stub];
+  __repo_privilege = repo_privilege;
+  __repo_privilege_isset = YES;
+}
+
+- (BOOL) repo_privilegeIsSet {
+  return __repo_privilege_isset;
+}
+
+- (void) unsetRepo_privilege {
+  [__repo_privilege release_stub];
+  __repo_privilege = nil;
+  __repo_privilege_isset = NO;
+}
+
+- (datahubRemoveTablePrivilege *) table_privilege {
+  return [[__table_privilege retain_stub] autorelease_stub];
+}
+
+- (void) setTable_privilege: (datahubRemoveTablePrivilege *) table_privilege {
+  [table_privilege retain_stub];
+  [__table_privilege release_stub];
+  __table_privilege = table_privilege;
+  __table_privilege_isset = YES;
+}
+
+- (BOOL) table_privilegeIsSet {
+  return __table_privilege_isset;
+}
+
+- (void) unsetTable_privilege {
+  [__table_privilege release_stub];
+  __table_privilege = nil;
+  __table_privilege_isset = NO;
+}
+
+- (void) read: (id <TProtocol>) inProtocol
+{
+  NSString * fieldName;
+  int fieldType;
+  int fieldID;
+
+  [inProtocol readStructBeginReturningName: NULL];
+  while (true)
+  {
+    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
+    if (fieldType == TType_STOP) { 
+      break;
+    }
+    switch (fieldID)
+    {
+      case 1:
+        if (fieldType == TType_STRUCT) {
+          datahubRemoveRepoPrivilege *fieldValue = [[datahubRemoveRepoPrivilege alloc] init];
+          [fieldValue read: inProtocol];
+          [self setRepo_privilege: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 2:
+        if (fieldType == TType_STRUCT) {
+          datahubRemoveTablePrivilege *fieldValue = [[datahubRemoveTablePrivilege alloc] init];
+          [fieldValue read: inProtocol];
+          [self setTable_privilege: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      default:
+        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        break;
+    }
+    [inProtocol readFieldEnd];
+  }
+  [inProtocol readStructEnd];
+}
+
+- (void) write: (id <TProtocol>) outProtocol {
+  [outProtocol writeStructBeginWithName: @"RemovePrivilege"];
+  if (__repo_privilege_isset) {
+    if (__repo_privilege != nil) {
+      [outProtocol writeFieldBeginWithName: @"repo_privilege" type: TType_STRUCT fieldID: 1];
+      [__repo_privilege write: outProtocol];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__table_privilege_isset) {
+    if (__table_privilege != nil) {
+      [outProtocol writeFieldBeginWithName: @"table_privilege" type: TType_STRUCT fieldID: 2];
+      [__table_privilege write: outProtocol];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+}
+
+- (void) validate {
+  // check for required fields
+}
+
+- (NSString *) description {
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubRemovePrivilege("];
+  [ms appendString: @"repo_privilege:"];
+  [ms appendFormat: @"%@", __repo_privilege];
+  [ms appendString: @",table_privilege:"];
+  [ms appendFormat: @"%@", __table_privilege];
+  [ms appendString: @")"];
+  return [NSString stringWithString: ms];
+}
+
+@end
+
 @implementation datahubDBException
 
 - (id) init
@@ -1477,9 +2717,20 @@
 
 @end
 
+static NSMutableArray * datahubDEFAULT_PRIVILEGES_TABLE;
 
 @implementation datahubdatahubConstants
 + (void) initialize {
+  datahubDEFAULT_PRIVILEGES_TABLE = [[NSMutableArray alloc] initWithCapacity:4];
+  [datahubDEFAULT_PRIVILEGES_TABLE addObject:[NSNumber numberWithInt: 1]];
+  [datahubDEFAULT_PRIVILEGES_TABLE addObject:[NSNumber numberWithInt: 2]];
+  [datahubDEFAULT_PRIVILEGES_TABLE addObject:[NSNumber numberWithInt: 3]];
+  [datahubDEFAULT_PRIVILEGES_TABLE addObject:[NSNumber numberWithInt: 4]];
+
+;
+}
++ (NSMutableArray *) DEFAULT_PRIVILEGES_TABLE{
+  return datahubDEFAULT_PRIVILEGES_TABLE;
 }
 @end
 
@@ -3320,21 +4571,24 @@
 
 @end
 
-@interface datahublist_tables_args : NSObject <TBase, NSCoding> {
+@interface datahubadd_collaborator_args : NSObject <TBase, NSCoding> {
   datahubConnection * __con;
-  NSString * __repo_name;
+  NSString * __username;
+  datahubAddPrivilege * __privilege;
 
   BOOL __con_isset;
-  BOOL __repo_name_isset;
+  BOOL __username_isset;
+  BOOL __privilege_isset;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
 @property (nonatomic, retain, getter=con, setter=setCon:) datahubConnection * con;
-@property (nonatomic, retain, getter=repo_name, setter=setRepo_name:) NSString * repo_name;
+@property (nonatomic, retain, getter=username, setter=setUsername:) NSString * username;
+@property (nonatomic, retain, getter=privilege, setter=setPrivilege:) datahubAddPrivilege * privilege;
 #endif
 
 - (id) init;
-- (id) initWithCon: (datahubConnection *) con repo_name: (NSString *) repo_name;
+- (id) initWithCon: (datahubConnection *) con username: (NSString *) username privilege: (datahubAddPrivilege *) privilege;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -3348,14 +4602,20 @@
 - (BOOL) conIsSet;
 
 #if !__has_feature(objc_arc)
-- (NSString *) repo_name;
-- (void) setRepo_name: (NSString *) repo_name;
+- (NSString *) username;
+- (void) setUsername: (NSString *) username;
 #endif
-- (BOOL) repo_nameIsSet;
+- (BOOL) usernameIsSet;
+
+#if !__has_feature(objc_arc)
+- (datahubAddPrivilege *) privilege;
+- (void) setPrivilege: (datahubAddPrivilege *) privilege;
+#endif
+- (BOOL) privilegeIsSet;
 
 @end
 
-@implementation datahublist_tables_args
+@implementation datahubadd_collaborator_args
 
 - (id) init
 {
@@ -3365,13 +4625,15 @@
   return self;
 }
 
-- (id) initWithCon: (datahubConnection *) con repo_name: (NSString *) repo_name
+- (id) initWithCon: (datahubConnection *) con username: (NSString *) username privilege: (datahubAddPrivilege *) privilege
 {
   self = [super init];
   __con = [con retain_stub];
   __con_isset = YES;
-  __repo_name = [repo_name retain_stub];
-  __repo_name_isset = YES;
+  __username = [username retain_stub];
+  __username_isset = YES;
+  __privilege = [privilege retain_stub];
+  __privilege_isset = YES;
   return self;
 }
 
@@ -3383,10 +4645,15 @@
     __con = [[decoder decodeObjectForKey: @"con"] retain_stub];
     __con_isset = YES;
   }
-  if ([decoder containsValueForKey: @"repo_name"])
+  if ([decoder containsValueForKey: @"username"])
   {
-    __repo_name = [[decoder decodeObjectForKey: @"repo_name"] retain_stub];
-    __repo_name_isset = YES;
+    __username = [[decoder decodeObjectForKey: @"username"] retain_stub];
+    __username_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"privilege"])
+  {
+    __privilege = [[decoder decodeObjectForKey: @"privilege"] retain_stub];
+    __privilege_isset = YES;
   }
   return self;
 }
@@ -3397,16 +4664,21 @@
   {
     [encoder encodeObject: __con forKey: @"con"];
   }
-  if (__repo_name_isset)
+  if (__username_isset)
   {
-    [encoder encodeObject: __repo_name forKey: @"repo_name"];
+    [encoder encodeObject: __username forKey: @"username"];
+  }
+  if (__privilege_isset)
+  {
+    [encoder encodeObject: __privilege forKey: @"privilege"];
   }
 }
 
 - (void) dealloc
 {
   [__con release_stub];
-  [__repo_name release_stub];
+  [__username release_stub];
+  [__privilege release_stub];
   [super dealloc_stub];
 }
 
@@ -3431,25 +4703,46 @@
   __con_isset = NO;
 }
 
-- (NSString *) repo_name {
-  return [[__repo_name retain_stub] autorelease_stub];
+- (NSString *) username {
+  return [[__username retain_stub] autorelease_stub];
 }
 
-- (void) setRepo_name: (NSString *) repo_name {
-  [repo_name retain_stub];
-  [__repo_name release_stub];
-  __repo_name = repo_name;
-  __repo_name_isset = YES;
+- (void) setUsername: (NSString *) username {
+  [username retain_stub];
+  [__username release_stub];
+  __username = username;
+  __username_isset = YES;
 }
 
-- (BOOL) repo_nameIsSet {
-  return __repo_name_isset;
+- (BOOL) usernameIsSet {
+  return __username_isset;
 }
 
-- (void) unsetRepo_name {
-  [__repo_name release_stub];
-  __repo_name = nil;
-  __repo_name_isset = NO;
+- (void) unsetUsername {
+  [__username release_stub];
+  __username = nil;
+  __username_isset = NO;
+}
+
+- (datahubAddPrivilege *) privilege {
+  return [[__privilege retain_stub] autorelease_stub];
+}
+
+- (void) setPrivilege: (datahubAddPrivilege *) privilege {
+  [privilege retain_stub];
+  [__privilege release_stub];
+  __privilege = privilege;
+  __privilege_isset = YES;
+}
+
+- (BOOL) privilegeIsSet {
+  return __privilege_isset;
+}
+
+- (void) unsetPrivilege {
+  [__privilege release_stub];
+  __privilege = nil;
+  __privilege_isset = NO;
 }
 
 - (void) read: (id <TProtocol>) inProtocol
@@ -3480,7 +4773,17 @@
       case 2:
         if (fieldType == TType_STRING) {
           NSString * fieldValue = [inProtocol readString];
-          [self setRepo_name: fieldValue];
+          [self setUsername: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 3:
+        if (fieldType == TType_STRUCT) {
+          datahubAddPrivilege *fieldValue = [[datahubAddPrivilege alloc] init];
+          [fieldValue read: inProtocol];
+          [self setPrivilege: fieldValue];
+          [fieldValue release_stub];
         } else { 
           [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
         }
@@ -3495,7 +4798,7 @@
 }
 
 - (void) write: (id <TProtocol>) outProtocol {
-  [outProtocol writeStructBeginWithName: @"list_tables_args"];
+  [outProtocol writeStructBeginWithName: @"add_collaborator_args"];
   if (__con_isset) {
     if (__con != nil) {
       [outProtocol writeFieldBeginWithName: @"con" type: TType_STRUCT fieldID: 1];
@@ -3503,10 +4806,17 @@
       [outProtocol writeFieldEnd];
     }
   }
-  if (__repo_name_isset) {
-    if (__repo_name != nil) {
-      [outProtocol writeFieldBeginWithName: @"repo_name" type: TType_STRING fieldID: 2];
-      [outProtocol writeString: __repo_name];
+  if (__username_isset) {
+    if (__username != nil) {
+      [outProtocol writeFieldBeginWithName: @"username" type: TType_STRING fieldID: 2];
+      [outProtocol writeString: __username];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__privilege_isset) {
+    if (__privilege != nil) {
+      [outProtocol writeFieldBeginWithName: @"privilege" type: TType_STRUCT fieldID: 3];
+      [__privilege write: outProtocol];
       [outProtocol writeFieldEnd];
     }
   }
@@ -3519,18 +4829,20 @@
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"datahublist_tables_args("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubadd_collaborator_args("];
   [ms appendString: @"con:"];
   [ms appendFormat: @"%@", __con];
-  [ms appendString: @",repo_name:"];
-  [ms appendFormat: @"\"%@\"", __repo_name];
+  [ms appendString: @",username:"];
+  [ms appendFormat: @"\"%@\"", __username];
+  [ms appendString: @",privilege:"];
+  [ms appendFormat: @"%@", __privilege];
   [ms appendString: @")"];
   return [NSString stringWithString: ms];
 }
 
 @end
 
-@interface datahubList_tables_result : NSObject <TBase, NSCoding> {
+@interface datahubAdd_collaborator_result : NSObject <TBase, NSCoding> {
   datahubResultSet * __success;
   datahubDBException * __ex;
 
@@ -3565,7 +4877,7 @@
 
 @end
 
-@implementation datahubList_tables_result
+@implementation datahubAdd_collaborator_result
 
 - (id) init
 {
@@ -3707,7 +5019,7 @@
 }
 
 - (void) write: (id <TProtocol>) outProtocol {
-  [outProtocol writeStructBeginWithName: @"List_tables_result"];
+  [outProtocol writeStructBeginWithName: @"Add_collaborator_result"];
 
   if (__success_isset) {
     if (__success != nil) {
@@ -3731,7 +5043,490 @@
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"datahubList_tables_result("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubAdd_collaborator_result("];
+  [ms appendString: @"success:"];
+  [ms appendFormat: @"%@", __success];
+  [ms appendString: @",ex:"];
+  [ms appendFormat: @"%@", __ex];
+  [ms appendString: @")"];
+  return [NSString stringWithString: ms];
+}
+
+@end
+
+@interface datahubremove_collaborator_args : NSObject <TBase, NSCoding> {
+  datahubConnection * __con;
+  NSString * __username;
+  datahubRemovePrivilege * __privilege;
+
+  BOOL __con_isset;
+  BOOL __username_isset;
+  BOOL __privilege_isset;
+}
+
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+@property (nonatomic, retain, getter=con, setter=setCon:) datahubConnection * con;
+@property (nonatomic, retain, getter=username, setter=setUsername:) NSString * username;
+@property (nonatomic, retain, getter=privilege, setter=setPrivilege:) datahubRemovePrivilege * privilege;
+#endif
+
+- (id) init;
+- (id) initWithCon: (datahubConnection *) con username: (NSString *) username privilege: (datahubRemovePrivilege *) privilege;
+
+- (void) read: (id <TProtocol>) inProtocol;
+- (void) write: (id <TProtocol>) outProtocol;
+
+- (void) validate;
+
+#if !__has_feature(objc_arc)
+- (datahubConnection *) con;
+- (void) setCon: (datahubConnection *) con;
+#endif
+- (BOOL) conIsSet;
+
+#if !__has_feature(objc_arc)
+- (NSString *) username;
+- (void) setUsername: (NSString *) username;
+#endif
+- (BOOL) usernameIsSet;
+
+#if !__has_feature(objc_arc)
+- (datahubRemovePrivilege *) privilege;
+- (void) setPrivilege: (datahubRemovePrivilege *) privilege;
+#endif
+- (BOOL) privilegeIsSet;
+
+@end
+
+@implementation datahubremove_collaborator_args
+
+- (id) init
+{
+  self = [super init];
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+#endif
+  return self;
+}
+
+- (id) initWithCon: (datahubConnection *) con username: (NSString *) username privilege: (datahubRemovePrivilege *) privilege
+{
+  self = [super init];
+  __con = [con retain_stub];
+  __con_isset = YES;
+  __username = [username retain_stub];
+  __username_isset = YES;
+  __privilege = [privilege retain_stub];
+  __privilege_isset = YES;
+  return self;
+}
+
+- (id) initWithCoder: (NSCoder *) decoder
+{
+  self = [super init];
+  if ([decoder containsValueForKey: @"con"])
+  {
+    __con = [[decoder decodeObjectForKey: @"con"] retain_stub];
+    __con_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"username"])
+  {
+    __username = [[decoder decodeObjectForKey: @"username"] retain_stub];
+    __username_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"privilege"])
+  {
+    __privilege = [[decoder decodeObjectForKey: @"privilege"] retain_stub];
+    __privilege_isset = YES;
+  }
+  return self;
+}
+
+- (void) encodeWithCoder: (NSCoder *) encoder
+{
+  if (__con_isset)
+  {
+    [encoder encodeObject: __con forKey: @"con"];
+  }
+  if (__username_isset)
+  {
+    [encoder encodeObject: __username forKey: @"username"];
+  }
+  if (__privilege_isset)
+  {
+    [encoder encodeObject: __privilege forKey: @"privilege"];
+  }
+}
+
+- (void) dealloc
+{
+  [__con release_stub];
+  [__username release_stub];
+  [__privilege release_stub];
+  [super dealloc_stub];
+}
+
+- (datahubConnection *) con {
+  return [[__con retain_stub] autorelease_stub];
+}
+
+- (void) setCon: (datahubConnection *) con {
+  [con retain_stub];
+  [__con release_stub];
+  __con = con;
+  __con_isset = YES;
+}
+
+- (BOOL) conIsSet {
+  return __con_isset;
+}
+
+- (void) unsetCon {
+  [__con release_stub];
+  __con = nil;
+  __con_isset = NO;
+}
+
+- (NSString *) username {
+  return [[__username retain_stub] autorelease_stub];
+}
+
+- (void) setUsername: (NSString *) username {
+  [username retain_stub];
+  [__username release_stub];
+  __username = username;
+  __username_isset = YES;
+}
+
+- (BOOL) usernameIsSet {
+  return __username_isset;
+}
+
+- (void) unsetUsername {
+  [__username release_stub];
+  __username = nil;
+  __username_isset = NO;
+}
+
+- (datahubRemovePrivilege *) privilege {
+  return [[__privilege retain_stub] autorelease_stub];
+}
+
+- (void) setPrivilege: (datahubRemovePrivilege *) privilege {
+  [privilege retain_stub];
+  [__privilege release_stub];
+  __privilege = privilege;
+  __privilege_isset = YES;
+}
+
+- (BOOL) privilegeIsSet {
+  return __privilege_isset;
+}
+
+- (void) unsetPrivilege {
+  [__privilege release_stub];
+  __privilege = nil;
+  __privilege_isset = NO;
+}
+
+- (void) read: (id <TProtocol>) inProtocol
+{
+  NSString * fieldName;
+  int fieldType;
+  int fieldID;
+
+  [inProtocol readStructBeginReturningName: NULL];
+  while (true)
+  {
+    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
+    if (fieldType == TType_STOP) { 
+      break;
+    }
+    switch (fieldID)
+    {
+      case 1:
+        if (fieldType == TType_STRUCT) {
+          datahubConnection *fieldValue = [[datahubConnection alloc] init];
+          [fieldValue read: inProtocol];
+          [self setCon: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 2:
+        if (fieldType == TType_STRING) {
+          NSString * fieldValue = [inProtocol readString];
+          [self setUsername: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 3:
+        if (fieldType == TType_STRUCT) {
+          datahubRemovePrivilege *fieldValue = [[datahubRemovePrivilege alloc] init];
+          [fieldValue read: inProtocol];
+          [self setPrivilege: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      default:
+        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        break;
+    }
+    [inProtocol readFieldEnd];
+  }
+  [inProtocol readStructEnd];
+}
+
+- (void) write: (id <TProtocol>) outProtocol {
+  [outProtocol writeStructBeginWithName: @"remove_collaborator_args"];
+  if (__con_isset) {
+    if (__con != nil) {
+      [outProtocol writeFieldBeginWithName: @"con" type: TType_STRUCT fieldID: 1];
+      [__con write: outProtocol];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__username_isset) {
+    if (__username != nil) {
+      [outProtocol writeFieldBeginWithName: @"username" type: TType_STRING fieldID: 2];
+      [outProtocol writeString: __username];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  if (__privilege_isset) {
+    if (__privilege != nil) {
+      [outProtocol writeFieldBeginWithName: @"privilege" type: TType_STRUCT fieldID: 3];
+      [__privilege write: outProtocol];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+}
+
+- (void) validate {
+  // check for required fields
+}
+
+- (NSString *) description {
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubremove_collaborator_args("];
+  [ms appendString: @"con:"];
+  [ms appendFormat: @"%@", __con];
+  [ms appendString: @",username:"];
+  [ms appendFormat: @"\"%@\"", __username];
+  [ms appendString: @",privilege:"];
+  [ms appendFormat: @"%@", __privilege];
+  [ms appendString: @")"];
+  return [NSString stringWithString: ms];
+}
+
+@end
+
+@interface datahubRemove_collaborator_result : NSObject <TBase, NSCoding> {
+  datahubResultSet * __success;
+  datahubDBException * __ex;
+
+  BOOL __success_isset;
+  BOOL __ex_isset;
+}
+
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+@property (nonatomic, retain, getter=success, setter=setSuccess:) datahubResultSet * success;
+@property (nonatomic, retain, getter=ex, setter=setEx:) datahubDBException * ex;
+#endif
+
+- (id) init;
+- (id) initWithSuccess: (datahubResultSet *) success ex: (datahubDBException *) ex;
+
+- (void) read: (id <TProtocol>) inProtocol;
+- (void) write: (id <TProtocol>) outProtocol;
+
+- (void) validate;
+
+#if !__has_feature(objc_arc)
+- (datahubResultSet *) success;
+- (void) setSuccess: (datahubResultSet *) success;
+#endif
+- (BOOL) successIsSet;
+
+#if !__has_feature(objc_arc)
+- (datahubDBException *) ex;
+- (void) setEx: (datahubDBException *) ex;
+#endif
+- (BOOL) exIsSet;
+
+@end
+
+@implementation datahubRemove_collaborator_result
+
+- (id) init
+{
+  self = [super init];
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+#endif
+  return self;
+}
+
+- (id) initWithSuccess: (datahubResultSet *) success ex: (datahubDBException *) ex
+{
+  self = [super init];
+  __success = [success retain_stub];
+  __success_isset = YES;
+  __ex = [ex retain_stub];
+  __ex_isset = YES;
+  return self;
+}
+
+- (id) initWithCoder: (NSCoder *) decoder
+{
+  self = [super init];
+  if ([decoder containsValueForKey: @"success"])
+  {
+    __success = [[decoder decodeObjectForKey: @"success"] retain_stub];
+    __success_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"ex"])
+  {
+    __ex = [[decoder decodeObjectForKey: @"ex"] retain_stub];
+    __ex_isset = YES;
+  }
+  return self;
+}
+
+- (void) encodeWithCoder: (NSCoder *) encoder
+{
+  if (__success_isset)
+  {
+    [encoder encodeObject: __success forKey: @"success"];
+  }
+  if (__ex_isset)
+  {
+    [encoder encodeObject: __ex forKey: @"ex"];
+  }
+}
+
+- (void) dealloc
+{
+  [__success release_stub];
+  [__ex release_stub];
+  [super dealloc_stub];
+}
+
+- (datahubResultSet *) success {
+  return [[__success retain_stub] autorelease_stub];
+}
+
+- (void) setSuccess: (datahubResultSet *) success {
+  [success retain_stub];
+  [__success release_stub];
+  __success = success;
+  __success_isset = YES;
+}
+
+- (BOOL) successIsSet {
+  return __success_isset;
+}
+
+- (void) unsetSuccess {
+  [__success release_stub];
+  __success = nil;
+  __success_isset = NO;
+}
+
+- (datahubDBException *) ex {
+  return [[__ex retain_stub] autorelease_stub];
+}
+
+- (void) setEx: (datahubDBException *) ex {
+  [ex retain_stub];
+  [__ex release_stub];
+  __ex = ex;
+  __ex_isset = YES;
+}
+
+- (BOOL) exIsSet {
+  return __ex_isset;
+}
+
+- (void) unsetEx {
+  [__ex release_stub];
+  __ex = nil;
+  __ex_isset = NO;
+}
+
+- (void) read: (id <TProtocol>) inProtocol
+{
+  NSString * fieldName;
+  int fieldType;
+  int fieldID;
+
+  [inProtocol readStructBeginReturningName: NULL];
+  while (true)
+  {
+    [inProtocol readFieldBeginReturningName: &fieldName type: &fieldType fieldID: &fieldID];
+    if (fieldType == TType_STOP) { 
+      break;
+    }
+    switch (fieldID)
+    {
+      case 0:
+        if (fieldType == TType_STRUCT) {
+          datahubResultSet *fieldValue = [[datahubResultSet alloc] init];
+          [fieldValue read: inProtocol];
+          [self setSuccess: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 1:
+        if (fieldType == TType_STRUCT) {
+          datahubDBException *fieldValue = [[datahubDBException alloc] init];
+          [fieldValue read: inProtocol];
+          [self setEx: fieldValue];
+          [fieldValue release_stub];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      default:
+        [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        break;
+    }
+    [inProtocol readFieldEnd];
+  }
+  [inProtocol readStructEnd];
+}
+
+- (void) write: (id <TProtocol>) outProtocol {
+  [outProtocol writeStructBeginWithName: @"Remove_collaborator_result"];
+
+  if (__success_isset) {
+    if (__success != nil) {
+      [outProtocol writeFieldBeginWithName: @"success" type: TType_STRUCT fieldID: 0];
+      [__success write: outProtocol];
+      [outProtocol writeFieldEnd];
+    }
+  } else if (__ex_isset) {
+    if (__ex != nil) {
+      [outProtocol writeFieldBeginWithName: @"ex" type: TType_STRUCT fieldID: 1];
+      [__ex write: outProtocol];
+      [outProtocol writeFieldEnd];
+    }
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+}
+
+- (void) validate {
+  // check for required fields
+}
+
+- (NSString *) description {
+  NSMutableString * ms = [NSMutableString stringWithString: @"datahubRemove_collaborator_result("];
   [ms appendString: @"success:"];
   [ms appendFormat: @"%@", __success];
   [ms appendString: @",ex:"];
@@ -4373,14 +6168,14 @@
         break;
       case 3:
         if (fieldType == TType_LIST) {
-          int _size20;
-          [inProtocol readListBeginReturningElementType: NULL size: &_size20];
-          NSMutableArray * fieldValue = [[NSMutableArray alloc] initWithCapacity: _size20];
-          int _i21;
-          for (_i21 = 0; _i21 < _size20; ++_i21)
+          int _size55;
+          [inProtocol readListBeginReturningElementType: NULL size: &_size55];
+          NSMutableArray * fieldValue = [[NSMutableArray alloc] initWithCapacity: _size55];
+          int _i56;
+          for (_i56 = 0; _i56 < _size55; ++_i56)
           {
-            NSData * _elem22 = [inProtocol readBinary];
-            [fieldValue addObject: _elem22];
+            NSData * _elem57 = [inProtocol readBinary];
+            [fieldValue addObject: _elem57];
           }
           [inProtocol readListEnd];
           [self setQuery_params: fieldValue];
@@ -4419,10 +6214,10 @@
       [outProtocol writeFieldBeginWithName: @"query_params" type: TType_LIST fieldID: 3];
       {
         [outProtocol writeListBeginWithElementType: TType_STRING size: [__query_params count]];
-        int i24;
-        for (i24 = 0; i24 < [__query_params count]; i24++)
+        int i59;
+        for (i59 = 0; i59 < [__query_params count]; i59++)
         {
-          [outProtocol writeBinary: [__query_params objectAtIndex: i24]];
+          [outProtocol writeBinary: [__query_params objectAtIndex: i59]];
         }
         [outProtocol writeListEnd];
       }
@@ -5258,18 +7053,23 @@
   return [self recv_delete_repo];
 }
 
-- (void) send_list_tables: (datahubConnection *) con repo_name: (NSString *) repo_name
+- (void) send_add_collaborator: (datahubConnection *) con username: (NSString *) username privilege: (datahubAddPrivilege *) privilege
 {
-  [outProtocol writeMessageBeginWithName: @"list_tables" type: TMessageType_CALL sequenceID: 0];
-  [outProtocol writeStructBeginWithName: @"list_tables_args"];
+  [outProtocol writeMessageBeginWithName: @"add_collaborator" type: TMessageType_CALL sequenceID: 0];
+  [outProtocol writeStructBeginWithName: @"add_collaborator_args"];
   if (con != nil)  {
     [outProtocol writeFieldBeginWithName: @"con" type: TType_STRUCT fieldID: 1];
     [con write: outProtocol];
     [outProtocol writeFieldEnd];
   }
-  if (repo_name != nil)  {
-    [outProtocol writeFieldBeginWithName: @"repo_name" type: TType_STRING fieldID: 2];
-    [outProtocol writeString: repo_name];
+  if (username != nil)  {
+    [outProtocol writeFieldBeginWithName: @"username" type: TType_STRING fieldID: 2];
+    [outProtocol writeString: username];
+    [outProtocol writeFieldEnd];
+  }
+  if (privilege != nil)  {
+    [outProtocol writeFieldBeginWithName: @"privilege" type: TType_STRUCT fieldID: 3];
+    [privilege write: outProtocol];
     [outProtocol writeFieldEnd];
   }
   [outProtocol writeFieldStop];
@@ -5278,7 +7078,7 @@
   [[outProtocol transport] flush];
 }
 
-- (datahubResultSet *) recv_list_tables
+- (datahubResultSet *) recv_add_collaborator
 {
   int msgType = 0;
   [inProtocol readMessageBeginReturningName: nil type: &msgType sequenceID: NULL];
@@ -5287,7 +7087,7 @@
     [inProtocol readMessageEnd];
     @throw x;
   }
-  datahubList_tables_result * result = [[[datahubList_tables_result alloc] init] autorelease_stub];
+  datahubAdd_collaborator_result * result = [[[datahubAdd_collaborator_result alloc] init] autorelease_stub];
   [result read: inProtocol];
   [inProtocol readMessageEnd];
   if ([result successIsSet]) {
@@ -5297,13 +7097,66 @@
     @throw [result ex];
   }
   @throw [TApplicationException exceptionWithType: TApplicationException_MISSING_RESULT
-                                           reason: @"list_tables failed: unknown result"];
+                                           reason: @"add_collaborator failed: unknown result"];
 }
 
-- (datahubResultSet *) list_tables: (datahubConnection *) con repo_name: (NSString *) repo_name
+- (datahubResultSet *) add_collaborator: (datahubConnection *) con username: (NSString *) username privilege: (datahubAddPrivilege *) privilege
 {
-  [self send_list_tables : con repo_name: repo_name];
-  return [self recv_list_tables];
+  [self send_add_collaborator : con username: username privilege: privilege];
+  return [self recv_add_collaborator];
+}
+
+- (void) send_remove_collaborator: (datahubConnection *) con username: (NSString *) username privilege: (datahubRemovePrivilege *) privilege
+{
+  [outProtocol writeMessageBeginWithName: @"remove_collaborator" type: TMessageType_CALL sequenceID: 0];
+  [outProtocol writeStructBeginWithName: @"remove_collaborator_args"];
+  if (con != nil)  {
+    [outProtocol writeFieldBeginWithName: @"con" type: TType_STRUCT fieldID: 1];
+    [con write: outProtocol];
+    [outProtocol writeFieldEnd];
+  }
+  if (username != nil)  {
+    [outProtocol writeFieldBeginWithName: @"username" type: TType_STRING fieldID: 2];
+    [outProtocol writeString: username];
+    [outProtocol writeFieldEnd];
+  }
+  if (privilege != nil)  {
+    [outProtocol writeFieldBeginWithName: @"privilege" type: TType_STRUCT fieldID: 3];
+    [privilege write: outProtocol];
+    [outProtocol writeFieldEnd];
+  }
+  [outProtocol writeFieldStop];
+  [outProtocol writeStructEnd];
+  [outProtocol writeMessageEnd];
+  [[outProtocol transport] flush];
+}
+
+- (datahubResultSet *) recv_remove_collaborator
+{
+  int msgType = 0;
+  [inProtocol readMessageBeginReturningName: nil type: &msgType sequenceID: NULL];
+  if (msgType == TMessageType_EXCEPTION) {
+    TApplicationException * x = [TApplicationException read: inProtocol];
+    [inProtocol readMessageEnd];
+    @throw x;
+  }
+  datahubRemove_collaborator_result * result = [[[datahubRemove_collaborator_result alloc] init] autorelease_stub];
+  [result read: inProtocol];
+  [inProtocol readMessageEnd];
+  if ([result successIsSet]) {
+    return [result success];
+  }
+  if ([result exIsSet]) {
+    @throw [result ex];
+  }
+  @throw [TApplicationException exceptionWithType: TApplicationException_MISSING_RESULT
+                                           reason: @"remove_collaborator failed: unknown result"];
+}
+
+- (datahubResultSet *) remove_collaborator: (datahubConnection *) con username: (NSString *) username privilege: (datahubRemovePrivilege *) privilege
+{
+  [self send_remove_collaborator : con username: username privilege: privilege];
+  return [self recv_remove_collaborator];
 }
 
 - (void) send_get_schema: (datahubConnection *) con table_name: (NSString *) table_name
@@ -5372,10 +7225,10 @@
     [outProtocol writeFieldBeginWithName: @"query_params" type: TType_LIST fieldID: 3];
     {
       [outProtocol writeListBeginWithElementType: TType_STRING size: [query_params count]];
-      int i26;
-      for (i26 = 0; i26 < [query_params count]; i26++)
+      int i61;
+      for (i61 = 0; i61 < [query_params count]; i61++)
       {
-        [outProtocol writeBinary: [query_params objectAtIndex: i26]];
+        [outProtocol writeBinary: [query_params objectAtIndex: i61]];
       }
       [outProtocol writeListEnd];
     }
@@ -5511,12 +7364,20 @@
     [mMethodMap setValue: invocation forKey: @"delete_repo"];
   }
   {
-    SEL s = @selector(process_list_tables_withSequenceID:inProtocol:outProtocol:);
+    SEL s = @selector(process_add_collaborator_withSequenceID:inProtocol:outProtocol:);
     NSMethodSignature * sig = [self methodSignatureForSelector: s];
     NSInvocation * invocation = [NSInvocation invocationWithMethodSignature: sig];
     [invocation setSelector: s];
     [invocation retainArguments];
-    [mMethodMap setValue: invocation forKey: @"list_tables"];
+    [mMethodMap setValue: invocation forKey: @"add_collaborator"];
+  }
+  {
+    SEL s = @selector(process_remove_collaborator_withSequenceID:inProtocol:outProtocol:);
+    NSMethodSignature * sig = [self methodSignatureForSelector: s];
+    NSInvocation * invocation = [NSInvocation invocationWithMethodSignature: sig];
+    [invocation setSelector: s];
+    [invocation retainArguments];
+    [mMethodMap setValue: invocation forKey: @"remove_collaborator"];
   }
   {
     SEL s = @selector(process_get_schema_withSequenceID:inProtocol:outProtocol:);
@@ -5668,14 +7529,31 @@
   [args release_stub];
 }
 
-- (void) process_list_tables_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
+- (void) process_add_collaborator_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
 {
-  datahublist_tables_args * args = [[datahublist_tables_args alloc] init];
+  datahubadd_collaborator_args * args = [[datahubadd_collaborator_args alloc] init];
   [args read: inProtocol];
   [inProtocol readMessageEnd];
-  datahubList_tables_result * result = [[datahubList_tables_result alloc] init];
-  [result setSuccess: [mService list_tables: [args con] repo_name: [args repo_name]]];
-  [outProtocol writeMessageBeginWithName: @"list_tables"
+  datahubAdd_collaborator_result * result = [[datahubAdd_collaborator_result alloc] init];
+  [result setSuccess: [mService add_collaborator: [args con] username: [args username] privilege: [args privilege]]];
+  [outProtocol writeMessageBeginWithName: @"add_collaborator"
+                                    type: TMessageType_REPLY
+                              sequenceID: seqID];
+  [result write: outProtocol];
+  [outProtocol writeMessageEnd];
+  [[outProtocol transport] flush];
+  [result release_stub];
+  [args release_stub];
+}
+
+- (void) process_remove_collaborator_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
+{
+  datahubremove_collaborator_args * args = [[datahubremove_collaborator_args alloc] init];
+  [args read: inProtocol];
+  [inProtocol readMessageEnd];
+  datahubRemove_collaborator_result * result = [[datahubRemove_collaborator_result alloc] init];
+  [result setSuccess: [mService remove_collaborator: [args con] username: [args username] privilege: [args privilege]]];
+  [outProtocol writeMessageBeginWithName: @"remove_collaborator"
                                     type: TMessageType_REPLY
                               sequenceID: seqID];
   [result write: outProtocol];
