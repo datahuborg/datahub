@@ -98,8 +98,7 @@ service DataHub {
       2: string query,
       3: list <binary> query_params) throws (1: DBException ex)
 
-  bool close_connection (
-      1: Connection con) throws (1: DBException ex)
+  bool close_connection (1: Connection con) throws (1: DBException ex)
 
   bool create_account (
       1: string username,
