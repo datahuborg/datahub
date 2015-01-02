@@ -85,14 +85,21 @@ enum PrivilegeType {
 struct RepoPrivilege {
   1: optional string repo_name,
   2: optional PrivilegeType privilege_type = PrivilegeType.ALL,
+  
+  // checked only if privilege_type == PrivilegeType.PRIVILEGES_LIST
   3: optional list <RepoAccessPrivilege> privileges,
 }
 
 struct TablePrivilege {
   1: optional PrivilegeType privilege_type = PrivilegeType.ALL
+  
+  // checked only if privilege_type == PrivilegeType.PRIVILEGES_LIST
   2: optional list <TableAccessPrivilege> privileges,
+  
   3: optional bool apply_to_all_tables = true,
   4: optional bool default_for_future_tables = true,
+
+  // checked only if apply_to_all_tables == false
   5: optional string table_name,
 }
 
