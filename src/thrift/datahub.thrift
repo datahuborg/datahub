@@ -53,60 +53,52 @@ struct ResultSet {
   7: optional list <string> field_types
 }
 
-enum TablePrivilegeType {
-  NONE,
+enum CollaboratorType {
+  USER,
+  APP,
+  ORGANIZATION
+}
+
+struct Collaborator {
+  1: optional CollaboratorType collaborator_type = CollaboratorType.USER,
+  2: optional string name 
+}
+
+enum TableAccessPrivilege {
   SELECT,
   INSERT,
   UPDATE,
-  DELETE,
-  ALL
+  DELETE
 }
 
-enum RepoPrivilegeType {
-  NONE,
+enum RepoAccessPrivilege {
   LIST,  // allows listing of all the objects within a repo
-  CREATE,  // allows creation of new object within a repo
+  CREATE  // allows creation of new objects within a repo
+}
+
+enum PrivilegeType {
+  NONE,
+  PRIVILEGES_LIST
   ALL
 }
 
-const list<TablePrivilegeType> DEFAULT_PRIVILEGES_TABLE = [
-    TablePrivilegeType.SELECT,
-    TablePrivilegeType.INSERT,
-    TablePrivilegeType.UPDATE,
-    TablePrivilegeType.DELETE]
-
-struct AddRepoPrivilege {
+struct RepoPrivilege {
   1: optional string repo_name,
-  2: optional list<RepoPrivilegeType> privileges = [RepoPrivilegeType.CREATE]
+  2: optional PrivilegeType privilege_type = PrivilegeType.ALL,
+  3: optional list <RepoAccessPrivilege> privileges
 }
 
-struct AddTablePrivilege {
-  1: optional list <TablePrivilegeType> privileges = DEFAULT_PRIVILEGES_TABLE,
-  2: optional list <string> tables = ['ALL']
+struct TablePrivilege {
+  1: optional PrivilegeType privilege_type = PrivilegeType.ALL
+  2: optional list <TableAccessPrivilege> privileges,
+  3: optional bool apply_to_all_tables = true,
+  4: optional string table_name
 }
 
-// privileges assigned while adding a collaborator
-struct AddPrivilege {
-  1: optional AddRepoPrivilege repo_privilege,
-  2: optional AddTablePrivilege table_privilege,
-  3: optional list <TablePrivilegeType>
-      new_table_default_privileges = DEFAULT_PRIVILEGES_TABLE
-}
-
-struct RemoveRepoPrivilege {
-  1: optional string repo_name,
-  2: optional list<RepoPrivilegeType> privileges = [RepoPrivilegeType.ALL]
-}
-
-struct RemoveTablePrivilege {
-  1: optional list <TablePrivilegeType> privileges = TablePrivilegeType.ALL,
-  2: optional list <string> tables = ['ALL']
-}
-
-// privileges removed while removing a collaborator
-struct RemovePrivilege {
-  1: optional RemoveRepoPrivilege repo_privilege,
-  2: optional RemoveTablePrivilege table_privilege
+// privileges associated with a collaborator
+struct Privilege {
+  1: optional RepoPrivilege repo_privilege,
+  2: optional TablePrivilege table_privilege,
 }
 
 // Error in DB Operation
@@ -135,13 +127,13 @@ service DataHub {
 
   ResultSet add_collaborator (
       1: Connection con,
-      2: string username,
-      3: AddPrivilege privilege) throws (1: DBException ex)
+      2: Collaborator collaborator,
+      3: Privilege privilege) throws (1: DBException ex)
 
   ResultSet remove_collaborator (
       1: Connection con,
-      2: string username,
-      3: RemovePrivilege privilege) throws (1: DBException ex)
+      2: Collaborator collaborator,
+      3: Privilege privilege) throws (1: DBException ex)
 
   ResultSet get_schema (
       1: Connection con, 2: string table_name) throws (1: DBException ex)

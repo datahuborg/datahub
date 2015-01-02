@@ -17,20 +17,28 @@
 
 #import "types.h"
 
-enum datahubTablePrivilegeType {
-  TablePrivilegeType_NONE = 0,
-  TablePrivilegeType_SELECT = 1,
-  TablePrivilegeType_INSERT = 2,
-  TablePrivilegeType_UPDATE = 3,
-  TablePrivilegeType_DELETE = 4,
-  TablePrivilegeType_ALL = 5
+enum datahubCollaboratorType {
+  CollaboratorType_USER = 0,
+  CollaboratorType_APP = 1,
+  CollaboratorType_ORGANIZATION = 2
 };
 
-enum datahubRepoPrivilegeType {
-  RepoPrivilegeType_NONE = 0,
-  RepoPrivilegeType_LIST = 1,
-  RepoPrivilegeType_CREATE = 2,
-  RepoPrivilegeType_ALL = 3
+enum datahubTableAccessPrivilege {
+  TableAccessPrivilege_SELECT = 0,
+  TableAccessPrivilege_INSERT = 1,
+  TableAccessPrivilege_UPDATE = 2,
+  TableAccessPrivilege_DELETE = 3
+};
+
+enum datahubRepoAccessPrivilege {
+  RepoAccessPrivilege_LIST = 0,
+  RepoAccessPrivilege_CREATE = 1
+};
+
+enum datahubPrivilegeType {
+  PrivilegeType_NONE = 0,
+  PrivilegeType_PRIVILEGES_LIST = 1,
+  PrivilegeType_ALL = 2
 };
 
 @interface datahubConnectionParams : NSObject <TBase, NSCoding> {
@@ -263,21 +271,59 @@ enum datahubRepoPrivilegeType {
 
 @end
 
-@interface datahubAddRepoPrivilege : NSObject <TBase, NSCoding> {
+@interface datahubCollaborator : NSObject <TBase, NSCoding> {
+  int __collaborator_type;
+  NSString * __name;
+
+  BOOL __collaborator_type_isset;
+  BOOL __name_isset;
+}
+
+#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+@property (nonatomic, getter=collaborator_type, setter=setCollaborator_type:) int collaborator_type;
+@property (nonatomic, retain, getter=name, setter=setName:) NSString * name;
+#endif
+
+- (id) init;
+- (id) initWithCollaborator_type: (int) collaborator_type name: (NSString *) name;
+
+- (void) read: (id <TProtocol>) inProtocol;
+- (void) write: (id <TProtocol>) outProtocol;
+
+- (void) validate;
+
+#if !__has_feature(objc_arc)
+- (int) collaborator_type;
+- (void) setCollaborator_type: (int) collaborator_type;
+#endif
+- (BOOL) collaborator_typeIsSet;
+
+#if !__has_feature(objc_arc)
+- (NSString *) name;
+- (void) setName: (NSString *) name;
+#endif
+- (BOOL) nameIsSet;
+
+@end
+
+@interface datahubRepoPrivilege : NSObject <TBase, NSCoding> {
   NSString * __repo_name;
+  int __privilege_type;
   NSMutableArray * __privileges;
 
   BOOL __repo_name_isset;
+  BOOL __privilege_type_isset;
   BOOL __privileges_isset;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
 @property (nonatomic, retain, getter=repo_name, setter=setRepo_name:) NSString * repo_name;
+@property (nonatomic, getter=privilege_type, setter=setPrivilege_type:) int privilege_type;
 @property (nonatomic, retain, getter=privileges, setter=setPrivileges:) NSMutableArray * privileges;
 #endif
 
 - (id) init;
-- (id) initWithRepo_name: (NSString *) repo_name privileges: (NSMutableArray *) privileges;
+- (id) initWithRepo_name: (NSString *) repo_name privilege_type: (int) privilege_type privileges: (NSMutableArray *) privileges;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -291,6 +337,12 @@ enum datahubRepoPrivilegeType {
 - (BOOL) repo_nameIsSet;
 
 #if !__has_feature(objc_arc)
+- (int) privilege_type;
+- (void) setPrivilege_type: (int) privilege_type;
+#endif
+- (BOOL) privilege_typeIsSet;
+
+#if !__has_feature(objc_arc)
 - (NSMutableArray *) privileges;
 - (void) setPrivileges: (NSMutableArray *) privileges;
 #endif
@@ -298,26 +350,38 @@ enum datahubRepoPrivilegeType {
 
 @end
 
-@interface datahubAddTablePrivilege : NSObject <TBase, NSCoding> {
+@interface datahubTablePrivilege : NSObject <TBase, NSCoding> {
+  int __privilege_type;
   NSMutableArray * __privileges;
-  NSMutableArray * __tables;
+  BOOL __apply_to_all_tables;
+  NSString * __table_name;
 
+  BOOL __privilege_type_isset;
   BOOL __privileges_isset;
-  BOOL __tables_isset;
+  BOOL __apply_to_all_tables_isset;
+  BOOL __table_name_isset;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+@property (nonatomic, getter=privilege_type, setter=setPrivilege_type:) int privilege_type;
 @property (nonatomic, retain, getter=privileges, setter=setPrivileges:) NSMutableArray * privileges;
-@property (nonatomic, retain, getter=tables, setter=setTables:) NSMutableArray * tables;
+@property (nonatomic, getter=apply_to_all_tables, setter=setApply_to_all_tables:) BOOL apply_to_all_tables;
+@property (nonatomic, retain, getter=table_name, setter=setTable_name:) NSString * table_name;
 #endif
 
 - (id) init;
-- (id) initWithPrivileges: (NSMutableArray *) privileges tables: (NSMutableArray *) tables;
+- (id) initWithPrivilege_type: (int) privilege_type privileges: (NSMutableArray *) privileges apply_to_all_tables: (BOOL) apply_to_all_tables table_name: (NSString *) table_name;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
 
 - (void) validate;
+
+#if !__has_feature(objc_arc)
+- (int) privilege_type;
+- (void) setPrivilege_type: (int) privilege_type;
+#endif
+- (BOOL) privilege_typeIsSet;
 
 #if !__has_feature(objc_arc)
 - (NSMutableArray *) privileges;
@@ -326,142 +390,34 @@ enum datahubRepoPrivilegeType {
 - (BOOL) privilegesIsSet;
 
 #if !__has_feature(objc_arc)
-- (NSMutableArray *) tables;
-- (void) setTables: (NSMutableArray *) tables;
+- (BOOL) apply_to_all_tables;
+- (void) setApply_to_all_tables: (BOOL) apply_to_all_tables;
 #endif
-- (BOOL) tablesIsSet;
+- (BOOL) apply_to_all_tablesIsSet;
+
+#if !__has_feature(objc_arc)
+- (NSString *) table_name;
+- (void) setTable_name: (NSString *) table_name;
+#endif
+- (BOOL) table_nameIsSet;
 
 @end
 
-@interface datahubAddPrivilege : NSObject <TBase, NSCoding> {
-  datahubAddRepoPrivilege * __repo_privilege;
-  datahubAddTablePrivilege * __table_privilege;
-  NSMutableArray * __new_table_default_privileges;
-
-  BOOL __repo_privilege_isset;
-  BOOL __table_privilege_isset;
-  BOOL __new_table_default_privileges_isset;
-}
-
-#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=repo_privilege, setter=setRepo_privilege:) datahubAddRepoPrivilege * repo_privilege;
-@property (nonatomic, retain, getter=table_privilege, setter=setTable_privilege:) datahubAddTablePrivilege * table_privilege;
-@property (nonatomic, retain, getter=new_table_default_privileges, setter=setNew_table_default_privileges:) NSMutableArray * new_table_default_privileges;
-#endif
-
-- (id) init;
-- (id) initWithRepo_privilege: (datahubAddRepoPrivilege *) repo_privilege table_privilege: (datahubAddTablePrivilege *) table_privilege new_table_default_privileges: (NSMutableArray *) new_table_default_privileges;
-
-- (void) read: (id <TProtocol>) inProtocol;
-- (void) write: (id <TProtocol>) outProtocol;
-
-- (void) validate;
-
-#if !__has_feature(objc_arc)
-- (datahubAddRepoPrivilege *) repo_privilege;
-- (void) setRepo_privilege: (datahubAddRepoPrivilege *) repo_privilege;
-#endif
-- (BOOL) repo_privilegeIsSet;
-
-#if !__has_feature(objc_arc)
-- (datahubAddTablePrivilege *) table_privilege;
-- (void) setTable_privilege: (datahubAddTablePrivilege *) table_privilege;
-#endif
-- (BOOL) table_privilegeIsSet;
-
-#if !__has_feature(objc_arc)
-- (NSMutableArray *) new_table_default_privileges;
-- (void) setNew_table_default_privileges: (NSMutableArray *) new_table_default_privileges;
-#endif
-- (BOOL) new_table_default_privilegesIsSet;
-
-@end
-
-@interface datahubRemoveRepoPrivilege : NSObject <TBase, NSCoding> {
-  NSString * __repo_name;
-  NSMutableArray * __privileges;
-
-  BOOL __repo_name_isset;
-  BOOL __privileges_isset;
-}
-
-#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=repo_name, setter=setRepo_name:) NSString * repo_name;
-@property (nonatomic, retain, getter=privileges, setter=setPrivileges:) NSMutableArray * privileges;
-#endif
-
-- (id) init;
-- (id) initWithRepo_name: (NSString *) repo_name privileges: (NSMutableArray *) privileges;
-
-- (void) read: (id <TProtocol>) inProtocol;
-- (void) write: (id <TProtocol>) outProtocol;
-
-- (void) validate;
-
-#if !__has_feature(objc_arc)
-- (NSString *) repo_name;
-- (void) setRepo_name: (NSString *) repo_name;
-#endif
-- (BOOL) repo_nameIsSet;
-
-#if !__has_feature(objc_arc)
-- (NSMutableArray *) privileges;
-- (void) setPrivileges: (NSMutableArray *) privileges;
-#endif
-- (BOOL) privilegesIsSet;
-
-@end
-
-@interface datahubRemoveTablePrivilege : NSObject <TBase, NSCoding> {
-  NSMutableArray * __privileges;
-  NSMutableArray * __tables;
-
-  BOOL __privileges_isset;
-  BOOL __tables_isset;
-}
-
-#if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=privileges, setter=setPrivileges:) NSMutableArray * privileges;
-@property (nonatomic, retain, getter=tables, setter=setTables:) NSMutableArray * tables;
-#endif
-
-- (id) init;
-- (id) initWithPrivileges: (NSMutableArray *) privileges tables: (NSMutableArray *) tables;
-
-- (void) read: (id <TProtocol>) inProtocol;
-- (void) write: (id <TProtocol>) outProtocol;
-
-- (void) validate;
-
-#if !__has_feature(objc_arc)
-- (NSMutableArray *) privileges;
-- (void) setPrivileges: (NSMutableArray *) privileges;
-#endif
-- (BOOL) privilegesIsSet;
-
-#if !__has_feature(objc_arc)
-- (NSMutableArray *) tables;
-- (void) setTables: (NSMutableArray *) tables;
-#endif
-- (BOOL) tablesIsSet;
-
-@end
-
-@interface datahubRemovePrivilege : NSObject <TBase, NSCoding> {
-  datahubRemoveRepoPrivilege * __repo_privilege;
-  datahubRemoveTablePrivilege * __table_privilege;
+@interface datahubPrivilege : NSObject <TBase, NSCoding> {
+  datahubRepoPrivilege * __repo_privilege;
+  datahubTablePrivilege * __table_privilege;
 
   BOOL __repo_privilege_isset;
   BOOL __table_privilege_isset;
 }
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
-@property (nonatomic, retain, getter=repo_privilege, setter=setRepo_privilege:) datahubRemoveRepoPrivilege * repo_privilege;
-@property (nonatomic, retain, getter=table_privilege, setter=setTable_privilege:) datahubRemoveTablePrivilege * table_privilege;
+@property (nonatomic, retain, getter=repo_privilege, setter=setRepo_privilege:) datahubRepoPrivilege * repo_privilege;
+@property (nonatomic, retain, getter=table_privilege, setter=setTable_privilege:) datahubTablePrivilege * table_privilege;
 #endif
 
 - (id) init;
-- (id) initWithRepo_privilege: (datahubRemoveRepoPrivilege *) repo_privilege table_privilege: (datahubRemoveTablePrivilege *) table_privilege;
+- (id) initWithRepo_privilege: (datahubRepoPrivilege *) repo_privilege table_privilege: (datahubTablePrivilege *) table_privilege;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -469,14 +425,14 @@ enum datahubRepoPrivilegeType {
 - (void) validate;
 
 #if !__has_feature(objc_arc)
-- (datahubRemoveRepoPrivilege *) repo_privilege;
-- (void) setRepo_privilege: (datahubRemoveRepoPrivilege *) repo_privilege;
+- (datahubRepoPrivilege *) repo_privilege;
+- (void) setRepo_privilege: (datahubRepoPrivilege *) repo_privilege;
 #endif
 - (BOOL) repo_privilegeIsSet;
 
 #if !__has_feature(objc_arc)
-- (datahubRemoveTablePrivilege *) table_privilege;
-- (void) setTable_privilege: (datahubRemoveTablePrivilege *) table_privilege;
+- (datahubTablePrivilege *) table_privilege;
+- (void) setTable_privilege: (datahubTablePrivilege *) table_privilege;
 #endif
 - (BOOL) table_privilegeIsSet;
 
@@ -532,8 +488,8 @@ enum datahubRepoPrivilegeType {
 - (datahubResultSet *) create_repo: (datahubConnection *) con repo_name: (NSString *) repo_name;  // throws datahubDBException *, TException
 - (datahubResultSet *) list_repos: (datahubConnection *) con;  // throws datahubDBException *, TException
 - (datahubResultSet *) delete_repo: (datahubConnection *) con repo_name: (NSString *) repo_name force_if_non_empty: (BOOL) force_if_non_empty;  // throws datahubDBException *, TException
-- (datahubResultSet *) add_collaborator: (datahubConnection *) con username: (NSString *) username privilege: (datahubAddPrivilege *) privilege;  // throws datahubDBException *, TException
-- (datahubResultSet *) remove_collaborator: (datahubConnection *) con username: (NSString *) username privilege: (datahubRemovePrivilege *) privilege;  // throws datahubDBException *, TException
+- (datahubResultSet *) add_collaborator: (datahubConnection *) con collaborator: (datahubCollaborator *) collaborator privilege: (datahubPrivilege *) privilege;  // throws datahubDBException *, TException
+- (datahubResultSet *) remove_collaborator: (datahubConnection *) con collaborator: (datahubCollaborator *) collaborator privilege: (datahubPrivilege *) privilege;  // throws datahubDBException *, TException
 - (datahubResultSet *) get_schema: (datahubConnection *) con table_name: (NSString *) table_name;  // throws datahubDBException *, TException
 - (datahubResultSet *) execute_sql: (datahubConnection *) con query: (NSString *) query query_params: (NSMutableArray *) query_params;  // throws datahubDBException *, TException
 - (BOOL) close_connection: (datahubConnection *) con;  // throws datahubDBException *, TException
@@ -557,5 +513,4 @@ enum datahubRepoPrivilegeType {
 
 @interface datahubdatahubConstants : NSObject {
 }
-+ (NSMutableArray *) DEFAULT_PRIVILEGES_TABLE;
 @end
