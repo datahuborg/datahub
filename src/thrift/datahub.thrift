@@ -65,21 +65,21 @@ struct Collaborator {
 }
 
 enum TableAccessPrivilege {
-  SELECT,
-  INSERT,
-  UPDATE,
-  DELETE,
+  SELECT = 0,
+  INSERT = 1,
+  UPDATE = 2,
+  DELETE = 3,
 }
 
 enum RepoAccessPrivilege {
-  LIST,  // allows listing of all the objects within a repo
-  CREATE,  // allows creation of new objects within a repo
+  LIST = 0,  // allows listing of all the objects within a repo
+  CREATE = 1,  // allows creation of new objects within a repo
 }
 
 enum PrivilegeType {
-  NONE,
-  PRIVILEGES_LIST,
-  ALL,
+  NONE = 0,
+  PRIVILEGES_LIST = 1,
+  ALL = 2,
 }
 
 struct RepoPrivilege {
