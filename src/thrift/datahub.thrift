@@ -54,9 +54,9 @@ struct ResultSet {
 }
 
 enum CollaboratorType {
-  USER,
-  APP,
-  ORGANIZATION,
+  USER = 0,
+  APP = 1,
+  ORGANIZATION = 2,
 }
 
 struct Collaborator {
