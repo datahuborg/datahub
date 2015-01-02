@@ -9,7 +9,7 @@
 
 include "shared/types.thrift"
 
-namespace cocoa datahub.account
+namespace cocoa datahub_account
 namespace cpp datahub.account
 namespace go datahub.account
 namespace java datahub.account
