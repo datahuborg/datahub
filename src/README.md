@@ -13,7 +13,7 @@ DataHub
 
 ### Running DataHub TCP Server
 * `source setup.sh`
-* `python server.py` // runs on port 9000
+* `python tserver/server.py` // runs on port 9000
 
 ### Running DataHub Web Server + HTTP Service
 * `source setup.sh`
@@ -24,6 +24,6 @@ DataHub
 * `python tools/cli.py`
 
 ### Running DataHub Example Code
-* `cd examples/<...>`
+* `cd examples/<cpp | go | java | python | ...>`
 * `source setup.sh`
 * execute the `<example-binary>`
