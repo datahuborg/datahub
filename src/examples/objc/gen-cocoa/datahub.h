@@ -354,11 +354,13 @@ enum datahubPrivilegeType {
   int __privilege_type;
   NSMutableArray * __privileges;
   BOOL __apply_to_all_tables;
+  BOOL __default_for_future_tables;
   NSString * __table_name;
 
   BOOL __privilege_type_isset;
   BOOL __privileges_isset;
   BOOL __apply_to_all_tables_isset;
+  BOOL __default_for_future_tables_isset;
   BOOL __table_name_isset;
 }
 
@@ -366,11 +368,12 @@ enum datahubPrivilegeType {
 @property (nonatomic, getter=privilege_type, setter=setPrivilege_type:) int privilege_type;
 @property (nonatomic, retain, getter=privileges, setter=setPrivileges:) NSMutableArray * privileges;
 @property (nonatomic, getter=apply_to_all_tables, setter=setApply_to_all_tables:) BOOL apply_to_all_tables;
+@property (nonatomic, getter=default_for_future_tables, setter=setDefault_for_future_tables:) BOOL default_for_future_tables;
 @property (nonatomic, retain, getter=table_name, setter=setTable_name:) NSString * table_name;
 #endif
 
 - (id) init;
-- (id) initWithPrivilege_type: (int) privilege_type privileges: (NSMutableArray *) privileges apply_to_all_tables: (BOOL) apply_to_all_tables table_name: (NSString *) table_name;
+- (id) initWithPrivilege_type: (int) privilege_type privileges: (NSMutableArray *) privileges apply_to_all_tables: (BOOL) apply_to_all_tables default_for_future_tables: (BOOL) default_for_future_tables table_name: (NSString *) table_name;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -394,6 +397,12 @@ enum datahubPrivilegeType {
 - (void) setApply_to_all_tables: (BOOL) apply_to_all_tables;
 #endif
 - (BOOL) apply_to_all_tablesIsSet;
+
+#if !__has_feature(objc_arc)
+- (BOOL) default_for_future_tables;
+- (void) setDefault_for_future_tables: (BOOL) default_for_future_tables;
+#endif
+- (BOOL) default_for_future_tablesIsSet;
 
 #if !__has_feature(objc_arc)
 - (NSString *) table_name;

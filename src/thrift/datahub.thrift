@@ -92,7 +92,8 @@ struct TablePrivilege {
   1: optional PrivilegeType privilege_type = PrivilegeType.ALL
   2: optional list <TableAccessPrivilege> privileges,
   3: optional bool apply_to_all_tables = true,
-  4: optional string table_name
+  4: optional bool default_for_future_tables = true,
+  5: optional string table_name
 }
 
 // privileges associated with a collaborator

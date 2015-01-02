@@ -1677,11 +1677,13 @@
 
   self.apply_to_all_tables = YES;
 
+  self.default_for_future_tables = YES;
+
 #endif
   return self;
 }
 
-- (id) initWithPrivilege_type: (int) privilege_type privileges: (NSMutableArray *) privileges apply_to_all_tables: (BOOL) apply_to_all_tables table_name: (NSString *) table_name
+- (id) initWithPrivilege_type: (int) privilege_type privileges: (NSMutableArray *) privileges apply_to_all_tables: (BOOL) apply_to_all_tables default_for_future_tables: (BOOL) default_for_future_tables table_name: (NSString *) table_name
 {
   self = [super init];
   __privilege_type = privilege_type;
@@ -1690,6 +1692,8 @@
   __privileges_isset = YES;
   __apply_to_all_tables = apply_to_all_tables;
   __apply_to_all_tables_isset = YES;
+  __default_for_future_tables = default_for_future_tables;
+  __default_for_future_tables_isset = YES;
   __table_name = [table_name retain_stub];
   __table_name_isset = YES;
   return self;
@@ -1713,6 +1717,11 @@
     __apply_to_all_tables = [decoder decodeBoolForKey: @"apply_to_all_tables"];
     __apply_to_all_tables_isset = YES;
   }
+  if ([decoder containsValueForKey: @"default_for_future_tables"])
+  {
+    __default_for_future_tables = [decoder decodeBoolForKey: @"default_for_future_tables"];
+    __default_for_future_tables_isset = YES;
+  }
   if ([decoder containsValueForKey: @"table_name"])
   {
     __table_name = [[decoder decodeObjectForKey: @"table_name"] retain_stub];
@@ -1734,6 +1743,10 @@
   if (__apply_to_all_tables_isset)
   {
     [encoder encodeBool: __apply_to_all_tables forKey: @"apply_to_all_tables"];
+  }
+  if (__default_for_future_tables_isset)
+  {
+    [encoder encodeBool: __default_for_future_tables forKey: @"default_for_future_tables"];
   }
   if (__table_name_isset)
   {
@@ -1801,6 +1814,23 @@
 
 - (void) unsetApply_to_all_tables {
   __apply_to_all_tables_isset = NO;
+}
+
+- (BOOL) default_for_future_tables {
+  return __default_for_future_tables;
+}
+
+- (void) setDefault_for_future_tables: (BOOL) default_for_future_tables {
+  __default_for_future_tables = default_for_future_tables;
+  __default_for_future_tables_isset = YES;
+}
+
+- (BOOL) default_for_future_tablesIsSet {
+  return __default_for_future_tables_isset;
+}
+
+- (void) unsetDefault_for_future_tables {
+  __default_for_future_tables_isset = NO;
 }
 
 - (NSString *) table_name {
@@ -1874,6 +1904,14 @@
         }
         break;
       case 4:
+        if (fieldType == TType_BOOL) {
+          BOOL fieldValue = [inProtocol readBool];
+          [self setDefault_for_future_tables: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 5:
         if (fieldType == TType_STRING) {
           NSString * fieldValue = [inProtocol readString];
           [self setTable_name: fieldValue];
@@ -1917,9 +1955,14 @@
     [outProtocol writeBool: __apply_to_all_tables];
     [outProtocol writeFieldEnd];
   }
+  if (__default_for_future_tables_isset) {
+    [outProtocol writeFieldBeginWithName: @"default_for_future_tables" type: TType_BOOL fieldID: 4];
+    [outProtocol writeBool: __default_for_future_tables];
+    [outProtocol writeFieldEnd];
+  }
   if (__table_name_isset) {
     if (__table_name != nil) {
-      [outProtocol writeFieldBeginWithName: @"table_name" type: TType_STRING fieldID: 4];
+      [outProtocol writeFieldBeginWithName: @"table_name" type: TType_STRING fieldID: 5];
       [outProtocol writeString: __table_name];
       [outProtocol writeFieldEnd];
     }
@@ -1940,6 +1983,8 @@
   [ms appendFormat: @"%@", __privileges];
   [ms appendString: @",apply_to_all_tables:"];
   [ms appendFormat: @"%i", __apply_to_all_tables];
+  [ms appendString: @",default_for_future_tables:"];
+  [ms appendFormat: @"%i", __default_for_future_tables];
   [ms appendString: @",table_name:"];
   [ms appendFormat: @"\"%@\"", __table_name];
   [ms appendString: @")"];
