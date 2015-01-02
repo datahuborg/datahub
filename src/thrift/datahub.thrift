@@ -25,7 +25,7 @@ struct ConnectionParams {
   2: optional string seq_id,
   3: optional string user,
   4: optional string password,
-  5: optional string repo_base
+  5: optional string repo_base,
 }
 
 // connection info -- must be passed in every execute_sql call
@@ -34,12 +34,12 @@ struct Connection {
   2: optional string seq_id,
   3: optional string user,
   4: optional string repo_base,
-  5: optional i64 cursor
+  5: optional i64 cursor,
 }
 
 // a tuple
 struct Tuple {
-  1: optional list <binary> cells
+  1: optional list <binary> cells,
 }
 
 // a result set (list of tuples)
@@ -50,42 +50,42 @@ struct ResultSet {
   4: optional i64 num_more_tuples,
   5: optional list <Tuple> tuples,
   6: optional list <string> field_names,
-  7: optional list <string> field_types
+  7: optional list <string> field_types,
 }
 
 enum CollaboratorType {
   USER,
   APP,
-  ORGANIZATION
+  ORGANIZATION,
 }
 
 struct Collaborator {
   1: optional CollaboratorType collaborator_type = CollaboratorType.USER,
-  2: optional string name 
+  2: optional string name,
 }
 
 enum TableAccessPrivilege {
   SELECT,
   INSERT,
   UPDATE,
-  DELETE
+  DELETE,
 }
 
 enum RepoAccessPrivilege {
   LIST,  // allows listing of all the objects within a repo
-  CREATE  // allows creation of new objects within a repo
+  CREATE,  // allows creation of new objects within a repo
 }
 
 enum PrivilegeType {
   NONE,
-  PRIVILEGES_LIST
-  ALL
+  PRIVILEGES_LIST,
+  ALL,
 }
 
 struct RepoPrivilege {
   1: optional string repo_name,
   2: optional PrivilegeType privilege_type = PrivilegeType.ALL,
-  3: optional list <RepoAccessPrivilege> privileges
+  3: optional list <RepoAccessPrivilege> privileges,
 }
 
 struct TablePrivilege {
@@ -93,7 +93,7 @@ struct TablePrivilege {
   2: optional list <TableAccessPrivilege> privileges,
   3: optional bool apply_to_all_tables = true,
   4: optional bool default_for_future_tables = true,
-  5: optional string table_name
+  5: optional string table_name,
 }
 
 // privileges associated with a collaborator
@@ -106,7 +106,7 @@ struct Privilege {
 exception DBException {
   1: optional i32 error_code,
   2: optional string message,
-  3: optional string details
+  3: optional string details,
 }
 
 // service APIs
