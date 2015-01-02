@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #import "datahub.h"
+#import "account.h"
 #import "THTTPClient.h"
 #import "TBinaryProtocol.h"
 
