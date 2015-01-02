@@ -27,6 +27,7 @@
 		9422A6951A2FB95600708C07 /* TTransportException.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6821A2FB95600708C07 /* TTransportException.m */; };
 		9422A6961A2FB95600708C07 /* TSharedProcessorFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6841A2FB95600708C07 /* TSharedProcessorFactory.m */; };
 		9422A69A1A2FB96100708C07 /* datahub.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6991A2FB96100708C07 /* datahub.m */; };
+		944156521A5737CD003AC241 /* account.m in Sources */ = {isa = PBXBuildFile; fileRef = 944156511A5737CD003AC241 /* account.m */; };
 		949DD4B51A57346F001A950A /* types.m in Sources */ = {isa = PBXBuildFile; fileRef = 949DD4B41A57346F001A950A /* types.m */; };
 /* End PBXBuildFile section */
 
@@ -91,6 +92,8 @@
 		9422A6841A2FB95600708C07 /* TSharedProcessorFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSharedProcessorFactory.m; sourceTree = "<group>"; };
 		9422A6981A2FB96100708C07 /* datahub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = datahub.h; sourceTree = "<group>"; };
 		9422A6991A2FB96100708C07 /* datahub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = datahub.m; sourceTree = "<group>"; };
+		944156501A5737CD003AC241 /* account.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = account.h; sourceTree = "<group>"; };
+		944156511A5737CD003AC241 /* account.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = account.m; sourceTree = "<group>"; };
 		949DD4B31A57346F001A950A /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
 		949DD4B41A57346F001A950A /* types.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = types.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -220,6 +223,8 @@
 			children = (
 				9422A6981A2FB96100708C07 /* datahub.h */,
 				9422A6991A2FB96100708C07 /* datahub.m */,
+				944156501A5737CD003AC241 /* account.h */,
+				944156511A5737CD003AC241 /* account.m */,
 				949DD4B31A57346F001A950A /* types.h */,
 				949DD4B41A57346F001A950A /* types.m */,
 			);
@@ -289,6 +294,7 @@
 				9422A68B1A2FB95600708C07 /* TApplicationException.m in Sources */,
 				9422A6921A2FB95600708C07 /* TSocketClient.m in Sources */,
 				9422A64E1A2FB93B00708C07 /* main.m in Sources */,
+				944156521A5737CD003AC241 /* account.m in Sources */,
 				9422A6911A2FB95600708C07 /* TNSStreamTransport.m in Sources */,
 				9422A68A1A2FB95600708C07 /* TSocketServer.m in Sources */,
 				9422A68D1A2FB95600708C07 /* TFramedTransport.m in Sources */,

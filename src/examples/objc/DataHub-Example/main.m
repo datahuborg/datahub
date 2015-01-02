@@ -18,6 +18,12 @@ int main(int argc, const char * argv[]) {
         // insert code here...
         NSLog(@"Hello, World!");
         
+        // create an account
+        
+        
+        
+        
+        // query a database
         NSURL *url = [NSURL URLWithString:@"http://datahub.csail.mit.edu/service"];
         
         // Talk to a server via HTTP, using a binary protocol
@@ -27,13 +33,13 @@ int main(int argc, const char * argv[]) {
                                      strictRead:YES
                                      strictWrite:YES];
         
-        DataHubClient *server = [[DataHubClient alloc] initWithProtocol:protocol];
+        datahubDataHubClient *server = [[datahubDataHubClient alloc] initWithProtocol:protocol];
         
-        ConnectionParams *conparams = [[ConnectionParams alloc] initWithClient_id:@"foo" seq_id:nil user:@"anantb" password:@"anant" repo_base:nil];
+        datahubConnectionParams *conparams = [[datahubConnectionParams alloc] initWithClient_id:@"foo" seq_id:nil user:@"anantb" password:@"anant" repo_base:nil];
         
-        Connection *connection = [server open_connection:conparams];
+        datahubConnection *connection = [server open_connection:conparams];
         
-        ResultSet *results =  [server execute_sql:connection query:@"select * from test.demo" query_params:nil];
+        datahubResultSet *results = [server execute_sql:connection query:@"select * from test.demo" query_params:nil];
         
         NSLog(@"%@", results);
         
