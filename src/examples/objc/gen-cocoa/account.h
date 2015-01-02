@@ -17,7 +17,7 @@
 
 #import "types.h"
 
-@interface datahub.accountAccountException : NSException <TBase, NSCoding> {
+@interface accountAccountException : NSException <TBase, NSCoding> {
   int32_t __error_code;
   NSString * __message;
   NSString * __details;
@@ -61,13 +61,13 @@
 
 @end
 
-@protocol datahub.accountAccountService <NSObject>
+@protocol accountAccountService <NSObject>
 - (double) get_version;  // throws TException
 - (BOOL) create_account: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token;  // throws datahub.accountAccountException *, TException
 - (BOOL) remove_account: (NSString *) username app_id: (NSString *) app_id app_token: (NSString *) app_token;  // throws datahub.accountAccountException *, TException
 @end
 
-@interface datahub.accountAccountServiceClient : NSObject <datahub.accountAccountService> {
+@interface accountAccountServiceClient : NSObject <accountAccountService> {
   id <TProtocol> inProtocol;
   id <TProtocol> outProtocol;
 }
@@ -75,14 +75,14 @@
 - (id) initWithInProtocol: (id <TProtocol>) inProtocol outProtocol: (id <TProtocol>) outProtocol;
 @end
 
-@interface datahub.accountAccountServiceProcessor : NSObject <TProcessor> {
-  id <datahub.accountAccountService> mService;
+@interface accountAccountServiceProcessor : NSObject <TProcessor> {
+  id <accountAccountService> mService;
   NSDictionary * mMethodMap;
 }
-- (id) initWithAccountService: (id <datahub.accountAccountService>) service;
-- (id<datahub.accountAccountService>) service;
+- (id) initWithAccountService: (id <accountAccountService>) service;
+- (id<accountAccountService>) service;
 @end
 
-@interface datahub.accountaccountConstants : NSObject {
+@interface accountaccountConstants : NSObject {
 }
 @end
