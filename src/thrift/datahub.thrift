@@ -78,7 +78,10 @@ enum RepoAccessPrivilege {
 
 enum PrivilegeType {
   NONE = 0,
+
+  // indicates that a list of access privileges would be set
   PRIVILEGES_LIST = 1,
+  
   ALL = 2,
 }
 
