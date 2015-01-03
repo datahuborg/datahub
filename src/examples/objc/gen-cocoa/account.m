@@ -19,11 +19,11 @@
 
 #import "account.h"
 
-@implementation datahub.accountAccountException
+@implementation accountAccountException
 
 - (id) init
 {
-  return [super initWithName: @"datahub.accountAccountException" reason: @"unknown" userInfo: nil];
+  return [super initWithName: @"accountAccountException" reason: @"unknown" userInfo: nil];
 }
 
 - (id) initWithError_code: (int32_t) error_code message: (NSString *) message details: (NSString *) details
@@ -220,7 +220,7 @@
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"datahub.accountAccountException("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"accountAccountException("];
   [ms appendString: @"error_code:"];
   [ms appendFormat: @"%i", __error_code];
   [ms appendString: @",message:"];
@@ -234,12 +234,12 @@
 @end
 
 
-@implementation datahub.accountaccountConstants
+@implementation accountaccountConstants
 + (void) initialize {
 }
 @end
 
-@interface datahub.accountget_version_args : NSObject <TBase, NSCoding> {
+@interface accountget_version_args : NSObject <TBase, NSCoding> {
 }
 
 - (id) init;
@@ -251,7 +251,7 @@
 
 @end
 
-@implementation datahub.accountget_version_args
+@implementation accountget_version_args
 
 - (id) init
 {
@@ -304,14 +304,14 @@
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"datahub.accountget_version_args("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"accountget_version_args("];
   [ms appendString: @")"];
   return [NSString stringWithString: ms];
 }
 
 @end
 
-@interface datahub.accountGet_version_result : NSObject <TBase, NSCoding> {
+@interface accountGet_version_result : NSObject <TBase, NSCoding> {
   double __success;
 
   BOOL __success_isset;
@@ -337,7 +337,7 @@
 
 @end
 
-@implementation datahub.accountGet_version_result
+@implementation accountGet_version_result
 
 - (id) init
 {
@@ -445,7 +445,7 @@
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"datahub.accountGet_version_result("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"accountGet_version_result("];
   [ms appendString: @"success:"];
   [ms appendFormat: @"%f", __success];
   [ms appendString: @")"];
@@ -454,7 +454,7 @@
 
 @end
 
-@interface datahub.accountcreate_account_args : NSObject <TBase, NSCoding> {
+@interface accountcreate_account_args : NSObject <TBase, NSCoding> {
   NSString * __username;
   NSString * __email;
   NSString * __password;
@@ -516,7 +516,7 @@
 
 @end
 
-@implementation datahub.accountcreate_account_args
+@implementation accountcreate_account_args
 
 - (id) init
 {
@@ -822,7 +822,7 @@
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"datahub.accountcreate_account_args("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"accountcreate_account_args("];
   [ms appendString: @"username:"];
   [ms appendFormat: @"\"%@\"", __username];
   [ms appendString: @",email:"];
@@ -839,9 +839,9 @@
 
 @end
 
-@interface datahub.accountCreate_account_result : NSObject <TBase, NSCoding> {
+@interface accountCreate_account_result : NSObject <TBase, NSCoding> {
   BOOL __success;
-  datahub.accountAccountException * __ex;
+  accountAccountException * __ex;
 
   BOOL __success_isset;
   BOOL __ex_isset;
@@ -849,11 +849,11 @@
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
 @property (nonatomic, getter=success, setter=setSuccess:) BOOL success;
-@property (nonatomic, retain, getter=ex, setter=setEx:) datahub.accountAccountException * ex;
+@property (nonatomic, retain, getter=ex, setter=setEx:) accountAccountException * ex;
 #endif
 
 - (id) init;
-- (id) initWithSuccess: (BOOL) success ex: (datahub.accountAccountException *) ex;
+- (id) initWithSuccess: (BOOL) success ex: (accountAccountException *) ex;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -867,14 +867,14 @@
 - (BOOL) successIsSet;
 
 #if !__has_feature(objc_arc)
-- (datahub.accountAccountException *) ex;
-- (void) setEx: (datahub.accountAccountException *) ex;
+- (accountAccountException *) ex;
+- (void) setEx: (accountAccountException *) ex;
 #endif
 - (BOOL) exIsSet;
 
 @end
 
-@implementation datahub.accountCreate_account_result
+@implementation accountCreate_account_result
 
 - (id) init
 {
@@ -884,7 +884,7 @@
   return self;
 }
 
-- (id) initWithSuccess: (BOOL) success ex: (datahub.accountAccountException *) ex
+- (id) initWithSuccess: (BOOL) success ex: (accountAccountException *) ex
 {
   self = [super init];
   __success = success;
@@ -945,11 +945,11 @@
   __success_isset = NO;
 }
 
-- (datahub.accountAccountException *) ex {
+- (accountAccountException *) ex {
   return [[__ex retain_stub] autorelease_stub];
 }
 
-- (void) setEx: (datahub.accountAccountException *) ex {
+- (void) setEx: (accountAccountException *) ex {
   [ex retain_stub];
   [__ex release_stub];
   __ex = ex;
@@ -991,7 +991,7 @@
         break;
       case 1:
         if (fieldType == TType_STRUCT) {
-          datahub.accountAccountException *fieldValue = [[datahub.accountAccountException alloc] init];
+          accountAccountException *fieldValue = [[accountAccountException alloc] init];
           [fieldValue read: inProtocol];
           [self setEx: fieldValue];
           [fieldValue release_stub];
@@ -1031,7 +1031,7 @@
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"datahub.accountCreate_account_result("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"accountCreate_account_result("];
   [ms appendString: @"success:"];
   [ms appendFormat: @"%i", __success];
   [ms appendString: @",ex:"];
@@ -1042,7 +1042,7 @@
 
 @end
 
-@interface datahub.accountremove_account_args : NSObject <TBase, NSCoding> {
+@interface accountremove_account_args : NSObject <TBase, NSCoding> {
   NSString * __username;
   NSString * __app_id;
   NSString * __app_token;
@@ -1086,7 +1086,7 @@
 
 @end
 
-@implementation datahub.accountremove_account_args
+@implementation accountremove_account_args
 
 - (id) init
 {
@@ -1296,7 +1296,7 @@
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"datahub.accountremove_account_args("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"accountremove_account_args("];
   [ms appendString: @"username:"];
   [ms appendFormat: @"\"%@\"", __username];
   [ms appendString: @",app_id:"];
@@ -1309,9 +1309,9 @@
 
 @end
 
-@interface datahub.accountRemove_account_result : NSObject <TBase, NSCoding> {
+@interface accountRemove_account_result : NSObject <TBase, NSCoding> {
   BOOL __success;
-  datahub.accountAccountException * __ex;
+  accountAccountException * __ex;
 
   BOOL __success_isset;
   BOOL __ex_isset;
@@ -1319,11 +1319,11 @@
 
 #if TARGET_OS_IPHONE || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
 @property (nonatomic, getter=success, setter=setSuccess:) BOOL success;
-@property (nonatomic, retain, getter=ex, setter=setEx:) datahub.accountAccountException * ex;
+@property (nonatomic, retain, getter=ex, setter=setEx:) accountAccountException * ex;
 #endif
 
 - (id) init;
-- (id) initWithSuccess: (BOOL) success ex: (datahub.accountAccountException *) ex;
+- (id) initWithSuccess: (BOOL) success ex: (accountAccountException *) ex;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -1337,14 +1337,14 @@
 - (BOOL) successIsSet;
 
 #if !__has_feature(objc_arc)
-- (datahub.accountAccountException *) ex;
-- (void) setEx: (datahub.accountAccountException *) ex;
+- (accountAccountException *) ex;
+- (void) setEx: (accountAccountException *) ex;
 #endif
 - (BOOL) exIsSet;
 
 @end
 
-@implementation datahub.accountRemove_account_result
+@implementation accountRemove_account_result
 
 - (id) init
 {
@@ -1354,7 +1354,7 @@
   return self;
 }
 
-- (id) initWithSuccess: (BOOL) success ex: (datahub.accountAccountException *) ex
+- (id) initWithSuccess: (BOOL) success ex: (accountAccountException *) ex
 {
   self = [super init];
   __success = success;
@@ -1415,11 +1415,11 @@
   __success_isset = NO;
 }
 
-- (datahub.accountAccountException *) ex {
+- (accountAccountException *) ex {
   return [[__ex retain_stub] autorelease_stub];
 }
 
-- (void) setEx: (datahub.accountAccountException *) ex {
+- (void) setEx: (accountAccountException *) ex {
   [ex retain_stub];
   [__ex release_stub];
   __ex = ex;
@@ -1461,7 +1461,7 @@
         break;
       case 1:
         if (fieldType == TType_STRUCT) {
-          datahub.accountAccountException *fieldValue = [[datahub.accountAccountException alloc] init];
+          accountAccountException *fieldValue = [[accountAccountException alloc] init];
           [fieldValue read: inProtocol];
           [self setEx: fieldValue];
           [fieldValue release_stub];
@@ -1501,7 +1501,7 @@
 }
 
 - (NSString *) description {
-  NSMutableString * ms = [NSMutableString stringWithString: @"datahub.accountRemove_account_result("];
+  NSMutableString * ms = [NSMutableString stringWithString: @"accountRemove_account_result("];
   [ms appendString: @"success:"];
   [ms appendFormat: @"%i", __success];
   [ms appendString: @",ex:"];
@@ -1512,7 +1512,7 @@
 
 @end
 
-@implementation datahub.accountAccountServiceClient
+@implementation accountAccountServiceClient
 - (id) initWithProtocol: (id <TProtocol>) protocol
 {
   return [self initWithInProtocol: protocol outProtocol: protocol];
@@ -1552,7 +1552,7 @@
     [inProtocol readMessageEnd];
     @throw x;
   }
-  datahub.accountGet_version_result * result = [[[datahub.accountGet_version_result alloc] init] autorelease_stub];
+  accountGet_version_result * result = [[[accountGet_version_result alloc] init] autorelease_stub];
   [result read: inProtocol];
   [inProtocol readMessageEnd];
   if ([result successIsSet]) {
@@ -1612,7 +1612,7 @@
     [inProtocol readMessageEnd];
     @throw x;
   }
-  datahub.accountCreate_account_result * result = [[[datahub.accountCreate_account_result alloc] init] autorelease_stub];
+  accountCreate_account_result * result = [[[accountCreate_account_result alloc] init] autorelease_stub];
   [result read: inProtocol];
   [inProtocol readMessageEnd];
   if ([result successIsSet]) {
@@ -1665,7 +1665,7 @@
     [inProtocol readMessageEnd];
     @throw x;
   }
-  datahub.accountRemove_account_result * result = [[[datahub.accountRemove_account_result alloc] init] autorelease_stub];
+  accountRemove_account_result * result = [[[accountRemove_account_result alloc] init] autorelease_stub];
   [result read: inProtocol];
   [inProtocol readMessageEnd];
   if ([result successIsSet]) {
@@ -1686,9 +1686,9 @@
 
 @end
 
-@implementation datahub.accountAccountServiceProcessor
+@implementation accountAccountServiceProcessor
 
-- (id) initWithAccountService: (id <datahub.accountAccountService>) service
+- (id) initWithAccountService: (id <accountAccountService>) service
 {
   self = [super init];
   if (!self) {
@@ -1723,7 +1723,7 @@
   return self;
 }
 
-- (id<datahub.accountAccountService>) service
+- (id<accountAccountService>) service
 {
   return [[mService retain_stub] autorelease_stub];
 }
@@ -1763,10 +1763,10 @@
 
 - (void) process_get_version_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
 {
-  datahub.accountget_version_args * args = [[datahub.accountget_version_args alloc] init];
+  accountget_version_args * args = [[accountget_version_args alloc] init];
   [args read: inProtocol];
   [inProtocol readMessageEnd];
-  datahub.accountGet_version_result * result = [[datahub.accountGet_version_result alloc] init];
+  accountGet_version_result * result = [[accountGet_version_result alloc] init];
   [result setSuccess: [mService get_version]];
   [outProtocol writeMessageBeginWithName: @"get_version"
                                     type: TMessageType_REPLY
@@ -1780,10 +1780,10 @@
 
 - (void) process_create_account_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
 {
-  datahub.accountcreate_account_args * args = [[datahub.accountcreate_account_args alloc] init];
+  accountcreate_account_args * args = [[accountcreate_account_args alloc] init];
   [args read: inProtocol];
   [inProtocol readMessageEnd];
-  datahub.accountCreate_account_result * result = [[datahub.accountCreate_account_result alloc] init];
+  accountCreate_account_result * result = [[accountCreate_account_result alloc] init];
   [result setSuccess: [mService create_account: [args username] email: [args email] password: [args password] app_id: [args app_id] app_token: [args app_token]]];
   [outProtocol writeMessageBeginWithName: @"create_account"
                                     type: TMessageType_REPLY
@@ -1797,10 +1797,10 @@
 
 - (void) process_remove_account_withSequenceID: (int32_t) seqID inProtocol: (id<TProtocol>) inProtocol outProtocol: (id<TProtocol>) outProtocol
 {
-  datahub.accountremove_account_args * args = [[datahub.accountremove_account_args alloc] init];
+  accountremove_account_args * args = [[accountremove_account_args alloc] init];
   [args read: inProtocol];
   [inProtocol readMessageEnd];
-  datahub.accountRemove_account_result * result = [[datahub.accountRemove_account_result alloc] init];
+  accountRemove_account_result * result = [[accountRemove_account_result alloc] init];
   [result setSuccess: [mService remove_account: [args username] app_id: [args app_id] app_token: [args app_token]]];
   [outProtocol writeMessageBeginWithName: @"remove_account"
                                     type: TMessageType_REPLY
