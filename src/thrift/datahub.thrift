@@ -16,6 +16,11 @@ namespace java datahub
 namespace py datahub
 namespace rb datahub
 
+/* Constants */
+
+// version info
+const double VERSION = 1.0
+
 
 /* DataHub Core */
 

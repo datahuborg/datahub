@@ -7,7 +7,6 @@
  *
  */
 
-include "shared/types.thrift"
 
 namespace cocoa datahub_account
 namespace cpp datahub.account
