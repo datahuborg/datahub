@@ -7,8 +7,6 @@
  *
  */
 
-include "shared/types.thrift"
-
 namespace cocoa datahub
 namespace cpp datahub
 namespace go datahub
