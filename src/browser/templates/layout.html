@@ -69,20 +69,28 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
       {% if login %}
         <ul class="nav navbar-nav navbar-right">
           <li>
-            <a href="/"><i class="fa fa-user"></i>&nbsp;&nbsp;<strong>{{ login }}</strong></a>
+            <a href="/"><i class="fa fa-home"></i> <strong>Home</strong></a>
+          </li>
+
+          <li>
+            <a href="/"><i class="fa fa-th-large"></i> <strong>App Center</strong></a>
+          </li>
+
+          <li>
+            <a href="/"><i class="fa fa-bell"></i> <strong>Notifications</strong></a>
           </li>
 
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-              <i class="fa fa-caret-down"></i>
+              <i class="fa fa-user"></i> <strong>{{ login }}</strong> <i class="fa fa-caret-down"></i>
             </a>
             
             <ul class="dropdown-menu" role="menu">
-              <li><a href="/" title="Home"><i class="fa fa-home"></i>&nbsp;&nbsp;&nbsp;Home</a></li>
-              <li><a href="/apps/console" title="SQL Console"><i class="fa fa-terminal"></i>&nbsp;&nbsp;&nbsp;Terminal</a></li>
-              <li><a href="/developer/apps" title="Create App"><i class="fa fa-th-large"></i>&nbsp;&nbsp;&nbsp;Create App</a></li>
+              <li><a href="/apps/console" title="SQL Console">Launch Terminal</a></li>
+              <li><a href="/developer/apps" title="Create App">Create App</a></li>
               <li class="divider"></li>
-              <li><a href="/account/logout" title="Sign Out"><i class="fa fa-sign-out"></i>&nbsp;&nbsp;&nbsp;Sign Out</a></li>  
+              <li><a href="/account/settings" title="Sign Out">Settings</a></li>  
+              <li><a href="/account/logout" title="Sign Out">Sign Out</a></li>  
             </ul>
           </li>     
         </ul>
