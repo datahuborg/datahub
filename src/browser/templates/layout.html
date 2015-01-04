@@ -20,19 +20,16 @@ DataHub Template Layout
 
 <link rel="stylesheet" type="text/css" href="/static/css/datahub.css" />
 <link rel="stylesheet" type="text/css" href="/static/lib/jquery-ui/css/jquery-ui.css"/>
-<link rel="stylesheet" type="text/css" href="/static/lib/jquery-dropdown/css/jquery.dropdown.css"/>
 <link rel="stylesheet" type="text/css" href="/static/lib/jquery-terminal/css/jquery.terminal.css" />
 <link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/jquery.dataTables.css" />
 <link rel="stylesheet" type="text/css" href="/static/lib/bootstrap/css/bootstrap.min.css" />
 <link rel="stylesheet" type="text/css" href="/static/lib/bootstrap/css/docs.min.css" />
-<link rel="stylesheet" type="text/css" href="/static/lib/octicons/css/octicons.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/font-awesome/css/font-awesome.min.css" />
 
 <script type="text/javascript" src="/static/lib/jquery/jquery.min.js"></script>	
 <script type="text/javascript" src="/static/lib/jquery-ui/jquery-ui.js"></script>
 <script type="text/javascript" src="/static/lib/jquery-datatables/jquery.dataTables.min.js"></script>	
-<script type="text/javascript" src="/static/lib/jquery-datatables/jquery.jeditable.js"></script>	
-<script type="text/javascript" src="/static/lib/jquery-dropdown/jquery.dropdown.js"></script>
-<script type="text/javascript" src="/static/lib/jquery-mousewheel/jquery.mousewheel-min.js"></script>
+<script type="text/javascript" src="/static/lib/jquery-datatables/jquery.jeditable.js"></script>
 <script type="text/javascript" src="/static/lib/jquery-terminal/jquery.terminal-min.js"></script>
 <script type="text/javascript" src="/static/lib/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/static/lib/bootstrap/js/docs.min.js"></script>
@@ -71,10 +68,30 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
     {% block headlink-right %}
       {% if login %}
         <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a href="/"><i class="fa fa-home"></i> <strong>{{ login }}</strong></a>
+          </li>
+
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+              <span class="caret"></span>
+            </a>
+            
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="/apps/console" title="SQL Console"><i class="fa fa-terminal"></i>&nbsp;&nbsp;Terminal</a></li>
+              <li><a href="/developer/apps" title="Create App"><i class="fa fa-th-large"></i>&nbsp;&nbsp;Create App</a></li>
+              <li class="divider"></li>
+              <li><a href="/account/logout" title="Sign Out"><i class="fa fa-sign-out"></i>&nbsp;&nbsp;Sign Out</a></li>  
+            </ul>
+
+          </li>
+          <!--
+
           <li><a href="/"><strong>{{ login }}</strong></a></li>
           <li><a href="/" title="Home"><span class="glyphicon glyphicon-home"></span></a></li>
           <li><a href="/apps/console" title="SQL Console"><span class="glyphicon glyphicon-th-list"></a></li>
-          <li><a href="/account/logout" title="Sign Out"><span class="glyphicon glyphicon-log-out"></span></a></li>          
+          <li><a href="/account/logout" title="Sign Out"><span class="glyphicon glyphicon-log-out"></span></a></li>  
+          -->        
         </ul>
       {% else %}
         <div class="nav navbar-nav navbar-right">
