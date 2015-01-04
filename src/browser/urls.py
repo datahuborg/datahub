@@ -145,6 +145,17 @@ urlpatterns = patterns('',
     url(r'^collaborator/repo/(\w+)/(\w+)/remove/(\w+)/$', 'browser.views.repo_collaborators_remove'),
     ### End Collaborators ###
 
+    ### Developer Apps ###
+    url(r'^developer/apps$', 'browser.views.apps'),
+    url(r'^developer/apps/$', 'browser.views.apps'),
+
+    url(r'^developer/apps/register$', 'browser.views.app_register'),
+    url(r'^developer/apps/register/$', 'browser.views.apps_register'),
+    
+    url(r'^developer/apps/remove/(\w+)$', 'browser.views.app_remove'),
+    url(r'^developer/apps/remove/(\w+)/$', 'browser.views.app_remove'),
+    ### End Apps ###
+
 
     ########################################################################################
     ######## ------------------------------ END DataHub Core --------------------- #########

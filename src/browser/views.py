@@ -6,6 +6,7 @@ import os
 import re
 import sys
 import urllib
+import uuid
 
 from django.core.context_processors import csrf
 from django.core.validators import email_re
@@ -873,3 +874,66 @@ def card_delete(request, repo_base, repo, card_name):
         json.dumps(
           {'error': str(e)}),
         mimetype="application/json")
+
+
+'''
+Developer Apps
+'''
+
+@login_required
+def apps (request):
+  login = get_login(request)
+  user = User.objects.get(username=login)
+  user_apps = App.objects.filter(user=user)
+  apps = []
+  for app in user_apps:
+    apps.append(
+        {'app_id': app.app_id,
+        'app_name': app.app_name,
+        'app_token': app.app_token, 
+        'date_created': app.timestamp})
+  print apps
+  c = {
+      'login': login,
+      'apps': apps}
+  return render_to_response('apps.html', c)
+
+@login_required
+def app_register (request):
+  login = get_login(request)
+
+  if request.method == "POST":
+    try:
+      user = User.objects.get(username=login)
+      app_id = request.POST["app-id"].lower()
+      app_name = request.POST["app-name"]
+      app_token = str(uuid.uuid4())
+      app = App(
+          app_id=app_id, app_name=app_name, user=user, app_token=app_token)
+      app.save()
+      return HttpResponseRedirect('/developer/apps')
+    except Exception, e:
+      c = {
+          'login': login,
+          'errors': [str(e)]}
+      c.update(csrf(request))
+      return render_to_response('app-create.html', c)
+  else:
+    c = {'login': login}
+    c.update(csrf(request))
+    return render_to_response('app-create.html', c)
+
+@login_required
+def app_remove (request, app_id):
+  try:
+    login = get_login(request)
+    user = User.objects.get(username=login)
+    app = App.objects.get(user=user, app_id=app_id)
+    app.delete()
+    return HttpResponseRedirect('/developer/apps')
+  except Exception, e:
+    c = {'errors': [str(e)]}
+    c.update(csrf(request))
+    return render_to_response('apps.html', c)
+
+  
