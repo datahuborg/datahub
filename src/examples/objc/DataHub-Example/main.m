@@ -37,7 +37,7 @@ int main(int argc, const char * argv[]) {
          CREATE AND REMOVE ACCOUNT
          *************************/
         @try {
-            accountAccountServiceClient *client = [[accountAccountServiceClient alloc] initWithProtocol:protocol];
+            datahub_accountAccountServiceClient *client = [[datahub_accountAccountServiceClient alloc] initWithProtocol:protocol];
             
             // create
             [client create_account:@"ACCOUNT_NAME" email:@"ACCOUNT_EMAIL" password:@"ACCOUNT PASSWORD" app_id:@"APP_ID" app_token:@"APP_TOKEN"];
