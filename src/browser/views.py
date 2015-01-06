@@ -927,13 +927,14 @@ def app_register (request):
       app = App(
           app_id=app_id, app_name=app_name, user=user, app_token=app_token)
       app.save()
-      '''
+  
       try:
-        DataHubManager.create_user(username=username, password=hashed_password)
+        DataHubManager.create_user(
+            username=username, password=hashed_password, create_db=False)
       except Exception, e:
         app.delete()
         raise e
-      '''
+
       return HttpResponseRedirect('/developer/apps')
     except Exception, e:
       c = {
