@@ -24,6 +24,7 @@ from thrift.transport.TTransport import TMemoryBuffer
 from account.auth import *
 from core.db.manager import DataHubManager
 from datahub import DataHub
+from datahub.account import AccountService
 from service.handler import DataHubHandler
 from utils import *
 
@@ -35,7 +36,8 @@ Datahub Web Handler
 '''
 
 handler = DataHubHandler()
-processor = DataHub.Processor(handler)
+core_processor = DataHub.Processor(handler)
+account_processor = AccountService.Processor(handler)
 
 def home(request):
   try:
@@ -58,11 +60,11 @@ APIs and Services
 '''
 
 @csrf_exempt
-def service_binary(request):
+def service_core_binary(request):
   try:
     iprot = TBinaryProtocol.TBinaryProtocol(TMemoryBuffer(request.body))
     oprot = TBinaryProtocol.TBinaryProtocol(TMemoryBuffer())
-    processor.process(iprot, oprot)
+    core_processor.process(iprot, oprot)
     resp = HttpResponse(oprot.trans.getvalue())
     resp['Access-Control-Allow-Origin'] = "*"
     return resp
@@ -72,11 +74,25 @@ def service_binary(request):
         mimetype="application/json")
 
 @csrf_exempt
-def service_json(request):
+def service_account_binary(request):
+  try:
+    iprot = TBinaryProtocol.TBinaryProtocol(TMemoryBuffer(request.body))
+    oprot = TBinaryProtocol.TBinaryProtocol(TMemoryBuffer())
+    account_processor.process(iprot, oprot)
+    resp = HttpResponse(oprot.trans.getvalue())
+    resp['Access-Control-Allow-Origin'] = "*"
+    return resp
+  except Exception, e:
+    return HttpResponse(
+        json.dumps({'error': str(e)}),
+        mimetype="application/json")
+
+@csrf_exempt
+def service_core_json(request):
   try:
     iprot = TJSONProtocol.TJSONProtocol(TMemoryBuffer(request.body))
     oprot = TJSONProtocol.TJSONProtocol(TMemoryBuffer())
-    processor.process(iprot, oprot)
+    core_processor.process(iprot, oprot)
     resp = HttpResponse(
         oprot.trans.getvalue(),
         mimetype="application/json")
@@ -911,6 +927,13 @@ def app_register (request):
       app = App(
           app_id=app_id, app_name=app_name, user=user, app_token=app_token)
       app.save()
+      '''
+      try:
+        DataHubManager.create_user(username=username, password=hashed_password)
+      except Exception, e:
+        app.delete()
+        raise e
+      '''
       return HttpResponseRedirect('/developer/apps')
     except Exception, e:
       c = {

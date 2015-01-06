@@ -19,7 +19,21 @@ def account_login (username, email, password):
   else:
     return User.objects.get(email=email, password=hashed_password)
 
-def account_register (username, email, password):
+def account_register (username, email, password, app_id, app_token):
+  if not app_id:
+    raise ValueError("Invalid app_id")
+
+  if not app_token:
+    raise ValueError("Invalid app_token")
+
+  try:
+    app = App.objects.get(app_id=app_id)
+  except App.DoesNotExist:
+    raise ValueError("Invalid app_id")
+  
+  if app.app_token != app_token:
+    raise ValueError("Invalid app_token")
+  
   hashed_password = hashlib.sha1(password).hexdigest()
   user = User(username=username, email=email, password=hashed_password)
   user.save()
@@ -31,7 +45,12 @@ def account_register (username, email, password):
 
   return user
 
-def account_remove (username):
+def account_remove (username, app_id, app_token):
+  app = App.objects.get(app_id=app_id)
+  
+  if app.app_token != app_token:
+    raise Exception("Incorrect app token")
+  
   user = User.objects.get(username=username)
   user.delete()  
   DataHubManager.remove_user(username=username)

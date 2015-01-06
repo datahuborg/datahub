@@ -102,14 +102,14 @@ class DataHubHandler:
   def create_account(
       self, username, email, password, app_id=None, app_token=None):
     try:
-      account_register(username, email, password)
+      account_register(username, email, password, app_id, app_token)
       return True
     except Exception, e:
       raise AccountException(message=str(e))
 
   def remove_account(self, username, app_id=None, app_token=None):
     try:
-      account_remove(username)
+      account_remove(username, app_id, app_token)
       return True
     except Exception, e:
       raise AccountException(message=str(e))
