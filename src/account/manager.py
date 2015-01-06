@@ -21,18 +21,19 @@ def account_login (username, email, password):
 
 def account_register (username, email, password, app_id, app_token):
   if not app_id:
-    raise ValueError("Invalid app_id")
+    raise Exception("Invalid app_id")
 
   if not app_token:
-    raise ValueError("Invalid app_token")
+    raise Exception("Invalid app_token")
 
+  app = None
   try:
     app = App.objects.get(app_id=app_id)
   except App.DoesNotExist:
-    raise ValueError("Invalid app_id")
+    raise Exception("Invalid app_id")
   
   if app.app_token != app_token:
-    raise ValueError("Invalid app_token")
+    raise Exception("Invalid app_token")
   
   hashed_password = hashlib.sha1(password).hexdigest()
   user = User(username=username, email=email, password=hashed_password)
@@ -46,6 +47,21 @@ def account_register (username, email, password, app_id, app_token):
   return user
 
 def account_remove (username, app_id, app_token):
+  if not app_id:
+    raise Exception("Invalid app_id")
+
+  if not app_token:
+    raise Exception("Invalid app_token")
+
+  app = None
+  try:
+    app = App.objects.get(app_id=app_id)
+  except App.DoesNotExist:
+    raise Exception("Invalid app_id")
+  
+  if app.app_token != app_token:
+    raise Exception("Invalid app_token")
+  
   app = App.objects.get(app_id=app_id)
   
   if app.app_token != app_token:

@@ -15,14 +15,14 @@ Sample Python client for DataHub Account Creation
 '''
 
 try:
-  transport = THttpClient.THttpClient('http://localhost:8000/service/account')
+  transport = THttpClient.THttpClient('http://datahub.csail.mit.edu/service/account')
   transport = TTransport.TBufferedTransport(transport)
   protocol = TBinaryProtocol.TBinaryProtocol(transport)
   client = AccountService.Client(protocol)
 
   
   print "Version: %s" %(client.get_version())
-  
+
   print client.create_account(username="test_account",
                               password="test",
                               email="test@test.com",
