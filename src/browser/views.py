@@ -929,8 +929,9 @@ def app_register (request):
       app.save()
   
       try:
+        hashed_password = hashlib.sha1(app_token).hexdigest()
         DataHubManager.create_user(
-            username=username, password=hashed_password, create_db=False)
+            username=app_id, password=hashed_password, create_db=False)
       except Exception, e:
         app.delete()
         raise e
@@ -954,6 +955,9 @@ def app_remove (request, app_id):
     user = User.objects.get(username=login)
     app = App.objects.get(user=user, app_id=app_id)
     app.delete()
+
+    DataHubManager.remove_user(username=app_id)
+
     return HttpResponseRedirect('/developer/apps')
   except Exception, e:
     c = {'errors': [str(e)]}
