@@ -30,9 +30,12 @@ try:
   
   print "Version: %s" %(datahub_client.get_version())
 
-  print account_client.remove_account(username="confer_account",
-                              app_id="confer",
-                              app_token="d089b3ed-1d82-4eae-934a-859d7070d364")
+  try:
+    print account_client.remove_account(username="confer_account",
+                                app_id="confer",
+                                app_token="d089b3ed-1d82-4eae-934a-859d7070d364")
+  except:
+    pass
 
   
   print account_client.create_account(username="confer_account",
@@ -46,6 +49,7 @@ try:
   con_params = ConnectionParams(app_id='confer', app_token='d089b3ed-1d82-4eae-934a-859d7070d364', repo_base='confer_account')
   con = datahub_client.open_connection(con_params=con_params)
   print con
+  print datahub_client.list_repos(con=con)
   print datahub_client.execute_sql(con, "CREATE TABLE test.data(content text)", query_params=None)
   print datahub_client.execute_sql(con, "INSERT INTO test.data VALUES('Anant Bhardwaj')", query_params=None);
   print datahub_client.execute_sql(con, "SELECT * FROM test.data", query_params=None);

@@ -15,7 +15,7 @@ Datahub DB Manager
 '''
 
 class DataHubManager:
-  def __init__(self, user, is_app=False, repo_base=None):
+  def __init__(self, user, repo_base=None, is_app=False):
     username = None
     password = None
     
