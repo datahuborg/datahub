@@ -101,9 +101,9 @@ class DataHubHandler:
       raise DBException(message=str(e))
 
   def create_account(
-      self, username, email, password, app_id=None, app_token=None):
+      self, username, email, repo_name, password, app_id=None, app_token=None):
     try:
-      account_register(username, email, password, app_id, app_token)
+      account_register(username, email, password, repo_name, app_id, app_token)
       return True
     except Exception, e:
       raise AccountException(message=str(e))
