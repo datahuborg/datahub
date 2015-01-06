@@ -35,7 +35,6 @@ def account_register (username, email, password, repo_name, app_id, app_token):
   if app.app_token != app_token:
     raise Exception("Invalid app_token")
   
-  hashed_password = hashlib.sha1(password).hexdigest()
   user = User(username=username, email=email, password=hashed_password)
   user.save()
   try:

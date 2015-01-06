@@ -123,14 +123,23 @@ class DataHubHandler:
   def create_account(
       self, username, email, repo_name, password, app_id=None, app_token=None):
     try:
-      account_register(username, email, password, repo_name, app_id, app_token)
+      account_register(
+        username=username,
+        email=email,
+        password=password,
+        repo_name=repo_name,
+        app_id=app_id,
+        app_token=app_token)
       return True
     except Exception, e:
       raise AccountException(message=str(e))
 
   def remove_account(self, username, app_id=None, app_token=None):
     try:
-      account_remove(username, app_id, app_token)
+      account_remove(
+        username=username,
+        app_id=app_id,
+        app_token=app_token)
       return True
     except Exception, e:
       raise AccountException(message=str(e))
