@@ -38,7 +38,7 @@ struct Connection {
   1: optional string client_id,
   2: optional string seq_id,
   3: optional string user,
-  4: optional string app_id,
+  4: optional bool is_app,
   5: optional string repo_base,
   6: optional i64 cursor,
 }

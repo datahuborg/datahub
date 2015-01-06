@@ -1,3 +1,4 @@
+import hashlib
 import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
@@ -14,12 +15,23 @@ Datahub DB Manager
 '''
 
 class DataHubManager:
-  def __init__(self, user, repo_base=None):
-    self.user = User.objects.get(username=user)
+  def __init__(self, user, is_app=False, repo_base=None):
+    username = None
+    password = None
+    
+    if is_app:
+      app = App.objects.get(app_id=user)
+      username = app.app_id
+      password = hashlib.sha1(app.app_token).hexdigest()
+    else:
+      user = User.objects.get(username=user)
+      username = user.username
+      password = user.password
+    
     self.user_con = DataHubConnection(
-        user=self.user.username,
+        user=username,
         repo_base=repo_base,
-        password=self.user.password)
+        password=password)
   
   ''' Basic Operations. '''
 

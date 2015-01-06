@@ -32,26 +32,28 @@ try:
 
   print account_client.remove_account(username="confer_account",
                               app_id="confer",
-                              app_token="57f2acbc-5776-4aa3-9068-0b8f8321ff78")
+                              app_token="d089b3ed-1d82-4eae-934a-859d7070d364")
 
+  
   print account_client.create_account(username="confer_account",
                               password="confer",
                               email="confer@datahub.com",
                               repo_name="test",
                               app_id="confer",
-                              app_token="57f2acbc-5776-4aa3-9068-0b8f8321ff78")
+                              app_token="d089b3ed-1d82-4eae-934a-859d7070d364")
 
   # open connection
-  con_params = ConnectionParams(user='confer', password='57f2acbc-5776-4aa3-9068-0b8f8321ff78', repo_base='confer_account')
+  con_params = ConnectionParams(app_id='confer', app_token='d089b3ed-1d82-4eae-934a-859d7070d364', repo_base='confer_account')
   con = datahub_client.open_connection(con_params=con_params)
-  print con.execute_sql("CRETAE TABLE test.data(content text)")
-  print con.execute_sql("INSERT INTO test.data VALUES('Anant Bhardwaj')");
-  print con.execute_sql("SELECT * FROM test.data");
+  print con
+  print datahub_client.execute_sql(con, "CREATE TABLE test.data(content text)", query_params=None)
+  print datahub_client.execute_sql(con, "INSERT INTO test.data VALUES('Anant Bhardwaj')", query_params=None);
+  print datahub_client.execute_sql(con, "SELECT * FROM test.data", query_params=None);
 
 
   print account_client.remove_account(username="confer_account",
                               app_id="confer",
-                              app_token="57f2acbc-5776-4aa3-9068-0b8f8321ff78")
+                              app_token="d089b3ed-1d82-4eae-934a-859d7070d364")
 
 except Exception, e:
   print 'Something went wrong : %s' % (e)
