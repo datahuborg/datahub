@@ -34,4 +34,4 @@ try:
                               app_token="f61c8d32-54a8-4978-afc8-c45f9f73a55e")
 
 except Exception, e:
-    print 'Something went wrong : %s' % (str(e))
+    print 'Something went wrong : %s' % (e)
