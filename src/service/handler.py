@@ -40,9 +40,15 @@ class DataHubHandler:
 
   def open_connection(self, con_params):  
     try:
+      repo_base = con_params.user
+
+      if con_params.repo_base and con_params.repo_base != '':
+        repo_base = con_params.repo_base
+      
       DataHubConnection(
           user=con_params.user,
-          password=hashlib.sha1(con_params.password).hexdigest())
+          password=hashlib.sha1(con_params.password).hexdigest(),
+          repo_base=repo_base)
 
       con = Connection(
           user=con_params.user,
