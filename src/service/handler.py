@@ -65,7 +65,7 @@ class DataHubHandler:
 
       con = Connection(
           user=user,
-          is_app = True,
+          is_app = is_app,
           repo_base=con_params.repo_base)
 
       return con
