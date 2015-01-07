@@ -31,8 +31,9 @@ service AccountService {
       1: string username,
       2: string email,
       3: string password,
-      4: string app_id,
-      5: string app_token) throws (1: AccountException ex)
+      4: string repo_name,
+      5: string app_id,
+      6: string app_token) throws (1: AccountException ex)
 
   bool remove_account (
       1: string username,

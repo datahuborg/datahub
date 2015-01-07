@@ -28,9 +28,9 @@ urlpatterns = patterns('',
 
 
     #### Thrift Services ####
-    url(r'^service$', 'browser.views.service_binary'),
-    url(r'^service/binary$', 'browser.views.service_binary'),
-    url(r'^service/json$', 'browser.views.service_json'),
+    url(r'^service$', 'browser.views.service_core_binary'),
+    url(r'^service/account$', 'browser.views.service_account_binary'),
+    url(r'^service/json$', 'browser.views.service_core_json'),
     #### End Thrift Services ####
 
 
