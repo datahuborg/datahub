@@ -63,7 +63,7 @@ class PGBackend:
     return self.execute_sql(query)
 
   def add_collaborator(self, repo, username, privileges, auto_in_future=True):
-    query = ''' GRANT USAGE ON SCHEMA %s TO %s;
+    query = ''' GRANT ALL ON SCHEMA %s TO %s;
             ''' %(repo, username)
     self.execute_sql(query)
     
