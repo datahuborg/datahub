@@ -155,7 +155,12 @@ class PGBackend:
       return
     
     query = ''' CREATE DATABASE %s WITH OWNER=%s ''' %(username, username)
-    return self.execute_sql(query)
+    self.execute_sql(query)
+
+    query = ''' ALTER DEFAULT PRIVILEGES
+                GRANT ALL ON TABLES TO %s;
+            ''' %(username)
+    self.execute_sql(query)
 
   def remove_user(self, username):
     query = ''' DROP DATABASE IF EXISTS %s ''' %(username)
