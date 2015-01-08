@@ -48,6 +48,10 @@ class PGBackend:
 
   def create_repo(self, repo):
     query = ''' CREATE SCHEMA %s ''' %(repo)
+    self.execute_sql(query)
+    query = ''' ALTER DEFAULT PRIVILEGES IN SCHEMA %s
+                GRANT ALL ON TABLES TO %s;
+            ''' %(repo, self.user)
     return self.execute_sql(query)
 
   def list_repos(self):
@@ -155,11 +159,6 @@ class PGBackend:
       return
     
     query = ''' CREATE DATABASE %s WITH OWNER=%s ''' %(username, username)
-    self.execute_sql(query)
-
-    query = ''' ALTER DEFAULT PRIVILEGES
-                GRANT ALL ON TABLES TO %s;
-            ''' %(username)
     self.execute_sql(query)
 
   def remove_user(self, username):
