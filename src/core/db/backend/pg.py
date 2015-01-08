@@ -49,10 +49,7 @@ class PGBackend:
   def create_repo(self, repo):
     query = ''' CREATE SCHEMA %s ''' %(repo)
     self.execute_sql(query)
-    query = ''' ALTER DEFAULT PRIVILEGES IN SCHEMA %s
-                GRANT ALL ON TABLES TO %s;
-            ''' %(repo, self.user)
-    return self.execute_sql(query)
+    return self.add_collaborator(repo, self.user, ['ALL'])
 
   def list_repos(self):
     query = ''' SELECT schema_name AS repo_name
