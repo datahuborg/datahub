@@ -86,6 +86,10 @@ class PGBackend:
     query = ''' REVOKE ALL ON SCHEMA %s FROM %s CASCADE;
             ''' %(repo, username)
     self.execute_sql(query)
+    query = ''' ALTER DEFAULT PRIVILEGES IN SCHEMA %s
+                REVOKE ALL ON TABLES FROM %s;
+            ''' %(repo, username)
+    self.execute_sql(query)
 
   def list_tables(self, repo):
     res = self.list_repos()
