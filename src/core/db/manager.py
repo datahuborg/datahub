@@ -150,7 +150,8 @@ class DataHubManager:
   def has_base_privilege(login, repo_base, privilege):
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
-        password=settings.DATABASES['default']['USER'])
+        password=settings.DATABASES['default']['USER'],
+        repo_base=repo_base)
     return superuser_con.has_base_privilege(
         login=login, privilege=privilege)
 
