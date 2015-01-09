@@ -62,11 +62,16 @@ class DataHubHandler:
             password=hashlib.sha1(con_params.app_token).hexdigest(),
             repo_base=repo_base)
 
+      '''
+      res = DataHubManager.has_base_privilege(user, repo_base, 'CONNECT')
+      if not (res and res['tuples'][0][0]):
+        raise Exception('Access denied. Missing required privileges.')
+      '''
 
       con = Connection(
           user=user,
-          is_app = is_app,
-          repo_base=con_params.repo_base)
+          is_app=is_app,
+          repo_base=repo_base)
 
       return con
     except Exception, e:
@@ -74,7 +79,12 @@ class DataHubHandler:
   
   def create_repo(self, con, repo_name):
     try:
-      manager = DataHubManager(user=con.user, repo_base=con.repo_base, is_app=con.is_app)
+      '''
+      res = DataHubManager.has_base_privilege(con.user, con.repo_base, 'CREATE')
+      if not (res and res['tuples'][0][0]):
+        raise Exception('Access denied. Missing required privileges.')
+      '''
+      manager = DataHubManager(user=con.repo_base, repo_base=con.repo_base)
       res = manager.create_repo(repo=repo_name)
       return construct_result_set(res)
     except Exception, e:
@@ -82,7 +92,12 @@ class DataHubHandler:
 
   def list_repos(self, con):
     try:
-      manager = DataHubManager(user=con.user, repo_base=con.repo_base, is_app=con.is_app)
+      '''
+      res = DataHubManager.has_base_privilege(con.user, con.repo_base, 'CONNECT')
+      if not (res and res['tuples'][0][0]):
+        raise Exception('Access denied. Missing required privileges.')
+      '''
+      manager = DataHubManager(user=con.repo_base, repo_base=con.repo_base)
       res = manager.list_repos()
       return construct_result_set(res)
     except Exception, e:
@@ -90,7 +105,16 @@ class DataHubHandler:
 
   def delete_repo(self, con, repo_name, force_if_non_empty):
     try:
-      manager = DataHubManager(user=con.user, repo_base=con.repo_base, is_app=con.is_app)
+      '''
+      res = DataHubManager.has_base_privilege(con.user, con.repo_base, 'CREATE')
+      if not (res and res['tuples'][0][0]):
+        raise Exception('Access denied. Missing required privileges.')
+
+      res = DataHubManager.has_repo_privilege(con.user, con.repo_base, repo_name, 'CREATE')
+      if not (res and res['tuples'][0][0]):
+        raise Exception('Access denied. Missing required privileges.')
+      '''
+      manager = DataHubManager(user=con.repo_base, repo_base=con.repo_base)
       res = manager.delete_repo(repo=repo_name, force=force_if_non_empty)
       return construct_result_set(res)
     except Exception, e:
@@ -98,7 +122,12 @@ class DataHubHandler:
 
   def list_tables(self, con, repo_name):
     try:
-      manager = DataHubManager(user=con.user, repo_base=con.repo_base, is_app=con.is_app)
+      '''
+      res = DataHubManager.has_repo_privilege(con.user, con.repo_base, repo_name, 'USAGE')
+      if not (res and res['tuples'][0][0]):
+        raise Exception('Access denied. Missing required privileges.')
+      '''
+      manager = DataHubManager(user=con.repo_base, repo_base=con.repo_base)
       res = manager.list_tables(repo=repo_name)
       return construct_result_set(res)
     except Exception, e:
@@ -106,7 +135,7 @@ class DataHubHandler:
 
   def get_schema(self, con, table_name):
     try:
-      manager = DataHubManager(user=con.user, repo_base=con.repo_base, is_app=con.is_app)
+      manager = DataHubManager(user=con.repo_base, repo_base=con.repo_base)
       res = manager.get_schema(table=table_name)
       return construct_result_set(res)
     except Exception, e:
@@ -114,7 +143,7 @@ class DataHubHandler:
 
   def execute_sql(self, con, query, query_params=None):
     try:
-      manager = DataHubManager(user=con.user, repo_base=con.repo_base, is_app=con.is_app)
+      manager = DataHubManager(user=con.repo_base, repo_base=con.repo_base)
       res = manager.execute_sql(query=query, params=query_params)
       return construct_result_set(res)
     except Exception, e:
