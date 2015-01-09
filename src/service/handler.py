@@ -62,13 +62,15 @@ class DataHubHandler:
             password=hashlib.sha1(con_params.app_token).hexdigest(),
             repo_base=repo_base)
 
+      '''
       res = DataHubManager.has_base_privilege(user, repo_base, 'CONNECT')
       if not (res and res['tuples'][0][0]):
         raise Exception('Access denied. Missing required privileges.')
+      '''
 
       con = Connection(
           user=user,
-          is_app = is_app,
+          is_app=is_app,
           repo_base=repo_base)
 
       return con
