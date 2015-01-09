@@ -91,10 +91,11 @@ class DataHubHandler:
 
   def list_repos(self, con):
     try:
+      '''
       res = DataHubManager.has_base_privilege(con.user, con.repo_base, 'CONNECT')
       if not (res and res['tuples'][0][0]):
         raise Exception('Access denied. Missing required privileges.')
-  
+      '''
       manager = DataHubManager(user=con.repo_base, repo_base=con.repo_base)
       res = manager.list_repos()
       return construct_result_set(res)

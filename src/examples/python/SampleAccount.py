@@ -58,7 +58,7 @@ try:
   print datahub_client.execute_sql(con_app, "CREATE TABLE test.app_table(content text)", query_params=None)
   print datahub_client.execute_sql(con_app, "INSERT INTO test.app_table VALUES('Anant Bhardwaj')", query_params=None);
   print datahub_client.execute_sql(con_app, "SELECT * FROM test.app_table", query_params=None);
-  
+
 
   # NOT RECOMMENDED (never connect as an user through your app)
   # The following would work but DO NOT do it (connection w/ username + password)
@@ -69,11 +69,11 @@ try:
   print datahub_client.execute_sql(con_user, "CREATE TABLE test.user_table(content text)", query_params=None)
   print datahub_client.execute_sql(con_user, "INSERT INTO test.user_table VALUES('Anant Bhardwaj')", query_params=None);
   print datahub_client.execute_sql(con_user, "SELECT * FROM test.user_table", query_params=None);
-  '''
+
   # FUN STUFF
   # App accessing a user-created table and User accessing an app-created table
   print datahub_client.execute_sql(con_user, "SELECT * FROM test.app_table", query_params=None);
   print datahub_client.execute_sql(con_app, "SELECT * FROM test.user_table", query_params=None);
-  '''
+
 except Exception, e:
   print 'Something went wrong : %s' % (e)
