@@ -54,12 +54,12 @@ int main(int argc, const char * argv[]) {
          CONNECT TO AND QUERY DB
          ***********************/
         @try {
-            datahubDataHubClient *server = [[datahubDataHubClient alloc] initWithProtocol:protocol];
+            datahubDataHubClient *client = [[datahubDataHubClient alloc] initWithProtocol:protocol];
             
             datahubConnectionParams *conparams = [[datahubConnectionParams alloc] initWithClient_id:@"foo" seq_id:nil user:@"anantb" password:@"anant" repo_base:nil];
             
-            datahubConnection *connection = [server open_connection:conparams];
-            datahubResultSet *results = [server execute_sql:connection query:@"select * from test.demo" query_params:nil];
+            datahubConnection *connection = [client open_connection:conparams];
+            datahubResultSet *results = [client execute_sql:connection query:@"select * from test.demo" query_params:nil];
             
             NSLog(@"%@", results);
         }

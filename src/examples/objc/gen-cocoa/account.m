@@ -457,12 +457,14 @@
   NSString * __username;
   NSString * __email;
   NSString * __password;
+  NSString * __repo_name;
   NSString * __app_id;
   NSString * __app_token;
 
   BOOL __username_isset;
   BOOL __email_isset;
   BOOL __password_isset;
+  BOOL __repo_name_isset;
   BOOL __app_id_isset;
   BOOL __app_token_isset;
 }
@@ -471,12 +473,13 @@
 @property (nonatomic, retain, getter=username, setter=setUsername:) NSString * username;
 @property (nonatomic, retain, getter=email, setter=setEmail:) NSString * email;
 @property (nonatomic, retain, getter=password, setter=setPassword:) NSString * password;
+@property (nonatomic, retain, getter=repo_name, setter=setRepo_name:) NSString * repo_name;
 @property (nonatomic, retain, getter=app_id, setter=setApp_id:) NSString * app_id;
 @property (nonatomic, retain, getter=app_token, setter=setApp_token:) NSString * app_token;
 #endif
 
 - (id) init;
-- (id) initWithUsername: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token;
+- (id) initWithUsername: (NSString *) username email: (NSString *) email password: (NSString *) password repo_name: (NSString *) repo_name app_id: (NSString *) app_id app_token: (NSString *) app_token;
 
 - (void) read: (id <TProtocol>) inProtocol;
 - (void) write: (id <TProtocol>) outProtocol;
@@ -502,6 +505,12 @@
 - (BOOL) passwordIsSet;
 
 #if !__has_feature(objc_arc)
+- (NSString *) repo_name;
+- (void) setRepo_name: (NSString *) repo_name;
+#endif
+- (BOOL) repo_nameIsSet;
+
+#if !__has_feature(objc_arc)
 - (NSString *) app_id;
 - (void) setApp_id: (NSString *) app_id;
 #endif
@@ -525,7 +534,7 @@
   return self;
 }
 
-- (id) initWithUsername: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token
+- (id) initWithUsername: (NSString *) username email: (NSString *) email password: (NSString *) password repo_name: (NSString *) repo_name app_id: (NSString *) app_id app_token: (NSString *) app_token
 {
   self = [super init];
   __username = [username retain_stub];
@@ -534,6 +543,8 @@
   __email_isset = YES;
   __password = [password retain_stub];
   __password_isset = YES;
+  __repo_name = [repo_name retain_stub];
+  __repo_name_isset = YES;
   __app_id = [app_id retain_stub];
   __app_id_isset = YES;
   __app_token = [app_token retain_stub];
@@ -558,6 +569,11 @@
   {
     __password = [[decoder decodeObjectForKey: @"password"] retain_stub];
     __password_isset = YES;
+  }
+  if ([decoder containsValueForKey: @"repo_name"])
+  {
+    __repo_name = [[decoder decodeObjectForKey: @"repo_name"] retain_stub];
+    __repo_name_isset = YES;
   }
   if ([decoder containsValueForKey: @"app_id"])
   {
@@ -586,6 +602,10 @@
   {
     [encoder encodeObject: __password forKey: @"password"];
   }
+  if (__repo_name_isset)
+  {
+    [encoder encodeObject: __repo_name forKey: @"repo_name"];
+  }
   if (__app_id_isset)
   {
     [encoder encodeObject: __app_id forKey: @"app_id"];
@@ -601,6 +621,7 @@
   [__username release_stub];
   [__email release_stub];
   [__password release_stub];
+  [__repo_name release_stub];
   [__app_id release_stub];
   [__app_token release_stub];
   [super dealloc_stub];
@@ -667,6 +688,27 @@
   [__password release_stub];
   __password = nil;
   __password_isset = NO;
+}
+
+- (NSString *) repo_name {
+  return [[__repo_name retain_stub] autorelease_stub];
+}
+
+- (void) setRepo_name: (NSString *) repo_name {
+  [repo_name retain_stub];
+  [__repo_name release_stub];
+  __repo_name = repo_name;
+  __repo_name_isset = YES;
+}
+
+- (BOOL) repo_nameIsSet {
+  return __repo_name_isset;
+}
+
+- (void) unsetRepo_name {
+  [__repo_name release_stub];
+  __repo_name = nil;
+  __repo_name_isset = NO;
 }
 
 - (NSString *) app_id {
@@ -753,12 +795,20 @@
       case 4:
         if (fieldType == TType_STRING) {
           NSString * fieldValue = [inProtocol readString];
-          [self setApp_id: fieldValue];
+          [self setRepo_name: fieldValue];
         } else { 
           [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
         }
         break;
       case 5:
+        if (fieldType == TType_STRING) {
+          NSString * fieldValue = [inProtocol readString];
+          [self setApp_id: fieldValue];
+        } else { 
+          [TProtocolUtil skipType: fieldType onProtocol: inProtocol];
+        }
+        break;
+      case 6:
         if (fieldType == TType_STRING) {
           NSString * fieldValue = [inProtocol readString];
           [self setApp_token: fieldValue];
@@ -798,16 +848,23 @@
       [outProtocol writeFieldEnd];
     }
   }
+  if (__repo_name_isset) {
+    if (__repo_name != nil) {
+      [outProtocol writeFieldBeginWithName: @"repo_name" type: TType_STRING fieldID: 4];
+      [outProtocol writeString: __repo_name];
+      [outProtocol writeFieldEnd];
+    }
+  }
   if (__app_id_isset) {
     if (__app_id != nil) {
-      [outProtocol writeFieldBeginWithName: @"app_id" type: TType_STRING fieldID: 4];
+      [outProtocol writeFieldBeginWithName: @"app_id" type: TType_STRING fieldID: 5];
       [outProtocol writeString: __app_id];
       [outProtocol writeFieldEnd];
     }
   }
   if (__app_token_isset) {
     if (__app_token != nil) {
-      [outProtocol writeFieldBeginWithName: @"app_token" type: TType_STRING fieldID: 5];
+      [outProtocol writeFieldBeginWithName: @"app_token" type: TType_STRING fieldID: 6];
       [outProtocol writeString: __app_token];
       [outProtocol writeFieldEnd];
     }
@@ -828,6 +885,8 @@
   [ms appendFormat: @"\"%@\"", __email];
   [ms appendString: @",password:"];
   [ms appendFormat: @"\"%@\"", __password];
+  [ms appendString: @",repo_name:"];
+  [ms appendFormat: @"\"%@\"", __repo_name];
   [ms appendString: @",app_id:"];
   [ms appendFormat: @"\"%@\"", __app_id];
   [ms appendString: @",app_token:"];
@@ -1567,7 +1626,7 @@
   return [self recv_get_version];
 }
 
-- (void) send_create_account: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token
+- (void) send_create_account: (NSString *) username email: (NSString *) email password: (NSString *) password repo_name: (NSString *) repo_name app_id: (NSString *) app_id app_token: (NSString *) app_token
 {
   [outProtocol writeMessageBeginWithName: @"create_account" type: TMessageType_CALL sequenceID: 0];
   [outProtocol writeStructBeginWithName: @"create_account_args"];
@@ -1586,13 +1645,18 @@
     [outProtocol writeString: password];
     [outProtocol writeFieldEnd];
   }
+  if (repo_name != nil)  {
+    [outProtocol writeFieldBeginWithName: @"repo_name" type: TType_STRING fieldID: 4];
+    [outProtocol writeString: repo_name];
+    [outProtocol writeFieldEnd];
+  }
   if (app_id != nil)  {
-    [outProtocol writeFieldBeginWithName: @"app_id" type: TType_STRING fieldID: 4];
+    [outProtocol writeFieldBeginWithName: @"app_id" type: TType_STRING fieldID: 5];
     [outProtocol writeString: app_id];
     [outProtocol writeFieldEnd];
   }
   if (app_token != nil)  {
-    [outProtocol writeFieldBeginWithName: @"app_token" type: TType_STRING fieldID: 5];
+    [outProtocol writeFieldBeginWithName: @"app_token" type: TType_STRING fieldID: 6];
     [outProtocol writeString: app_token];
     [outProtocol writeFieldEnd];
   }
@@ -1624,9 +1688,9 @@
                                            reason: @"create_account failed: unknown result"];
 }
 
-- (BOOL) create_account: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token
+- (BOOL) create_account: (NSString *) username email: (NSString *) email password: (NSString *) password repo_name: (NSString *) repo_name app_id: (NSString *) app_id app_token: (NSString *) app_token
 {
-  [self send_create_account : username email: email password: password app_id: app_id app_token: app_token];
+  [self send_create_account : username email: email password: password repo_name: repo_name app_id: app_id app_token: app_token];
   return [self recv_create_account];
 }
 
@@ -1783,7 +1847,7 @@
   [args read: inProtocol];
   [inProtocol readMessageEnd];
   datahub_accountCreate_account_result * result = [[datahub_accountCreate_account_result alloc] init];
-  [result setSuccess: [mService create_account: [args username] email: [args email] password: [args password] app_id: [args app_id] app_token: [args app_token]]];
+  [result setSuccess: [mService create_account: [args username] email: [args email] password: [args password] repo_name: [args repo_name] app_id: [args app_id] app_token: [args app_token]]];
   [outProtocol writeMessageBeginWithName: @"create_account"
                                     type: TMessageType_REPLY
                               sequenceID: seqID];

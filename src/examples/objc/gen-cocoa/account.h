@@ -62,7 +62,7 @@
 
 @protocol datahub_accountAccountService <NSObject>
 - (double) get_version;  // throws TException
-- (BOOL) create_account: (NSString *) username email: (NSString *) email password: (NSString *) password app_id: (NSString *) app_id app_token: (NSString *) app_token;  // throws datahub_accountAccountException *, TException
+- (BOOL) create_account: (NSString *) username email: (NSString *) email password: (NSString *) password repo_name: (NSString *) repo_name app_id: (NSString *) app_id app_token: (NSString *) app_token;  // throws datahub_accountAccountException *, TException
 - (BOOL) remove_account: (NSString *) username app_id: (NSString *) app_id app_token: (NSString *) app_token;  // throws datahub_accountAccountException *, TException
 @end
 
