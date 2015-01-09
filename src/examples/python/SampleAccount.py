@@ -49,7 +49,7 @@ try:
 
   
   
-  # RECOMMENDED (How an app should read/write in users' repo)
+  # RECOMMENDED (How an app should read/write in a users' repo)
   # Connect to the user repository through app_id + app_token
   con_params_app = ConnectionParams(app_id='confer', app_token='d089b3ed-1d82-4eae-934a-859d7070d364', repo_base='confer_account')
   con_app = datahub_client.open_connection(con_params=con_params_app)
@@ -60,8 +60,8 @@ try:
   print datahub_client.execute_sql(con_app, "SELECT * FROM test.app_table", query_params=None);
 
 
-  # IT WILL WORK BUT NOT RECOMMENDED IN AN APP
-  # Connect to the user repository through username + password
+  # NOT RECOMMENDED (never connect as an user through your app)
+  # The following would work but DO NOT do it (connection w/ username + password)
   con_params_user = ConnectionParams(user='confer_account', password='confer')
   con_user = datahub_client.open_connection(con_params=con_params_user)
   print con_user
@@ -72,8 +72,8 @@ try:
 
   # FUN STUFF
   # App accessing a user-created table and User accessing an app-created table
-  print datahub_client.execute_sql(con_app, "SELECT * FROM test.user_table", query_params=None);
   print datahub_client.execute_sql(con_user, "SELECT * FROM test.app_table", query_params=None);
+  print datahub_client.execute_sql(con_app, "SELECT * FROM test.user_table", query_params=None);
 
 except Exception, e:
   print 'Something went wrong : %s' % (e)

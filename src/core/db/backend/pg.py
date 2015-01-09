@@ -47,9 +47,8 @@ class PGBackend:
     self.connection.close()
 
   def create_repo(self, repo):
-    query = ''' CREATE SCHEMA %s ''' %(repo)
-    self.execute_sql(query)
-    return self.add_collaborator(repo, self.user, ['ALL'])
+    query = ''' CREATE SCHEMA %s AUTHORIZATION %s ''' %(repo, self.user)
+    return self.execute_sql(query)
 
   def list_repos(self):
     query = ''' SELECT schema_name AS repo_name
@@ -64,7 +63,7 @@ class PGBackend:
     return self.execute_sql(query)
 
   def add_collaborator(self, repo, username, privileges, auto_in_future=True):
-    query = ''' GRANT ALL ON SCHEMA %s TO %s;
+    query = ''' GRANT USAGE ON SCHEMA %s TO %s;
             ''' %(repo, username)
     self.execute_sql(query)
     
