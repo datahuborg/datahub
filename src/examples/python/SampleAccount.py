@@ -55,6 +55,7 @@ try:
   con_app = datahub_client.open_connection(con_params=con_params_app)
   print con_app
   print datahub_client.list_repos(con=con_app)
+  print datahub_client.list_tables(con=con_app, repo_name='test')
   print datahub_client.execute_sql(con_app, "CREATE TABLE test.app_table(content text)", query_params=None)
   print datahub_client.execute_sql(con_app, "INSERT INTO test.app_table VALUES('Anant Bhardwaj')", query_params=None);
   print datahub_client.execute_sql(con_app, "SELECT * FROM test.app_table", query_params=None);
@@ -66,6 +67,7 @@ try:
   con_user = datahub_client.open_connection(con_params=con_params_user)
   print con_user
   print datahub_client.list_repos(con=con_user)
+  print datahub_client.list_tables(con=con_app, repo_name='test')
   print datahub_client.execute_sql(con_user, "CREATE TABLE test.user_table(content text)", query_params=None)
   print datahub_client.execute_sql(con_user, "INSERT INTO test.user_table VALUES('Anant Bhardwaj')", query_params=None);
   print datahub_client.execute_sql(con_user, "SELECT * FROM test.user_table", query_params=None);

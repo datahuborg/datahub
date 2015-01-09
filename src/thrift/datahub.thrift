@@ -59,65 +59,6 @@ struct ResultSet {
   7: optional list <string> field_types,
 }
 
-enum CollaboratorType {
-  USER = 0,
-  APP = 1,
-  ORGANIZATION = 2,
-}
-
-struct Collaborator {
-  1: optional CollaboratorType collaborator_type = CollaboratorType.USER,
-  2: optional string name,
-}
-
-enum TableAccessPrivilege {
-  SELECT = 0,
-  INSERT = 1,
-  UPDATE = 2,
-  DELETE = 3,
-}
-
-enum RepoAccessPrivilege {
-  LIST = 0,  // allows listing of all the objects within a repo
-  CREATE = 1,  // allows creation of new objects within a repo
-}
-
-enum PrivilegeType {
-  NONE = 0,
-
-  // indicates that a list of access privileges would be set
-  PRIVILEGES_LIST = 1,
-  
-  ALL = 2,
-}
-
-struct RepoPrivilege {
-  1: optional string repo_name,
-  2: optional PrivilegeType privilege_type = PrivilegeType.ALL,
-  
-  // checked only if privilege_type == PrivilegeType.PRIVILEGES_LIST
-  3: optional list <RepoAccessPrivilege> privileges,
-}
-
-struct TablePrivilege {
-  1: optional PrivilegeType privilege_type = PrivilegeType.ALL
-  
-  // checked only if privilege_type == PrivilegeType.PRIVILEGES_LIST
-  2: optional list <TableAccessPrivilege> privileges,
-  
-  3: optional bool apply_to_all_tables = true,
-  4: optional bool default_for_future_tables = true,
-
-  // checked only if apply_to_all_tables == false
-  5: optional string table_name,
-}
-
-// privileges associated with a collaborator
-struct Privilege {
-  1: optional RepoPrivilege repo_privilege,
-  2: optional TablePrivilege table_privilege,
-}
-
 // Error in DB Operation
 exception DBException {
   1: optional i32 error_code,
@@ -142,15 +83,8 @@ service DataHub {
       2: string repo_name,
       3: bool force_if_non_empty) throws (1: DBException ex)
 
-  ResultSet add_collaborator (
-      1: Connection con,
-      2: Collaborator collaborator,
-      3: Privilege privilege) throws (1: DBException ex)
-
-  ResultSet remove_collaborator (
-      1: Connection con,
-      2: Collaborator collaborator,
-      3: Privilege privilege) throws (1: DBException ex)
+  ResultSet list_tables (
+      1: Connection con, 2: string repo_name) throws (1: DBException ex)
 
   ResultSet get_schema (
       1: Connection con, 2: string table_name) throws (1: DBException ex)
