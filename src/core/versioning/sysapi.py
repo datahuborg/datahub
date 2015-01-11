@@ -20,7 +20,6 @@ class SystemVersioning:
   def get_rs(self,sql):
     return self.backend(sql)
   
-
     
   def freeze_table(self, table_real_name):    
     return self.backend.freeze_table(table_real_name)  
@@ -62,6 +61,9 @@ class SystemVersioning:
     if parent_v_id:
       self.freeze_tables(parent_v_id)
     return self.backend.create_version(user, repo, v_name, parent_v_id)
+  
+  def get_versions(self, user, repo):
+    return self.backend.get_versions(user, repo)
   
   #TODO
   def commit(self, query_list, v_id):

@@ -116,17 +116,28 @@ class CmdTerminal(cmd.Cmd):
   def do_diff(self, args):
     try:
       argv = args.strip().split()
-      
       table_name = argv[0]
 
       if table_name == '':
         self.do_help('diff')
-
       v_id = argv[1] if len(argv) > 1 else None
       self.session.diff(table_name, v_id)
     except Exception, e:
       self.print_line('error: %s' % (e.message))
   
+  @authenticate()
+  def do_branch(self, args):
+    try:
+      argv = args.strip()  
+      branches = self.session.branch(argv)
+      self.print_line('v_id\tname') 
+      for b in branches:
+        self.print_line('%s\t%s ' % (b[0],b[1]))
+    except Exception, e:
+      self.print_line('error: %s' % (e.message))
+  
+
+      
   @authenticate()
   def do_sql(self, args):
     try:

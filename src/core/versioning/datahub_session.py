@@ -1,13 +1,17 @@
 from sysapi import SystemVersioning
 import random
 import sqlparse
-
+import logging
+import extract_tables
 '''
 @author: anant bhardwaj
 @date: Dec 8, 2014
 
 versioning session manager
 '''
+log = logging.getLogger('dh')
+logging.basicConfig()
+log.setLevel(logging.INFO)
 
 def get_random_hash():
   return str(hex(random.getrandbits(128)))
@@ -22,6 +26,9 @@ class DataHubSession:
     version_id = get_random_hash()
     self.sv.create_version(self.user, self.repo, version_id)
     self.sv.rename_table(self.user, self.repo, table_name, version_id)
+
+  def branch(self, arg):
+    return self.sv.get_versions(self.user, self.repo)
 
   def clone(self, table_name):
     version_id = get_random_hash()
@@ -44,10 +51,13 @@ class DataHubSession:
   #TODO
   def sql(self, query):
     t = sqlparse.parse(query)
-    table_name = t[0].get_name()
-    op_type = t[0].get_type
-      
-    if op_type in ['INSERT', 'UPDATE']:
+    table_names = extract_tables.extract_tables(query)
+    log.info(table_names)
+    #table_name = t[0].get_name()
+    op_type = t[0].get_type()
+    if op_type.ipper() in ['CREATE']:
+      pass
+    elif op_type.upper() in ['INSERT', 'UPDATE']:
       self.sv.rs(query)
   
     

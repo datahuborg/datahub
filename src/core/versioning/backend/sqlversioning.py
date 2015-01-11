@@ -27,6 +27,7 @@ CREATE_TABLE_PARENT= "insert into versioned_table_parent (child_table, parent_ta
 GET_TABLE_PARENT= "select parent_table from versioned_table_parent where child_table = %s"
 GET_ACTIVE_TABLE = "select vt.real_name from versions_table vt, versioned_table tbl where vt.v_id = %s and tbl.display_name = %s and vt.real_name = tbl.real_name; " 
 GET_V_ID = "select v_id from versions where repo = %s and name = %s"
+GET_VERSIONS = "select v_id, name from versions where repo = %s"
 GET_V_TABLES = '''with recursive vtp( child_table, parent_table) as (
 select v.child_table, v.parent_table from versioned_table_parent v where v.parent_table = '%s'
 union all
@@ -117,6 +118,20 @@ class SQLVersioning:
     #Not needed now
     log.error("TODO get_list_tables")
     return []
+  
+  def get_versions(self, user, repo):
+    cur = self.connection.cursor()
+    rn = None
+    try:
+      cur.execute(GET_VERSIONS,(repo,))
+      rn = [(item[0], item[1]) for item in cur.fetchall()]
+      self.connection.commit()
+    except Exception, e:
+      log.error(e)
+      self.connection.rollback()      
+    cur.close()
+    return rn
+    
                       
   def gen_string(self,base='', n=6):
     return "%s_%s" % (base,''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(n)))
@@ -208,6 +223,9 @@ class SQLVersioning:
     #Not needed now
     log.error("TODO")
     return sql
+  
+  def init_existing_table(self, user, repo, table_display_name, v_id):
+    raise Exception("TODO")
 
   #Create a new table associated with a version
   def create_table(self, user, repo, table_display_name, create_sql, v_id, provided_rn = None):
@@ -257,6 +275,7 @@ class SQLVersioning:
       cur.execute(CREATE_VERSIONED_TABLE,(rn, r[1], r[2]))
       cur.execute(CREATE_TABLE_PARENT, (rn,table_real_name))   
       #update version pointer for table
+      #TODO remove
       cur.execute(UPDATE_VERSIONS_TABLE, (rn, table_real_name, new_v_id))
       #create a copy of source table
       sql = CLONE_TABLE%(rn, table_real_name)
@@ -268,13 +287,23 @@ class SQLVersioning:
       self.connection.rollback()
     cur.close()
     return rn
-    
+      
   def get_query_trace(self, v_id1, v_id2):
     #Not needed now
     raise Exception("TODO")
   
   def update_user_head(self, user, repo, v_id, v_name):
     #Not needed now??
+    raise Exception("TODO")
+  
+  def stash(self, user, repo, rn, v_id):
+    raise Exception("TODO")
+  
+  def revert(self, user, repo, rn):
+    #delete physical table
+    #delete meta versioned table
+    #delete meta table_parent mapping entry
+    #update user head
     raise Exception("TODO")
   
   def commit(self, query_list, v_id):
