@@ -27,6 +27,7 @@ CREATE_TABLE_PARENT= "insert into versioned_table_parent (child_table, parent_ta
 GET_TABLE_PARENT= "select parent_table from versioned_table_parent where child_table = %s"
 GET_ACTIVE_TABLE = "select vt.real_name from versions_table vt, versioned_table tbl where vt.v_id = %s and tbl.display_name = %s and vt.real_name = tbl.real_name; " 
 GET_V_ID = "select v_id from versions where repo = %s and name = %s"
+CHECK_V_ID = 'select count(*) from versions where v_id = %s'
 GET_VERSIONS = "select v_id, name from versions where repo = %s"
 GET_V_TABLES = '''with recursive vtp( child_table, parent_table) as (
 select v.child_table, v.parent_table from versioned_table_parent v where v.parent_table = '%s'
@@ -97,7 +98,24 @@ class SQLVersioning:
       self.connection.rollback()      
     cur.close()
     return v
-  
+
+
+  #check that v_id exists
+  def check_v_id(self,v_id):
+    cur = self.connection.cursor()
+    v = None
+    try:
+      cur.execute(CHECK_V_ID,(v_id))
+      v = cur.fetchone()[0]
+      self.connection.commit()
+    except Exception, e:
+      log.error(e)
+      self.connection.rollback()      
+    cur.close()
+    return v==1
+    
+
+
   
   #Find the active table to insert into given a version and table name
   def find_active_table(self, v_id, display_table_name):

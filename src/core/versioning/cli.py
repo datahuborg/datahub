@@ -15,7 +15,7 @@ versioning cli interface
 CMD_LIST = {
     'init':     'init <table>            -- initialize versioning for the table',
     'clone':    'clone <table>           -- clone the table (version=HEAD)',
-    'checkout': 'checkout <table> <v>    -- check out version v of the table',
+    'checkout': 'checkout <v>    -- check out version v_id',
     'sql':      'sql <query>             -- run a sql command on the checked out version',
     'commit':   'commit <table>          -- commit all the local changes to the table',
     'stash':    'stash <table>           -- undo all uncommitted changes to the table',
@@ -75,13 +75,13 @@ class CmdTerminal(cmd.Cmd):
     try:
       argv = args.strip().split()
 
-      if len(argv) < 2:
+      if len(argv) < 1:
         self.do_help('checkout')
       
-      table_name = argv[0]
-      v_id = argv[1]
+      v_id = argv[0]
       
-      self.session.checkout(table_name, v_id)
+      result = self.session.checkout( v_id)
+      self.print_line("checkout : %s" % result)
 
     except Exception, e:
       self.print_line('error: %s' % (e.message))

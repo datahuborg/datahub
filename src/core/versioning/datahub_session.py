@@ -21,6 +21,7 @@ class DataHubSession:
     self.sv = SystemVersioning()
     self.user = 'test'
     self.repo = 'test'
+    self.currect_version = None
   
   def init(self, table_name):
     version_id = get_random_hash()
@@ -34,8 +35,12 @@ class DataHubSession:
     version_id = get_random_hash()
     self.sv.clone_table(table_name, table_name + '_' + version_id)
 
-  def checkout(self, table_name, v_id):
-    self.sv.set_version(table_name, v_id)
+  def checkout(self,  v_id):
+    
+    res = self.sv.update_user_head(self.user, self.repo, v_id=v_id)
+    if res:
+      self.currect_version = v_id
+    return res
   
   def stash(self, table_name):
     self.sv.stash(table_name)

@@ -1,4 +1,11 @@
 from backend.sqlversioning import SQLVersioning
+import logging
+
+
+log = logging.getLogger('dh')
+logging.basicConfig()
+log.setLevel(logging.INFO)
+
 
 class SystemVersioning:
   def __init__(self):
@@ -54,7 +61,9 @@ class SystemVersioning:
   
   #TODO
   def update_user_head(self, user, repo, v_id=None, v_name=None):
-    return self.backend.update_user_head(user, repo, v_id, v_name)
+    log.info("update user head TODO...")
+    return self.backend.check_v_id(v_id)
+    #return self.backend.update_user_head(user, repo, v_id, v_name)
   
   #create a new version, or fork an existing version id
   def create_version(self, user, repo, v_name, parent_v_id=None):
