@@ -55,13 +55,16 @@ class DataHubSession:
 
   #TODO
   def sql(self, query):
+    if not self.currect_version:
+      raise Exception('Must checkout a version first')
     t = sqlparse.parse(query)
     table_names = extract_tables.extract_tables(query)
     log.info(table_names)
     #table_name = t[0].get_name()
     op_type = t[0].get_type()
-    if op_type.ipper() in ['CREATE']:
-      pass
+    if op_type.upper() in ['CREATE']:
+      table_rn = self.sv.create_table(self.user, self.repo, table_names[0], query, self.currect_version)      
+      return "Created table %s with real name %s" % (table_names[0], table_rn)
     elif op_type.upper() in ['INSERT', 'UPDATE']:
       self.sv.rs(query)
   

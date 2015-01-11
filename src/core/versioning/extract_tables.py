@@ -34,17 +34,23 @@ def is_create(parsed):
 
 def extract_from_part(parsed):
     from_seen = False
+    from_create = False
     for item in parsed.tokens:
         if from_seen:
             if is_subselect(item):
                 for x in extract_from_part(item):
                     yield x
+            elif from_create:
+                #TODO parse out table name from funtion?
+                yield item
             else:
                 yield item
 
         elif item.ttype is Keyword and item.value.upper() == 'FROM':
             from_seen = True
         elif item.ttype is DDL and item.value.upper() == 'CREATE':
+            from_create = True
+        elif from_create and item.value.upper() == 'TABLE':
             from_seen = True
 
 def extract_table_identifiers(token_stream):
@@ -64,4 +70,4 @@ def extract_tables(sql):
     return list(extract_table_identifiers(stream))
 
 if __name__ == '__main__':
-    print 'Tables: %s' % ', '.join(extract_tables('select * from t as tt, h'))
+    print 'Tables: %s' % ', '.join(extract_tables('create table students ( s_id integer, name varchar(50));'))

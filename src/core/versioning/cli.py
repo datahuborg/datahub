@@ -142,7 +142,7 @@ class CmdTerminal(cmd.Cmd):
   def do_sql(self, args):
     try:
       query = args.strip()  
-      self.session.sql(query)
+      self.print_line(self.session.sql(query))
     except Exception, e:
       self.print_line('error: %s' % (e.message))
 

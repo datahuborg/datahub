@@ -247,7 +247,7 @@ class SQLVersioning:
 
   #Create a new table associated with a version
   def create_table(self, user, repo, table_display_name, create_sql, v_id, provided_rn = None):
-    log.info("Create table")
+    log.info("Create table display:%s v_id:%s sql: %s " % (table_display_name,v_id, create_sql ))
     rn = None
     cur = self.connection.cursor()
     try:
