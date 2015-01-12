@@ -47,11 +47,9 @@ class SystemVersioning:
     log.info("get_rs : %s" % table_names)
     if isinstance(table_names,str):
       table_names = [ table_names]
-    #TODO check if COW
-    raise Exception("COW")
     log.info("Dirty hack alert. need to replace with parser")
     for t in table_names:
-      active_table = self.backend.find_active_table(version, t)
+      active_table = self.backend.find_active_table(version, t, need_to_write=True)
       log.debug("%s:%s" % (t, active_table))      
       sql = sql.replace(t,active_table)
     

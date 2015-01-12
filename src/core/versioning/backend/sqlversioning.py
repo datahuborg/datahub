@@ -26,7 +26,7 @@ MOD_TABLE_DH_ATTRS = "alter table %s add column _dh_delbit boolean default false
 CLONE_TABLE = "CREATE TABLE %s as select * from %s with no data"
 CREATE_TABLE_PARENT= "insert into versioned_table_parent (child_table, parent_table) values (%s,%s)"
 GET_TABLE_PARENT= "select parent_table from versioned_table_parent where child_table = %s"
-GET_ACTIVE_TABLE = "select vt.real_name from versions_table vt, versioned_table tbl where vt.v_id = %s and tbl.display_name = %s and vt.real_name = tbl.real_name; " 
+GET_ACTIVE_TABLE = "select vt.real_name, tbl.copy_on_write from versions_table vt, versioned_table tbl where vt.v_id = %s and tbl.display_name = %s and vt.real_name = tbl.real_name; " 
 GET_V_ID = "select v_id from versions where repo = %s and name = %s"
 CHECK_V_ID = 'select count(*) from versions where v_id = %s'
 GET_VERSIONS = "select v_id, name from versions where repo = %s"
@@ -120,12 +120,16 @@ class SQLVersioning:
 
   
   #Find the active table to insert into given a version and table name
-  def find_active_table(self, v_id, display_table_name):
+  def find_active_table(self, v_id, display_table_name, need_to_write=False):
     cur = self.connection.cursor()
     rn = None
     try:
       cur.execute(GET_ACTIVE_TABLE,(v_id,display_table_name))
-      rn = cur.fetchone()[0]
+      rn, cow = cur.fetchone()
+      if need_to_write and cow:
+        rn = self.clone_table(rn, v_id)
+        log.info("Updated active table due to COW")
+        
       self.connection.commit()
     except Exception, e:
       log.error(e)
@@ -169,7 +173,7 @@ class SQLVersioning:
   #************************
   
   def get_read_query(self,table_chain, pk):
-    #base = 'select * from %s'
+    multi_base = 'select * from %s'
     base = '%s'
     limiter = 'where %s.%s not in (%s)' % ( '%s',pk,'%s')
     queries = []
@@ -177,7 +181,10 @@ class SQLVersioning:
       return base % table_chain[0]
     else:
       for j,table in enumerate(table_chain):
-        query = base % table
+        if j == 0:
+          query = base % table        
+        else:
+          query = multi_base % table
         if j > 0:
           query = "%s %s" % (query,limiter)
           excludes = self.getIds(table_chain[:j], pk)
