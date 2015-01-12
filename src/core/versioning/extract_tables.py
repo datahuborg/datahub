@@ -49,6 +49,9 @@ def extract_from_part(parsed):
 
         elif item.ttype is Keyword and item.value.upper() == 'FROM':
             from_seen = True
+        elif item.ttype is Keyword and item.value.upper() == 'INTO':
+            #TODO hack this returns values also
+            from_seen = True    
         elif item.ttype is DDL and item.value.upper() == 'CREATE':
             from_create = True
         elif from_create and item.value.upper() == 'TABLE':

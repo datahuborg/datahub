@@ -16,6 +16,7 @@ CREATE_VERSION_PARENT = "insert into version_parent (child_id, parent_id) values
 CREATE_VERSIONED_TABLE = "insert into versioned_table (real_name, display_name, repo) values (%s,%s,%s)"
 CREATE_VERSIONS_TABLE = "insert into versions_table (real_name, v_id) values (%s,%s)"
 UPDATE_VERSIONS_TABLE = "update versions_table set real_name = %s where real_name = %s and v_id = %s " 
+READ_VERSIONS_TABLE = "select real_name from versions_table where v_id =%s"
 FREEZE_TABLES = "update versioned_table set copy_on_write = true where real_name in (select real_name from versions_table where v_id = %s)"
 FREEZE_TABLE =  "update versioned_table set copy_on_write = true where real_name = %s"
 COPY_VERSIONS = "insert into versions_table (real_name, v_id) select real_name, %s from versions_table where v_id = %s" 
@@ -58,6 +59,7 @@ class SQLVersioning:
 
   #Create a new version. may not have a parent
   def create_version(self, user, repo, v_name, parent_v_id=None):
+    log.debug("SQLV.create version")
     cur = self.connection.cursor()
     id = None
     try:
@@ -75,7 +77,7 @@ class SQLVersioning:
           cur.execute(COPY_VERSIONS, (id,parent_v_id))  
           cur.execute(FREEZE_TABLES,(parent_v_id,))
         else:
-          raise Exception("not supported parent type %s " % parent_v_id)
+          raise Exception("not supported parent type %s %s" % (parent_v_id, type(parent_v_id)))
       except Exception, e:
         r = False
         log.error(e)
@@ -132,10 +134,18 @@ class SQLVersioning:
     return rn
     
   
-  def get_list_tables(self, v_id):
-    #Not needed now
-    log.error("TODO get_list_tables")
-    return []
+  def get_list_tables(self, v_id):     
+    cur = self.connection.cursor()
+    rn = None
+    try:
+      cur.execute(READ_VERSIONS_TABLE,(v_id,))
+      rn = [item[0] for item in cur.fetchall()]
+      self.connection.commit()
+    except Exception, e:
+      log.error(e)
+      self.connection.rollback()      
+    cur.close()    
+    return rn
   
   def get_versions(self, user, repo):
     cur = self.connection.cursor()
@@ -159,7 +169,8 @@ class SQLVersioning:
   #************************
   
   def get_read_query(self,table_chain, pk):
-    base = 'select * from %s'
+    #base = 'select * from %s'
+    base = '%s'
     limiter = 'where %s.%s not in (%s)' % ( '%s',pk,'%s')
     queries = []
     if len(table_chain) == 1 :
@@ -209,7 +220,18 @@ class SQLVersioning:
     return query
   
   def get_rs(self,sql):
-    raise Exception("TODO")
+    cur = self.connection.cursor()
+    rs = None
+    try:
+      cur.execute(sql)
+      self.connection.commit()
+      rs = [row for row in cur.fetchall()]
+        
+    except Exception, e:
+      log.error(e)
+      self.connection.rollback()      
+    cur.close()
+    return rs
     
   #Freeze all the tables associated with a version
   def freeze_tables(self, v_id):

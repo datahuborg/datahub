@@ -13,8 +13,8 @@ from datahub_session import DataHubSession
 versioning cli interface
 '''
 CMD_LIST = {
-    'init':     'init <table>            -- initialize versioning for the table',
-    'clone':    'clone <table>           -- clone the table (version=HEAD)',
+    'init':     'init <repo> <user>           -- initialize versioning for a repo',
+    'clone':    'clone <v_id>           -- clone the table (version=HEAD)',
     'checkout': 'checkout <v>    -- check out version v_id',
     'sql':      'sql <query>             -- run a sql command on the checked out version',
     'commit':   'commit <table>          -- commit all the local changes to the table',
@@ -47,12 +47,23 @@ class CmdTerminal(cmd.Cmd):
   @authenticate()
   def do_init(self, args):
     try:
-      table_name = args.strip()
-
-      if table_name == '':
-        self.do_help('init')
+      argv = args.strip().split()
       
-      self.session.init(table_name)
+      
+      if len(argv) == 0:
+        user = 'test'
+        repo = 'test'
+        self.print_line('Using test user and repo')
+      elif len(argv) == 1:  
+        user = 'test'
+        repo = argv[0]
+        self.print_line('Using test user and repo: %s' % repo)
+      elif len(argv) == 2:  
+        user = argv[1]
+        repo = argv[0]
+        self.print_line('Using user:%s and repo: %s' % (user,repo))        
+      
+      self.session.init(user, repo)
 
     except Exception, e:
       self.print_line('error: %s' % (e.message))
@@ -60,15 +71,20 @@ class CmdTerminal(cmd.Cmd):
   @authenticate()
   def do_clone(self, args):
     try:
-      table_name = args.strip()
+      v_id = int(args.strip())
 
-      if table_name == '':
+      if v_id == '':
         self.do_help('clone')
       
-      self.session.clone(table_name)
+      self.session.clone(v_id)
 
     except Exception, e:
       self.print_line('error: %s' % (e.message))
+
+
+  @authenticate()
+  def do_co(self, args):
+    self.do_checkout(args)
 
   @authenticate()
   def do_checkout(self, args):
@@ -130,6 +146,8 @@ class CmdTerminal(cmd.Cmd):
     try:
       argv = args.strip()  
       branches = self.session.branch(argv)
+      
+      self.print_line('current v_id:%s'% self.session.current_version) 
       self.print_line('v_id\tname') 
       for b in branches:
         self.print_line('%s\t%s ' % (b[0],b[1]))
@@ -142,7 +160,7 @@ class CmdTerminal(cmd.Cmd):
   def do_sql(self, args):
     try:
       query = args.strip()  
-      self.print_line(self.session.sql(query))
+      self.print_line(str(self.session.sql(query)))
     except Exception, e:
       self.print_line('error: %s' % (e.message))
 
