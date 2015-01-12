@@ -12,6 +12,7 @@ select K.a from (select H.b from (select G.c from (select F.d from
 tsql ='create table X ()'
 
 import sqlparse
+import re
 from sqlparse.sql import IdentifierList, Identifier
 from sqlparse.tokens import Keyword, DML, DDL
 
@@ -42,7 +43,7 @@ def extract_from_part(parsed):
                     yield x
             elif from_create:
                 #TODO parse out table name from funtion?
-                yield item
+                yield str(item).split("(",1)[0].strip()
             else:
                 yield item
 
@@ -62,6 +63,9 @@ def extract_table_identifiers(token_stream):
             yield item.get_name()
         # It's a bug to check for Keyword here, but in the example
         # above some tables names are identified as keywords...
+        elif isinstance(item, str):
+            if item.strip() != '' and re.search('\w+',item):
+              yield item
         elif item.ttype is Keyword:
             yield item.value
 
