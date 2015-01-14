@@ -24,7 +24,7 @@
 @author: anant bhardwaj
 @date: Oct 11, 2013
 
-Sample javascript client for DataHub
+Sample javascript viz using DataHub
 */
 
 transport = new Thrift.Transport("http://datahub.csail.mit.edu/service/json"),
@@ -40,16 +40,13 @@ $.each(res.tuples, function(tuple_idx, tuple) {
   var cell_arr = []
   $.each(tuple.cells, function(cell_idx, cell) {
     var val = parseFloat(cell)
-    if (isNaN(val)) {
-      cell_arr.push(cell)
-    } else {
-      cell_arr.push(val)
-    }
+    cell_arr.push(isNaN(val) ? cell : val)
   });
   results_arr.push(cell_arr)
 });
     
 data = google.visualization.arrayToDataTable(results_arr);
+
 var table = new google.visualization.Table(document.getElementById('table-div'));
 table.draw(data);
 
