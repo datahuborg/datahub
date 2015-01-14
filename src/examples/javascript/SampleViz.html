@@ -1,0 +1,59 @@
+<html>
+  <head>
+    <title>Sample DataHub HTML</title>
+    <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/jquery/jquery.min.js"></script> 
+    <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/thrift/thrift.js"></script>
+    <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/datahub/datahub_types.js"></script>
+    <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/datahub/DataHub.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart", "table", "timeline", "map"]});
+    </script>
+  </head>
+  <body>
+    <table id="table-div">
+    </table>
+    <table id="viz-div">
+    </table>
+  </body>
+</html>
+
+
+<script type="text/javascript">
+/**
+@author: anant bhardwaj
+@date: Oct 11, 2013
+
+Sample javascript client for DataHub
+*/
+
+transport = new Thrift.Transport("http://datahub.csail.mit.edu/service/json"),
+protocol = new Thrift.Protocol(transport),
+client = new DataHubClient(protocol),
+con_params = new ConnectionParams({'user': 'anantb', 'password': 'anant'}),
+con = client.open_connection(con_params),
+res = client.execute_sql(con, 'select pay_basis, count(*) from california.table2006 group by pay_basis');
+
+var results_arr = []
+results_arr.push(res.field_names)
+$.each(res.tuples, function(tuple_idx, tuple) {
+  var cell_arr = []
+  $.each(tuple.cells, function(cell_idx, cell) {
+    var val = parseFloat(cell)
+    if (isNaN(val)) {
+      cell_arr.push(cell)
+    } else {
+      cell_arr.push(val)
+    }
+  });
+  results_arr.push(cell_arr)
+});
+    
+data = google.visualization.arrayToDataTable(results_arr);
+var table = new google.visualization.Table(document.getElementById('table-div'));
+table.draw(data);
+
+var bar_chart = new google.visualization.BarChart(document.getElementById('viz-div'));
+bar_chart.draw(data, options);
+
+</script>
