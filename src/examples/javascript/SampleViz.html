@@ -53,7 +53,7 @@ data = google.visualization.arrayToDataTable(results_arr);
 var table = new google.visualization.Table(document.getElementById('table-div'));
 table.draw(data);
 
-var bar_chart = new google.visualization.BarChart(document.getElementById('viz-div'));
-bar_chart.draw(data, options);
+var chart = new google.visualization.BarChart(document.getElementById('viz-div'));
+chart.draw(data, {});
 
 </script>
