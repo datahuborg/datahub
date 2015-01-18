@@ -34,7 +34,7 @@ try:
   
   # How an app can create a user account
   try:
-    print account_client.create_account(username="confer",
+    print account_client.create_account(username="confer_account",
                                 password="confer",
                                 email="confer@datahub.com",
                                 repo_name="test",
