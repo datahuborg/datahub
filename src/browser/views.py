@@ -22,6 +22,7 @@ from thrift.transport import TTransport
 from thrift.transport.TTransport import TMemoryBuffer
 
 from account.auth import *
+from account.manager import *
 from core.db.manager import DataHubManager
 from datahub import DataHub
 from datahub.account import AccountService
@@ -963,5 +964,63 @@ def app_remove (request, app_id):
     c = {'errors': [str(e)]}
     c.update(csrf(request))
     return render_to_response('apps.html', c)
+
+
+@login_required
+def app_allow_access(request, app_id, repo_name):
+  login = get_login(request)
+  try:  
+    app = None
+    try:
+      app = App.objects.get(app_id=app_id)
+    except App.DoesNotExist:
+      raise Exception("Invalid app_id")
+    
+    app = App.objects.get(app_id=app_id)
+
+    redirect_url = None
+
+    if 'redirect_url' in request.REQUEST:
+      redirect_url = request.REQUEST['redirect_url']
+    
+    if request.method == "POST":
+
+      access_val = request.POST['access_val']
+
+      if access_val == 'allow':
+        account_grant_permission(
+        username=login,
+        repo_name=repo_name,
+        app_id=app_id,
+        app_token=app.app_token)
+
+      if redirect_url:
+        return HttpResponseRedirect(redirect_url)
+      else:
+        if access_val == 'allow':
+          return HttpResponseRedirect('/settings/%s/%s' %(login, repo_name))
+        else:
+          res = {
+            'msg_title': 'Access Request',
+            'msg_body': 'Permission denied to the app %s.' %(app_id)
+          }
+          return render_to_response('confirmation.html', res)
+    else:
+      res = {
+          'login': login,
+          'repo_name': repo_name,
+          'app_id': app_id,
+          'app_name': app.app_name}
+
+      if 'redirect_url' in request.REQUEST:
+        res['redirect_url'] = request.REQUEST['redirect_url']
+        
+      res.update(csrf(request))
+      return render_to_response('app-allow-access.html', res)
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
 
   

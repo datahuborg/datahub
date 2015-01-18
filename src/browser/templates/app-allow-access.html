@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+  <form class="form-signin" role="form" method="POST" action="/permissions/apps/allow_access/{{app_id}}/{{repo_name}}">
+  {% csrf_token %}
+  <p class="lead">Access Request</p>
+  <div id="error">
+    {% for error in errors %}
+      <span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
+    {% endfor %}
+  </div>
+  <hr />
+  <p>
+  The app named <label>{{app_id}}</label> wants permission to access your repository named <label>{{repo_name}}</label> (it will create the repository if it doesn't exist already).</p>
+  <p>
+  You can allow or deny the access request by selecting the corresponding option.
+  </p>
+  {% if redirect_url %}
+    <input type="hidden" name="redirect_url" id="redirect_url" value="{{redirect_url}}" />
+  {% endif %}
+  <input type="hidden" name="app_id" id="app_id" value="{{app_id}}" />
+  <input type="hidden" name="repo_name" id="repo_name" value="{{repo_name}}" />
+  <input type="radio" name="access_val" value="allow" checked="checked"> Allow </input> &nbsp;&nbsp;
+  <input type="radio" name="access_val" value="deny"> Deny </input> <br /><br />
+  <button type="submit" class="btn btn-primary">Save</button>
+  </form>
+  <br />
+  <br />
+</div>
+{% endblock %}
