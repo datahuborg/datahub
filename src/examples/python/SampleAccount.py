@@ -30,22 +30,19 @@ try:
   
   print "Version: %s" %(datahub_client.get_version())
 
-  
-  try:
-    print account_client.remove_account(username="confer_account",
-                                app_id="confer",
-                                app_token="d089b3ed-1d82-4eae-934a-859d7070d364")
-  except:
-    pass
 
   
   # How an app can create a user account
-  print account_client.create_account(username="confer_account",
-                              password="confer",
-                              email="confer@datahub.com",
-                              repo_name="test",
-                              app_id="confer",
-                              app_token="d089b3ed-1d82-4eae-934a-859d7070d364")
+  try:
+    print account_client.create_account(username="confer",
+                                password="confer",
+                                email="confer@datahub.com",
+                                repo_name="test",
+                                app_id="confer",
+                                app_token="d089b3ed-1d82-4eae-934a-859d7070d364")
+  except Exception, e:
+    print e
+
 
   
   
