@@ -95,7 +95,11 @@ def account_remove (username, app_id, app_token):
   
   if app.app_token != app_token:
     raise Exception("Incorrect app token")
+
+  DataHubManager.remove_user(username=username)
   
   user = User.objects.get(username=username)
-  user.delete()  
-  DataHubManager.remove_user(username=username)
+  user.delete()
+  
+  
+
