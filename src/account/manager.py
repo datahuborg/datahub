@@ -73,8 +73,6 @@ def account_grant_permission (username, repo_name, app_id, app_token):
   except Exception, e:
     raise e
 
-  return user
-
 def account_remove (username, app_id, app_token):
   if not app_id:
     raise Exception("Invalid app_id")
