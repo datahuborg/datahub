@@ -47,7 +47,7 @@ class PGBackend:
     self.connection.close()
 
   def create_repo(self, repo):
-    query = ''' CREATE SCHEMA %s AUTHORIZATION %s ''' %(repo, self.user)
+    query = ''' CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s ''' %(repo, self.user)
     return self.execute_sql(query)
 
   def list_repos(self):

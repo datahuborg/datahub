@@ -20,6 +20,33 @@ def account_login (username, email, password):
     return User.objects.get(email=email, password=hashed_password)
 
 def account_register (username, email, password, repo_name, app_id, app_token):
+  try:
+    user = User.objects.get(username=username)
+    raise Exception("Duplicate username")
+
+    user = User.objects.get(email=email)
+    raise Exception("Duplicate email")
+  except User.DoesNotExist:
+    pass
+  
+  hashed_password = hashlib.sha1(password).hexdigest()
+  user = User(username=username, email=email, password=hashed_password)
+  user.save()
+
+  try:
+    DataHubManager.create_user(username=username, password=hashed_password)
+    account_grant_permission(
+        username=username,
+        repo_name=repo_name,
+        app_id=app_id,
+        app_token=app_token)
+  except Exception, e:
+    user.delete()
+    raise e
+
+  return user
+
+def account_grant_permission (username, repo_name, app_id, app_token):
   if not app_id:
     raise Exception("Invalid app_id")
 
@@ -35,17 +62,12 @@ def account_register (username, email, password, repo_name, app_id, app_token):
   if app.app_token != app_token:
     raise Exception("Invalid app_token")
   
-  hashed_password = hashlib.sha1(password).hexdigest()
-  user = User(username=username, email=email, password=hashed_password)
-  user.save()
   try:
-    DataHubManager.create_user(username=username, password=hashed_password)
     manager = DataHubManager(user=username)
     manager.create_repo(repo_name)
     manager.add_collaborator(
         repo_name, app_id, privileges=['SELECT', 'INSERT', 'UPDATE', 'DELETE'])
   except Exception, e:
-    user.delete()
     raise e
 
   return user
