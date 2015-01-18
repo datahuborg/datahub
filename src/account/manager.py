@@ -22,7 +22,7 @@ def account_login (username, email, password):
 def account_register (username, email, password, repo_name, app_id, app_token):
   try:
     user = User.objects.get(username=username)
-    raise Exception("Duplicate username")
+    raise Exception("Duplicate username (email=%s)" %(user.email))
   except User.DoesNotExist:
     pass
 
