@@ -26,11 +26,9 @@ def account_register (username, email, password, repo_name, app_id, app_token):
   except User.DoesNotExist:
     pass
 
-  username = user.username
-
   try:
     user = User.objects.get(email=email)
-    raise Exception("Duplicate email (username=%s)" %(username))
+    raise Exception("Duplicate email (username=%s)" %(user.username))
   except User.DoesNotExist:
     pass
   
