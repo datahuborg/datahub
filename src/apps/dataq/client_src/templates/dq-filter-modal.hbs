@@ -1,0 +1,73 @@
+<!-- Modal HTML for adding a filter -->
+<div class="modal fade" id="dq-filter-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close dq-filter-quit" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+        <!-- Title indicating that this modal is for creating filters -->
+        <h4 class="modal-title">Create a Filter</h4>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body row form-inline filter-modal-body">
+
+        <!-- The first dropdown where the user can specify <val1> in the filter <val1> <operation> <val2> -->
+        <div class="input-group col-xs-4">
+          <!-- Text box for entering the filter text -->
+          <input type="text" class="form-control dq-filter-1-text" placeholder="table1.col1 * 3">
+          <!-- Dropdown for selecting a column to add to filter -->
+          <div class="input-group-btn">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
+            <ul class="dropdown-menu dropdown-menu-right" role="menu">
+              {{#each columns}}
+              <li><a href="#" class="dq-filter-1-link" data-columnname="{{this.column_name}}" data-reponame="{{../repo}}" data-tablename="{{this.table_name}}">{{this.full_name}}</a></li>
+              {{/each}}
+            </ul>
+          </div>
+        </div> <!-- end filter1 -->
+
+        <!-- The first dropdown where the user can specify <operation> in the filter <val1> <operation> <val2> -->
+        <div class="input-group col-xs-3">
+          <!-- Text box for entering the operation text -->
+          <input type="text" class="form-control dq-filter-op-text" placeholder="=">
+          <!-- The possible operations are <, <=, >, >=, =, LIKE, IN, and NOT IN -->
+          <div class="input-group-btn">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
+            <ul class="dropdown-menu dropdown-menu-right" role="menu">
+              <li><a href="#" class="dq-filter-op-link">&lt</a></li>
+              <li><a href="#" class="dq-filter-op-link">&lt=</a></li>
+              <li><a href="#" class="dq-filter-op-link">=</a></li>
+              <li><a href="#" class="dq-filter-op-link">&gt</a></li>
+              <li><a href="#" class="dq-filter-op-link">&gt=</a></li>
+              <li><a href="#" class="dq-filter-op-link">LIKE</a></li>
+              <li><a href="#" class="dq-filter-op-link">IN</a></li>
+              <li><a href="#" class="dq-filter-op-link">NOT IN</a></li>
+            </ul>
+          </div>
+        </div> <!-- end filterop -->
+
+        <!-- The first dropdown where the user can specify <val2> in the filter <val1> <operation> <val2> -->
+        <div class="input-group col-xs-4">
+          <!-- Text box for entering the filter text -->
+          <input type="text" class="form-control dq-filter-2-text" placeholder="table2.col2+3">
+          <!-- Dropdown for selecting a column to add to filter -->
+          <div class="input-group-btn">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
+            <ul class="dropdown-menu dropdown-menu-right" role="menu">
+              {{#each columns}}
+              <li><a href="#" class="dq-filter-2-link" data-columnname="{{this.column_name}}" data-reponame="{{../repo}}" data-tablename="{{this.table_name}}">{{this.full_name}}</a></li>
+              {{/each}}
+            </ul>
+          </div>
+        </div> <!-- end filter2 -->
+
+        <!-- Button to create filter -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary dq-filter-done">Done</button>
+        </div>
+
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+

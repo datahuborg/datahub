@@ -1,0 +1,36 @@
+.dq-filter-name {
+  overflow-x: scroll;
+}
+@media (max-width: 2000px) {
+  .dq-filter-name {
+    max-width: 1000px;
+  }
+}
+@media (max-width: 1200px) {
+  .dq-filter-name {
+    max-width: 600px;
+  }
+}
+@media (max-width: 800px) {
+  .dq-filter-name {
+    max-width: 400px;
+  }
+}
+@media (max-width: 600px) {
+  .dq-filter-name {
+    max-width: 300px;
+  }
+}
+@media (max-width: 500px) {
+  .dq-filter-name {
+    max-width: 250px;
+  }
+}
+@media (max-width: 450px) {
+  .dq-filter-name {
+    max-width: 240px;
+  }
+}
+.dq-filter-list-item {
+  display: inline-block;
+}

@@ -1,0 +1,13 @@
+<!-- HTML for filter in list of filters displayed in main DataQ container -->
+<li class="dq-filter-list-item">
+  <div class="btn-group" role="group" aria-label="..." data-code="{{filter.code}}">
+
+    <!-- Button to delete filter -->
+    <button type="button" class="btn btn-danger btn-mini dq-btn-delete-filter">
+      <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+    </button>
+
+    <!-- The filter text content -->
+    <button type="button" class="btn btn-default dq-filter-name" ><span>{{filter.filter_string}}</span></button>
+  </div>
+</li>
