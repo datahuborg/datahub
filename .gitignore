@@ -1,6 +1,12 @@
 # Ignore all emacs backup files
 *.*~
 
+# Ignore vim backup files.
+.swp
+
+# Ignore node modules
+node_modules/
+
 # Thrift generated files
 gen-*
 
