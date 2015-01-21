@@ -29,7 +29,6 @@ def is_create(parsed):
         return False
     for item in parsed.tokens:
         if item.ttype is DDL and item.value.upper() == 'CREATE':
-            print "TURE"
             return True
     return False
 
@@ -37,6 +36,8 @@ def extract_from_part(parsed):
     from_seen = False
     from_create = False
     for item in parsed.tokens:
+        if item.value.upper() == 'UPDATE':
+          print "UP", item, item.ttype
         if from_seen:
             if is_subselect(item):
                 for x in extract_from_part(item):
@@ -51,11 +52,15 @@ def extract_from_part(parsed):
             from_seen = True
         elif item.ttype is Keyword and item.value.upper() == 'INTO':
             #TODO hack this returns values also
+            from_seen = True   
+        elif item.ttype is Keyword.DML and item.value.upper() == 'UPDATE':
+            print "update"
             from_seen = True    
         elif item.ttype is DDL and item.value.upper() == 'CREATE':
             from_create = True
         elif from_create and item.value.upper() == 'TABLE':
             from_seen = True
+        
 
 def extract_table_identifiers(token_stream):
     for item in token_stream:
@@ -77,4 +82,10 @@ def extract_tables(sql):
     return list(extract_table_identifiers(stream))
 
 if __name__ == '__main__':
-    print 'Tables: %s' % ', '.join(extract_tables('create table students ( s_id integer, name varchar(50));'))
+    csql = 'create table students ( s_id integer, name varchar(50));'
+    print csql
+    print 'Tables: %s' % ', '.join(extract_tables(csql))
+    usql = "update students set name = 'ae' where id = 1"
+    print usql
+    print 'Tables: %s' % ', '.join(extract_tables(usql))
+    

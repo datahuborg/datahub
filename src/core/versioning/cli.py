@@ -97,7 +97,11 @@ class CmdTerminal(cmd.Cmd):
       v_id = argv[0]
       
       result = self.session.checkout( v_id)
-      self.print_line("checkout : %s" % result)
+      if result:
+        self.print_line("checkout v_id %s was succesful" % v_id)
+      else:
+        self.print_line("checkout v_id %s was not succesful, does the version exist?" % v_id)
+        
 
     except Exception, e:
       self.print_line('error: %s' % (e.message))

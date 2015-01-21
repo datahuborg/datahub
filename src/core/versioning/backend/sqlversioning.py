@@ -44,7 +44,8 @@ select v2.child_id, v2.parent_id from version_parent v, version_parent v2 where
 v2.child_id = v.parent_id
 )
 select * from ver;'''
-
+UPDATE_USER_HEAD='update user_head set head_version = %s where user_id = %s and repo= %s'
+INSERT_USER_HEAD='insert into user_head (user_id, repo, head_version) select %s, %s, %s where not exists (select 1 from user_head where user_id = %s and repo = %s)'
 
 
 class SQLVersioning:
@@ -322,7 +323,6 @@ class SQLVersioning:
       cur.execute(CREATE_VERSIONED_TABLE,(rn, r[1], r[2]))
       cur.execute(CREATE_TABLE_PARENT, (rn,table_real_name))   
       #update version pointer for table
-      #TODO remove
       cur.execute(UPDATE_VERSIONS_TABLE, (rn, table_real_name, new_v_id))
       #create a copy of source table
       sql = CLONE_TABLE%(rn, table_real_name)
@@ -334,14 +334,32 @@ class SQLVersioning:
       self.connection.rollback()
     cur.close()
     return rn
+
+#*********Query Commit/Stash/Revert*******************
       
   def get_query_trace(self, v_id1, v_id2):
     #Not needed now
     raise Exception("TODO")
-  
-  def update_user_head(self, user, repo, v_id, v_name):
-    #Not needed now??
-    raise Exception("TODO")
+
+
+
+
+  #UPDATE_USER_HEAD='update table set head_version = %s where user_id = %s and repo= %s'
+  #INSERT_USER_HEAD='insert into user_head (user_id, repo, head_version) select %s, %s, %s where not exists (select 1 from user_head user_id = %s and repo = %s'  
+  def update_user_head(self, user, repo, v_id, v_name=None):
+    res = False      
+    cur = self.connection.cursor()
+    try:
+      #find the table information for source table
+      cur.execute(UPDATE_USER_HEAD,(v_id,user,repo))
+      cur.execute(INSERT_USER_HEAD,(user,repo,v_id,user,repo))
+      self.connection.commit()
+      res = True
+    except Exception, e:
+      log.error(e)
+      self.connection.rollback()
+    cur.close()
+    return res
   
   def stash(self, user, repo, rn, v_id):
     raise Exception("TODO")

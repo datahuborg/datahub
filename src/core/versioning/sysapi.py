@@ -89,17 +89,8 @@ class SystemVersioning:
     #Create table 
     #return table_real_name
     return self.backend.clone_table(table_real_name, new_v_id, new_name)
-  
-  #TODO
-  def get_query_trace(self, v_id1, v_id2):
-    return self.backend.get_query_trace(v_id1, v_id2)
-  
-  #TODO
-  def update_user_head(self, user, repo, v_id=None, v_name=None):
-    log.info("update user head TODO...")
-    return self.backend.check_v_id(v_id)
-    #return self.backend.update_user_head(user, repo, v_id, v_name)
-  
+
+
   #create a new version, or fork an existing version id
   def create_version(self, user, repo, v_name, parent_v_id=None):
     log.debug("create version")
@@ -109,6 +100,21 @@ class SystemVersioning:
   
   def get_versions(self, user, repo):
     return self.backend.get_versions(user, repo)
+
+
+  #TODO
+  def update_user_head(self, user, repo, v_id=None, v_name=None):
+    if self.backend.check_v_id(v_id):
+      return self.backend.update_user_head(user, repo, v_id, v_name)
+    else:
+      return False
+    
+    
+  #************Commit/stash/revert
+  
+  #TODO
+  def get_query_trace(self, v_id1, v_id2):
+    return self.backend.get_query_trace(v_id1, v_id2)
   
   #TODO
   def commit(self, query_list, v_id):

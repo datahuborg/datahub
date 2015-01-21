@@ -42,7 +42,6 @@ class DataHubSession:
     #From old clone table self.sv.clone_table(table_name, table_name + '_' + version_id)
 
   def checkout(self,  v_id):
-    
     res = self.sv.update_user_head(self.user, self.repo, v_id=v_id)
     if res:
       self.current_version = v_id
