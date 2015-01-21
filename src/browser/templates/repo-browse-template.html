@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+  <h4 class="inline-block">
+    <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
+    / {{repo}} /
+  </h4>
+
+  <hr />
+  <br />
+
+  <form role="form" method="GET" action="/browse/{{repo_base}}/{{repo}}/query">
+    <div class="row">
+    <div class="form-group col-sm-10">
+      <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Type SQL here">
+    </div>
+    
+    <div class="col-sm-2">
+      <button class="btn btn-primary btn-xsm" type="submit">Run</button>
+      <button class="btn btn-primary btn-xsm" id="btn-dataq">DataQ</button>
+    </div>
+    
+    </div>
+  </form>
+  <br />
+  {% block tabs %}
+  {% endblock %}
+  <br />
+
+<script>
+$(document).on("click", "#btn-dataq", function(e) {
+  e.preventDefault();
+  DataQ.DQ("{{repo}}", function(query) {
+    $("#txt-sql").val(query);
+  });
+});
+</script>
+
+  {% block tab-content %}
+  {% endblock %}
+{% endblock %}
+
+
+
+
+

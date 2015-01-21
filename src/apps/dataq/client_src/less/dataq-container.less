@@ -1,0 +1,64 @@
+@width:90%;
+@circle-radius: 50px;
+@xs: 768px;
+
+.dataq {
+  border-radius: 30px;
+  position: absolute;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  top: 60px;
+  left: (100% - @width) / 2;
+  width: @width; 
+  height: 700px;
+  background-color: white;
+  padding-bottom: 50px;
+}
+
+.dq-black-background {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: fade(black, 50%);
+}
+
+.dq-circle {
+  width: @circle-radius;
+  height: @circle-radius;
+  border-radius:50%;
+  font-size: 15pt;
+  color: white;
+  line-height: @circle-radius;
+  text-align:center;
+  background: green;
+}
+
+.dq-title {
+  font-weight: 300;
+  line-height: 50%;
+  @media (max-width: @xs) {
+    color: green;
+  }
+}
+
+.dq-section {
+  padding-left: 10px;
+  padding-top: 10px;
+}
+
+.dq-btn-run-query, .dq-btn-cancel-query {
+  margin-top: 30px;
+}
+
+.dq-btn-run-query {
+  margin-left: 10px;
+}
+
+.dq-filter-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+  margin-left: @circle-radius;
+}

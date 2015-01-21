@@ -26,13 +26,13 @@ class User (models.Model):
 class Card (models.Model):
   id = models.AutoField(primary_key=True)
   timestamp = models.DateTimeField(auto_now=True)
-  url_path = models.CharField (max_length=200, unique = True)
   repo_base = models.CharField(max_length=50)
   repo_name = models.CharField(max_length=50)
   card_name = models.CharField (max_length=50)
+  query = models.TextField()
 
   def __unicode__ (self):
-    return self.url_path
+    return self.id
 
   class Meta:
     db_table = "cards"

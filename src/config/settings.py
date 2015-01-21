@@ -113,10 +113,12 @@ INSTALLED_APPS = (
   'account',
   'console',
   'browser',
+  'dataq',
   'dbwipes',
   'inventory',
   'refiner',
   'south',
+  'viz',
   'www'
 )
 

@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+  <h4 class="inline-block">
+    <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
+    /
+  </h4>
+  <hr />
+  <br />
+
+
+  <div class="row">
+  <div class="form-group col-sm-10">
+    <input type="text" class="form-control" name="q" id="input-query" placeholder="Type SQL here">
+  </div>
+  
+  <div class="col-sm-2">
+    <button class="btn btn-primary btn-xsm" id="btn-run-query" type="button">Run</button>
+  </div>
+  
+  </div>
+
+  <br />
+
+  <div id="table-div"></div>
+  <br />
+  <div id="options">
+    
+      <div class="form-group col-sm-10">
+        <label>Select Viz Type</label>
+        <select class="form-control" id="viz-type">
+          <option value="bar_chart">Bar Chart</option>
+          <option value="column_chart">Column Chart</option>
+          <option value="line_chart">Line Chart</option>
+          <option value="combo_chart">Combo Chart</option>
+          <option value="area_chart">Area Chart</option>
+          <option value="pie_chart">Pie Chart</option>
+          <option value="scatter_plot">Scatter Plot</option>
+          <option value="histogram">Histogram</option>
+          <option value="map">Map</option>
+          <option value="timeline">Timeline</option>
+        </select> <br />
+        <label>Optional Viz Config</label>
+        <input type="text" class="form-control" id="viz-config" placeholder="Type Viz Config (Optional)">
+        <br />
+        <button class="btn btn-primary btn-xsm" id="btn-draw-viz" type="button">Draw Viz</button>
+      </div>
+     
+    </div>
+  </div>
+  <br />
+  <div id="viz-div"></div>
+
+
+<script type="text/javascript">
+$(document).ready(function($) {
+  $("#options").hide();
+  var login = '{{login}}'
+  var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
+  var protocol = new Thrift.Protocol(transport);
+  var client = new DataHubClient(protocol);
+  var con = new Connection({'user': login, 'repo_base': login});
+
+  var data;
+
+  var run_query = function(){
+    $("#options").hide();
+    $("#viz-div").html();
+  	var results_arr = []
+  	res = client.execute_sql(con, $("#input-query").val());
+  	results_arr.push(res.field_names)
+  	$.each(res.tuples, function(tuple_idx, tuple) {
+      var cell_arr = []
+      $.each(tuple.cells, function(cell_idx, cell) {
+        var val = parseFloat(cell)
+        if (isNaN(val)) {
+          cell_arr.push(cell)
+        } else {
+          cell_arr.push(val)
+        }
+      });
+      results_arr.push(cell_arr)
+    });
+    
+    data = google.visualization.arrayToDataTable(results_arr);
+    var table = new google.visualization.Table(document.getElementById('table-div'));
+    table.draw(data);
+    $("#input-options").val('');
+    $("#options").show();
+  }
+
+
+  var draw_viz = function(){
+    $("#viz-div").html();
+    var viz_type = $("#viz-type").val()
+    var viz_div = document.getElementById('viz-div')
+    var options = eval($("#viz-config").val())
+    switch(viz_type) {
+      case "bar_chart":
+        var chart = new google.visualization.BarChart(viz_div);
+        chart.draw(data, options);
+        break;
+      case "column_chart":
+        var chart = new google.visualization.ColumnChart(viz_div);
+        chart.draw(data, options);
+        break;
+      case "line_chart":
+        var chart = new google.visualization.LineChart(viz_div);
+        chart.draw(data, options);
+        break;
+      case "combo_chart":
+        var chart = new google.visualization.ComboChart(viz_div);
+        chart.draw(data, options);
+        break;
+      case "area_chart":
+        var chart = new google.visualization.AreaChart(viz_div);
+        chart.draw(data, options);
+        break;
+      case "histogram":
+        var chart = new google.visualization.Histogram(viz_div);
+        chart.draw(data, options);
+        break;
+      case "scatter_plot":
+        var chart = new google.visualization.ScatterChart(viz_div);
+        chart.draw(data, options);
+        break;
+      case "pie_chart":
+        var chart = new google.visualization.PieChart(viz_div);
+        chart.draw(data, options);
+        break;
+      case "map":
+        var chart = new google.visualization.Map(viz_div);
+        chart.draw(data, options);
+        break;
+      case "timeline":
+        var chart = new google.visualization.Timeline(viz_div);
+        chart.draw(data, options);
+        break;
+      default:
+        console.log("nothing selected")
+    }
+  }
+
+  $("#btn-run-query").click(run_query);
+
+  $("#btn-draw-viz").click(draw_viz);
+
+  $("#input-query").on("keypress", function(e) {
+     if (e.which == 13) {
+        run_query();
+     }
+  });
+
+});
+</script>
+{% endblock %}
+

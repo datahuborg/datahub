@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response
 
 from account.auth import *
-from distill import *
+from distill import inference
 
 
 '''
@@ -12,11 +12,9 @@ Datahub Refiner
 '''
 
 @login_required
-def index(request, repo_base, repo):
+def index(request):
   return render_to_response("refiner.html", {
-    'login': get_login(request),
-    'repo_base': repo_base,
-    'repo': repo
+    'login': get_login(request)
     })
 
 @csrf_exempt

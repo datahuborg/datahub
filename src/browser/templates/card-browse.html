@@ -1,0 +1,37 @@
+{% extends "table-browse-template.html" %}
+{% block table-name %}
+card / {{card_name}}
+{% endblock %}
+{% block apps %}
+{% endblock %}
+
+{% block tabs %}
+<ul class="nav nav-tabs" role="tablist">
+  <li><a href="/browse/{{repo_base}}/{{repo}}/tables" role="tab">Tables</a></li>
+  <li><a href="/browse/{{repo_base}}/{{repo}}/files" role="tab">Files</a></li>
+  <li class="active"><a href="/browse/{{repo_base}}/{{repo}}/cards" role="tab">Cards</a></li>
+  <li><a href="/browse/{{repo_base}}/{{repo}}/dashboards" role="tab">Dashboards</a></li>
+</ul>
+{% endblock %}
+
+
+{% block panel-title %}
+  <span class="lead">
+    {{card_name}} &nbsp;
+    <a class="btn btn-default btn-sm" href="/browse/{{repo_base}}/{{repo}}/cards" title="Back to All Cards"><span class="glyphicon glyphicon-arrow-left"></span></a>
+  </span><br />
+  Query: <code class="language-sql" data-lang="sql">{{query}}</code>
+{% endblock %}
+
+{% block annotation %}
+  {% if annotation %}
+    <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}" url-path="/browse/{{repo_base}}/{{repo}}/card/{{card_name}}"><span class="glyphicon glyphicon-edit"></span></span>
+  {% else %}
+    <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Add Description" url-path="/browse/{{repo_base}}/{{repo}}/card/{{card_name}}"><span class="glyphicon glyphicon-edit"></span></span>
+  {% endif %}    
+{% endblock %}
+
+{% block table-empty-warning %}
+  <p class="bg-warning">The <strong>{{table}}</strong> card is empty.</p>
+{% endblock %}
+

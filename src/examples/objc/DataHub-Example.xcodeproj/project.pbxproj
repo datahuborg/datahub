@@ -1,0 +1,440 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9422A64E1A2FB93B00708C07 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A64D1A2FB93B00708C07 /* main.m */; };
+		9422A6851A2FB95600708C07 /* TBinaryProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6591A2FB95600708C07 /* TBinaryProtocol.m */; };
+		9422A6861A2FB95600708C07 /* TMultiplexedProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A65B1A2FB95600708C07 /* TMultiplexedProtocol.m */; };
+		9422A6871A2FB95600708C07 /* TProtocolDecorator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A65E1A2FB95600708C07 /* TProtocolDecorator.m */; };
+		9422A6881A2FB95600708C07 /* TProtocolException.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6601A2FB95600708C07 /* TProtocolException.m */; };
+		9422A6891A2FB95600708C07 /* TProtocolUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6631A2FB95600708C07 /* TProtocolUtil.m */; };
+		9422A68A1A2FB95600708C07 /* TSocketServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6661A2FB95600708C07 /* TSocketServer.m */; };
+		9422A68B1A2FB95600708C07 /* TApplicationException.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6681A2FB95600708C07 /* TApplicationException.m */; };
+		9422A68C1A2FB95600708C07 /* TException.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A66A1A2FB95600708C07 /* TException.m */; };
+		9422A68D1A2FB95600708C07 /* TFramedTransport.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6711A2FB95600708C07 /* TFramedTransport.m */; };
+		9422A68E1A2FB95600708C07 /* THTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6731A2FB95600708C07 /* THTTPClient.m */; };
+		9422A68F1A2FB95600708C07 /* TMemoryBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6751A2FB95600708C07 /* TMemoryBuffer.m */; };
+		9422A6901A2FB95600708C07 /* TNSFileHandleTransport.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6771A2FB95600708C07 /* TNSFileHandleTransport.m */; };
+		9422A6911A2FB95600708C07 /* TNSStreamTransport.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6791A2FB95600708C07 /* TNSStreamTransport.m */; };
+		9422A6921A2FB95600708C07 /* TSocketClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A67B1A2FB95600708C07 /* TSocketClient.m */; };
+		9422A6931A2FB95600708C07 /* TSSLSocketClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A67D1A2FB95600708C07 /* TSSLSocketClient.m */; };
+		9422A6941A2FB95600708C07 /* TSSLSocketException.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A67F1A2FB95600708C07 /* TSSLSocketException.m */; };
+		9422A6951A2FB95600708C07 /* TTransportException.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6821A2FB95600708C07 /* TTransportException.m */; };
+		9422A6961A2FB95600708C07 /* TSharedProcessorFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6841A2FB95600708C07 /* TSharedProcessorFactory.m */; };
+		9422A69A1A2FB96100708C07 /* datahub.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422A6991A2FB96100708C07 /* datahub.m */; };
+		944156521A5737CD003AC241 /* account.m in Sources */ = {isa = PBXBuildFile; fileRef = 944156511A5737CD003AC241 /* account.m */; };
+		949DD4B51A57346F001A950A /* types.m in Sources */ = {isa = PBXBuildFile; fileRef = 949DD4B41A57346F001A950A /* types.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		9422A6481A2FB93B00708C07 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		9422A64A1A2FB93B00708C07 /* DataHub-Example */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "DataHub-Example"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9422A64D1A2FB93B00708C07 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		9422A6571A2FB95600708C07 /* TBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TBase.h; sourceTree = "<group>"; };
+		9422A6581A2FB95600708C07 /* TBinaryProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TBinaryProtocol.h; sourceTree = "<group>"; };
+		9422A6591A2FB95600708C07 /* TBinaryProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TBinaryProtocol.m; sourceTree = "<group>"; };
+		9422A65A1A2FB95600708C07 /* TMultiplexedProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMultiplexedProtocol.h; sourceTree = "<group>"; };
+		9422A65B1A2FB95600708C07 /* TMultiplexedProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMultiplexedProtocol.m; sourceTree = "<group>"; };
+		9422A65C1A2FB95600708C07 /* TProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TProtocol.h; sourceTree = "<group>"; };
+		9422A65D1A2FB95600708C07 /* TProtocolDecorator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TProtocolDecorator.h; sourceTree = "<group>"; };
+		9422A65E1A2FB95600708C07 /* TProtocolDecorator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TProtocolDecorator.m; sourceTree = "<group>"; };
+		9422A65F1A2FB95600708C07 /* TProtocolException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TProtocolException.h; sourceTree = "<group>"; };
+		9422A6601A2FB95600708C07 /* TProtocolException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TProtocolException.m; sourceTree = "<group>"; };
+		9422A6611A2FB95600708C07 /* TProtocolFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TProtocolFactory.h; sourceTree = "<group>"; };
+		9422A6621A2FB95600708C07 /* TProtocolUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TProtocolUtil.h; sourceTree = "<group>"; };
+		9422A6631A2FB95600708C07 /* TProtocolUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TProtocolUtil.m; sourceTree = "<group>"; };
+		9422A6651A2FB95600708C07 /* TSocketServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSocketServer.h; sourceTree = "<group>"; };
+		9422A6661A2FB95600708C07 /* TSocketServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSocketServer.m; sourceTree = "<group>"; };
+		9422A6671A2FB95600708C07 /* TApplicationException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TApplicationException.h; sourceTree = "<group>"; };
+		9422A6681A2FB95600708C07 /* TApplicationException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TApplicationException.m; sourceTree = "<group>"; };
+		9422A6691A2FB95600708C07 /* TException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TException.h; sourceTree = "<group>"; };
+		9422A66A1A2FB95600708C07 /* TException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TException.m; sourceTree = "<group>"; };
+		9422A66B1A2FB95600708C07 /* Thrift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Thrift.h; sourceTree = "<group>"; };
+		9422A66C1A2FB95600708C07 /* TObjective-C.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TObjective-C.h"; sourceTree = "<group>"; };
+		9422A66D1A2FB95600708C07 /* TProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TProcessor.h; sourceTree = "<group>"; };
+		9422A66E1A2FB95600708C07 /* TProcessorFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TProcessorFactory.h; sourceTree = "<group>"; };
+		9422A6701A2FB95600708C07 /* TFramedTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFramedTransport.h; sourceTree = "<group>"; };
+		9422A6711A2FB95600708C07 /* TFramedTransport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFramedTransport.m; sourceTree = "<group>"; };
+		9422A6721A2FB95600708C07 /* THTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = THTTPClient.h; sourceTree = "<group>"; };
+		9422A6731A2FB95600708C07 /* THTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = THTTPClient.m; sourceTree = "<group>"; };
+		9422A6741A2FB95600708C07 /* TMemoryBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMemoryBuffer.h; sourceTree = "<group>"; };
+		9422A6751A2FB95600708C07 /* TMemoryBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMemoryBuffer.m; sourceTree = "<group>"; };
+		9422A6761A2FB95600708C07 /* TNSFileHandleTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TNSFileHandleTransport.h; sourceTree = "<group>"; };
+		9422A6771A2FB95600708C07 /* TNSFileHandleTransport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TNSFileHandleTransport.m; sourceTree = "<group>"; };
+		9422A6781A2FB95600708C07 /* TNSStreamTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TNSStreamTransport.h; sourceTree = "<group>"; };
+		9422A6791A2FB95600708C07 /* TNSStreamTransport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TNSStreamTransport.m; sourceTree = "<group>"; };
+		9422A67A1A2FB95600708C07 /* TSocketClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSocketClient.h; sourceTree = "<group>"; };
+		9422A67B1A2FB95600708C07 /* TSocketClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSocketClient.m; sourceTree = "<group>"; };
+		9422A67C1A2FB95600708C07 /* TSSLSocketClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSSLSocketClient.h; sourceTree = "<group>"; };
+		9422A67D1A2FB95600708C07 /* TSSLSocketClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSSLSocketClient.m; sourceTree = "<group>"; };
+		9422A67E1A2FB95600708C07 /* TSSLSocketException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSSLSocketException.h; sourceTree = "<group>"; };
+		9422A67F1A2FB95600708C07 /* TSSLSocketException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSSLSocketException.m; sourceTree = "<group>"; };
+		9422A6801A2FB95600708C07 /* TTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TTransport.h; sourceTree = "<group>"; };
+		9422A6811A2FB95600708C07 /* TTransportException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TTransportException.h; sourceTree = "<group>"; };
+		9422A6821A2FB95600708C07 /* TTransportException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TTransportException.m; sourceTree = "<group>"; };
+		9422A6831A2FB95600708C07 /* TSharedProcessorFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSharedProcessorFactory.h; sourceTree = "<group>"; };
+		9422A6841A2FB95600708C07 /* TSharedProcessorFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSharedProcessorFactory.m; sourceTree = "<group>"; };
+		9422A6981A2FB96100708C07 /* datahub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = datahub.h; sourceTree = "<group>"; };
+		9422A6991A2FB96100708C07 /* datahub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = datahub.m; sourceTree = "<group>"; };
+		944156501A5737CD003AC241 /* account.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = account.h; sourceTree = "<group>"; };
+		944156511A5737CD003AC241 /* account.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = account.m; sourceTree = "<group>"; };
+		949DD4B31A57346F001A950A /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
+		949DD4B41A57346F001A950A /* types.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = types.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9422A6471A2FB93B00708C07 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		9422A6411A2FB93B00708C07 = {
+			isa = PBXGroup;
+			children = (
+				9422A6541A2FB94400708C07 /* External */,
+				9422A64C1A2FB93B00708C07 /* DataHub-Example */,
+				9422A64B1A2FB93B00708C07 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9422A64B1A2FB93B00708C07 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9422A64A1A2FB93B00708C07 /* DataHub-Example */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9422A64C1A2FB93B00708C07 /* DataHub-Example */ = {
+			isa = PBXGroup;
+			children = (
+				9422A64D1A2FB93B00708C07 /* main.m */,
+			);
+			path = "DataHub-Example";
+			sourceTree = "<group>";
+		};
+		9422A6541A2FB94400708C07 /* External */ = {
+			isa = PBXGroup;
+			children = (
+				9422A6971A2FB96100708C07 /* gen-cocoa */,
+				9422A6551A2FB95600708C07 /* thrift */,
+			);
+			name = External;
+			sourceTree = "<group>";
+		};
+		9422A6551A2FB95600708C07 /* thrift */ = {
+			isa = PBXGroup;
+			children = (
+				9422A6561A2FB95600708C07 /* protocol */,
+				9422A6641A2FB95600708C07 /* server */,
+				9422A6671A2FB95600708C07 /* TApplicationException.h */,
+				9422A6681A2FB95600708C07 /* TApplicationException.m */,
+				9422A6691A2FB95600708C07 /* TException.h */,
+				9422A66A1A2FB95600708C07 /* TException.m */,
+				9422A66B1A2FB95600708C07 /* Thrift.h */,
+				9422A66C1A2FB95600708C07 /* TObjective-C.h */,
+				9422A66D1A2FB95600708C07 /* TProcessor.h */,
+				9422A66E1A2FB95600708C07 /* TProcessorFactory.h */,
+				9422A66F1A2FB95600708C07 /* transport */,
+				9422A6831A2FB95600708C07 /* TSharedProcessorFactory.h */,
+				9422A6841A2FB95600708C07 /* TSharedProcessorFactory.m */,
+			);
+			path = thrift;
+			sourceTree = "<group>";
+		};
+		9422A6561A2FB95600708C07 /* protocol */ = {
+			isa = PBXGroup;
+			children = (
+				9422A6571A2FB95600708C07 /* TBase.h */,
+				9422A6581A2FB95600708C07 /* TBinaryProtocol.h */,
+				9422A6591A2FB95600708C07 /* TBinaryProtocol.m */,
+				9422A65A1A2FB95600708C07 /* TMultiplexedProtocol.h */,
+				9422A65B1A2FB95600708C07 /* TMultiplexedProtocol.m */,
+				9422A65C1A2FB95600708C07 /* TProtocol.h */,
+				9422A65D1A2FB95600708C07 /* TProtocolDecorator.h */,
+				9422A65E1A2FB95600708C07 /* TProtocolDecorator.m */,
+				9422A65F1A2FB95600708C07 /* TProtocolException.h */,
+				9422A6601A2FB95600708C07 /* TProtocolException.m */,
+				9422A6611A2FB95600708C07 /* TProtocolFactory.h */,
+				9422A6621A2FB95600708C07 /* TProtocolUtil.h */,
+				9422A6631A2FB95600708C07 /* TProtocolUtil.m */,
+			);
+			path = protocol;
+			sourceTree = "<group>";
+		};
+		9422A6641A2FB95600708C07 /* server */ = {
+			isa = PBXGroup;
+			children = (
+				9422A6651A2FB95600708C07 /* TSocketServer.h */,
+				9422A6661A2FB95600708C07 /* TSocketServer.m */,
+			);
+			path = server;
+			sourceTree = "<group>";
+		};
+		9422A66F1A2FB95600708C07 /* transport */ = {
+			isa = PBXGroup;
+			children = (
+				9422A6701A2FB95600708C07 /* TFramedTransport.h */,
+				9422A6711A2FB95600708C07 /* TFramedTransport.m */,
+				9422A6721A2FB95600708C07 /* THTTPClient.h */,
+				9422A6731A2FB95600708C07 /* THTTPClient.m */,
+				9422A6741A2FB95600708C07 /* TMemoryBuffer.h */,
+				9422A6751A2FB95600708C07 /* TMemoryBuffer.m */,
+				9422A6761A2FB95600708C07 /* TNSFileHandleTransport.h */,
+				9422A6771A2FB95600708C07 /* TNSFileHandleTransport.m */,
+				9422A6781A2FB95600708C07 /* TNSStreamTransport.h */,
+				9422A6791A2FB95600708C07 /* TNSStreamTransport.m */,
+				9422A67A1A2FB95600708C07 /* TSocketClient.h */,
+				9422A67B1A2FB95600708C07 /* TSocketClient.m */,
+				9422A67C1A2FB95600708C07 /* TSSLSocketClient.h */,
+				9422A67D1A2FB95600708C07 /* TSSLSocketClient.m */,
+				9422A67E1A2FB95600708C07 /* TSSLSocketException.h */,
+				9422A67F1A2FB95600708C07 /* TSSLSocketException.m */,
+				9422A6801A2FB95600708C07 /* TTransport.h */,
+				9422A6811A2FB95600708C07 /* TTransportException.h */,
+				9422A6821A2FB95600708C07 /* TTransportException.m */,
+			);
+			path = transport;
+			sourceTree = "<group>";
+		};
+		9422A6971A2FB96100708C07 /* gen-cocoa */ = {
+			isa = PBXGroup;
+			children = (
+				9422A6981A2FB96100708C07 /* datahub.h */,
+				9422A6991A2FB96100708C07 /* datahub.m */,
+				944156501A5737CD003AC241 /* account.h */,
+				944156511A5737CD003AC241 /* account.m */,
+				949DD4B31A57346F001A950A /* types.h */,
+				949DD4B41A57346F001A950A /* types.m */,
+			);
+			path = "gen-cocoa";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9422A6491A2FB93B00708C07 /* DataHub-Example */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9422A6511A2FB93B00708C07 /* Build configuration list for PBXNativeTarget "DataHub-Example" */;
+			buildPhases = (
+				9422A6461A2FB93B00708C07 /* Sources */,
+				9422A6471A2FB93B00708C07 /* Frameworks */,
+				9422A6481A2FB93B00708C07 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "DataHub-Example";
+			productName = "DataHub-Example";
+			productReference = 9422A64A1A2FB93B00708C07 /* DataHub-Example */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9422A6421A2FB93B00708C07 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = "CSAIL Big Data Initiative";
+				TargetAttributes = {
+					9422A6491A2FB93B00708C07 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+				};
+			};
+			buildConfigurationList = 9422A6451A2FB93B00708C07 /* Build configuration list for PBXProject "DataHub-Example" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 9422A6411A2FB93B00708C07;
+			productRefGroup = 9422A64B1A2FB93B00708C07 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9422A6491A2FB93B00708C07 /* DataHub-Example */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9422A6461A2FB93B00708C07 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9422A6871A2FB95600708C07 /* TProtocolDecorator.m in Sources */,
+				9422A6901A2FB95600708C07 /* TNSFileHandleTransport.m in Sources */,
+				9422A68C1A2FB95600708C07 /* TException.m in Sources */,
+				949DD4B51A57346F001A950A /* types.m in Sources */,
+				9422A68B1A2FB95600708C07 /* TApplicationException.m in Sources */,
+				9422A6921A2FB95600708C07 /* TSocketClient.m in Sources */,
+				9422A64E1A2FB93B00708C07 /* main.m in Sources */,
+				944156521A5737CD003AC241 /* account.m in Sources */,
+				9422A6911A2FB95600708C07 /* TNSStreamTransport.m in Sources */,
+				9422A68A1A2FB95600708C07 /* TSocketServer.m in Sources */,
+				9422A68D1A2FB95600708C07 /* TFramedTransport.m in Sources */,
+				9422A69A1A2FB96100708C07 /* datahub.m in Sources */,
+				9422A6891A2FB95600708C07 /* TProtocolUtil.m in Sources */,
+				9422A6861A2FB95600708C07 /* TMultiplexedProtocol.m in Sources */,
+				9422A6931A2FB95600708C07 /* TSSLSocketClient.m in Sources */,
+				9422A6961A2FB95600708C07 /* TSharedProcessorFactory.m in Sources */,
+				9422A68E1A2FB95600708C07 /* THTTPClient.m in Sources */,
+				9422A68F1A2FB95600708C07 /* TMemoryBuffer.m in Sources */,
+				9422A6951A2FB95600708C07 /* TTransportException.m in Sources */,
+				9422A6851A2FB95600708C07 /* TBinaryProtocol.m in Sources */,
+				9422A6881A2FB95600708C07 /* TProtocolException.m in Sources */,
+				9422A6941A2FB95600708C07 /* TSSLSocketException.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		9422A64F1A2FB93B00708C07 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		9422A6501A2FB93B00708C07 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		9422A6521A2FB93B00708C07 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SRCROOT)",
+					"$(inherited)",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		9422A6531A2FB93B00708C07 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SRCROOT)",
+					"$(inherited)",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9422A6451A2FB93B00708C07 /* Build configuration list for PBXProject "DataHub-Example" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9422A64F1A2FB93B00708C07 /* Debug */,
+				9422A6501A2FB93B00708C07 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9422A6511A2FB93B00708C07 /* Build configuration list for PBXNativeTarget "DataHub-Example" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9422A6521A2FB93B00708C07 /* Debug */,
+				9422A6531A2FB93B00708C07 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9422A6421A2FB93B00708C07 /* Project object */;
+}

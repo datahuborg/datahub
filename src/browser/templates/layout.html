@@ -20,29 +20,37 @@ DataHub Template Layout
 
 <link rel="stylesheet" type="text/css" href="/static/css/datahub.css" />
 <link rel="stylesheet" type="text/css" href="/static/lib/jquery-ui/css/jquery-ui.css"/>
-<link rel="stylesheet" type="text/css" href="/static/lib/jquery-dropdown/css/jquery.dropdown.css"/>
 <link rel="stylesheet" type="text/css" href="/static/lib/jquery-terminal/css/jquery.terminal.css" />
 <link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/jquery.dataTables.css" />
-<link rel="stylesheet" type="text/css" href="/static/lib/bootstrap/css/bootstrap.min.css" />
-<link rel="stylesheet" type="text/css" href="/static/lib/bootstrap/css/docs.min.css" />
-<link rel="stylesheet" type="text/css" href="/static/lib/octicons/css/octicons.css" />
 
-<script type="text/javascript" src="/static/lib/jquery/jquery.min.js"></script>	
-<script type="text/javascript" src="/static/lib/jquery-ui/jquery-ui.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="/static/lib/bootstrap/css/docs.min.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/font-awesome/css/font-awesome.min.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/octicons/css/octicons.css" /> 
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.1/skins/square/green.css">
+<link rel="stylesheet" href="/static/dataq/css/style.css">
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
 <script type="text/javascript" src="/static/lib/jquery-datatables/jquery.dataTables.min.js"></script>	
-<script type="text/javascript" src="/static/lib/jquery-datatables/jquery.jeditable.js"></script>	
-<script type="text/javascript" src="/static/lib/jquery-dropdown/jquery.dropdown.js"></script>
-<script type="text/javascript" src="/static/lib/jquery-mousewheel/jquery.mousewheel-min.js"></script>
 <script type="text/javascript" src="/static/lib/jquery-terminal/jquery.terminal-min.js"></script>
-<script type="text/javascript" src="/static/lib/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/static/lib/bootstrap/js/docs.min.js"></script>
 
 <script type="text/javascript" src="/static/lib/thrift/thrift.js"></script>
-<script type="text/javascript" src="/static/lib/thrift/thrift-binary.js"></script>
 <script type="text/javascript" src="/static/lib/datahub/datahub_types.js"></script>
 <script type="text/javascript" src="/static/lib/datahub/DataHub.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.runtime.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/js/bootstrap.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.1/icheck.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/blueimp-md5/1.0.1/js/md5.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5sortable/0.1.8/html.sortable.min.js"></script>
+<script src="/static/dataq/templates.js"></script>
+<script src="/static/dataq/js/dataq.min.js"></script>
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<script type="text/javascript">
+google.load("visualization", "1", {packages:["corechart", "table", "timeline", "map"]});
+</script>
 </head>
 {% block body-tag %}
 <body>
@@ -67,15 +75,36 @@ DataHub Template Layout
     {% block headlink-right %}
       {% if login %}
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="/"><strong>{{ login }}</strong></a></li>
-          <li><a href="/" title="Home"><span class="glyphicon glyphicon-home"></span></a></li>
-          <li><a href="/apps/console" title="SQL Console"><span class="glyphicon glyphicon-th-list"></a></li>
-          <li><a href="/account/logout" title="Sign Out"><span class="glyphicon glyphicon-log-out"></span></a></li>          
+          <li>
+            <a href="/"><i class="fa fa-home"></i> <strong>Home</strong></a>
+          </li>
+
+          <li>
+            <a href="/"><i class="fa fa-th-large"></i> <strong>App Center</strong></a>
+          </li>
+
+          <li>
+            <a href="/"><i class="fa fa-bell"></i> <strong>Notifications</strong></a>
+          </li>
+
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+              <i class="fa fa-user"></i> <strong>{{ login }}</strong> <i class="fa fa-caret-down"></i>
+            </a>
+            
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="/apps/console" title="SQL Console">Launch Terminal</a></li>
+              <li><a href="/developer/apps" title="Create App">Create App</a></li>
+              <li class="divider"></li>
+              <li><a href="/account/settings" title="Sign Out">Settings</a></li>  
+              <li><a href="/account/logout" title="Sign Out">Sign Out</a></li>  
+            </ul>
+          </li>     
         </ul>
       {% else %}
         <div class="nav navbar-nav navbar-right">
-          <a href="/login" title="Sign In" class="btn navbar-btn btn-primary">Sign In</a> &nbsp; &nbsp;
-          <a href="/register" title="Sign Up" class="btn navbar-btn btn-success">Sign Up</a>
+          <a href="/account/login" title="Sign In" class="btn navbar-btn btn-primary">Sign In</a> &nbsp; &nbsp;
+          <a href="/account/register" title="Sign Up" class="btn navbar-btn btn-success">Sign Up</a>
         </div>
       {% endif %}
     {% endblock %}    

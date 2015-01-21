@@ -1,3 +1,4 @@
+import hashlib
 import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
@@ -14,12 +15,23 @@ Datahub DB Manager
 '''
 
 class DataHubManager:
-  def __init__(self, user, repo_base=None):
-    self.user = User.objects.get(username=user)
+  def __init__(self, user, repo_base=None, is_app=False):
+    username = None
+    password = None
+    
+    if is_app:
+      app = App.objects.get(app_id=user)
+      username = app.app_id
+      password = hashlib.sha1(app.app_token).hexdigest()
+    else:
+      user = User.objects.get(username=user)
+      username = user.username
+      password = user.password
+    
     self.user_con = DataHubConnection(
-        user=self.user.username,
+        user=username,
         repo_base=repo_base,
-        password=self.user.password)
+        password=password)
   
   ''' Basic Operations. '''
 
@@ -65,11 +77,19 @@ class DataHubManager:
   ''' User/Role Management '''
   
   @staticmethod
-  def create_user(username, password):
+  def create_user(username, password, create_db=True):
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
         password=settings.DATABASES['default']['USER'])
-    return superuser_con.create_user(username=username, password=password)
+    return superuser_con.create_user(
+        username=username, password=password, create_db=create_db)
+
+  @staticmethod
+  def remove_user(username):
+    superuser_con = DataHubConnection(
+        user=settings.DATABASES['default']['USER'],
+        password=settings.DATABASES['default']['USER'])
+    return superuser_con.remove_user(username=username)
 
   @staticmethod
   def change_password(username, password):
@@ -97,14 +117,28 @@ class DataHubManager:
         quote_character=quote_character)
 
   @staticmethod
-  def export_file(repo_base, table_name, file_path, file_format='CSV',
+  def export_table(repo_base, table_name, file_path, file_format='CSV',
       delimiter=',', header=True):
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
         password=settings.DATABASES['default']['USER'],
         repo_base=repo_base)
-    return superuser_con.export_file(
+    return superuser_con.export_table(
         table_name=table_name,
+        file_path=file_path,
+        file_format=file_format,
+        delimiter=delimiter,
+        header=header)
+
+  @staticmethod
+  def export_query(repo_base, query, file_path, file_format='CSV',
+      delimiter=',', header=True):
+    superuser_con = DataHubConnection(
+        user=settings.DATABASES['default']['USER'],
+        password=settings.DATABASES['default']['USER'],
+        repo_base=repo_base)
+    return superuser_con.export_query(
+        query=query,
         file_path=file_path,
         file_format=file_format,
         delimiter=delimiter,
@@ -116,7 +150,8 @@ class DataHubManager:
   def has_base_privilege(login, repo_base, privilege):
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
-        password=settings.DATABASES['default']['USER'])
+        password=settings.DATABASES['default']['USER'],
+        repo_base=repo_base)
     return superuser_con.has_base_privilege(
         login=login, privilege=privilege)
 

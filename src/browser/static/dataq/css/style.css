@@ -1,0 +1,146 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700);
+.dataq {
+  border-radius: 30px;
+  position: absolute;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  top: 60px;
+  left: 5%;
+  width: 90%;
+  height: 700px;
+  background-color: white;
+  padding-bottom: 50px;
+}
+.dq-black-background {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.dq-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 15pt;
+  color: white;
+  line-height: 50px;
+  text-align: center;
+  background: green;
+}
+.dq-title {
+  font-weight: 300;
+  line-height: 50%;
+}
+@media (max-width: 768px) {
+  .dq-title {
+    color: green;
+  }
+}
+.dq-section {
+  padding-left: 10px;
+  padding-top: 10px;
+}
+.dq-btn-run-query,
+.dq-btn-cancel-query {
+  margin-top: 30px;
+}
+.dq-btn-run-query {
+  margin-left: 10px;
+}
+.dq-filter-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+  margin-left: 50px;
+}
+.dq-table-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+  margin-left: 50px;
+}
+.dq-columns {
+  margin-top: 10px;
+  margin-left: 20px;
+  display: block;
+  font-weight: 500;
+  font-size: 12pt;
+}
+.dq-table-name {
+  cursor: auto;
+  color: black;
+}
+.dq-modal-table-name {
+  font-size: 16pt;
+  font-weight: 500;
+}
+.dq-column-list {
+  margin-top: 20px;
+  list-style: none;
+  padding: 0;
+}
+.dq-modal-column {
+  width: 50%;
+  margin-left: 25%;
+}
+.dq-modal-column button {
+  min-width: 50%;
+}
+.filter-modal-body {
+  text-align: center;
+}
+.modal-footer {
+  margin-top: 20px;
+}
+.dq-filter-name {
+  overflow-x: scroll;
+}
+@media (max-width: 2000px) {
+  .dq-filter-name {
+    max-width: 1000px;
+  }
+}
+@media (max-width: 1200px) {
+  .dq-filter-name {
+    max-width: 600px;
+  }
+}
+@media (max-width: 800px) {
+  .dq-filter-name {
+    max-width: 400px;
+  }
+}
+@media (max-width: 600px) {
+  .dq-filter-name {
+    max-width: 300px;
+  }
+}
+@media (max-width: 500px) {
+  .dq-filter-name {
+    max-width: 250px;
+  }
+}
+@media (max-width: 450px) {
+  .dq-filter-name {
+    max-width: 240px;
+  }
+}
+.dq-filter-list-item {
+  display: inline-block;
+}
+.dq-sort-item-list {
+  padding: 0;
+  list-style: none;
+}
+.dq-sort-list-item {
+  margin-top: 10px;
+}
+.dq-grouping-modal-list {
+  margin-top: 20px;
+  list-style: none;
+}
+body {
+  font-family: "Roboto";
+}

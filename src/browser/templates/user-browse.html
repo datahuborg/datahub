@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+  
+  <h4 class="inline-block">
+    {{repo_base}} /
+  </h4>
+  
+  <hr />
+  <br />
+  <div class="panel panel-default">
+  <div class="panel-heading">
+    <span class="lead">
+      Repositories &nbsp;
+      <a class="btn btn-default btn-sm" href="/create/{{repo_base}}/repo" title="Create a New Repository"><span class="glyphicon glyphicon-plus"></span></a>
+    </span>
+  </div>
+  
+  {% if repos|length > 0 %}
+    <div class="table-responsive">
+      <table id="repos" class="table">           
+        {% for repo in repos %}
+          <tr>
+            <td><a class="link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
+            
+            {% if repo.public %}
+              <td>Public</td>
+            {% else %}
+              <td>Private</td>
+            {% endif %}
+            
+            <td class="text-right" style="width: 25em; max-width: 30em;">
+              <a href="/settings/{{repo.owner}}/{{repo.name}}" title="Shared with {{repo.collaborators_str}}">{{repo.num_collaborators}} collaborators</a>
+              &nbsp;&nbsp;
+
+              <a href="/settings/{{repo.owner}}/{{repo.name}}" title="Manage collaborators"><span class="glyphicon glyphicon-cog"></span></a>
+              &nbsp;&nbsp;
+
+              <span class="modal-confirm-dialog"
+                  target-modal="#confirm-modal"
+                  target-modal-title="Confirm Delete"
+                  target-modal-body="This will permanently delete the repository <label>{{repo.owner}}/{{repo.name}}</label> and all the tables inside it. The operation can't be undone. Are you sure?"
+                  target-modal-operation="Delete"
+                  target-url="/delete/{{repo.owner}}/{{repo.name}}"
+                  title="Delete">
+                <a href="#"><span class="glyphicon glyphicon-trash"></span></a>
+              </span>
+              &nbsp;&nbsp;
+            </td>            
+          </tr>
+        {% endfor %}
+
+      </table>
+    </div>
+  {% else %}
+    <p class="bg-warning">No repository in <strong>{{repo_base}}</strong></p>
+  {% endif %} 
+  </div>
+</div>
+{% endblock %}
+
+
+
+
+

@@ -13,7 +13,7 @@ import numpy as np
 from django.db import connection
 
 from core.db.manager import DataHubManager
-from core.handler import DataHubHandler
+from service.handler import DataHubHandler
 from datahub import DataHub
 
 from django.http import *

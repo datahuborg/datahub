@@ -70,8 +70,11 @@ class DataHubConnection:
   The following methods works only in superuser mode
   '''
 
-  def create_user(self, username, password):
-    return self.backend.create_user(username, password)
+  def create_user(self, username, password, create_db):
+    return self.backend.create_user(username, password, create_db)
+
+  def remove_user(self, username):
+    return self.backend.remove_user(username)
 
   def change_password(self, username, password):
     return self.backend.change_password(username, password)
@@ -86,10 +89,18 @@ class DataHubConnection:
         encoding=encoding,
         quote_character=quote_character)
 
-  def export_file(self, table_name, file_path, file_format='CSV',
+  def export_table(self, table_name, file_path, file_format='CSV',
         delimiter=',', header=True):
-    return self.backend.export_file(
+    return self.backend.export_table(
       table_name=table_name,
+      file_path=file_path,
+      file_format=file_format,
+      delimiter=delimiter)
+
+  def export_query(self, query, file_path, file_format='CSV',
+        delimiter=',', header=True):
+    return self.backend.export_query(
+      query=query,
       file_path=file_path,
       file_format=file_format,
       delimiter=delimiter)

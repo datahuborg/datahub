@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+  
+  <h4 class="inline-block">
+    {{login}} /
+  </h4>
+  
+  <hr />
+  <br />
+  <div class="panel panel-default">
+  <div class="panel-heading">
+    <span class="lead">
+      Apps &nbsp;
+      <a class="btn btn-default btn-sm" href="/developer/apps/register" title="Register a New DataHub App"><span class="glyphicon glyphicon-plus"></span></a>
+    </span>
+  </div>
+  
+  {% if apps|length > 0 %}
+    <div class="table-responsive">
+      <table id="apps" class="table">
+        <tr>
+        <th>App ID</th>
+        <th>App Name</th>
+        <th>App Token</th>
+        <th>Date Created</th>
+        <th class="text-right">Actions</th>
+        </tr>          
+        {% for app in apps %}
+          <tr>
+            <td>{{app.app_id}}</td>
+            <td>{{app.app_name}}</td>
+            <td>{{app.app_token}}</td>
+            <td>{{app.date_created}}</td>
+            <td class="text-right" style="width: 25em; max-width: 30em;">
+              <span class="modal-confirm-dialog"
+                  target-modal="#confirm-modal"
+                  target-modal-title="Confirm Delete"
+                  target-modal-body="This will permanently delete the app <label>{{app.app_name}} (id: {{app.app_id}})</label>. The operation can't be undone. Are you sure?"
+                  target-modal-operation="Delete"
+                  target-url="/developer/apps/remove/{{app.app_id}}"
+                  title="Delete">
+                <a href="#"><span class="glyphicon glyphicon-trash"></span></a>
+              </span>
+              &nbsp;&nbsp;
+            </td>            
+          </tr>
+        {% endfor %}
+
+      </table>
+    </div>
+  {% else %}
+    <p class="bg-warning">You don't have any registered app yet.</strong></p>
+  {% endif %} 
+  </div>
+</div>
+{% endblock %}
+
+
+
+
+

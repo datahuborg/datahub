@@ -5,6 +5,5 @@ basepath=$(cd "$abspath/../.."; pwd)
 rm -rf $abspath/bin
 rm -rf $abspath/gen-cpp
 
-thrift --gen cpp -o $abspath $basepath/datahub.thrift
-
-make
+thrift --gen cpp -o $abspath $basepath/thrift/datahub.thrift
+thrift --gen cpp -o $abspath $basepath/thrift/account.thrift

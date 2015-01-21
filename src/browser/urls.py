@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     
     #### Home Page ####
     url(r'^$', 'browser.views.home'),
+    url(r'^about$', 'browser.views.about'),  # for backward compatibility
     #### End Home ####
 
     #### WWW Pages ####
@@ -27,30 +28,30 @@ urlpatterns = patterns('',
 
 
     #### Thrift Services ####
-    url(r'^service$', 'browser.views.service_binary'),
-    url(r'^service/binary$', 'browser.views.service_binary'),
-    url(r'^service/json$', 'browser.views.service_json'),
+    url(r'^service$', 'browser.views.service_core_binary'),
+    url(r'^service/account$', 'browser.views.service_account_binary'),
+    url(r'^service/json$', 'browser.views.service_core_json'),
     #### End Thrift Services ####
 
 
     #### Create ####
-    url(r'^create/repo/(\w+)$', 'browser.views.repo_create'),
-    url(r'^create/repo/(\w+)/$', 'browser.views.repo_create'),
+    url(r'^create/(\w+)/repo$', 'browser.views.repo_create'),
+    url(r'^create/(\w+)/repo/$', 'browser.views.repo_create'),
+
+    url(r'^create/(\w+)/(\w+)/card$', 'browser.views.card_create'),
+    url(r'^create/(\w+)/(\w+)/card/$', 'browser.views.card_create'),
+
+    url(r'^create/(\w+)/(\w+)/dashboard/(\w+)$', 'browser.views.dashboard_create'),
+    url(r'^create/(\w+)/(\w+)/dashboard/(\w+)/$', 'browser.views.dashboard_create'),
 
     url(r'^create/organization/(\w+)$', 'browser.views.organization_create'),
     url(r'^create/organization/(\w+)/$', 'browser.views.organization_create'),
 
-    url(r'^create/group/(\w+)/(\w+)$', 'browser.views.group_create'),
-    url(r'^create/group/(\w+)/(\w+)/$', 'browser.views.group_create'),
+    url(r'^create/(\w+)/group/(\w+)$', 'browser.views.group_create'),
+    url(r'^create/(\w+)/group/(\w+)/$', 'browser.views.group_create'),
 
     url(r'^create/app/(\w+)$', 'browser.views.app_create'),
     url(r'^create/app/(\w+)/$', 'browser.views.app_create'),
-
-    url(r'^create/card/(\w+)/(\w+)/(\w+)$', 'browser.views.card_create'),
-    url(r'^create/card/(\w+)/(\w+)/(\w+)/$', 'browser.views.card_create'),
-
-    url(r'^create/dashboard/(\w+)/(\w+)/(\w+)$', 'browser.views.dashboard_create'),
-    url(r'^create/dashboard/(\w+)/(\w+)/(\w+)/$', 'browser.views.dashboard_create'),
 
     url(r'^create/annotation$', 'browser.views.create_annotation'),
     url(r'^create/annotation/$', 'browser.views.create_annotation'),
@@ -72,6 +73,18 @@ urlpatterns = patterns('',
 
     url(r'^browse/(\w+)/(\w+)$', 'browser.views.repo'),
     url(r'^browse/(\w+)/(\w+)/$', 'browser.views.repo'),
+
+    url(r'^browse/(\w+)/(\w+)/tables$', 'browser.views.repo_tables'),
+    url(r'^browse/(\w+)/(\w+)/tables/$', 'browser.views.repo_tables'),
+
+    url(r'^browse/(\w+)/(\w+)/files$', 'browser.views.repo_files'),
+    url(r'^browse/(\w+)/(\w+)/files/$', 'browser.views.repo_files'),
+
+    url(r'^browse/(\w+)/(\w+)/cards$', 'browser.views.repo_cards'),
+    url(r'^browse/(\w+)/(\w+)/cards/$', 'browser.views.repo_cards'),
+
+    url(r'^browse/(\w+)/(\w+)/dashboards$', 'browser.views.repo_dashboards'),
+    url(r'^browse/(\w+)/(\w+)/dashboards/$', 'browser.views.repo_dashboards'),
 
     url(r'^browse/(\w+)$', 'browser.views.user'),
     url(r'^browse/(\w+)/$', 'browser.views.user'),
@@ -132,6 +145,20 @@ urlpatterns = patterns('',
     url(r'^collaborator/repo/(\w+)/(\w+)/remove/(\w+)/$', 'browser.views.repo_collaborators_remove'),
     ### End Collaborators ###
 
+    ### Developer Apps ###
+    url(r'^developer/apps$', 'browser.views.apps'),
+    url(r'^developer/apps/$', 'browser.views.apps'),
+
+    url(r'^developer/apps/register$', 'browser.views.app_register'),
+    url(r'^developer/apps/register/$', 'browser.views.apps_register'),
+    
+    url(r'^developer/apps/remove/(\w+)$', 'browser.views.app_remove'),
+    url(r'^developer/apps/remove/(\w+)/$', 'browser.views.app_remove'),
+    ### End Apps ###
+
+    ### Permissions ###
+    url(r'^permissions/apps/allow_access/(\w+)/(\w+)$', 'browser.views.app_allow_access'),
+
 
     ########################################################################################
     ######## ------------------------------ END DataHub Core --------------------- #########
@@ -142,5 +169,7 @@ urlpatterns = patterns('',
     url(r'^apps/console/', include('console.urls')), # console app
     url(r'^apps/refiner/', include('refiner.urls')), # refiner app
     url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app  
+    url(r'^apps/viz/', include('viz.urls')), # viz app 
+    url(r'^apps/dataq/', include('dataq.urls')), # dataq app 
     #### End Apps ####
 )

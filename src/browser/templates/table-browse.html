@@ -1,0 +1,17 @@
+{% extends "table-browse-template.html" %}
+
+{% block panel-title %}
+  <span class="lead">
+    {{table}} &nbsp;
+    <a class="btn btn-default btn-sm" href="/browse/{{repo_base}}/{{repo}}/tables" title="Back to All Tables"><span class="glyphicon glyphicon-arrow-left"></span></a>
+  </span>
+{% endblock %}
+
+{% block tabs %}
+<ul class="nav nav-tabs" role="tablist">
+  <li class="active"><a href="/browse/{{repo_base}}/{{repo}}/tables" role="tab">Tables</a></li>
+  <li><a href="/browse/{{repo_base}}/{{repo}}/files" role="tab">Files</a></li>
+  <li><a href="/browse/{{repo_base}}/{{repo}}/cards" role="tab">Cards</a></li>
+  <li><a href="/browse/{{repo_base}}/{{repo}}/dashboards" role="tab">Dashboards</a></li>
+</ul>
+{% endblock %}

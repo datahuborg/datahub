@@ -47,7 +47,7 @@ class PGBackend:
     self.connection.close()
 
   def create_repo(self, repo):
-    query = ''' CREATE SCHEMA %s ''' %(repo)
+    query = ''' CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s ''' %(repo, self.user)
     return self.execute_sql(query)
 
   def list_repos(self):
@@ -78,12 +78,15 @@ class PGBackend:
             ''' %(repo, privileges_str, username)
     self.execute_sql(query)
 
-  def delete_collaborator(
-      self, repo, username):
+  def delete_collaborator(self, repo, username):
     query = ''' REVOKE ALL ON ALL TABLES IN SCHEMA %s FROM %s CASCADE;
             ''' %(repo, username)
     self.execute_sql(query)
     query = ''' REVOKE ALL ON SCHEMA %s FROM %s CASCADE;
+            ''' %(repo, username)
+    self.execute_sql(query)
+    query = ''' ALTER DEFAULT PRIVILEGES IN SCHEMA %s
+                REVOKE ALL ON TABLES FROM %s;
             ''' %(repo, username)
     self.execute_sql(query)
 
@@ -146,12 +149,22 @@ class PGBackend:
     c.close()
     return result
 
-  def create_user(self, username, password):
+  def create_user(self, username, password, create_db):
     query = ''' CREATE ROLE %s WITH LOGIN 
                 NOCREATEDB NOCREATEROLE NOCREATEUSER PASSWORD '%s'
             ''' %(username, password)
     self.execute_sql(query)
+
+    if not create_db:
+      return
+    
     query = ''' CREATE DATABASE %s WITH OWNER=%s ''' %(username, username)
+    return self.execute_sql(query)
+
+  def remove_user(self, username):
+    query = ''' DROP DATABASE IF EXISTS %s ''' %(username)
+    self.execute_sql(query)
+    query = ''' DROP ROLE %s ''' %(username)
     return self.execute_sql(query)
 
   def change_password(self, username, password):
@@ -185,13 +198,21 @@ class PGBackend:
             ''' %(login, table, column, privilege)
     return self.execute_sql(query)
 
-  def export_file(self, table_name, file_path, file_format='CSV',
+  def export_table(self, table_name, file_path, file_format='CSV',
       delimiter=',', header=True):
     header_option = 'HEADER' if header else ''
     return self.execute_sql(
         ''' COPY %s TO '%s'
             WITH %s %s DELIMITER '%s';
         ''' %(table_name, file_path, file_format, header_option, delimiter))
+
+  def export_query(self, query, file_path, file_format='CSV',
+      delimiter=',', header=True):
+    header_option = 'HEADER' if header else ''
+    return self.execute_sql(
+        ''' COPY (%s) TO '%s'
+            WITH %s %s DELIMITER '%s';
+        ''' %(query, file_path, file_format, header_option, delimiter))
 
   def import_file(self, table_name, file_path, file_format='CSV',
       delimiter=',', header=True, encoding='ISO-8859-1', quote_character='"'):
