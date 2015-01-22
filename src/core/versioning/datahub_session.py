@@ -10,16 +10,16 @@ import extract_tables
 versioning session manager
 '''
 log = logging.getLogger('dh')
-logging.basicConfig()
-log.setLevel(logging.INFO)
+
 
 
 
 class DataHubSession:
-  def __init__(self):
+  def __init__(self, user='test', repo='test'):
+    log.info("DataHubSession init")
     self.sv = SystemVersioning()
-    self.user = 'test'
-    self.repo = 'test'
+    self.user = user
+    self.repo = repo
     self.current_version = None
   
   def init(self, user, repo):
@@ -33,7 +33,8 @@ class DataHubSession:
   def get_random_hash(self):
     return self.sv.gen_string()
 
-  def branch(self, arg):
+  def branch(self, arg=''):
+    log.info("Getting versions for %s %s " % (self.user, self.repo))
     return self.sv.get_versions(self.user, self.repo)
 
   def clone(self, v_id):

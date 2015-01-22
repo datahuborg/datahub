@@ -24,11 +24,14 @@ from thrift.transport.TTransport import TMemoryBuffer
 from account.auth import *
 from account.manager import *
 from core.db.manager import DataHubManager
+from core.versioning import datahub_session as VersionSession
 from datahub import DataHub
 from datahub.account import AccountService
 from service.handler import DataHubHandler
 from utils import *
 
+import logging
+log = logging.getLogger('dh')
 '''
 @author: Anant Bhardwaj
 @date: Mar 21, 2013
@@ -389,7 +392,6 @@ def table(request, repo_base, repo, table):
   try:
     login = get_login(request)
     dh_table_name = '%s.%s.%s' %(repo_base, repo, table)
-    
     res = DataHubManager.has_table_privilege(
         login, repo_base, dh_table_name, 'SELECT')
     
@@ -397,9 +399,12 @@ def table(request, repo_base, repo, table):
       raise Exception('Access denied. Missing required privileges.')
 
     manager = DataHubManager(user=repo_base)
+    versions = None
+    version_session = VersionSession.DataHubSession(repo_base,repo)
+    versions = version_session.branch()
+    log.info("user=%s repo=%s table=%s dh_table_name=%s versions=%s"% (repo_base,repo,table, dh_table_name, versions))
     res = manager.execute_sql(
         query='EXPLAIN SELECT * FROM %s' %(dh_table_name))    
-      
     limit = 50
     
     num_rows = re.match(r'.*rows=(\d+).*', res['tuples'][0][0]).group(1)
@@ -445,6 +450,7 @@ def table(request, repo_base, repo, table):
         'repo_base': repo_base,
         'repo': repo,
         'table': table,
+        'versions': versions,
         'column_names': column_names,
         'tuples': tuples,
         'annotation': annotation_text,

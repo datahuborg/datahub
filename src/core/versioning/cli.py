@@ -5,7 +5,10 @@ import shlex
 import sys
 
 from datahub_session import DataHubSession
-
+import logging
+log = logging.getLogger('dh')
+logging.basicConfig()
+log.setLevel(logging.INFO)
 '''
 @author: anant bhardwaj
 @date: Dec 8, 2014

@@ -4,6 +4,7 @@ psycopg2
 numpy
 thrift
 sqlalchemy
+sqlparse
 scorpionsql
 python-dateutil
 pycrypto

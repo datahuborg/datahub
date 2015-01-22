@@ -3,8 +3,7 @@ import logging
 
 
 log = logging.getLogger('dh')
-logging.basicConfig()
-log.setLevel(logging.INFO)
+
 
 
 class SystemVersioning:

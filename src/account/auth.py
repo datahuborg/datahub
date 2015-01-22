@@ -22,7 +22,8 @@ from core.db.manager import DataHubManager
 from inventory.models import *
 
 p = os.path.abspath(os.path.dirname(__file__))
-
+import logging
+log = logging.getLogger('dh')
 
 '''
 @author: Anant Bhardwaj
@@ -166,12 +167,15 @@ def register (request):
         hashed_password = hashlib.sha1(password).hexdigest()
         try:
           DataHubManager.create_user(username=username, password=hashed_password)
+
         except Exception, e:
+          log.error(e)
           pass
 
         try:
           DataHubManager.change_password(username=username, password=hashed_password)
         except Exception, e:
+          log.error(e)
           errors.append(str(e))
           error = True
 

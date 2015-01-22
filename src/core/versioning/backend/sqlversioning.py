@@ -6,8 +6,6 @@ import random
 import re
 
 log = logging.getLogger('dh')
-logging.basicConfig()
-log.setLevel(logging.INFO)
 
 
 
@@ -153,6 +151,7 @@ class SQLVersioning:
     return rn
   
   def get_versions(self, user, repo):
+    log.info("SV : get versions %s %s" %(user,repo))
     cur = self.connection.cursor()
     rn = None
     try:
