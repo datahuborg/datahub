@@ -1,5 +1,5 @@
 # DataHub Settings.
-
+import sys
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -13,8 +13,8 @@ DATABASES = {
   'default': {
     'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
     'NAME': 'datahub',                      # Or path to database file if using sqlite3.
-    'USER': 'postgres',                      # Not used with sqlite3.
-    'PASSWORD': 'postgres',                  # Not used with sqlite3.
+    'USER': 'datahub',                      # Not used with sqlite3.
+    'PASSWORD': 'datahub',                  # Not used with sqlite3.
     'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
     'PORT': '5432',                      # Set to empty string for default. Not used with sqlite3.
   }
@@ -113,8 +113,8 @@ INSTALLED_APPS = (
   'account',
   'console',
   'browser',
-  'dataq',
-  'dbwipes',
+  #'dataq',
+  #'dbwipes',
   'inventory',
   'refiner',
   'south',
@@ -140,12 +140,24 @@ LOGGING = {
       'level': 'ERROR',
       'filters': ['require_debug_false'],
       'class': 'django.utils.log.AdminEmailHandler'
+    }, 
+    'console': {
+      'level': 'DEBUG',
+      'class': 'logging.StreamHandler',
+      'stream': sys.stdout,
+      #'formatter': 'simple',
+      
     }
   },
   'loggers': {
     'django.request': {
-      'handlers': ['mail_admins'],
+      'handlers': ['console'],
       'level': 'ERROR',
+      'propagate': True,
+    },
+    'dh': {
+      'handlers': ['console'],
+      'level': 'DEBUG',
       'propagate': True,
     },
   }
