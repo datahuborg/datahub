@@ -29,22 +29,22 @@ try:
   # execute a query
   res  = client.execute_sql(
       con=con,
-      query='create table if not exists cal.terms (term text)',
+      query='create table if not exists bora.terms (term text)',
       query_params=None)
 
   res  = client.execute_sql(
       con=con,
-      query="insert into cal.terms  values('darryl')",
+      query="insert into bora.terms  values('funny bora')",
       query_params=None)
 
   res  = client.execute_sql(
       con=con,
-      query="insert into cal.terms  values('frank')",
+      query="insert into bora.terms  values('awesome bora')",
       query_params=None)
 
   res  = client.execute_sql(
       con=con,
-      query='select * from anantb.cal.terms',
+      query='select * from anantb.bora.terms',
       query_params=None)
 
   # print field names
