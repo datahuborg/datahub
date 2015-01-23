@@ -67,7 +67,7 @@ def service_core_binary(request):
     oprot = TBinaryProtocol.TBinaryProtocol(TMemoryBuffer())
     core_processor.process(iprot, oprot)
     resp = HttpResponse(oprot.trans.getvalue())
-    response['Access-Control-Allow-Origin'] = request.META['HTTP_ORIGIN']
+    resp['Access-Control-Allow-Origin'] = request.META['HTTP_ORIGIN']
     return resp
   except Exception, e:
     return HttpResponse(
@@ -81,7 +81,7 @@ def service_account_binary(request):
     oprot = TBinaryProtocol.TBinaryProtocol(TMemoryBuffer())
     account_processor.process(iprot, oprot)
     resp = HttpResponse(oprot.trans.getvalue())
-    response['Access-Control-Allow-Origin'] = request.META['HTTP_ORIGIN']
+    resp['Access-Control-Allow-Origin'] = request.META['HTTP_ORIGIN']
     return resp
   except Exception, e:
     return HttpResponse(
@@ -97,7 +97,7 @@ def service_core_json(request):
     resp = HttpResponse(
         oprot.trans.getvalue(),
         mimetype="application/json")
-    resp['Access-Control-Allow-Origin'] = "*"
+    resp['Access-Control-Allow-Origin'] = request.META['HTTP_ORIGIN']
     return resp
   except Exception, e:
     return HttpResponse(
