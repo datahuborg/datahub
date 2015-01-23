@@ -29,22 +29,22 @@ try:
   # execute a query
   res  = client.execute_sql(
       con=con,
-      query='create table if not exists kiran.days (mood text)',
+      query='create table if not exists cal.terms (term text)',
       query_params=None)
 
   res  = client.execute_sql(
       con=con,
-      query="insert into kiran.days  values('happy')",
+      query="insert into cal.terms  values('darryl')",
       query_params=None)
 
   res  = client.execute_sql(
       con=con,
-      query="insert into kiran.days  values('sad')",
+      query="insert into cal.terms  values('frank')",
       query_params=None)
 
   res  = client.execute_sql(
       con=con,
-      query='select * from anantb.kiran.days',
+      query='select * from anantb.cal.terms',
       query_params=None)
 
   # print field names
