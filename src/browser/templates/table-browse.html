@@ -25,7 +25,7 @@
       </select>
       <input type="button" value="Switch Version" class="btn btn-primary btn-xsm">
     {% endif %}
-     <form role="form" method="GET" action="/browse/{{repo_base}}/{{repo}}/createversion">
+     <form role="form" method="GET" action="/browse/{{repo_base}}/{{repo}}/create_version/{{table}}">
      {% if versions %}
         <input type="hidden" name="current_version" id="current_version" value="{{current_version}}"/>
      {% else %}

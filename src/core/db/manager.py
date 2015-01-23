@@ -4,6 +4,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 from config import settings
 from core.db.connection import DataHubConnection
+from core.versioning import datahub_session as VersionSession
 from inventory.models import *
 
 
@@ -18,7 +19,7 @@ class DataHubManager:
   def __init__(self, user, repo_base=None, is_app=False):
     username = None
     password = None
-    
+
     if is_app:
       app = App.objects.get(app_id=user)
       username = app.app_id
@@ -27,6 +28,10 @@ class DataHubManager:
       user = User.objects.get(username=user)
       username = user.username
       password = user.password
+
+    self.versions = None
+    self.version_session = VersionSession.DataHubSession(username,repo_base)
+    self.versions = self.version_session.branch()
     
     self.user_con = DataHubConnection(
         user=username,

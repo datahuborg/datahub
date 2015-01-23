@@ -65,6 +65,10 @@ urlpatterns = patterns('',
     url(r'^browse/(\w+)/(\w+)/query$', 'browser.views.query'),
     url(r'^browse/(\w+)/(\w+)/query/$', 'browser.views.query'),
 
+    url(r'^browse/(\w+)/(\w+)/create_version/(\w+)', 'browser.views.create_version'),
+    url(r'^browse/(\w+)/(\w+)/create_version/(\w+)/$', 'browser.views.create_version'),
+
+
     url(r'^browse/(\w+)/(\w+)/card/(\w+)$', 'browser.views.card'),
     url(r'^browse/(\w+)/(\w+)/card/(\w+)/$', 'browser.views.card'),
 
@@ -168,9 +172,9 @@ urlpatterns = patterns('',
     #### Apps ####
     url(r'^apps/console/', include('console.urls')), # console app
     url(r'^apps/refiner/', include('refiner.urls')), # refiner app
-    url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app  
-    url(r'^apps/viz/', include('viz.urls')), # viz app 
-    url(r'^apps/dataq/', include('dataq.urls')), # dataq app 
-    url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app  
+    #url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app  
+    #url(r'^apps/viz/', include('viz.urls')), # viz app 
+    #url(r'^apps/dataq/', include('dataq.urls')), # dataq app 
+    #url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app  
     #### End Apps ####
 )

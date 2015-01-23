@@ -24,7 +24,6 @@ from thrift.transport.TTransport import TMemoryBuffer
 from account.auth import *
 from account.manager import *
 from core.db.manager import DataHubManager
-from core.versioning import datahub_session as VersionSession
 from datahub import DataHub
 from datahub.account import AccountService
 from service.handler import DataHubHandler
@@ -384,6 +383,34 @@ def repo_collaborators_remove(request, repo_base, repo, username):
 
 
 '''
+Version
+'''
+@login_required
+def create_version(request, repo_base, repo,table_name):
+  try:
+    login = get_login(request)
+    data = {
+        'login': get_login(request),
+        'repo_base': repo_base,
+        'repo': repo,
+        'select_query': False,
+        'current_version': None}
+
+    data.update(csrf(request))   
+    if 'current_version' in request.REQUEST:
+      current_version = request.REQUEST['current_version']
+      current_version = current_version.strip().rstrip(';')
+    log.info("create version. cur:%s"%(current_version))
+    manager = DataHubManager(user=repo_base)
+
+
+    return HttpResponseRedirect(
+        '/browse/%s/%s/table/%s' %(repo_base, repo,table_name))
+  except Exception, e:
+    return HttpResponse(json.dumps(
+        {'error': str(e)}),
+        mimetype="application/json")
+'''
 Tables
 '''
 
@@ -399,10 +426,7 @@ def table(request, repo_base, repo, table):
       raise Exception('Access denied. Missing required privileges.')
 
     manager = DataHubManager(user=repo_base)
-    versions = None
-    version_session = VersionSession.DataHubSession(repo_base,repo)
-    versions = version_session.branch()
-    log.info("user=%s repo=%s table=%s dh_table_name=%s versions=%s"% (repo_base,repo,table, dh_table_name, versions))
+    log.info("user=%s repo=%s table=%s dh_table_name=%s versions=%s"% (repo_base,repo,table, dh_table_name, manager.versions))
     res = manager.execute_sql(
         query='EXPLAIN SELECT * FROM %s' %(dh_table_name))    
     limit = 50
@@ -450,7 +474,7 @@ def table(request, repo_base, repo, table):
         'repo_base': repo_base,
         'repo': repo,
         'table': table,
-        'versions': versions,
+        'versions': manager.versions,
         'column_names': column_names,
         'tuples': tuples,
         'annotation': annotation_text,
@@ -715,6 +739,7 @@ def query(request, repo_base, repo):
           'query': query,
           'column_names': column_names,
           'tuples': tuples,
+          'versions': manager.versions,
           'url_path': url_path,
           'current_page': current_page,
           'next_page': current_page + 1,
