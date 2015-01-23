@@ -395,14 +395,21 @@ def create_version(request, repo_base, repo,table_name):
         'repo': repo,
         'select_query': False,
         'current_version': None}
+    dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
 
-    data.update(csrf(request))   
+    data.update(csrf(request))
+    current_version = None
     if 'current_version' in request.REQUEST:
       current_version = request.REQUEST['current_version']
       current_version = current_version.strip().rstrip(';')
-    log.info("create version. cur:%s"%(current_version))
-    manager = DataHubManager(user=repo_base)
-
+    manager = DataHubManager(user=repo_base, version_repo=repo)
+    if not current_version or current_version == '':
+      log.info("creating new version for table %s" %(dh_table_name)  )
+      rn = manager.version_session.init_new_version_with_table(dh_table_name)
+      log.info("created: %s"%rn)
+    else:
+      log.info("create version from cur:%s"%(current_version))
+    
 
     return HttpResponseRedirect(
         '/browse/%s/%s/table/%s' %(repo_base, repo,table_name))

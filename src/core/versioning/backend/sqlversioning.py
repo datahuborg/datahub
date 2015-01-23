@@ -22,6 +22,7 @@ GET_TABLE = "select real_name, display_name, repo, copy_on_write from versioned_
 GET_TABLE_DISP_COUNT = "select count(*) from versioned_table where display_name = %s and repo=%s"
 MOD_TABLE_DH_ATTRS = "alter table %s add column _dh_delbit boolean default false;"
 CLONE_TABLE = "CREATE TABLE %s as select * from %s with no data"
+CLONE_TABLE_WITH_DATA = "CREATE TABLE %s as select * from %s"
 CREATE_TABLE_PARENT= "insert into versioned_table_parent (child_table, parent_table) values (%s,%s)"
 GET_TABLE_PARENT= "select parent_table from versioned_table_parent where child_table = %s"
 GET_ACTIVE_TABLE = "select vt.real_name, tbl.copy_on_write from versions_table vt, versioned_table tbl where vt.v_id = %s and tbl.display_name = %s and vt.real_name = tbl.real_name; " 
@@ -58,7 +59,7 @@ class SQLVersioning:
 
   #Create a new version. may not have a parent
   def create_version(self, user, repo, v_name, parent_v_id=None):
-    log.debug("SQLV.create version")
+    log.info("SQLV.create version user:%s repo:%s v_name:%s parent:%s" % (user, repo, v_name, parent_v_id))
     cur = self.connection.cursor()
     id = None
     try:
@@ -271,9 +272,33 @@ class SQLVersioning:
     log.error("TODO")
     return sql
   
-  def init_existing_table(self, user, repo, table_display_name, v_id):
-    raise Exception("TODO")
-
+  def init_existing_table(self, user, repo, table_display_name, v_id, provided_rn = None):
+    log.info("init existing table display:%s v_id:%s " % (table_display_name,v_id ))
+    rn = None
+    cur = self.connection.cursor()
+    try:
+      #Ensure that no other display name exists in the repo
+      cur.execute(GET_TABLE_DISP_COUNT,(table_display_name,repo))
+      cnt = cur.fetchone()[0]
+      if cnt != 0:
+        raise Exception("Table with display_name %s already exists in repo %s" % (table_display_name,repo))
+      if provided_rn:
+        rn = provided_rn
+      else:
+        rn = self.gen_string(table_display_name)
+      #Create the metadata for versioned table
+      cur.execute(CREATE_VERSIONED_TABLE,(rn, table_display_name, repo))   
+      cur.execute(CREATE_VERSIONS_TABLE, (rn,v_id))
+      #CLONE table
+      log.error("TODO get pk add del bit") #TODO
+      cur.execute(CLONE_TABLE_WITH_DATA ,(rn, table_display_name))
+      self.connection.commit()
+    except Exception, e:
+      log.error(e)
+      rn = None
+      self.connection.rollback()
+    cur.close()
+    return rn    
   #Create a new table associated with a version
   def create_table(self, user, repo, table_display_name, create_sql, v_id, provided_rn = None):
     log.info("Create table display:%s v_id:%s sql: %s " % (table_display_name,v_id, create_sql ))

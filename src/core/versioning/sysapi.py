@@ -90,9 +90,12 @@ class SystemVersioning:
     return self.backend.clone_table(table_real_name, new_v_id, new_name)
 
 
+  def init_existing_table(self, user, repo, display_table_name, v_id):
+    return self.backend.init_existing_table(user, repo, display_table_name, v_id)
+
   #create a new version, or fork an existing version id
   def create_version(self, user, repo, v_name, parent_v_id=None):
-    log.debug("create version")
+    log.info("create version")
     if parent_v_id:
       self.freeze_tables(parent_v_id)
     return self.backend.create_version(user, repo, v_name, parent_v_id)

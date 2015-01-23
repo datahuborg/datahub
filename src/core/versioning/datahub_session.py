@@ -24,11 +24,15 @@ class DataHubSession:
   
   def init(self, user, repo):
     log.info("TODO check if repo exists. if so use default version") #TODO
-    version_id = self.get_random_hash()
-    self.user = user
-    self.repo = repo
-    self.sv.create_version(self.user, self.repo, version_id)
+    version_name = self.get_random_hash()
+    self.sv.create_version(self.user, self.repo, version_name)
 
+  def init_new_version_with_table(self, table):
+    version_name = self.get_random_hash()
+    v_id = self.sv.create_version(self.user, self.repo, version_name)
+    log.info("created version:%s now init existing table%s" %(v_id,table))
+    return self.sv.init_existing_table(self.user, self.repo, table, v_id)
+    
 
   def get_random_hash(self):
     return self.sv.gen_string()

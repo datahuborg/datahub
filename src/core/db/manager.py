@@ -16,7 +16,7 @@ Datahub DB Manager
 '''
 
 class DataHubManager:
-  def __init__(self, user, repo_base=None, is_app=False):
+  def __init__(self, user, repo_base=None, is_app=False, version_repo=None):
     username = None
     password = None
 
@@ -30,7 +30,7 @@ class DataHubManager:
       password = user.password
 
     self.versions = None
-    self.version_session = VersionSession.DataHubSession(username,repo_base)
+    self.version_session = VersionSession.DataHubSession(username,version_repo)
     self.versions = self.version_session.branch()
     
     self.user_con = DataHubConnection(
