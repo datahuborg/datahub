@@ -1,0 +1,12 @@
+.dq-column-list {
+  margin-top: 20px;
+  list-style: none;
+  padding: 0;
+}
+.dq-modal-column {
+  width: 50%;
+  margin-left: 25%;
+}
+.dq-modal-column button {
+  min-width: 50%;
+}

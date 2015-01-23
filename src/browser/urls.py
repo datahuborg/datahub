@@ -156,6 +156,9 @@ urlpatterns = patterns('',
     url(r'^developer/apps/remove/(\w+)/$', 'browser.views.app_remove'),
     ### End Apps ###
 
+    ### Permissions ###
+    url(r'^permissions/apps/allow_access/(\w+)/(\w+)$', 'browser.views.app_allow_access'),
+
 
     ########################################################################################
     ######## ------------------------------ END DataHub Core --------------------- #########
@@ -167,5 +170,6 @@ urlpatterns = patterns('',
     url(r'^apps/refiner/', include('refiner.urls')), # refiner app
     url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app  
     url(r'^apps/viz/', include('viz.urls')), # viz app 
+    url(r'^apps/dataq/', include('dataq.urls')), # dataq app 
     #### End Apps ####
 )

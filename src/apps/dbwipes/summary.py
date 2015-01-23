@@ -1,8 +1,4 @@
 from functools import wraps
-try:
-  import bsddb
-except:
-  import bsddb3 as bsddb
 import json
 import pdb
 

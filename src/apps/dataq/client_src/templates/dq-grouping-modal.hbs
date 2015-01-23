@@ -1,0 +1,28 @@
+<div class="modal fade" id="dq-grouping-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button id="dq-grouping-modal-quit-btn" type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title">Drag/Drop to Update Grouping.</h4>
+      </div>
+      <div class="modal-body">
+        <ul class="dq-grouping-modal-list sortable">
+          {{#each columns}}
+            <li class="dq-grouping-list-item sortable-placeholder"
+              data-table="{{this.table}}"
+              data-column_name="{{this.column.name}}"
+              data-column_type="{{this.column.type}}"
+              data-column_agg="{{this.column.agg}}"
+              data-string="{{this.string}}">
+              <button class="btn btn-default" disabled>{{this.string}}</button>
+            </li>
+          {{/each}}
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button id="dq-grouping-modal-done-btn" type="button" class="btn btn-primary" data-dismiss="modal">Done</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
