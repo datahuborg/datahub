@@ -395,7 +395,7 @@ def create_version(request, repo_base, repo,table_name):
         'repo': repo,
         'select_query': False,
         'current_version': None}
-    dh_table_name = '%s.%s.%s' %(repo_base, repo, table_name)
+    dh_table_name = '%s.%s' %( repo, table_name)
 
     data.update(csrf(request))
     current_version = None
@@ -405,7 +405,7 @@ def create_version(request, repo_base, repo,table_name):
     manager = DataHubManager(user=repo_base, version_repo=repo)
     if not current_version or current_version == '':
       log.info("creating new version for table %s" %(dh_table_name)  )
-      rn = manager.version_session.init_new_version_with_table(dh_table_name)
+      rn = manager.version_session.init_new_version_with_table(dh_table_name, manager.user_con.backend.connection)
       log.info("created: %s"%rn)
     else:
       log.info("create version from cur:%s"%(current_version))
@@ -432,7 +432,7 @@ def table(request, repo_base, repo, table):
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
 
-    manager = DataHubManager(user=repo_base)
+    manager = DataHubManager(user=repo_base, version_repo=repo)
     log.info("user=%s repo=%s table=%s dh_table_name=%s versions=%s"% (repo_base,repo,table, dh_table_name, manager.versions))
     res = manager.execute_sql(
         query='EXPLAIN SELECT * FROM %s' %(dh_table_name))    

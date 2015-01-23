@@ -104,10 +104,11 @@ class SQLVersioning:
 
   #check that v_id exists
   def check_v_id(self,v_id):
+    log.info("checking that v_id exists %s"% v_id)
     cur = self.connection.cursor()
     v = None
     try:
-      cur.execute(CHECK_V_ID,(v_id))
+      cur.execute(CHECK_V_ID,(v_id,))
       v = cur.fetchone()[0]
       self.connection.commit()
     except Exception, e:
@@ -272,7 +273,7 @@ class SQLVersioning:
     log.error("TODO")
     return sql
   
-  def init_existing_table(self, user, repo, table_display_name, v_id, provided_rn = None):
+  def init_existing_table(self, user, repo, table_display_name, v_id, provided_rn = None, data_con=None):
     log.info("init existing table display:%s v_id:%s " % (table_display_name,v_id ))
     rn = None
     cur = self.connection.cursor()
@@ -291,13 +292,25 @@ class SQLVersioning:
       cur.execute(CREATE_VERSIONS_TABLE, (rn,v_id))
       #CLONE table
       log.error("TODO get pk add del bit") #TODO
-      cur.execute(CLONE_TABLE_WITH_DATA ,(rn, table_display_name))
+      if data_con:
+        log.info("using exsisting datacon")
+        #using an existing data connection
+        data_cur = data_con.cursor()
+        cloneSQL = CLONE_TABLE_WITH_DATA %( rn, table_display_name)
+        data_cur.execute(cloneSQL)
+      else:
+        cur.execute(CLONE_TABLE_WITH_DATA ,(rn, table_display_name))
       self.connection.commit()
+      if data_con:
+        data_con.commit()
     except Exception, e:
       log.error(e)
       rn = None
       self.connection.rollback()
+      if data_con:
+        data_con.rollback()
     cur.close()
+      
     return rn    
   #Create a new table associated with a version
   def create_table(self, user, repo, table_display_name, create_sql, v_id, provided_rn = None):
@@ -371,6 +384,7 @@ class SQLVersioning:
   #UPDATE_USER_HEAD='update table set head_version = %s where user_id = %s and repo= %s'
   #INSERT_USER_HEAD='insert into user_head (user_id, repo, head_version) select %s, %s, %s where not exists (select 1 from user_head user_id = %s and repo = %s'  
   def update_user_head(self, user, repo, v_id, v_name=None):
+    log.info("update user head %s %s %s " % (user,repo,v_id))
     res = False      
     cur = self.connection.cursor()
     try:

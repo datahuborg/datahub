@@ -90,8 +90,8 @@ class SystemVersioning:
     return self.backend.clone_table(table_real_name, new_v_id, new_name)
 
 
-  def init_existing_table(self, user, repo, display_table_name, v_id):
-    return self.backend.init_existing_table(user, repo, display_table_name, v_id)
+  def init_existing_table(self, user, repo, display_table_name, v_id, data_con=None):
+    return self.backend.init_existing_table(user, repo, display_table_name, v_id, data_con=data_con)
 
   #create a new version, or fork an existing version id
   def create_version(self, user, repo, v_name, parent_v_id=None):
@@ -107,6 +107,7 @@ class SystemVersioning:
   #TODO
   def update_user_head(self, user, repo, v_id=None, v_name=None):
     if self.backend.check_v_id(v_id):
+      log.info("v_id exists")
       return self.backend.update_user_head(user, repo, v_id, v_name)
     else:
       return False
