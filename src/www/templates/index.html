@@ -29,15 +29,93 @@
     <div class="bs-docs-section">
       <h1 id="overview" class="page-header">What is DataHub?</h1>
 
-      <p class="lead">DataHub is an experimental hosted platform (GitHub-like) for organizing, managing, sharing, collaborating, and making sense of data.</p>
+      <p class="lead">DataHub is a unified, managed, collaborative platform for making data-processing easy.</p>
       
-      <p>The hosted platform provides easy to use tools/interfaces for:</p>
+      <p>It consists of:</p>
       <ul>
-        <li>Managing your data (ingestion, curation, sharing, collaboration)</li>
-        <li>Using others' data (discovering, linking)</li>
-        <li>Making sense of data (query, analytics, visualization)</li>
+        <li><strong><em>A flexible data store</em></strong> (files, relational databases, extensible to other data-storage backends) with sharing/collaboration capabilities, managed on behalf of different users/groups,</li>
+        <li><strong><em>An app ecosystem</em></strong> that hosts apps for various data-processing activities such as ingestion, curation, integration, discovery, query, analytics, visualization, and machine learning. The DataHub users can use any of the apps from the App Center for processing their data as it fits their need.</li>
       </ul>
+
     </div>
+
+    <!-- Reading Materials
+    ================================================== -->
+    <div class="bs-docs-section">
+      <h1 id="all-publications" class="page-header">Publications</h1>
+      
+      <h4 id="publications">Papers</h4>
+      <ul>
+        <li>
+          <a href="http://arxiv.org/abs/1409.0798">
+            DataHub: Collaborative Data Science &amp; Dataset Version Management at Scale
+          </a>
+          [Paper, CIDR 2015]
+        </li>
+        <li>
+        <a href="http://people.csail.mit.edu/anantb/files/research/datahub/datahub-nedb.pdf">DataHub: A hosted platform for organizing, managing, sharing, collaborating, and processing data
+        </a>
+        [Technical Report]
+        </li>
+      </ul>
+      
+      <h4 id="talks">Talks</h4>
+      <ul>
+        <li>
+          <a href="http://research.microsoft.com/apps/video/default.aspx?id=238430">
+            DataHub: A hosted platform for organizing, managing, sharing, collaborating, and processing data
+          </a>
+          [Talk by Anant Bhardwaj, Microsoft Research, 2015] [<a href="http://research.microsoft.com/apps/video/default.aspx?id=238430">Video</a> | <a href="http://people.csail.mit.edu/anantb/files/research/datahub/anantb-datahub-talk.pdf">Slides</a>]
+        </li>
+
+        <li>
+          <a href="http://www.cse.iitb.ac.in/page20?talkdetails=836">
+            DataHub: A hosted platform for organizing, managing, sharing, collaborating, and processing data
+          </a>
+          [Talk by Anant Bhardwaj, IIT Bombay, 2015] [<a href="http://people.csail.mit.edu/anantb/files/research/datahub/anantb-datahub-talk.pdf">Slides</a>]
+        </li>
+
+        <li>
+          <a href="http://www.slideshare.net/AdityaParameswaran/datahub-clean">
+            DataHub: Collaborative Data Science &amp; Dataset Version Management at Scale
+          </a>
+          [Talk by Aditya Parmeshwaran, CIDR 2015]
+        </li>
+
+        <li>
+          <a href="http://www.gbcacm.org/seminars/evening/2014/datahub-collaborative-data-analytics-and-visualization-platform.html">
+            DataHub: A Collaborative Data Analytics and Visualization Platform
+          </a>
+          [Talk by Sam Madden, Greater Boston Chapter of the ACM, 2014]
+        </li>
+        
+        <li>
+          <a href="http://www.vldb.org/2013/keynotes.html">
+            The DataHub: A Collaborative Data Analytics and Visualization Platform
+          </a>
+          [Keynote by Sam Madden, VLDB 2013]
+        </li>
+      </ul>
+      
+      <h4 id="blogs">Blogs</h4>
+      <ul>
+        <li>
+          <a href="http://istc-bigdata.org/index.php/beyond-data-lakes-the-datahub/">
+            Beyond Data Lakes: The DataHub
+          </a>
+          [ISTC Blog, Oct 2014]
+        </li>
+        
+        <li>
+          <a href="http://istc-bigdata.org/index.php/datahub-a-hosted-data-platform-for-large-scale-analytics-in-process-of-being-deployed-at-mit/">
+            DataHub, A Hosted Data Platform for Large-Scale Analytics, in Process of Being Deployed at MIT
+          </a>
+          [ISTC Blog, Oct 2013]
+        </li>
+      </ul>
+      
+    </div>
+
 
     <!-- Team
     ================================================== -->
@@ -56,14 +134,7 @@
           <a class="team-member" href="http://people.cs.uchicago.edu/~aelmore/">
             <strong>Aaron Elmore</strong>
           </a>
-          (Postdoc, MIT CSAIL + Asst. Professor, University of Chicago)
-        </li> 
-
-        <li>
-          <a class="team-member" href="http://www.mit.edu/~eugenewu/">
-            <strong>Eugene Wu</strong>
-          </a>
-          (PhD Student, MIT + Asst. Professor, Columbia University)
+          (Asst. Professor, University of Chicago)
         </li> 
         
         <li>
@@ -88,6 +159,13 @@
         </li>
 
         <li>
+          <a class="team-member" href="http://www.mit.edu/~eugenewu/">
+            <strong>Eugene Wu</strong>
+          </a>
+          (Asst. Professor, Columbia University)
+        </li> 
+
+        <li>
           <a class="team-member" href="http://web.engr.illinois.edu/~adityagp/">
             <strong>Aditya Parameswaran</strong>
           </a>
@@ -104,56 +182,6 @@
       </ul>
     </div>
 
-    <!-- Reading Materials
-    ================================================== -->
-    <div class="bs-docs-section">
-      <h1 id="all-publications" class="page-header">Publications</h1>
-      
-      <h4 id="publications">Papers</h4>
-      <ul>
-        <li>
-          <a href="http://arxiv.org/abs/1409.0798">
-            DataHub: Collaborative Data Science &amp; Dataset Version Management at Scale
-          </a>
-          [Paper, CIDR 2015]
-        </li>
-      </ul>
-      
-      <h4 id="talks">Talks</h4>
-      <ul>
-        <li>
-          <a href="http://www.gbcacm.org/seminars/evening/2014/datahub-collaborative-data-analytics-and-visualization-platform.html">
-            DataHub: A Collaborative Data Analytics and Visualization Platform
-          </a>
-          [Talk, Greater Boston Chapter of the ACM, 2014]
-        </li>
-        
-        <li>
-          <a href="http://www.vldb.org/2013/keynotes.html">
-            The DataHub: A Collaborative Data Analytics and Visualization Platform
-          </a>
-          [Keynote, VLDB 2013]
-        </li>
-      </ul>
-      
-      <h4 id="blogs">Blogs</h4>
-      <ul>
-        <li>
-          <a href="http://istc-bigdata.org/index.php/beyond-data-lakes-the-datahub/">
-            Beyond Data Lakes: The DataHub
-          </a>
-          [ISTC Blog, Oct 2014]
-        </li>
-        
-        <li>
-          <a href="http://istc-bigdata.org/index.php/datahub-a-hosted-data-platform-for-large-scale-analytics-in-process-of-being-deployed-at-mit/">
-            DataHub, A Hosted Data Platform for Large-Scale Analytics, in Process of Being Deployed at MIT
-          </a>
-          [ISTC Blog, Oct 2013]
-        </li>
-      </ul>
-      
-    </div>
 
     <!-- Contact
     ================================================== -->
