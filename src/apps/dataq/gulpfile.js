@@ -10,6 +10,8 @@ var path = require('path');
 var uglify = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
 
+var static_base = "../../browser/static/dataq/";
+
 gulp.task("default", ["clean", "templates", "styles", "scripts", "index", "watch"]);
 
 gulp.task('templates', ["clean"], function() {
@@ -22,7 +24,7 @@ gulp.task('templates', ["clean"], function() {
       noRedeclare: true
     }))
     .pipe(concat('templates.js'))
-    .pipe(gulp.dest('./static/dataq/'));
+    .pipe(gulp.dest(static_base));
 });
 
 gulp.task('styles', ["clean"], function() {
@@ -30,13 +32,13 @@ gulp.task('styles', ["clean"], function() {
     .pipe(less({
       paths: [ path.join(__dirname, 'less', 'includes') ]
     }))
-    .pipe(gulp.dest('./static/dataq/css/'));
+    .pipe(gulp.dest(static_base + 'css/'));
 });
 
 gulp.task("clean", function(cb) {
   del([
-    "./static/dataq/**"
-  ], cb);
+    static_base + "**"
+  ], {force: true}, cb);
 });
 
 gulp.task("scripts", ["clean"], function() {
@@ -46,12 +48,12 @@ gulp.task("scripts", ["clean"], function() {
     .pipe(uglify())
     .on("error", function(err){console.log(err);})
     .pipe(sourcemaps.write("./"))
-    .pipe(gulp.dest("./static/dataq/js/"))
+    .pipe(gulp.dest(static_base + "js/"))
 });
 
 gulp.task("index", ["clean"], function() {
   gulp.src("./client_src/index.html")
-    .pipe(gulp.dest("./static/dataq/"))
+    .pipe(gulp.dest(static_base));
 });
 
 gulp.task("watch", ["clean"], function() {
