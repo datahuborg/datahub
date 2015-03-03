@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-from datahub import DataHub
-from datahub.constants import *
+from gen_py.datahub import DataHub
+from gen_py.datahub.constants import *
 from thrift import Thrift
 from thrift.protocol import TBinaryProtocol
 from thrift.transport import THttpClient
