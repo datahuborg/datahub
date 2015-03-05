@@ -28,7 +28,6 @@
     
     <div class="col-sm-2">
       <button class="btn btn-primary btn-xsm" type="submit">Run</button>
-      <button class="btn btn-primary btn-xsm" id="btn-dataq">DataQ</button>
     </div>
     
     </div>
@@ -156,14 +155,6 @@ $('.annotation-modal-dialog').on('click', function(e){
         $("#wait-dialog").modal()  
       });
   });
-</script>
-<script>
-$(document).on("click", "#btn-dataq", function(e) {
-  e.preventDefault();
-  DataQ.DQ("{{repo}}", function(query) {
-    $("#txt-sql").val(query);
-  });
-});
 </script>
 
 {% block extra %}
