@@ -15,7 +15,6 @@
             "targets": i
           });
         }
-        console.log(columnDefinitions);
 
         thisDataTable.DataTable({
           "columnDefs": columnDefinitions,
