@@ -1,7 +1,9 @@
 (function($) {
-  $.fn.EnhancedDataTable = function() {
+  $.fn.EnhancedDataTable = function(table) {
     this.DataTable({
-      "scrollX": true
+      "scrollX": true,
+      "serverSide": true,
+      "ajax": "/apps/datatables/" + table + "/"
     });
     return this;
   };

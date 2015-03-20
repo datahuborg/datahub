@@ -171,5 +171,6 @@ urlpatterns = patterns('',
     url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app  
     url(r'^apps/viz/', include('viz.urls')), # viz app 
     url(r'^apps/dataq/', include('dataq.urls')), # dataq app 
+    url(r'^apps/datatables/', include('datatables.urls')), # datatables app 
     #### End Apps ####
 )
