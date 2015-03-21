@@ -9,6 +9,7 @@ class DrawRequestColumn:
         self.orderable = orderable
         self.searchValue = searchValue
         self.searchRegex = searchRegex
+        print self
     def __repr__(self):
         return "Col(data=%s, name=%s, searchable=%s, orderable=%s, searchRegex=%s)" % (self.data, self.name, self.searchable, self.orderable, self.searchRegex)
     __str__ = __repr__

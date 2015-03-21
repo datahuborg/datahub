@@ -7,7 +7,7 @@ class RunDrawRequest:
         self.draw_response = draw_response
         self.manager = manager
     def run(self):
-        sql = "select * %s %s %s;" % (self.from_clause(), self.order_by_clause(), self.limit_offset_clause())
+        sql = "select * %s %s %s %s;" % (self.from_clause(), self.where_clause(), self.order_by_clause(), self.limit_offset_clause())
         data = self.manager.execute_sql(sql)
         data = data['tuples']
         print sql
@@ -15,6 +15,17 @@ class RunDrawRequest:
         self.draw_response.records_filtered = self.num_tuples()
         self.draw_response.data = data
         return self.draw_response
+    def where_clause(self):
+        clause = ""
+        if len(self.draw_request.searchValue) > 0:
+            searchVal = self.draw_request.searchValue
+            searchVal = searchVal.lower()
+            colStrings = []
+            for column in self.draw_request.columns:
+                colStrings.append("lower(%s) LIKE '%%%s%%'" % (column.name, searchVal))
+            if len(colStrings) > 0:
+                return "WHERE %s" % (" OR ").join(colStrings)
+        return ""
     def num_tuples(self):
         data = self.manager.execute_sql("SELECT COUNT(*) FROM %s.%s" % (self.repo, self.table))
         return int(data['tuples'][0][0])
