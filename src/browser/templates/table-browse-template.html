@@ -55,15 +55,22 @@
     
     {% if tuples and tuples|length > 0 %}
       {% block table-data %}
-        <div class="table-responsive">
-        <table id="table_data" class="table table-condensed table-bordered">
+        <div class="table-responsive datahub-datatable-no-scroll">
+        <table id="table_data" class="table table-condensed table-bordered datahub-datatable-no-scroll">
           <thead>
-          <tr>
-            {% for column_name in column_names %}
-            <th>{{column_name}}</th>
-            {% endfor %}
-          </tr>
+            <tr>
+              {% for column_name in column_names %}
+              <th>{{column_name}}</th>
+              {% endfor %}
+            </tr>
           </thead>
+          <tfoot>
+            <tr>
+              {% for column_name in column_names %}
+              <th>{{column_name}}</th>
+              {% endfor %}
+            </tr>
+          </tfoot>
           <tbody>
             {% for tuple in tuples %}
             <tr>

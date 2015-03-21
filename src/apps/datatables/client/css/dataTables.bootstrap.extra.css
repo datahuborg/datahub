@@ -1,3 +1,7 @@
 .dataTables_scrollBody thead {
   visibility: hidden;
 }
+
+.datahub-datatable-no-scroll {
+  overflow-x: hidden !important;
+}
