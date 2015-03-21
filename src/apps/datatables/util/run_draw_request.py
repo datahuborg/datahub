@@ -7,10 +7,29 @@ class RunDrawRequest:
         self.draw_response = draw_response
         self.manager = manager
     def run(self):
-        print self.draw_response
-        data = self.manager.execute_sql("select * from insurance.insurance LIMIT 10;")
+        sql = "select * %s %s %s;" % (self.from_clause(), self.order_by_clause(), self.limit_offset_clause())
+        data = self.manager.execute_sql(sql)
         data = data['tuples']
-        self.draw_response.records_total = len(data)
-        self.draw_response.records_filtered = len(data) 
+        print sql
+        self.draw_response.records_total = self.num_tuples()
+        self.draw_response.records_filtered = self.num_tuples()
         self.draw_response.data = data
         return self.draw_response
+    def num_tuples(self):
+        data = self.manager.execute_sql("SELECT COUNT(*) FROM %s.%s" % (self.repo, self.table))
+        return int(data['tuples'][0][0])
+    def from_clause(self):
+        return "from %s.%s" % (self.repo, self.table)
+    def limit_offset_clause(self):
+        return "LIMIT %s OFFSET %s" % (self.draw_request.length, self.draw_request.start)
+    def order_by_clause(self):
+        sql = "ORDER BY "
+        order_strings = []
+        for order in self.draw_request.order:
+            column = self.draw_request.columns[order.column].name
+            order_strings.append("%s %s" % (column, order.direction))
+        if len(order_strings) > 0:
+            sql = sql + ", ".join(order_strings)
+        else:
+            return "ORDER BY %s" % (self.draw_request.columns[0].name,)
+        return sql
