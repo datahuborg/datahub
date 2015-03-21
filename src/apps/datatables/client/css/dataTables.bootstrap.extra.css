@@ -2,6 +2,10 @@
   visibility: hidden;
 }
 
+.table-container {
+  margin: 5px;
+}
+
 .datahub-datatable-no-scroll {
   overflow-x: hidden !important;
 }
