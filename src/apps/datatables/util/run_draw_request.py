@@ -19,10 +19,9 @@ class RunDrawRequest:
         clause = ""
         if len(self.draw_request.searchValue) > 0:
             searchVal = self.draw_request.searchValue
-            searchVal = searchVal.lower()
             colStrings = []
             for column in self.draw_request.columns:
-                colStrings.append("lower(%s) LIKE '%%%s%%'" % (column.name, searchVal))
+                colStrings.append("%s ILIKE '%%%s%%'" % (column.name, searchVal))
             if len(colStrings) > 0:
                 return "WHERE %s" % (" OR ").join(colStrings)
         return ""
