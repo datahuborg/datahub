@@ -22,30 +22,31 @@
         // Add buttons to add filters.
         var buttonHtml ='<div class="input-group">'
         + '<span class="input-group-btn">'
-        + '<button class="btn btn-default dt-bool-button" type="button">OR</button>'
+        + '<button class="btn btn-default dt-bool-button" type="button">AND</button>'
         + '</span>'
         + '<input type="text" class="form-control" placeholder="Filter...">'
         + '<span class="input-group-btn">'
-        + '<button class="btn btn-default dt-op-button" type="button">=</button>'
+        + '<button class="btn btn-default dt-op-button" type="button">=val</button>'
         + '</span>'
         + '</div>';
 
         var singleEndButtonHtml ='<div class="input-group">'
         + '<input type="text" class="form-control" placeholder="Filter...">'
         + '<span class="input-group-btn">'
-        + '<button class="btn btn-default dt-op-button" type="button">=</button>'
+        + '<button class="btn btn-default dt-op-button" type="button">=val</button>'
         + '</span>'
         + '</div>';
 
         thisDataTable.find('tfoot th').each(function(index) {
           var title = thisDataTable.find('thead th').eq( $(this).index() ).text();
           $(this).attr("data-colname", title);
-          console.log(title);
+          $(this).html("");
           if (index > 0) {
             $(this).append(buttonHtml);
           } else {
             $(this).append(singleEndButtonHtml);
           }
+          $(this).find("input").attr("placeholder", title);
         });
 
         $(document).on("click", ".dt-bool-button", function() {
@@ -57,19 +58,20 @@
         }); 
 
         var nextOp = {
-          "=": "not=",
-          "not=": "<",
-          "<": "<=",
-          "<=": ">",
-          ">": ">=",
-          ">=": "="
+          "=val": "!=val",
+          "!=val": "<val",
+          "<val": "<=val",
+          "<=val": ">val",
+          ">val": ">=val",
+          ">=val": "=val"
         };
 
         $(document).on("click", ".dt-op-button", function() {
           $(this).text(nextOp[$(this).text()]);
         });
+
              
-        thisDataTable.DataTable({
+        var dtObject = thisDataTable.DataTable({
           "columnDefs": columnDefinitions,
           "searching": false,
           "scrollX": true,
@@ -78,6 +80,16 @@
             "url": "/apps/datatables/api/table/" + repo + "/" + table + "/",
             "data": function(d) {
             }
+          },
+          "initComplete": function(settings, json) {
+            var andButtonHtml = '<button class="btn btn-primary dtables-plus-and">+And</button>';
+            var orButtonHtml = '<button class="btn btn-primary dtables-plus-or">+Or</button>';
+            var colmd = '<div class="col-md-3">' + andButtonHtml + orButtonHtml + '</div>';
+            var html = '<div class="row">' + colmd + '</div>';
+            $(".dataTables_info").parent().parent().before(html);
+          },
+          "drawCallback": function(settings) {
+            console.log(dtObject);
           }
         });
       } else {

@@ -13,3 +13,7 @@
 .datahub-datatable-no-scroll {
   overflow-x: hidden !important;
 }
+
+.dtables-plus-and {
+  margin-right: 5px;
+}
