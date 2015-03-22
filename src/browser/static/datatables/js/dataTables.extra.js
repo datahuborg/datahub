@@ -18,16 +18,53 @@
             "targets": i
           });
         }
+        
+        // Add buttons to add filters.
+        var buttonHtml ='<div class="input-group">'
+        + '<span class="input-group-btn">'
+        + '<button class="btn btn-default dt-bool-button" type="button">OR</button>'
+        + '</span>'
+        + '<input type="text" class="form-control" placeholder="Search for...">'
+        + '<span class="input-group-btn">'
+        + '<button class="btn btn-default dt-op-button" type="button">=</button>'
+        + '</span>'
+        + '</div>';
 
-        /*
-        // Add buttons to add an "And" or "Or".
-        var addButton = $("<button class='btn btn-primary'>+And</button>");
-        // Add a section to the bottom of each column for computing aggregates.
-        thisDataTable.find('tfoot th').each( function () {
-            var title = thisDataTable.find('thead th').eq( $(this).index() ).text();
-            $(this).html( '<input type="text" placeholder="Filter '+title+'" />\n<button>Here</button>' );
-        } );
-        */
+        var singleEndButtonHtml ='<div class="input-group">'
+        + '<input type="text" class="form-control" placeholder="Search for...">'
+        + '<span class="input-group-btn">'
+        + '<button class="btn btn-default dt-op-button" type="button">=</button>'
+        + '</span>'
+        + '</div>';
+
+        thisDataTable.find('tfoot th').each(function(index) {
+          if (index > 0) {
+            $(this).append(buttonHtml);
+          } else {
+            $(this).append(singleEndButtonHtml);
+          }
+        });
+
+        $(document).on("click", ".dt-bool-button", function() {
+          if ($(this).text() == "AND") {
+            $(this).text("OR");
+          } else {
+            $(this).text("AND");
+          }
+        }); 
+
+        var nextOp = {
+          "=": "not=",
+          "not=": "<",
+          "<": "<=",
+          "<=": ">",
+          ">": ">=",
+          ">=": "="
+        };
+
+        $(document).on("click", ".dt-op-button", function() {
+          $(this).text(nextOp[$(this).text()]);
+        });
              
         thisDataTable.DataTable({
           "columnDefs": columnDefinitions,
