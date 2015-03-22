@@ -24,20 +24,23 @@
         + '<span class="input-group-btn">'
         + '<button class="btn btn-default dt-bool-button" type="button">OR</button>'
         + '</span>'
-        + '<input type="text" class="form-control" placeholder="Search for...">'
+        + '<input type="text" class="form-control" placeholder="Filter...">'
         + '<span class="input-group-btn">'
         + '<button class="btn btn-default dt-op-button" type="button">=</button>'
         + '</span>'
         + '</div>';
 
         var singleEndButtonHtml ='<div class="input-group">'
-        + '<input type="text" class="form-control" placeholder="Search for...">'
+        + '<input type="text" class="form-control" placeholder="Filter...">'
         + '<span class="input-group-btn">'
         + '<button class="btn btn-default dt-op-button" type="button">=</button>'
         + '</span>'
         + '</div>';
 
         thisDataTable.find('tfoot th').each(function(index) {
+          var title = thisDataTable.find('thead th').eq( $(this).index() ).text();
+          $(this).attr("data-colname", title);
+          console.log(title);
           if (index > 0) {
             $(this).append(buttonHtml);
           } else {
@@ -71,7 +74,11 @@
           "searching": false,
           "scrollX": true,
           "serverSide": true,
-          "ajax": "/apps/datatables/api/table/" + repo + "/" + table + "/"
+          "ajax": {
+            "url": "/apps/datatables/api/table/" + repo + "/" + table + "/",
+            "data": function(d) {
+            }
+          }
         });
       } else {
         alert("failed to load table");
