@@ -64,13 +64,6 @@
               {% endfor %}
             </tr>
           </thead>
-          <tfoot>
-            <tr>
-              {% for column_name in column_names %}
-              <th>{{column_name}}</th>
-              {% endfor %}
-            </tr>
-          </tfoot>
           <tbody>
             {% for tuple in tuples %}
             <tr>
@@ -80,6 +73,13 @@
             </tr>
             {% endfor %}
           </tbody>
+          <tfoot>
+            <tr>
+              {% for column_name in column_names %}
+              <th>{{column_name}}</th>
+              {% endfor %}
+            </tr>
+          </tfoot>
         </table>
         </div>
       {% endblock %}
