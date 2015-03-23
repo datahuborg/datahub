@@ -100,6 +100,7 @@ module.exports = api;
 
 },{}],3:[function(require,module,exports){
 var footer_html = require("./html/filter_footer.html");
+var first_footer_html = require("./html/first_filter_footer.html");
 var or_filter_html = require("./html/filter_buttons.html");
 
 var nextOp = {
@@ -115,8 +116,14 @@ $(document).on("click", ".dt-op-button", function() {
   $(this).text(nextOp[$(this).text()]);
 });
 
+
 $(document).on("click", ".dt-new-filter", function() {
   createFilter();
+});
+
+$(document).on("click", ".dt-delete-button", function() {
+  console.log($(this).parent().parent().parent());
+  $(this).parent().parent().parent().parent().remove();
 });
 
 var createFilter = function(){
@@ -125,6 +132,9 @@ var createFilter = function(){
   colDefs.forEach(function(colDef, index) {
     var name = colDef.name;
     var th =  $($.parseHTML(footer_html)[0]);
+    if (index == 0) {
+      th =  $($.parseHTML(first_footer_html)[0]);
+    }
     tr.append(th);
     th.find("input").attr("placeholder", name);
   });
@@ -149,10 +159,13 @@ module.exports = function(container, cd) {
   jqueryContainer.after(or_filter_html);
 };
 
-},{"./html/filter_buttons.html":4,"./html/filter_footer.html":5}],4:[function(require,module,exports){
+},{"./html/filter_buttons.html":4,"./html/filter_footer.html":5,"./html/first_filter_footer.html":6}],4:[function(require,module,exports){
 module.exports = "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n";
 
 },{}],5:[function(require,module,exports){
 module.exports = "<th>\n  <div class=\"input-group dt-filter\">\n    <span class=\"input-group-btn\">\n      <button class=\"btn btn-default dt-op-button\" type=\"button\">=</button>\n    </span>\n    <input type=\"text\" class=\"form-control\" placeholder=\"Filter...\">\n  </div>\n</th>\n";
+
+},{}],6:[function(require,module,exports){
+module.exports = "<th>\n  <div class=\"input-group dt-filter\">\n    <span class=\"input-group-btn\">\n      <button class=\"btn btn-danger dt-delete-button\" type=\"button\"><i class=\"fa fa-trash\"></i></button>\n      <button class=\"btn btn-default dt-op-button\" type=\"button\">=</button>\n    </span>\n    <input type=\"text\" class=\"form-control\" placeholder=\"Filter...\">\n  </div>\n</th>\n";
 
 },{}]},{},[1]);
