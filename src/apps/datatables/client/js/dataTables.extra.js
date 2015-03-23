@@ -1,9 +1,10 @@
 var api = require("./api.js");
-var filter_footer = require("./filter-footer.js");
+var FilterFooter = require("./filter-footer.js");
 
 $.fn.EnhancedDataTable = function(repo, table) {
   // The jquer object for which the EnhancedDataTable function was triggered.
   var jqueryObject = this;
+  var filterFooter;
 
   // Get the column definitions for this table.
   api.get_column_definitions(repo, table, function(err, columnDefs) {
@@ -24,7 +25,10 @@ $.fn.EnhancedDataTable = function(repo, table) {
         }
       },
       "initComplete": function(settings, json) {
-        filter_footer(jqueryObject.parent().parent(), columnDefs);
+        filterFooter = FilterFooter(jqueryObject.parent().parent(), columnDefs);
+        setInterval(function() {
+          console.log(filterFooter.filters());
+        }, 1000);
       },
       "drawCallback": function(settings) {
         console.log(datatable.ajax.json());

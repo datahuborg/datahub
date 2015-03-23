@@ -28,7 +28,7 @@ $(document).on("click", ".dt-delete-button", function() {
 
 var createFilter = function(){
   var selector = $(".dataTables_scrollFootInner tfoot"); 
-  var tr  = $($.parseHTML("<tr></tr>")[0]);
+  var tr  = $($.parseHTML("<tr class='dt-filter'></tr>")[0]);
   colDefs.forEach(function(colDef, index) {
     var name = colDef.name;
     var th =  $($.parseHTML(footer_html)[0]);
@@ -36,24 +36,43 @@ var createFilter = function(){
       th =  $($.parseHTML(first_footer_html)[0]);
     }
     tr.append(th);
+    th.attr("data-colname", colDef.name);
     th.find("input").attr("placeholder", name);
   });
   selector.append(tr);
-  return;
-  $(".dataTables_scrollFootInner tfoot").each(function(index) {
-    /*
-    var title = jqueryObject.find('thead th').eq( $(this).index() ).text();
-    $(this).attr("data-colname", title);
-    $(this).append(footer_html);
-    $(this).find("input").attr("placeholder", title);
-    */
-  });
 }
 
 var colDefs;
 var jqueryContainer;
 module.exports = function(container, cd) {
+  var that = {};
+
   jqueryContainer = container;
   colDefs = cd;
   jqueryContainer.after(or_filter_html);
+
+  that.filters = function() {
+    var filters = [];
+    $(".dt-filter").each(function() {
+      var filter = [];
+      $(this).find("th").each(function() {
+        var colname = $(this).data("colname");
+        var filter_text = $(this).find("input[type=text]").val();
+        var filter_op = $(this).find(".dt-op-button").text();
+        if (filter_text.length > 0) {
+          filter.push({
+            "colname": colname,
+            "filter_text": filter_text,
+            "filter_op": filter_op
+          });
+        }
+      });
+      if (filter.length > 0) {
+        filters.push(filter);
+      }
+    });
+    return filters;
+  };
+
+  return that;
 };
