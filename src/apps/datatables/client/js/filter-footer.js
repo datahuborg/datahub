@@ -16,6 +16,10 @@ $(document).on("click", ".dt-op-button", function() {
   datatable.draw();
 });
 
+$(document).on("click", ".dt-invert-filter", function() {
+  datatable.draw();
+});
+
 $(document).on("click", ".dt-new-filter", function() {
   createFilter();
 });

@@ -26,6 +26,7 @@ class RunDrawRequest:
             type_for_col[column[0]] = column[1]
 
         if len(self.draw_request.filters) > 0: 
+            inverted = self.draw_request.filterInverted
             list_filters = []
             for table_filter in self.draw_request.filters: # Iterate through each filter.
                 list_filter = []
@@ -46,7 +47,11 @@ class RunDrawRequest:
                 table_filter_string = " AND ".join(list_filter)
                 table_filter_string = "(%s)" % (table_filter_string,)
                 list_filters.append(table_filter_string)
-            return "where " + " OR ".join(list_filters)
+
+            clause = " OR ".join(list_filters)
+            if inverted:
+                clause = "NOT (%s)" % (clause,)
+            return "where " + clause
         return ""
     def num_tuples(self, with_where_clause):
         where_clause = ""

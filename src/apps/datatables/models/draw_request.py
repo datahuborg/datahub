@@ -20,13 +20,9 @@ class DrawRequest:
         self.start = int(request.GET["start"])
         self.length = int(request.GET["length"])
         self.searchValue = request.GET["search[value]"]
-        self.searchRegex = request.GET["search[regex]"]
-        if self.searchRegex == "true":
-            self.searchRegex = True
-        elif self.searchRegex == "false":
-            self.searchRegex = False
-        else:
-            raise ValueError("The search[regex] must be either 'true' or 'false'")
+        self.searchRegex = self.to_bool(request.GET["search[regex]"])
+        if "filterInverted" in request.GET:
+            self.filterInverted = self.to_bool(request.GET["filterInverted"])
 
         # Next, we'll extract the filters.
         self.filters = []
@@ -84,34 +80,18 @@ class DrawRequest:
             if column_data_fmt in request.GET:
                 column_data = request.GET[column_data_fmt]
                 column_name = request.GET[column_name_fmt]
-                column_searchable = request.GET[column_searchable_fmt]
-                if column_searchable == "true":
-                    column_searchable = True
-                elif column_searchable == "false":
-                    column_searchable = False
-                else:
-                    raise ValueError("The columns[%d][searchable] must be either 'true' or 'false'" % (i,))
-                column_orderable = request.GET[column_orderable_fmt]
-                if column_orderable == "true":
-                    column_orderable = True
-                elif column_orderable == "false":
-                    column_orderable = False
-                else:
-                    raise ValueError("The columns[%d][orderable] must be either 'true' or 'false'" % (i,))
+                column_searchable = self.to_bool(request.GET[column_searchable_fmt])
+                column_orderable = self.to_bool(request.GET[column_orderable_fmt])
                 column_search_value = request.GET[column_search_value_fmt]
-                column_search_regex = request.GET[column_search_regex_fmt]
-                if column_search_regex == "true":
-                    column_search_regex = True
-                elif column_search_regex == "false":
-                    column_search_regex = False
-                else:
-                    raise ValueError("The columns[%d][search][regex] must be either 'true' or 'false'" % (i,))
+                column_search_regex = self.to_bool(request.GET[column_search_regex_fmt])
                 self.columns.append(DrawRequestColumn(column_data, column_name, column_searchable, column_orderable, column_search_value, column_search_regex))
             else:
                 moreCols = False
 
             # Move on to the next element.
             i += 1
+    def to_bool(self, val):
+        return val == "true"
     def __repr__(self):
         return "DrawRequest(draw=%s, start=%s, length=%s, searchValue=%s, searchRegex=%s, columns=%s, filters=%s, order=%s)" % (self.draw, self.start, self.length, self.searchValue, self.searchRegex, self.columns, self.filters, self.order) 
     __str__ = __repr__
