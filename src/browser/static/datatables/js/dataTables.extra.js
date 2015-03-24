@@ -25,6 +25,7 @@ $.fn.EnhancedDataTable = function(repo, table) {
         "data": function(d) {
           if (filterFooter !== undefined) {
             d["filters"] = filterFooter.filters();
+            d["filterInverted"] = filterFooter.isInverted();
           }
         }
       },
@@ -163,9 +164,13 @@ module.exports = function(container, cd) {
         var colname = $(this).data("colname");
         var filter_text = $(this).find("input[type=text]").val();
         var filter_op = $(this).find(".dt-op-button").text();
+        
+        // Sometimes DataTables.js will create duplicate copies of the filters. If so,
+        // then we cannot extract the desired values, so we skip this "false filter".
         if (filter_text === undefined) {
           return;
         }
+
         if (filter_text.length > 0) {
           filter.push({
             "colname": colname,
@@ -181,11 +186,15 @@ module.exports = function(container, cd) {
     return filters;
   };
 
+  that.isInverted = function() {
+    return $(".dt-invert-filter").prop("checked");
+  };
+
   return that;
 };
 
 },{"./html/filter_buttons.html":4,"./html/filter_footer.html":5,"./html/first_filter_footer.html":6}],4:[function(require,module,exports){
-module.exports = "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n";
+module.exports = "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n";
 
 },{}],5:[function(require,module,exports){
 module.exports = "<th>\n  <div class=\"input-group\">\n    <span class=\"input-group-btn\">\n      <button class=\"btn btn-default dt-op-button\" type=\"button\">=</button>\n    </span>\n    <input type=\"text\" class=\"form-control dt-filtertext\" placeholder=\"Filter...\">\n  </div>\n</th>\n";

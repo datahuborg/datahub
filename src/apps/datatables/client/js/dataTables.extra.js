@@ -24,6 +24,7 @@ $.fn.EnhancedDataTable = function(repo, table) {
         "data": function(d) {
           if (filterFooter !== undefined) {
             d["filters"] = filterFooter.filters();
+            d["filterInverted"] = filterFooter.isInverted();
           }
         }
       },

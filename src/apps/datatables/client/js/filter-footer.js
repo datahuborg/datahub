@@ -80,5 +80,9 @@ module.exports = function(container, cd) {
     return filters;
   };
 
+  that.isInverted = function() {
+    return $(".dt-invert-filter").prop("checked");
+  };
+
   return that;
 };
