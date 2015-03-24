@@ -7,7 +7,7 @@ class RunDrawRequest:
         self.draw_response = draw_response
         self.manager = manager
     def run(self):
-        sql = "select * %s %s %s %s;" % (self.from_clause(), self.where_clause(), self.order_by_clause(), self.limit_offset_clause())
+        sql = "select %s %s %s %s %s;" % (self.select_clause(), self.from_clause(), self.where_clause(), self.order_by_clause(), self.limit_offset_clause())
         print sql
         data = self.manager.execute_sql(sql)
         data = data['tuples']
@@ -18,6 +18,8 @@ class RunDrawRequest:
             self.draw_response.records_filtered = self.num_tuples(True)
         self.draw_response.data = data
         return self.draw_response
+    def select_clause(self):
+        return ", ".join([col.name for col in self.draw_request.columns])
     def where_clause(self):
         # Figure out the types of the columns so we'll know whether to use
         # numeric operations or string operations.

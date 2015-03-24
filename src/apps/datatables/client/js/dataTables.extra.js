@@ -15,6 +15,7 @@ $.fn.EnhancedDataTable = function(repo, table) {
 
     // Create the DataTable.
     var datatable = jqueryObject.DataTable({
+      "dom": 'Rlfrtip',
       "columnDefs": columnDefs,
       "searching": false,
       "scrollX": true,
