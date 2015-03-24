@@ -10,9 +10,11 @@ class RunDrawRequest:
         sql = "select * %s %s %s %s;" % (self.from_clause(), self.where_clause(), self.order_by_clause(), self.limit_offset_clause())
         data = self.manager.execute_sql(sql)
         data = data['tuples']
-        print sql
-        self.draw_response.records_total = self.num_tuples()
-        self.draw_response.records_filtered = self.num_tuples()
+        self.draw_response.records_total = self.num_tuples(False)
+        if len(self.where_clause()) == 0:
+            self.draw_response.records_filtered = self.draw_response.records_total
+        else:
+            self.draw_response.records_filtered = self.num_tuples(True)
         self.draw_response.data = data
         return self.draw_response
     def where_clause(self):
@@ -46,10 +48,11 @@ class RunDrawRequest:
                 list_filters.append(table_filter_string)
             return "where " + " OR ".join(list_filters)
         return ""
-
-
-    def num_tuples(self):
-        data = self.manager.execute_sql("SELECT COUNT(*) FROM %s.%s" % (self.repo, self.table))
+    def num_tuples(self, with_where_clause):
+        where_clause = ""
+        if with_where_clause:
+            where_clause = self.where_clause()
+        data = self.manager.execute_sql("SELECT COUNT(*) %s %s" % (self.from_clause(), where_clause))
         return int(data['tuples'][0][0])
     def from_clause(self):
         return "from %s.%s" % (self.repo, self.table)
