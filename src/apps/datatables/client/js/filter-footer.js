@@ -15,7 +15,6 @@ $(document).on("click", ".dt-op-button", function() {
   $(this).text(nextOp[$(this).text()]);
 });
 
-
 $(document).on("click", ".dt-new-filter", function() {
   createFilter();
 });
@@ -36,8 +35,8 @@ var createFilter = function(){
       th =  $($.parseHTML(first_footer_html)[0]);
     }
     tr.append(th);
-    th.attr("data-colname", colDef.name);
     th.find("input").attr("placeholder", name);
+    th.attr("data-colname", colDef.name);
   });
   selector.append(tr);
 }
@@ -59,6 +58,13 @@ module.exports = function(container, cd) {
         var colname = $(this).data("colname");
         var filter_text = $(this).find("input[type=text]").val();
         var filter_op = $(this).find(".dt-op-button").text();
+        
+        // Sometimes DataTables.js will create duplicate copies of the filters. If so,
+        // then we cannot extract the desired values, so we skip this "false filter".
+        if (filter_text === undefined) {
+          return;
+        }
+
         if (filter_text.length > 0) {
           filter.push({
             "colname": colname,

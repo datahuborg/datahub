@@ -1,6 +1,7 @@
 from django.http import HttpRequest
 from draw_request_column import DrawRequestColumn
 from draw_request_order import DrawRequestOrder
+from draw_request_column_filter import DrawRequestColumnFilter
 
 '''
 Class for parsing draw request from DataTables.js and converting into a SQL query.
@@ -27,6 +28,32 @@ class DrawRequest:
         else:
             raise ValueError("The search[regex] must be either 'true' or 'false'")
 
+        # Next, we'll extract the filters.
+        self.filters = []
+        hasMoreFilters = True
+        filterIndex = 0
+        while hasMoreFilters:
+            columnIndex = 0
+            hasMoreColumns = True
+            while hasMoreColumns:
+                filter_op_fmt = "filters[%s][%s][filter_op]" % (filterIndex, columnIndex)
+                filter_text_fmt = "filters[%s][%s][filter_text]" % (filterIndex, columnIndex)
+                filter_colname_fmt = "filters[%s][%s][colname]" % (filterIndex, columnIndex)
+                if filter_op_fmt in request.GET:
+                    if len(self.filters) <= filterIndex:
+                        self.filters.append([])
+                    filter_op = request.GET[filter_op_fmt]
+                    filter_text = request.GET[filter_text_fmt]
+                    filter_colname = request.GET[filter_colname_fmt]
+                    column_filter = DrawRequestColumnFilter(filter_colname, filter_text, filter_op)
+                    self.filters[filterIndex].append(column_filter)
+                    columnIndex += 1
+                elif columnIndex != 0:
+                    hasMoreColumns = False
+                    filterIndex += 1
+                else:
+                    hasMoreColumns = False
+                    hasMoreFilters = False
 
         # Next, we'll extract the columns and order.
         # We don't know how many of them there are, so we'll have to
@@ -86,5 +113,5 @@ class DrawRequest:
             # Move on to the next element.
             i += 1
     def __repr__(self):
-        return "DrawRequest(draw=%s, start=%s, length=%s, searchValue=%s, searchRegex=%s, columns=%s, order=%s)" % (self.draw, self.start, self.length, self.searchValue, self.searchRegex, self.columns, self.order) 
+        return "DrawRequest(draw=%s, start=%s, length=%s, searchValue=%s, searchRegex=%s, columns=%s, filters=%s, order=%s)" % (self.draw, self.start, self.length, self.searchValue, self.searchRegex, self.columns, self.filters, self.order) 
     __str__ = __repr__
