@@ -8,6 +8,7 @@ class RunDrawRequest:
         self.manager = manager
     def run(self):
         sql = "select * %s %s %s %s;" % (self.from_clause(), self.where_clause(), self.order_by_clause(), self.limit_offset_clause())
+        print sql
         data = self.manager.execute_sql(sql)
         data = data['tuples']
         self.draw_response.records_total = self.num_tuples(False)
@@ -33,6 +34,15 @@ class RunDrawRequest:
                 for col_filter in table_filter: # Iterate through each column filter.
                     op = col_filter.operation
                     text = col_filter.text
+                    if "btw" in op:
+                        range_vals = text.split(";")
+                        if len(range_vals) != 2:
+                            return ""
+                        first, second = range_vals[0], range_vals[1]
+                        if type_for_col[col_filter.name] == "text":
+                            first = "'" + first + "'"
+                            second = "'" + second + "'"
+                        col_filter_string = "(%s BETWEEN %s AND %s)" % (col_filter.name, first, second)
                     if type_for_col[col_filter.name] == "text": # Change the op and text for string comparison.
                         if op == "=":
                             text = "'%" + text + "%'"
@@ -40,9 +50,10 @@ class RunDrawRequest:
                         elif op == "!=":
                             text = "'%" + text + "%'"
                             op = "NOT ILIKE"
-                        else:
+                        elif "btw" not in op:
                             text = "'" + text + "'"
-                    col_filter_string = "(%s %s %s)" % (col_filter.name, op, text)
+                    if "btw" not in op:
+                        col_filter_string = "(%s %s %s)" % (col_filter.name, op, text)
                     list_filter.append(col_filter_string)
                 table_filter_string = " AND ".join(list_filter)
                 table_filter_string = "(%s)" % (table_filter_string,)

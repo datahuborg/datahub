@@ -114,7 +114,8 @@ var nextOp = {
   "<": "<=",
   "<=": ">",
   ">": ">=",
-  ">=": "="
+  ">=": "btw a;b",
+  "btw a;b": "="
 };
 
 $(document).on("click", ".dt-op-button", function() {
