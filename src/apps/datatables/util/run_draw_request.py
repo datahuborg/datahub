@@ -16,15 +16,35 @@ class RunDrawRequest:
         self.draw_response.data = data
         return self.draw_response
     def where_clause(self):
-        clause = ""
-        if len(self.draw_request.searchValue) > 0:
-            searchVal = self.draw_request.searchValue
-            colStrings = []
-            for column in self.draw_request.columns:
-                colStrings.append("%s ILIKE '%%%s%%'" % (column.name, searchVal))
-            if len(colStrings) > 0:
-                return "WHERE %s" % (" OR ").join(colStrings)
+        # Figure out the types of the columns so we'll know whether to use
+        # numeric operations or string operations.
+        schema = self.manager.get_schema(self.repo + "." + self.table)['tuples']
+        type_for_col = {}
+        for column in schema:
+            type_for_col[column[0]] = column[1]
+
+        if len(self.draw_request.filters) > 0: 
+            list_filters = []
+            for table_filter in self.draw_request.filters: # Iterate through each filter.
+                list_filter = []
+                for col_filter in table_filter: # Iterate through each column filter.
+                    op = col_filter.operation
+                    text = col_filter.text
+                    if type_for_col[col_filter.name] == "text": # Change the op and text for string comparison.
+                        text = "'%" + text + "%'"
+                        if op == "=":
+                            op = "ILIKE"
+                        elif op == "!=":
+                            op = "NOT ILIKE"
+                    col_filter_string = "(%s %s %s)" % (col_filter.name, op, text)
+                    list_filter.append(col_filter_string)
+                table_filter_string = " AND ".join(list_filter)
+                table_filter_string = "(%s)" % (table_filter_string,)
+                list_filters.append(table_filter_string)
+            return "where " + " OR ".join(list_filters)
         return ""
+
+
     def num_tuples(self):
         data = self.manager.execute_sql("SELECT COUNT(*) FROM %s.%s" % (self.repo, self.table))
         return int(data['tuples'][0][0])
