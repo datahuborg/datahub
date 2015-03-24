@@ -13,6 +13,7 @@ var nextOp = {
 
 $(document).on("click", ".dt-op-button", function() {
   $(this).text(nextOp[$(this).text()]);
+  datatable.draw();
 });
 
 $(document).on("click", ".dt-new-filter", function() {
@@ -23,6 +24,10 @@ $(document).on("click", ".dt-delete-button", function() {
   // Delete the entire row.
   // button < span < div < th < tr
   $(this).parent().parent().parent().parent().remove();
+});
+
+$(document).on("keyup change", ".dt-filter input[type=text]", function() {
+  datatable.draw();
 });
 
 var createFilter = function(){
@@ -43,11 +48,13 @@ var createFilter = function(){
 
 var colDefs;
 var jqueryContainer;
-module.exports = function(container, cd) {
+var datatable;
+module.exports = function(container, cd, dt) {
   var that = {};
 
   jqueryContainer = container;
   colDefs = cd;
+  datatable = dt;
   jqueryContainer.after(or_filter_html);
 
   that.filters = function() {

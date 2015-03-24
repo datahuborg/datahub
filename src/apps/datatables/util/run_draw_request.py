@@ -31,11 +31,14 @@ class RunDrawRequest:
                     op = col_filter.operation
                     text = col_filter.text
                     if type_for_col[col_filter.name] == "text": # Change the op and text for string comparison.
-                        text = "'%" + text + "%'"
                         if op == "=":
+                            text = "'%" + text + "%'"
                             op = "ILIKE"
                         elif op == "!=":
+                            text = "'%" + text + "%'"
                             op = "NOT ILIKE"
+                        else:
+                            text = "'" + text + "'"
                     col_filter_string = "(%s %s %s)" % (col_filter.name, op, text)
                     list_filter.append(col_filter_string)
                 table_filter_string = " AND ".join(list_filter)

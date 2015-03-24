@@ -29,7 +29,7 @@ $.fn.EnhancedDataTable = function(repo, table) {
         }
       },
       "initComplete": function(settings, json) {
-        filterFooter = FilterFooter(jqueryObject.parent().parent(), columnDefs);
+        filterFooter = FilterFooter(jqueryObject.parent().parent(), columnDefs, datatable);
       },
       "drawCallback": function(settings) {
         //console.log(datatable.ajax.json());
