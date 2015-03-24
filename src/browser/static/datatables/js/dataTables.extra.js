@@ -23,16 +23,16 @@ $.fn.EnhancedDataTable = function(repo, table) {
       "ajax": {
         "url": api.table_url(repo, table),
         "data": function(d) {
+          if (filterFooter !== undefined) {
+            d["filters"] = filterFooter.filters();
+          }
         }
       },
       "initComplete": function(settings, json) {
         filterFooter = FilterFooter(jqueryObject.parent().parent(), columnDefs);
-        setInterval(function() {
-          console.log(filterFooter.filters());
-        }, 1000);
       },
       "drawCallback": function(settings) {
-        console.log(datatable.ajax.json());
+        //console.log(datatable.ajax.json());
       }
     });
   });
