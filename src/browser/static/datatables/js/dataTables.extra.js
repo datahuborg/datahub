@@ -145,17 +145,24 @@ $(document).on("keyup change", ".dt-filter input[type=text]", function() {
 var createFilter = function(){
   var selector = $(".dataTables_scrollFootInner tfoot"); 
   var tr  = $($.parseHTML("<tr class='dt-filter'></tr>")[0]);
-  colDefs.forEach(function(colDef, index) {
-    var name = colDef.name;
-    var th =  $($.parseHTML(footer_html)[0]);
-    if (index == 0) {
-      th =  $($.parseHTML(first_footer_html)[0]);
-    }
-    tr.append(th);
-    th.find("input").attr("placeholder", name);
-    th.attr("data-colname", colDef.name);
-  });
-  selector.append(tr);
+  var order = datatable.colReorder.order();
+
+  for (var i = 0; i < order.length; i++) {
+    colDefs.forEach(function(colDef, index) {
+      if (colDef.targets !== order[i]) {
+        return;
+      }
+      var name = colDef.name;
+      var th =  $($.parseHTML(footer_html)[0]);
+      if (index == 0) {
+        th =  $($.parseHTML(first_footer_html)[0]);
+      }
+      tr.append(th);
+      th.find("input").attr("placeholder", name);
+      th.attr("data-colname", colDef.name);
+    });
+    selector.append(tr);
+  }
 }
 
 var colDefs;
