@@ -152,7 +152,7 @@ var createFilter = function(){
 
   for (var i = 0; i < order.length; i++) {
     for (var j = 0; j < colDefs.length; j++) {
-      if (colDefs[j] === order[i]) {
+      if (colDefs[j].targets === order[i]) {
         colDefs[j].order = i;
       }
     }
