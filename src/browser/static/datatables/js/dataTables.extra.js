@@ -2,7 +2,7 @@
 var api = require("./api.js");
 var FilterBar = require("./filter-bar.js");
 
-$.fn.EnhancedDataTable = function(repo, table) {
+$.fn.EnhancedDataTable = function(repo, table, callback) {
   // The jquer object for which the EnhancedDataTable function was triggered.
   var jqueryObject = this;
   var filterBar;
@@ -40,7 +40,9 @@ $.fn.EnhancedDataTable = function(repo, table) {
         filterBar = FilterBar(jqueryObject.parent().parent(), columnDefs, datatable);
       },
       "drawCallback": function(settings) {
-        //console.log(datatable.ajax.json());
+        var json_result = datatable.ajax.json();
+        var query = json_result.query;
+        callback(query);
       }
     });
   });

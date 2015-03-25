@@ -72,6 +72,13 @@
             </tr>
           </tfoot>
           <tbody>
+            {% for tuple in tuples %}
+            <tr>
+              {% for cell in tuple %}
+                <td class="strong">{{cell}}</td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
           </tbody>
         </table>
         </div>
@@ -137,7 +144,9 @@ $('.annotation-modal-dialog').on('click', function(e){
 
 <script>
   $(document).ready(function() {
-    $("#table_data").EnhancedDataTable("{{repo}}", "{{table}}");
+    $("#table_data").EnhancedDataTable("{{repo}}", "{{table}}", function(query) {
+      $("#txt-sql").val(query);
+    });
   });
 </script>
 
