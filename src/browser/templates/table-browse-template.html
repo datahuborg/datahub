@@ -64,6 +64,13 @@
               {% endfor %}
             </tr>
           </thead>
+          <tfoot>
+            <tr>
+              {% for column_name in column_names %}
+              <th data-colname="{{column_name}}">{{column_name}}</th>
+              {% endfor %}
+            </tr>
+          </tfoot>
           <tbody>
           </tbody>
         </table>

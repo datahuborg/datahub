@@ -16,7 +16,7 @@ $.fn.EnhancedDataTable = function(repo, table) {
 
     // Create the DataTable.
     var datatable = jqueryObject.DataTable({
-      "dom": 'Rlfrtip',
+      "dom": 'RC<"clear">lfrtip',
       "columnDefs": columnDefs,
       "searching": false,
       "scrollX": true,
@@ -28,6 +28,12 @@ $.fn.EnhancedDataTable = function(repo, table) {
             d["filters"] = filterBar.filters();
             d["filterInverted"] = filterBar.isInverted();
           }
+        }
+      },
+      "colVis": {
+        "overlayFade": 0,
+        "stateChange": function(colNum, visibility) {
+          filterBar.set_visibility(colNum, visibility);
         }
       },
       "initComplete": function(settings, json) {
@@ -110,26 +116,18 @@ var filter_template = require("./templates/filter.hbs");
 
 var hidden_cols = {};
 
-var get_order = function(colname) {
-  var order = datatable.colReorder.order();
-  var targets = 0;
-  colDefs.forEach(function(colDef) {
-    if (colDef.name === colname) {
-      targets = colDef.targets;
-    }
-  });
-  for (var i = 0; i < order.length; i++) {
-    if (targets === order[i]) {
-      return i + 1;
+var set_visibility = function(colname, visibility) {
+  if (visibility !== undefined) {
+    if (visibility) {
+      hidden_cols[colname] = undefined;
+    } else {
+      hidden_cols[colname] = true;
     }
   }
-};
-
-var set_visibility = function(colname) {
-  var hidden= hidden_cols[colname] === true;
+  var hidden = hidden_cols[colname] === true;
   var th_selector = $(".dt-filter th[data-colname=" + colname + "]");
-  var colheader_selector = $(".dataTables_scrollHeadInner tr[role=row] th[data-colname=" + colname + "]");
-  var colbody_selector = $(".dataTables_scrollBody tbody tr td:nth-child(" + get_order(colname) + ")");
+  console.log(hidden);
+  console.log(th_selector);
   if (hidden) {
     th_selector.hide();
   } else {
@@ -156,17 +154,6 @@ $(document).on("click", ".dt-invert-filter", function() {
   datatable.draw();
 });
 
-$(document).on("click", ".dt-hidden-list input[type=checkbox]", function() {
-  var colname = $(this).val();
-  if ($(this).prop("checked")) {
-    hidden_cols[colname] = true;
-    set_visibility(colname);
-  } else {
-    hidden_cols[colname] = undefined;
-    set_visibility(colname);
-  }
-});
-
 $(document).on("click", ".dt-new-filter", function() {
   createFilter();
 });
@@ -182,7 +169,7 @@ $(document).on("keyup change", ".dt-filter input[type=text]", function() {
 });
 
 var createFilter = function(){
-  var selector = $(".dataTables_scrollHeadInner thead"); 
+  var selector = $(".dataTables_scrollFootInner tfoot"); 
   var order = datatable.colReorder.order();
 
   for (var i = 0; i < order.length; i++) {
@@ -203,7 +190,7 @@ var createFilter = function(){
     }
   });
 
-  selector.prepend(filter_template({"colDefs": colDefs}));
+  selector.append(filter_template({"colDefs": colDefs}));
 
   for (var colname in hidden_cols) {
     set_visibility(colname);
@@ -214,6 +201,7 @@ var createFilter = function(){
 var colDefs;
 var jqueryContainer;
 var datatable;
+var colvis;
 module.exports = function(container, cd, dt) {
   var that = {};
 
@@ -221,12 +209,7 @@ module.exports = function(container, cd, dt) {
   colDefs = cd;
   datatable = dt;
 
-  var colnames = [];
-  colDefs.forEach(function(colDef) {
-    colnames.push(colDef.name);
-  });
-  colnames.sort();
-  jqueryContainer.before(filter_buttons_template({"colnames": colnames}));
+  jqueryContainer.after(filter_buttons_template());
 
   that.filters = function() {
     var filters = [];
@@ -262,15 +245,13 @@ module.exports = function(container, cd, dt) {
     return $(".dt-invert-filter").prop("checked");
   };
 
-  that.visibilityToggled = function(colName, visibility) {
-    return;
-    var selector = $(".dt-filter th[data-colname=" + colName + "]");
-    if (visibility) {
-      selector.show();
-    } else {
-      selector.hide();
+  that.set_visibility = function(colNum, visibility) {
+    for (var i = 0; i < colDefs.length; i++) {
+      if (colDefs[i].targets === colNum) {
+        set_visibility(colDefs[i].name, visibility);
+      }
     }
-  };
+  }
 
   return that;
 };
@@ -301,28 +282,8 @@ module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partia
 },{"hbsfy/runtime":13}],5:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
-module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partials,data) {
-    var alias1=this.lambda, alias2=this.escapeExpression;
-
-  return "      <li><input type=\"checkbox\" id=\"hide-col-"
-    + alias2(alias1(depth0, depth0))
-    + "\" value=\""
-    + alias2(alias1(depth0, depth0))
-    + "\"><label for=\"hide-col-"
-    + alias2(alias1(depth0, depth0))
-    + "\" name=\""
-    + alias2(alias1(depth0, depth0))
-    + "\" value=\""
-    + alias2(alias1(depth0, depth0))
-    + "\">"
-    + alias2(alias1(depth0, depth0))
-    + "</label></li>\n";
-},"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-    var stack1;
-
-  return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n<div class=\"btn-group\">\n  <button data-toggle=\"dropdown\" class=\"btn btn-primary dropdown-toggle\" >Hidden: <span data-label-placement></span>  <span class=\"caret\"></span></button>\n    <ul class=\"dropdown-menu dt-hidden-list\">\n"
-    + ((stack1 = helpers.each.call(depth0,(depth0 != null ? depth0.colnames : depth0),{"name":"each","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
-    + "    </ul>\n</div>\n";
+module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+    return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n";
 },"useData":true});
 
 },{"hbsfy/runtime":13}],6:[function(require,module,exports){

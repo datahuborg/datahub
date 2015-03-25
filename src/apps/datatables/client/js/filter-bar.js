@@ -3,26 +3,18 @@ var filter_template = require("./templates/filter.hbs");
 
 var hidden_cols = {};
 
-var get_order = function(colname) {
-  var order = datatable.colReorder.order();
-  var targets = 0;
-  colDefs.forEach(function(colDef) {
-    if (colDef.name === colname) {
-      targets = colDef.targets;
-    }
-  });
-  for (var i = 0; i < order.length; i++) {
-    if (targets === order[i]) {
-      return i + 1;
+var set_visibility = function(colname, visibility) {
+  if (visibility !== undefined) {
+    if (visibility) {
+      hidden_cols[colname] = undefined;
+    } else {
+      hidden_cols[colname] = true;
     }
   }
-};
-
-var set_visibility = function(colname) {
-  var hidden= hidden_cols[colname] === true;
+  var hidden = hidden_cols[colname] === true;
   var th_selector = $(".dt-filter th[data-colname=" + colname + "]");
-  var colheader_selector = $(".dataTables_scrollHeadInner tr[role=row] th[data-colname=" + colname + "]");
-  var colbody_selector = $(".dataTables_scrollBody tbody tr td:nth-child(" + get_order(colname) + ")");
+  console.log(hidden);
+  console.log(th_selector);
   if (hidden) {
     th_selector.hide();
   } else {
@@ -49,17 +41,6 @@ $(document).on("click", ".dt-invert-filter", function() {
   datatable.draw();
 });
 
-$(document).on("click", ".dt-hidden-list input[type=checkbox]", function() {
-  var colname = $(this).val();
-  if ($(this).prop("checked")) {
-    hidden_cols[colname] = true;
-    set_visibility(colname);
-  } else {
-    hidden_cols[colname] = undefined;
-    set_visibility(colname);
-  }
-});
-
 $(document).on("click", ".dt-new-filter", function() {
   createFilter();
 });
@@ -75,7 +56,7 @@ $(document).on("keyup change", ".dt-filter input[type=text]", function() {
 });
 
 var createFilter = function(){
-  var selector = $(".dataTables_scrollHeadInner thead"); 
+  var selector = $(".dataTables_scrollFootInner tfoot"); 
   var order = datatable.colReorder.order();
 
   for (var i = 0; i < order.length; i++) {
@@ -96,7 +77,7 @@ var createFilter = function(){
     }
   });
 
-  selector.prepend(filter_template({"colDefs": colDefs}));
+  selector.append(filter_template({"colDefs": colDefs}));
 
   for (var colname in hidden_cols) {
     set_visibility(colname);
@@ -107,6 +88,7 @@ var createFilter = function(){
 var colDefs;
 var jqueryContainer;
 var datatable;
+var colvis;
 module.exports = function(container, cd, dt) {
   var that = {};
 
@@ -114,12 +96,7 @@ module.exports = function(container, cd, dt) {
   colDefs = cd;
   datatable = dt;
 
-  var colnames = [];
-  colDefs.forEach(function(colDef) {
-    colnames.push(colDef.name);
-  });
-  colnames.sort();
-  jqueryContainer.before(filter_buttons_template({"colnames": colnames}));
+  jqueryContainer.after(filter_buttons_template());
 
   that.filters = function() {
     var filters = [];
@@ -155,15 +132,13 @@ module.exports = function(container, cd, dt) {
     return $(".dt-invert-filter").prop("checked");
   };
 
-  that.visibilityToggled = function(colName, visibility) {
-    return;
-    var selector = $(".dt-filter th[data-colname=" + colName + "]");
-    if (visibility) {
-      selector.show();
-    } else {
-      selector.hide();
+  that.set_visibility = function(colNum, visibility) {
+    for (var i = 0; i < colDefs.length; i++) {
+      if (colDefs[i].targets === colNum) {
+        set_visibility(colDefs[i].name, visibility);
+      }
     }
-  };
+  }
 
   return that;
 };

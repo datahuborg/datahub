@@ -15,7 +15,7 @@ $.fn.EnhancedDataTable = function(repo, table) {
 
     // Create the DataTable.
     var datatable = jqueryObject.DataTable({
-      "dom": 'Rlfrtip',
+      "dom": 'RC<"clear">lfrtip',
       "columnDefs": columnDefs,
       "searching": false,
       "scrollX": true,
@@ -27,6 +27,12 @@ $.fn.EnhancedDataTable = function(repo, table) {
             d["filters"] = filterBar.filters();
             d["filterInverted"] = filterBar.isInverted();
           }
+        }
+      },
+      "colVis": {
+        "overlayFade": 0,
+        "stateChange": function(colNum, visibility) {
+          filterBar.set_visibility(colNum, visibility);
         }
       },
       "initComplete": function(settings, json) {
