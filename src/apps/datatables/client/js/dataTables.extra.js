@@ -1,10 +1,10 @@
 var api = require("./api.js");
-var FilterFooter = require("./filter-footer.js");
+var FilterBar = require("./filter-bar.js");
 
 $.fn.EnhancedDataTable = function(repo, table) {
   // The jquer object for which the EnhancedDataTable function was triggered.
   var jqueryObject = this;
-  var filterFooter;
+  var filterBar;
 
   // Get the column definitions for this table.
   api.get_column_definitions(repo, table, function(err, columnDefs) {
@@ -28,14 +28,14 @@ $.fn.EnhancedDataTable = function(repo, table) {
       "ajax": {
         "url": api.table_url(repo, table),
         "data": function(d) {
-          if (filterFooter !== undefined) {
-            d["filters"] = filterFooter.filters();
-            d["filterInverted"] = filterFooter.isInverted();
+          if (filterBar !== undefined) {
+            d["filters"] = filterBar.filters();
+            d["filterInverted"] = filterBar.isInverted();
           }
         }
       },
       "initComplete": function(settings, json) {
-        filterFooter = FilterFooter(jqueryObject.parent().parent(), columnDefs, datatable);
+        filterBar = FilterBar(jqueryObject.parent().parent(), columnDefs, datatable);
       },
       "drawCallback": function(settings) {
         //console.log(datatable.ajax.json());

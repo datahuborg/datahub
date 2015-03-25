@@ -1,11 +1,11 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var api = require("./api.js");
-var FilterFooter = require("./filter-footer.js");
+var FilterBar = require("./filter-bar.js");
 
 $.fn.EnhancedDataTable = function(repo, table) {
   // The jquer object for which the EnhancedDataTable function was triggered.
   var jqueryObject = this;
-  var filterFooter;
+  var filterBar;
 
   // Get the column definitions for this table.
   api.get_column_definitions(repo, table, function(err, columnDefs) {
@@ -29,14 +29,14 @@ $.fn.EnhancedDataTable = function(repo, table) {
       "ajax": {
         "url": api.table_url(repo, table),
         "data": function(d) {
-          if (filterFooter !== undefined) {
-            d["filters"] = filterFooter.filters();
-            d["filterInverted"] = filterFooter.isInverted();
+          if (filterBar !== undefined) {
+            d["filters"] = filterBar.filters();
+            d["filterInverted"] = filterBar.isInverted();
           }
         }
       },
       "initComplete": function(settings, json) {
-        filterFooter = FilterFooter(jqueryObject.parent().parent(), columnDefs, datatable);
+        filterBar = FilterBar(jqueryObject.parent().parent(), columnDefs, datatable);
       },
       "drawCallback": function(settings) {
         //console.log(datatable.ajax.json());
@@ -47,7 +47,7 @@ $.fn.EnhancedDataTable = function(repo, table) {
   return this;
 };
 
-},{"./api.js":2,"./filter-footer.js":3}],2:[function(require,module,exports){
+},{"./api.js":2,"./filter-bar.js":3}],2:[function(require,module,exports){
 /**
  * This file contains the code for interacting with the API
  * for server side processing of datatables.
