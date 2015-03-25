@@ -21,6 +21,11 @@ $.fn.EnhancedDataTable = function(repo, table) {
       "searching": false,
       "scrollX": true,
       "serverSide": true,
+      "colVis": {
+        "overlayFade": 0,
+        "stateChange": function(colName, visibility) {
+        }
+      },
       "ajax": {
         "url": api.table_url(repo, table),
         "data": function(d) {
