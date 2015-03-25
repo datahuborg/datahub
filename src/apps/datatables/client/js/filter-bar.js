@@ -105,5 +105,15 @@ module.exports = function(container, cd, dt) {
     return $(".dt-invert-filter").prop("checked");
   };
 
+  that.visibilityToggled = function(colName, visibility) {
+    return;
+    var selector = $(".dt-filter th[data-colname=" + colName + "]");
+    if (visibility) {
+      selector.show();
+    } else {
+      selector.hide();
+    }
+  };
+
   return that;
 };

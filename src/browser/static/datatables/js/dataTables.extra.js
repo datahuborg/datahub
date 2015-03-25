@@ -16,16 +16,11 @@ $.fn.EnhancedDataTable = function(repo, table) {
 
     // Create the DataTable.
     var datatable = jqueryObject.DataTable({
-      "dom": 'RC<"clear">lfrtip',
+      "dom": 'Rlfrtip',
       "columnDefs": columnDefs,
       "searching": false,
       "scrollX": true,
       "serverSide": true,
-      "colVis": {
-        "overlayFade": 0,
-        "stateChange": function(colName, visibility) {
-        }
-      },
       "ajax": {
         "url": api.table_url(repo, table),
         "data": function(d) {
@@ -215,6 +210,16 @@ module.exports = function(container, cd, dt) {
 
   that.isInverted = function() {
     return $(".dt-invert-filter").prop("checked");
+  };
+
+  that.visibilityToggled = function(colName, visibility) {
+    return;
+    var selector = $(".dt-filter th[data-colname=" + colName + "]");
+    if (visibility) {
+      selector.show();
+    } else {
+      selector.hide();
+    }
   };
 
   return that;
