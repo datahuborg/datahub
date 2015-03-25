@@ -1,5 +1,5 @@
-var footer_html = require("./templates/filter_footer.hbs");
-var filter_buttons_html = require("./templates/filter_buttons.hbs")();
+var filter_buttons_template = require("./templates/filter_buttons.hbs");
+var filter_template = require("./templates/filter.hbs");
 
 var nextOp = {
   "=": "!=",
@@ -36,22 +36,28 @@ $(document).on("keyup change", ".dt-filter input[type=text]", function() {
 
 var createFilter = function(){
   var selector = $(".dataTables_scrollFootInner tfoot"); 
-  var tr  = $($.parseHTML("<tr class='dt-filter'></tr>")[0]);
   var order = datatable.colReorder.order();
 
   for (var i = 0; i < order.length; i++) {
-    colDefs.forEach(function(colDef, index) {
-      if (colDef.targets !== order[i]) {
-        return;
+    for (var j = 0; j < colDefs.length; j++) {
+      if (colDefs[j] === order[i]) {
+        colDefs[j].order = i;
       }
-      var name = colDef.name;
-      var th =  $($.parseHTML(footer_html({"isFirst": index == 0}))[0]);
-      tr.append(th);
-      th.find("input").attr("placeholder", name);
-      th.attr("data-colname", colDef.name);
-    });
-    selector.append(tr);
+    }
   }
+
+  colDefs.sort(function(a, b) {
+    if (a.order < b.order) {
+      return -1;
+    } else if (a.order > b.order) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+
+  selector.append(filter_template({"colDefs": colDefs}))
+
 }
 
 var colDefs;
@@ -63,7 +69,7 @@ module.exports = function(container, cd, dt) {
   jqueryContainer = container;
   colDefs = cd;
   datatable = dt;
-  jqueryContainer.after(filter_buttons_html);
+  jqueryContainer.after(filter_buttons_template());
 
   that.filters = function() {
     var filters = [];

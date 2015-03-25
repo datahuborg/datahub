@@ -110,8 +110,8 @@ api.get_column_definitions = function(repo, table, callback) {
 module.exports = api;
 
 },{}],3:[function(require,module,exports){
-var footer_html = require("./templates/filter_footer.hbs");
-var filter_buttons_html = require("./templates/filter_buttons.hbs")();
+var filter_buttons_template = require("./templates/filter_buttons.hbs");
+var filter_template = require("./templates/filter.hbs");
 
 var nextOp = {
   "=": "!=",
@@ -148,22 +148,28 @@ $(document).on("keyup change", ".dt-filter input[type=text]", function() {
 
 var createFilter = function(){
   var selector = $(".dataTables_scrollFootInner tfoot"); 
-  var tr  = $($.parseHTML("<tr class='dt-filter'></tr>")[0]);
   var order = datatable.colReorder.order();
 
   for (var i = 0; i < order.length; i++) {
-    colDefs.forEach(function(colDef, index) {
-      if (colDef.targets !== order[i]) {
-        return;
+    for (var j = 0; j < colDefs.length; j++) {
+      if (colDefs[j] === order[i]) {
+        colDefs[j].order = i;
       }
-      var name = colDef.name;
-      var th =  $($.parseHTML(footer_html({"isFirst": index == 0}))[0]);
-      tr.append(th);
-      th.find("input").attr("placeholder", name);
-      th.attr("data-colname", colDef.name);
-    });
-    selector.append(tr);
+    }
   }
+
+  colDefs.sort(function(a, b) {
+    if (a.order < b.order) {
+      return -1;
+    } else if (a.order > b.order) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+
+  selector.append(filter_template({"colDefs": colDefs}))
+
 }
 
 var colDefs;
@@ -175,7 +181,7 @@ module.exports = function(container, cd, dt) {
   jqueryContainer = container;
   colDefs = cd;
   datatable = dt;
-  jqueryContainer.after(filter_buttons_html);
+  jqueryContainer.after(filter_buttons_template());
 
   that.filters = function() {
     var filters = [];
@@ -214,24 +220,34 @@ module.exports = function(container, cd, dt) {
   return that;
 };
 
-},{"./templates/filter_buttons.hbs":4,"./templates/filter_footer.hbs":5}],4:[function(require,module,exports){
+},{"./templates/filter.hbs":4,"./templates/filter_buttons.hbs":5}],4:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
-module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-    return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n";
+module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partials,data) {
+    var stack1, helper, alias1=helpers.helperMissing, alias2="function", alias3=this.escapeExpression;
+
+  return "    <th data-colname=\""
+    + alias3(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"name","hash":{},"data":data}) : helper)))
+    + "\">\n      <div class=\"input-group\">\n        <span class=\"input-group-btn\">\n"
+    + ((stack1 = helpers['if'].call(depth0,(data && data.first),{"name":"if","hash":{},"fn":this.program(2, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + "          <button class=\"btn btn-default dt-op-button\" type=\"button\">=</button>\n        </span>\n        <input type=\"text\" class=\"form-control dt-filtertext\" placeholder=\""
+    + alias3(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"name","hash":{},"data":data}) : helper)))
+    + "\"> \n      </div>\n    </th>\n";
+},"2":function(depth0,helpers,partials,data) {
+    return "          <button class=\"btn btn-danger dt-delete-button\" type=\"button\"><i class=\"fa fa-trash\"></i></button>\n";
+},"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+    var stack1;
+
+  return "<tr class=\"dt-filter\">\n"
+    + ((stack1 = helpers.each.call(depth0,(depth0 != null ? depth0.colDefs : depth0),{"name":"each","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + "</tr>\n";
 },"useData":true});
 
 },{"hbsfy/runtime":13}],5:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
-module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partials,data) {
-    return "      <button class=\"btn btn-danger dt-delete-button\" type=\"button\"><i class=\"fa fa-trash\"></i></button>\n";
-},"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-    var stack1;
-
-  return "<th>\n  <div class=\"input-group\">\n    <span class=\"input-group-btn\">\n"
-    + ((stack1 = helpers['if'].call(depth0,(depth0 != null ? depth0.isFirst : depth0),{"name":"if","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
-    + "      <button class=\"btn btn-default dt-op-button\" type=\"button\">=</button>\n    </span>\n    <input type=\"text\" class=\"form-control dt-filtertext\" placeholder=\"Filter...\">\n  </div>\n</th>\n";
+module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+    return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n";
 },"useData":true});
 
 },{"hbsfy/runtime":13}],6:[function(require,module,exports){
