@@ -3,9 +3,10 @@
   <input class="dt-invert-filter" type="checkbox" autocomplete="off"> Invert Filter
 </label>
 <div class="btn-group">
-  <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle"  data-placeholder="Please select">Hide Columns <span class="caret"></span></button>
+  <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle" >Hidden: <span data-label-placement></span>  <span class="caret"></span></button>
     <ul class="dropdown-menu">
-      <li><input type="checkbox" id="ID"><label for="ID" name="NAME" value="VALUE">Label</label></li>
-      <!-- Other items -->
+      {{#each colnames}}
+      <li><input type="checkbox" id="hide-col-{{this}}"><label for="hide-col-{{this}}" name="{{this}}" value="{{this}}">{{this}}</label></li>
+      {{/each}}
     </ul>
 </div>

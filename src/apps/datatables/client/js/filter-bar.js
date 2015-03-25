@@ -69,7 +69,13 @@ module.exports = function(container, cd, dt) {
   jqueryContainer = container;
   colDefs = cd;
   datatable = dt;
-  jqueryContainer.after(filter_buttons_template());
+
+  var colnames = [];
+  colDefs.forEach(function(colDef) {
+    colnames.push(colDef.name);
+  });
+  colnames.sort();
+  jqueryContainer.before(filter_buttons_template({"colnames": colnames}));
 
   that.filters = function() {
     var filters = [];

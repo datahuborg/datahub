@@ -176,7 +176,13 @@ module.exports = function(container, cd, dt) {
   jqueryContainer = container;
   colDefs = cd;
   datatable = dt;
-  jqueryContainer.after(filter_buttons_template());
+
+  var colnames = [];
+  colDefs.forEach(function(colDef) {
+    colnames.push(colDef.name);
+  });
+  colnames.sort();
+  jqueryContainer.before(filter_buttons_template({"colnames": colnames}));
 
   that.filters = function() {
     var filters = [];
@@ -251,8 +257,26 @@ module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partia
 },{"hbsfy/runtime":13}],5:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
-module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-    return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n<div class=\"btn-group\">\n  <button data-toggle=\"dropdown\" class=\"btn btn-primary dropdown-toggle\"  data-placeholder=\"Please select\">Hide Columns <span class=\"caret\"></span></button>\n    <ul class=\"dropdown-menu\">\n      <li><input type=\"checkbox\" id=\"ID\"><label for=\"ID\" name=\"NAME\" value=\"VALUE\">Label</label></li>\n      <!-- Other items -->\n    </ul>\n</div>\n";
+module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partials,data) {
+    var alias1=this.lambda, alias2=this.escapeExpression;
+
+  return "      <li><input type=\"checkbox\" id=\"hide-col-"
+    + alias2(alias1(depth0, depth0))
+    + "\"><label for=\"hide-col-"
+    + alias2(alias1(depth0, depth0))
+    + "\" name=\""
+    + alias2(alias1(depth0, depth0))
+    + "\" value=\""
+    + alias2(alias1(depth0, depth0))
+    + "\">"
+    + alias2(alias1(depth0, depth0))
+    + "</label></li>\n";
+},"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+    var stack1;
+
+  return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n<div class=\"btn-group\">\n  <button data-toggle=\"dropdown\" class=\"btn btn-primary dropdown-toggle\" >Hidden: <span data-label-placement></span>  <span class=\"caret\"></span></button>\n    <ul class=\"dropdown-menu\">\n"
+    + ((stack1 = helpers.each.call(depth0,(depth0 != null ? depth0.colnames : depth0),{"name":"each","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + "    </ul>\n</div>\n";
 },"useData":true});
 
 },{"hbsfy/runtime":13}],6:[function(require,module,exports){
