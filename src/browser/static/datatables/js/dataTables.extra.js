@@ -147,7 +147,7 @@ $(document).on("keyup change", ".dt-filter input[type=text]", function() {
 });
 
 var createFilter = function(){
-  var selector = $(".dataTables_scrollFootInner tfoot"); 
+  var selector = $(".dataTables_scrollHeadInner thead"); 
   var order = datatable.colReorder.order();
 
   for (var i = 0; i < order.length; i++) {
@@ -168,7 +168,7 @@ var createFilter = function(){
     }
   });
 
-  selector.append(filter_template({"colDefs": colDefs}))
+  selector.prepend(filter_template({"colDefs": colDefs}))
 
 }
 
