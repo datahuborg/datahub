@@ -252,7 +252,7 @@ module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partia
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-    return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n";
+    return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n<div class=\"btn-group\">\n  <button data-toggle=\"dropdown\" class=\"btn btn-primary dropdown-toggle\"  data-placeholder=\"Please select\">Hide Columns <span class=\"caret\"></span></button>\n    <ul class=\"dropdown-menu\">\n      <li><input type=\"checkbox\" id=\"ID\"><label for=\"ID\" name=\"NAME\" value=\"VALUE\">Label</label></li>\n      <!-- Other items -->\n    </ul>\n</div>\n";
 },"useData":true});
 
 },{"hbsfy/runtime":13}],6:[function(require,module,exports){
