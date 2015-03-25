@@ -1,6 +1,5 @@
-var footer_html = require("./html/filter_footer.html");
-var first_footer_html = require("./html/first_filter_footer.html");
-var filter_button_html= require("./html/filter_buttons.html");
+var footer_html = require("./templates/filter_footer.hbs");
+var filter_buttons_html = require("./templates/filter_buttons.hbs")();
 
 var nextOp = {
   "=": "!=",
@@ -46,10 +45,7 @@ var createFilter = function(){
         return;
       }
       var name = colDef.name;
-      var th =  $($.parseHTML(footer_html)[0]);
-      if (index == 0) {
-        th =  $($.parseHTML(first_footer_html)[0]);
-      }
+      var th =  $($.parseHTML(footer_html({"isFirst": index == 0}))[0]);
       tr.append(th);
       th.find("input").attr("placeholder", name);
       th.attr("data-colname", colDef.name);
@@ -67,7 +63,7 @@ module.exports = function(container, cd, dt) {
   jqueryContainer = container;
   colDefs = cd;
   datatable = dt;
-  jqueryContainer.after(filter_button_html);
+  jqueryContainer.after(filter_buttons_html);
 
   that.filters = function() {
     var filters = [];

@@ -8,6 +8,9 @@ var uglify = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
 var del = require("del");
 var source = require('vinyl-source-stream');
+var hbsfy = require("hbsfy").configure({
+  extensions: ["hbs", "html"]
+});
 
 var destination = "../../browser/static/datatables/";
 
@@ -25,7 +28,7 @@ gulp.task('browserify', ['clean'], function() {
  
   var bundle = function() {
     return bundler
-      .transform(stringify(['.html']))
+      .transform(hbsfy)
       // Enable source maps!
       .bundle()
       // Use vinyl-source-stream to make the
