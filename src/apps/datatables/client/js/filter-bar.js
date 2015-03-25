@@ -138,5 +138,9 @@ module.exports = function(container, cd, dt) {
     }
   }
 
+  that.get_hidden_col_dict = function() {
+    return hidden_cols;
+  }
+
   return that;
 };
