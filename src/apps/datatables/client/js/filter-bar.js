@@ -13,8 +13,6 @@ var set_visibility = function(colname, visibility) {
   }
   var hidden = hidden_cols[colname] === true;
   var th_selector = $(".dt-filter th[data-colname=" + colname + "]");
-  console.log(hidden);
-  console.log(th_selector);
   if (hidden) {
     th_selector.hide();
   } else {
