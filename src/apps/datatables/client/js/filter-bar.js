@@ -1,6 +1,35 @@
 var filter_buttons_template = require("./templates/filter_buttons.hbs");
 var filter_template = require("./templates/filter.hbs");
 
+var hidden_cols = {};
+
+var get_order = function(colname) {
+  var order = datatable.colReorder.order();
+  var targets = 0;
+  colDefs.forEach(function(colDef) {
+    if (colDef.name === colname) {
+      targets = colDef.targets;
+    }
+  });
+  for (var i = 0; i < order.length; i++) {
+    if (targets === order[i]) {
+      return i + 1;
+    }
+  }
+};
+
+var set_visibility = function(colname) {
+  var hidden= hidden_cols[colname] === true;
+  var th_selector = $(".dt-filter th[data-colname=" + colname + "]");
+  var colheader_selector = $(".dataTables_scrollHeadInner tr[role=row] th[data-colname=" + colname + "]");
+  var colbody_selector = $(".dataTables_scrollBody tbody tr td:nth-child(" + get_order(colname) + ")");
+  if (hidden) {
+    th_selector.hide();
+  } else {
+    th_selector.show();
+  }
+}; 
+
 var nextOp = {
   "=": "!=",
   "!=": "<",
@@ -18,6 +47,17 @@ $(document).on("click", ".dt-op-button", function() {
 
 $(document).on("click", ".dt-invert-filter", function() {
   datatable.draw();
+});
+
+$(document).on("click", ".dt-hidden-list input[type=checkbox]", function() {
+  var colname = $(this).val();
+  if ($(this).prop("checked")) {
+    hidden_cols[colname] = true;
+    set_visibility(colname);
+  } else {
+    hidden_cols[colname] = undefined;
+    set_visibility(colname);
+  }
 });
 
 $(document).on("click", ".dt-new-filter", function() {
@@ -56,7 +96,11 @@ var createFilter = function(){
     }
   });
 
-  selector.prepend(filter_template({"colDefs": colDefs}))
+  selector.prepend(filter_template({"colDefs": colDefs}));
+
+  for (var colname in hidden_cols) {
+    set_visibility(colname);
+  }
 
 }
 

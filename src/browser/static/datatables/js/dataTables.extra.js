@@ -108,6 +108,35 @@ module.exports = api;
 var filter_buttons_template = require("./templates/filter_buttons.hbs");
 var filter_template = require("./templates/filter.hbs");
 
+var hidden_cols = {};
+
+var get_order = function(colname) {
+  var order = datatable.colReorder.order();
+  var targets = 0;
+  colDefs.forEach(function(colDef) {
+    if (colDef.name === colname) {
+      targets = colDef.targets;
+    }
+  });
+  for (var i = 0; i < order.length; i++) {
+    if (targets === order[i]) {
+      return i + 1;
+    }
+  }
+};
+
+var set_visibility = function(colname) {
+  var hidden= hidden_cols[colname] === true;
+  var th_selector = $(".dt-filter th[data-colname=" + colname + "]");
+  var colheader_selector = $(".dataTables_scrollHeadInner tr[role=row] th[data-colname=" + colname + "]");
+  var colbody_selector = $(".dataTables_scrollBody tbody tr td:nth-child(" + get_order(colname) + ")");
+  if (hidden) {
+    th_selector.hide();
+  } else {
+    th_selector.show();
+  }
+}; 
+
 var nextOp = {
   "=": "!=",
   "!=": "<",
@@ -125,6 +154,17 @@ $(document).on("click", ".dt-op-button", function() {
 
 $(document).on("click", ".dt-invert-filter", function() {
   datatable.draw();
+});
+
+$(document).on("click", ".dt-hidden-list input[type=checkbox]", function() {
+  var colname = $(this).val();
+  if ($(this).prop("checked")) {
+    hidden_cols[colname] = true;
+    set_visibility(colname);
+  } else {
+    hidden_cols[colname] = undefined;
+    set_visibility(colname);
+  }
 });
 
 $(document).on("click", ".dt-new-filter", function() {
@@ -163,7 +203,11 @@ var createFilter = function(){
     }
   });
 
-  selector.prepend(filter_template({"colDefs": colDefs}))
+  selector.prepend(filter_template({"colDefs": colDefs}));
+
+  for (var colname in hidden_cols) {
+    set_visibility(colname);
+  }
 
 }
 
@@ -262,6 +306,8 @@ module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partia
 
   return "      <li><input type=\"checkbox\" id=\"hide-col-"
     + alias2(alias1(depth0, depth0))
+    + "\" value=\""
+    + alias2(alias1(depth0, depth0))
     + "\"><label for=\"hide-col-"
     + alias2(alias1(depth0, depth0))
     + "\" name=\""
@@ -274,7 +320,7 @@ module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partia
 },"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
     var stack1;
 
-  return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n<div class=\"btn-group\">\n  <button data-toggle=\"dropdown\" class=\"btn btn-primary dropdown-toggle\" >Hidden: <span data-label-placement></span>  <span class=\"caret\"></span></button>\n    <ul class=\"dropdown-menu\">\n"
+  return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n<div class=\"btn-group\">\n  <button data-toggle=\"dropdown\" class=\"btn btn-primary dropdown-toggle\" >Hidden: <span data-label-placement></span>  <span class=\"caret\"></span></button>\n    <ul class=\"dropdown-menu dt-hidden-list\">\n"
     + ((stack1 = helpers.each.call(depth0,(depth0 != null ? depth0.colnames : depth0),{"name":"each","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
     + "    </ul>\n</div>\n";
 },"useData":true});
