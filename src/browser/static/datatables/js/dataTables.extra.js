@@ -112,7 +112,7 @@ module.exports = api;
 },{}],3:[function(require,module,exports){
 var footer_html = require("./html/filter_footer.html");
 var first_footer_html = require("./html/first_filter_footer.html");
-var or_filter_html = require("./html/filter_buttons.html");
+var filter_button_html= require("./html/filter_buttons.html");
 
 var nextOp = {
   "=": "!=",
@@ -179,7 +179,7 @@ module.exports = function(container, cd, dt) {
   jqueryContainer = container;
   colDefs = cd;
   datatable = dt;
-  jqueryContainer.after(or_filter_html);
+  jqueryContainer.after(filter_button_html);
 
   that.filters = function() {
     var filters = [];
