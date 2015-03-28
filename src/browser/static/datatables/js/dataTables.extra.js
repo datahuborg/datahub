@@ -2,37 +2,12 @@
 var api = require("./api.js");
 var FilterBar = require("./filter-bar.js");
 var table_header_template = require("./templates/table_header.hbs");
+var shorten_query = require("./shorten-query.js");
 
 $.fn.EnhancedDataTable = function(repo, table, callback) {
   // The jquer object for which the EnhancedDataTable function was triggered.
   var jqueryObject = this;
   var filterBar;
-
-  var shorten_query = function(query) {
-    try {
-      var lower_case_query = query.toLowerCase();
-      var select_end = lower_case_query.indexOf("select") + "select".length;
-      var from_start = lower_case_query.indexOf("from");
-      var select_string = query.substring(select_end, from_start);
-      var select_arr = select_string.trim().split(",");
-
-      var hidden_cols = filterBar.get_hidden_col_dict();
-      var new_select_arr = [];
-      var colname;
-      for (var i = 0; i < select_arr.length; i++) {
-        colname = select_arr[i].trim();
-        if (hidden_cols[colname] === true) {
-          continue;
-        }
-        new_select_arr.push(colname);
-      }
-
-      var final_query = query.substring(0, select_end) + " " + new_select_arr.join(", ") + " " + query.substring(from_start);
-      return final_query;
-    } catch (ex) {
-      return query;
-    }
-  };
 
   // Get the column definitions for this table.
   api.get_column_definitions(repo, table, function(err, columnDefs) {
@@ -67,7 +42,7 @@ $.fn.EnhancedDataTable = function(repo, table, callback) {
           filterBar.set_visibility(colNum, visibility);
           var json_result = datatable.ajax.json();
           var query = json_result.query;
-          query = shorten_query(query);
+          query = shorten_query(query, filterBar.get_hidden_col_dict());
           callback(query);
         }
       },
@@ -85,7 +60,7 @@ $.fn.EnhancedDataTable = function(repo, table, callback) {
   return this;
 };
 
-},{"./api.js":2,"./filter-bar.js":3,"./templates/table_header.hbs":6}],2:[function(require,module,exports){
+},{"./api.js":2,"./filter-bar.js":3,"./shorten-query.js":4,"./templates/table_header.hbs":7}],2:[function(require,module,exports){
 /**
  * This file contains the code for interacting with the API
  * for server side processing of datatables.
@@ -296,7 +271,34 @@ module.exports = function(container, cd, dt) {
   return that;
 };
 
-},{"./templates/filter.hbs":4,"./templates/filter_buttons.hbs":5}],4:[function(require,module,exports){
+},{"./templates/filter.hbs":5,"./templates/filter_buttons.hbs":6}],4:[function(require,module,exports){
+module.exports = function(query, hidden_cols) {
+  try {
+    var lower_case_query = query.toLowerCase();
+    var select_end = lower_case_query.indexOf("select") + "select".length;
+    var from_start = lower_case_query.indexOf("from");
+    var select_string = query.substring(select_end, from_start);
+    var select_arr = select_string.trim().split(",");
+
+    var new_select_arr = [];
+    console.log("mdfs");
+    var colname;
+    for (var i = 0; i < select_arr.length; i++) {
+      colname = select_arr[i].trim();
+      if (hidden_cols[colname] === true) {
+        continue;
+      }
+      new_select_arr.push(colname);
+    }
+
+    var final_query = query.substring(0, select_end) + " " + new_select_arr.join(", ") + " " + query.substring(from_start);
+    return final_query;
+  } catch (ex) {
+    return query;
+  }
+};
+
+},{}],5:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partials,data) {
@@ -319,14 +321,14 @@ module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partia
     + "</tr>\n";
 },"useData":true});
 
-},{"hbsfy/runtime":14}],5:[function(require,module,exports){
+},{"hbsfy/runtime":15}],6:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
     return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n";
 },"useData":true});
 
-},{"hbsfy/runtime":14}],6:[function(require,module,exports){
+},{"hbsfy/runtime":15}],7:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partials,data) {
@@ -345,7 +347,7 @@ module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partia
     + "</tr>\n";
 },"useData":true});
 
-},{"hbsfy/runtime":14}],7:[function(require,module,exports){
+},{"hbsfy/runtime":15}],8:[function(require,module,exports){
 (function (global){
 "use strict";
 /*globals Handlebars: true */
@@ -394,7 +396,7 @@ Handlebars['default'] = Handlebars;
 
 exports["default"] = Handlebars;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./handlebars/base":8,"./handlebars/exception":9,"./handlebars/runtime":10,"./handlebars/safe-string":11,"./handlebars/utils":12}],8:[function(require,module,exports){
+},{"./handlebars/base":9,"./handlebars/exception":10,"./handlebars/runtime":11,"./handlebars/safe-string":12,"./handlebars/utils":13}],9:[function(require,module,exports){
 "use strict";
 var Utils = require("./utils");
 var Exception = require("./exception")["default"];
@@ -638,7 +640,7 @@ var createFrame = function(object) {
   return frame;
 };
 exports.createFrame = createFrame;
-},{"./exception":9,"./utils":12}],9:[function(require,module,exports){
+},{"./exception":10,"./utils":13}],10:[function(require,module,exports){
 "use strict";
 
 var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
@@ -670,7 +672,7 @@ function Exception(message, node) {
 Exception.prototype = new Error();
 
 exports["default"] = Exception;
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 var Utils = require("./utils");
 var Exception = require("./exception")["default"];
@@ -891,7 +893,7 @@ exports.noop = noop;function initData(context, data) {
   }
   return data;
 }
-},{"./base":8,"./exception":9,"./utils":12}],11:[function(require,module,exports){
+},{"./base":9,"./exception":10,"./utils":13}],12:[function(require,module,exports){
 "use strict";
 // Build out our basic SafeString type
 function SafeString(string) {
@@ -903,7 +905,7 @@ SafeString.prototype.toString = SafeString.prototype.toHTML = function() {
 };
 
 exports["default"] = SafeString;
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 /*jshint -W004 */
 var escape = {
@@ -1007,12 +1009,12 @@ exports.blockParams = blockParams;function appendContextPath(contextPath, id) {
 }
 
 exports.appendContextPath = appendContextPath;
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 // Create a simple path alias to allow browserify to resolve
 // the runtime on a supported path.
 module.exports = require('./dist/cjs/handlebars.runtime')['default'];
 
-},{"./dist/cjs/handlebars.runtime":7}],14:[function(require,module,exports){
+},{"./dist/cjs/handlebars.runtime":8}],15:[function(require,module,exports){
 module.exports = require("handlebars/runtime")["default"];
 
-},{"handlebars/runtime":13}]},{},[1]);
+},{"handlebars/runtime":14}]},{},[1]);
