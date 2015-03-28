@@ -45,6 +45,7 @@ api.get_column_definitions = function(repo, table, callback) {
       schema.forEach(function(column, index) {
         columnDefinitions.push({
           "name": column[0],
+          "type": column[1],
           "targets": index
         });
       });

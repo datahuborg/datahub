@@ -1,5 +1,6 @@
 var api = require("./api.js");
 var FilterBar = require("./filter-bar.js");
+var table_header_template = require("./templates/table_header.hbs");
 
 $.fn.EnhancedDataTable = function(repo, table, callback) {
   // The jquer object for which the EnhancedDataTable function was triggered.
@@ -38,6 +39,10 @@ $.fn.EnhancedDataTable = function(repo, table, callback) {
       console.log("Failed to get column defs");
       return;
     }
+    
+    var table_header_html = table_header_template({"colDefs": columnDefs});
+    jqueryObject.find("thead").html(table_header_html);
+    jqueryObject.find("tfoot").html(table_header_html);
 
     // Create the DataTable.
     var datatable = jqueryObject.DataTable({
@@ -62,7 +67,6 @@ $.fn.EnhancedDataTable = function(repo, table, callback) {
           var json_result = datatable.ajax.json();
           var query = json_result.query;
           query = shorten_query(query);
-          console.log(query);
           callback(query);
         }
       },

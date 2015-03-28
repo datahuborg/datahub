@@ -1,6 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var api = require("./api.js");
 var FilterBar = require("./filter-bar.js");
+var table_header_template = require("./templates/table_header.hbs");
 
 $.fn.EnhancedDataTable = function(repo, table, callback) {
   // The jquer object for which the EnhancedDataTable function was triggered.
@@ -39,6 +40,10 @@ $.fn.EnhancedDataTable = function(repo, table, callback) {
       console.log("Failed to get column defs");
       return;
     }
+    
+    var table_header_html = table_header_template({"colDefs": columnDefs});
+    jqueryObject.find("thead").html(table_header_html);
+    jqueryObject.find("tfoot").html(table_header_html);
 
     // Create the DataTable.
     var datatable = jqueryObject.DataTable({
@@ -63,7 +68,6 @@ $.fn.EnhancedDataTable = function(repo, table, callback) {
           var json_result = datatable.ajax.json();
           var query = json_result.query;
           query = shorten_query(query);
-          console.log(query);
           callback(query);
         }
       },
@@ -81,7 +85,7 @@ $.fn.EnhancedDataTable = function(repo, table, callback) {
   return this;
 };
 
-},{"./api.js":2,"./filter-bar.js":3}],2:[function(require,module,exports){
+},{"./api.js":2,"./filter-bar.js":3,"./templates/table_header.hbs":6}],2:[function(require,module,exports){
 /**
  * This file contains the code for interacting with the API
  * for server side processing of datatables.
@@ -129,6 +133,7 @@ api.get_column_definitions = function(repo, table, callback) {
       schema.forEach(function(column, index) {
         columnDefinitions.push({
           "name": column[0],
+          "type": column[1],
           "targets": index
         });
       });
@@ -314,14 +319,33 @@ module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partia
     + "</tr>\n";
 },"useData":true});
 
-},{"hbsfy/runtime":13}],5:[function(require,module,exports){
+},{"hbsfy/runtime":14}],5:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
     return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n";
 },"useData":true});
 
-},{"hbsfy/runtime":13}],6:[function(require,module,exports){
+},{"hbsfy/runtime":14}],6:[function(require,module,exports){
+// hbsfy compiled Handlebars template
+var HandlebarsCompiler = require('hbsfy/runtime');
+module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partials,data) {
+    var helper, alias1=helpers.helperMissing, alias2="function", alias3=this.escapeExpression;
+
+  return "  <th>"
+    + alias3(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"name","hash":{},"data":data}) : helper)))
+    + " <span class=\"gray\">("
+    + alias3(((helper = (helper = helpers.type || (depth0 != null ? depth0.type : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"type","hash":{},"data":data}) : helper)))
+    + ")</span></th>\n";
+},"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+    var stack1;
+
+  return "<tr>\n"
+    + ((stack1 = helpers.each.call(depth0,(depth0 != null ? depth0.colDefs : depth0),{"name":"each","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + "</tr>\n";
+},"useData":true});
+
+},{"hbsfy/runtime":14}],7:[function(require,module,exports){
 (function (global){
 "use strict";
 /*globals Handlebars: true */
@@ -370,7 +394,7 @@ Handlebars['default'] = Handlebars;
 
 exports["default"] = Handlebars;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./handlebars/base":7,"./handlebars/exception":8,"./handlebars/runtime":9,"./handlebars/safe-string":10,"./handlebars/utils":11}],7:[function(require,module,exports){
+},{"./handlebars/base":8,"./handlebars/exception":9,"./handlebars/runtime":10,"./handlebars/safe-string":11,"./handlebars/utils":12}],8:[function(require,module,exports){
 "use strict";
 var Utils = require("./utils");
 var Exception = require("./exception")["default"];
@@ -614,7 +638,7 @@ var createFrame = function(object) {
   return frame;
 };
 exports.createFrame = createFrame;
-},{"./exception":8,"./utils":11}],8:[function(require,module,exports){
+},{"./exception":9,"./utils":12}],9:[function(require,module,exports){
 "use strict";
 
 var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
@@ -646,7 +670,7 @@ function Exception(message, node) {
 Exception.prototype = new Error();
 
 exports["default"] = Exception;
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 var Utils = require("./utils");
 var Exception = require("./exception")["default"];
@@ -867,7 +891,7 @@ exports.noop = noop;function initData(context, data) {
   }
   return data;
 }
-},{"./base":7,"./exception":8,"./utils":11}],10:[function(require,module,exports){
+},{"./base":8,"./exception":9,"./utils":12}],11:[function(require,module,exports){
 "use strict";
 // Build out our basic SafeString type
 function SafeString(string) {
@@ -879,7 +903,7 @@ SafeString.prototype.toString = SafeString.prototype.toHTML = function() {
 };
 
 exports["default"] = SafeString;
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 /*jshint -W004 */
 var escape = {
@@ -983,12 +1007,12 @@ exports.blockParams = blockParams;function appendContextPath(contextPath, id) {
 }
 
 exports.appendContextPath = appendContextPath;
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 // Create a simple path alias to allow browserify to resolve
 // the runtime on a supported path.
 module.exports = require('./dist/cjs/handlebars.runtime')['default'];
 
-},{"./dist/cjs/handlebars.runtime":6}],13:[function(require,module,exports){
+},{"./dist/cjs/handlebars.runtime":7}],14:[function(require,module,exports){
 module.exports = require("handlebars/runtime")["default"];
 
-},{"handlebars/runtime":12}]},{},[1]);
+},{"handlebars/runtime":13}]},{},[1]);
