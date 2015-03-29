@@ -38,6 +38,15 @@ $.fn.EnhancedDataTable = function(repo, table, callback) {
       },
       "colVis": {
         "overlayFade": 0,
+        "label": function(index, title, th) {
+          var MAX_LENGTH = 12;
+          var colname = $(th).data("colname");
+          if (colname.length > MAX_LENGTH + "...".length) {
+            return colname.substr(0, MAX_LENGTH) + "..."
+          } else {
+            return colname;
+          }
+        },
         "stateChange": function(colNum, visibility) {
           filterBar.set_visibility(colNum, visibility);
           var json_result = datatable.ajax.json();
@@ -281,7 +290,6 @@ module.exports = function(query, hidden_cols) {
     var select_arr = select_string.trim().split(",");
 
     var new_select_arr = [];
-    console.log("mdfs");
     var colname;
     for (var i = 0; i < select_arr.length; i++) {
       colname = select_arr[i].trim();
@@ -334,7 +342,9 @@ var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partials,data) {
     var helper, alias1=helpers.helperMissing, alias2="function", alias3=this.escapeExpression;
 
-  return "  <th>"
+  return "  <th data-colname=\""
+    + alias3(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"name","hash":{},"data":data}) : helper)))
+    + "\">"
     + alias3(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"name","hash":{},"data":data}) : helper)))
     + " <span class=\"gray\">("
     + alias3(((helper = (helper = helpers.type || (depth0 != null ? depth0.type : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"type","hash":{},"data":data}) : helper)))

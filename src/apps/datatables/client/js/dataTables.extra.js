@@ -37,6 +37,15 @@ $.fn.EnhancedDataTable = function(repo, table, callback) {
       },
       "colVis": {
         "overlayFade": 0,
+        "label": function(index, title, th) {
+          var MAX_LENGTH = 12;
+          var colname = $(th).data("colname");
+          if (colname.length > MAX_LENGTH + "...".length) {
+            return colname.substr(0, MAX_LENGTH) + "..."
+          } else {
+            return colname;
+          }
+        },
         "stateChange": function(colNum, visibility) {
           filterBar.set_visibility(colNum, visibility);
           var json_result = datatable.ajax.json();
