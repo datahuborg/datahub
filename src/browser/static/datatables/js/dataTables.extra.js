@@ -20,6 +20,15 @@ $.fn.EnhancedDataTable = function(repo, table, callback) {
     jqueryObject.find("thead").html(table_header_html);
     jqueryObject.find("tfoot").html(table_header_html);
 
+    // Update the filter bar when a column visibility changes.
+    jqueryObject.on( 'column-visibility.dt', function ( e, settings, column, state ) {
+      filterBar.set_visibility(column, state);
+      var json_result = datatable.ajax.json();
+      var query = json_result.query;
+      query = shorten_query(query, filterBar.get_hidden_col_dict());
+      callback(query);
+    });
+
     // Create the DataTable.
     var datatable = jqueryObject.DataTable({
       "dom": 'RC<"clear">lfrtip',
@@ -47,12 +56,8 @@ $.fn.EnhancedDataTable = function(repo, table, callback) {
             return colname;
           }
         },
-        "stateChange": function(colNum, visibility) {
-          filterBar.set_visibility(colNum, visibility);
-          var json_result = datatable.ajax.json();
-          var query = json_result.query;
-          query = shorten_query(query, filterBar.get_hidden_col_dict());
-          callback(query);
+        "stateChange": function() {
+          // This function is unreliable! Don't override it!
         }
       },
       "initComplete": function(settings, json) {
