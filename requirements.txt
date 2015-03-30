@@ -7,3 +7,5 @@ sqlalchemy
 scorpionsql
 python-dateutil
 pycrypto
+nltk
+textblob
