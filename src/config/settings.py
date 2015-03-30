@@ -114,6 +114,7 @@ INSTALLED_APPS = (
   'console',
   'browser',
   'dataq',
+  'sentiment',
   'dbwipes',
   'inventory',
   'refiner',
