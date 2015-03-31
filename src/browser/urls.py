@@ -172,5 +172,6 @@ urlpatterns = patterns('',
     url(r'^apps/viz/', include('viz.urls')), # viz app 
     url(r'^apps/sentiment/', include('sentiment.urls')), # sentiment app 
     url(r'^apps/dataq/', include('dataq.urls')), # dataq app 
+    url(r'^apps/datatables/', include('datatables.urls')), # datatables app 
     #### End Apps ####
 )

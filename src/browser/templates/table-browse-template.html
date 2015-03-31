@@ -28,7 +28,6 @@
     
     <div class="col-sm-2">
       <button class="btn btn-primary btn-xsm" type="submit">Run</button>
-      <button class="btn btn-primary btn-xsm" id="btn-dataq">DataQ</button>
     </div>
     
     </div>
@@ -53,18 +52,35 @@
         {% endif %}
       {% endblock %}  
     </div>    
+
+    <div class="dropdown" style="margin: 10px 0 0 10px">
+      <button class="btn btn-default dropdown-toggle" type="button" id="sentimentDropdown" data-toggle="dropdown" aria-expanded="true">
+        Run Sentiment Analysis 
+        <span class="caret"></span>
+      </button>
+      <ul id="sentiment_col_list" class="dropdown-menu" role="menu" aria-labelledby="sentimentDropdown">
+       <!--  <li role="presentation"><a role="menuitem" tabindex="-1" >Action</a></li> -->
+      </ul>
+    </div>
     
     {% if tuples and tuples|length > 0 %}
       {% block table-data %}
-        <div class="table-responsive">
-        <table id="table_data" class="table table-condensed table-bordered">
+        <div class="table-responsive datahub-datatable-no-scroll table-container">
+        <table id="table_data" class="table table-condensed table-bordered datahub-datatable-no-scroll">
           <thead>
-          <tr>
-            {% for column_name in column_names %}
-            <th>{{column_name}}</th>
-            {% endfor %}
-          </tr>
+            <tr>
+              {% for column_name in column_names %}
+              <th>{{column_name}}</th>
+              {% endfor %}
+            </tr>
           </thead>
+          <tfoot>
+            <tr>
+              {% for column_name in column_names %}
+              <th data-colname="{{column_name}}">{{column_name}}</th>
+              {% endfor %}
+            </tr>
+          </tfoot>
           <tbody>
             {% for tuple in tuples %}
             <tr>
@@ -84,28 +100,6 @@
     {% endif %}
   
   </div>
-
-  {% block pagenation %}
-  <ul class="pagination pagination-sm">
-    {% if pages|length > 1 %}
-      {% if prev_page > 0 %}
-        <li><a href="{{url_path}}?page={{prev_page}}">&laquo;</a></li>
-      {% endif %}
-      
-      {% for page in pages %}
-        {% if page == current_page %}
-          <li class="active"><a href="#">{{page}}</a></li>
-        {% else %}
-          <li><a href="{{url_path}}?page={{page}}">{{page}}</a></li>
-        {% endif %}
-      {% endfor %}
-      
-      {% if next_page < total_pages %}
-        <li><a href="{{url_path}}?page={{next_page}}">&raquo;</a></li>
-      {% endif %}
-    {% endif %}
-  </ul>
-  {% endblock %}
 </div>
 
 <div class="modal" id="annotation-modal" tabindex="-1" role="dialog" aria-hidden="true">
@@ -157,13 +151,48 @@ $('.annotation-modal-dialog').on('click', function(e){
       });
   });
 </script>
+
 <script>
-$(document).on("click", "#btn-dataq", function(e) {
-  e.preventDefault();
-  DataQ.DQ("{{repo}}", function(query) {
-    $("#txt-sql").val(query);
+  $(document).ready(function() {
+    $("#table_data").EnhancedDataTable("{{repo}}", "{{table}}", function(query) {
+      $("#txt-sql").val(query);
+    }, function(datatable) {
+      var sentiment_col_list = $("#sentiment_col_list");
+      sentiment_col_list.html("");
+      datatable.getColDef().forEach(function(colDef) {
+        var colname = colDef.name;
+        sentiment_col_list.append('<li data-colname="'+ colname + '" role="presentation"><a role="menuitem" tabindex="-1" >'+ colname +'</a></li>');
+      });
+
+      sentiment_col_list.find("li").click(function() {
+        var colname = $(this).data("colname");
+        var sentences = [];
+        datatable.forEachRowInColumn(colname, function(value) {
+          sentences.push(value);
+        });
+        Sentiment(sentences, function(err, sentiments) {
+          if (err !== null) {
+            throw err;
+          } else {
+            var num_positive = 0;
+            var num_negative = 0;
+            var threshold = 0.3;
+            datatable.forEachRowInColumn(colname, function(value, node, index) {
+              var polarity = sentiments[index].polarity;
+              if (polarity < -1*threshold) {
+                num_negative++;
+                node.css("color", "red");
+              } else if (polarity > threshold) {
+                num_positive++;
+                node.css("color", "green");
+              }
+            });
+            alert("Sentiment analysis finished with " + num_positive + " positive and " + num_negative + " negative.");
+          }
+        });
+      });
+    });
   });
-});
 </script>
 
 {% block extra %}
