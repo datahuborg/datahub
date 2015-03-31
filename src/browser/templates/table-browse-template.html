@@ -53,6 +53,9 @@
       {% endblock %}  
     </div>    
 
+    <div class="alert alert-success" role="alert" id="alertbox" hidden>
+    </div>
+
     <div class="dropdown" style="margin: 10px 0 0 10px">
       <button class="btn btn-default dropdown-toggle" type="button" id="sentimentDropdown" data-toggle="dropdown" aria-expanded="true">
         Run Sentiment Analysis 
@@ -176,7 +179,7 @@ $('.annotation-modal-dialog').on('click', function(e){
           } else {
             var num_positive = 0;
             var num_negative = 0;
-            var threshold = 0.3;
+            var threshold = 0;
             datatable.forEachRowInColumn(colname, function(value, node, index) {
               var polarity = sentiments[index].polarity;
               if (polarity < -1*threshold) {
@@ -187,7 +190,12 @@ $('.annotation-modal-dialog').on('click', function(e){
                 node.css("color", "green");
               }
             });
-            alert("Sentiment analysis finished with " + num_positive + " positive and " + num_negative + " negative.");
+            var alertbox = $("#alertbox");
+            alertbox.html("Sentiment analysis finished with " + num_positive + " positive and " + num_negative + " negative.");
+            alertbox.fadeIn(500);
+            setTimeout(function() {
+              alertbox.fadeOut(200)
+            }, 3000);
           }
         });
       });
