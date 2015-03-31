@@ -1,6 +1,6 @@
 Sentiment = function(sentences, callback) {
   var sentence_arr = sentences;
-  if (sentences.length === undefined) {
+  if (typeof sentences === "string") {
     sentence_arr = [sentences];
   }
   $.get("/apps/sentiment/api/", {"sentences": sentence_arr}, function(data) {
