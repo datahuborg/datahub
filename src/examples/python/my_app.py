@@ -29,22 +29,22 @@ try:
   # execute a query
   res  = client.execute_sql(
       con=con,
-      query='create table if not exists mvartak.terms (term text)',
+      query='create table if not exists domo.terms (term text)',
       query_params=None)
 
   res  = client.execute_sql(
       con=con,
-      query="insert into mvartak.terms  values('adam marcus')",
+      query="insert into domo.terms  values('VC Firm')",
       query_params=None)
 
   res  = client.execute_sql(
       con=con,
-      query="insert into mvartak.terms  values('eugene wu')",
+      query="insert into domo.terms  values('Student Friendly')",
       query_params=None)
 
   res  = client.execute_sql(
       con=con,
-      query='select * from anantb.mvartak.terms',
+      query='select * from anantb.domo.terms',
       query_params=None)
 
   # print field names
