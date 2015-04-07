@@ -90,8 +90,6 @@ def login (request):
     email = None 
     try:
       login_id = request.POST["login_id"].lower()
-      redirect_url = redirect_url + urllib.unquote_plus('?auth_user=%s' %(login_id))
-
       login_password = hashlib.sha1(request.POST["login_password"]).hexdigest()
       email = email_re.match(login_id.lower().strip())
       user = None
@@ -102,6 +100,8 @@ def login (request):
       clear_session(request)
       request.session[kEmail] = user.email
       request.session[kUsername] = user.username
+
+      redirect_url = redirect_url + urllib.unquote_plus('?auth_user=%s' %(user.username))
       return HttpResponseRedirect(redirect_url)
     except User.DoesNotExist:
       try:
