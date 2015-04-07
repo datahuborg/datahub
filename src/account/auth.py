@@ -85,10 +85,14 @@ def login (request):
 
     if('redirect_url' in request.POST.keys()):
       redirect_url = urllib.unquote_plus(request.POST['redirect_url'])
+
     
     email = None 
     try:
       login_id = request.POST["login_id"].lower()
+      if 'get_auth_user' in request.GET.keys():
+        redirect_url = redirect_url + urllib.unquote_plus('&auth_user=%s' %(login_id))
+
       login_password = hashlib.sha1(request.POST["login_password"]).hexdigest()
       email = email_re.match(login_id.lower().strip())
       user = None
