@@ -53,7 +53,8 @@
       {% endblock %}  
     </div>    
 
-    <div class="alert alert-success" role="alert" id="alertbox" hidden>
+    <div class="alert alert-success" role="alert" id="alertbox" style="visibility: hidden">
+     _ 
     </div>
 
     <div class="dropdown" style="margin: 10px 0 0 10px">
@@ -192,9 +193,9 @@ $('.annotation-modal-dialog').on('click', function(e){
             });
             var alertbox = $("#alertbox");
             alertbox.html("Sentiment analysis finished with " + num_positive + " positive and " + num_negative + " negative.");
-            alertbox.fadeIn(500);
+            alertbox.css("visibility", "visible");
             setTimeout(function() {
-              alertbox.fadeOut(200)
+              alertbox.css("visibility", "hidden");
             }, 3000);
           }
         });
