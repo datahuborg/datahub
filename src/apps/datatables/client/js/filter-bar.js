@@ -1,5 +1,6 @@
 var filter_buttons_template = require("./templates/filter_buttons.hbs");
 var filter_template = require("./templates/filter.hbs");
+var delete_button_col = require("./templates/delete-button-col.hbs");
 
 var hidden_cols = {};
 
@@ -142,5 +143,15 @@ module.exports = function(container, cd, dt) {
     return hidden_cols;
   }
 
+  that.onReorder = function() {
+    $('.dt-delete-button').remove();
+    $('.dt-filter th:first-child').each(function() {
+      var old_val = $(this).find("input").val();
+      $(this).html(delete_button_col({
+        "name": $(this).data("colname"),
+        "value": old_val
+      }));;
+    });
+  };
   return that;
 };

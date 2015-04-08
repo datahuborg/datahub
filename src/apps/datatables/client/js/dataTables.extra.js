@@ -44,6 +44,11 @@ $.fn.EnhancedDataTable = function(repo, table, query_callback, init_callback) {
           }
         }
       },
+      "colReorder": {
+        "reorderCallback": function() {
+          filterBar.onReorder();
+        }
+      },
       "colVis": {
         "overlayFade": 0,
         "label": function(index, title, th) {

@@ -45,6 +45,11 @@ $.fn.EnhancedDataTable = function(repo, table, query_callback, init_callback) {
           }
         }
       },
+      "colReorder": {
+        "reorderCallback": function() {
+          filterBar.onReorder();
+        }
+      },
       "colVis": {
         "overlayFade": 0,
         "label": function(index, title, th) {
@@ -114,7 +119,7 @@ $.fn.EnhancedDataTable = function(repo, table, query_callback, init_callback) {
   return this;
 };
 
-},{"./api.js":2,"./filter-bar.js":3,"./shorten-query.js":4,"./templates/table_header.hbs":7}],2:[function(require,module,exports){
+},{"./api.js":2,"./filter-bar.js":3,"./shorten-query.js":4,"./templates/table_header.hbs":8}],2:[function(require,module,exports){
 /**
  * This file contains the code for interacting with the API
  * for server side processing of datatables.
@@ -180,6 +185,7 @@ module.exports = api;
 },{}],3:[function(require,module,exports){
 var filter_buttons_template = require("./templates/filter_buttons.hbs");
 var filter_template = require("./templates/filter.hbs");
+var delete_button_col = require("./templates/delete-button-col.hbs");
 
 var hidden_cols = {};
 
@@ -322,10 +328,20 @@ module.exports = function(container, cd, dt) {
     return hidden_cols;
   }
 
+  that.onReorder = function() {
+    $('.dt-delete-button').remove();
+    $('.dt-filter th:first-child').each(function() {
+      var old_val = $(this).find("input").val();
+      $(this).html(delete_button_col({
+        "name": $(this).data("colname"),
+        "value": old_val
+      }));;
+    });
+  };
   return that;
 };
 
-},{"./templates/filter.hbs":5,"./templates/filter_buttons.hbs":6}],4:[function(require,module,exports){
+},{"./templates/delete-button-col.hbs":5,"./templates/filter.hbs":6,"./templates/filter_buttons.hbs":7}],4:[function(require,module,exports){
 module.exports = function(query, hidden_cols) {
   try {
     var lower_case_query = query.toLowerCase();
@@ -354,6 +370,19 @@ module.exports = function(query, hidden_cols) {
 },{}],5:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
+module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+    var helper, alias1=helpers.helperMissing, alias2="function", alias3=this.escapeExpression;
+
+  return "<div class=\"input-group\">\n  <span class=\"input-group-btn\">\n    <button class=\"btn btn-danger dt-delete-button\" type=\"button\"><i class=\"fa fa-trash\"></i></button>\n    <button class=\"btn btn-default dt-op-button\" type=\"button\">=</button>\n  </span>\n  <input type=\"text\" class=\"form-control dt-filtertext\" placeholder=\""
+    + alias3(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"name","hash":{},"data":data}) : helper)))
+    + "\" value=\""
+    + alias3(((helper = (helper = helpers.value || (depth0 != null ? depth0.value : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"value","hash":{},"data":data}) : helper)))
+    + "\"> \n</div>\n";
+},"useData":true});
+
+},{"hbsfy/runtime":16}],6:[function(require,module,exports){
+// hbsfy compiled Handlebars template
+var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partials,data) {
     var stack1, helper, alias1=helpers.helperMissing, alias2="function", alias3=this.escapeExpression;
 
@@ -374,14 +403,14 @@ module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partia
     + "</tr>\n";
 },"useData":true});
 
-},{"hbsfy/runtime":15}],6:[function(require,module,exports){
+},{"hbsfy/runtime":16}],7:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
     return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n";
 },"useData":true});
 
-},{"hbsfy/runtime":15}],7:[function(require,module,exports){
+},{"hbsfy/runtime":16}],8:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partials,data) {
@@ -402,7 +431,7 @@ module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partia
     + "</tr>\n";
 },"useData":true});
 
-},{"hbsfy/runtime":15}],8:[function(require,module,exports){
+},{"hbsfy/runtime":16}],9:[function(require,module,exports){
 (function (global){
 "use strict";
 /*globals Handlebars: true */
@@ -451,7 +480,7 @@ Handlebars['default'] = Handlebars;
 
 exports["default"] = Handlebars;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./handlebars/base":9,"./handlebars/exception":10,"./handlebars/runtime":11,"./handlebars/safe-string":12,"./handlebars/utils":13}],9:[function(require,module,exports){
+},{"./handlebars/base":10,"./handlebars/exception":11,"./handlebars/runtime":12,"./handlebars/safe-string":13,"./handlebars/utils":14}],10:[function(require,module,exports){
 "use strict";
 var Utils = require("./utils");
 var Exception = require("./exception")["default"];
@@ -695,7 +724,7 @@ var createFrame = function(object) {
   return frame;
 };
 exports.createFrame = createFrame;
-},{"./exception":10,"./utils":13}],10:[function(require,module,exports){
+},{"./exception":11,"./utils":14}],11:[function(require,module,exports){
 "use strict";
 
 var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
@@ -727,7 +756,7 @@ function Exception(message, node) {
 Exception.prototype = new Error();
 
 exports["default"] = Exception;
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 var Utils = require("./utils");
 var Exception = require("./exception")["default"];
@@ -948,7 +977,7 @@ exports.noop = noop;function initData(context, data) {
   }
   return data;
 }
-},{"./base":9,"./exception":10,"./utils":13}],12:[function(require,module,exports){
+},{"./base":10,"./exception":11,"./utils":14}],13:[function(require,module,exports){
 "use strict";
 // Build out our basic SafeString type
 function SafeString(string) {
@@ -960,7 +989,7 @@ SafeString.prototype.toString = SafeString.prototype.toHTML = function() {
 };
 
 exports["default"] = SafeString;
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 /*jshint -W004 */
 var escape = {
@@ -1064,12 +1093,12 @@ exports.blockParams = blockParams;function appendContextPath(contextPath, id) {
 }
 
 exports.appendContextPath = appendContextPath;
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 // Create a simple path alias to allow browserify to resolve
 // the runtime on a supported path.
 module.exports = require('./dist/cjs/handlebars.runtime')['default'];
 
-},{"./dist/cjs/handlebars.runtime":8}],15:[function(require,module,exports){
+},{"./dist/cjs/handlebars.runtime":9}],16:[function(require,module,exports){
 module.exports = require("handlebars/runtime")["default"];
 
-},{"handlebars/runtime":14}]},{},[1]);
+},{"handlebars/runtime":15}]},{},[1]);
