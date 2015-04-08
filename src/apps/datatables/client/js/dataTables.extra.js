@@ -113,6 +113,11 @@ $.fn.EnhancedDataTable = function(repo, table, query_callback, init_callback) {
         query_callback(shorten_query(query))
       }
     });
+    $(".ColVis_Button")
+      .removeClass("ColVis_Button")
+      .removeClass("ColVis_MasterButton")
+      .addClass("btn")
+          .addClass("btn-primary");
   });
 
   return this;
