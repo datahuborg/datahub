@@ -95,7 +95,7 @@ module.exports = function(container, cd, dt) {
   colDefs = cd;
   datatable = dt;
 
-  jqueryContainer.after(filter_buttons_template());
+  jqueryContainer.parent().append(filter_buttons_template());
 
   that.filters = function() {
     var filters = [];

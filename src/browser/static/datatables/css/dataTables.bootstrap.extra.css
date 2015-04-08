@@ -21,3 +21,11 @@
 .gray {
   color: gray;
 }
+
+.inlineblock {
+  display: inline-block
+}
+
+.floatright {
+  float: right;
+}

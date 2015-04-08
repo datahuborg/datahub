@@ -30,7 +30,7 @@ $.fn.EnhancedDataTable = function(repo, table, query_callback, init_callback) {
 
     // Create the DataTable.
     var datatable = jqueryObject.DataTable({
-      "dom": 'RC<"clear">lfrtip',
+      "dom": 'RClfrt<"inlineblock"i><"inlineblock floatright"p><"clear">',
       "columnDefs": columnDefs,
       "searching": false,
       "scrollX": true,

@@ -31,7 +31,7 @@ $.fn.EnhancedDataTable = function(repo, table, query_callback, init_callback) {
 
     // Create the DataTable.
     var datatable = jqueryObject.DataTable({
-      "dom": 'RC<"clear">lfrtip',
+      "dom": 'RClfrt<"inlineblock"i><"inlineblock floatright"p><"clear">',
       "columnDefs": columnDefs,
       "searching": false,
       "scrollX": true,
@@ -280,7 +280,7 @@ module.exports = function(container, cd, dt) {
   colDefs = cd;
   datatable = dt;
 
-  jqueryContainer.after(filter_buttons_template());
+  jqueryContainer.parent().append(filter_buttons_template());
 
   that.filters = function() {
     var filters = [];
@@ -407,7 +407,7 @@ module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partia
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-    return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n";
+    return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n<p>Shift-click columns for multi-sort.</p>\n";
 },"useData":true});
 
 },{"hbsfy/runtime":16}],8:[function(require,module,exports){
