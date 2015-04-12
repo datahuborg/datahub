@@ -8,6 +8,7 @@ var jqueryContainer;
 var postgres_types;
 var repo;
 var table;
+var current_aggregate;
 module.exports = function(container, cd, r, tbl) {
   var that = {};
   postgres_types = PostgresTypes();
@@ -34,6 +35,7 @@ $(document).on('click', '.dt-agg-item', function() {
 
   // Figure out the aggregation operator being applied.
   var agg_type = $(this).data("agg-type");
+  current_aggregate = agg_type;
   var agg_type_text = $(this).html();
 
   // Display the type in the dropdown button text.
@@ -59,7 +61,7 @@ $(document).on('click', '.dt-agg-item', function() {
 
 $(document).on("click", ".dt-col-agg-item", function() {
   $(".dt-agg-result").css("visibility", "hidden");
-  var agg_type = $(".dt-agg-type").html();
+  var agg_type = current_aggregate;
   var col_name = $(this).html();
   $(".dt-col-agg-name").html(col_name + " ");
   api.compute_aggregate(repo, table, agg_type, col_name, function(err, data) {

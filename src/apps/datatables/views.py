@@ -56,3 +56,31 @@ def schema(request, repo, table):
             if schema is not None and 'tuples' in schema:
                 return json_response({"schema": schema["tuples"]})
     return error_response()
+
+@login_required
+def aggregate(request, repo, table, agg_type, col_name):
+    username = get_login(request)
+    manager = DataHubManager(username)
+    repos = get_repos(manager)
+    # Ensure that the repo exists.
+    if repos is not None and repo in repos:
+        tables = get_tables(manager, repo)
+        # Ensure that the table exists.
+        if tables is not None and table in tables:
+            schema = manager.get_schema(repo + "." + table)
+            # Ensure that the schema for the repo.table exists.
+            if schema is not None and 'tuples' in schema:
+                for c_name, c_type in schema["tuples"]:
+                    if c_name == col_name and can_apply(agg_type, col_name):
+                        result = manager.execute_sql("SELECT %s(%s) FROM %s.%s" % (agg_type.lower(), col_name.lower(), repo, table))
+                        if "tuples" in result and len(result["tuples"]) > 0 and len(result["tuples"][0]) > 0:
+                            return json_response({"value": result["tuples"][0]})
+    return error_response()
+
+def can_apply(agg, col_type):
+    number_types = ["bigint", "int8", "bigserial", "serial8", "double precision", "float8", 
+        "integer", "int", "int4", "real", "float4", "smallint", "int2", "serial", "serial4"]
+    agg = agg.lower()
+    if agg == "sum" or agg == "avg":
+        return agg in number_types
+    return agg in ["min", "max", "count"]

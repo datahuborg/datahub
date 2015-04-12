@@ -59,7 +59,14 @@ api.get_column_definitions = function(repo, table, callback) {
 }
 
 api.compute_aggregate = function(repo, table, agg_type, col_name, callback) {
-  callback(null, 123);
+  var url = url_base + "aggregate/" + repo + "/" + table + "/" + agg_type + "/" + col_name + "/";
+  $.get(url, function(aggregate_result) {
+    if (aggregate_result.success) {
+      callback(null, aggregate_result.value);
+    } else {
+      callback("Aggregate failed");
+    }
+  });
 };
 
 module.exports = api;
