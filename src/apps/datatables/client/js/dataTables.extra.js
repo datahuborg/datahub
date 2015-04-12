@@ -1,5 +1,6 @@
 var api = require("./api.js");
 var FilterBar = require("./filter-bar.js");
+var Aggregator = require("./aggregator.js");
 var table_header_template = require("./templates/table_header.hbs");
 var shorten_query = require("./shorten-query.js");
 
@@ -7,6 +8,7 @@ $.fn.EnhancedDataTable = function(repo, table, query_callback, init_callback) {
   // The jquer object for which the EnhancedDataTable function was triggered.
   var jqueryObject = this;
   var filterBar;
+  var aggregator;
 
   // Get the column definitions for this table.
   api.get_column_definitions(repo, table, function(err, columnDefs) {
@@ -65,7 +67,8 @@ $.fn.EnhancedDataTable = function(repo, table, query_callback, init_callback) {
         }
       },
       "initComplete": function(settings, json) {
-        filterBar = FilterBar(jqueryObject.parent().parent(), columnDefs, datatable);
+        filterBar = FilterBar(jqueryObject.parent().parent().parent(), columnDefs, datatable);
+        aggregator = Aggregator(jqueryObject.parent().parent().parent(), columnDefs, repo, table);
 
         datatable.forEachRowInColumn = function(colName, func) {
           var targets = -1;

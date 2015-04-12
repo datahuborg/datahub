@@ -58,4 +58,8 @@ api.get_column_definitions = function(repo, table, callback) {
   });
 }
 
+api.compute_aggregate = function(repo, table, agg_type, col_name, callback) {
+  callback(null, 123);
+};
+
 module.exports = api;

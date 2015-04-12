@@ -1,6 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var api = require("./api.js");
 var FilterBar = require("./filter-bar.js");
+var Aggregator = require("./aggregator.js");
 var table_header_template = require("./templates/table_header.hbs");
 var shorten_query = require("./shorten-query.js");
 
@@ -8,6 +9,7 @@ $.fn.EnhancedDataTable = function(repo, table, query_callback, init_callback) {
   // The jquer object for which the EnhancedDataTable function was triggered.
   var jqueryObject = this;
   var filterBar;
+  var aggregator;
 
   // Get the column definitions for this table.
   api.get_column_definitions(repo, table, function(err, columnDefs) {
@@ -66,7 +68,8 @@ $.fn.EnhancedDataTable = function(repo, table, query_callback, init_callback) {
         }
       },
       "initComplete": function(settings, json) {
-        filterBar = FilterBar(jqueryObject.parent().parent(), columnDefs, datatable);
+        filterBar = FilterBar(jqueryObject.parent().parent().parent(), columnDefs, datatable);
+        aggregator = Aggregator(jqueryObject.parent().parent().parent(), columnDefs, repo, table);
 
         datatable.forEachRowInColumn = function(colName, func) {
           var targets = -1;
@@ -114,17 +117,93 @@ $.fn.EnhancedDataTable = function(repo, table, query_callback, init_callback) {
         query_callback(shorten_query(query))
       }
     });
-        $(".ColVis_Button")
-          .removeClass("ColVis_Button")
-          .removeClass("ColVis_MasterButton")
-          .addClass("btn")
+    $(".ColVis_Button")
+      .removeClass("ColVis_Button")
+      .removeClass("ColVis_MasterButton")
+      .addClass("btn")
           .addClass("btn-primary");
   });
 
   return this;
 };
 
-},{"./api.js":2,"./filter-bar.js":3,"./shorten-query.js":4,"./templates/table_header.hbs":8}],2:[function(require,module,exports){
+},{"./aggregator.js":2,"./api.js":3,"./filter-bar.js":4,"./shorten-query.js":6,"./templates/table_header.hbs":12}],2:[function(require,module,exports){
+var grouped_buttons_template = require("./templates/grouped-aggregate-dropdown.hbs");
+var api = require("./api.js");
+var col_list_items_template = require("./templates/aggregate-col-list-item.hbs");
+var PostgresTypes = require("./postgres-types.js");
+
+var colDefs;
+var jqueryContainer;
+var postgres_types;
+var repo;
+var table;
+module.exports = function(container, cd, r, tbl) {
+  var that = {};
+  postgres_types = PostgresTypes();
+  colDefs = cd;
+  repo = r;
+  table = tbl;
+  jqueryContainer = container;
+
+  jqueryContainer.append(grouped_buttons_template());
+  return that;
+}
+
+$(document).on('click', '.dt-agg-item', function() {
+  // Hide the result.
+  $(".dt-agg-result").css("visibility", "hidden");
+
+  // Make the column list div visible.
+  var col_agg_div = $('.dt-col-agg-div');
+  col_agg_div.css("visibility", "visible");
+
+  // Clear all items in the column list.
+  var list = $('.dt-col-agg-list');
+  list.html("");
+
+  // Figure out the aggregation operator being applied.
+  var agg_type = $(this).data("agg-type");
+  var agg_type_text = $(this).html();
+
+  // Display the type in the dropdown button text.
+  $('.dt-agg-type').html(agg_type_text + " ");
+
+  // Figure out which columns this aggregator can be applied to.
+  var supported_cols = colDefs
+  .filter(function(item) {
+    return postgres_types.can_apply(agg_type, item.type);
+  });
+
+  if (supported_cols.length > 0) {
+    // Clear the button content of the aggregate column name.
+    $(".dt-col-agg-name").html("Column Name...");
+  } else {
+    $(".dt-col-agg-name").html("No Supported Columns...");
+  }
+
+  // Create the list items.
+  var list_html = col_list_items_template({"colDefs": supported_cols});
+  list.html(list_html);
+});
+
+$(document).on("click", ".dt-col-agg-item", function() {
+  $(".dt-agg-result").css("visibility", "hidden");
+  var agg_type = $(".dt-agg-type").html();
+  var col_name = $(this).html();
+  $(".dt-col-agg-name").html(col_name + " ");
+  api.compute_aggregate(repo, table, agg_type, col_name, function(err, data) {
+    var result = err;
+    if (err === null) {
+      result = data;
+    }
+    $(".dt-agg-result")
+      .css("visibility", "visible")
+      .html(agg_type + "(" + col_name + ") = " + result);
+  });
+});
+
+},{"./api.js":3,"./postgres-types.js":5,"./templates/aggregate-col-list-item.hbs":7,"./templates/grouped-aggregate-dropdown.hbs":11}],3:[function(require,module,exports){
 /**
  * This file contains the code for interacting with the API
  * for server side processing of datatables.
@@ -185,9 +264,13 @@ api.get_column_definitions = function(repo, table, callback) {
   });
 }
 
+api.compute_aggregate = function(repo, table, agg_type, col_name, callback) {
+  callback(null, 123);
+};
+
 module.exports = api;
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var filter_buttons_template = require("./templates/filter_buttons.hbs");
 var filter_template = require("./templates/filter.hbs");
 var delete_button_col = require("./templates/delete-button-col.hbs");
@@ -285,7 +368,7 @@ module.exports = function(container, cd, dt) {
   colDefs = cd;
   datatable = dt;
 
-  jqueryContainer.parent().append(filter_buttons_template());
+  jqueryContainer.append(filter_buttons_template());
 
   that.filters = function() {
     var filters = [];
@@ -346,7 +429,30 @@ module.exports = function(container, cd, dt) {
   return that;
 };
 
-},{"./templates/delete-button-col.hbs":5,"./templates/filter.hbs":6,"./templates/filter_buttons.hbs":7}],4:[function(require,module,exports){
+},{"./templates/delete-button-col.hbs":8,"./templates/filter.hbs":9,"./templates/filter_buttons.hbs":10}],5:[function(require,module,exports){
+var number_types = ["bigint", "int8", "bigserial", "serial8", "double precision", "float8", 
+        "integer", "int", "int4", "real", "float4", "smallint", "int2", "serial", "serial4"];
+
+var PostgresTypes = function() {
+  var that = {};
+  that.is_numeric = function(type) {
+    return number_types.indexOf(type) !== -1;
+  };
+
+
+  that.can_apply = function(agg, type) {
+    agg = agg.toLowerCase();
+    if (agg === "sum" || agg === "avg") {
+      return that.is_numeric(type);
+    } 
+    return true;
+  };
+  return that;
+};
+
+module.exports = PostgresTypes;
+
+},{}],6:[function(require,module,exports){
 module.exports = function(query, hidden_cols) {
   try {
     var lower_case_query = query.toLowerCase();
@@ -372,7 +478,22 @@ module.exports = function(query, hidden_cols) {
   }
 };
 
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
+// hbsfy compiled Handlebars template
+var HandlebarsCompiler = require('hbsfy/runtime');
+module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partials,data) {
+    var helper;
+
+  return "<li><a class=\"dt-col-agg-item\">"
+    + this.escapeExpression(((helper = (helper = helpers.name || (depth0 != null ? depth0.name : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0,{"name":"name","hash":{},"data":data}) : helper)))
+    + "</a></li>\n";
+},"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+    var stack1;
+
+  return ((stack1 = helpers.each.call(depth0,(depth0 != null ? depth0.colDefs : depth0),{"name":"each","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "");
+},"useData":true});
+
+},{"hbsfy/runtime":20}],8:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
@@ -385,7 +506,7 @@ module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"
     + "\"> \n</div>\n";
 },"useData":true});
 
-},{"hbsfy/runtime":16}],6:[function(require,module,exports){
+},{"hbsfy/runtime":20}],9:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partials,data) {
@@ -408,14 +529,21 @@ module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partia
     + "</tr>\n";
 },"useData":true});
 
-},{"hbsfy/runtime":16}],7:[function(require,module,exports){
+},{"hbsfy/runtime":20}],10:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-    return "<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n<p>Shift-click columns for multi-sort.</p>\n";
+    return "<p>Shift-click columns for multi-sort.</p>\n<button class=\"btn btn-primary dt-new-filter\">New Filter</button>\n<label class=\"btn btn-primary\">\n  <input class=\"dt-invert-filter\" type=\"checkbox\" autocomplete=\"off\"> Invert Filter\n</label>\n\n";
 },"useData":true});
 
-},{"hbsfy/runtime":16}],8:[function(require,module,exports){
+},{"hbsfy/runtime":20}],11:[function(require,module,exports){
+// hbsfy compiled Handlebars template
+var HandlebarsCompiler = require('hbsfy/runtime');
+module.exports = HandlebarsCompiler.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+    return "<div class=\"btn-group dropup\">\n  <button type=\"button\" class=\"dt-agg-button btn btn-primary dropdown-toggle dropup\" data-toggle=\"dropdown\" aria-expanded=\"false\">\n    <span class=\"dt-agg-type\">Aggregate... </span><span class=\"caret\"></span>\n  </button>\n  <ul class=\"dropdown-menu\" role=\"menu\">\n    <li><a class=\"dt-agg-item\" data-agg-type=\"count\">Count</a></li>\n    <li><a class=\"dt-agg-item\" data-agg-type=\"sum\">Sum</a></li>\n    <li><a class=\"dt-agg-item\" data-agg-type=\"avg\">Average</a></li>\n    <li><a class=\"dt-agg-item\" data-agg-type=\"min\">Min</a></li>\n    <li><a class=\"dt-agg-item\" data-agg-type=\"max\">Max</a></li>\n  </ul>\n</div>\n<div class=\"btn-group dropup dt-col-agg-div\" style=\"visibility:hidden\">\n  <button type=\"button\" class=\"dt-col-agg-button btn btn-primary dropdown-toggle dropup\" data-toggle=\"dropdown\" aria-expanded=\"false\">\n    <span class=\"dt-col-agg-name\">Column Name... </span><span class=\"caret\"></span>\n  </button>\n  <ul class=\"dropdown-menu dt-col-agg-list\" role=\"menu\">\n  </ul>\n</div>\n<span class=\"dt-agg-result \" style=\"visibility:hidden\">123</span>\n";
+},"useData":true});
+
+},{"hbsfy/runtime":20}],12:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var HandlebarsCompiler = require('hbsfy/runtime');
 module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partials,data) {
@@ -436,7 +564,7 @@ module.exports = HandlebarsCompiler.template({"1":function(depth0,helpers,partia
     + "</tr>\n";
 },"useData":true});
 
-},{"hbsfy/runtime":16}],9:[function(require,module,exports){
+},{"hbsfy/runtime":20}],13:[function(require,module,exports){
 (function (global){
 "use strict";
 /*globals Handlebars: true */
@@ -485,7 +613,7 @@ Handlebars['default'] = Handlebars;
 
 exports["default"] = Handlebars;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./handlebars/base":10,"./handlebars/exception":11,"./handlebars/runtime":12,"./handlebars/safe-string":13,"./handlebars/utils":14}],10:[function(require,module,exports){
+},{"./handlebars/base":14,"./handlebars/exception":15,"./handlebars/runtime":16,"./handlebars/safe-string":17,"./handlebars/utils":18}],14:[function(require,module,exports){
 "use strict";
 var Utils = require("./utils");
 var Exception = require("./exception")["default"];
@@ -729,7 +857,7 @@ var createFrame = function(object) {
   return frame;
 };
 exports.createFrame = createFrame;
-},{"./exception":11,"./utils":14}],11:[function(require,module,exports){
+},{"./exception":15,"./utils":18}],15:[function(require,module,exports){
 "use strict";
 
 var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
@@ -761,7 +889,7 @@ function Exception(message, node) {
 Exception.prototype = new Error();
 
 exports["default"] = Exception;
-},{}],12:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
 var Utils = require("./utils");
 var Exception = require("./exception")["default"];
@@ -982,7 +1110,7 @@ exports.noop = noop;function initData(context, data) {
   }
   return data;
 }
-},{"./base":10,"./exception":11,"./utils":14}],13:[function(require,module,exports){
+},{"./base":14,"./exception":15,"./utils":18}],17:[function(require,module,exports){
 "use strict";
 // Build out our basic SafeString type
 function SafeString(string) {
@@ -994,7 +1122,7 @@ SafeString.prototype.toString = SafeString.prototype.toHTML = function() {
 };
 
 exports["default"] = SafeString;
-},{}],14:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 /*jshint -W004 */
 var escape = {
@@ -1098,12 +1226,12 @@ exports.blockParams = blockParams;function appendContextPath(contextPath, id) {
 }
 
 exports.appendContextPath = appendContextPath;
-},{}],15:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 // Create a simple path alias to allow browserify to resolve
 // the runtime on a supported path.
 module.exports = require('./dist/cjs/handlebars.runtime')['default'];
 
-},{"./dist/cjs/handlebars.runtime":9}],16:[function(require,module,exports){
+},{"./dist/cjs/handlebars.runtime":13}],20:[function(require,module,exports){
 module.exports = require("handlebars/runtime")["default"];
 
-},{"handlebars/runtime":15}]},{},[1]);
+},{"handlebars/runtime":19}]},{},[1]);
