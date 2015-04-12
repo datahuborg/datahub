@@ -201,7 +201,7 @@ $(document).on("click", ".dt-col-agg-item", function() {
     }
     $(".dt-agg-result")
       .css("visibility", "visible")
-      .html(agg_type + "(" + col_name + ") = " + result);
+      .html(" = " + result);
   });
 });
 
