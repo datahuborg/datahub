@@ -26,12 +26,8 @@ protocol = new Thrift.Protocol(transport),
 client = new DataHubClient(protocol),
 con_params = new ConnectionParams({'user': 'anantb', 'password': 'anant'}),
 con = client.open_connection(con_params),
-client.execute_sql(con, "DROP TABLE IF EXISTS test.demo");
-client.execute_sql(con, "CREATE TABLE IF NOT EXISTS test.demo (name text)");
-client.execute_sql(con, "INSERT INTO test.demo VALUES ('anant bhardwaj')");
-client.execute_sql(con, "INSERT INTO test.demo VALUES (%s)", ['sam madden']);
-client.execute_sql(con, "INSERT INTO test.demo VALUES ('david karger')");
-res = client.execute_sql(con, "SELECT * FROM test.demo");
+
+res = client.execute_sql(con, "SELECT * FROM test.submissions");
 
 $('#results').append('<tr><th>' + res.field_names.join('</th><th>') + '</th></tr>');
 

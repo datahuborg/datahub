@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <title>Sample DataHub HTML</title>
+    <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/jquery/jquery.min.js"></script> 
+    <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/thrift/thrift.js"></script>
+    <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/datahub/datahub_types.js"></script>
+    <script type="text/javascript"
+    src="http://datahub.csail.mit.edu/static/lib/datahub/DataHub.js"></script>
+    <script src="datahub-form.js"></script>
+  </head>
+  <body>
+  <form class="datahub" datahub-table="anantb.test.submissions">
+    <input type="text" name="text_field"></input>
+    <p>
+    <select name="select_field">
+      <option value="opt1">1</option>
+      <option value="opt2">2</option>
+    </select>
+    <p>
+    <input type="radio" name="radio_field" value="first">First
+    <input type="radio" name="radio_field" value="second">Second
+    <p>
+    <input name="check_field" value="checked" type="checkbox">Check Me!
+    <p>
+    <input type=submit>
+  </body>
+</html>

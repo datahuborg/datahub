@@ -85,6 +85,7 @@ def login (request):
 
     if('redirect_url' in request.POST.keys()):
       redirect_url = urllib.unquote_plus(request.POST['redirect_url'])
+
     
     email = None 
     try:
@@ -99,6 +100,8 @@ def login (request):
       clear_session(request)
       request.session[kEmail] = user.email
       request.session[kUsername] = user.username
+
+      redirect_url = redirect_url + urllib.unquote_plus('?auth_user=%s' %(user.username))
       return HttpResponseRedirect(redirect_url)
     except User.DoesNotExist:
       try:
