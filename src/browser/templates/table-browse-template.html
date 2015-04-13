@@ -58,7 +58,7 @@
     </div>    
 
 
-    <div class="dropdown" style="margin: 10px 0 0 10px">
+    <div class="dropdown sentiment-dropdown" style="margin: 10px 0 0 5px">
       <button class="btn btn-default dropdown-toggle" type="button" id="sentimentDropdown" data-toggle="dropdown" aria-expanded="true">
         Run Sentiment Analysis 
         <span class="caret"></span>
@@ -162,9 +162,11 @@ $('.annotation-modal-dialog').on('click', function(e){
 
 <script>
   $(document).ready(function() {
+    $(".sentiment-dropdown").hide();
     $("#table_data").EnhancedDataTable("{{repo}}", "{{table}}", function(query) {
       $("#txt-sql").val(query);
     }, function(datatable) {
+      $(".sentiment-dropdown").show();
       var sentiment_col_list = $("#sentiment_col_list");
       sentiment_col_list.html("");
       datatable.getColDef().forEach(function(colDef) {
