@@ -23,7 +23,11 @@
   <form role="form" method="GET" action="/browse/{{repo_base}}/{{repo}}/query">
     <div class="row">
     <div class="form-group col-sm-10">
-      <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Type SQL here">
+      {% if query %}
+      <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Type SQL here" value="{{query}}">
+      {% else %}
+        <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Type SQL here">
+      {% endif %}
     </div>
     
     <div class="col-sm-2">
