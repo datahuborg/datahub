@@ -11,6 +11,7 @@
 ### Python Sample Code
 * `cd python`
 * `source setup.sh`
+* `mv gen-py gen_py`
 * `python SampleClient.py`
 
 ### Go Sample Code
