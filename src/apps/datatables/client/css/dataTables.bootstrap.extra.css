@@ -1,0 +1,36 @@
+.dataTables_scrollBody thead {
+  visibility: hidden;
+}
+
+.table-container {
+  margin: 5px;
+}
+
+.table-container th {
+  min-width: 200px;
+}
+
+.datahub-datatable-no-scroll {
+  overflow-x: hidden !important;
+}
+
+.dtables-plus-and {
+  margin-right: 5px;
+}
+
+.gray {
+  color: gray;
+}
+
+.inlineblock {
+  display: inline-block
+}
+
+.floatright {
+  float: right;
+}
+
+
+.dt-agg-result {
+  font-size: 14pt;
+}
