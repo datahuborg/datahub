@@ -1010,6 +1010,7 @@ def app_allow_access(request, app_id, repo_name):
         app_token=app.app_token)
 
       if redirect_url:
+        redirect_url = redirect_url + urllib.unquote_plus('?auth_user=%s' %(login))
         return HttpResponseRedirect(redirect_url)
       else:
         if access_val == 'allow':
