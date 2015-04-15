@@ -58,15 +58,16 @@
     </div>    
 
 
+    <!-- Uncomment for sentiment analysis.
     <div class="dropdown sentiment-dropdown" style="margin: 10px 0 0 5px">
       <button class="btn btn-default dropdown-toggle" type="button" id="sentimentDropdown" data-toggle="dropdown" aria-expanded="true">
         Run Sentiment Analysis 
         <span class="caret"></span>
       </button>
       <ul id="sentiment_col_list" class="dropdown-menu" role="menu" aria-labelledby="sentimentDropdown">
-       <!--  <li role="presentation"><a role="menuitem" tabindex="-1" >Action</a></li> -->
       </ul>
     </div>
+    -->
     
     {% if tuples and tuples|length > 0 %}
       {% block table-data %}
@@ -105,9 +106,11 @@
     {% endif %}
   
   </div>
+  <!-- Uncomment for sentiment analysis.
   <div class="alert alert-success" role="alert" id="alertbox" style="visibility: hidden">
    _ 
   </div>
+  -->
 </div>
 
 <div class="modal" id="annotation-modal" tabindex="-1" role="dialog" aria-hidden="true">
@@ -162,10 +165,11 @@ $('.annotation-modal-dialog').on('click', function(e){
 
 <script>
   $(document).ready(function() {
-    $(".sentiment-dropdown").hide();
+    // $(".sentiment-dropdown").hide();
     $("#table_data").EnhancedDataTable("{{repo}}", "{{table}}", function(query) {
       $("#txt-sql").val(query);
     }, function(datatable) {
+      /*
       $(".sentiment-dropdown").show();
       var sentiment_col_list = $("#sentiment_col_list");
       sentiment_col_list.html("");
@@ -206,6 +210,7 @@ $('.annotation-modal-dialog').on('click', function(e){
           }
         });
       });
+      */
     });
   });
 </script>
