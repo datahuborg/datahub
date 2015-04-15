@@ -209,6 +209,7 @@ def register (request):
 
       pool.apply_async(send_email, [user.email, subject, msg_body])
 
+      redirect_url = redirect_url + urllib.unquote_plus('?auth_user=%s' %(user.username))
       return HttpResponseRedirect(redirect_url)
     except IntegrityError:
       errors.append(
