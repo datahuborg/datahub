@@ -7,9 +7,8 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "ubuntu/trusty64"
 
-  config.vm.provision "puppet" do |puppet|
-    puppet.manifests_path = "manifests"
-    puppet.manifest_file  = "default.pp"
-  end
+  config.vm.network "private_network", ip: "192.168.50.4"
+  config.vm.hostname = "datahub-local.mit.edu"
+  config.vm.provision "shell", path: "provisions/setup.sh"
 
 end
