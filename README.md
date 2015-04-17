@@ -26,34 +26,34 @@ DataHub is an experimental hosted platform (GitHub-like) for organizing, managin
 ### Vagrant environment
 
 Follow these steps:
+
 1. You need internet access the first time you do these steps.
-+ Download and install VirtualBox [https://www.virtualbox.org/](https://www.virtualbox.org/)
-+ Download and install Vagrant [https://www.vagrantup.com/downloads.html](https://www.vagrantup.com/downloads.html)
-+ Add this line to your hosts file:
-```
-192.168.50.4    datahub-local.mit.edu
-```
-+ Then start the environment with:
-```
-vagrant up
-```
-+ Login into vagrant:
-```
-vagrant ssh
-```
-+ Start the app
-```
-cd /vagrant
-sudo -s
-source src/setup.sh
-python src/manage.py runserver 0.0.0.0:80
-```
-+ Then open the browser and go to [datahub-local.mit.edu](datahub-local.mit.edu)
+2. Download and install VirtualBox [https://www.virtualbox.org/](https://www.virtualbox.org/)
+3. Download and install Vagrant [https://www.vagrantup.com/downloads.html](https://www.vagrantup.com/downloads.html)
+4. Add this line to your hosts file:
+  ```
+  192.168.50.4    datahub-local.mit.edu
+  ```
+5. Then start the environment with:
+  ```
+  vagrant up
+  ```
+6. Login into vagrant:
+  ```
+  vagrant ssh
+  ```
+7. Start the app
+  ```
+  cd /vagrant
+  sudo -s
+  source src/setup.sh
+  python src/manage.py runserver 0.0.0.0:80
+  ```
+8. Then open the browser and go to [datahub-local.mit.edu](datahub-local.mit.edu)
+9. When you are done
 
-+ When you are done
+  1. Press `CONTROL-C`
+  2. Exit the vm with `exit` (you need to execute it twice)
+  3. Shutdown the vm with `vagrant halt` (next time you do `vagrant up` will be much faster as packages are already installed; there is no need for internet connection).
 
-  + Press `CONTROL-C`
-  + Exit the vm with `exit` (you need to execute it twice)
-  + Shutdown the vm with `vagrant halt` (next time you do `vagrant up` will be much faster as packages are already installed; there is no need for internet connection).
-
-  + If you want to delete the vm `vagrant destroy` (if you do `vagrant up` again, it will download and install all the packages).
+  4. If you want to delete the vm `vagrant destroy` (if you do `vagrant up` again, it will download and install all the packages).
