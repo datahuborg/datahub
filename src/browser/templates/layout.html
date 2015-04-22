@@ -174,14 +174,17 @@ $(function() {
     $(modal_id + ' .btn-primary').html(modal_operation)
 
     $(modal_id).off('click');
-    console.log(modal_id, modal_title, modal_body, modal_operation, target_url)
+    
     $(modal_id).modal({keyboard: true})
       .on('click', modal_id + ' .btn-primary', function (e) {
+          console.log("here 1")
           $(modal_id).modal('hide')
+          console.log("here 2")
           $("#wait-dialog").modal()
-          window.location.href = window.location.protocol + '//' + window.location.host + target_url
-          console.log("handler added")
+          console.log("here 3")
+          window.location.href = window.location.protocol + '//' + window.location.host + target_url 
       });
+    console.log('executed')
   }
 
   $('.modal-confirm-dialog').on('click', function(e){
