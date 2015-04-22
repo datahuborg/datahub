@@ -129,7 +129,14 @@ def login (request):
           request, redirect_url = urllib.quote_plus(redirect_url),
           errors = errors)          
   else:
-    return login_form(request, urllib.quote_plus(redirect_url))
+    try:
+      if request.session[kUsername]:
+        redirect_url = redirect_url + urllib.unquote_plus('?auth_user=%s' %(request.session[kUsername]))
+        return HttpResponseRedirect(redirect_url)
+      else:
+        return login_form(request, urllib.quote_plus(redirect_url))
+    except:
+      return login_form(request, urllib.quote_plus(redirect_url))
 
 def register (request):
   redirect_url = '/'
