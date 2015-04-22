@@ -177,14 +177,16 @@ $(function() {
     $(modal_id + ' .modal-body').html(modal_body) 
     $(modal_id + ' .btn-primary').html(modal_operation)
 
-    $(modal_id).off('click')
+    $(modal_id).off('click') 
+    $(modal_id + ' .btn-primary').off('click')  
+    
+    $(modal_id + ' .btn-primary').on('click', function(e) {
+      $(modal_id).modal('hide')
+      $("#wait-dialog").modal()
+      window.location.href = window.location.protocol + '//' + window.location.host + target_url
+    });
     
     $(modal_id).modal({keyboard: true})
-      .on('click', modal_id + ' .btn-primary', function(e) {
-          $(modal_id).modal('hide')
-          $("#wait-dialog").modal()
-          window.location.href = window.location.protocol + '//' + window.location.host + target_url
-      });
   });
 });
 
