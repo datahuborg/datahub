@@ -149,21 +149,13 @@ class PGBackend:
     c.close()
     return result
 
-  def create_user(self, username, password, create_db):
+  def create_user(self, username, password):
     query = ''' CREATE ROLE %s WITH LOGIN 
                 NOCREATEDB NOCREATEROLE NOCREATEUSER PASSWORD '%s'
             ''' %(username, password)
-    self.execute_sql(query)
-
-    if not create_db:
-      return
-    
-    query = ''' CREATE DATABASE %s WITH OWNER=%s ''' %(username, username)
     return self.execute_sql(query)
 
   def remove_user(self, username):
-    query = ''' DROP DATABASE IF EXISTS %s ''' %(username)
-    self.execute_sql(query)
     query = ''' DROP ROLE %s ''' %(username)
     return self.execute_sql(query)
 

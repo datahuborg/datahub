@@ -70,8 +70,8 @@ class DataHubConnection:
   The following methods works only in superuser mode
   '''
 
-  def create_user(self, username, password, create_db):
-    return self.backend.create_user(username, password, create_db)
+  def create_user(self, username, password):
+    return self.backend.create_user(username, password)
 
   def remove_user(self, username):
     return self.backend.remove_user(username)

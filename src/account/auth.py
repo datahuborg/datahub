@@ -176,6 +176,9 @@ def register (request):
         hashed_password = hashlib.sha1(password).hexdigest()
         try:
           DataHubManager.create_user(username=username, password=hashed_password)
+          manager = DataHubManager(user=username)  
+          query = ''' CREATE DATABASE %s WITH OWNER=%s ''' %(username, username)
+          manager.execute_sql(query)
         except Exception, e:
           pass
 
