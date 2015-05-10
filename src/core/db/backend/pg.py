@@ -158,7 +158,10 @@ class PGBackend:
     if not create_db:
       return   
 
-    query = ''' CREATE DATABASE %s WITH OWNER=%s ''' %(username, username)
+    query = ''' CREATE DATABASE %s ''' %(username)
+    self.execute_sql(query)
+
+    query = ''' ALTER DATABASE %s OWNER TO %s ''' %(username, username)
     return self.execute_sql(query)
 
   def remove_user(self, username):

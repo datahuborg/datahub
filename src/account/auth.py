@@ -177,6 +177,7 @@ def register (request):
         try:
           DataHubManager.create_user(username=username, password=hashed_password)
         except Exception, e:
+          print e
           pass
 
         try:
