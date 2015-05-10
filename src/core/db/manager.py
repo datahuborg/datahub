@@ -77,12 +77,12 @@ class DataHubManager:
   ''' User/Role Management '''
   
   @staticmethod
-  def create_user(username, password):
+  def create_user(username, password, create_db=True):
     superuser_con = DataHubConnection(
         user=settings.DATABASES['default']['USER'],
         password=settings.DATABASES['default']['USER'])
     return superuser_con.create_user(
-        username=username, password=password)
+        username=username, password=password, create_db=create_db)
 
   @staticmethod
   def remove_user(username):
