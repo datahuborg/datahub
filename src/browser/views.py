@@ -405,12 +405,14 @@ def table(request, repo_base, repo, table):
     login = get_login(request)
     dh_table_name = '%s.%s.%s' %(repo_base, repo, table)
     
+    ''' 
     res = DataHubManager.has_table_privilege(
         login, repo_base, dh_table_name, 'SELECT')
     
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
 
+    '''
     manager = DataHubManager(user=repo_base)
     res = manager.execute_sql(
         query='EXPLAIN SELECT * FROM %s' %(dh_table_name))    
@@ -439,7 +441,8 @@ def table(request, repo_base, repo, table):
     
     if end_page > total_pages:
       end_page = total_pages
-      
+    
+    print "-------------"  
     res = manager.execute_sql(
         query='SELECT * from %s LIMIT %s OFFSET %s'
         %(dh_table_name, limit, (current_page -1) * limit))
