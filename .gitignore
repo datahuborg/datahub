@@ -54,3 +54,5 @@ nosetests.xml
 
 # Virtualenv
 venv/
+
+.vagrant
