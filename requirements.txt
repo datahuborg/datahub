@@ -10,3 +10,4 @@ pycrypto
 nltk
 textblob
 sqlparse
+viz==0.0.5
