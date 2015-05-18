@@ -91,7 +91,15 @@ $(document).ready(function($) {
         if (cmd.startsWith('connect')) {
           var args = cmd.split(' ', 2)
           if (args.length > 1) {
-            con.repo_base = args[1]
+
+            var username = args[1].trim();
+            var last_char = username.substr(username.length -1);
+            if (last_char === ";") {
+              username = username.substring(0, username.length-1);
+            }
+
+            con.repo_base = username;
+
             term.echo("Connected to: " + con.repo_base)
           } else {
             term.error ('HELP: connect &lt;repo-base&gt;')
