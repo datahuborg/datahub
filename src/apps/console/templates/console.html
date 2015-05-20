@@ -61,7 +61,16 @@ function print_result(res, term) {
     }
 }
 
+function set_console_height() {
+    var h = window.innerHeight;
+    $("#dh-console").height(h * .8);
+    return;
+}
+
 $(document).ready(function($) {
+    
+    set_console_height();
+
     var kCmdList = [
         '** Any SQL Query **',
         'connect &lt;repo-base&gt; \t -- connect to a repo-base',
@@ -93,14 +102,13 @@ $(document).ready(function($) {
                     var args = cmd.split(' ', 2)
                     if (args.length > 1) {
 
+                        // trim blank spaces and semicolons from usernames
                         var username = args[1].trim();
-                        var last_char = username.substr(username.length - 1);
-                        if (last_char === ";") {
+                        if (username.substr(username.length - 1) === ";") {
                             username = username.substring(0, username.length - 1);
                         }
 
                         con.repo_base = username;
-
                         term.echo("Connected to: " + con.repo_base)
                     } else {
                         term.error('HELP: connect &lt;repo-base&gt;')
