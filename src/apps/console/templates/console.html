@@ -1,165 +1,164 @@
-{% extends "layout.html" %}
-{% block content %}
-<div class="container">
-<div id="dh-console-container">
-<div id="dh-console">
-<pre class="ascii-art-console">
+{% extends "layout.html" %} {% block content %}
+<div class="container-fluid">
+    <div id="dh-console-container">
+        <div id="dh-console">
+            <pre class="ascii-art-console">
  _____        _        _    _       _     
 |  __ \      | |      | |  | |     | |    
 | |  | | __ _| |_ __ _| |__| |_   _| |__  
 | |  | |/ _` | __/ _` |  __  | | | | '_ \ 
 | |__| | (_| | || (_| | |  | | |_| | |_) |
 |_____/ \__,_|\__\__,_|_|  |_|\__,_|_.__/ 
-</pre> 
-<br /><br />
-<div class="punch">DataHub is a (GitHub like) hosted platform for organizing, managing, sharing, collaborating, and making sense of data.
+</pre>
+            <br />
+            <br />
+            <div class="punch">DataHub is a (GitHub like) hosted platform for organizing, managing, sharing, collaborating, and making sense of data.
+            </div>
+            <br />
+        </div>
+    </div>
 </div>
-<br />
-</div>
-</div>
-</div>
-  
 <script type="text/javascript">
-
 if (typeof String.prototype.startsWith != 'function') {
-  // see below for better implementation!
-  String.prototype.startsWith = function (str){
-    return this.indexOf(str) == 0;
-  };
+    // see below for better implementation!
+    String.prototype.startsWith = function(str) {
+        return this.indexOf(str) == 0;
+    };
 }
 
-function print_result (res, term) {
-  if (res.num_tuples >= 0) {
-    var col_names = []
-    var separator = []
+function print_result(res, term) {
+    if (res.num_tuples >= 0) {
+        var col_names = []
+        var separator = []
 
-    $.each(res.field_names, function(field_idx, field) {
-      col_names.push(field)
-      separator.push('------------')
-    });
+        $.each(res.field_names, function(field_idx, field) {
+            col_names.push(field)
+            separator.push('------------')
+        });
 
-    term.echo(col_names.join('\t'))
-    term.echo(separator.join(''))
+        term.echo(col_names.join('\t'))
+        term.echo(separator.join(''))
 
-    $.each(res.tuples, function(tuple_idx, tuple) {
-      values = []
-      $.each(tuple.cells, function(cell_idx, cell) {
-        values.push(cell)
-      });
-      term.echo(values.join('\t'))
-    });
+        $.each(res.tuples, function(tuple_idx, tuple) {
+            values = []
+            $.each(tuple.cells, function(cell_idx, cell) {
+                values.push(cell)
+            });
+            term.echo(values.join('\t'))
+        });
 
-    term.echo('')
-    term.echo(res.num_tuples + ' rows returned.')
-    if (res.num_more_tuples && res.num_more_tuples > 0) {
-      term.echo(res.num_more_tuples + ' more rows available. Type \'more\' to see more rows.')
-    }
-  } else {
-    if (res.status) {
-      term.echo('success')
+        term.echo('')
+        term.echo(res.num_tuples + ' rows returned.')
+        if (res.num_more_tuples && res.num_more_tuples > 0) {
+            term.echo(res.num_more_tuples + ' more rows available. Type \'more\' to see more rows.')
+        }
     } else {
-      term.echo('error')
+        if (res.status) {
+            term.echo('success')
+        } else {
+            term.echo('error')
+        }
     }
-  }
 }
 
 $(document).ready(function($) {
-  var kCmdList = [
-      '** Any SQL Query **',
-      'connect &lt;repo-base&gt; \t -- connect to a repo-base',
-      'mkrepo &lt;repo-name&gt; \t -- to create a new repository',
-      'rm &lt;repo-name [-f]&gt; \t\t -- to remove a repository',
-      'ls \t\t\t\t\t -- to list repositories',
-      'ls &lt;repo-name&gt; \t\t -- to list tables in a repository',
-      'schema &lt;table-name&gt; \t\t -- to print schema info of a table'
-  ]
+    var kCmdList = [
+        '** Any SQL Query **',
+        'connect &lt;repo-base&gt; \t -- connect to a repo-base',
+        'mkrepo &lt;repo-name&gt; \t -- to create a new repository',
+        'rm &lt;repo-name [-f]&gt; \t\t -- to remove a repository',
+        'ls \t\t\t\t\t -- to list repositories',
+        'ls &lt;repo-name&gt; \t\t -- to list tables in a repository',
+        'schema &lt;table-name&gt; \t\t -- to print schema info of a table'
+    ]
 
-  var login = '{{login}}'
-  var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
-  var protocol = new Thrift.Protocol(transport);
-  var client = new DataHubClient(protocol);
-  var con = new Connection({'user': login, 'repo_base': login});
+    var login = '{{login}}'
+    var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
+    var protocol = new Thrift.Protocol(transport);
+    var client = new DataHubClient(protocol);
+    var con = new Connection({
+        'user': login,
+        'repo_base': login
+    });
 
-  $('#dh-console').terminal(
-    function (command, term) {
-      try{
-        var cmd = $.trim(command.toLowerCase())
+    $('#dh-console').terminal(
+        function(command, term) {
+            try {
+                var cmd = $.trim(command.toLowerCase())
 
-        if (cmd == ''){
-          return
-        }
-        if (cmd.startsWith('connect')) {
-          var args = cmd.split(' ', 2)
-          if (args.length > 1) {
+                if (cmd == '') {
+                    return
+                }
+                if (cmd.startsWith('connect')) {
+                    var args = cmd.split(' ', 2)
+                    if (args.length > 1) {
 
-            var username = args[1].trim();
-            var last_char = username.substr(username.length -1);
-            if (last_char === ";") {
-              username = username.substring(0, username.length-1);
+                        var username = args[1].trim();
+                        var last_char = username.substr(username.length - 1);
+                        if (last_char === ";") {
+                            username = username.substring(0, username.length - 1);
+                        }
+
+                        con.repo_base = username;
+
+                        term.echo("Connected to: " + con.repo_base)
+                    } else {
+                        term.error('HELP: connect &lt;repo-base&gt;')
+                    }
+                } else if (cmd.startsWith('mkrepo')) {
+                    var args = cmd.split(' ', 2)
+                    if (args.length > 1) {
+                        res = client.create_repo(con, args[1])
+                        print_result(res, term)
+                    } else {
+                        term.error('HELP: mkrepo &lt;repo-name&gt;')
+                    }
+                } else if (cmd.startsWith('rm')) {
+                    var args = cmd.split(' ', 3)
+                    if (args.length > 1) {
+                        force = false
+                        if (args.length == 3 && args[2] == '-f') {
+                            force = true
+                        }
+                        res = client.delete_repo(con, args[1], force)
+                        print_result(res, term)
+                    } else {
+                        term.error('HELP: rm &lt;repo-name&gt; [-f]')
+                    }
+                } else if (cmd.startsWith('desc')) {
+                    var args = cmd.split(' ', 2)
+                    if (args.length > 1) {
+                        res = client.get_schema(con, args[1])
+                        print_result(res, term)
+                    } else {
+                        term.error('HELP: desc &lt;table-name&gt;')
+                    }
+                } else if (cmd.startsWith('ls')) {
+                    var args = cmd.split(' ', 2)
+                    res = null
+                    if (args.length > 1) {
+                        res = client.list_tables(con, args[1])
+                    } else {
+                        res = client.list_repos(con)
+                    }
+                    print_result(res, term)
+                } else if (cmd.startsWith('help')) {
+                    for (var cmd in kCmdList) {
+                        term.echo(kCmdList[cmd])
+                    }
+                } else {
+                    res = client.execute_sql(con, cmd);
+                    print_result(res, term)
+                }
+            } catch (error) {
+                term.error(error.message);
             }
-
-            con.repo_base = username;
-
-            term.echo("Connected to: " + con.repo_base)
-          } else {
-            term.error ('HELP: connect &lt;repo-base&gt;')
-          }
-        } else if (cmd.startsWith('mkrepo')) {
-          var args = cmd.split(' ', 2)
-          if (args.length > 1) {
-            res = client.create_repo(con, args[1])
-            print_result(res, term)
-          } else {
-            term.error ('HELP: mkrepo &lt;repo-name&gt;')
-          }      
-        } else if (cmd.startsWith('rm')) {
-          var args = cmd.split(' ', 3)
-          if (args.length > 1) {
-            force = false
-            if (args.length == 3 && args[2] == '-f') {
-              force = true
-            }
-            res = client.delete_repo(con, args[1], force)
-            print_result(res, term)
-          } else {
-            term.error ('HELP: rm &lt;repo-name&gt; [-f]')
-          }  
-        } else if (cmd.startsWith('desc')) {
-          var args = cmd.split(' ', 2)
-          if (args.length > 1) {
-            res = client.get_schema(con, args[1])
-            print_result(res, term)
-          } else {
-            term.error ('HELP: desc &lt;table-name&gt;')
-          }        
-        } else if (cmd.startsWith('ls')) {
-          var args = cmd.split(' ', 2)
-          res = null
-          if (args.length > 1) {
-            res = client.list_tables(con, args[1])
-          } else {
-            res = client.list_repos(con)
-          }
-          print_result(res, term)   
-        } else if (cmd.startsWith('help')) {
-          for (var cmd in kCmdList) {
-            term.echo(kCmdList[cmd])
-          }
-        } else {
-          res = client.execute_sql(con, cmd);
-          print_result(res, term) 
+        }, {
+            prompt: '{{login}}@' + con.repo_base + '> ',
+            greetings: 'Welcome to DataHub!\nConnected to: ' + con.repo_base
         }
-      } catch(error){
-        term.error(error.message);
-      }
-    }, { 
-      prompt: '{{login}}@' + con.repo_base + '> ',
-      greetings: 'Welcome to DataHub!\nConnected to: ' + con.repo_base}
-  );
-  
+    );
+
 });
-
 </script>
 {% endblock %}
-
-
