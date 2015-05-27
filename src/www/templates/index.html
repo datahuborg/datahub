@@ -11,12 +11,14 @@
 {% endblock %}
 
 {% block content %}
+
+{% load staticfiles %}
 <main class="bs-docs-masthead" id="content" role="main">
   <div class="container">
     <p class="lead">
     <span class="logo-home center-block"></span>
     <br />
-      A Data Ecosystem for Individuals, Teams and People.
+      A Data Ecosystem for Individuals, Teams and People
     </p>
   </div>
 </main>
@@ -29,12 +31,20 @@
     <div class="bs-docs-section">
       <h1 id="overview" class="page-header">What is DataHub?</h1>
 
-      <p class="lead">DataHub is a unified, managed, collaborative platform for making data-processing easy.</p>
-      
-      <p>It consists of:</p>
+      <p class="lead">For End Users:</p>
       <ul>
-        <li><strong><em>A flexible data store</em></strong> (files, relational databases, extensible to other data-storage backends) with sharing/collaboration capabilities, managed on behalf of different users/groups,</li>
-        <li><strong><em>An app ecosystem</em></strong> that hosts apps for various data-processing activities such as ingestion, curation, integration, discovery, query, analytics, visualization, and machine learning. The DataHub users can use any of the apps from the App Center for processing their data as it fits their need.</li>
+        <li>A way to store your data centrally, without having to set up your own database</li>
+        <li>A way to collaborate with others</li>
+        <li>A way to seamlessly share your data with friends and colleagues</li>
+        <li>A suite of tools to process your data</li>
+      </ul>
+      
+      <p class="lead">For Developers:</p>
+      <ul>
+        <li>A database-agnostic, language-agnostic platform for your mobile and web apps</li>
+        <li>A web client for easy manipulation of your data</li>
+        <li>A application ecosystem for data processing, including ingestion, curation, integration, discovery, query, analytics, visualization, and machine learning</li>
+        <li>An open source project from <a href="https://csail.mit.edu">MIT CSAIL's</a> <a href="livinglab.mit.edu">Living Lab</a></li>
       </ul>
 
     </div>
@@ -46,6 +56,9 @@
       
       <h4 id="publications">Papers</h4>
       <ul>
+        <li>
+          <a href="{% static "www/papers/datahub-generic.pdf" %}">DataHub: A Collaborative Dataset Management Platform</a> [Technical Report, 2015]
+        </li>
         <li>
           <a href="http://arxiv.org/abs/1409.0798">
             DataHub: Collaborative Data Science &amp; Dataset Version Management at Scale
