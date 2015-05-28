@@ -43,12 +43,12 @@ int main(int argc, const char * argv[]) {
         // see the /developer/apps page
         
         @try {
-            NSLog(@"\n\nTrying to create an account...");
+            NSLog(@"\n\nTrying to create and delete an account...");
             
             datahub_accountAccountServiceClient *client = [[datahub_accountAccountServiceClient alloc] initWithProtocol:protocol];
             
             // create account
-            [client create_account:@"ACCOUNT_NAME" email:@"ACCOUNT_EMAIL" password:@"ACCOUNT PASSWORD" repo_name:nil app_id:@"APP_ID" app_token:@"APP_TOKEN"];
+            [client create_account:@"ACCOUNT_NAME" email:@"ACCOUNT_EMAIL" password:@"ACCOUNT PASSWORD" repo_name:@"REPO_NAME" app_id:@"APP_ID" app_token:@"APP_TOKEN"];
             
             // delete account
             [client remove_account:@"ACCOUNT_NAME" app_id:@"APP_ID" app_token:@"APP_TOKEN"];
@@ -66,7 +66,7 @@ int main(int argc, const char * argv[]) {
         // repository, and table to query.
         @try {
             
-            NSLog(@"\n\nTrying to query a user...");
+            NSLog(@"\n\nTrying to query a user's table...");
             
             // create a client
             datahubDataHubClient *client = [[datahubDataHubClient alloc] initWithProtocol:protocol];

@@ -16,75 +16,75 @@ from thrift.transport import TTransport
 Sample Python client for DataHub Account Creation
 '''
 
+
+
 try:
+  print "\n\nTrying to create and delete an account..."
+  # This will initially thrown an exception since
+  # You will need to register an application and assign
+  # the variables below.
+  # see the /developer/apps page to register an application.
+
+  username="ACCOUNT_NAME"    
+  password="ACCOUNT_PASSWORD"
+  email="ACCOUNT_EMAIL"
+  repo_name="REPO_NAME"       # the repository that your app operates on
+  app_id="APP_ID"             # your app's unique id
+  app_token="APP_TOKEN"       # your app's unique token
+
   datahub_transport = THttpClient.THttpClient('http://datahub.csail.mit.edu/service')
   datahub_transport = TTransport.TBufferedTransport(datahub_transport)
   datahub_protocol = TBinaryProtocol.TBinaryProtocol(datahub_transport)
   datahub_client = DataHub.Client(datahub_protocol)
+  print "Version: %s" %(datahub_client.get_version())
 
   account_transport = THttpClient.THttpClient('http://datahub.csail.mit.edu/service/account')
   account_transport = TTransport.TBufferedTransport(account_transport)
   account_protocol = TBinaryProtocol.TBinaryProtocol(account_transport)
   account_client = AccountService.Client(account_protocol)
 
-  
-  print "Version: %s" %(datahub_client.get_version())
 
-
+  # delete account
   try:
     print account_client.remove_account(
-        username="confer_account",
-        app_id="confer",
-        app_token="d089b3ed-1d82-4eae-934a-859d7070d364")
+        username=username,
+        app_id=app_id,
+        app_token=app_token)
   except Exception, e:
     print e
     pass
-  
 
-  # How an app can create a user account
+  # create account
   try:
     print account_client.create_account(
-        username="confer_account",
-        password="confer",
-        email="confer@datahub.com",
-        repo_name="test",
-        app_id="confer",
-        app_token="d089b3ed-1d82-4eae-934a-859d7070d364")
+        username=username,
+        password=password,
+        email=email,
+        repo_name=repo_name,
+        app_id=app_id,
+        app_token=app_token)
   except Exception, e:
     print e
 
 
-  
-  
+  print "\nTrying to query a user's table..."
+
   # RECOMMENDED (How an app should read/write in a users' repo)
-  # Connect to the user repository through app_id + app_token
-  con_params_app = ConnectionParams(app_id='confer', app_token='d089b3ed-1d82-4eae-934a-859d7070d364', repo_base='confer_account')
+  # Connect to the user repository through app_id + app_token.
+  # Don't expose their password
+  con_params_app = ConnectionParams(app_id=app_id, app_token=app_token, repo_base=username)
   con_app = datahub_client.open_connection(con_params=con_params_app)
-  print con_app
+
+  createSQL ="CREATE TABLE "+repo_name+".app_table(content text)"
+  insertSQL = "INSERT INTO "+repo_name+".app_table VALUES('Anant Bhardwaj')"
+  selectSQL = "SELECT * FROM "+repo_name+".app_table"
+
   print datahub_client.list_repos(con=con_app)
-  print datahub_client.list_tables(con=con_app, repo_name='test')
-  print datahub_client.execute_sql(con_app, "CREATE TABLE test.app_table(content text)", query_params=None)
-  print datahub_client.list_tables(con=con_app, repo_name='test')
-  print datahub_client.execute_sql(con_app, "INSERT INTO test.app_table VALUES('Anant Bhardwaj')", query_params=None);
-  print datahub_client.execute_sql(con_app, "SELECT * FROM test.app_table", query_params=None);
-
-
-  # NOT RECOMMENDED (never connect as an user through your app)
-  # The following would work but DO NOT do it (connection w/ username + password)
-  con_params_user = ConnectionParams(user='confer_account', password='confer')
-  con_user = datahub_client.open_connection(con_params=con_params_user)
-  print con_user
-  print datahub_client.list_repos(con=con_user)
-  print datahub_client.list_tables(con=con_app, repo_name='test')
-  print datahub_client.execute_sql(con_user, "CREATE TABLE test.user_table(content text)", query_params=None)
-  print datahub_client.list_tables(con=con_app, repo_name='test')
-  print datahub_client.execute_sql(con_user, "INSERT INTO test.user_table VALUES('Anant Bhardwaj')", query_params=None);
-  print datahub_client.execute_sql(con_user, "SELECT * FROM test.user_table", query_params=None);
-
-  # FUN STUFF
-  # App accessing a user-created table and User accessing an app-created table
-  print datahub_client.execute_sql(con_user, "SELECT * FROM test.app_table", query_params=None);
-  print datahub_client.execute_sql(con_app, "SELECT * FROM test.user_table", query_params=None);
+  print datahub_client.list_tables(con=con_app, repo_name=repo_name)
+  print datahub_client.execute_sql(con_app, createSQL, query_params=None)
+  print datahub_client.list_tables(con=con_app, repo_name=repo_name)
+  print datahub_client.execute_sql(con_app, insertSQL, query_params=None);
+  print datahub_client.execute_sql(con_app, selectSQL, query_params=None);
 
 except Exception, e:
   print 'Something went wrong : %s' % (e)
