@@ -29,4 +29,4 @@
 * run
 * When integrating thrift, in Build Settings:
  * Always Search User Path: `YES`
- * Framework Search Paths: add `$(SRCROOT)` and `$(inherited)`
+ * Framework Search Paths: add `$(SRCROOT)`
