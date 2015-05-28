@@ -11,12 +11,14 @@
 {% endblock %}
 
 {% block content %}
+
+{% load staticfiles %}
 <main class="bs-docs-masthead" id="content" role="main">
   <div class="container">
     <p class="lead">
     <span class="logo-home center-block"></span>
     <br />
-      Hosting, collaboration, query, analytics, and visualization for public and private datasets.
+      A Data Ecosystem for Individuals, Teams and People
     </p>
   </div>
 </main>
@@ -29,12 +31,20 @@
     <div class="bs-docs-section">
       <h1 id="overview" class="page-header">What is DataHub?</h1>
 
-      <p class="lead">DataHub is a unified, managed, collaborative platform for making data-processing easy.</p>
-      
-      <p>It consists of:</p>
+      <h3><small>For End Users:</small></h3>
       <ul>
-        <li><strong><em>A flexible data store</em></strong> (files, relational databases, extensible to other data-storage backends) with sharing/collaboration capabilities, managed on behalf of different users/groups,</li>
-        <li><strong><em>An app ecosystem</em></strong> that hosts apps for various data-processing activities such as ingestion, curation, integration, discovery, query, analytics, visualization, and machine learning. The DataHub users can use any of the apps from the App Center for processing their data as it fits their need.</li>
+        <li>A way to store your data centrally, without having to set up your own database</li>
+        <li>A way to collaborate with others</li>
+        <li>A way to seamlessly share your data with friends and colleagues</li>
+        <li>A suite of tools to process your data</li>
+      </ul>
+      
+      <h3><small>For Developers:</small></h3>
+      <ul>
+        <li>A database-agnostic, language-agnostic, <a href="https://github.com/mitreid-connect/">MITREid (OpenID + OAuth2)</a> integrated platform for your mobile and web apps</li>
+        <li>A web client for easy manipulation of your data</li>
+        <li>An application ecosystem for data processing, including ingestion, curation, integration, discovery, query, analytics, visualization, and machine learning</li>
+        <li>An open source project from <a href="https://csail.mit.edu">MIT CSAIL's</a> <a href="livinglab.mit.edu">Living Lab</a></li>
       </ul>
 
     </div>
@@ -44,8 +54,11 @@
     <div class="bs-docs-section">
       <h1 id="all-publications" class="page-header">Publications</h1>
       
-      <h4 id="publications">Papers</h4>
+      <h3 id="publications"><small>Papers</small></h3>
       <ul>
+        <li>
+          <a href="{% static "www/papers/datahub-generic.pdf" %}">DataHub: A Collaborative Dataset Management Platform</a> [Technical Report, 2015]
+        </li>
         <li>
           <a href="http://arxiv.org/abs/1409.0798">
             DataHub: Collaborative Data Science &amp; Dataset Version Management at Scale
@@ -59,7 +72,7 @@
         </li>
       </ul>
       
-      <h4 id="talks">Talks</h4>
+      <h3 id="talks"><small>Talks</small></h3>
       <ul>
         <li>
           <a href="http://research.microsoft.com/apps/video/default.aspx?id=238430">
@@ -97,7 +110,7 @@
         </li>
       </ul>
       
-      <h4 id="blogs">Blogs</h4>
+      <h3 id="blogs"><small>Blogs</small></h3>
       <ul>
         <li>
           <a href="http://istc-bigdata.org/index.php/beyond-data-lakes-the-datahub/">
@@ -122,64 +135,49 @@
     <div class="bs-docs-section">
       <h1 id="team" class="page-header">Team</h1>
       <p>DataHub is hosted at MIT Computer Science &amp; Artificial Intelligence Lab (CSAIL) with collaborators from the University of Maryland - College Park, and the University of Illinois at Urbana-Champaign.</p>
-      <ul>
-        <li>      
-          <a class="team-member" href="http://people.csail.mit.edu/anantb/">
-            <strong>Anant Bhardwaj</strong>
-          </a>
-          (PhD Student, MIT CSAIL)
-        </li>
 
-        <li>
-          <a class="team-member" href="http://people.cs.uchicago.edu/~aelmore/">
-            <strong>Aaron Elmore</strong>
-          </a>
-          (Asst. Professor, University of Chicago)
-        </li> 
+      <h3><small>Contributors:</small></h3>
+
+      <dl class="dl-horizontal">
+        <dt><a class="team-member" href="http://people.csail.mit.edu/anantb/"> Anant Bhardwaj</a></dt>
+        <dd>PhD Student, MIT CSAIL</dd>
+
+        <dt><a class="team-member" href="http://people.cs.uchicago.edu/~aelmore/"> Aaron Elmore</a></dt>
+        <dd>Asst. Professor, University of Chicago</dd> 
         
-        <li>
-          <a class="team-member" href="http://db.lcs.mit.edu/madden/">
-            <strong>Sam Madden</strong>
-          </a>
-          (Professor, MIT CSAIL)
-        </li>
+        <dt><a class="team-member" href="http://db.lcs.mit.edu/madden/"> Sam Madden</a></dt>
+        <dd>Professor, MIT CSAIL</dd>
 
-        <li>
-          <a class="team-member" href="http://people.csail.mit.edu/karger/">
-            <strong>David Karger</strong>
-          </a>
-          (Professor, MIT CSAIL)
-        </li>
+        <dt><a class="team-member" href="http://people.csail.mit.edu/karger/"> David Karger</a></dt>
+        <dd>Professor, MIT CSAIL</dd>
+        
+        <dt><a class="team-member" mailto="sbuckley@mit.edu"> Stephen C. Buckley</a></dt>
+        <dd>Project Manager, MIT Big Data Initiative</dd>
 
-        <li>
-          <a class="team-member" href="http://bigdata.csail.mit.edu/user/9">
-            <strong>Elizabeth Bruce</strong>
-          </a>
-          (Executive Director, MIT Big Data Initiative)
-        </li>
+        <dt><a class="team-member" href="https://github.com/justinanderson"> Justin Anderson</a></dt>
+        <dd>Programmer, MIT Big Data Initiative</dd>
+        
+        <dt><a class="team-member" href="http://bigdata.csail.mit.edu/user/113"> Albert Carter</a></dt>
+        <dd>Programmer, MIT Big Data Initiative</dd>
+        
+        <dt><a class="team-member" mailto="dbabani@MIT.EDU"> Denis Babani</a></dt>
+        <dd>Volunteer Programmer, MIT Big Data Initiative</dd>
+      </dl>
 
-        <li>
-          <a class="team-member" href="http://www.mit.edu/~eugenewu/">
-            <strong>Eugene Wu</strong>
-          </a>
-          (Asst. Professor, Columbia University)
-        </li> 
+      <h3><small>Alumni:</small></h3>
+      <dl class="dl-horizontal">
+        <dt><a class="team-member" href="http://bigdata.csail.mit.edu/user/9">Elizabeth Bruce</a></dt>
+        <dd>Former Executive Director, MIT Big Data Initiative</dd>
 
-        <li>
-          <a class="team-member" href="http://web.engr.illinois.edu/~adityagp/">
-            <strong>Aditya Parameswaran</strong>
-          </a>
-          (Asst. Professor, UIUC)
-        </li> 
+        <dt><a class="team-member" href="http://www.mit.edu/~eugenewu/">Eugene Wu</a></dt>
+        <dd>Asst. Professor, Columbia University</dd>
 
-        <li>
-          <a class="team-member" href="http://www.cs.umd.edu/~amol/">
-            <strong>Amol Deshpande</strong>
-          </a>
-          (Assoc. Professor, UMD)
-        </li>
+        <dt><a class="team-member" href="http://web.engr.illinois.edu/~adityagp/">Aditya Parameswaran</a></dt>
+        <dd>Asst. Professor, UIUC</dd>
 
-      </ul>
+        <dt><a class="team-member" href="http://www.cs.umd.edu/~amol/">Amol Deshpande</a></dt>
+        <dd>Assoc. Professor, UMD</dd>
+      </dl>
     </div>
 
 
@@ -187,18 +185,26 @@
     ================================================== -->
     <div class="bs-docs-section">
       <h1 id="resources" class="page-header">Resources</h1>
-      <ul>
-        <li><a href="/developer"><strong>Developer Guide</strong></a> (API documentation)</li>
-        <li><a href="https://github.com/abhardwaj/datahub/tree/master/src/examples"><strong>Example Code</strong></a> (sample code in various programming languages including C++, Java, Go, Python, and JavaScript)</li>
-        <li><a href="https://github.com/abhardwaj/datahub"><strong>GitHub Repo</strong></a> (the DataHub source code repository on GitHub)</li>
-      </ul>
+      <dl class="dl-horizontal">
+        
+        <dt><a href="developer">Developer Guide</a></dt>
+        <dd>API documentation</dd>
+
+        <dt><a href="https://github.com/abhardwaj/datahub/tree/master/src/examples">Example Code</a></dt>
+        <dd>sample code in various programming languages including C++, Java, Go, Python, and JavaScript</dd>
+
+        <dt><a href="https://github.com/abhardwaj/datahub">GitHub Repo</a></dt>
+        <dd>the DataHub source code repository on GitHub</dd>
+      
+      </dl>
+
     </div>
 
     <!-- Contact
     ================================================== -->
     <div class="bs-docs-section">
       <h1 id="contact" class="page-header">Contact</h1>
-      <p>Please email <a href="mailto:datahub@csail.mit.edu">datahub@csail.mit.edu</a> if you have any comments or questions.</p>
+      <p>Please email <a href="mailto:sbuckley@mit.edu">sbuckley@mit.edu</a>, subscribe to our <a href="https://mailman.mit.edu/mailman/listinfo/datahub">discussion list,</a> or view the <a href="http://mailman.mit.edu/pipermail/datahub/">list archives</a>.</p>
     </div>
 
   </div>
