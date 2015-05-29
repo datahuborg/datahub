@@ -16,6 +16,9 @@ gen-*
 # Ignore Mac DS_Store Files
 .DS_Store
 
+# Java compiled files
+*.class
+
 # Python compiled files
 *.py[cod]
 
