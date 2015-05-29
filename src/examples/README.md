@@ -7,7 +7,8 @@
 * `cd java`
 * `source setup.sh`
 * `java SampleClient`
-* `java SampleAccount` (Non-functioning as of 2015-03-29 due to thrift issues.)
+* `java SampleAccount` (Non-functioning as of 2015-03-29ls
+ due to thrift issues.)
 
 ### Python Sample Code
 * `cd python`
