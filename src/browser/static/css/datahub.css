@@ -279,10 +279,15 @@ p.bg-warning {
 
 .logo-home{
   display: block;
-  background-image:url(/static/images/datahub-logo.png);
+  background-image:url(/static/images/livinglab-logo.png);
   background-repeat: no-repeat;
   background-size: 200px 200px;
   width: 200px;
   height: 200px;
 }
 
+.logo-text {
+  font-family: 'Cantora One', cursive;
+  font-weight: 400;
+  font-size: 44px;
+}

@@ -14,3 +14,4 @@ CLASSPATH=$jar/thrift/*:$jar/slf4j/*:$jar/apache-commons/*:$abspath/bin:$abspath
 export CLASSPATH
 
 javac -classpath $CLASSPATH -d $abspath/bin $abspath/src/SampleClient.java
+javac -classpath $CLASSPATH -d $abspath/bin $abspath/src/SampleAccount.java
