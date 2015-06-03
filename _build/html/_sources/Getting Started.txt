@@ -1,5 +1,5 @@
 Getting Started
-*********
+****************
 
 --------------
 Clone the repo
@@ -24,9 +24,9 @@ database.
 3. Create a database for DataHub, ``CREATE DATABASE datahub;``
 4. Quit the shell with ``\q``
 
---------------
+------------------------------
 Create ``user_data`` directory
---------------
+------------------------------
 
 1. Navigate to the root directory, ``cd /``
 2. Create the ``user_data`` directory as root user,
@@ -36,9 +36,9 @@ We realize that this is not the best location for the ``user_data``
 directory. In future commits, we'll make this option configurable and
 perhaps default to a different location.
 
---------------
+----------------------------
 Create a ``virtualenv``
---------------
+----------------------------
 
 It's useful to install python dependencies in a virtual environment so
 they are isolated from other python packages in your system. To do this,
@@ -52,17 +52,18 @@ use `virtualenv <http://virtualenv.readthedocs.org/en/latest/>`__.
 When you are finished with the virtual environment, run ``deactivate``
 to close it.
 
+------------------------------------------
 Install dependencies with ``pip``
---------------
+------------------------------------------
 
 Installing the dependencies for DataHub is easy using the
 `pip <https://pypi.python.org/pypi/pip>`__ package manager.
 
 1. Install the dependencies with ``pip install -r requirements.txt``
 
---------------
+------------------------------
 Setup server and data models
---------------
+------------------------------
 
 1. Update ``src/settings.py`` with your postgres username and password.
 2. Setup the server environment, ``source src/setup.sh`` (Please note
@@ -70,9 +71,9 @@ Setup server and data models
 3. Sync with the database, ``python src/manage.py syncdb``
 4. Migrate the data models, ``python src/manage.py migrate inventory``
 
---------------
+-----------------------------
 Install Berkeley DB bindings
---------------
+-----------------------------
 
 1. I haven't written this yet, so for now, please comment out
    ``import bsddb`` from ``src/apps/dbwipes/summary.py``

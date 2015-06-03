@@ -19,7 +19,7 @@ Contents:
    :maxdepth: 2
 
    Getting Started
-   api
+   App API
 
 
 Indices and tables
