@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>&lt;no title&gt; &mdash; DH_Doc 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="DH_Doc 0.1 documentation" href="../../../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">DH_Doc 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>#!/usr/bin/python</p>
+<p>from gen_py.datahub import DataHub
+from gen_py.datahub.constants import *
+from thrift import Thrift
+from thrift.protocol import TBinaryProtocol
+from thrift.transport import THttpClient
+from thrift.transport import TTransport</p>
+<p>&#8216;&#8217;&#8217;
+&#64;author: anant bhardwaj
+&#64;date: Oct 11, 2013</p>
+<p>Sample Python client for DataHub
+&#8216;&#8217;&#8216;</p>
+<dl class="docutils">
+<dt>try:</dt>
+<dd><p class="first">transport = THttpClient.THttpClient(&#8216;<a class="reference external" href="http://datahub.csail.mit.edu/service">http://datahub.csail.mit.edu/service</a>&#8216;)
+transport = TTransport.TBufferedTransport(transport)
+protocol = TBinaryProtocol.TBinaryProtocol(transport)
+client = DataHub.Client(protocol)</p>
+<p>print &#8220;Version: %s&#8221; %(client.get_version())</p>
+<p># open connection
+con_params = ConnectionParams(user=&#8217;anantb&#8217;, password=&#8217;anant&#8217;)
+con = client.open_connection(con_params=con_params)</p>
+<p># execute a query
+res  = client.execute_sql(</p>
+<blockquote>
+<div>con=con,
+query=&#8217;select * from anantb.test.demo&#8217;,
+query_params=None)</div></blockquote>
+<p># print field names
+print &#8220;t&#8221;.join(res.field_names)</p>
+<p># print tuples
+for t in res.tuples:</p>
+<blockquote class="last">
+<div>print &#8220;t&#8221;.join(t.cells)</div></blockquote>
+</dd>
+<dt>except Exception, e:</dt>
+<dd>print &#8216;Something went wrong : %s&#8217; % (e)</dd>
+</dl>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/src/examples/python/.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, MIT Living Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.4</a>
+      
+      |
+      <a href="../../../_sources/src/examples/python/.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

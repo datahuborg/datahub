@@ -117,9 +117,8 @@ You can generate native code using the commands below.</p>
 </div>
 <div class="section" id="objective-c-sample-code">
 <h3>Objective-C Sample Code<a class="headerlink" href="#objective-c-sample-code" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><code class="docutils literal"><span class="pre">cd</span> <span class="pre">src/examples/objc</span></code></div></blockquote>
 <ul class="simple">
+<li><code class="docutils literal"><span class="pre">cd</span> <span class="pre">src/examples/objc</span></code></li>
 <li><code class="docutils literal"><span class="pre">open</span> <span class="pre">DataHub-Example</span></code></li>
 <li>run</li>
 <li>When integrating thrift, in Build Settings:</li>
@@ -148,6 +147,31 @@ You can generate native code using the commands below.</p>
 <h2>Connecting with a username &amp; password<a class="headerlink" href="#connecting-with-a-username-password" title="Permalink to this headline">¶</a></h2>
 <p>It is possible to connect to a user&#8217;s account without using an application. In this case, you will need their username and password.</p>
 <p>Connections made using a username and password are unable to create or delete accounts.</p>
+<dl class="class">
+<dt id="ConnectionParams">
+<em class="property">class </em><code class="descname">ConnectionParams</code><span class="sig-paren">(</span><em>user</em>, <em>password</em><span class="sig-paren">)</span><a class="headerlink" href="#ConnectionParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>connection paramaters for connecting datahub using a username and password.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user</strong> (<em>str</em>) &#8211; username</li>
+<li><strong>password</strong> (<em>str</em>) &#8211; password</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a connection parameters object</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Thrift Connection</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p><a class="reference external" href="https://github.com/abhardwaj/datahub/tree/sphinx_docs">https://github.com/abhardwaj/datahub/tree/sphinx_docs</a></p>
 </div>
 </div>
 

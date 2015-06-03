@@ -1,0 +1,406 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>&lt;no title&gt; &mdash; DH_Doc 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <link rel="top" title="DH_Doc 0.1 documentation" href="../../../../../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">DH_Doc 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <dl class="docutils">
+<dt>/*</dt>
+<dd><ul class="first simple">
+<li>Licensed to the Apache Software Foundation (ASF) under one</li>
+<li>or more contributor license agreements. See the NOTICE file</li>
+<li>distributed with this work for additional information</li>
+<li>regarding copyright ownership. The ASF licenses this file</li>
+<li>to you under the Apache License, Version 2.0 (the</li>
+<li>&#8220;License&#8221;); you may not use this file except in compliance</li>
+<li>with the License. You may obtain a copy of the License at</li>
+<li></li>
+<li><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></li>
+<li></li>
+<li>Unless required by applicable law or agreed to in writing,</li>
+<li>software distributed under the License is distributed on an</li>
+<li>&#8220;AS IS&#8221; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</li>
+<li>KIND, either express or implied. See the License for the</li>
+<li>specific language governing permissions and limitations</li>
+<li>under the License.</li>
+</ul>
+<p class="last"><a href="#id1"><span class="problematic" id="id2">*</span></a>/</p>
+</dd>
+</dl>
+<p>#import &lt;Foundation/Foundation.h&gt;
+#import &lt;CoreFoundation/CoreFoundation.h&gt;
+#import &#8220;TSSLSocketClient.h&#8221;
+#import &#8220;TSSLSocketException.h&#8221;
+#import &#8220;TObjective-C.h&#8221;
+#include &lt;sys/socket.h&gt;
+#include &lt;netinet/in.h&gt;
+#include &lt;netdb.h&gt;</p>
+<p>#if !TARGET_OS_IPHONE
+#import &lt;CoreServices/CoreServices.h&gt;
+#else
+#import &lt;CFNetwork/CFNetwork.h&gt;
+#endif</p>
+<p>&#64;implementation TSSLSocketClient</p>
+<ul>
+<li><dl class="first docutils">
+<dt>(id) initWithHostname: (NSString <a href="#id3"><span class="problematic" id="id4">*</span></a>) hostname</dt>
+<dd><p class="first last">port: (int) port</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><dl class="first docutils">
+<dt>sslHostname = hostname;</dt>
+<dd>CFReadStreamRef readStream = NULL;
+CFWriteStreamRef writeStream = NULL;</dd>
+</dl>
+<p>/* create a socket structure <a href="#id5"><span class="problematic" id="id6">*</span></a>/
+struct sockaddr_in pin;
+struct hostent <a href="#id7"><span class="problematic" id="id8">*</span></a>hp = NULL;
+for(int i = 0; i &lt; 10; i++) {</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>if ((hp = gethostbyname([hostname UTF8String])) == NULL) {</dt>
+<dd><p class="first">NSLog(&#64;&#8221;failed to resolve hostname %&#64;&#8221;, hostname);
+herror(&#8220;resolv&#8221;);
+if(i == 9) {</p>
+<blockquote>
+<div>&#64;throw [TSSLSocketException exceptionWithReason: &#64;&#8221;failed to resolve hostname&#8221;];</div></blockquote>
+<p class="last">}
+[NSThread sleepForTimeInterval:0.2];</p>
+</dd>
+<dt>} else {</dt>
+<dd>break;</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>}</p>
+<p>memset (&amp;pin, 0, sizeof(pin));
+pin.sin_family = AF_INET;
+pin.sin_addr.s_addr = ((struct in_addr <a href="#id9"><span class="problematic" id="id10">*</span></a>) (hp-&gt;h_addr))-&gt;s_addr;
+pin.sin_port = htons (port);</p>
+<p>/* create the socket <a href="#id11"><span class="problematic" id="id12">*</span></a>/
+if ((sd = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1)
+{</p>
+<blockquote>
+<div>NSLog(&#64;&#8221;failed to create socket for host %&#64;:%d&#8221;, hostname, port);
+&#64;throw [TSSLSocketException exceptionWithReason: &#64;&#8221;failed to create socket&#8221;];</div></blockquote>
+<p>}</p>
+<p>/* open a connection <a href="#id13"><span class="problematic" id="id14">*</span></a>/
+if (connect (sd, (struct sockaddr <a href="#id15"><span class="problematic" id="id16">*</span></a>) &amp;pin, sizeof(pin)) == -1)
+{</p>
+<blockquote>
+<div>NSLog(&#64;&#8221;failed to create conenct to host %&#64;:%d&#8221;, hostname, port);
+&#64;throw [TSSLSocketException exceptionWithReason: &#64;&#8221;failed to connect&#8221;];</div></blockquote>
+<p>}
+CFStreamCreatePairWithSocket(kCFAllocatorDefault, sd, &amp;readStream, &amp;writeStream);</p>
+<p>CFReadStreamSetProperty(readStream, kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanTrue);
+CFWriteStreamSetProperty(writeStream, kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanTrue);</p>
+<blockquote class="last">
+<div><p>if (readStream &amp;&amp; writeStream) {
+CFReadStreamSetProperty(readStream,</p>
+<blockquote>
+<div>kCFStreamPropertySocketSecurityLevel,
+kCFStreamSocketSecurityLevelTLSv1);</div></blockquote>
+<p>NSDictionary <a href="#id17"><span class="problematic" id="id18">*</span></a>settings =
+[NSDictionary dictionaryWithObjectsAndKeys:</p>
+<blockquote>
+<div>(id)kCFBooleanTrue, (id)kCFStreamSSLValidatesCertificateChain,
+nil];</div></blockquote>
+<dl class="docutils">
+<dt>CFReadStreamSetProperty((CFReadStreamRef)readStream,</dt>
+<dd>kCFStreamPropertySSLSettings,
+(CFTypeRef)settings);</dd>
+<dt>CFWriteStreamSetProperty((CFWriteStreamRef)writeStream,</dt>
+<dd><blockquote class="first">
+<div>kCFStreamPropertySSLSettings,
+(CFTypeRef)settings);</div></blockquote>
+<p>inputStream = (bridge_stub NSInputStream <a href="#id19"><span class="problematic" id="id20">*</span></a>)readStream;
+[inputStream retain_stub];
+[inputStream setDelegate:self];
+[inputStream scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+[inputStream open];</p>
+<p class="last">outputStream = (bridge_stub NSOutputStream <a href="#id21"><span class="problematic" id="id22">*</span></a>)writeStream;
+[outputStream retain_stub];
+[outputStream setDelegate:self];</p>
+</dd>
+<dt>[outputStream scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];</dt>
+<dd>[outputStream open];</dd>
+</dl>
+<p>CFRelease(readStream);
+CFRelease(writeStream);
+}</p>
+<p>self = [super initWithInputStream: inputStream outputStream: outputStream];</p>
+<p>return self;</p>
+</div></blockquote>
+</dd>
+</dl>
+<p>}</p>
+<p>#pragma mark -
+#pragma mark NSStreamDelegate
+- (void)stream:(NSStream <a href="#id23"><span class="problematic" id="id24">*</span></a>)aStream</p>
+<blockquote>
+<div><p>handleEvent:(NSStreamEvent)eventCode {
+switch (eventCode) {</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>case NSStreamEventNone:</dt>
+<dd>break;</dd>
+<dt>case NSStreamEventHasBytesAvailable:</dt>
+<dd>break;</dd>
+<dt>case NSStreamEventOpenCompleted:</dt>
+<dd>break;</dd>
+</dl>
+<p>case NSStreamEventHasSpaceAvailable:
+{</p>
+<blockquote>
+<div><p>SecPolicyRef policy = SecPolicyCreateSSL(NO, (__bridge CFStringRef)(sslHostname));
+SecTrustRef trust = NULL;
+CFArrayRef streamCertificatesRef =
+CFBridgingRetain((__bridge id)((__bridge CFArrayRef)([aStream propertyForKey:(NSString <a href="#id25"><span class="problematic" id="id26">*</span></a>) kCFStreamPropertySSLPeerCertificates])));
+SecTrustCreateWithCertificates(CFBridgingRetain((__bridge id)(streamCertificatesRef)),</p>
+<blockquote>
+<div>policy,
+&amp;trust);</div></blockquote>
+<p>SecTrustResultType trustResultType = kSecTrustResultInvalid;
+SecTrustEvaluate(trust, &amp;trustResultType);</p>
+<p>BOOL proceed = NO;
+switch (trustResultType) {</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>case kSecTrustResultProceed:</dt>
+<dd>proceed = YES;
+break;</dd>
+<dt>case kSecTrustResultUnspecified:</dt>
+<dd>NSLog(&#64;&#8221;Trusted by OS&#8221;);
+proceed = YES;
+break;</dd>
+<dt>case kSecTrustResultRecoverableTrustFailure:</dt>
+<dd>proceed = recoverFromTrustFailure(trust);
+break;</dd>
+<dt>case kSecTrustResultDeny:</dt>
+<dd>NSLog(&#64;&#8221;Deny&#8221;);
+break;</dd>
+<dt>case kSecTrustResultFatalTrustFailure:</dt>
+<dd>NSLog(&#64;&#8221;FatalTrustFailure&#8221;);
+break;</dd>
+<dt>case kSecTrustResultOtherError:</dt>
+<dd>NSLog(&#64;&#8221;OtherError&#8221;);
+break;</dd>
+<dt>case kSecTrustResultInvalid:</dt>
+<dd>NSLog(&#64;&#8221;Invalid&#8221;);
+break;</dd>
+<dt>default:</dt>
+<dd>NSLog(&#64;&#8221;Default&#8221;);
+break;</dd>
+</dl>
+</div></blockquote>
+<p>}</p>
+<dl class="docutils">
+<dt>if (trust) {</dt>
+<dd>CFRelease(trust);</dd>
+</dl>
+<p>}
+if (policy) {</p>
+<blockquote>
+<div>CFRelease(policy);</div></blockquote>
+<p>}
+if (!proceed) {</p>
+<blockquote>
+<div>NSLog(&#64;&#8221;Cannot trust certificate. TrustResultType: %u&#8221;, trustResultType);
+[aStream close];
+&#64;throw [TSSLSocketException exceptionWithReason: &#64;&#8221;Cannot trust certificate&#8221;];</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>}</dt>
+<dd>break;</dd>
+</dl>
+<p>case NSStreamEventErrorOccurred:
+{</p>
+<blockquote>
+<div>NSError <a href="#id27"><span class="problematic" id="id28">*</span></a>theError = [aStream streamError];
+NSLog(&#64;&#8221;Error occured opening stream: %&#64;&#8221;, theError);</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+<dl class="docutils">
+<dt>//            &#64;throw [TSSLSocketException exceptionWithReason: &#64;&#8221;Error occured opening stream&#8221; error: theError];</dt>
+<dd><blockquote class="first">
+<div><blockquote>
+<div>break;</div></blockquote>
+<p>}
+case NSStreamEventEndEncountered:</p>
+<blockquote>
+<div>break;</div></blockquote>
+<dl class="docutils">
+<dt>default:</dt>
+<dd>break;</dd>
+</dl>
+</div></blockquote>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+<p>bool recoverFromTrustFailure(SecTrustRef myTrust)
+{</p>
+<blockquote>
+<div><p>SecTrustResultType trustResult;
+OSStatus status = SecTrustEvaluate(myTrust, &amp;trustResult);</p>
+<p>CFAbsoluteTime trustTime,currentTime,timeIncrement,newTime;
+CFDateRef newDate;
+if (trustResult == kSecTrustResultRecoverableTrustFailure) {</p>
+<blockquote>
+<div><p>trustTime = SecTrustGetVerifyTime(myTrust);
+timeIncrement = 31536000;
+currentTime = CFAbsoluteTimeGetCurrent();
+newTime = currentTime - timeIncrement;
+if (trustTime - newTime){</p>
+<blockquote>
+<div>newDate = CFDateCreate(NULL, newTime);
+SecTrustSetVerifyDate(myTrust, newDate);
+status = SecTrustEvaluate(myTrust, &amp;trustResult);</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<p>}
+if (trustResult != kSecTrustResultProceed) {</p>
+<blockquote>
+<div>NSLog(&#64;&#8221;Certificate trust failure&#8221;);
+return false;</div></blockquote>
+<p>}
+return true;</p>
+</div></blockquote>
+<p>}</p>
+<ul class="simple">
+<li>(void)close</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><dl class="first docutils">
+<dt>if(self.mInput) {</dt>
+<dd>//Close and reset inputstream
+CFReadStreamSetProperty((__bridge CFReadStreamRef)(self.mInput), kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanTrue);
+[self.mInput setDelegate:nil];
+[self.mInput close];
+[self.mInput removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+self.mInput = nil;</dd>
+</dl>
+<p>}</p>
+<dl class="docutils">
+<dt>if(self.mOutput) {</dt>
+<dd>//Close and reset outputstream
+CFReadStreamSetProperty((__bridge CFReadStreamRef)(self.mOutput), kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanTrue);
+[self.mOutput setDelegate:nil];
+[self.mOutput close];
+[self.mOutput removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+self.mOutput = nil;</dd>
+</dl>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(BOOL) isOpen</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><dl class="first last docutils">
+<dt>if(sd &gt; 0)</dt>
+<dd>return TRUE;</dd>
+<dt>else</dt>
+<dd>return FALSE;</dd>
+</dl>
+</dd>
+</dl>
+<p>}</p>
+<p>&#64;end</p>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../../../_sources/src/examples/objc/thrift/transport/TSSLSocketClient.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, MIT Living Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.4</a>
+      
+      |
+      <a href="../../../../../_sources/src/examples/objc/thrift/transport/TSSLSocketClient.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

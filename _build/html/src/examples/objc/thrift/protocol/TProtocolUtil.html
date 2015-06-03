@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>&lt;no title&gt; &mdash; DH_Doc 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <link rel="top" title="DH_Doc 0.1 documentation" href="../../../../../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">DH_Doc 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <dl class="docutils">
+<dt>/*</dt>
+<dd><ul class="first simple">
+<li>Licensed to the Apache Software Foundation (ASF) under one</li>
+<li>or more contributor license agreements. See the NOTICE file</li>
+<li>distributed with this work for additional information</li>
+<li>regarding copyright ownership. The ASF licenses this file</li>
+<li>to you under the Apache License, Version 2.0 (the</li>
+<li>&#8220;License&#8221;); you may not use this file except in compliance</li>
+<li>with the License. You may obtain a copy of the License at</li>
+<li></li>
+<li><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></li>
+<li></li>
+<li>Unless required by applicable law or agreed to in writing,</li>
+<li>software distributed under the License is distributed on an</li>
+<li>&#8220;AS IS&#8221; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</li>
+<li>KIND, either express or implied. See the License for the</li>
+<li>specific language governing permissions and limitations</li>
+<li>under the License.</li>
+</ul>
+<p class="last"><a href="#id1"><span class="problematic" id="id2">*</span></a>/</p>
+</dd>
+</dl>
+<p>#import &#8220;TProtocolUtil.h&#8221;</p>
+<p>&#64;implementation TProtocolUtil</p>
+<ul class="simple">
+<li>(void) skipType: (int) type onProtocol: (id &lt;TProtocol&gt;) protocol</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">switch (type) {
+case TType_BOOL:</p>
+<blockquote>
+<div>[protocol readBool];
+break;</div></blockquote>
+<dl class="docutils">
+<dt>case TType_BYTE:</dt>
+<dd>[protocol readByte];
+break;</dd>
+<dt>case TType_I16:</dt>
+<dd>[protocol readI16];
+break;</dd>
+<dt>case TType_I32:</dt>
+<dd>[protocol readI32];
+break;</dd>
+<dt>case TType_I64:</dt>
+<dd>[protocol readI64];
+break;</dd>
+<dt>case TType_DOUBLE:</dt>
+<dd>[protocol readDouble];
+break;</dd>
+<dt>case TType_STRING:</dt>
+<dd>[protocol readString];
+break;</dd>
+<dt>case TType_STRUCT:</dt>
+<dd><p class="first">[protocol readStructBeginReturningName: NULL];
+while (true) {</p>
+<blockquote>
+<div><p>int fieldType;
+[protocol readFieldBeginReturningName: nil type: &amp;fieldType fieldID: nil];
+if (fieldType == TType_STOP) {</p>
+<blockquote>
+<div>break;</div></blockquote>
+<p>}
+[TProtocolUtil skipType: fieldType onProtocol: protocol];
+[protocol readFieldEnd];</p>
+</div></blockquote>
+<p class="last">}
+[protocol readStructEnd];
+break;</p>
+</dd>
+</dl>
+<p>case TType_MAP:
+{</p>
+<blockquote>
+<div><p>int keyType;
+int valueType;
+int size;
+[protocol readMapBeginReturningKeyType: &amp;keyType valueType: &amp;valueType size: &amp;size];
+int i;
+for (i = 0; i &lt; size; i++) {</p>
+<blockquote>
+<div>[TProtocolUtil skipType: keyType onProtocol: protocol];
+[TProtocolUtil skipType: valueType onProtocol: protocol];</div></blockquote>
+<p>}
+[protocol readMapEnd];</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>}</dt>
+<dd><p class="first">break;
+case TType_SET:
+{</p>
+<blockquote>
+<div><p>int elemType;
+int size;
+[protocol readSetBeginReturningElementType: &amp;elemType size: &amp;size];
+int i;
+for (i = 0; i &lt; size; i++) {</p>
+<blockquote>
+<div>[TProtocolUtil skipType: elemType onProtocol: protocol];</div></blockquote>
+<p>}
+[protocol readSetEnd];</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>}</dt>
+<dd>break;</dd>
+</dl>
+<p>case TType_LIST:
+{</p>
+<blockquote>
+<div><p>int elemType;
+int size;
+[protocol readListBeginReturningElementType: &amp;elemType size: &amp;size];
+int i;
+for (i = 0; i &lt; size; i++) {</p>
+<blockquote>
+<div>[TProtocolUtil skipType: elemType onProtocol: protocol];</div></blockquote>
+<p>}
+[protocol readListEnd];</p>
+</div></blockquote>
+<dl class="last docutils">
+<dt>}</dt>
+<dd>break;</dd>
+<dt>default:</dt>
+<dd>return;</dd>
+</dl>
+</dd>
+</dl>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+<p>&#64;end</p>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../../../_sources/src/examples/objc/thrift/protocol/TProtocolUtil.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, MIT Living Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.4</a>
+      
+      |
+      <a href="../../../../../_sources/src/examples/objc/thrift/protocol/TProtocolUtil.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

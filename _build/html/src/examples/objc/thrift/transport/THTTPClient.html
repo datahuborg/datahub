@@ -1,0 +1,302 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>&lt;no title&gt; &mdash; DH_Doc 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <link rel="top" title="DH_Doc 0.1 documentation" href="../../../../../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">DH_Doc 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <dl class="docutils">
+<dt>/*</dt>
+<dd><ul class="first simple">
+<li>Licensed to the Apache Software Foundation (ASF) under one</li>
+<li>or more contributor license agreements. See the NOTICE file</li>
+<li>distributed with this work for additional information</li>
+<li>regarding copyright ownership. The ASF licenses this file</li>
+<li>to you under the Apache License, Version 2.0 (the</li>
+<li>&#8220;License&#8221;); you may not use this file except in compliance</li>
+<li>with the License. You may obtain a copy of the License at</li>
+<li></li>
+<li><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></li>
+<li></li>
+<li>Unless required by applicable law or agreed to in writing,</li>
+<li>software distributed under the License is distributed on an</li>
+<li>&#8220;AS IS&#8221; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</li>
+<li>KIND, either express or implied. See the License for the</li>
+<li>specific language governing permissions and limitations</li>
+<li>under the License.</li>
+</ul>
+<p class="last"><a href="#id1"><span class="problematic" id="id2">*</span></a>/</p>
+</dd>
+</dl>
+<p>#import &#8220;THTTPClient.h&#8221;
+#import &#8220;TTransportException.h&#8221;
+#import &#8220;TObjective-C.h&#8221;</p>
+<p>&#64;implementation THTTPClient</p>
+<ul class="simple">
+<li>(void) setupRequest</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><dl class="first docutils">
+<dt>if (mRequest != nil) {</dt>
+<dd>[mRequest release_stub];</dd>
+</dl>
+<p>}</p>
+<p>// set up our request object that we&#8217;ll use for each request
+mRequest = [[NSMutableURLRequest alloc] initWithURL: mURL];
+[mRequest setHTTPMethod: &#64;&#8221;POST&#8221;];
+[mRequest setValue: &#64;&#8221;application/x-thrift&#8221; forHTTPHeaderField: &#64;&#8221;Content-Type&#8221;];
+[mRequest setValue: &#64;&#8221;application/x-thrift&#8221; forHTTPHeaderField: &#64;&#8221;Accept&#8221;];</p>
+<p>NSString * userAgent = mUserAgent;
+if (!userAgent) {</p>
+<blockquote>
+<div>userAgent = &#64;&#8221;Cocoa/THTTPClient&#8221;;</div></blockquote>
+<p>}
+[mRequest setValue: userAgent forHTTPHeaderField: &#64;&#8221;User-Agent&#8221;];</p>
+<p>[mRequest setCachePolicy: NSURLRequestReloadIgnoringCacheData];
+if (mTimeout) {</p>
+<blockquote>
+<div>[mRequest setTimeoutInterval: mTimeout];</div></blockquote>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(id) initWithURL: (NSURL <a href="#id3"><span class="problematic" id="id4">*</span></a>) aURL</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><dl class="first last docutils">
+<dt>return [self initWithURL: aURL</dt>
+<dd><dl class="first last docutils">
+<dt>userAgent: nil</dt>
+<dd>timeout: 0];</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>}</p>
+<ul>
+<li><dl class="first docutils">
+<dt>(id) initWithURL: (NSURL <a href="#id5"><span class="problematic" id="id6">*</span></a>) aURL</dt>
+<dd><dl class="first last docutils">
+<dt>userAgent: (NSString <a href="#id7"><span class="problematic" id="id8">*</span></a>) userAgent</dt>
+<dd><p class="first last">timeout: (int) timeout</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">self = [super init];
+if (!self) {</p>
+<blockquote>
+<div>return nil;</div></blockquote>
+<p>}</p>
+<p>mTimeout = timeout;
+if (userAgent) {</p>
+<blockquote>
+<div>mUserAgent = [userAgent retain_stub];</div></blockquote>
+<p>}
+mURL = [aURL retain_stub];</p>
+<p>[self setupRequest];</p>
+<p>// create our request data buffer
+mRequestData = [[NSMutableData alloc] initWithCapacity: 1024];</p>
+<p class="last">return self;</p>
+</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) setURL: (NSURL <a href="#id9"><span class="problematic" id="id10">*</span></a>) aURL</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">[aURL retain_stub];
+[mURL release_stub];
+mURL = aURL;</p>
+<p class="last">[self setupRequest];</p>
+</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) dealloc</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>[mURL release_stub];
+[mUserAgent release_stub];
+[mRequest release_stub];
+[mRequestData release_stub];
+[mResponseData release_stub];
+[super dealloc_stub];</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(int) readAll: (uint8_t <a href="#id11"><span class="problematic" id="id12">*</span></a>) buf offset: (int) off length: (int) len</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">NSRange r;
+r.location = mResponseDataOffset;
+r.length = len;</p>
+<p>[mResponseData getBytes: buf+off range: r];
+mResponseDataOffset += len;</p>
+<p class="last">return len;</p>
+</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) write: (const uint8_t <a href="#id13"><span class="problematic" id="id14">*</span></a>) data offset: (unsigned int) offset length: (unsigned int) length</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>[mRequestData appendBytes: data+offset length: length];</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) flush</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">[mRequest setHTTPBody: mRequestData]; // not sure if it copies the data</p>
+<p>// make the HTTP request
+NSURLResponse * response;
+NSError * error;
+NSData * responseData =</p>
+<blockquote>
+<div>[NSURLConnection sendSynchronousRequest: mRequest returningResponse: &amp;response error: &amp;error];</div></blockquote>
+<p>[mRequestData setLength: 0];</p>
+<dl class="docutils">
+<dt>if (responseData == nil) {</dt>
+<dd><dl class="first last docutils">
+<dt>&#64;throw [TTransportException exceptionWithName: &#64;&#8221;TTransportException&#8221;</dt>
+<dd>reason: &#64;&#8221;Could not make HTTP request&#8221;
+error: error];</dd>
+</dl>
+</dd>
+</dl>
+<p>}
+if (![response isKindOfClass: [NSHTTPURLResponse class]]) {</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>&#64;throw [TTransportException exceptionWithName: &#64;&#8221;TTransportException&#8221;</dt>
+<dd><dl class="first last docutils">
+<dt>reason: [NSString stringWithFormat: &#64;&#8221;Unexpected NSURLResponse type: %&#64;&#8221;,</dt>
+<dd>NSStringFromClass([response class])]];</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<p>}</p>
+<p>NSHTTPURLResponse * httpResponse = (NSHTTPURLResponse <a href="#id15"><span class="problematic" id="id16">*</span></a>) response;
+if ([httpResponse statusCode] != 200) {</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>&#64;throw [TTransportException exceptionWithName: &#64;&#8221;TTransportException&#8221;</dt>
+<dd><dl class="first last docutils">
+<dt>reason: [NSString stringWithFormat: &#64;&#8221;Bad response from HTTP server: %d&#8221;,</dt>
+<dd>[httpResponse statusCode]]];</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<p>}</p>
+<p class="last">// phew!
+[mResponseData release_stub];
+mResponseData = [responseData retain_stub];
+mResponseDataOffset = 0;</p>
+</dd>
+</dl>
+<p>}</p>
+<p>&#64;end</p>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../../../_sources/src/examples/objc/thrift/transport/THTTPClient.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, MIT Living Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.4</a>
+      
+      |
+      <a href="../../../../../_sources/src/examples/objc/thrift/transport/THTTPClient.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>
