@@ -110,5 +110,3 @@ Connections made using a username and password are unable to create or delete ac
    :param str password: password
    :return: a connection parameters object
    :rtype: Thrift Connection
-
-https://github.com/abhardwaj/datahub/tree/sphinx_docs
