@@ -7,12 +7,15 @@
 * `cd java`
 * `source setup.sh`
 * `java SampleClient`
+* `java SampleAccount` (Non-functioning as of 2015-03-29ls
+ due to thrift issues.)
 
 ### Python Sample Code
 * `cd python`
 * `source setup.sh`
 * `mv gen-py gen_py`
 * `python SampleClient.py`
+* `python SampleAccount.py` (Non-functioning as of 2015-03-29 due to thrift issues.)
 
 ### Go Sample Code
 * `cd go`
@@ -29,4 +32,4 @@
 * run
 * When integrating thrift, in Build Settings:
  * Always Search User Path: `YES`
- * Framework Search Paths: add `$(SRCROOT)` and `$(inherited)`
+ * Framework Search Paths: add `$(SRCROOT)`
