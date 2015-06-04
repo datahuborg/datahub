@@ -11,14 +11,14 @@ export PGUSER=postgres
 # create database container
 docker run --name db -e POSTGRES_PASSWORD=$PGPASSWORD -e POSTGRES_USER=$PGUSER -d postgres
 export DBIP=`docker inspect -f '{{ .NetworkSettings.IPAddress }}' db`
-createdb -h $DBIP -p 5432 -U postgres datahub
 
 # create datahub container
 docker run --name datahub -d -v /vagrant:/datahub --link db:db -p 80:80 ubuntu /bin/bash -C "/datahub/provisions/datahub.sh"
 
 export DATAHUBIP=`docker inspect -f '{{ .NetworkSettings.IPAddress }}' datahub`
 
-echo $DATAHUBIP
+echo "Database IP: $DBIP"
+echo "Datahub  IP: $DATAHUBIP"
 
 # echo "map \$http_host \$container {
 #   default \"$DATAHUBIP:80\";
