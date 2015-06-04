@@ -9,7 +9,7 @@ export PGUSER=postgres
 
 
 # create database container
-docker run --name db -e POSTGRES_PASSWORD=$PGPASSWORD -e POSTGRES_USER=$PGUSER -d postgres
+docker run --name db -e POSTGRES_PASSWORD=$PGPASSWORD -e POSTGRES_USER=$PGUSER -p 5432:5432 -d postgres
 export DBIP=`docker inspect -f '{{ .NetworkSettings.IPAddress }}' db`
 
 # create datahub container
@@ -17,52 +17,26 @@ docker run --name datahub -d -v /vagrant:/datahub --link db:db -p 80:80 ubuntu /
 
 export DATAHUBIP=`docker inspect -f '{{ .NetworkSettings.IPAddress }}' datahub`
 
+
+echo "
+#!/bin/bash
+
+docker stop datahub
+docker stop db
+" > /etc/rc6.d/K99_stop_docker
+
+chmod +x /etc/rc6.d/K99_stop_docker
+
+echo "
+#!/bin/bash
+
+docker start db
+docker start datahub
+" > /etc/init.d/start_dockers
+
+chmod +x /etc/init.d/start_dockers
+
+ln -s /etc/init.d/start_dockers /etc/rc2.d/S99start_dockers
+
 echo "Database IP: $DBIP"
 echo "Datahub  IP: $DATAHUBIP"
-
-# echo "map \$http_host \$container {
-#   default \"$DATAHUBIP:80\";
-# }
-# server {
-#   listen 80;
-#   location / {
-#     proxy_pass  http://\$container;
-#     proxy_http_version  1.1;
-#     proxy_set_header  Connection        \"\";
-#     proxy_set_header  Host              \$host;
-#     proxy_set_header  X-Real-IP         \$remote_addr;
-#     proxy_set_header  X-Forwarded-For   \$proxy_add_x_forwarded_for;
-#   }
-# }
-# " > /etc/nginx/sites-enabled/default
-
-
-# in the container
-# apt-get -y install postgresql \
-#                    postgresql-contrib \
-#                    postgresql-server-dev-all \
-#                    python-dev python-pip \
-#                    thrift-compiler
-#
-# service postgresql start
-#
-# sudo -u postgres createdb datahub
-# sudo -u postgres psql -U postgres -d postgres -c "alter user postgres with password 'postgres';"
-#
-#
-# mkdir /user_data
-#
-# cd /vagrant
-# pip install virtualenv
-#
-# virtualenv venv
-# pip install -r requirements.txt
-#
-# source src/setup.sh
-# python src/manage.py syncdb
-# python src/manage.py migrate inventory
-#
-#
-# wget -qO- https://get.docker.com/ | sh
-#
-# b9b0daa57b2c
