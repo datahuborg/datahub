@@ -29,22 +29,22 @@ try:
   # execute a query
   res  = client.execute_sql(
       con=con,
-      query='create table if not exists btdemo.teams (names text)',
+      query='create table if not exists pawademo.teams (names text)',
       query_params=None)
 
   res  = client.execute_sql(
       con=con,
-      query="insert into btdemo.teams  values('Telecommunication')",
+      query="insert into pawademo.teams  values('Telecommunication')",
       query_params=None)
 
   res  = client.execute_sql(
       con=con,
-      query="insert into btdemo.teams  values('Analytics')",
+      query="insert into pawademo.teams  values('Analytics')",
       query_params=None)
 
   res  = client.execute_sql(
       con=con,
-      query='select * from anantb.btdemo.teams',
+      query='select * from anantb.pawademo.teams',
       query_params=None)
 
   # print field names
