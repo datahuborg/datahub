@@ -25,13 +25,13 @@ public class SampleAccount {
       // https://datahub.csail.mit.edu/permissions/apps/allow_access/APP_ID/REPO_NAME
       // see the /developer/apps page to register an application.
 
-      String username = "foo_bar";
-      String password = "foo_bar";
-      String email = "albert.r.carter.foo_bar@gmail.com";
-      String repo = "demo";       // the repository that your app operates on
-      String table = "table"; // the table we will create
-      String app_id = "test_id";             // your app's unique id
-      String app_token = "e7633b8e-be1a-4bfa-9d02-b0611edfdfb3";       // your app's unique token
+      String username = "USERNAME";
+      String password = "PASSWORD";
+      String email = "EMAIL";
+      String repo = "REPO";       // the repository that your app operates on
+      String table = "TABLE"; // the table we will create
+      String app_id = "APP_ID";             // your app's unique id
+      String app_token = "app_token";       // your app's unique token
           
 
       // Before running you will need to populate the above variables
@@ -40,13 +40,16 @@ public class SampleAccount {
       // http setup
       TTransport transport = new THttpClient("http://datahub.csail.mit.edu/service");
       TProtocol protocol = new  TBinaryProtocol(transport);
-      AccountService.Client client = new AccountService.Client(protocol);
+      DataHub.Client client = new DataHub.Client(protocol);;
       System.out.println("Version: " + client.get_version());
 
       ConnectionParams con_params = new ConnectionParams();
-      con_params.setUser(username);
+      // con_params.setUser(username);
+      con_params.setRepo_base(username);
       con_params.setApp_id(app_id);
       con_params.setApp_token(app_token);
+      // AccountService.Client client = new AccountService(con_params);
+
       Connection con = client.open_connection(con_params);
 
 

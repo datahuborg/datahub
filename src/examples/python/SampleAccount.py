@@ -69,4 +69,4 @@ try:
 
 except Exception, e:
   print 'Something went wrong : %s' % (e)
-  print '\n Please make sure that you authorized the app at https://datahub.csail.mit.edu/permissions/apps/allow_access/' + APP_ID + '/' + REPO_NAME
+  print '\n Please make sure that you authorized the app at https://datahub.csail.mit.edu/permissions/apps/allow_access/' + app_id + '/' + repo_name

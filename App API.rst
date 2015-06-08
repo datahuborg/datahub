@@ -46,9 +46,11 @@ Java Sample Code
 
 -  ``cd src/examples/java``
 -  ``source setup.sh``
+-  ``cd src``
 -  ``# add credentials to SampleClient.java and SampleAccount.java``
--  ``java SampleClient.java``
--  ``java SampleAccount.java``
+-  ``cd ..``
+-  ``java SampleClient``
+-  ``java SampleAccount``
 
 ------------------
 Python Sample Code
