@@ -10,8 +10,8 @@ import datahub.account.AccountService;
 /** 
  * Sample Java Client for DataHub
  * 
- * @author anantb
- * @date 11/07/2013
+ * @author al carter
+ * @date 06/08/2015
  * 
  */
 
@@ -21,15 +21,17 @@ public class SampleAccount {
       // This will initially thrown an exception since
       // You will need to register an application and assign
       // the variables below.
+      // then, log in as the user, and visit this url to authorize the app:
+      // https://datahub.csail.mit.edu/permissions/apps/allow_access/APP_ID/REPO_NAME
       // see the /developer/apps page to register an application.
 
-      String username = "dvoiewrtlkjsd";
-      String password = "dvoiewrtlkjsd";
-      String email = "dvoiewrtlkjsd@sharklasers.com";
-      String repo = "repo";       // the repository that your app operates on
-      String table = "table"; // the table we will create
-      String app_id = "csail_livinglab_getfit_app_id";             // your app's unique id
-      String app_token = "67ca5c9d-1f0b-4ecd-81cd-941d2c8b8d6a";       // your app's unique token
+      String username = "USERNAME";
+      String password = "PASSWORD";
+      String email = "EMAIL";
+      String repo = "REPO";       // the repository that your app operates on
+      String table = "TABLE"; // the table we will create
+      String app_id = "APP_ID";             // your app's unique id
+      String app_token = "app_token";       // your app's unique token
           
 
       // Before running you will need to populate the above variables
@@ -38,18 +40,37 @@ public class SampleAccount {
       // http setup
       TTransport transport = new THttpClient("http://datahub.csail.mit.edu/service");
       TProtocol protocol = new  TBinaryProtocol(transport);
-      AccountService.Client client = new AccountService.Client(protocol);
+      DataHub.Client client = new DataHub.Client(protocol);;
       System.out.println("Version: " + client.get_version());
-      
-      System.out.println("\n\nTrying to create and delete an account...");
-      boolean created = client.create_account("bunnicula_dkno", table , password, repo, app_id, app_token);
-      boolean deleted = client.remove_account("bunnicula_dkno", app_id, app_token);
-      
-      System.out.println("Account Created: ");
-      System.out.println(created);
-      
-      System.out.println("Account Delete: ");
-      System.out.println(deleted);
+
+      ConnectionParams con_params = new ConnectionParams();
+      // con_params.setUser(username);
+      con_params.setRepo_base(username);
+      con_params.setApp_id(app_id);
+      con_params.setApp_token(app_token);
+      // AccountService.Client client = new AccountService(con_params);
+
+      Connection con = client.open_connection(con_params);
+
+
+      System.out.println("\n\nTrying to query a user's table...");
+      String query = "select * from " + username + "." + repo + "." + table;
+      ResultSet res = client.execute_sql(con, query, null);
+
+      // print field names
+      for (String field_name : res.getField_names()) {
+        System.out.print(field_name + "\t");
+      }
+
+      System.out.println();
+
+      // print tuples
+      for (Tuple t : res.getTuples()) {
+        for (ByteBuffer cell : t.getCells()) {
+          System.out.print(new String(cell.array()) + "\t");
+        }
+        System.out.println();
+      }
  
     } catch(Exception e) {
       e.printStackTrace();

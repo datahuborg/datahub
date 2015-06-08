@@ -1,0 +1,776 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>&lt;no title&gt; &mdash; DH_Doc 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <link rel="top" title="DH_Doc 0.1 documentation" href="../../../../../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">DH_Doc 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <dl class="docutils">
+<dt>/*</dt>
+<dd><ul class="first simple">
+<li>Licensed to the Apache Software Foundation (ASF) under one</li>
+<li>or more contributor license agreements. See the NOTICE file</li>
+<li>distributed with this work for additional information</li>
+<li>regarding copyright ownership. The ASF licenses this file</li>
+<li>to you under the Apache License, Version 2.0 (the</li>
+<li>&#8220;License&#8221;); you may not use this file except in compliance</li>
+<li>with the License. You may obtain a copy of the License at</li>
+<li></li>
+<li><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></li>
+<li></li>
+<li>Unless required by applicable law or agreed to in writing,</li>
+<li>software distributed under the License is distributed on an</li>
+<li>&#8220;AS IS&#8221; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</li>
+<li>KIND, either express or implied. See the License for the</li>
+<li>specific language governing permissions and limitations</li>
+<li>under the License.</li>
+</ul>
+<p class="last"><a href="#id1"><span class="problematic" id="id2">*</span></a>/</p>
+</dd>
+</dl>
+<p>#import &#8220;TBinaryProtocol.h&#8221;
+#import &#8220;TProtocolException.h&#8221;
+#import &#8220;TObjective-C.h&#8221;</p>
+<p>int32_t VERSION_1 = 0x80010000;
+int32_t VERSION_MASK = 0xffff0000;</p>
+<p>static TBinaryProtocolFactory * gSharedFactory = nil;</p>
+<p>&#64;implementation TBinaryProtocolFactory</p>
+<ul>
+<li><p class="first">(TBinaryProtocolFactory <a href="#id3"><span class="problematic" id="id4">*</span></a>) sharedFactory {
+if (gSharedFactory == nil) {</p>
+<blockquote>
+<div><p>gSharedFactory = [[TBinaryProtocolFactory alloc] init];</p>
+</div></blockquote>
+<p>}</p>
+<p>return gSharedFactory;</p>
+</li>
+</ul>
+<p>}</p>
+<ul class="simple">
+<li>(TBinaryProtocol <a href="#id5"><span class="problematic" id="id6">*</span></a>) newProtocolOnTransport: (id &lt;TTransport&gt;) transport {
+return [[TBinaryProtocol alloc] initWithTransport: transport];</li>
+</ul>
+<p>}</p>
+<p>&#64;end</p>
+<p>&#64;implementation TBinaryProtocol</p>
+<ul class="simple">
+<li>(id) initWithTransport: (id &lt;TTransport&gt;) transport</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>return [self initWithTransport: transport strictRead: NO strictWrite: YES];</dd>
+</dl>
+<p>}</p>
+<ul>
+<li><dl class="first docutils">
+<dt>(id) initWithTransport: (id &lt;TTransport&gt;) transport</dt>
+<dd><blockquote class="first">
+<div><p>strictRead: (BOOL) strictRead</p>
+</div></blockquote>
+<p class="last">strictWrite: (BOOL) strictWrite</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>self = [super init];
+mTransport = [transport retain_stub];
+mStrictRead = strictRead;
+mStrictWrite = strictWrite;
+return self;</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(int32_t) messageSizeLimit</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>return mMessageSizeLimit;</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) setMessageSizeLimit: (int32_t) sizeLimit</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>mMessageSizeLimit = sizeLimit;</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) dealloc</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>[mTransport release_stub];
+[super dealloc_stub];</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(id &lt;TTransport&gt;) transport</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>return mTransport;</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(NSString <a href="#id7"><span class="problematic" id="id8">*</span></a>) readStringBody: (int) size</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">char * buffer = malloc(size+1);
+if (!buffer) {</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>&#64;throw [TProtocolException exceptionWithName: &#64;&#8221;TProtocolException&#8221;</dt>
+<dd><dl class="first last docutils">
+<dt>reason: [NSString stringWithFormat: &#64;&#8221;Unable to allocate memory in %s, size: %i&#8221;,</dt>
+<dd>__PRETTY_FUNCTION__,
+size]];;</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<p class="last">}
+[mTransport readAll: (uint8_t <a href="#id9"><span class="problematic" id="id10">*</span></a>) buffer offset: 0 length: size];
+buffer[size] = 0;
+NSString * result = [NSString stringWithUTF8String: buffer];
+free(buffer);
+return result;</p>
+</dd>
+</dl>
+<p>}</p>
+<ul>
+<li><dl class="first docutils">
+<dt>(void) readMessageBeginReturningName: (NSString <a href="#id11"><span class="problematic" id="id12">**</span></a>) name</dt>
+<dd><blockquote class="first">
+<div><p>type: (int <a href="#id13"><span class="problematic" id="id14">*</span></a>) type</p>
+</div></blockquote>
+<p class="last">sequenceID: (int <a href="#id15"><span class="problematic" id="id16">*</span></a>) sequenceID</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">int32_t size = [self readI32];
+if (size &lt; 0) {</p>
+<blockquote>
+<div><p>int version = size &amp; VERSION_MASK;
+if (version != VERSION_1) {</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>&#64;throw [TProtocolException exceptionWithName: &#64;&#8221;TProtocolException&#8221;</dt>
+<dd>reason: &#64;&#8221;Bad version in readMessageBegin&#8221;];</dd>
+</dl>
+</div></blockquote>
+<p>}
+if (type != NULL) {</p>
+<blockquote>
+<div><a href="#id17"><span class="problematic" id="id18">*</span></a>type = size &amp; 0x00FF;</div></blockquote>
+<p>}
+NSString * messageName = [self readString];
+if (name != NULL) {</p>
+<blockquote>
+<div><a href="#id19"><span class="problematic" id="id20">*</span></a>name = messageName;</div></blockquote>
+<p>}
+int seqID = [self readI32];
+if (sequenceID != NULL) {</p>
+<blockquote>
+<div><a href="#id21"><span class="problematic" id="id22">*</span></a>sequenceID = seqID;</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>} else {</dt>
+<dd><dl class="first docutils">
+<dt>if (mStrictRead) {</dt>
+<dd><dl class="first last docutils">
+<dt>&#64;throw [TProtocolException exceptionWithName: &#64;&#8221;TProtocolException&#8221;</dt>
+<dd>reason: &#64;&#8221;Missing version in readMessageBegin, old client?&#8221;];</dd>
+</dl>
+</dd>
+</dl>
+<p>}
+if ([self messageSizeLimit] &gt; 0 &amp;&amp; size &gt; [self messageSizeLimit]) {</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>&#64;throw [TProtocolException exceptionWithName: &#64;&#8221;TProtocolException&#8221;</dt>
+<dd><dl class="first last docutils">
+<dt>reason: [NSString stringWithFormat: &#64;&#8221;Message too big.  Size limit is: %d Message size is: %d&#8221;,</dt>
+<dd>mMessageSizeLimit,
+size]];</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<p>}
+NSString * messageName = [self readStringBody: size];
+if (name != NULL) {</p>
+<blockquote>
+<div><a href="#id23"><span class="problematic" id="id24">*</span></a>name = messageName;</div></blockquote>
+<p>}
+int messageType = [self readByte];
+if (type != NULL) {</p>
+<blockquote>
+<div><a href="#id25"><span class="problematic" id="id26">*</span></a>type = messageType;</div></blockquote>
+<p>}
+int seqID = [self readI32];
+if (sequenceID != NULL) {</p>
+<blockquote>
+<div><a href="#id27"><span class="problematic" id="id28">*</span></a>sequenceID = seqID;</div></blockquote>
+<p class="last">}</p>
+</dd>
+</dl>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) readMessageEnd {}</li>
+<li>(void) readStructBeginReturningName: (NSString <a href="#id29"><span class="problematic" id="id30">**</span></a>) name</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><dl class="first docutils">
+<dt>if (name != NULL) {</dt>
+<dd><a href="#id31"><span class="problematic" id="id32">*</span></a>name = nil;</dd>
+</dl>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+<ul>
+<li><p class="first">(void) readStructEnd {}</p>
+</li>
+<li><dl class="first docutils">
+<dt>(void) readFieldBeginReturningName: (NSString <a href="#id33"><span class="problematic" id="id34">**</span></a>) name</dt>
+<dd><blockquote class="first">
+<div><p>type: (int <a href="#id35"><span class="problematic" id="id36">*</span></a>) fieldType</p>
+</div></blockquote>
+<p class="last">fieldID: (int <a href="#id37"><span class="problematic" id="id38">*</span></a>) fieldID</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><dl class="first docutils">
+<dt>if (name != NULL) {</dt>
+<dd><a href="#id39"><span class="problematic" id="id40">*</span></a>name = nil;</dd>
+</dl>
+<p>}
+int ft = [self readByte];
+if (fieldType != NULL) {</p>
+<blockquote>
+<div><a href="#id41"><span class="problematic" id="id42">*</span></a>fieldType = ft;</div></blockquote>
+<p>}
+if (ft != TType_STOP) {</p>
+<blockquote>
+<div><p>int fid = [self readI16];
+if (fieldID != NULL) {</p>
+<blockquote>
+<div><a href="#id43"><span class="problematic" id="id44">*</span></a>fieldID = fid;</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) readFieldEnd {}</li>
+<li>(int32_t) readI32</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">uint8_t i32rd[4];
+[mTransport readAll: i32rd offset: 0 length: 4];
+return</p>
+<blockquote class="last">
+<div>((i32rd[0] &amp; 0xff) &lt;&lt; 24) |
+((i32rd[1] &amp; 0xff) &lt;&lt; 16) |
+((i32rd[2] &amp; 0xff) &lt;&lt;  8) |
+((i32rd[3] &amp; 0xff));</div></blockquote>
+</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(NSString <a href="#id45"><span class="problematic" id="id46">*</span></a>) readString</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>int size = [self readI32];
+return [self readStringBody: size];</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(BOOL) readBool</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>return [self readByte] == 1;</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(uint8_t) readByte</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>uint8_t myByte;
+[mTransport readAll: &amp;myByte offset: 0 length: 1];
+return myByte;</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(short) readI16</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">uint8_t buff[2];
+[mTransport readAll: buff offset: 0 length: 2];
+return (short)</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>(((buff[0] &amp; 0xff) &lt;&lt; 8) |</dt>
+<dd>((buff[1] &amp; 0xff)));</dd>
+</dl>
+</div></blockquote>
+<p class="last">return 0;</p>
+</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(int64_t) readI64;</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">uint8_t i64rd[8];
+[mTransport readAll: i64rd offset: 0 length: 8];
+return</p>
+<blockquote class="last">
+<div>((int64_t)(i64rd[0] &amp; 0xff) &lt;&lt; 56) |
+((int64_t)(i64rd[1] &amp; 0xff) &lt;&lt; 48) |
+((int64_t)(i64rd[2] &amp; 0xff) &lt;&lt; 40) |
+((int64_t)(i64rd[3] &amp; 0xff) &lt;&lt; 32) |
+((int64_t)(i64rd[4] &amp; 0xff) &lt;&lt; 24) |
+((int64_t)(i64rd[5] &amp; 0xff) &lt;&lt; 16) |
+((int64_t)(i64rd[6] &amp; 0xff) &lt;&lt;  8) |
+((int64_t)(i64rd[7] &amp; 0xff));</div></blockquote>
+</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(double) readDouble;</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>// FIXME - will this get us into trouble on PowerPC?
+int64_t ieee754 = [self readI64];
+return <a href="#id47"><span class="problematic" id="id48">*</span></a>((double <a href="#id49"><span class="problematic" id="id50">*</span></a>) &amp;ieee754);</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(NSData <a href="#id51"><span class="problematic" id="id52">*</span></a>) readBinary</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">int32_t size = [self readI32];
+uint8_t * buff = malloc(size);
+if (buff == NULL) {</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>&#64;throw [TProtocolException</dt>
+<dd><p class="first">exceptionWithName: &#64;&#8221;TProtocolException&#8221;
+reason: [NSString stringWithFormat: &#64;&#8221;Out of memory.  Unable to allocate %d bytes trying to read binary data.&#8221;,</p>
+<blockquote class="last">
+<div>size]];</div></blockquote>
+</dd>
+</dl>
+</div></blockquote>
+<p class="last">}
+[mTransport readAll: buff offset: 0 length: size];
+return [NSData dataWithBytesNoCopy: buff length: size];</p>
+</dd>
+</dl>
+<p>}</p>
+<ul>
+<li><dl class="first docutils">
+<dt>(void) readMapBeginReturningKeyType: (int <a href="#id53"><span class="problematic" id="id54">*</span></a>) keyType</dt>
+<dd><dl class="first last docutils">
+<dt>valueType: (int <a href="#id55"><span class="problematic" id="id56">*</span></a>) valueType</dt>
+<dd><p class="first last">size: (int <a href="#id57"><span class="problematic" id="id58">*</span></a>) size</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">int kt = [self readByte];
+int vt = [self readByte];
+int s = [self readI32];
+if (keyType != NULL) {</p>
+<blockquote>
+<div><a href="#id59"><span class="problematic" id="id60">*</span></a>keyType = kt;</div></blockquote>
+<p>}
+if (valueType != NULL) {</p>
+<blockquote>
+<div><a href="#id61"><span class="problematic" id="id62">*</span></a>valueType = vt;</div></blockquote>
+<p>}
+if (size != NULL) {</p>
+<blockquote>
+<div><a href="#id63"><span class="problematic" id="id64">*</span></a>size = s;</div></blockquote>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+<ul>
+<li><p class="first">(void) readMapEnd {}</p>
+</li>
+<li><dl class="first docutils">
+<dt>(void) readSetBeginReturningElementType: (int <a href="#id65"><span class="problematic" id="id66">*</span></a>) elementType</dt>
+<dd><p class="first last">size: (int <a href="#id67"><span class="problematic" id="id68">*</span></a>) size</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">int et = [self readByte];
+int s = [self readI32];
+if (elementType != NULL) {</p>
+<blockquote>
+<div><a href="#id69"><span class="problematic" id="id70">*</span></a>elementType = et;</div></blockquote>
+<p>}
+if (size != NULL) {</p>
+<blockquote>
+<div><a href="#id71"><span class="problematic" id="id72">*</span></a>size = s;</div></blockquote>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+<ul>
+<li><p class="first">(void) readSetEnd {}</p>
+</li>
+<li><dl class="first docutils">
+<dt>(void) readListBeginReturningElementType: (int <a href="#id73"><span class="problematic" id="id74">*</span></a>) elementType</dt>
+<dd><p class="first last">size: (int <a href="#id75"><span class="problematic" id="id76">*</span></a>) size</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">int et = [self readByte];
+int s = [self readI32];
+if (elementType != NULL) {</p>
+<blockquote>
+<div><a href="#id77"><span class="problematic" id="id78">*</span></a>elementType = et;</div></blockquote>
+<p>}
+if (size != NULL) {</p>
+<blockquote>
+<div><a href="#id79"><span class="problematic" id="id80">*</span></a>size = s;</div></blockquote>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) readListEnd {}</li>
+<li>(void) writeByte: (uint8_t) value</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>[mTransport write: &amp;value offset: 0 length: 1];</dd>
+</dl>
+<p>}</p>
+<ul>
+<li><dl class="first docutils">
+<dt>(void) writeMessageBeginWithName: (NSString <a href="#id81"><span class="problematic" id="id82">*</span></a>) name</dt>
+<dd><blockquote class="first">
+<div><p>type: (int) messageType</p>
+</div></blockquote>
+<p class="last">sequenceID: (int) sequenceID</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><dl class="first docutils">
+<dt>if (mStrictWrite) {</dt>
+<dd>int version = VERSION_1 | messageType;
+[self writeI32: version];
+[self writeString: name];
+[self writeI32: sequenceID];</dd>
+<dt>} else {</dt>
+<dd>[self writeString: name];
+[self writeByte: messageType];
+[self writeI32: sequenceID];</dd>
+</dl>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+<ul>
+<li><p class="first">(void) writeMessageEnd {}</p>
+</li>
+<li><p class="first">(void) writeStructBeginWithName: (NSString <a href="#id83"><span class="problematic" id="id84">*</span></a>) name {}</p>
+</li>
+<li><p class="first">(void) writeStructEnd {}</p>
+</li>
+<li><dl class="first docutils">
+<dt>(void) writeFieldBeginWithName: (NSString <a href="#id85"><span class="problematic" id="id86">*</span></a>) name</dt>
+<dd><blockquote class="first">
+<div><p>type: (int) fieldType</p>
+</div></blockquote>
+<p class="last">fieldID: (int) fieldID</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>[self writeByte: fieldType];
+[self writeI16: fieldID];</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) writeI32: (int32_t) value</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>uint8_t buff[4];
+buff[0] = 0xFF &amp; (value &gt;&gt; 24);
+buff[1] = 0xFF &amp; (value &gt;&gt; 16);
+buff[2] = 0xFF &amp; (value &gt;&gt; 8);
+buff[3] = 0xFF &amp; value;
+[mTransport write: buff offset: 0 length: 4];</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) writeI16: (short) value</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>uint8_t buff[2];
+buff[0] = 0xff &amp; (value &gt;&gt; 8);
+buff[1] = 0xff &amp; value;
+[mTransport write: buff offset: 0 length: 2];</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) writeI64: (int64_t) value</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>uint8_t buff[8];
+buff[0] = 0xFF &amp; (value &gt;&gt; 56);
+buff[1] = 0xFF &amp; (value &gt;&gt; 48);
+buff[2] = 0xFF &amp; (value &gt;&gt; 40);
+buff[3] = 0xFF &amp; (value &gt;&gt; 32);
+buff[4] = 0xFF &amp; (value &gt;&gt; 24);
+buff[5] = 0xFF &amp; (value &gt;&gt; 16);
+buff[6] = 0xFF &amp; (value &gt;&gt; 8);
+buff[7] = 0xFF &amp; value;
+[mTransport write: buff offset: 0 length: 8];</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) writeDouble: (double) value</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>// spit out IEEE 754 bits - FIXME - will this get us in trouble on
+// PowerPC?
+[self writeI64: <a href="#id87"><span class="problematic" id="id88">*</span></a>((int64_t <a href="#id89"><span class="problematic" id="id90">*</span></a>) &amp;value)];</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) writeString: (NSString <a href="#id91"><span class="problematic" id="id92">*</span></a>) value</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd><dl class="first docutils">
+<dt>if (value != nil) {</dt>
+<dd>const char * utf8Bytes = [value UTF8String];
+size_t length = strlen(utf8Bytes);
+[self writeI32: length];
+[mTransport write: (uint8_t <a href="#id93"><span class="problematic" id="id94">*</span></a>) utf8Bytes offset: 0 length: length];</dd>
+<dt>} else {</dt>
+<dd>// instead of crashing when we get null, let&#8217;s write out a zero
+// length string
+[self writeI32: 0];</dd>
+</dl>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) writeBinary: (NSData <a href="#id95"><span class="problematic" id="id96">*</span></a>) data</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>[self writeI32: [data length]];
+[mTransport write: [data bytes] offset: 0 length: [data length]];</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) writeFieldStop</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>[self writeByte: TType_STOP];</dd>
+</dl>
+<p>}</p>
+<ul>
+<li><p class="first">(void) writeFieldEnd {}</p>
+</li>
+<li><dl class="first docutils">
+<dt>(void) writeMapBeginWithKeyType: (int) keyType</dt>
+<dd><dl class="first last docutils">
+<dt>valueType: (int) valueType</dt>
+<dd><p class="first last">size: (int) size</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>[self writeByte: keyType];
+[self writeByte: valueType];
+[self writeI32: size];</dd>
+</dl>
+<p>}</p>
+<ul>
+<li><p class="first">(void) writeMapEnd {}</p>
+</li>
+<li><dl class="first docutils">
+<dt>(void) writeSetBeginWithElementType: (int) elementType</dt>
+<dd><p class="first last">size: (int) size</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>[self writeByte: elementType];
+[self writeI32: size];</dd>
+</dl>
+<p>}</p>
+<ul>
+<li><p class="first">(void) writeSetEnd {}</p>
+</li>
+<li><dl class="first docutils">
+<dt>(void) writeListBeginWithElementType: (int) elementType</dt>
+<dd><p class="first last">size: (int) size</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>[self writeByte: elementType];
+[self writeI32: size];</dd>
+</dl>
+<p>}</p>
+<ul class="simple">
+<li>(void) writeListEnd {}</li>
+<li>(void) writeBool: (BOOL) value</li>
+</ul>
+<dl class="docutils">
+<dt>{</dt>
+<dd>[self writeByte: (value ? 1 : 0)];</dd>
+</dl>
+<p>}</p>
+<p>&#64;end</p>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../../../_sources/src/examples/objc/thrift/protocol/TBinaryProtocol.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, MIT Living Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.4</a>
+      
+      |
+      <a href="../../../../../_sources/src/examples/objc/thrift/protocol/TBinaryProtocol.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>
