@@ -10,8 +10,8 @@ import datahub.account.AccountService;
 /** 
  * Sample Java Client for DataHub
  * 
- * @author anantb
- * @date 11/07/2013
+ * @author al carter
+ * @date 06/08/2015
  * 
  */
 

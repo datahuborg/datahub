@@ -24,13 +24,13 @@ try:
   # You will need to register an application and assign
   # the variables below.
   # then, log in as the user, and visit this url to authorize the app:
-  # https://datahub.csail.mit.edu/permissions/apps/allow_access/APP_ID/REPO_NAME
+  ERNAME
   # see the /developer/apps page to register an application.
 
   username="USERNAME"    
   password="PASSWORD"
   email="EMAIL"
-  repo_name="REPO_NAME"       # the repository that your app operates on
+  repo_name="REPO_NAME"       # the username of the account you are accessing
   app_id="APP_ID"             # your app's unique id
   app_token="APP_TOKEN"       # your app's unique token
 
