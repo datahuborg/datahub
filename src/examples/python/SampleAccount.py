@@ -23,14 +23,19 @@ try:
   # This will initially thrown an exception since
   # You will need to register an application and assign
   # the variables below.
+  # then, log in as the user, and visit this url to authorize the app:
+  # https://datahub.csail.mit.edu/permissions/apps/allow_access/APP_ID/REPO_NAME
   # see the /developer/apps page to register an application.
 
-  username="ACCOUNT_NAME"    
-  password="ACCOUNT_PASSWORD"
-  email="ACCOUNT_EMAIL"
+  username="USERNAME"    
+  password="PASSWORD"
+  email="EMAIL"
   repo_name="REPO_NAME"       # the repository that your app operates on
   app_id="APP_ID"             # your app's unique id
   app_token="APP_TOKEN"       # your app's unique token
+
+  
+
 
   datahub_transport = THttpClient.THttpClient('http://datahub.csail.mit.edu/service')
   datahub_transport = TTransport.TBufferedTransport(datahub_transport)
@@ -42,30 +47,6 @@ try:
   account_transport = TTransport.TBufferedTransport(account_transport)
   account_protocol = TBinaryProtocol.TBinaryProtocol(account_transport)
   account_client = AccountService.Client(account_protocol)
-
-
-  # delete account
-  try:
-    print account_client.remove_account(
-        username=username,
-        app_id=app_id,
-        app_token=app_token)
-  except Exception, e:
-    print e
-    pass
-
-  # create account
-  try:
-    print account_client.create_account(
-        username=username,
-        password=password,
-        email=email,
-        repo_name=repo_name,
-        app_id=app_id,
-        app_token=app_token)
-  except Exception, e:
-    print e
-
 
   print "\nTrying to query a user's table..."
 
@@ -88,3 +69,4 @@ try:
 
 except Exception, e:
   print 'Something went wrong : %s' % (e)
+  print '\n Please make sure that you authorized the app at https://datahub.csail.mit.edu/permissions/apps/allow_access/' + APP_ID + '/' + REPO_NAME
