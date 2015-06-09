@@ -55,8 +55,10 @@
             
   <div class="section" id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="standard-setup">
+<h2>Standard Setup<a class="headerlink" href="#standard-setup" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="clone-the-repo">
-<h2>Clone the repo<a class="headerlink" href="#clone-the-repo" title="Permalink to this headline">¶</a></h2>
+<h3>Clone the repo<a class="headerlink" href="#clone-the-repo" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
 <li>Make sure to clone the repo,
 <code class="docutils literal"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/abhardwaj/datahub.git</span></code></li>
@@ -64,7 +66,7 @@
 </ol>
 </div>
 <div class="section" id="postgresql">
-<h2>PostgreSQL<a class="headerlink" href="#postgresql" title="Permalink to this headline">¶</a></h2>
+<h3>PostgreSQL<a class="headerlink" href="#postgresql" title="Permalink to this headline">¶</a></h3>
 <p>DataHub is built on the <a class="reference external" href="http://www.postgresql.org/">PostgreSQL</a>
 database.</p>
 <ol class="arabic simple">
@@ -78,7 +80,7 @@ step-by-step instructions.</li>
 </ol>
 </div>
 <div class="section" id="create-user-data-directory">
-<h2>Create <code class="docutils literal"><span class="pre">user_data</span></code> directory<a class="headerlink" href="#create-user-data-directory" title="Permalink to this headline">¶</a></h2>
+<h3>Create <code class="docutils literal"><span class="pre">user_data</span></code> directory<a class="headerlink" href="#create-user-data-directory" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
 <li>Navigate to the root directory, <code class="docutils literal"><span class="pre">cd</span> <span class="pre">/</span></code></li>
 <li>Create the <code class="docutils literal"><span class="pre">user_data</span></code> directory as root user,
@@ -89,7 +91,7 @@ directory. In future commits, we&#8217;ll make this option configurable and
 perhaps default to a different location.</p>
 </div>
 <div class="section" id="create-a-virtualenv">
-<h2>Create a <code class="docutils literal"><span class="pre">virtualenv</span></code><a class="headerlink" href="#create-a-virtualenv" title="Permalink to this headline">¶</a></h2>
+<h3>Create a <code class="docutils literal"><span class="pre">virtualenv</span></code><a class="headerlink" href="#create-a-virtualenv" title="Permalink to this headline">¶</a></h3>
 <p>It&#8217;s useful to install python dependencies in a virtual environment so
 they are isolated from other python packages in your system. To do this,
 use <a class="reference external" href="http://virtualenv.readthedocs.org/en/latest/">virtualenv</a>.</p>
@@ -103,7 +105,7 @@ directory, <code class="docutils literal"><span class="pre">virtualenv</span> <s
 to close it.</p>
 </div>
 <div class="section" id="install-dependencies-with-pip">
-<h2>Install dependencies with <code class="docutils literal"><span class="pre">pip</span></code><a class="headerlink" href="#install-dependencies-with-pip" title="Permalink to this headline">¶</a></h2>
+<h3>Install dependencies with <code class="docutils literal"><span class="pre">pip</span></code><a class="headerlink" href="#install-dependencies-with-pip" title="Permalink to this headline">¶</a></h3>
 <p>Installing the dependencies for DataHub is easy using the
 <a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> package manager.</p>
 <ol class="arabic simple">
@@ -111,7 +113,7 @@ to close it.</p>
 </ol>
 </div>
 <div class="section" id="setup-server-and-data-models">
-<h2>Setup server and data models<a class="headerlink" href="#setup-server-and-data-models" title="Permalink to this headline">¶</a></h2>
+<h3>Setup server and data models<a class="headerlink" href="#setup-server-and-data-models" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
 <li>Update <code class="docutils literal"><span class="pre">src/settings.py</span></code> with your postgres username and password.</li>
 <li>Setup the server environment, <code class="docutils literal"><span class="pre">source</span> <span class="pre">src/setup.sh</span></code> (Please note
@@ -121,21 +123,54 @@ that this must be sourced from the root directory.)</li>
 </ol>
 </div>
 <div class="section" id="install-berkeley-db-bindings">
-<h2>Install Berkeley DB bindings<a class="headerlink" href="#install-berkeley-db-bindings" title="Permalink to this headline">¶</a></h2>
+<h3>Install Berkeley DB bindings<a class="headerlink" href="#install-berkeley-db-bindings" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
 <li>I haven&#8217;t written this yet, so for now, please comment out
 <code class="docutils literal"><span class="pre">import</span> <span class="pre">bsddb</span></code> from <code class="docutils literal"><span class="pre">src/apps/dbwipes/summary.py</span></code></li>
 </ol>
 </div>
 <div class="section" id="run-server">
-<h2>Run server<a class="headerlink" href="#run-server" title="Permalink to this headline">¶</a></h2>
+<h3>Run server<a class="headerlink" href="#run-server" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
 <li>Run the server, <code class="docutils literal"><span class="pre">python</span> <span class="pre">src/manage.py</span> <span class="pre">runserver</span></code></li>
 <li>Navigate to <a class="reference external" href="http://localhost:8000">localhost:8000</a></li>
 </ol>
 <p><strong>NOTE:</strong> If the server complains that a module is missing, you may need
 to <code class="docutils literal"><span class="pre">source</span> <span class="pre">src/setup.sh</span></code> and  <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code> again. Then, <code class="docutils literal"><span class="pre">python</span> <span class="pre">src/manage.py</span> <span class="pre">runserver</span></code> and navigate to
-<a class="reference external" href="http://localhost:8000">localhost:8000</a>)</p>
+<a class="reference external" href="http://localhost:8000">localhost:8000</a></p>
+</div>
+</div>
+<div class="section" id="vagrant-environment-setup-non-standard">
+<h2>Vagrant Environment Setup (non-standard)<a class="headerlink" href="#vagrant-environment-setup-non-standard" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>You need internet access the first time you do these steps.</li>
+<li>Download and install VirtualBox <a class="reference external" href="https://www.virtualbox.org/">https://www.virtualbox.org/</a></li>
+<li>Download and install Vagrant
+<a class="reference external" href="https://www.vagrantup.com/downloads.html">https://www.vagrantup.com/downloads.html</a></li>
+<li>Add this line to your hosts file:
+<code class="docutils literal"><span class="pre">192.168.50.4</span>&nbsp;&nbsp;&nbsp; <span class="pre">datahub-local.mit.edu</span></code></li>
+<li>Then start the environment with: <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code></li>
+<li>Login into vagrant: <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">ssh</span></code></li>
+<li>Start the app
+<code class="docutils literal"><span class="pre">cd</span> <span class="pre">/vagrant</span>&nbsp;&nbsp; <span class="pre">sudo</span> <span class="pre">-s</span>&nbsp;&nbsp; <span class="pre">source</span> <span class="pre">src/setup.sh</span>&nbsp;&nbsp; <span class="pre">python</span> <span class="pre">src/manage.py</span> <span class="pre">runserver</span> <span class="pre">0.0.0.0:80</span></code></li>
+<li>Then open the browser and go to
+<a class="reference external" href="datahub-local.mit.edu">datahub-local.mit.edu</a></li>
+<li>When you are done</li>
+<li>Press <code class="docutils literal"><span class="pre">CONTROL-C</span></code></li>
+<li>Exit the vm with <code class="docutils literal"><span class="pre">exit</span></code> (you need to execute it twice)</li>
+<li>Shutdown the vm with <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">halt</span></code> (next time you do
+<code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code> will be much faster as packages are already
+installed; there is no need for internet connection).</li>
+<li>If you want to delete the vm <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">destroy</span></code> (if you do
+<code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code> again, it will download and install all the
+packages).</li>
+</ol>
+</div>
+<div class="section" id="building-sphinx-docs">
+<h2>Building Sphinx Docs<a class="headerlink" href="#building-sphinx-docs" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://sphinx-doc.org">Sphinx</a> is included in <code class="docutils literal"><span class="pre">requirements.txt</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">make</span> <span class="pre">html</span></code> rebuilds the documentation.</p>
+<p>When submitting a pull request, you must include sphinx documentation. You can achieve this by adding <code class="docutils literal"><span class="pre">*.rst</span></code> and linking them from other <code class="docutils literal"><span class="pre">*.rst</span></code> files. See <a class="reference external" href="http://sphinx-doc.org/tutorial.html">the sphinx tutorial</a> for more information.</p>
 </div>
 </div>
 
@@ -148,6 +183,7 @@ to <code class="docutils literal"><span class="pre">source</span> <span class="p
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Getting Started</a><ul>
+<li><a class="reference internal" href="#standard-setup">Standard Setup</a><ul>
 <li><a class="reference internal" href="#clone-the-repo">Clone the repo</a></li>
 <li><a class="reference internal" href="#postgresql">PostgreSQL</a></li>
 <li><a class="reference internal" href="#create-user-data-directory">Create <code class="docutils literal"><span class="pre">user_data</span></code> directory</a></li>
@@ -156,6 +192,10 @@ to <code class="docutils literal"><span class="pre">source</span> <span class="p
 <li><a class="reference internal" href="#setup-server-and-data-models">Setup server and data models</a></li>
 <li><a class="reference internal" href="#install-berkeley-db-bindings">Install Berkeley DB bindings</a></li>
 <li><a class="reference internal" href="#run-server">Run server</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vagrant-environment-setup-non-standard">Vagrant Environment Setup (non-standard)</a></li>
+<li><a class="reference internal" href="#building-sphinx-docs">Building Sphinx Docs</a></li>
 </ul>
 </li>
 </ul>

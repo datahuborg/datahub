@@ -3,8 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+===================================
 Welcome to DataHub's documentation!
-==================================
+===================================
 DataHub is an experimental hosted platform (GitHub-like) for organizing, managing, sharing, collaborating, and making sense of data. It provides an efficient platform and easy to use tools/interfaces for:
 
 * Publishing of your own data (hosting, sharing, collaboration)
@@ -22,10 +23,12 @@ Contents:
    App API
 
 
+**NOTE:** pull requests must include appropriate `Sphinx <http://sphinx-doc.org>`__ documentation.
+
+==================
 Indices and tables
 ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
+.. * :ref:`genindex`
+.. * :ref:`modindex`
 * :ref:`search`
-
