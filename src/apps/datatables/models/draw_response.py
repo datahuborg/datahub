@@ -1,4 +1,5 @@
 import json
+
 class DrawResponse:
     def __init__(self, draw):
         self.draw = draw
@@ -16,6 +17,13 @@ class DrawResponse:
         response["query"] = self.query
         if self.error is not None:
             response.error["error"] = self.error
-        return json.dumps(response)
+        return json.dumps(response, default=date_handler)
+
     def __repr__(self):
         return "DrawResponse(draw=%s, records_total=%s, records_filtered=%s, error=%s, data=%s, query=%s)" % (self.draw, self.records_total, self.records_filtered, self.error, self.data, self.query)
+
+
+def date_handler(obj):
+    ''' used to handle datetime objects, 
+        which json_dumps will otherwise choke on. '''
+    return obj.isoformat() if hasattr(obj, 'isoformat') else obj
