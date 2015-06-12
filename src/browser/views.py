@@ -674,8 +674,7 @@ def query(request, repo_base, repo):
 
       select_query = False
       if (query.split()[0]).lower() == 'select':
-        select_query = True
-      
+        select_query = True    
 
       count = 0
       limit = 50
@@ -704,12 +703,16 @@ def query(request, repo_base, repo):
       
       if end_page > total_pages:
         end_page = total_pages
-        
       db_query = query
 
       if select_query:
+        # wrap query in another select statement, to allow the
+        # user's LIMIT statements to still work     
+        db_query = 'select * from (' + query + ') as BXCQWVPEMWVKFBEBNKZSRPYBSB'        
+
+        # wrap in datahub limit and offset statements, to support pagination
         db_query = '%s LIMIT %s OFFSET %s' %(
-            query, limit, (current_page -1) * limit)
+            db_query, limit, (current_page -1) * limit)
       
       res = manager.execute_sql(query=db_query)
       
@@ -807,10 +810,13 @@ def card(request, repo_base, repo, card_name):
     
     if end_page > total_pages:
       end_page = total_pages
-      
-    res = manager.execute_sql(
-        query='%s LIMIT %s OFFSET %s'
-        %(query, limit, (current_page -1) * limit))
+    
+    # wrap query in another select statement, to allow the
+    # user's LIMIT statements to still work     
+    db_query = 'select * from (' + query + ') as BXCQWVPEMWVKFBEBNKZSRPYBSB'
+    db_query = '%s LIMIT %s OFFSET %s' %(db_query, limit, (current_page -1) * limit)
+
+    res = manager.execute_sql(query=db_query)
     
     column_names = [field['name'] for field in res['fields']]
     tuples = res['tuples']

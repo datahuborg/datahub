@@ -68,7 +68,7 @@ function set_console_height() {
 }
 
 $(document).ready(function($) {
-    
+
     set_console_height();
 
     var kCmdList = [
@@ -109,9 +109,9 @@ $(document).ready(function($) {
                         }
 
                         con.repo_base = username;
-                        term.echo("Connected to: " + con.repo_base)
+                        term.echo("Connected to: " + con.repo_base);
                     } else {
-                        term.error('HELP: connect &lt;repo-base&gt;')
+                        term.error('HELP: connect &lt;repo-base&gt;');
                     }
                 } else if (cmd.startsWith('mkrepo')) {
                     var args = cmd.split(' ', 2)
@@ -156,7 +156,7 @@ $(document).ready(function($) {
                     }
                 } else {
                     res = client.execute_sql(con, cmd);
-                    print_result(res, term)
+                    print_result(res, term);
                 }
             } catch (error) {
                 term.error(error.message);
