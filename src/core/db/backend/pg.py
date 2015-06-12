@@ -98,7 +98,19 @@ class PGBackend:
       raise LookupError('Invalid repository name: %s' %(repo))
 
     query = ''' SELECT table_name FROM information_schema.tables
-                WHERE table_schema = '%s'
+                WHERE table_schema = '%s' AND table_type = 'BASE TABLE'
+            ''' %(repo)
+    return self.execute_sql(query)
+
+  def list_views(self, repo):
+    res = self.list_repos()
+
+    all_repos = [t[0] for t in res['tuples']]
+    if repo not in all_repos:
+      raise LookupError('Invalid repository name: %s' %(repo))
+
+    query = ''' SELECT table_name FROM information_schema.tables
+                WHERE table_schema = '%s' AND table_type = 'VIEW'
             ''' %(repo)
     return self.execute_sql(query)
 
