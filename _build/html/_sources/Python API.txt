@@ -1,4 +1,0 @@
-App API - Python
-****************
-
-.. automodule:: an_example_pypi_project

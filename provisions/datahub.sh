@@ -15,10 +15,12 @@ then
   createdb -h db -p 5432 -U postgres datahub
 
   mkdir /user_data
+
+  pip install virtualenv
+  virtualenv venv
 fi
 
-pip install virtualenv
-virtualenv venv
+
 cd /datahub
 pip install -r requirements.txt
 source src/setup.sh
@@ -26,4 +28,8 @@ python src/manage.py syncdb
 python src/manage.py migrate inventory
 
 cd /datahub
+
+# If you want to regenerate docs, uncomment the line below.
+#make html
+
 python src/manage.py runserver 0.0.0.0:80
