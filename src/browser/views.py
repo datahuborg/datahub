@@ -810,10 +810,13 @@ def card(request, repo_base, repo, card_name):
     
     if end_page > total_pages:
       end_page = total_pages
-      
-    res = manager.execute_sql(
-        query='%s LIMIT %s OFFSET %s'
-        %(query, limit, (current_page -1) * limit))
+    
+    # wrap query in another select statement, to allow the
+    # user's LIMIT statements to still work     
+    db_query = 'select * from (' + query + ') as BXCQWVPEMWVKFBEBNKZSRPYBSB'
+    db_query = '%s LIMIT %s OFFSET %s' %(db_query, limit, (current_page -1) * limit)
+
+    res = manager.execute_sql(query=db_query)
     
     column_names = [field['name'] for field in res['fields']]
     tuples = res['tuples']
