@@ -1,7 +1,7 @@
 {% extends "repo-browse-template.html" %}
 {% block tabs %}
 <ul class="nav nav-tabs" role="tablist">
-  <li><a href="/browse/{{repo_base}}/{{repo}}/tables" role="tab">Tables</a></li>
+  <li><a href="/browse/{{repo_base}}/{{repo}}/tables" role="tab">Tables &amp; Views</a></li>
   <li><a href="/browse/{{repo_base}}/{{repo}}/files" role="tab">Files</a></li>
   <li class="active"><a href="/browse/{{repo_base}}/{{repo}}/cards" role="tab">Cards</a></li>
   <li><a href="/browse/{{repo_base}}/{{repo}}/dashboards" role="tab">Dashboards</a></li>
@@ -26,9 +26,6 @@
               <a href="/browse/{{repo_base}}/{{repo}}/card/{{card}}">{{card}}</a>
             </td>
             <td class="text-right">
-              <a href="/browse/{{repo_base}}/{{repo}}/card/{{card}}" title="View Card">
-                <span class="table-icon"></span>
-              </a> &nbsp;&nbsp;
               
               <span class="modal-link modal-confirm-dialog"
                   target-modal="#confirm-modal"
