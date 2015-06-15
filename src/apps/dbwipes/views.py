@@ -50,7 +50,7 @@ def returns_json(f):
     r = f(*args, **kwargs)
     if not isinstance(r, basestring):
       r = json.dumps(r, cls=SummaryEncoder)
-    return HttpResponse(r, mimetype='application/json')
+    return HttpResponse(r, content_type='application/json')
   return json_returner
 
 
