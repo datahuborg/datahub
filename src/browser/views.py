@@ -187,14 +187,25 @@ def repo_tables(request, repo_base, repo):
       raise Exception('Access denied. Missing required privileges.')
     
     manager = DataHubManager(user=repo_base)
+    
+    # get base_tables for a given repo
     res = manager.list_tables(repo)
-    tables = [t[0] for t in res['tuples']]
+    base_tables = [t[0] for t in res['tuples']]
+
+    # get views for a given repo
+    res = manager.list_views(repo)
+    views = [t[0] for t in res['tuples']]
+
+    # import pdb
+    # pdb.set_trace()
+
     
     res = {
         'login': get_login(request),
         'repo_base': repo_base,
         'repo': repo,
-        'tables': tables}
+        'base_tables': base_tables,
+        'views': views}
     
     res.update(csrf(request))
     return render_to_response("repo-browse-tables.html", res)

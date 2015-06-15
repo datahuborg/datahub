@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, include, url
+from django.views.generic.base import RedirectView
 
 '''
 @author: Anant Bhardwaj
@@ -16,6 +17,7 @@ urlpatterns = patterns('',
     #### Home Page ####
     url(r'^$', 'browser.views.home'),
     url(r'^about$', 'browser.views.about'),  # for backward compatibility
+    url(r'^favicon\.ico$', RedirectView.as_view(url='/static/images/favicon.ico')),
     #### End Home ####
 
     #### WWW Pages ####

@@ -53,6 +53,9 @@ class DataHubManager:
   def list_tables(self, repo):
     return self.user_con.list_tables(repo=repo)
 
+  def list_views(self, repo):
+    return self.user_con.list_views(repo=repo)
+
   def get_schema(self, table):
     return self.user_con.get_schema(table=table)
 
