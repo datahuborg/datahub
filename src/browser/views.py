@@ -9,7 +9,6 @@ import urllib
 import uuid
 
 from django.core.context_processors import csrf
-from django.core.validators import email_re
 from django.db.utils import IntegrityError
 from django.http import *
 from django.shortcuts import render_to_response

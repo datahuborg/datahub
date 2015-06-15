@@ -8,7 +8,7 @@ import sys
 import urllib
 
 from django.core.context_processors import csrf
-from django.core.validators import email_re
+from django.core.validators import validate_email
 from django.db.utils import IntegrityError
 from django.http import *
 from django.shortcuts import render_to_response
@@ -91,7 +91,14 @@ def login (request):
     try:
       login_id = request.POST["login_id"].lower()
       login_password = hashlib.sha1(request.POST["login_password"]).hexdigest()
-      email = email_re.match(login_id.lower().strip())
+      
+      # find the user email in the username, if it's there.
+      try:
+        validate_email(login_id.lower().strip())
+        email = login_id.lower().strip()
+      except:
+        pass
+
       user = None
       if email:
         user = User.objects.get(email=login_id, password=login_password)
@@ -155,9 +162,15 @@ def register (request):
       email = request.POST["email"].lower()
       password = request.POST["password"]
 
-      if(email_re.match(email.strip()) == None):
+      import pdb
+      pdb.set_trace()
+      
+      try:
+        validate_email(email.strip())
+      except:
         errors.append("Invalid Email.")
         error = True
+        
       if(not is_valid_username(username)):
         errors.append("Invalid Username.")
         error = True
