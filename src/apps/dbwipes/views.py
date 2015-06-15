@@ -20,7 +20,6 @@ from django.http import *
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 from django.core.context_processors import csrf
-from django.core.validators import email_re
 from django.db.utils import IntegrityError
 from django.utils.http import urlquote_plus
 
@@ -51,7 +50,7 @@ def returns_json(f):
     r = f(*args, **kwargs)
     if not isinstance(r, basestring):
       r = json.dumps(r, cls=SummaryEncoder)
-    return HttpResponse(r, mimetype='application/json')
+    return HttpResponse(r, content_type='application/json')
   return json_returner
 
 

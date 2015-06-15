@@ -45,4 +45,4 @@ def refine_data(request):
   except Exception, e:
     res['error'] = str(e)
 
-  return HttpResponse(json.dumps(res), mimetype="application/json")
+  return HttpResponse(json.dumps(res), content_type="application/json")

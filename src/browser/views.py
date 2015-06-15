@@ -9,7 +9,6 @@ import urllib
 import uuid
 
 from django.core.context_processors import csrf
-from django.core.validators import email_re
 from django.db.utils import IntegrityError
 from django.http import *
 from django.shortcuts import render_to_response
@@ -50,7 +49,7 @@ def home(request):
   except Exception, e:
     return HttpResponse(
         json.dumps({'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 # just for backward compatibility
 def about(request):
@@ -77,7 +76,7 @@ def service_core_binary(request):
   except Exception, e:
     return HttpResponse(
         json.dumps({'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @csrf_exempt
 def service_account_binary(request):
@@ -96,7 +95,7 @@ def service_account_binary(request):
   except Exception, e:
     return HttpResponse(
         json.dumps({'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @csrf_exempt
 def service_core_json(request):
@@ -106,7 +105,7 @@ def service_core_json(request):
     core_processor.process(iprot, oprot)
     resp = HttpResponse(
         oprot.trans.getvalue(),
-        mimetype="application/json")
+        content_type="application/json")
     
     try:
       resp['Access-Control-Allow-Origin'] = request.META['HTTP_ORIGIN']
@@ -117,7 +116,7 @@ def service_core_json(request):
   except Exception, e:
     return HttpResponse(
         json.dumps({'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 
 '''
@@ -165,7 +164,7 @@ def user(request, repo_base):
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 
 '''
@@ -213,7 +212,7 @@ def repo_tables(request, repo_base, repo):
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def repo_files(request, repo_base, repo):
@@ -242,7 +241,7 @@ def repo_files(request, repo_base, repo):
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def repo_cards(request, repo_base, repo):
@@ -270,7 +269,7 @@ def repo_cards(request, repo_base, repo):
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def repo_dashboards(request, repo_base, repo):
@@ -293,7 +292,7 @@ def repo_dashboards(request, repo_base, repo):
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def repo_create(request, repo_base):
@@ -319,7 +318,7 @@ def repo_create(request, repo_base):
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def repo_delete(request, repo_base, repo):
@@ -338,7 +337,7 @@ def repo_delete(request, repo_base, repo):
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def repo_settings(request, repo_base, repo):
@@ -365,7 +364,7 @@ def repo_settings(request, repo_base, repo):
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def repo_collaborators_add(request, repo_base, repo):
@@ -385,7 +384,7 @@ def repo_collaborators_add(request, repo_base, repo):
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def repo_collaborators_remove(request, repo_base, repo, username):
@@ -403,7 +402,7 @@ def repo_collaborators_remove(request, repo_base, repo, username):
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 
 '''
@@ -489,7 +488,7 @@ def table(request, repo_base, repo, table):
   except Exception, e:
     return HttpResponse(json.dumps(
         {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def table_export(request, repo_base, repo, table_name):
@@ -514,7 +513,7 @@ def table_export(request, repo_base, repo, table_name):
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def table_delete(request, repo_base, repo, table_name):
@@ -537,7 +536,7 @@ def table_delete(request, repo_base, repo, table_name):
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 
 '''
@@ -564,7 +563,7 @@ def file_upload(request, repo_base, repo):
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def file_import(request, repo_base, repo, file_name):
@@ -624,7 +623,7 @@ def file_import(request, repo_base, repo, file_name):
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def file_delete(request, repo_base, repo, file_name):
@@ -643,7 +642,7 @@ def file_delete(request, repo_base, repo, file_name):
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def file_download(request, repo_base, repo, file_name):
@@ -651,14 +650,14 @@ def file_download(request, repo_base, repo, file_name):
     repo_dir = '/user_data/%s/%s' %(repo_base, repo)
     file_path = '%s/%s' %(repo_dir, file_name)
     response = HttpResponse(
-        open(file_path).read(), mimetype='application/force-download')
+        open(file_path).read(), content_type='application/force-download')
     response['Content-Disposition'] = 'attachment; filename="%s"' %(file_name)
     return response
   except Exception, e:
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 
 '''
@@ -754,7 +753,7 @@ def query(request, repo_base, repo):
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 
 '''
@@ -781,7 +780,7 @@ def create_annotation(request):
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 
 '''
@@ -863,7 +862,7 @@ def card(request, repo_base, repo, card_name):
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def card_create(request, repo_base, repo):
@@ -880,7 +879,7 @@ def card_create(request, repo_base, repo):
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def card_export(request, repo_base, repo, card_name):
@@ -906,7 +905,7 @@ def card_export(request, repo_base, repo, card_name):
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 @login_required
 def card_delete(request, repo_base, repo, card_name):
@@ -925,7 +924,7 @@ def card_delete(request, repo_base, repo, card_name):
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 
 '''
@@ -1057,6 +1056,6 @@ def app_allow_access(request, app_id, repo_name):
     return HttpResponse(
         json.dumps(
           {'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
   

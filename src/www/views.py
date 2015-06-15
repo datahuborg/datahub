@@ -17,7 +17,7 @@ def index(request):
   except Exception, e:
     return HttpResponse(
         json.dumps({'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
 
 def developer_apis(request):
   try:
@@ -26,4 +26,4 @@ def developer_apis(request):
   except Exception, e:
     return HttpResponse(
         json.dumps({'error': str(e)}),
-        mimetype="application/json")
+        content_type="application/json")
