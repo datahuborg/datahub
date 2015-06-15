@@ -119,7 +119,6 @@ INSTALLED_APPS = (
   'dbwipes',
   'inventory',
   'refiner',
-  'south',
   'viz',
   'www'
 )
