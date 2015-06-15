@@ -29,4 +29,7 @@ python src/manage.py migrate inventory
 
 cd /datahub
 
+# If you want to regenerate docs, uncomment the line below.
+#make html
+
 python src/manage.py runserver 0.0.0.0:80

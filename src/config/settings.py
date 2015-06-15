@@ -120,7 +120,7 @@ INSTALLED_APPS = (
   'inventory',
   'refiner',
   'south',
-  'viz2',
+  'viz',
   'www'
 )
 
