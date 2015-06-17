@@ -9,11 +9,11 @@ Datahub URL Router
 '''
 
 urlpatterns = patterns('',
-    
+
     ########################################################################################
     ######## ------------------------------ DataHub Core ------------------------- #########
     ########################################################################################
-    
+
     #### Home Page ####
     url(r'^$', 'browser.views.home'),
     url(r'^about$', 'browser.views.about'),  # for backward compatibility
@@ -58,7 +58,7 @@ urlpatterns = patterns('',
     url(r'^create/annotation$', 'browser.views.create_annotation'),
     url(r'^create/annotation/$', 'browser.views.create_annotation'),
     #### End Create ####
- 
+
 
     #### Browse ####
     url(r'^browse/(\w+)/(\w+)/table/(\w+)$', 'browser.views.table'),
@@ -96,7 +96,7 @@ urlpatterns = patterns('',
     ### Delete ####
     url(r'^delete/(\w+)/(\w+)$', 'browser.views.repo_delete'),
     url(r'^delete/(\w+)/(\w+)/$', 'browser.views.repo_delete'),
-    
+
     url(r'^delete/(\w+)/(\w+)/table/(\w+)$', 'browser.views.table_delete'),
     url(r'^delete/(\w+)/(\w+)/table/(\w+)/$', 'browser.views.table_delete'),
 
@@ -105,7 +105,7 @@ urlpatterns = patterns('',
 
     url(r'^delete/(\w+)/(\w+)/dashboard/(\w+)$', 'browser.views.dashboard_delete'),
     url(r'^delete/(\w+)/(\w+)/dashboard/(\w+)/$', 'browser.views.dashboard_delete'),
-    
+
     url(r'^delete/(\w+)/(\w+)/file/([\w\d\-\.]+)$', 'browser.views.file_delete'),
     url(r'^delete/(\w+)/(\w+)/file/([\w\d\-\.]+)/$', 'browser.views.file_delete'),
     ### End Delete ####
@@ -122,10 +122,10 @@ urlpatterns = patterns('',
     url(r'^export/(\w+)/(\w+)/card/(\w+)/$', 'browser.views.card_export'),
     ### End Export ####
 
-  
+
     ### Special File Operations ####
     url(r'^upload/(\w+)/(\w+)/file$', 'browser.views.file_upload'),
-    url(r'^import/(\w+)/(\w+)/file/([\w\d\-\.]+)', 'browser.views.file_import'),  
+    url(r'^import/(\w+)/(\w+)/file/([\w\d\-\.]+)', 'browser.views.file_import'),
     url(r'^download/(\w+)/(\w+)/file/([\w\d\-\.]+)', 'browser.views.file_download'),
     ### End Special File Operations ####
 
@@ -142,7 +142,7 @@ urlpatterns = patterns('',
     ### Collaborators ###
     url(r'^collaborator/repo/(\w+)/(\w+)/add$', 'browser.views.repo_collaborators_add'),
     url(r'^collaborator/repo/(\w+)/(\w+)/add/$', 'browser.views.repo_collaborators_add'),
-    
+
     url(r'^collaborator/repo/(\w+)/(\w+)/remove/(\w+)$', 'browser.views.repo_collaborators_remove'),
     url(r'^collaborator/repo/(\w+)/(\w+)/remove/(\w+)/$', 'browser.views.repo_collaborators_remove'),
     ### End Collaborators ###
@@ -153,7 +153,7 @@ urlpatterns = patterns('',
 
     url(r'^developer/apps/register$', 'browser.views.app_register'),
     url(r'^developer/apps/register/$', 'browser.views.apps_register'),
-    
+
     url(r'^developer/apps/remove/(\w+)$', 'browser.views.app_remove'),
     url(r'^developer/apps/remove/(\w+)/$', 'browser.views.app_remove'),
     ### End Apps ###
@@ -170,10 +170,10 @@ urlpatterns = patterns('',
     #### Apps ####
     url(r'^apps/console/', include('console.urls')), # console app
     url(r'^apps/refiner/', include('refiner.urls')), # refiner app
-    url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app  
-    url(r'^apps/viz/', include('viz.urls')), # viz app 
-    url(r'^apps/sentiment/', include('sentiment.urls')), # sentiment app 
-    url(r'^apps/dataq/', include('dataq.urls')), # dataq app 
-    url(r'^apps/datatables/', include('datatables.urls')), # datatables app 
+    url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app
+    url(r'^apps/viz/', include('viz2.urls')), # viz app
+    url(r'^apps/sentiment/', include('sentiment.urls')), # sentiment app
+    url(r'^apps/dataq/', include('dataq.urls')), # dataq app
+    url(r'^apps/datatables/', include('datatables.urls')), # datatables app
     #### End Apps ####
 )
