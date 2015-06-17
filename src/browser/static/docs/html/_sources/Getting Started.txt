@@ -72,7 +72,7 @@ Setup server and data models
 1. Update ``src/settings.py`` with your postgres username and password.
 2. Setup the server environment, ``source src/setup.sh`` (Please note
    that this must be sourced from the root directory.)
-3. Sync with the database, ``python src/manage.py syncdb``
+3. Sync with the database, ``python src/manage.py migrate``
 4. Migrate the data models, ``python src/manage.py migrate inventory``
 
 ----------------------------

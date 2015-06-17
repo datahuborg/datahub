@@ -21,6 +21,7 @@ Contents:
 
    Getting Started
    App API
+   DataHub Django Apps
 
 
 **NOTE:** pull requests must include appropriate `Sphinx <http://sphinx-doc.org>`__ documentation.
