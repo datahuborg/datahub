@@ -20,6 +20,7 @@ Contents:
    Getting Started
    Client API
    Core Apps
+   Core URLs
 
 
 **NOTE:** pull requests must include appropriate `Sphinx <http://sphinx-doc.org>`__ documentation.

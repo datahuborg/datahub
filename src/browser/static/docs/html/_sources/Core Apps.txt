@@ -5,9 +5,12 @@ Django applications are built on to of the DataHub web application. These apps
 do not necessarily use the DataHub API, and are not deployed in mobile
 environments. Instead, they are deployed on the DataHub website itself.
 
-==========================
+=======
+Console
+=======
+
 :ref:`django-app-console`.
-==========================
+
 | primary(s):   `Anant Bhardwaj <https://github.com/abhardwaj>`_
 | maintiner(s): `Al Carter <https://github.com/RogerTangos>`_
 
