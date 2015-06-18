@@ -60,7 +60,7 @@ class PGBackend:
     return self.execute_sql(query)
 
   def delete_repo(self, repo, force=False):
-    repo_dir = '/user_data/%s/%s' %(self.repo_base, repo)
+    repo_dir = '/user_data/%s/%s' %(self.user, repo)
     if os.path.exists(repo_dir):
       shutil.rmtree(repo_dir)
     
