@@ -18,8 +18,8 @@ Contents:
    :maxdepth: 2
 
    Getting Started
-   App API
-   DataHub Djagno Web Apps
+   Client API
+   Core Apps
 
 
 **NOTE:** pull requests must include appropriate `Sphinx <http://sphinx-doc.org>`__ documentation.
@@ -30,4 +30,5 @@ Indices and tables
 
 .. * :ref:`genindex`
 .. * :ref:`modindex`
+
 * :ref:`search`

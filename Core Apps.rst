@@ -1,5 +1,5 @@
-DataHub Django Web Apps
-***********************
+Core Apps
+*********
 
 Django applications are built on to of the DataHub web application. These apps
 do not necessarily use the DataHub API, and are not deployed in mobile

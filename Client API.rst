@@ -1,5 +1,5 @@
-Application API
-***************
+Client API
+**********
 
 DataHub allows developers to connect client devices to datahub, create and 
 delete accounts, and manipulate data on a user's behalf.
