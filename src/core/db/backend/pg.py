@@ -1,5 +1,7 @@
+import os
 import psycopg2
 import re
+import shutil
 
 from config import settings
 
@@ -58,9 +60,14 @@ class PGBackend:
     return self.execute_sql(query)
 
   def delete_repo(self, repo, force=False):
+    repo_dir = '/user_data/%s/%s' %(self.repo_base, repo)
+    if os.path.exists(repo_dir):
+      shutil.rmtree(repo_dir)
+    
     query = ''' DROP SCHEMA %s %s
             ''' %(repo, 'CASCADE' if force else '')
-    return self.execute_sql(query)
+    res = self.execute_sql(query)
+    return res
 
   def add_collaborator(self, repo, username, privileges, auto_in_future=True):
     query = ''' GRANT USAGE ON SCHEMA %s TO %s;
