@@ -9,7 +9,7 @@ environments. Instead, they are deployed on the DataHub website itself.
 Console
 =======
 
-:ref:`django-app-console`.
+:ref:`django-app-console`
 
 | primary(s):   `Anant Bhardwaj <https://github.com/abhardwaj>`_
 | maintiner(s): `Al Carter <https://github.com/RogerTangos>`_
@@ -36,6 +36,9 @@ Users are able to sort, filter, and aggregate tables.
 =======
 dbWipes
 =======
+
+:ref:`django-app-dbwipes`
+
 | primary(s):   `Eugene Wu <https://github.com/sirrice>`_
 | maintiner(s): `Eugene Wu <https://github.com/sirrice>`_
 
