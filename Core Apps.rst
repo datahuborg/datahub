@@ -67,6 +67,9 @@ Sentiment is a sentiment analysis tool for DataHub
 ===================
 Viz2 (formerly Viz)
 ===================
+
+:ref:`django-app-viz2`
+
 | primary(s):   `Anant Bhardwaj <https://github.com/abhardwaj>`_
 | maintiner(s): `Al Carter <https://github.com/RogerTangos>`_
 
