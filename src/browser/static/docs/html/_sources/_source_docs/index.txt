@@ -1,0 +1,35 @@
+.. DH_Doc documentation master file, created by
+   sphinx-quickstart on Tue Jun  2 13:42:01 2015.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+===================================
+Welcome to DataHub's documentation!
+===================================
+DataHub is an experimental hosted platform (GitHub-like) for organizing, managing, sharing, collaborating, and making sense of data. It provides an efficient platform and easy to use tools/interfaces for:
+
+* Publishing of your own data (hosting, sharing, collaboration)
+* Using other’s data (querying, linking)
+* Making sense of data (analysis, visualization)
+
+test
+
+Contents:
+
+.. toctree::
+   :maxdepth: 2
+
+   Getting Started
+   App API
+   DataHub Django Apps
+
+
+**NOTE:** pull requests must include appropriate `Sphinx <http://sphinx-doc.org>`__ documentation.
+
+==================
+Indices and tables
+==================
+
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+* :ref:`search`

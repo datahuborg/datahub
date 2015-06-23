@@ -8,6 +8,7 @@ DataHub Template Layout
 {% block html %}
 <html>
 {% endblock %}
+{% load staticfiles %}
 <head>
 <title>DataHub</title>
 <meta charset="utf-8">
@@ -204,7 +205,7 @@ ga('send', 'pageview');
   <div class="navbar navbar-default navbar-static-bottom text-center">
   <div class="navbar-footer">
     <a href="/www/" class="btn navbar-btn">About</a> &nbsp; &nbsp;
-    <a href="/www/developer" class="btn navbar-btn">API Docs</a> &nbsp; &nbsp;
+    <a href="{% static 'docs/html/index.html' %}" class="btn navbar-btn">API Docs</a> &nbsp; &nbsp;
     <a href="https://github.com/abhardwaj/datahub" class="btn navbar-btn">GitHub Repo</a> &nbsp; &nbsp;
     <a href="https://github.com/abhardwaj/datahub/tree/master/src/examples" class="btn navbar-btn">Sample Code</a>
   </div>

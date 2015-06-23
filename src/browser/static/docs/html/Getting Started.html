@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="DH_Doc 0.1 documentation" href="index.html" />
-    <link rel="next" title="Application API" href="App API.html" />
+    <link rel="next" title="Application API" href="Client API.html" />
     <link rel="prev" title="Welcome to DataHub’s documentation!" href="index.html" />
    
   
@@ -39,7 +39,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="App API.html" title="Application API"
+          <a href="Client API.html" title="Application API"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to DataHub’s documentation!"
@@ -120,7 +120,7 @@ to close it.</p>
 <li>Update <code class="docutils literal"><span class="pre">src/settings.py</span></code> with your postgres username and password.</li>
 <li>Setup the server environment, <code class="docutils literal"><span class="pre">source</span> <span class="pre">src/setup.sh</span></code> (Please note
 that this must be sourced from the root directory.)</li>
-<li>Sync with the database, <code class="docutils literal"><span class="pre">python</span> <span class="pre">src/manage.py</span> <span class="pre">syncdb</span></code></li>
+<li>Sync with the database, <code class="docutils literal"><span class="pre">python</span> <span class="pre">src/manage.py</span> <span class="pre">migrate</span></code></li>
 <li>Migrate the data models, <code class="docutils literal"><span class="pre">python</span> <span class="pre">src/manage.py</span> <span class="pre">migrate</span> <span class="pre">inventory</span></code></li>
 </ol>
 </div>
@@ -141,32 +141,62 @@ that this must be sourced from the root directory.)</li>
 to <code class="docutils literal"><span class="pre">source</span> <span class="pre">src/setup.sh</span></code> and  <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code> again. Then, <code class="docutils literal"><span class="pre">python</span> <span class="pre">src/manage.py</span> <span class="pre">runserver</span></code> and navigate to
 <a class="reference external" href="http://localhost:8000">localhost:8000</a></p>
 </div>
+<div class="section" id="run-test-with-behave">
+<h3>Run test with <code class="docutils literal"><span class="pre">behave</span></code><a class="headerlink" href="#run-test-with-behave" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">cd</span> <span class="pre">/datahub/src</span> <span class="pre">behave</span></code></p>
 </div>
-<div class="section" id="vagrant-environment-setup-non-standard">
-<h2>Vagrant Environment Setup (non-standard)<a class="headerlink" href="#vagrant-environment-setup-non-standard" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="vagrant-environment-setup-optional">
+<h2>Vagrant Environment Setup (optional)<a class="headerlink" href="#vagrant-environment-setup-optional" title="Permalink to this headline">¶</a></h2>
+<p>Follow these steps:</p>
 <ol class="arabic simple">
 <li>You need internet access the first time you do these steps.</li>
 <li>Download and install VirtualBox <a class="reference external" href="https://www.virtualbox.org/">https://www.virtualbox.org/</a></li>
-<li>Download and install Vagrant
-<a class="reference external" href="https://www.vagrantup.com/downloads.html">https://www.vagrantup.com/downloads.html</a></li>
+<li>Download and install Vagrant <a class="reference external" href="https://www.vagrantup.com/downloads.html">https://www.vagrantup.com/downloads.html</a></li>
 <li>Add this line to your hosts file:
 <code class="docutils literal"><span class="pre">192.168.50.4</span>&nbsp;&nbsp;&nbsp; <span class="pre">datahub-local.mit.edu</span></code></li>
-<li>Then start the environment with: <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code></li>
-<li>Login into vagrant: <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">ssh</span></code></li>
-<li>Start the app
-<code class="docutils literal"><span class="pre">cd</span> <span class="pre">/vagrant</span>&nbsp;&nbsp; <span class="pre">sudo</span> <span class="pre">-s</span>&nbsp;&nbsp; <span class="pre">source</span> <span class="pre">src/setup.sh</span>&nbsp;&nbsp; <span class="pre">python</span> <span class="pre">src/manage.py</span> <span class="pre">runserver</span> <span class="pre">0.0.0.0:80</span></code></li>
-<li>Then open the browser and go to
-<a class="reference external" href="datahub-local.mit.edu">datahub-local.mit.edu</a></li>
-<li>When you are done</li>
-<li>Press <code class="docutils literal"><span class="pre">CONTROL-C</span></code></li>
-<li>Exit the vm with <code class="docutils literal"><span class="pre">exit</span></code> (you need to execute it twice)</li>
-<li>Shutdown the vm with <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">halt</span></code> (next time you do
-<code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code> will be much faster as packages are already
-installed; there is no need for internet connection).</li>
-<li>If you want to delete the vm <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">destroy</span></code> (if you do
-<code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code> again, it will download and install all the
-packages).</li>
+<li>Then start the environment with: <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code> After some time your
+environment is setup and running. You can go to
+<a class="reference external" href="http://datahub-local.mit.edu">http://datahub-local.mit.edu</a> and start using Datahub.</li>
 </ol>
+<div class="section" id="to-manually-stop-start-your-docker-containers">
+<h3>To manually stop/start your docker containers:<a class="headerlink" href="#to-manually-stop-start-your-docker-containers" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>First login into VM:</li>
+</ul>
+<div class="highlight-python"><div class="highlight"><pre>vagrant ssh
+</pre></div>
+</div>
+<ul class="simple">
+<li>Then List docker containers <code class="docutils literal"><span class="pre">sudo</span> <span class="pre">docker</span> <span class="pre">ps</span></code></li>
+<li>Stop docker datahub <code class="docutils literal"><span class="pre">sudo</span> <span class="pre">docker</span> <span class="pre">stop</span> <span class="pre">datahub</span></code></li>
+<li>Start docker container <code class="docutils literal"><span class="pre">sudo</span> <span class="pre">docker</span> <span class="pre">start</span> <span class="pre">datahub</span></code></li>
+<li>Execute command inside container, bellow is the example of getting
+shell access to container
+<code class="docutils literal"><span class="pre">sudo</span> <span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">-i</span> <span class="pre">-t</span> <span class="pre">datahub</span> <span class="pre">/bin/bash</span></code></li>
+</ul>
+</div>
+<div class="section" id="run-test-with-behave-in-vagrant">
+<h3>Run test with <code class="docutils literal"><span class="pre">behave</span></code> in Vagrant:<a class="headerlink" href="#run-test-with-behave-in-vagrant" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li>Login in VM <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">ssh</span></code></li>
+<li>Get shell access to datahub container
+<code class="docutils literal"><span class="pre">sudo</span> <span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">-i</span> <span class="pre">-t</span> <span class="pre">datahub</span> <span class="pre">/bin/bash</span></code></li>
+<li>Change directory and execute <code class="docutils literal"><span class="pre">behave</span></code> <code class="docutils literal"><span class="pre">cd</span> <span class="pre">/datahub/src</span>&nbsp;&nbsp; <span class="pre">behave</span></code></li>
+</ol>
+</div>
+<div class="section" id="shutdown-vagrant">
+<h3>Shutdown Vagrant<a class="headerlink" href="#shutdown-vagrant" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li>Exit docker shell with <code class="docutils literal"><span class="pre">exit</span></code> (if you are in docker)</li>
+<li>Exit the vm with <code class="docutils literal"><span class="pre">exit</span></code> (if you are in vagrant VM)</li>
+<li>Shutdown the vm with <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">halt</span></code> (next time you do
+<code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code> will be much faster as packages are already installed;
+there is no need for internet connection).</li>
+<li>If you want to delete the vm <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">destroy</span></code> (if you do
+<code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code> again, it will download and install all the packages).</li>
+</ol>
+</div>
 </div>
 <div class="section" id="building-sphinx-docs">
 <h2>Building Sphinx Docs<a class="headerlink" href="#building-sphinx-docs" title="Permalink to this headline">¶</a></h2>
@@ -195,9 +225,15 @@ packages).</li>
 <li><a class="reference internal" href="#setup-server-and-data-models">Setup server and data models</a></li>
 <li><a class="reference internal" href="#install-berkeley-db-bindings">Install Berkeley DB bindings</a></li>
 <li><a class="reference internal" href="#run-server">Run server</a></li>
+<li><a class="reference internal" href="#run-test-with-behave">Run test with <code class="docutils literal"><span class="pre">behave</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#vagrant-environment-setup-non-standard">Vagrant Environment Setup (non-standard)</a></li>
+<li><a class="reference internal" href="#vagrant-environment-setup-optional">Vagrant Environment Setup (optional)</a><ul>
+<li><a class="reference internal" href="#to-manually-stop-start-your-docker-containers">To manually stop/start your docker containers:</a></li>
+<li><a class="reference internal" href="#run-test-with-behave-in-vagrant">Run test with <code class="docutils literal"><span class="pre">behave</span></code> in Vagrant:</a></li>
+<li><a class="reference internal" href="#shutdown-vagrant">Shutdown Vagrant</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#building-sphinx-docs">Building Sphinx Docs</a></li>
 </ul>
 </li>
@@ -207,7 +243,7 @@ packages).</li>
   <p class="topless"><a href="index.html"
                         title="previous chapter">Welcome to DataHub&#8217;s documentation!</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="App API.html"
+  <p class="topless"><a href="Client API.html"
                         title="next chapter">Application API</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
