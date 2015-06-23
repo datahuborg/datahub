@@ -5,6 +5,18 @@ Django applications are built on to of the DataHub web application. These apps
 do not necessarily use the DataHub API, and are not deployed in mobile
 environments. Instead, they are deployed on the DataHub website itself.
 
+.. toctree::
+    :hidden:
+    
+    django-app-console
+    django-app-dataq
+    django-app-datatables
+    django-app-dbwipes
+    django-app-refiner
+    django-app-sentiment
+    django-app-viz2
+
+
 =======
 Console
 =======
@@ -56,11 +68,15 @@ from in the underlying data set
 =======
 Refiner
 =======
+
+:ref:`django-app-refiner`
+
 | primary(s):   `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_, `Anant Bhardwaj <https://github.com/abhardwaj>`_
 | maintiner(s): `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_, `Anant Bhardwaj <https://github.com/abhardwaj>`_
 
 Refiner is a tool that converts poorly structured text files into structured
-tables
+data for table creation. It is ongoing research, and is currently only for
+demonstration purposes.
 
 =========
 Sentiment
