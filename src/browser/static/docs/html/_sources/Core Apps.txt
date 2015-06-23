@@ -19,6 +19,9 @@ Console provides a way for users to interact directly with their datahub repos.
 =====
 DataQ
 =====
+
+:ref:`django-app-dataq`
+
 | primary(s):   `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_
 | maintiner(s): `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_
 
@@ -27,6 +30,9 @@ DataQ is a visual SQL query builder
 ==========
 DataTables
 ==========
+
+:ref:`django-app-datatables`
+
 | primary(s):   `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_
 | maintiner(s): `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_
 
@@ -59,6 +65,9 @@ tables
 =========
 Sentiment
 =========
+
+:ref:`django-app-sentiment`
+
 | primary(s):   `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_
 | maintiner(s): `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_
 
