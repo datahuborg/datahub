@@ -12,15 +12,15 @@ DataHub is an experimental hosted platform (GitHub-like) for organizing, managin
 * Using other’s data (querying, linking)
 * Making sense of data (analysis, visualization)
 
-
-
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
    Getting Started
-   App API
+   Client API
+   Core Apps
+   Core URLs
 
 
 **NOTE:** pull requests must include appropriate `Sphinx <http://sphinx-doc.org>`__ documentation.
@@ -31,4 +31,5 @@ Indices and tables
 
 .. * :ref:`genindex`
 .. * :ref:`modindex`
+
 * :ref:`search`

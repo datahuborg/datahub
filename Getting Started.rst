@@ -93,31 +93,69 @@ Run server
 to ``source src/setup.sh`` and  ``pip install -r requirements.txt`` again. Then, ``python src/manage.py runserver`` and navigate to
 `localhost:8000 <http://localhost:8000>`__
 
-========================================
-Vagrant Environment Setup (non-standard)
-========================================
+------------------------
+Run test with ``behave``
+------------------------
 
-1.  You need internet access the first time you do these steps.
-2.  Download and install VirtualBox https://www.virtualbox.org/
-3.  Download and install Vagrant
-    https://www.vagrantup.com/downloads.html
-4.  Add this line to your hosts file:
-    ``192.168.50.4    datahub-local.mit.edu``
-5.  Then start the environment with: ``vagrant up``
-6.  Login into vagrant: ``vagrant ssh``
-7.  Start the app
-    ``cd /vagrant   sudo -s   source src/setup.sh   python src/manage.py runserver 0.0.0.0:80``
-8.  Then open the browser and go to
-    `datahub-local.mit.edu <datahub-local.mit.edu>`__
-9.  When you are done
-10. Press ``CONTROL-C``
-11. Exit the vm with ``exit`` (you need to execute it twice)
-12. Shutdown the vm with ``vagrant halt`` (next time you do
-    ``vagrant up`` will be much faster as packages are already
-    installed; there is no need for internet connection).
-13. If you want to delete the vm ``vagrant destroy`` (if you do
-    ``vagrant up`` again, it will download and install all the
-    packages).
+``cd /datahub/src behave``
+
+
+====================================
+Vagrant Environment Setup (optional)
+====================================
+
+Follow these steps:
+
+1. You need internet access the first time you do these steps.
+2. Download and install VirtualBox https://www.virtualbox.org/
+3. Download and install Vagrant https://www.vagrantup.com/downloads.html
+4. Add this line to your hosts file:
+   ``192.168.50.4    datahub-local.mit.edu``
+5. Then start the environment with: ``vagrant up`` After some time your
+   environment is setup and running. You can go to
+   http://datahub-local.mit.edu and start using Datahub.
+
+
+----------------------------------------------
+To manually stop/start your docker containers:
+----------------------------------------------
+
+-  First login into VM:
+
+::
+
+    vagrant ssh
+
+-  Then List docker containers ``sudo docker ps``
+
+-  Stop docker datahub ``sudo docker stop datahub``
+
+-  Start docker container ``sudo docker start datahub``
+
+-  Execute command inside container, bellow is the example of getting
+   shell access to container
+   ``sudo docker exec -i -t datahub /bin/bash``
+
+------------------------------------
+Run test with ``behave`` in Vagrant:
+------------------------------------
+
+1. Login in VM ``vagrant ssh``
+2. Get shell access to datahub container
+   ``sudo docker exec -i -t datahub /bin/bash``
+3. Change directory and execute ``behave`` ``cd /datahub/src   behave``
+
+----------------
+Shutdown Vagrant
+----------------
+
+1. Exit docker shell with ``exit`` (if you are in docker)
+2. Exit the vm with ``exit`` (if you are in vagrant VM)
+3. Shutdown the vm with ``vagrant halt`` (next time you do
+   ``vagrant up`` will be much faster as packages are already installed;
+   there is no need for internet connection).
+4. If you want to delete the vm ``vagrant destroy`` (if you do
+   ``vagrant up`` again, it will download and install all the packages).
 
 ====================
 Building Sphinx Docs
@@ -128,6 +166,3 @@ Building Sphinx Docs
 ``make html`` rebuilds the documentation.
 
 When submitting a pull request, you must include sphinx documentation. You can achieve this by adding ``*.rst`` and linking them from other ``*.rst`` files. See `the sphinx tutorial <http://sphinx-doc.org/tutorial.html>`__ for more information.
-
-
-
