@@ -14,3 +14,11 @@ Feature: Checking installation of DataHub
     Given DataHub is installed
     When I open "/account/register"
     Then I should see "Create a new account"
+
+  # Behave isn't currently playing nicely with static files
+  # ARC 2015-06-24
+  
+  # Scenario: Sphinx Docs show up
+  #   Given DataHub is installed
+  #   When I open "/static/docs/html/index.html"
+  #   Then I should see "Table Of Contents"
