@@ -17,7 +17,7 @@ urlpatterns = patterns('',
     #### Home Page ####
     url(r'^$', 'browser.views.home'),
     url(r'^about$', 'browser.views.about'),  # for backward compatibility
-    url(r'^favicon\.ico$', RedirectView.as_view(url='/static/images/favicon.ico')),
+    url(r'^favicon\.ico$', RedirectView.as_view(url='/static/images/favicon.ico', permanent=True)),
     #### End Home ####
 
     #### WWW Pages ####
