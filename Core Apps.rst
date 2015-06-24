@@ -71,8 +71,8 @@ Refiner
 
 :ref:`django-app-refiner`
 
-| primary(s):   `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_, `Anant Bhardwaj <https://github.com/abhardwaj>`_
-| maintiner(s): `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_, `Anant Bhardwaj <https://github.com/abhardwaj>`_
+| primary(s):   `Anant Bhardwaj <https://github.com/abhardwaj>`_
+| maintiner(s): `Anant Bhardwaj <https://github.com/abhardwaj>`_
 
 Refiner is a tool that converts poorly structured text files into structured
 data for table creation. It is ongoing research, and is currently only for
