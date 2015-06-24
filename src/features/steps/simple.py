@@ -2,7 +2,7 @@ from __future__ import print_function
 from behave import *
 from bs4 import BeautifulSoup
 
-@given('Datahub is installed')
+@given('DataHub is installed')
 def step_impl(context):
     pass
 

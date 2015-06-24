@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 import django
@@ -23,3 +24,8 @@ def before_scenario(context, scenario):
 
 def after_scenario(context, scenario):
     pass
+
+def after_step(context, step):
+    if step.status == "failed":
+        import pdb
+        pdb.post_mortem(step.exc_traceback)
