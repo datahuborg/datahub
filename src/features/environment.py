@@ -1,5 +1,6 @@
 import os
 import sys
+import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
@@ -12,13 +13,9 @@ path = os.path.join(PROJECT_ROOT, 'gen-py')
 sys.path.append(path)
 
 def before_all(context):
-    from django.core.management import setup_environ
-    from config import settings
     from django.test import Client
-    
-    setup_environ(settings)
+    django.setup()
     context.client = Client()
-
 
 def before_scenario(context, scenario):
     pass

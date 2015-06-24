@@ -1,3 +1,4 @@
+from __future__ import print_function
 from behave import *
 from bs4 import BeautifulSoup
 
