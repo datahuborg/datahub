@@ -161,9 +161,6 @@ def register (request):
       username = request.POST["username"].lower()
       email = request.POST["email"].lower()
       password = request.POST["password"]
-
-      import pdb
-      pdb.set_trace()
       
       try:
         validate_email(email.strip())
