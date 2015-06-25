@@ -2,7 +2,7 @@ from django.test import TestCase
 from inventory.models import *
 
 class UserTests(TestCase):
-    def test_for_fields(self):
+    def test_fields(self):
         """ saving and loading users"""
 
         initial_user = User(id=10, username="user", password="pass", email="email", 
@@ -21,7 +21,7 @@ class UserTests(TestCase):
 class CardTests(TestCase):
     """test saving and loading cards"""
 
-    def test_for_fields(self):
+    def test_fields(self):
         initial_card = Card(id=10, repo_base="repo_base", repo_name="repo_name",
             card_name="card_name", query="query").save()
         loaded_card=Card.objects.get(id=10)
@@ -52,7 +52,7 @@ class DashboardCardTest(TestCase):
 class AnnotationTest(TestCase):
     """test saving and loading annotation"""
 
-    def test_for_fields(self):
+    def test_fields(self):
         initial_annotation = Annotation(id=10, url_path="url_path", 
             annotation_text="annotation_text").save()
         loaded_annotation = Annotation.objects.get(id=10)
@@ -65,50 +65,41 @@ class AnnotationTest(TestCase):
 class AppTest(TestCase):
     """test saving and loading apps"""   
 
-    def setup(self):
-       pass
+    def setUp(self):
+        self.user, created = User.objects.get_or_create(id=10, username="user", password="pass", email="email", 
+            f_name="f_name", l_name="l_name", active=True)
 
-    def testForFields(self):
-        # the user should really be stubbed/mocked, but I haven't figured out 
-        # how yet.
-        User(id=10, username="user", password="pass", email="email", 
-            f_name="f_name", l_name="l_name", active=True).save()
-        load_user = User.objects.get(id=10)
 
-        initial_app = App(app_id="app_id", id=10, app_name="app_name", 
-            app_token="app_token", user=load_user).save()
-        load_app = App.objects.get(id=10)
+    def test_fields(self):
+        app, created = App.objects.get_or_create(app_id="app_id", id=10, 
+            app_name="app_name", app_token="app_token", user=self.user)
 
-        self.assertEqual(load_app.id, 10)
-        self.assertEqual(load_app.app_id, "app_id")
-        self.assertEqual(load_app.app_name, "app_name")
-        self.assertEqual(load_app.app_token, "app_token")
-        self.assertEqual(load_app.user, load_user)
+        self.assertEqual(app.id, 10)
+        self.assertEqual(app.app_id, "app_id")
+        self.assertEqual(app.app_name, "app_name")
+        self.assertEqual(app.app_token, "app_token")
+        self.assertEqual(app.user, self.user)
 
 class PermissionTest(TestCase):
-    def setup(self):
-        pass
+    """test permissions granted to apps"""
 
-    def testForFields(self):
-        # the user should really be stubbed/mocked, but I haven't figured out 
-        # how yet.
-        User(id=10, username="user", password="pass", email="email", 
-            f_name="f_name", l_name="l_name", active=True).save()
-        load_user = User.objects.get(id=10)
-        App(app_id="app_id", id=10, app_name="app_name", 
-            app_token="app_token", user=load_user).save()
-        load_app = App.objects.get(id=10)
+    def setUp(self):
+        self.user, created = User.objects.get_or_create(id=10, username="user", password="pass", email="email", 
+            f_name="f_name", l_name="l_name", active=True)
 
-        Permission(id=10, user=load_user, app=load_app,
-            access=True).save()
-        load_permission_true = Permission.objects.get(id=10)
-        self.assertEqual(load_permission_true.user, load_user)
-        self.assertEqual(load_permission_true.app, load_app)
-        self.assertEqual(load_permission_true.access, True)
+        self.app, created = App.objects.get_or_create(app_id="app_id", id=10, 
+            app_name="app_name", app_token="app_token", user=self.user)
+
+    def test_fields(self):
+        permission, created = Permission.objects.get_or_create(id=10, user=self.user, app=self.app, access=True)
+
+        self.assertEqual(permission.user, self.user)
+        self.assertEqual(permission.app, self.app)
+        self.assertEqual(permission.access, True)
 
 
-        Permission(id=11, user=load_user, app=load_app).save()
-        load_permission_false = Permission.objects.get(id=11)
-        self.assertEqual(load_permission_false.user, load_user)
-        self.assertEqual(load_permission_false.app, load_app)
-        self.assertEqual(load_permission_false.access, False)
+    def test_defaults(self):
+        permission, created = Permission.objects.get_or_create(id=11, 
+            user=self.user, app=self.app)
+
+        self.assertEqual(permission.access, False)
