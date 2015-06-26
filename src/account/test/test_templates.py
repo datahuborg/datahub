@@ -5,6 +5,7 @@ from django.test import Client
 class SiteAccountPages(TestCase):
     def setUp(self):
         self.client = Client()
+        csrf_client = Client(enforce_csrf_checks=False)
         
 
     def test_login(self):

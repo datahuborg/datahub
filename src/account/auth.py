@@ -306,7 +306,7 @@ def forgot (request):
     c.update(csrf(request))
     return render_to_response('forgot.html', c)
   else:
-    c = {'values': request.REQUEST} 
+    c = {'values': request.GET} 
     c.update(csrf(request))
     return render_to_response('forgot.html', c)
 
