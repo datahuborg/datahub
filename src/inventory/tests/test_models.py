@@ -32,23 +32,6 @@ class CardTests(TestCase):
         self.assertEqual(loaded_card.card_name, "card_name")
         self.assertEqual(loaded_card.query, "query")
 
-class DashboardTest(TestCase):
-    """test saving and loading dashboards
-
-        This section left untestef for now, because
-        I can't tell what Dashboards or Dashboard
-        Cards are used for, or whether they're necessary
-    """
-
-class DashboardCardTest(TestCase):
-    """test saving and loading dashboards
-
-        This section left untestef for now, because
-        I can't tell what Dashboards or Dashboard
-        Cards are used for, or whether they're necessary
-    """
-
-
 class AnnotationTest(TestCase):
     """test saving and loading annotation"""
 

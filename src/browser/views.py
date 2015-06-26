@@ -268,29 +268,6 @@ def repo_cards(request, repo_base, repo):
         content_type="application/json")
 
 @login_required
-def repo_dashboards(request, repo_base, repo):
-  try:
-    login = get_login(request)
-
-    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'USAGE')
-    if not (res and res['tuples'][0][0]):
-      raise Exception('Access denied. Missing required privileges.')
-    
-    res = {
-        'login': get_login(request),
-        'repo_base': repo_base,
-        'repo': repo,
-        'dashboards': []}
-    
-    res.update(csrf(request))
-    return render_to_response("repo-browse-dashboards.html", res)
-  
-  except Exception, e:
-    return HttpResponse(json.dumps(
-        {'error': str(e)}),
-        content_type="application/json")
-
-@login_required
 def repo_create(request, repo_base):
   try:
     login = get_login(request)
