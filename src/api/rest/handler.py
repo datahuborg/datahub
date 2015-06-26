@@ -15,6 +15,8 @@ from datahub.account.constants import *
 DataHub Handler
 '''
 
+# TODO: this needs to chnage to support REST.
+
 def construct_result_set(res):
   tuples = [Tuple(
       cells=[bytes(val) for val in t]) for t in res['tuples']]

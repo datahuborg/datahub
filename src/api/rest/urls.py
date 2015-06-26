@@ -6,5 +6,5 @@ urlpatterns = patterns('',
     url(r'^connection/repo_create$', 'api.rest.handler.repo_create'),
     url(r'^connection/repo_delete$', 'api.rest.handler.repo_delete'),
     url(r'^connection/repo_list$', 'api.rest.handler.repo_list'),
-    url(r'^connection/execute_query', 'api.rest.handler.execute_query'),
+    url(r'^connection/execute_query$', 'api.rest.handler.execute_query'),
 )
