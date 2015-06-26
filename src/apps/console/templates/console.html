@@ -73,12 +73,13 @@ $(document).ready(function($) {
 
     var kCmdList = [
         '** Any SQL Query **',
-        'connect &lt;repo-base&gt; \t -- connect to a repo-base',
+        'connect &lt;repo-base&gt; \t -- connect to a datahub user',
         'mkrepo &lt;repo-name&gt; \t -- to create a new repository',
-        'rm &lt;repo-name [-f]&gt; \t\t -- to remove a repository',
+        'rm &lt;repo-name [-f]&gt; \t -- to remove a repository',
         'ls \t\t\t\t\t -- to list repositories',
         'ls &lt;repo-name&gt; \t\t -- to list tables in a repository',
-        'schema &lt;table-name&gt; \t\t -- to print schema info of a table'
+        'schema &lt;table-name&gt; \t\t -- to print schema info of a table',
+        '&lt;other dml&gt; \t\t -- execute arbitrary dml on a repo.tablename in your currently connected repo-base'
     ]
 
     var login = '{{login}}'

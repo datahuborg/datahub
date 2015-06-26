@@ -194,10 +194,6 @@ def repo_tables(request, repo_base, repo):
     # get views for a given repo
     res = manager.list_views(repo)
     views = [t[0] for t in res['tuples']]
-
-    # import pdb
-    # pdb.set_trace()
-
     
     res = {
         'login': get_login(request),

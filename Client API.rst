@@ -1,15 +1,15 @@
-Application API
-***************
+Client API
+**********
 
 DataHub allows developers to connect client devices to datahub, create and 
 delete accounts, and manipulate data on a user's behalf.
 
 .. _app-api-intro:
 
-====================================
-Introduction to DataHub Applications
-====================================
-DataHub applications allow...
+========================================
+Introduction to DataHub API Applications
+========================================
+DataHub API applications allow...
 
 * end users to authorize an application to view and edit their data
 * developers to view and edit data in authorized DataHub accounts
