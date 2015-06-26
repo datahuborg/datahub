@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.test import Client
 
-class SiteAccountPages(TestCase):
+class WwwPages(TestCase):
     def setUp(self):
         self.client = Client(enforce_csrf_checks=False)
 

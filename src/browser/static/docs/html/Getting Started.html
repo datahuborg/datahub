@@ -204,6 +204,35 @@ there is no need for internet connection).</li>
 <p><code class="docutils literal"><span class="pre">make</span> <span class="pre">html</span></code> rebuilds the documentation.</p>
 <p>When submitting a pull request, you must include sphinx documentation. You can achieve this by adding <code class="docutils literal"><span class="pre">*.rst</span></code> and linking them from other <code class="docutils literal"><span class="pre">*.rst</span></code> files. See <a class="reference external" href="http://sphinx-doc.org/tutorial.html">the sphinx tutorial</a> for more information.</p>
 </div>
+<div class="section" id="testing-datahub">
+<h2>Testing DataHub<a class="headerlink" href="#testing-datahub" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="unittests">
+<h3>Unittests<a class="headerlink" href="#unittests" title="Permalink to this headline">¶</a></h3>
+<p>Unitests are used to test DataHub&#8217;s models and views.</p>
+<p>Run them from the <code class="docutils literal"><span class="pre">/src</span></code> directory:</p>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">$</span> <span class="pre">cd</span> <span class="pre">src</span></code></div>
+<div class="line"><code class="docutils literal"><span class="pre">$</span> <span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">test</span></code></div>
+</div>
+<p>Alternatively, they can be run individually:</p>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">$</span> <span class="pre">cd</span> <span class="pre">src</span></code></div>
+<div class="line"><code class="docutils literal"><span class="pre">$</span> <span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">test</span> <span class="pre">inventory</span></code> - tests models</div>
+<div class="line"><code class="docutils literal"><span class="pre">$</span> <span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">test</span> <span class="pre">www</span></code> - tests home page</div>
+<div class="line"><code class="docutils literal"><span class="pre">$</span> <span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">test</span> <span class="pre">account</span></code> - tests account management views</div>
+<div class="line"><code class="docutils literal"><span class="pre">$</span> <span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">test</span> <span class="pre">browser</span></code> - tests datahub core views</div>
+</div>
+</div>
+<div class="section" id="bdd-testing-with-behave">
+<h3>BDD Testing with Behave<a class="headerlink" href="#bdd-testing-with-behave" title="Permalink to this headline">¶</a></h3>
+<p>DataHub uses <a class="reference external" href="https://pythonhosted.org/behave/">Behave</a> for behavior driven development.</p>
+<p>Run it from the the <code class="docutils literal"><span class="pre">/src</span></code> directory:</p>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">$</span> <span class="pre">cd</span> <span class="pre">src</span></code></div>
+<div class="line"><code class="docutils literal"><span class="pre">$</span> <span class="pre">behave</span></code></div>
+</div>
+</div>
+</div>
 </div>
 
 
@@ -235,6 +264,11 @@ there is no need for internet connection).</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#building-sphinx-docs">Building Sphinx Docs</a></li>
+<li><a class="reference internal" href="#testing-datahub">Testing DataHub</a><ul>
+<li><a class="reference internal" href="#unittests">Unittests</a></li>
+<li><a class="reference internal" href="#bdd-testing-with-behave">BDD Testing with Behave</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
