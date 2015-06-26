@@ -78,9 +78,6 @@ urlpatterns = patterns('',
     ### Export ###
     url(r'^export/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table_export'),
 
-    url(r'^export/(\w+)/(\w+)/query/?$', 'browser.views.query_export'),
-
-    url(r'^export/(\w+)/(\w+)/card/(\w+)/?$', 'browser.views.card_export'),
     ### End Export ####
 
 
@@ -94,7 +91,6 @@ urlpatterns = patterns('',
     #### Settings ####
     url(r'^settings/(\w+)/(\w+)/?$', 'browser.views.repo_settings'),
 
-    url(r'^settings/(\w+)/?$', 'browser.views.user_settings'),
     #### End Settings ####
 
 
