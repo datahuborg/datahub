@@ -43,11 +43,11 @@ urlpatterns = patterns('',
 
     url(r'^create/(\w+)/(\w+)/dashboard/(\w+)/?$', 'browser.views.dashboard_create'),
 
-    url(r'^create/organization/(\w+)/?$', 'browser.views.organization_create'),
+    # url(r'^create/organization/(\w+)/?$', 'browser.views.organization_create'),
 
-    url(r'^create/(\w+)/group/(\w+)/?$', 'browser.views.group_create'),
+    # url(r'^create/(\w+)/group/(\w+)/?$', 'browser.views.group_create'),
 
-    url(r'^create/app/(\w+)/?$', 'browser.views.app_create'),
+    # url(r'^create/app/(\w+)/?$', 'browser.views.app_create'),
 
     url(r'^create/annotation/?$', 'browser.views.create_annotation'),
     #### End Create ####

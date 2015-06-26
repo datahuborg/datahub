@@ -79,19 +79,6 @@ class Annotation (models.Model):
     db_table = "annotations"
 
 
-class Comments (models.Model):
-  id = models.AutoField(primary_key=True)
-  timestamp = models.DateTimeField(auto_now=True)
-  url_path = models.CharField (max_length=500)
-  comment = models.TextField ()
-
-  def __unicode__ (self):
-    return self.id
-
-  class Meta:
-    db_table = "comments"
-
-
 class App (models.Model):
   id = models.AutoField(primary_key=True)
   timestamp = models.DateTimeField(auto_now=True)
