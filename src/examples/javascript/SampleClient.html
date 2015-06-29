@@ -27,7 +27,7 @@ client = new DataHubClient(protocol),
 con_params = new ConnectionParams({'user': 'anantb', 'password': 'anant'}),
 con = client.open_connection(con_params),
 
-res = client.execute_sql(con, "SELECT * FROM pawademo.table2006 limit 100");
+res = client.execute_sql(con, "SELECT * FROM nea.table2006 limit 100");
 
 $('#results').append('<tr><th>' + res.field_names.join('</th><th>') + '</th></tr>');
 

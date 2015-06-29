@@ -30,7 +30,7 @@ Sample javascript viz using DataHub
 transport = new Thrift.Transport("http://datahub.csail.mit.edu/service/json"),
 protocol = new Thrift.Protocol(transport),
 client = new DataHubClient(protocol),
-con_params = new ConnectionParams({app_id:'confer', app_token:'d089b3ed-1d82-4eae-934a-859d7070d364', repo_base:'anantb'}),
+con_params = new ConnectionParams({'user': 'anantb', 'password': 'anant'}),
 con = client.open_connection(con_params),
 res = client.execute_sql(con, 'select pay_basis, count(*) from california.table2006 group by pay_basis');
 
