@@ -6,16 +6,19 @@ from django.http import HttpRequest
 from django.core.urlresolvers import resolve
 
 from inventory.models import User
-from account.auth import login, register, clear_session, logout, forgot, verify, reset, jdbc_password 
+from account.auth import login, register, clear_session, logout, forgot
+from account.auth import verify, reset, jdbc_password 
 
 
 class LoginPageTest(TestCase):
 
     def setUp(self):
         self.client = Client(enforce_csrf_checks=False)
+        self.password = "password"
+        self.hashed_password = hashlib.sha1("password").hexdigest()
         self.user, created = User.objects.get_or_create(id=10, username="user", 
-            password="pass", email="noreply.csail.mit.edu", f_name="f_name", l_name="l_name", 
-            active=True)
+            password=self.hashed_password, email="noreply.csail.mit.edu", f_name="f_name", 
+            l_name="l_name", active=True)
 
     def test_login_url_resolves_to_login_page_view(self):
         found = resolve('/account/login')
@@ -28,12 +31,12 @@ class LoginPageTest(TestCase):
 
     def test_login_page_allows_user_to_login(self):
         login_credentials = {'login_id': self.user.username, 
-        'login_password': self.user.password}
+        'login_password': self.password}
         response = self.client.post('/account/login', login_credentials) 
         
-        self.assertEqual(response.status_code, 200)
-        self.fail('test not completed. Users the test creates cannot \
-            authenticate because their password hashes will not match.')
+        # should redirect to the authenticated user page
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue("/?auth_user=user" in response.url)
 
 
 class RegisterPageTest(TestCase):
@@ -58,20 +61,52 @@ class RegisterPageTest(TestCase):
 
 class LogoutPageTest(TestCase):
     def setUp(self):
-         self.client = Client(enforce_csrf_checks=False)
-         # create a new user
+        self.client = Client(enforce_csrf_checks=False)
+        self.password = "password"
+        self.hashed_password = hashlib.sha1("password").hexdigest()
+        self.user, created = User.objects.get_or_create(id=10, username="user", 
+            password=self.hashed_password, email="noreply.csail.mit.edu", f_name="f_name", 
+            l_name="l_name", active=True)
 
     def test_logout_url_resolves_to_logout_page_view(self):
         found = resolve('/account/logout')
         self.assertEqual(found.func, logout)
 
     def test_logout_page_returns_correct_template(self):
+        # log the user in
+        login_credentials = {'login_id': self.user.username, 
+        'login_password': self.password}
+        response = self.client.post('/account/login', login_credentials) 
+        
+        # user should redirect to the authenticated user page
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue("/?auth_user=user" in response.url)
+
+        # logout should return the confirmation page
         response = self.client.get('/account/logout')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'confirmation.html')
 
     def test_logout_page_actually_logs_users_out(self):
-        self.fail('test not yet implemented')
+        
+        # log the user in
+        login_credentials = {'login_id': self.user.username, 
+        'login_password': self.password}
+        response = self.client.post('/account/login', login_credentials) 
+        
+        # user should redirect to the authenticated user page
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue("/?auth_user=user" in response.url)
+
+        # log the user out
+        response = self.client.get("/account/logout")
+
+        # check to make sure the login page redirects to login.html
+        # and not a different authenticated page
+        response = self.client.get("/account/login")
+        self.assertTemplateUsed(response, 'login.html')
+
+
 
 
 class ForgotPasswordPageTest(TestCase):
@@ -101,8 +136,13 @@ class ForgotPasswordPageTest(TestCase):
 
 class JdbcPasswordTest(TestCase):
     def setUp(self):
-        self.client = Client(enforce_csrf_checks=False)
         # create a new user
+        self.client = Client(enforce_csrf_checks=False)
+        self.password = "password"
+        self.hashed_password = hashlib.sha1("password").hexdigest()
+        self.user, created = User.objects.get_or_create(id=10, username="user", 
+            password=self.hashed_password, email="noreply.csail.mit.edu", f_name="f_name", 
+            l_name="l_name", active=True)
 
     def test_jdbc_password_unauthenticated(self):
         # test that this redirects unauthentiated users to the login page
@@ -110,12 +150,18 @@ class JdbcPasswordTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'login.html')
 
-    def test_jdbc_password_unauthenticated(self):
-        # test is incomplete. it should check to make sure the password
-        # hashing is correct.
+    def test_jdbc_password_authenticated(self):
+        # login
+        login_credentials = {'login_id': self.user.username, 
+        'login_password': self.password}
+        response = self.client.post('/account/login', login_credentials)
+
+        # get the jdbc password
         response = self.client.get('/account/jdbc_password', follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.fail('test not yet implemented')
+
+        # this is not safe. Will be fixed using OIDC connect - ARC 2015-07-06
+        self.assertContains(response, self.hashed_password, count=None, status_code=200, msg_prefix='', html=False)
+
 
 class ResetPasswordTest(TestCase):
     def setUp(self):

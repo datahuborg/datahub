@@ -425,6 +425,7 @@ def get_login(request):
 
 @login_required
 def jdbc_password(request):
+  # this is not safe. Will be fixed using OIDC connect - ARC 2015-07-06
   login = request.session[kUsername]
   user = User.objects.get(username=login)
   return HttpResponse(user.password)
