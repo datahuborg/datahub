@@ -24,38 +24,57 @@ class BrowserPagesNotRequiringAuthentication(TestCase):
 
 
 # tests below this comment require authentication
+# if these fail because a role/database already exists
+# you will need to log into postgres and
+# drop database username;
+# drop role username;
 
 class CreateAndDeleteRepo(TestCase):
     def setUp(self):
         self.client = Client(enforce_csrf_checks=False)
 
         # create the user
-        self.username = "myoneusername21"
+        self.username = "username"
         self.password = "password"
-        self.hashed_password = hashlib.sha1("password").hexdigest()
-        # self.user, created = User.objects.get_or_create(id=10, username="user", 
-        #     password=self.hashed_password, email="noreply.csail.mit.edu", f_name="f_name", 
-        #     l_name="l_name", active=True)
+        self.hashed_password = hashlib.sha1(self.password).hexdigest()
         DataHubManager.create_user(username=self.username, password=self.hashed_password)
-
+        
+        user = User(username=self.username, email="noreply@mit.edu", 
+            password=self.hashed_password)
+        user.save()
+       
         # log the user in
         login_credentials = {'login_id': self.username, 
         'login_password': self.password}
         self.client.post('/account/login', login_credentials) 
 
+    def tearDown(self):
+        DataHubManager.remove_user_and_database(username=self.username)
+
     def test_create_repo_resolves_to_create_func(self):
-        found = resolve('/create/' + self.username+ '/repo')
+        found = resolve('/create/' + self.username+ '/repo/')
         self.assertEqual(found.func, repo_create)
 
-    # def test_create_repo_returns_correct_page(self):
-    #     post_object = {'repo': 'sadflkw'}
+    def test_create_repo_returns_correct_page(self):
+        login_credentials = {'login_id': self.username, 
+        'login_password': self.password}
 
-    #     response = self.client.post('/create/myoneusername/repo', post_object)
-    #     # self.assertEqual(1, 1)
-    #     import pdb
-    #     pdb.set_trace()
-    #     self.assertTemplateUsed(response, 'repo-create.html')
-        
+        response = self.client.get('/create/' + self.username + '/repo', follow=True)
+        self.assertTemplateUsed(response, 'repo-create.html')
+
+
+    def test_create_repo_creates_a_repo(self):
+        # create the new repo
+        post_object = {'repo': 'repo_name'}
+        response = self.client.post('/create/' + self.username + '/repo', post_object)
+
+        # get a list of repos that the user owns
+        manager = DataHubManager(user=self.username)
+        res = manager.list_repos() 
+        repos = [t[0] for t in res['tuples']]
+
+        # make sure that it's in there
+        self.assertTrue('repo_name' in repos)
 
     def createCard(self):
         pass
