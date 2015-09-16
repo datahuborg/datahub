@@ -8,6 +8,17 @@
   {% csrf_token %}
   <input type="hidden" class="form-control" name="redirect_url" value="{{redirect_url}}" />
   <h3>Create a new account</h3>
+  <br />
+  <div class="oidc-buttons">
+    <button class="btn btn-default oidc-mit">MIT</button>
+    <button class="btn btn-default oidc-google">Google</button>
+  </div>
+  <br />
+  <div class="row signup-or">
+    <div class="col-xs-5"><hr></div>
+    <div class="col-xs-2 or-text">or</div>
+    <div class="col-xs-5"><hr></div>
+  </div>
   <div id="error">
     {% for error in errors %}
       <span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
