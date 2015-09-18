@@ -20,6 +20,7 @@ from multiprocessing import Pool
 from browser.utils import *
 from core.db.manager import DataHubManager
 from inventory.models import *
+from oidc.authn import oidc_user_info
 
 p = os.path.abspath(os.path.dirname(__file__))
 
@@ -66,7 +67,10 @@ def login_form (request, redirect_url='/', errors=[]):
 
 
 def register_form (request, redirect_url='/', errors=[]):
-  c = {'redirect_url':redirect_url, 'errors':errors, 'values':request.REQUEST}
+  user_info = oidc_user_info(request)
+  values = user_info
+  values.update(request.REQUEST)
+  c = {'redirect_url':redirect_url, 'errors':errors, 'values':values}
   c.update(csrf(request))
   return render_to_response('register.html', c)
 

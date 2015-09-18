@@ -26,6 +26,7 @@ urlpatterns = patterns('',
 
     #### Account Related ####
     url(r'^account/', include('account.urls')),
+    url(r'^oidc/', include('oidc.urls')),
     #### End Account Related ####
 
 
