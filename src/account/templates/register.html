@@ -33,6 +33,12 @@
   <input type="password" class="form-control" name="password" id="password" placeholder="Create a password" {% if values.password %}value="{{values.password}}"{% endif %}/><br />
   <button type="submit" class="btn btn-lg btn-success btn-block">Sign Up for DataHub</button>
   <br />
+  <small class="debug-block small">
+    <a href="/oidc/logout">Clear Session</a><br />
+    {% for key, value in values.items %}
+      {{key}}: <pre>{{value}}</pre><br />
+    {% endfor %}
+  </small>
 </form>
 </div>
 {% endblock %}

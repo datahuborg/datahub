@@ -9,20 +9,56 @@ from oic.exception import PyoidcError
 
 import re
 
+# This configuration info only works if you use the domain name
+# datahub-local.mit.edu. If you want to use something different,
+# you can register your own OIDC client with MIT's server at
+# https://oidc.mit.edu/manage/dev/dynreg/new and with Google at
+# https://console.developers.google.com. Instructions for
+# Google are available at
+# https://developers.google.com/identity/protocols/OpenIDConnect.
 
-def build_client(email):
+OIDC_CLIENT_CONFIG = {
+    'mit': {
+        'discovery_url': "https://oidc.mit.edu/",
+        'user_info_request_method': 'POST',
+        'redirect_uris': ["https://datahub-local.mit.edu/oidc/redirect"],
+        'client_info': {
+            "client_id": "4ca40749-0167-42f9-93ef-3fe01913e286",
+            "client_secret": "ALdm9d_rnG9RPkvhS5wMTqlRdpwaEstxhI_b5n2PP-3zaF5piPlF-n23jOzDfg0eN5gskeIHrK5595zZEuifKYA"
+        }
+    },
+    'google': {
+        'discovery_url': "https://accounts.google.com/",
+        'user_info_request_method': 'GET', # Google's user_info_endpoint only supports GET
+        'redirect_uris': ["https://datahub-local.mit.edu/oidc/redirect"],
+        'client_info': {
+            "client_id": "709052285863-3nd6f2cb168iavlc7n47v92jqnioib5a.apps.googleusercontent.com",
+            "client_secret": "JGdH-6svbSnypuIccfeoNXwt"
+        }
+    }
+}
+
+class OIDCError(Exception):
+    def __init__(self, errmsg, message="", *args):
+        Exception.__init__(self, errmsg, *args)
+        self.message = message
+
+def build_client(provider):
+    if provider not in OIDC_CLIENT_CONFIG:
+        raise OIDCError("Unknown provider.")
+
+    config = OIDC_CLIENT_CONFIG[provider]
+    client_info = config['client_info']
+
     client = Client(client_authn_method=CLIENT_AUTHN_METHOD)
-    uid = email  # "jander@oidc.mit.edu"  # Can't use @mit.edu because web.mit.edu seems to have a bad certificate chain.
-    issuer = client.discover(uid)  # Need the MIT CA installed in a place OpenSSL can reach or this will fail.
-    client.provider_config(issuer)
-    client.redirect_uris = ["https://datahub-local.mit.edu/oidc/redirect"]
+    client.provider_config(config["discovery_url"])
+    client.redirect_uris = config["redirect_uris"]
 
-    info = {"client_id": "4ca40749-0167-42f9-93ef-3fe01913e286", "client_secret": "ALdm9d_rnG9RPkvhS5wMTqlRdpwaEstxhI_b5n2PP-3zaF5piPlF-n23jOzDfg0eN5gskeIHrK5595zZEuifKYA"}
-    client_reg = RegistrationResponse(**info)
-
+    client_reg = RegistrationResponse(**client_info)
     client.client_info = client_reg
-    client.client_id = info["client_id"]
-    client.client_secret = info["client_secret"]
+    client.client_id = client_info["client_id"]
+    client.client_secret = client_info["client_secret"]
+
     return client
 
 
@@ -37,14 +73,6 @@ def provider_login(request):
     elif 'HTTP_REFERER' in request.META:
         request.session['target'] = request.META['HTTP_REFERER']
 
-    # Webfinger returns a 404 if you don't provide a real username. This should be redone to be more like the rp3 example, with provider config done in a settings file instead of grabbing it dynamically.
-    if provider == 'mit':
-        provider = 'jander@oidc.mit.edu'
-    elif provider == 'google':
-        provider = 'something@accounts.google.com'
-    else:
-        return HttpResponseBadRequest("Unsupported provider.")
-
     client = build_client(provider)
 
     request.session['provider'] = provider
@@ -52,7 +80,7 @@ def provider_login(request):
     request.session['nonce'] = rndstr()
 
     args = {
-        "client_id": "4ca40749-0167-42f9-93ef-3fe01913e286",
+        "client_id": client.client_id,
         "response_type": "code",
         "scope": ["openid", "email", "profile"],
         "state": request.session['state'],
@@ -92,9 +120,7 @@ def provider_callback(request):
                                             authn_method="client_secret_basic"
                                             )
 
-    # Save OAuth access token for later
-    # return HttpResponse("Will redirect to \"{0}\"".format(target))
-
+    # Save provider's OAuth access token for later
     access_token = atresp['access_token']
     request.session['access_token'] = access_token
 
@@ -103,25 +129,36 @@ def provider_callback(request):
         target = re.sub(r"^http:", "https:", target)
         del request.session['target']
     else:
-        target = request.META['HTTP_HOST']
+        target = 'https://' + request.META['HTTP_HOST']
 
     return HttpResponseRedirect(target)
 
-    # return HttpResponse(user_info.to_json())
+def logout(request):
+    request.session.flush()
 
+    if 'HTTP_REFERER' in request.META:
+        target = request.META['HTTP_REFERER']
+    else:
+        target = 'https://' + request.META['HTTP_HOST']
+
+    target = re.sub(r"^http:", "https:", target)
+    return HttpResponseRedirect(target)
 
 def oidc_user_info(request):
-    if 'access_token' not in request.session:
-        return None
-    access_token = request.session['access_token']
-
     try:
+        access_token = request.session['access_token']
         provider = request.session['provider']
+        request_method = OIDC_CLIENT_CONFIG[provider]['user_info_request_method']
         client = build_client(provider)
-        user_info = client.do_user_info_request(access_token=access_token)
-        user_info = user_info.to_dict()
-        user_info['username'] = user_info['preferred_username']
+        user_info = client.do_user_info_request(method=request_method, access_token=access_token)
+        result = user_info.to_dict()
+        result['issuer'] = client.provider_info['issuer']
+        if 'preferred_username' in result:
+            result['username'] = result['preferred_username']
+        result['access_token'] = access_token
+    except KeyError as error:
+        result = { "debug": str(error) + " not found." }
     except PyoidcError:
-        user_info = {}
+        result = { "error": "PyoidcError", "provider": provider }
 
-    return user_info
+    return result
