@@ -8,7 +8,8 @@ then
   apt-get -y install postgresql-contrib \
                      postgresql-server-dev-all \
                      python-dev python-pip \
-                     thrift-compiler
+                     thrift-compiler \
+                     libffi-dev
 
   export PGPASSWORD=postgres
   export PGUSER=postgres
