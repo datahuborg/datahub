@@ -15,7 +15,8 @@ DATABASES = {
     'NAME': 'datahub',                      # Or path to database file if using sqlite3.
     'USER': 'postgres',                      # Not used with sqlite3.
     'PASSWORD': 'postgres',                  # Not used with sqlite3.
-    'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
+    'HOST': 'db',                        # Change to localhost if not using the Vagrant/Docker setup.
+                                         # Docker adds the db container to /etc/hosts automatically.
     'PORT': '5432',                      # Set to empty string for default. Not used with sqlite3.
   }
 }
