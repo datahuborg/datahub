@@ -16,10 +16,14 @@ docker run --name datahub -d -v /vagrant:/datahub -v /user_data:/user_data --lin
 
 export DATAHUBIP=`docker inspect -f '{{ .NetworkSettings.IPAddress }}' datahub`
 
+# create SSH tunnel to give an HTTPS path to datahub
+docker run --name stunnel -d -v /vagrant:/datahub --link datahub:datahub -p 443:443 ubuntu /bin/bash -C "/datahub/provisions/stunnel.sh"
+
 
 echo "
 #!/bin/bash
 
+docker stop stunnel
 docker stop datahub
 docker stop db
 " > /etc/rc6.d/K99_stop_docker
@@ -31,6 +35,7 @@ echo "
 
 docker start db
 docker start datahub
+docker start stunnel
 " > /etc/init.d/start_dockers
 
 chmod +x /etc/init.d/start_dockers
