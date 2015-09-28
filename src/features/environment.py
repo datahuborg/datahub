@@ -1,5 +1,7 @@
+from __future__ import print_function
 import os
 import sys
+import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
@@ -12,13 +14,9 @@ path = os.path.join(PROJECT_ROOT, 'gen-py')
 sys.path.append(path)
 
 def before_all(context):
-    from django.core.management import setup_environ
-    from config import settings
     from django.test import Client
-    
-    setup_environ(settings)
+    django.setup()
     context.client = Client()
-
 
 def before_scenario(context, scenario):
     pass
@@ -26,3 +24,8 @@ def before_scenario(context, scenario):
 
 def after_scenario(context, scenario):
     pass
+
+def after_step(context, step):
+    if step.status == "failed":
+        import pdb
+        pdb.post_mortem(step.exc_traceback)

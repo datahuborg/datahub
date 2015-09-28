@@ -187,6 +187,16 @@ class PGBackend:
     query = ''' DROP ROLE %s ''' %(username)
     return self.execute_sql(query)
 
+  def remove_user_and_database(self, username):
+    # This is not safe. If a user has shared repos
+    # with another user, it will crash.
+    # The method is here primarily for testing purposes.
+    query = ''' DROP DATABASE %s''' %(username)
+    self.execute_sql(query);
+
+    query = ''' DROP ROLE %s''' %(username)
+    return self.execute_sql(query)
+
   def change_password(self, username, password):
     query = ''' ALTER ROLE %s WITH PASSWORD '%s'
             ''' %(username, password)

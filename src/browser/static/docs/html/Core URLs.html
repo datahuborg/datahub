@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="DH_Doc 0.1 documentation" href="index.html" />
-    <link rel="prev" title="Core Apps" href="Core Apps.html" />
+    <link rel="prev" title="Visuzliation App" href="django-app-viz2.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -38,7 +38,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="Core Apps.html" title="Core Apps"
+          <a href="django-app-viz2.html" title="Visuzliation App"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">DH_Doc 0.1 documentation</a> &raquo;</li> 
       </ul>
@@ -106,22 +106,6 @@
 </div>
 <p>In this way, they&#8217;re database independent.)</p>
 <div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">url(r'^create/(\w+)/(\w+)/dashboard/(\w+)/?$',</span> <span class="pre">'browser.views.dashboard_create')</span></code></div>
-<div class="line">This function doesn&#8217;t exist. I&#8217;m not sure what&#8217;s going on here.</div>
-</div>
-<div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">url(r'^create/organization/(\w+)/?$',</span> <span class="pre">'browser.views.organization_create')</span></code></div>
-<div class="line">This function doesn&#8217;t exist either.</div>
-</div>
-<div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">url(r'^create/(\w+)/group/(\w+)/?$',</span> <span class="pre">'browser.views.group_create')</span></code></div>
-<div class="line">DNE</div>
-</div>
-<div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">url(r'^create/app/(\w+)/?$',</span> <span class="pre">'browser.views.app_create')</span></code></div>
-<div class="line">DNE</div>
-</div>
-<div class="line-block">
 <div class="line"><code class="docutils literal"><span class="pre">url(r'^create/annotation/?$',</span> <span class="pre">'browser.views.create_annotation')</span></code></div>
 <div class="line">Users create annotations to describe tables views and cards for future reference</div>
 </div>
@@ -139,14 +123,6 @@
 <div class="line-block">
 <div class="line"><code class="docutils literal"><span class="pre">url(r'^browse/(\w+)/(\w+)/card/(.+)/?$',</span> <span class="pre">'browser.views.card')</span></code></div>
 <div class="line">View a query that was previously saved in datahub (whtout a view)</div>
-</div>
-<div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">url(r'^browse/(\w+)/(\w+)/dashboard/(\w+)/?$',</span> <span class="pre">'browser.views.dashboard')</span></code></div>
-<div class="line">DNE</div>
-</div>
-<div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">url(r'^browse/(\w+)/(\w+)/?$',</span> <span class="pre">'browser.views.repo')</span></code></div>
-<div class="line">DNE</div>
 </div>
 <div class="line-block">
 <div class="line"><code class="docutils literal"><span class="pre">url(r'^browse/(\w+)/(\w+)/tables/?$',</span> <span class="pre">'browser.views.repo_tables')</span></code></div>
@@ -184,10 +160,6 @@
 <div class="line">Delete a card</div>
 </div>
 <div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">url(r'^delete/(\w+)/(\w+)/dashboard/(\w+)/?$',</span> <span class="pre">'browser.views.dashboard_delete')</span></code></div>
-<div class="line">Delete a dashboard</div>
-</div>
-<div class="line-block">
 <div class="line"><code class="docutils literal"><span class="pre">url(r'^delete/(\w+)/(\w+)/file/([\w\d\-\.]+)/?$',</span> <span class="pre">'browser.views.file_delete')</span></code></div>
 <div class="line">Delete a file</div>
 </div>
@@ -198,28 +170,20 @@
 <div class="line"><code class="docutils literal"><span class="pre">url(r'^export/(\w+)/(\w+)/table/(\w+)/?$',</span> <span class="pre">'browser.views.table_export')</span></code></div>
 <div class="line">Export a table as a CSV</div>
 </div>
-<div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">url(r'^export/(\w+)/(\w+)/query/?$',</span> <span class="pre">'browser.views.query_export')</span></code></div>
-<div class="line">DNE</div>
-</div>
-<div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">url(r'^export/(\w+)/(\w+)/card/(\w+)/?$',</span> <span class="pre">'browser.views.card_export')</span></code></div>
-<div class="line">DNE</div>
-</div>
 </div>
 <div class="section" id="special-file-operations">
 <h2>Special File Operations<a class="headerlink" href="#special-file-operations" title="Permalink to this headline">¶</a></h2>
 <div class="line-block">
 <div class="line"><code class="docutils literal"><span class="pre">url(r'^upload/(\w+)/(\w+)/file/?$',</span> <span class="pre">'browser.views.file_upload')</span></code></div>
-<div class="line">DNE</div>
+<div class="line">Upload a file to datahub, for processing</div>
 </div>
 <div class="line-block">
 <div class="line"><code class="docutils literal"><span class="pre">url(r'^import/(\w+)/(\w+)/file/([\w\d\-\.]+)',</span> <span class="pre">'browser.views.file_import')</span></code></div>
-<div class="line">DNE</div>
+<div class="line">Import a file&#8217;s data</div>
 </div>
 <div class="line-block">
 <div class="line"><code class="docutils literal"><span class="pre">url(r'^download/(\w+)/(\w+)/file/([\w\d\-\.]+)',</span> <span class="pre">'browser.views.file_download')</span></code></div>
-<div class="line">DNE</div>
+<div class="line">Download a file previously uploaded to datahub</div>
 </div>
 </div>
 <div class="section" id="settings">
@@ -227,10 +191,6 @@
 <div class="line-block">
 <div class="line"><code class="docutils literal"><span class="pre">url(r'^settings/(\w+)/(\w+)/?$',</span> <span class="pre">'browser.views.repo_settings')</span></code></div>
 <div class="line">Manage repository settings, including collaborators</div>
-</div>
-<div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">url(r'^settings/(\w+)/?$',</span> <span class="pre">'browser.views.user_settings')</span></code></div>
-<div class="line">DNE</div>
 </div>
 </div>
 <div class="section" id="collaborators">
@@ -240,7 +200,7 @@
 <div class="line">Add a collaborator to a repo</div>
 </div>
 <div class="line-block">
-<div class="line">url(r&#8217;^collaborator/repo/(w+)/(w+)/remove/(w+)/?$&#8217;, &#8216;browser.views.``repo_collaborators_remove&#8217;)``</div>
+<div class="line"><code class="docutils literal"><span class="pre">url(r'^collaborator/repo/(\w+)/(\w+)/remove/(\w+)/?$',</span> <span class="pre">'browser.views.``repo_collaborators_remove')</span></code></div>
 <div class="line">Remove a collaborator from a repo</div>
 </div>
 </div>
@@ -324,8 +284,8 @@
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="Core Apps.html"
-                        title="previous chapter">Core Apps</a></p>
+  <p class="topless"><a href="django-app-viz2.html"
+                        title="previous chapter">Visuzliation App</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">

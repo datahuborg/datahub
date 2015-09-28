@@ -166,3 +166,37 @@ Building Sphinx Docs
 ``make html`` rebuilds the documentation.
 
 When submitting a pull request, you must include sphinx documentation. You can achieve this by adding ``*.rst`` and linking them from other ``*.rst`` files. See `the sphinx tutorial <http://sphinx-doc.org/tutorial.html>`__ for more information.
+
+===============
+Testing DataHub
+===============
+
+---------
+Unittests
+---------
+
+Unitests are used to test DataHub's models and views.
+
+Run them from the ``/src`` directory:
+
+| ``$ cd src``
+| ``$ python manage.py test``
+
+Alternatively, they can be run individually:
+
+| ``$ cd src``
+| ``$ python manage.py test inventory`` - tests models
+| ``$ python manage.py test www`` - tests home page
+| ``$ python manage.py test account`` - tests account management views
+| ``$ python manage.py test browser`` - tests datahub core views
+
+-----------------------
+BDD Testing with Behave
+-----------------------
+
+DataHub uses `Behave <https://pythonhosted.org/behave/>`__ for behavior driven development.
+
+Run it from the the ``/src`` directory:
+
+| ``$ cd src``
+| ``$ behave``

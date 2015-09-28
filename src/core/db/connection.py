@@ -79,6 +79,9 @@ class DataHubConnection:
   def remove_user(self, username):
     return self.backend.remove_user(username)
 
+  def remove_user_and_database(self, username):
+    return self.backend.remove_user_and_database(username)
+
   def change_password(self, username, password):
     return self.backend.change_password(username, password)
 

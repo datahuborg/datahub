@@ -38,34 +38,6 @@ class Card (models.Model):
     db_table = "cards"
 
 
-class Dashboard (models.Model):
-  id = models.AutoField(primary_key=True)
-  timestamp = models.DateTimeField(auto_now=True)
-  url_path = models.CharField (max_length=200, unique = True)
-  repo_base = models.CharField(max_length=50)
-  repo_name = models.CharField(max_length=50)
-  dashboard_name = models.CharField (max_length=50)
-
-  def __unicode__ (self):
-    return self.url_path
-
-  class Meta:
-    db_table = "dashboards"
-
-
-class DashboardCard (models.Model):
-  id = models.AutoField(primary_key=True)
-  timestamp = models.DateTimeField(auto_now=True)
-  card = models.ForeignKey ('Card')
-  dashboard = models.ForeignKey ('Dashboard')
-  
-  def __unicode__ (self):
-    return self.id
-
-  class Meta:
-    db_table = "dashboard_cards"
-
-
 class Annotation (models.Model):
   id = models.AutoField(primary_key=True)
   timestamp = models.DateTimeField(auto_now=True)
@@ -77,19 +49,6 @@ class Annotation (models.Model):
 
   class Meta:
     db_table = "annotations"
-
-
-class Comments (models.Model):
-  id = models.AutoField(primary_key=True)
-  timestamp = models.DateTimeField(auto_now=True)
-  url_path = models.CharField (max_length=500)
-  comment = models.TextField ()
-
-  def __unicode__ (self):
-    return self.id
-
-  class Meta:
-    db_table = "comments"
 
 
 class App (models.Model):

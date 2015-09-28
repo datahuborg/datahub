@@ -17,7 +17,7 @@ urlpatterns = patterns('',
     #### Home Page ####
     url(r'^$', 'browser.views.home'),
     url(r'^about$', 'browser.views.about'),  # for backward compatibility
-    url(r'^favicon\.ico$', RedirectView.as_view(url='/static/images/favicon.ico')),
+    url(r'^favicon\.ico$', RedirectView.as_view(url='/static/images/favicon.ico', permanent=True)),
     #### End Home ####
 
     #### WWW Pages ####
@@ -41,14 +41,6 @@ urlpatterns = patterns('',
 
     url(r'^create/(\w+)/(\w+)/card/?$', 'browser.views.card_create'),
 
-    url(r'^create/(\w+)/(\w+)/dashboard/(\w+)/?$', 'browser.views.dashboard_create'),
-
-    url(r'^create/organization/(\w+)/?$', 'browser.views.organization_create'),
-
-    url(r'^create/(\w+)/group/(\w+)/?$', 'browser.views.group_create'),
-
-    url(r'^create/app/(\w+)/?$', 'browser.views.app_create'),
-
     url(r'^create/annotation/?$', 'browser.views.create_annotation'),
     #### End Create ####
 
@@ -60,8 +52,6 @@ urlpatterns = patterns('',
 
     url(r'^browse/(\w+)/(\w+)/card/(.+)/?$', 'browser.views.card'),
 
-    url(r'^browse/(\w+)/(\w+)/dashboard/(\w+)/?$', 'browser.views.dashboard'),
-
     url(r'^browse/(\w+)/(\w+)/?$', 'browser.views.repo'),
 
     url(r'^browse/(\w+)/(\w+)/tables/?$', 'browser.views.repo_tables'),
@@ -69,8 +59,6 @@ urlpatterns = patterns('',
     url(r'^browse/(\w+)/(\w+)/files/?$', 'browser.views.repo_files'),
 
     url(r'^browse/(\w+)/(\w+)/cards/?$', 'browser.views.repo_cards'),
-
-    url(r'^browse/(\w+)/(\w+)/dashboards/?$', 'browser.views.repo_dashboards'),
 
     url(r'^browse/(\w+)/?$', 'browser.views.user'),
     #### End Browse ####
@@ -83,8 +71,6 @@ urlpatterns = patterns('',
 
     url(r'^delete/(\w+)/(\w+)/card/(\w+)/?$', 'browser.views.card_delete'),
 
-    url(r'^delete/(\w+)/(\w+)/dashboard/(\w+)/?$', 'browser.views.dashboard_delete'),
-
     url(r'^delete/(\w+)/(\w+)/file/([\w\d\-\.]+)/?$', 'browser.views.file_delete'),
     ### End Delete ####
 
@@ -92,9 +78,6 @@ urlpatterns = patterns('',
     ### Export ###
     url(r'^export/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table_export'),
 
-    url(r'^export/(\w+)/(\w+)/query/?$', 'browser.views.query_export'),
-
-    url(r'^export/(\w+)/(\w+)/card/(\w+)/?$', 'browser.views.card_export'),
     ### End Export ####
 
 
@@ -108,7 +91,6 @@ urlpatterns = patterns('',
     #### Settings ####
     url(r'^settings/(\w+)/(\w+)/?$', 'browser.views.repo_settings'),
 
-    url(r'^settings/(\w+)/?$', 'browser.views.user_settings'),
     #### End Settings ####
 
 
@@ -121,7 +103,7 @@ urlpatterns = patterns('',
     ### Developer Apps ###
     url(r'^developer/apps/?$', 'browser.views.apps'),
 
-    url(r'^developer/apps/register/?$', 'browser.views.apps_register'),
+    url(r'^developer/apps/register/?$', 'browser.views.app_register'),
 
     url(r'^developer/apps/remove/(\w+)/?$', 'browser.views.app_remove'),
     ### End Apps ###
