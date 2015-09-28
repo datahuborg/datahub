@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError, HttpResponseBadRequest
+from django.http import HttpResponseRedirect, HttpResponseBadRequest
 
 from oic.oic import Client
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
@@ -24,24 +24,30 @@ OIDC_CLIENT_CONFIG = {
         'redirect_uris': ["https://datahub-local.mit.edu/oidc/redirect"],
         'client_info': {
             "client_id": "4ca40749-0167-42f9-93ef-3fe01913e286",
-            "client_secret": "ALdm9d_rnG9RPkvhS5wMTqlRdpwaEstxhI_b5n2PP-3zaF5piPlF-n23jOzDfg0eN5gskeIHrK5595zZEuifKYA"
+            "client_secret": "ALdm9d_rnG9RPkvhS5wMTqlRdpwaEstxhI_b5n2PP-3zaF5p"
+                             "iPlF-n23jOzDfg0eN5gskeIHrK5595zZEuifKYA"
         }
     },
     'google': {
         'discovery_url': "https://accounts.google.com/",
-        'user_info_request_method': 'GET', # Google's user_info_endpoint only supports GET
+        # Google's user_info_endpoint only supports GET
+        'user_info_request_method': 'GET',
         'redirect_uris': ["https://datahub-local.mit.edu/oidc/redirect"],
         'client_info': {
-            "client_id": "709052285863-3nd6f2cb168iavlc7n47v92jqnioib5a.apps.googleusercontent.com",
+            "client_id": "709052285863-3nd6f2cb168iavlc7n47v92jqnioib5a.apps.g"
+                         "oogleusercontent.com",
             "client_secret": "JGdH-6svbSnypuIccfeoNXwt"
         }
     }
 }
 
+
 class OIDCError(Exception):
+
     def __init__(self, errmsg, message="", *args):
         Exception.__init__(self, errmsg, *args)
         self.message = message
+
 
 def build_client(provider):
     if provider not in OIDC_CLIENT_CONFIG:
@@ -99,11 +105,13 @@ def provider_callback(request):
 
     response = request.META["QUERY_STRING"]
 
-    aresp = client.parse_response(AuthorizationResponse, info=response, sformat="urlencoded")
+    aresp = client.parse_response(
+        AuthorizationResponse, info=response, sformat="urlencoded")
 
     # Make sure this is a callback we're expecting.
     received_state = aresp['state']
-    if 'state' not in request.session or request.session['state'] != received_state:
+    if ('state' not in request.session or
+            request.session['state'] != received_state):
         return HttpResponseBadRequest("States didn't match.")
     del request.session['state']
 
@@ -133,6 +141,7 @@ def provider_callback(request):
 
     return HttpResponseRedirect(target)
 
+
 def logout(request):
     request.session.flush()
 
@@ -144,21 +153,24 @@ def logout(request):
     target = re.sub(r"^http:", "https:", target)
     return HttpResponseRedirect(target)
 
+
 def oidc_user_info(request):
     try:
         access_token = request.session['access_token']
         provider = request.session['provider']
-        request_method = OIDC_CLIENT_CONFIG[provider]['user_info_request_method']
+        request_method = OIDC_CLIENT_CONFIG[
+            provider]['user_info_request_method']
         client = build_client(provider)
-        user_info = client.do_user_info_request(method=request_method, access_token=access_token)
+        user_info = client.do_user_info_request(
+            method=request_method, access_token=access_token)
         result = user_info.to_dict()
         result['issuer'] = client.provider_info['issuer']
         if 'preferred_username' in result:
             result['username'] = result['preferred_username']
         result['access_token'] = access_token
     except KeyError as error:
-        result = { "debug": str(error) + " not found." }
+        result = {"debug": str(error) + " not found."}
     except PyoidcError:
-        result = { "error": "PyoidcError", "provider": provider }
+        result = {"error": "PyoidcError", "provider": provider}
 
     return result
