@@ -61,7 +61,7 @@ def login_required (f):
 
 
 def login_form (request, redirect_url='/', errors=[]):
-  c = {'redirect_url':redirect_url, 'errors':errors, 'values':request.REQUEST}
+  c = {'redirect_url':redirect_url, 'errors':errors, 'values':request.GET}
   c.update(csrf(request))
   return render_to_response('login.html', c)
 
@@ -69,7 +69,7 @@ def login_form (request, redirect_url='/', errors=[]):
 def register_form (request, redirect_url='/', errors=[]):
   user_info = oidc_user_info(request)
   values = user_info
-  values.update(request.REQUEST)
+  values.update(request.GET)
   c = {'redirect_url':redirect_url, 'errors':errors, 'values':values}
   c.update(csrf(request))
   return render_to_response('register.html', c)
@@ -310,7 +310,7 @@ def forgot (request):
     c.update(csrf(request))
     return render_to_response('forgot.html', c)
   else:
-    c = {'values': request.REQUEST} 
+    c = {'values': request.GET} 
     c.update(csrf(request))
     return render_to_response('forgot.html', c)
 
@@ -429,6 +429,7 @@ def get_login(request):
 
 @login_required
 def jdbc_password(request):
+  # this is not safe. Will be fixed using OIDC connect - ARC 2015-07-06
   login = request.session[kUsername]
   user = User.objects.get(username=login)
   return HttpResponse(user.password)

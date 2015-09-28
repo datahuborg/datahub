@@ -19,13 +19,3 @@ def index(request):
         json.dumps({'error': str(e)}),
         content_type="application/json")
 
-def developer_apis(request):
-  ''' currently not functioning, since layout.html files link
-      directly to the static thrift files'''
-  try:
-    c = {'login': get_login(request)} 
-    return render_to_response("apis.html", c)
-  except Exception, e:
-    return HttpResponse(
-        json.dumps({'error': str(e)}),
-        content_type="application/json")
