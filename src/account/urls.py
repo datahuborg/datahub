@@ -1,6 +1,7 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, url
 
-urlpatterns = patterns('',    
+urlpatterns = patterns(
+    '',
     url(r'^login', 'account.auth.login'),
     url(r'^register', 'account.auth.register'),
     url(r'^logout', 'account.auth.logout'),
