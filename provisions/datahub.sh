@@ -15,8 +15,6 @@ then
   export PGUSER=postgres
   createdb -h db -p 5432 -U postgres datahub
 
-  mkdir /user_data
-
   pip install virtualenv
   virtualenv venv
 fi
