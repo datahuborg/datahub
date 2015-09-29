@@ -7,13 +7,12 @@ wget -qO- https://get.docker.com/ | sh
 export PGPASSWORD=postgres
 export PGUSER=postgres
 
-
 # create database container
-docker run --name db -e POSTGRES_PASSWORD=$PGPASSWORD -e POSTGRES_USER=$PGUSER -p 5432:5432 -d postgres
+docker run --name db  -v /user_data:/user_data:ro -e POSTGRES_PASSWORD=$PGPASSWORD -e POSTGRES_USER=$PGUSER -p 5432:5432 -d postgres
 export DBIP=`docker inspect -f '{{ .NetworkSettings.IPAddress }}' db`
 
 # create datahub container
-docker run --name datahub -d -v /vagrant:/datahub --link db:db -p 80:80 ubuntu /bin/bash -C "/datahub/provisions/datahub.sh"
+docker run --name datahub -d -v /vagrant:/datahub -v /user_data:/user_data --link db:db -p 80:80 ubuntu /bin/bash -C "/datahub/provisions/datahub.sh"
 
 export DATAHUBIP=`docker inspect -f '{{ .NetworkSettings.IPAddress }}' datahub`
 
