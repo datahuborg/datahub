@@ -76,7 +76,7 @@ def register_form(request, redirect_url='/', errors=[]):
 
 def login(request):
     redirect_url = '/'
-    if('redirect_url' in request.GET.keys()):
+    if ('redirect_url' in request.GET.keys()):
         redirect_url = urllib.unquote_plus(request.GET['redirect_url'])
 
     if not redirect_url or redirect_url == '':
@@ -85,7 +85,7 @@ def login(request):
     if request.method == "POST":
         errors = []
 
-        if('redirect_url' in request.POST.keys()):
+        if ('redirect_url' in request.POST.keys()):
             redirect_url = urllib.unquote_plus(request.POST['redirect_url'])
 
         email = None
@@ -112,8 +112,8 @@ def login(request):
             request.session[kEmail] = user.email
             request.session[kUsername] = user.username
 
-            redirect_url = redirect_url + \
-                urllib.unquote_plus('?auth_user=%s' % (user.username))
+            redirect_url = redirect_url + urllib.unquote_plus(
+                '?auth_user=%s' % (user.username))
             return HttpResponseRedirect(redirect_url)
         except User.DoesNotExist:
             try:
@@ -143,9 +143,8 @@ def login(request):
     else:
         try:
             if request.session[kUsername]:
-                redirect_url = redirect_url + \
-                    urllib.unquote_plus(
-                        '?auth_user=%s' % (request.session[kUsername]))
+                redirect_url = redirect_url + urllib.unquote_plus(
+                    '?auth_user=%s' % (request.session[kUsername]))
                 return HttpResponseRedirect(redirect_url)
             else:
                 return login_form(request, urllib.quote_plus(redirect_url))
@@ -155,7 +154,7 @@ def login(request):
 
 def register(request):
     redirect_url = '/'
-    if('redirect_url' in request.GET.keys()):
+    if ('redirect_url' in request.GET.keys()):
         redirect_url = urllib.unquote_plus(request.GET['redirect_url'])
 
     if request.method == "POST":
@@ -163,7 +162,7 @@ def register(request):
         email = ''
         try:
             error = False
-            if('redirect_url' in request.POST.keys()):
+            if ('redirect_url' in request.POST.keys()):
                 redirect_url = urllib.unquote_plus(
                     request.POST['redirect_url'])
 
@@ -177,10 +176,10 @@ def register(request):
                 errors.append("Invalid Email.")
                 error = True
 
-            if(not is_valid_username(username)):
+            if (not is_valid_username(username)):
                 errors.append("Invalid Username.")
                 error = True
-            if(password == ""):
+            if (password == ""):
                 errors.append("Empty Password.")
                 error = True
 
@@ -207,7 +206,7 @@ def register(request):
                     errors.append(str(e))
                     error = True
 
-            if(error):
+            if (error):
                 return register_form(
                     request,
                     redirect_url=urllib.quote_plus(redirect_url),
