@@ -142,6 +142,23 @@ def login(request):
                 errors=errors)
     else:
         try:
+            user_info = oidc_user_info(request)
+            issuer = user_info['issuer']
+            subject = user_info['sub']
+            try:
+                user = User.objects.get(issuer=issuer, subject=subject)
+                clear_session(request)
+                request.session[kEmail] = user.email
+                request.session[kUsername] = user.username
+                redirect_url = redirect_url + urllib.unquote_plus(
+                    '?auth_user=%s' % (user.username))
+                logger.debug("logging in without a password")
+                return HttpResponseRedirect(redirect_url)
+            except User.DoesNotExist:
+                pass
+        except Exception:
+            pass
+        try:
             if request.session[kUsername]:
                 redirect_url = redirect_url + urllib.unquote_plus(
                     '?auth_user=%s' % (request.session[kUsername]))
