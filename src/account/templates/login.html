@@ -8,6 +8,17 @@
   {% csrf_token %}
   <input type="hidden" name="redirect_url" value="{{redirect_url}}" />
   <h3>Returning User -- Sign in</h3>
+  <br />
+  <div class="oidc-buttons">
+    <a href="/oidc/login?provider=mit" class="btn btn-default oidc-mit">MIT</a>
+    <a href="/oidc/login?provider=google" class="btn btn-default oidc-google">Google</a>
+  </div>
+  <br />
+  <div class="row signup-or">
+    <div class="col-xs-5"><hr></div>
+    <div class="col-xs-2 or-text">or</div>
+    <div class="col-xs-5"><hr></div>
+  </div>
   <div id="error">
     {% for error in errors %}
       <span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
