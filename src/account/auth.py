@@ -166,6 +166,25 @@ def register(request):
                 redirect_url = urllib.unquote_plus(
                     request.POST['redirect_url'])
 
+            try:
+                user_info = oidc_user_info(request)
+                issuer = user_info['issuer']
+                subject = user_info['sub']
+                try:
+                    user = User.objects.get(issuer=issuer, subject=subject)
+                    errors.append("Another user is already linked "
+                                  "to this external account.")
+                    error = True
+                    # TODO: If someone is trying to create an account
+                    # for an external identity that already has an account,
+                    # DataHub should offer to log the user in under that
+                    # account instead of just dying at the registration screen.
+                except User.DoesNotExist:
+                    pass
+            except Exception:
+                issuer = None
+                subject = None
+
             username = request.POST["username"].lower()
             email = request.POST["email"].lower()
             password = request.POST["password"]
@@ -213,7 +232,8 @@ def register(request):
                     errors=errors)
 
             user = User(
-                username=username, email=email, password=hashed_password)
+                username=username, email=email, password=hashed_password,
+                issuer=issuer, subject=subject)
             user.save()
 
             clear_session(request)
