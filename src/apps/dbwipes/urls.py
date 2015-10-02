@@ -1,8 +1,8 @@
-from django.conf.urls import patterns, include, url
-import views
+from django.conf.urls import patterns, url
 
-urlpatterns = patterns('',
-	url(r'^page/(\w+)/(\w+)/(\w+)$', 'dbwipes.views.index'),
+urlpatterns = patterns(
+    '',
+    url(r'^page/(\w+)/(\w+)/(\w+)$', 'dbwipes.views.index'),
     url(r'^page/(\w+)/(\w+)/(\w+)/$', 'dbwipes.views.index'),
 
     url(r'^api/databases$', 'dbwipes.views.dbs'),
