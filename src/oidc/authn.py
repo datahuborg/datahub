@@ -42,16 +42,9 @@ OIDC_CLIENT_CONFIG = {
 }
 
 
-class OIDCError(Exception):
-
-    def __init__(self, errmsg, message="", *args):
-        Exception.__init__(self, errmsg, *args)
-        self.message = message
-
-
 def build_client(provider):
     if provider not in OIDC_CLIENT_CONFIG:
-        raise OIDCError("Unknown provider.")
+        raise Exception("Unknown provider.")
 
     config = OIDC_CLIENT_CONFIG[provider]
     client_info = config['client_info']
@@ -170,7 +163,5 @@ def oidc_user_info(request):
         result['access_token'] = access_token
     except KeyError as error:
         result = {"debug": str(error) + " not found."}
-    except PyoidcError:
-        result = {"error": "PyoidcError", "provider": provider}
 
     return result
