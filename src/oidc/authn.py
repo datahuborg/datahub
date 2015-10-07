@@ -74,10 +74,10 @@ def provider_login(request):
     else:
         return HttpResponseBadRequest("Missing provider query parameter.")
 
-    if 'target' in request.GET and len(request.GET['target']) > 0:
-        request.session['target'] = request.GET['target']
+    if 'redirect_url' in request.GET and len(request.GET['redirect_url']) > 0:
+        request.session['redirect_url'] = request.GET['redirect_url']
     elif 'HTTP_REFERER' in request.META:
-        request.session['target'] = request.META['HTTP_REFERER']
+        request.session['redirect_url'] = request.META['HTTP_REFERER']
 
     client = build_client(provider)
 
@@ -132,26 +132,26 @@ def provider_callback(request):
     access_token = atresp['access_token']
     request.session['access_token'] = access_token
 
-    if 'target' in request.session:
-        target = request.session['target']
-        target = re.sub(r"^http:", "https:", target)
-        del request.session['target']
+    if 'redirect_url' in request.session:
+        redirect_url = request.session['redirect_url']
+        redirect_url = re.sub(r"^http:", "https:", redirect_url)
+        del request.session['redirect_url']
     else:
-        target = 'https://' + request.META['HTTP_HOST']
+        redirect_url = 'https://' + request.META['HTTP_HOST']
 
-    return HttpResponseRedirect(target)
+    return HttpResponseRedirect(redirect_url)
 
 
 def logout(request):
     request.session.flush()
 
     if 'HTTP_REFERER' in request.META:
-        target = request.META['HTTP_REFERER']
+        redirect_url = request.META['HTTP_REFERER']
     else:
-        target = 'https://' + request.META['HTTP_HOST']
+        redirect_url = 'https://' + request.META['HTTP_HOST']
 
-    target = re.sub(r"^http:", "https:", target)
-    return HttpResponseRedirect(target)
+    redirect_url = re.sub(r"^http:", "https:", redirect_url)
+    return HttpResponseRedirect(redirect_url)
 
 
 def oidc_user_info(request):
