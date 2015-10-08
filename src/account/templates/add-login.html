@@ -1,0 +1,30 @@
+{% extends "minimal-layout.html" %}
+{% block content %}
+<div class="container">
+<form class="form-signin" autocomplete="off">
+  <h3>Add External Login</h3>
+  <div id="error">
+    {% for error in errors %}
+      <span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
+    {% endfor %}
+  </div>
+  <br />
+  {% if values.issuer and values.subject %}
+  This account is already linked to an external login. DataHub does not yet support multiple logins per account.
+  {% else %}
+  <div class="oidc-buttons">
+    <a href="/oidc/login?provider=mit&amp;redirect_url=%2Faccount%2Fconfirm_add_login" class="btn btn-default oidc-mit">MIT</a>
+    <a href="/oidc/login?provider=google&amp;redirect_url=%2Faccount%2Fconfirm_add_login" class="btn btn-default oidc-google">Google</a>
+  </div>
+  <br />
+  {% endif %}
+  <a href="#debug" role="button" data-toggle="collapse" data-target="#debug" aria-expanded="false" aria-controls="debug">Toggle Debug</a>
+  <div class="debug-block small collapse" id="debug">
+    {% for key, value in values.items %}
+      {{key}}: <pre>{{value}}</pre><br />
+    {% endfor %}
+    <a href="/oidc/logout">Clear Session</a><br />
+  </div>
+</form>
+</div>
+{% endblock %}

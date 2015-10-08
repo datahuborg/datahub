@@ -4,10 +4,11 @@ import re
 import urllib
 
 from django.core.context_processors import csrf
+from django.views.decorators.csrf import csrf_exempt
 from django.core.validators import validate_email
 from django.db.utils import IntegrityError
 from django.http import *
-from django.shortcuts import render_to_response
+from django.shortcuts import *
 from django.utils.http import urlquote_plus
 
 from multiprocessing import Pool
@@ -505,3 +506,95 @@ def jdbc_password(request):
     return HttpResponse(user.password)
 
 
+@login_required
+def account_settings(request, redirect_url='/', errors=[]):
+    """Returns the Account Settings page for the current user."""
+    # 1. Username
+    # 2. Email
+    # 3. Linked account info
+    # 4. Link / unlink account
+    # 5. Change password
+    c = {'redirect_url': redirect_url}
+    c.update(csrf(request))
+    username = get_login(request)
+    try:
+        user = User.objects.get(username=username)
+        wanted_attrs = {'username', 'email', 'password', 'subject', 'issuer'}
+        values = dict([i, getattr(user, i)] for i in wanted_attrs)
+        if len(values['password']) > 0:
+            values['password'] = "********************************"
+        c['values'] = values
+    except User.DoesNotExist:
+        c['errors'] = ["User does not exist."]
+
+    return render_to_response('account-settings.html', c)
+
+
+@login_required
+def add_login(request):
+    """Returns a form offering a choice of identity providers.
+
+    Accounts can only be linked to one external login. Already linked accounts
+    are shown a message to that effect.
+    """
+    # TODO: Add CSRF token to provider options.
+    c = {}
+    try:
+        username = get_login(request)
+        user = User.objects.get(username=username)
+        wanted_attrs = {'username', 'email', 'subject', 'issuer'}
+        values = dict([i, getattr(user, i)] for i in wanted_attrs)
+        c['values'] = values
+    except User.DoesNotExist:
+        c['errors'] = ["User does not exist."]
+
+    return render_to_response('add-login.html', c)
+
+
+@login_required
+def confirm_add_login(request):
+    """Returns a form to confirm adding an external login to the current account.
+
+    On GET, returns confirmation form.
+    On POST, adds login to account and then redirects to Account Settings.
+    """
+    # The user should only reach here if they successfully authenticated to a
+    # supported IdP, meaning there must be an access token and there must be
+    # issuer and subject info we can pull about it.
+    c = {}
+    try:
+        user_info = oidc_user_info(request)
+        issuer = user_info['issuer']
+        subject = user_info['sub']
+        email = user_info['email']
+    except KeyError:
+        return HttpResponse("Error getting OIDC info")
+
+    username = get_login(request)
+    user = User.objects.get(username=username)
+    if user.issuer and user.subject:
+        return HttpResponse("Your account already has one link.")
+
+    try:
+        User.objects.get(issuer=issuer, subject=subject)
+        return HttpResponse("Another user is already linked "
+                            "to that external account.")
+    except User.DoesNotExist:
+        pass
+
+    if request.method == "POST":
+        user.issuer = issuer
+        user.subject = subject
+        user.save()
+        return redirect('/account/settings')
+    else:
+        # This is a get. The user has chosen a provider and authenticated to
+        # it. Now we need to present them with an "Are you sure you want to
+        # link 'bob@foo.com' with your account 'foo'?" form.
+        c.update(csrf(request))
+        c['values'] = {
+            'username': username,
+            'issuer': issuer,
+            'subject': subject,
+            'email': email}
+        return render_to_response('confirm-add-login.html', c)

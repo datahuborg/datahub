@@ -1,0 +1,38 @@
+{% extends "minimal-layout.html" %}
+{% block content %}
+<div class="container">
+<form class="form-signin" autocomplete="off">
+  <h3>Settings</h3>
+  <div id="error">
+    {% for error in errors %}
+      <span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
+    {% endfor %}
+  </div>
+  <br />
+  {% if values.username %}
+  <label for="username">Username</label><br />
+  <input type="text" class="form-control" name="username" id="username" placeholder="Pick a username" disabled {% if values.username %}value="{{values.username}}"{% endif %}/><br />
+  <label for="email">Email Address</label><br />
+  <input type="text" class="form-control" name="email" id="email" placeholder="Your email address" disabled {% if values.email %}value="{{values.email}}"{% endif %}/><br />
+  <label for="password">Password</label><br />
+  <input type="password" class="form-control" name="password" id="password" placeholder="Create a password" disabled {% if values.password %}value="{{values.password}}"{% endif %}/><br />
+  {% if values.issuer and values.subject %}
+  <label for="issuer">Issuer</label><br />
+  <input type="text" class="form-control" name="issuer" id="issuer" value="{{values.issuer}}" disabled/><br />
+  <label for="subject">Subject</label><br />
+  <input type="text" class="form-control" name="subject" id="subject" value="{{values.subject}}" disabled/><br />
+  {% else %}
+  <a href="/account/add_login">Add External Login</a><br />
+  {% endif %}
+  <br />
+  {% endif %}
+  <a href="#debug" role="button" data-toggle="collapse" data-target="#debug" aria-expanded="false" aria-controls="debug">Toggle Debug</a>
+  <div class="debug-block small collapse" id="debug">
+    {% for key, value in values.items %}
+      {{key}}: <pre>{{value}}</pre><br />
+    {% endfor %}
+    <a href="/oidc/logout">Clear Session</a><br />
+  </div>
+</form>
+</div>
+{% endblock %}

@@ -10,4 +10,7 @@ urlpatterns = patterns(
     url(r'^jdbc_password', 'account.auth.jdbc_password'),
     url(r'^reset/(\w+)', 'account.auth.reset'),
     url(r'^verify/(\w+)', 'account.auth.verify'),
+    url(r'^settings', 'account.auth.account_settings'),
+    url(r'^add_login', 'account.auth.add_login'),
+    url(r'^confirm_add_login', 'account.auth.confirm_add_login'),
 )
