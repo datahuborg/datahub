@@ -112,7 +112,7 @@ urlpatterns = patterns('',
     ### Permissions ###
     url(r'^permissions/apps/allow_access/(\w+)/(\w+)$', 'browser.views.app_allow_access'),
 
-    url(r'^api/rest/', include('api.rest.urls')), # REST APIs
+    # url(r'^api/rest/', include('api.rest.urls')), # REST APIs
 
     ########################################################################################
     ######## ------------------------------ END DataHub Core --------------------- #########
