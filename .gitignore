@@ -84,4 +84,10 @@ DerivedData
 .idea/
 # Pods - for those of you who use CocoaPods
 Pods
+
+# Vagrant
 .vagrant
+
+# DataHub-specific
+stunnel/datahub.conf
+stunnel.log
