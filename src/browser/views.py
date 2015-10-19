@@ -26,6 +26,7 @@ from core.db.manager import DataHubManager
 from datahub import DataHub
 from datahub.account import AccountService
 from service.handler import DataHubHandler
+from service.rlshandler import RowLevelSecurityHandler
 from utils import *
 
 '''
@@ -36,6 +37,7 @@ Datahub Web Handler
 '''
 
 handler = DataHubHandler()
+rls_handler = RowLevelSecurityHandler()
 core_processor = DataHub.Processor(handler)
 account_processor = AccountService.Processor(handler)
 
@@ -638,6 +640,11 @@ Query
 '''
 @login_required
 def query(request, repo_base, repo):
+
+  ### Need to insert logic here for taking sql query, calling thrift service to append predicates to query,
+  ### and returning query results to user.
+
+  ## For testing purposes, can maybe return select_query to display the query with predicates attached
   try:
     login = get_login(request)
     data = {
@@ -654,6 +661,10 @@ def query(request, repo_base, repo):
       query = query.strip().rstrip(';')
     
       manager = DataHubManager(user=repo_base)
+
+      originalquery = query
+      temp = rls_handler.filter_sql_query(login, query)
+      query = temp
 
       select_query = False
       if (query.split()[0]).lower() == 'select':
@@ -710,7 +721,7 @@ def query(request, repo_base, repo):
 
       data.update({
           'select_query': select_query,
-          'query': query,
+          'query': originalquery,
           'column_names': column_names,
           'tuples': tuples,
           'url_path': url_path,
@@ -1031,4 +1042,209 @@ def app_allow_access(request, app_id, repo_name):
           {'error': str(e)}),
         content_type="application/json")
 
+'''
+Permissions
+'''
+@login_required
+def table_permissions(request, repo_base, repo, table):
+  try:
+
+    login = get_login(request)
+
+    accessUsers = TableAccess.objects.filter(repo_name=repo, table_name=table)
+
+    users = []
+
+    #users.append(
+    #    {'username': "Kelly",
+    #     'access_status': "SuperUser"})
+    superuser = False
+
+    for user in accessUsers:
+      users.append(
+        {'username': user.user.username,
+         'access_status': user.access_status})
+
+      if login == user.user.username:
+        if user.access_status == "Owner" or user.access_status == "SuperUser":
+          superuser = True
+
+
+    accessPolicies = TablePolicy.objects.filter(repo_name=repo, table_name=table) 
+    policies = []
+
+    for policy in accessPolicies:
+      policies.append(
+        {'policy_id': policy.id,
+         'policy_type': policy.policy_type,
+         'predicates': policy.predicates})    
+    
+    res = {
+      'repo_base': repo_base,
+      'repo': repo,
+      'table': table,
+      'users': users,
+      'superuser': superuser,
+      'policies': policies}
+    res.update(csrf(request))
+
+    return render_to_response("table-access-permissions.html", res)
+
+  except Exception, e:
+    return HttpResponse(json.dumps(
+        {'error': str(e)}),
+        content_type="application/json")
+
+
+@login_required
+def table_policies(request, repo_base, repo, table):
+  try:
+
+    login = get_login(request)
+    
+    accessUsers = TableAccess.objects.filter(repo_name=repo, table_name=table)
+    superuser = False
+
+    for user in accessUsers:
+      if login == user.user.username:
+        if user.access_status == "Owner" or user.access_status == "SuperUser":
+          superuser = True
+
+    accessPolicies = TablePolicy.objects.filter(repo_name=repo, table_name=table) 
+    policies = []
+
+    for policy in accessPolicies:
+      policies.append(
+        {'policy_id': policy.id,
+         'policy_type': policy.policy_type,
+         'predicates': policy.predicates})    
+    
+    res = {
+      'repo_base': repo_base,
+      'repo': repo,
+      'table': table,
+      'superuser': superuser,
+      'policies': policies}
+    res.update(csrf(request))
+
+    return render_to_response("table-access-policies.html", res)
+
+  except Exception, e:
+    return HttpResponse(json.dumps(
+        {'error': str(e)}),
+        content_type="application/json")
+
+
+@login_required
+def update_permissions(request, repo_base, repo, table):
+  try:
+    login = get_login(request)
+    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
+
+
+    username = request.POST['username']
+    status = request.POST['status']
+    
+
+    accessUsers = TableAccess.objects.filter(repo_name=repo, table_name=table)
+    update_permission = False
+
+    for user in accessUsers:
+      if login == user.user.username:
+        if user.access_status == "Owner" or user.access_status == "SuperUser":
+          update_permission = True
+
+    if not update_permission:
+      raise Exception('Access denied. Missing required privileges.')
+
+
+    user = User.objects.get(username=username)
+    if TableAccess.objects.filter(user=user, repo_name=repo, table_name=table).exists():
+      update_user = TableAccess.objects.get(user=user, repo_name=repo, table_name=table)
+      update_user.access_status = status
+      update_user.save()
+    else:
+      TableAccess.objects.create(repo_name=repo, table_name=table, user=user, access_status=status)
+
+
+    return HttpResponseRedirect('/browse/%s/%s/permissions/%s' %(repo_base, repo, table))
+
+  except Exception, e:
+    return HttpResponse(json.dumps(
+        {'error': str(e)}),
+        mimetype="application/json")
+
+
+'''
+Security policy
+'''
+
+@login_required
+def create_security_policy(request, repo_base, repo, table):
+
+  try:
+    login = get_login(request)
+    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
+
+
+    policy_type = request.POST['policy_type']
+    predicates = request.POST['predicate']
+    
+
+    accessUsers = TableAccess.objects.filter(repo_name=repo, table_name=table)
+    update_permission = False
+
+    for user in accessUsers:
+      if login == user.user.username:
+        if user.access_status == "Owner" or user.access_status == "SuperUser":
+          update_permission = True
+
+    if not update_permission:
+      raise Exception('Access denied. Missing required privileges.')
+
+
+    TablePolicy.objects.create(repo_name=repo, table_name=table, policy_type=policy_type, predicates=predicates)
+
+
+    return HttpResponseRedirect('/browse/%s/%s/policies/%s' %(repo_base, repo, table))
+
+  except Exception, e:
+    return HttpResponse(json.dumps(
+        {'error': str(e)}),
+        mimetype="application/json")
+
+
+@login_required
+def remove_security_policy(request, repo_base, repo, table, policy_id):
+  try:
+    login = get_login(request)
+    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
+    
+    accessUsers = TableAccess.objects.filter(repo_name=repo, table_name=table)
+    update_permission = False
+
+    for user in accessUsers:
+      if login == user.user.username:
+        if user.access_status == "Owner" or user.access_status == "SuperUser":
+          update_permission = True
+
+    if not update_permission:
+      raise Exception('Access denied. Missing required privileges.')
+
+    policy = TablePolicy.objects.get(id=policy_id)
+    policy.delete()
+
+
+    return HttpResponseRedirect('/browse/%s/%s/policies/%s' %(repo_base, repo, table))
+
+
+
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        mimetype="application/json")
+
+
+  
   

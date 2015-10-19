@@ -1,0 +1,159 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+<div class="container">
+  <h4 class="inline-block">
+    <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
+    / <a class="link" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a>
+    / <a class="link" href=/browse/{{repo_base}}/{{repo}}/table/{{table}}>{{table}}</a>
+  </h4>
+
+  <hr />
+  <br />
+
+<p class="lead">Row Level Security</p>
+
+<ul class="nav nav-tabs" role="tablist">
+  <li><a href="/browse/{{repo_base}}/{{repo}}/permissions/{{table}}" role="tab">Security Permissions</a></li>
+  <li class="active"><a href="/browse/{{repo_base}}/{{repo}}/policies/{{table}}" role="tab">Table Access Policies</a></li>
+</ul>
+
+  <br />
+
+<div class="panel panel-default">
+  <div class="panel-heading"> 
+    <h3 class="panel-title">Existing Access Policies</h3>
+  </div>
+
+    
+    <table class="table">
+      <thead>
+    <tr>
+      <td> <b>Policy Type</b> </td>
+      <td> <b>Predicate</b> </td>
+    </tr>
+  </thead>
+
+  <tbody>
+
+    {% for policy in policies %}
+
+
+  <div class="modal fade" id="{{user.username}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+   
+     
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Update User Permissions</h4>
+      </div>
+
+ 
+       <form class="form-inline" role="form" method="POST" action="/permissions/security/{{repo_base}}/{{repo}}/update/{{table}}">
+       
+       <div class="modal-body">
+        <div class="form-group">
+        {% csrf_token %}
+         Username: <input type="text" class="form-control" name="username" value="{{user.username}}">   
+
+         <br>
+
+         Status: <select class="form-control" name="status">
+            <option>SuperUser</option>
+            <option>User</option>
+            <option>None</option>
+          </select>
+         </div>
+       </div>
+        
+      
+       <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save changes</button>
+       </div>
+
+       </form>
+    
+    </div>
+    </div>
+    </div>
+
+   
+
+    <tr>
+      <td> {{policy.policy_type}} </td>
+      <td> {{policy.predicates}} </td>
+      <td> <a href="/permissions/policy/{{repo_base}}/{{repo}}/remove/{{table}}/{{policy.policy_id}}" title="Remove"><span class="glyphicon glyphicon-remove"></span></a></li> </td>
+    </tr>
+
+    {% endfor %}
+    
+    </tr>
+    <tr>
+     
+    </tr>
+
+  </tbody>
+  </table>
+
+
+</div>
+
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal"> Add Policy </button>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Add New Policy</h4>
+      </div>
+
+
+       <form class="form-horizontal span8" role="form" method="POST" action="/permissions/policy/{{repo_base}}/{{repo}}/create/{{table}}">
+       
+       <div class="modal-body">
+        <div class="control-group">
+        {% csrf_token %}
+         Policy Type: <select class="form-control" name="policy_type"> 
+            <option>All</option>
+            <option>Select</option>
+            <option>Insert</option>
+            <option>Update</option>          
+            <option>Delete</option>
+            </select> <br>  
+         Predicate: <input type="text" class="form-control" name="predicate"> 
+         </div>
+       </div>
+        
+      
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save changes</button>
+      </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+  
+
+
+
+</div>
+
+{% endblock %}
+
+
+
+
+
+
+

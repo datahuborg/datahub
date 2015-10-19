@@ -1,0 +1,158 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+<div class="container">
+  <h4 class="inline-block">
+    <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
+    / <a class="link" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a>
+    / <a class="link" href=/browse/{{repo_base}}/{{repo}}/table/{{table}}>{{table}}</a>
+  </h4>
+
+  <hr />
+  <br />
+
+<p class="lead">Row Level Security</p>
+
+<ul class="nav nav-tabs" role="tablist">
+  <li class="active"><a href="/browse/{{repo_base}}/{{repo}}/permissions/{{table}}" role="tab">Security Permissions</a></li>
+  <li><a href="/browse/{{repo_base}}/{{repo}}/policies/{{table}}" role="tab">Table Access Policies</a></li>
+</ul>
+
+  <br />
+
+<div class="panel panel-default">
+  <div class="panel-heading"> 
+    <h3 class="panel-title">Users With Access</h3>
+  </div>
+
+    
+    <table class="table">
+      <thead>
+    <tr>
+      <td> <b>Username</b> </td>
+      <td> <b>Access Status</b> </td>
+    </tr>
+  </thead>
+
+  <tbody>
+
+    {% for user in users %}
+
+
+  <div class="modal fade" id="{{user.username}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+   
+     
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Update User Permissions</h4>
+      </div>
+
+ 
+       <form class="form-inline" role="form" method="POST" action="/permissions/security/{{repo_base}}/{{repo}}/update/{{table}}">
+       
+       <div class="modal-body">
+        <div class="form-group">
+        {% csrf_token %}
+         Username: <input type="text" class="form-control" name="username" value="{{user.username}}">   
+
+         <br>
+
+         Status: <select class="form-control" name="status">
+            <option>SuperUser</option>
+            <option>User</option>
+            <option>None</option>
+          </select>
+         </div>
+       </div>
+        
+      
+       <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save changes</button>
+       </div>
+
+       </form>
+    
+    </div>
+    </div>
+    </div>
+
+   
+
+    <tr>
+      <td> {{user.username}} </td>
+      <td > {{user.access_status}} </td>
+      <td> <a href="#{{user.username}}" class="btn btn-primary btn-xs" data-toggle="modal"> Update </a> </td>
+    </tr>
+
+    {% endfor %}
+    
+    </tr>
+    <tr>
+     
+    </tr>
+
+  </tbody>
+  </table>
+
+
+</div>
+
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal"> Add User </button>
+
+
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Grant User Permissions</h4>
+      </div>
+
+
+       <form class="form-horizontal span8" role="form" method="POST" action="/permissions/security/{{repo_base}}/{{repo}}/update/{{table}}">
+       
+       <div class="modal-body">
+        <div class="control-group">
+        {% csrf_token %}
+         Username: <input type="text" class="form-control" name="username">  <br>   
+         Status: <select class="form-control" name="status">
+            <option>SuperUser</option>
+            <option>User</option>
+          </select>
+         </div>
+       </div>
+        
+      
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save changes</button>
+      </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+  
+
+
+
+</div>
+
+{% endblock %}
+
+
+
+
+
+
+

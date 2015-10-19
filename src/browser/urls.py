@@ -60,6 +60,12 @@ urlpatterns = patterns('',
 
     url(r'^browse/(\w+)/(\w+)/cards/?$', 'browser.views.repo_cards'),
 
+    url(r'^browse/(\w+)/(\w+)/permissions/(\w+)$', 'browser.views.table_permissions'),
+    url(r'^browse/(\w+)/(\w+)/permissions/(\w+)/$', 'browser.views.table_permissions'),
+
+    url(r'^browse/(\w+)/(\w+)/policies/(\w+)$', 'browser.views.table_policies'),
+    url(r'^browse/(\w+)/(\w+)/policies/(\w+)/$', 'browser.views.table_policies'),
+
     url(r'^browse/(\w+)/?$', 'browser.views.user'),
     #### End Browse ####
 
@@ -112,6 +118,11 @@ urlpatterns = patterns('',
     url(r'^permissions/apps/allow_access/(\w+)/(\w+)$', 'browser.views.app_allow_access'),
 
     url(r'^api/rest/', include('api.rest.urls')), # REST APIs
+
+    ### Row Level Security ###
+    url(r'^permissions/security/(\w+)/(\w+)/update/(\w+)$', 'browser.views.update_permissions'),
+    url(r'^permissions/policy/(\w+)/(\w+)/create/(\w+)$', 'browser.views.create_security_policy'),
+    url(r'^permissions/policy/(\w+)/(\w+)/remove/(\w+)/(\w+)$', 'browser.views.remove_security_policy'),
 
     ########################################################################################
     ######## ------------------------------ END DataHub Core --------------------- #########

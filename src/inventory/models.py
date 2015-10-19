@@ -23,6 +23,34 @@ class User (models.Model):
     db_table = "users"
 
 
+class TableAccess (models.Model):
+  id = models.AutoField(primary_key=True)
+  repo_name = models.CharField(max_length=50)
+  table_name = models.CharField(max_length=50)
+  user = models.ForeignKey ('User')
+  access_status = models.CharField(max_length=50)
+
+  def __unicode__ (self):
+    return self.id
+
+  class Meta:
+    db_table = "table_access"
+
+
+class TablePolicy (models.Model):
+  id = models.AutoField(primary_key=True)
+  repo_name = models.CharField(max_length=50)
+  table_name = models.CharField(max_length=50)
+  policy_type = models.CharField(max_length=50)
+  predicates = models.CharField(max_length=500)
+
+  def __unicode__ (self):
+    return self.id
+
+  class Meta:
+    db_table = "table_policies"
+
+
 class Card (models.Model):
   id = models.AutoField(primary_key=True)
   timestamp = models.DateTimeField(auto_now=True)

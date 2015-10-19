@@ -238,6 +238,16 @@ p.bg-warning {
   height: 17px;
 }
 
+.permissions-icon{
+  display: inline-block;
+  background-image:url(/static/images/permissions.png);
+  background-repeat: no-repeat;
+  background-size: 17px 17px;
+  border-radius: 0.25em;
+  width: 17px;
+  height: 17px;
+}
+
 .database-table-icon{
   display: inline-block;
   background-image:url(/static/images/database-table.png);
