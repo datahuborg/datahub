@@ -9,7 +9,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.network "private_network", ip: "192.168.50.4"
   config.vm.hostname = "datahub-local.mit.edu"
-  config.vm.provision "shell", path: "provisions/setup.sh"
+  config.vm.provision "shell", path: "provisions/vagrant.sh"
 
   config.vm.provider "virtualbox" do |vm|
     vm.name = "datahub-local"
