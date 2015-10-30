@@ -2,6 +2,7 @@ import sys
 import requests
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
+import warnings
 
 
 class FunctionalTest(StaticLiveServerTestCase):
@@ -31,6 +32,16 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.quit()
 
     def test_external_links(self):
+        # supress warnings for testing external links
+        # Particularly, because local testing will give unverified certs errors
+        print('\n\n---- TESTING EXTERNAL LINKS ----\n')
+        print('--THIS MAKE TAKE A FEW SECONDS--\n\n')
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            self._test_external_links()
+
+    def _test_external_links(self):
         # Justin gets a list of external links
         links = self.browser.find_elements_by_xpath(
             "//a[(starts-with(@href, 'http'))]")
@@ -54,3 +65,6 @@ class FunctionalTest(StaticLiveServerTestCase):
         if len(failing_links) > 0:
             print("Some links on the did not check out")
             self.fail(failing_links)
+
+
+   
