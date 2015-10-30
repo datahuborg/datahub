@@ -20,7 +20,7 @@ PostgreSQL
 DataHub is built on the `PostgreSQL <http://www.postgresql.org/>`__
 database.
 
-1. Install Postgres and create a user called ``postgres``. See
+1. `Install Postgres <http://www.postgresql.org/download/>`__ and create a user called ``postgres``. See
    `here <https://wiki.postgresql.org/wiki/First_steps>`__ for
    step-by-step instructions.
 2. When the Postgres server is running, open the Postgres shell
@@ -104,6 +104,11 @@ Run test with ``behave``
 Vagrant Environment Setup (optional)
 ====================================
 
+Vagrant setup is much less error-prone than standard setup. However, unlike 
+standard setup, it does not allow you to quickly debug and make changes to
+DataHub. If you plan to develop apps using datahub, but don't plan to work on
+DataHub's code base, this is the right choice for you.
+
 Follow these steps:
 
 1. You need internet access the first time you do these steps.
@@ -111,9 +116,9 @@ Follow these steps:
 3. Download and install Vagrant https://www.vagrantup.com/downloads.html
 4. Add this line to your hosts file:
    ``192.168.50.4    datahub-local.mit.edu``
-5. Then start the environment with: ``vagrant up`` After some time your
+5. Then start the environment with: ``$ vagrant up`` After some time your
    environment is setup and running. You can go to
-   http://datahub-local.mit.edu and start using Datahub.
+   https://datahub-local.mit.edu and start using Datahub.
 
 
 ----------------------------------------------
@@ -140,9 +145,9 @@ To manually stop/start your docker containers:
 Run test with ``behave`` in Vagrant:
 ------------------------------------
 
-1. Login in VM ``vagrant ssh``
+1. Login in VM ``$ vagrant ssh``
 2. Get shell access to datahub container
-   ``sudo docker exec -i -t datahub /bin/bash``
+   ``$ sudo docker exec -i -t datahub /bin/bash``
 3. Change directory and execute ``behave`` ``cd /datahub/src   behave``
 
 ----------------
@@ -170,6 +175,17 @@ When submitting a pull request, you must include sphinx documentation. You can a
 ===============
 Testing DataHub
 ===============
+
+----------------
+Functional Tests
+----------------
+
+Functional tests are used to test DataHub's functionality
+
+Run them from the ``/src`` directory:
+
+| ``$ cd src``
+| ``$ python manage.py test functional_tests``
 
 ---------
 Unittests
