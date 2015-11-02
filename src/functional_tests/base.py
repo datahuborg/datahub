@@ -29,8 +29,8 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.implicitly_wait(3)
 
         # default username and password for loggin in a user manually
-        self.username = '7CDEFG8'
-        self.password = '8GFEDG7'
+        self.username = 'CDEFG8'
+        self.password = 'CDEFG9'
 
     def tearDown(self):
         self.browser.quit()

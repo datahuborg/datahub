@@ -44,6 +44,8 @@ class LoginTest(FunctionalTest):
         self.assertNotRegex(justin_url, self.username)
 
 
+    def test_justin_hacks_the_planet(self):
+        pass
         # Justin is hacking the planet
         ## Justin sneakily registers his username again
 
