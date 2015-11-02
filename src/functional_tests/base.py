@@ -28,14 +28,18 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser = webdriver.Firefox()
         self.browser.implicitly_wait(3)
 
+        # default username and password for loggin in a user manually
+        self.username = '7CDEFG8'
+        self.password = '8GFEDG7'
+
     def tearDown(self):
         self.browser.quit()
 
     def test_external_links(self):
         # supress warnings for testing external links
         # Particularly, because local testing will give unverified certs errors
-        print('\n\n---- TESTING EXTERNAL LINKS ----\n')
-        print('--THIS MAKE TAKE A FEW SECONDS--\n\n')
+        # print('\n\n---- TESTING EXTERNAL LINKS ----\n')
+        # print('--THIS MAKE TAKE A FEW SECONDS--\n\n')
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -67,4 +71,32 @@ class FunctionalTest(StaticLiveServerTestCase):
             self.fail(failing_links)
 
 
-   
+     
+    def sign_up_manually(self):
+        self.browser.get(self.server_url + '/account/register')
+
+        # Justin adds a username
+        self.browser.find_element_by_id('username').send_keys(self.username)
+
+        # Justin adds an email
+        self.browser.find_element_by_id('email').send_keys(
+            self.username+'@sharklasers.com'
+        )
+
+        # Justin adds a password
+        self.browser.find_element_by_id('password').send_keys(self.password)
+
+        # Justin clicks sign up
+        self.browser.find_element_by_id('id_register').click()
+
+
+    def sign_in_manually(self):
+        # Justin goes to the sign in page
+        self.browser.get(self.server_url + '/account/login')
+
+        # He fills in his username and password
+        self.browser.find_element_by_id('username').send_keys(self.username)
+        self.browser.find_element_by_id('password').send_keys(self.password)
+
+        # He clicks sign in 
+        self.browser.find_element_by_id('id_sign_in_action').click()
