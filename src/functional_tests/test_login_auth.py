@@ -6,10 +6,10 @@ class LoginTest(FunctionalTest):
     def test_register_user_manually_sign_in_and_delete(self):
         self.browser.get(self.server_url)
         self.browser.set_window_size(1024, 768)
-        
+
         # Justin clicks "Sign Up"
         self.browser.find_element_by_id('id_sign_up')
-        import pdb; pdb.set_trace()
+
         # Justin registers a new account
         self.sign_up_manually()
 
@@ -43,7 +43,6 @@ class LoginTest(FunctionalTest):
         self.sign_in_manually()
         self.assertNotRegex(justin_url, self.username)
 
-
     def test_justin_hacks_the_planet(self):
         pass
         # Justin is hacking the planet
@@ -53,11 +52,5 @@ class LoginTest(FunctionalTest):
 
         # Justin has messed with the best. He does like the rest.
 
-
-
     def delete_account(self):
         pass
-
-
-
-

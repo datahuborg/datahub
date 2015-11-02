@@ -29,8 +29,8 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.implicitly_wait(3)
 
         # default username and password for loggin in a user manually
-        self.username = 'CDEFG8'
-        self.password = 'CDEFG9'
+        self.username = 'CDEFGHI'
+        self.password = 'CDEFGHI'
 
     def tearDown(self):
         self.browser.quit()
@@ -70,8 +70,6 @@ class FunctionalTest(StaticLiveServerTestCase):
             print("Some links on the did not check out")
             self.fail(failing_links)
 
-
-     
     def sign_up_manually(self):
         self.browser.get(self.server_url + '/account/register')
 
