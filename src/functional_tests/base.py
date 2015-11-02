@@ -29,8 +29,9 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.implicitly_wait(3)
 
         # default username and password for loggin in a user manually
-        self.username = 'CDEFGHI'
-        self.password = 'CDEFGHI'
+        # use only lowercase here
+        self.username = 'cdefghi'
+        self.password = 'cdefghi'
 
     def tearDown(self):
         self.browser.quit()
@@ -93,8 +94,8 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.get(self.server_url + '/account/login')
 
         # He fills in his username and password
-        self.browser.find_element_by_id('username').send_keys(self.username)
-        self.browser.find_element_by_id('password').send_keys(self.password)
+        self.browser.find_element_by_id('id_username').send_keys(self.username)
+        self.browser.find_element_by_id('id_password').send_keys(self.password)
 
         # He clicks sign in 
         self.browser.find_element_by_id('id_sign_in_action').click()
