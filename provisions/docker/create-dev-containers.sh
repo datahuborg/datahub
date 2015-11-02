@@ -42,7 +42,8 @@ docker create --name app \
     --volumes-from logs \
     --volumes-from data \
     --link db:db \
-    datahuborg/datahub gunicorn --config=provisions/gunicorn/config.py browser.wsgi
+    -v /vagrant:/datahub \
+    datahuborg/datahub gunicorn --config=provisions/gunicorn/config_dev.py browser.wsgi
 echo "(5/5) Creating \"web\" - nginx http proxy"
 docker create --name web \
     --volumes-from logs \

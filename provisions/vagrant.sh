@@ -6,8 +6,9 @@ echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" > \
 apt-get update
 apt-get install -y docker-engine
 
-echo "Making a temporary self-signed certificate."
-echo "Replace it with your own in /ssl and then recreate the `web` container."
+echo "Making a temporary self-signed certificate..."
+echo "To use your own certificate, replace the contents of /ssl in this VM"
+echo "and restart the \`web\` container."
 mkdir /ssl
 openssl req \
     -new \
@@ -17,7 +18,9 @@ openssl req \
     -x509 \
     -subj "/C=US/ST=Massachusetts/L=Cambridge/O=MIT CSAIL/CN=datahub-local.mit.edu" \
     -keyout /ssl/nginx.key \
-    -out /ssl/nginx.crt
+    -out /ssl/nginx.crt 2> /dev/null
 
 cd /vagrant
-sh provisions/docker/docker-vagrant.sh
+sh provisions/docker/build-images.sh
+sh provisions/docker/create-dev-containers.sh
+sh provisions/docker/start-containers.sh
