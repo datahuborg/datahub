@@ -619,8 +619,8 @@ def file_delete(request, repo_base, repo, file_name):
 @login_required
 def file_download(request, repo_base, repo, file_name):
   try:
-    login = get_login(request)
-    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'USAGE')
+    username = request.user.username
+    res = DataHubManager.has_repo_privilege(username, repo_base, repo, 'USAGE')
     
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
