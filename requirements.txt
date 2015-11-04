@@ -20,5 +20,6 @@ oic==0.7.6
 behave==1.2.5
 BeautifulSoup4
 
+requests>=2.5.1
 python-social-auth==0.2.13
 django-crispy-forms==1.5.2
