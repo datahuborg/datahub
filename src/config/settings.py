@@ -92,6 +92,8 @@ TEMPLATES = [
             'django.contrib.messages.context_processors.messages',
             'django.contrib.auth.context_processors.auth',
             'django.contrib.messages.context_processors.messages',
+            'social.apps.django_app.context_processors.backends',
+            'social.apps.django_app.context_processors.login_redirect',
           )
         }
     }
@@ -132,6 +134,8 @@ INSTALLED_APPS = (
   'django.contrib.sites',
   'django.contrib.messages',
   'django.contrib.staticfiles',
+  'crispy_forms',
+  'social.apps.django_app.default',
   'account',
   'console',
   'browser',
@@ -145,6 +149,47 @@ INSTALLED_APPS = (
   'viz2',
   'www'
 )
+
+# django.contrib.auth settings
+LOGIN_URL = '/account/django/login'
+LOGIN_REDIRECT_URL = '/'
+
+# crispy_forms settings
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+# python-social-auth settings
+AUTHENTICATION_BACKENDS = (
+    'social.backends.google.GoogleOAuth2',
+    'social.backends.twitter.TwitterOAuth',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
+
+SOCIAL_AUTH_TWITTER_KEY = ''
+SOCIAL_AUTH_TWITTER_SECRET = ''
+
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = True  # Make sure OAuth redirects use HTTPS, e.g. https://localhost/complete/twitter
+
+SOCIAL_AUTH_PIPELINE = (
+    'social.pipeline.social_auth.social_details',
+    'social.pipeline.social_auth.social_uid',
+    'social.pipeline.social_auth.auth_allowed',
+    'social.pipeline.social_auth.social_user',
+    'social.pipeline.user.get_username',
+    'account.pipeline.get_username',
+    # 'social.pipeline.social_auth.associate_by_email',
+    'social.pipeline.user.create_user',
+    'social.pipeline.social_auth.associate_user',
+    'social.pipeline.social_auth.load_extra_data',
+    'social.pipeline.user.user_details'
+)
+
+SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['preferred_username',]
+FIELDS_STORED_IN_SESSION = ['preferred_username',]
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

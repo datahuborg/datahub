@@ -27,6 +27,11 @@ urlpatterns = patterns('',
     #### Account Related ####
     url(r'^account/', include('account.urls')),
     url(r'^oidc/', include('oidc.urls')),
+    url('', include('social.apps.django_app.urls', namespace='social')),
+    url(r'^login', 'account.views.login'),
+    url(r'^home', 'account.views.home'),
+    url(r'^logout', 'account.views.logout'),
+    url(r'^choose_username', 'account.views.get_username'),
     #### End Account Related ####
 
 
