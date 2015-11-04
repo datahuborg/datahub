@@ -8,6 +8,7 @@ import sys
 import urllib
 import uuid
 
+from django.contrib.auth.decorators import login_required
 from django.core.context_processors import csrf
 from django.db.utils import IntegrityError
 from django.http import *
@@ -126,9 +127,9 @@ Repository Base
 @login_required
 def user(request, repo_base):
   try:
-    login = get_login(request)
+    username = request.user.username
 
-    res = DataHubManager.has_base_privilege(login, repo_base, 'CONNECT')
+    res = DataHubManager.has_base_privilege(username, repo_base, 'CONNECT')
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
 
@@ -144,7 +145,7 @@ def user(request, repo_base):
       collaborators = [(c[0].split('=')[0]).strip() for c in res['tuples']]
       collaborators = filter(lambda x: x!='' and x!=repo_base, collaborators)
 
-      if login not in collaborators and login != repo_base:
+      if username not in collaborators and username != repo_base:
         continue
 
       visible_repos.append({
@@ -157,7 +158,7 @@ def user(request, repo_base):
       })
     
     return render_to_response("user-browse.html", {
-        'login': get_login(request),
+        'login': username,
         'repo_base': repo_base,
         'repos': visible_repos})    
   
@@ -179,9 +180,9 @@ def repo(request, repo_base, repo):
 @login_required
 def repo_tables(request, repo_base, repo):
   try:
-    login = get_login(request)
+    username = request.user.username
 
-    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'USAGE')
+    res = DataHubManager.has_repo_privilege(username, repo_base, repo, 'USAGE')
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
     
@@ -196,7 +197,7 @@ def repo_tables(request, repo_base, repo):
     views = [t[0] for t in res['tuples']]
     
     res = {
-        'login': get_login(request),
+        'login': username,
         'repo_base': repo_base,
         'repo': repo,
         'base_tables': base_tables,
@@ -213,9 +214,9 @@ def repo_tables(request, repo_base, repo):
 @login_required
 def repo_files(request, repo_base, repo):
   try:
-    login = get_login(request)
+    username = request.user.username
 
-    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'USAGE')
+    res = DataHubManager.has_repo_privilege(username, repo_base, repo, 'USAGE')
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
 
@@ -226,7 +227,7 @@ def repo_files(request, repo_base, repo):
     uploaded_files = [f for f in os.listdir(repo_dir)]
     
     res = {
-        'login': get_login(request),
+        'login': username,
         'repo_base': repo_base,
         'repo': repo,
         'files': uploaded_files}
@@ -242,9 +243,9 @@ def repo_files(request, repo_base, repo):
 @login_required
 def repo_cards(request, repo_base, repo):
   try:
-    login = get_login(request)
+    username = request.user.username
 
-    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'USAGE')
+    res = DataHubManager.has_repo_privilege(username, repo_base, repo, 'USAGE')
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
 
@@ -254,7 +255,7 @@ def repo_cards(request, repo_base, repo):
     cards = [c.card_name for c in cards]
     
     res = {
-        'login': get_login(request),
+        'login': username,
         'repo_base': repo_base,
         'repo': repo,
         'cards': cards}
@@ -270,12 +271,12 @@ def repo_cards(request, repo_base, repo):
 @login_required
 def repo_create(request, repo_base):
   try:
-    login = get_login(request)
+    username = request.user.username
     if request.method == "POST":
-      if login != repo_base:
+      if username != repo_base:
         raise Exception(
             'Permission denied. '
-            '%s can\'t create new repository in %s.' %(login, repo_base))
+            '%s can\'t create new repository in %s.' %(username, repo_base))
 
       repo = request.POST['repo']
       manager = DataHubManager(user=repo_base)
@@ -284,7 +285,7 @@ def repo_create(request, repo_base):
       return HttpResponseRedirect('/browse/%s' %(repo_base))
 
     else:
-      res = {'repo_base': repo_base, 'login':login}
+      res = {'repo_base': repo_base, 'login':username}
       res.update(csrf(request))
       return render_to_response("repo-create.html", res)
   
@@ -296,12 +297,12 @@ def repo_create(request, repo_base):
 @login_required
 def repo_delete(request, repo_base, repo):
   try:
-    login = get_login(request)
+    username = request.user.username
 
-    if login != repo_base:
+    if username != repo_base:
       raise Exception(
           'Permission denied. '
-          '%s can\'t delete repository %s in %s.' %(login, repo, repo_base))
+          '%s can\'t delete repository %s in %s.' %(username, repo, repo_base))
 
     manager = DataHubManager(user=repo_base)
     manager.delete_repo(repo=repo, force=True)
@@ -315,8 +316,8 @@ def repo_delete(request, repo_base, repo):
 @login_required
 def repo_settings(request, repo_base, repo):
   try:
-    login = get_login(request)
-    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
+    username = request.user.username
+    res = DataHubManager.has_repo_privilege(username, repo_base, repo, 'CREATE')
     
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
@@ -328,7 +329,7 @@ def repo_settings(request, repo_base, repo):
     collaborators = filter(lambda x: x!='' and x!=repo_base, collaborators)
 
     res = {
-        'login': get_login(request),
+        'login': username,
         'repo_base': repo_base,
         'repo': repo,
         'collaborators': collaborators}
@@ -342,16 +343,16 @@ def repo_settings(request, repo_base, repo):
 @login_required
 def repo_collaborators_add(request, repo_base, repo):
   try:
-    login = get_login(request)
-    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
+    username = request.user.username
+    res = DataHubManager.has_repo_privilege(username, repo_base, repo, 'CREATE')
     
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
     
-    username = request.POST['collaborator_username']
+    collaborator_username = request.POST['collaborator_username']
     manager = DataHubManager(user=repo_base)
     manager.add_collaborator(
-        repo, username, privileges=['SELECT', 'INSERT', 'UPDATE'])
+        repo, collaborator_username, privileges=['SELECT', 'INSERT', 'UPDATE'])
     return HttpResponseRedirect('/settings/%s/%s' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
@@ -360,16 +361,16 @@ def repo_collaborators_add(request, repo_base, repo):
         content_type="application/json")
 
 @login_required
-def repo_collaborators_remove(request, repo_base, repo, username):
+def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
   try:
-    login = get_login(request)
-    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
+    username = request.user.username
+    res = DataHubManager.has_repo_privilege(username, repo_base, repo, 'CREATE')
     
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
     
     manager = DataHubManager(user=repo_base)
-    manager.delete_collaborator(repo, username)
+    manager.delete_collaborator(repo, collaborator_username)
     return HttpResponseRedirect('/settings/%s/%s' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
@@ -385,7 +386,7 @@ Tables
 @login_required
 def table(request, repo_base, repo, table):
   try:
-    login = get_login(request)
+    username = request.user.username
     dh_table_name = '%s.%s.%s' %(repo_base, repo, table)
     
     ''' 
@@ -442,7 +443,7 @@ def table(request, repo_base, repo, table):
       pass
 
     data = {
-        'login': get_login(request),
+        'login': username,
         'repo_base': repo_base,
         'repo': repo,
         'table': table,
@@ -466,8 +467,8 @@ def table(request, repo_base, repo, table):
 @login_required
 def table_export(request, repo_base, repo, table_name):
   try:
-    login = get_login(request)
-    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
+    username = request.user.username
+    res = DataHubManager.has_repo_privilege(username, repo_base, repo, 'CREATE')
     
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
@@ -541,8 +542,8 @@ def file_upload(request, repo_base, repo):
 @login_required
 def file_import(request, repo_base, repo, file_name):
   try:
-    login = get_login(request)
-    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
+    username = request.user.username
+    res = DataHubManager.has_repo_privilege(username, repo_base, repo, 'CREATE')
     
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
@@ -601,8 +602,8 @@ def file_import(request, repo_base, repo, file_name):
 @login_required
 def file_delete(request, repo_base, repo, file_name):
   try:
-    login = get_login(request)
-    res = DataHubManager.has_repo_privilege(login, repo_base, repo, 'CREATE')
+    username = request.user.username
+    res = DataHubManager.has_repo_privilege(username, repo_base, repo, 'CREATE')
     
     if not (res and res['tuples'][0][0]):
       raise Exception('Access denied. Missing required privileges.')
