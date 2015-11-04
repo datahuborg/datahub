@@ -51,7 +51,7 @@ class LayoutAndStylingUnauthenticated(FunctionalTest):
         # Login and Signup are on different pages
         self.assertNotEqual(signup_url, login_url)
 
-        # the word "email" appears in the page
+        # the word "password" appears in the page
         src = self.browser.page_source
         text_found = re.search(r'password', src)
         self.assertNotEqual(text_found, None)
