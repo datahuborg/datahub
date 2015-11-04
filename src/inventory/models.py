@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 '''
@@ -7,7 +8,7 @@ Datahub Models
 @date: Mar 21, 2013
 '''
 
-class User (models.Model):
+class DataHubLegacyUser(models.Model):
   id = models.AutoField(primary_key=True)
   email = models.CharField(max_length=100, unique = True)
   username = models.CharField(max_length=50, unique = True)
@@ -21,48 +22,49 @@ class User (models.Model):
   issuer = models.CharField(max_length=255, null=True)
   subject = models.CharField(max_length=255, null=True)
   
-  def __unicode__ (self):
+  def __unicode__(self):
     return self.username
 
   class Meta:
-    db_table = "users"
+    db_table = "datahub_legacy_users"
 
 
-class Card (models.Model):
+class Card(models.Model):
   id = models.AutoField(primary_key=True)
   timestamp = models.DateTimeField(auto_now=True)
   repo_base = models.CharField(max_length=50)
   repo_name = models.CharField(max_length=50)
-  card_name = models.CharField (max_length=50)
+  card_name = models.CharField(max_length=50)
   query = models.TextField()
 
-  def __unicode__ (self):
+  def __unicode__(self):
     return self.id
 
   class Meta:
     db_table = "cards"
 
 
-class Annotation (models.Model):
+class Annotation(models.Model):
   id = models.AutoField(primary_key=True)
   timestamp = models.DateTimeField(auto_now=True)
-  url_path = models.CharField (max_length=500, unique = True)
-  annotation_text = models.TextField ()
+  url_path = models.CharField(max_length=500, unique = True)
+  annotation_text = models.TextField()
 
-  def __unicode__ (self):
+  def __unicode__(self):
     return self.id
 
   class Meta:
     db_table = "annotations"
 
 
-class App (models.Model):
+class App(models.Model):
   id = models.AutoField(primary_key=True)
   timestamp = models.DateTimeField(auto_now=True)
-  app_id = models.CharField (max_length=100, unique = True)
-  app_name = models.CharField (max_length=100)
-  app_token = models.CharField (max_length=500)
-  user = models.ForeignKey ('User')
+  app_id = models.CharField(max_length=100, unique = True)
+  app_name = models.CharField(max_length=100)
+  app_token = models.CharField(max_length=500)
+  legacy_user = models.ForeignKey('DataHubLegacyUser', null=True)
+  user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
 
   def __unicode__(self):
     return self.app_name
@@ -71,10 +73,11 @@ class App (models.Model):
     db_table = "apps"
 
 
-class Permission (models.Model):
+class Permission(models.Model):
   id = models.AutoField(primary_key=True)
   timestamp = models.DateTimeField(auto_now=True)
-  user = models.ForeignKey('User')
+  legacy_user = models.ForeignKey('DataHubLegacyUser', null=True)
+  user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
   app = models.ForeignKey('App')
   access = models.BooleanField(default=False)
 

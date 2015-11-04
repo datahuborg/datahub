@@ -39,7 +39,7 @@ class CreateAndDeleteRepo(TestCase):
         self.hashed_password = hashlib.sha1(self.password).hexdigest()
         DataHubManager.create_user(username=self.username, password=self.hashed_password)
         
-        user = User(username=self.username, email="noreply@mit.edu", 
+        user = DataHubLegacy(username=self.username, email="noreply@mit.edu", 
             password=self.hashed_password)
         user.save()
        

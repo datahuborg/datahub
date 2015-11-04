@@ -3,9 +3,13 @@ import os
 import re
 import urllib
 
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+from django.contrib.auth import logout as django_logout
+from django.contrib.auth.decorators import login_required
 from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
-from django.core.validators import validate_email
+from django.core.validators import validate_email, ValidationError
 from django.db.utils import IntegrityError
 from django.http import *
 from django.shortcuts import *
@@ -48,7 +52,7 @@ def is_valid_username(username):
     return False
 
 
-def login_required(f):
+def dh_login_required(f):
     def wrap(request, *args, **kwargs):
         if kEmail not in request.session.keys():
             redirect_url = urlquote_plus(request.get_full_path())
@@ -89,65 +93,108 @@ def login(request):
         if ('redirect_url' in request.POST.keys()):
             redirect_url = urllib.unquote_plus(request.POST['redirect_url'])
 
-        email = None
         try:
-            login_id = request.POST["login_id"].lower()
-            login_password = hashlib.sha1(
-                request.POST["login_password"]).hexdigest()
-
+            login_id = request.POST["login_id"].lower().strip()
+            login_password = request.POST["login_password"]
             # find the user email in the username, if it's there.
             try:
-                validate_email(login_id.lower().strip())
-                email = login_id.lower().strip()
-            except:
-                pass
+                validate_email(login_id)
+                login_email = login_id
+            except ValidationError:
+                login_email = None
+        except KeyError:
+            # Error out due to no login_id and login_password in request
+            return HttpResponseServerError()
 
-            user = None
-            if email:
-                user = User.objects.get(
-                    email=login_id, password=login_password)
-            else:
-                user = User.objects.get(
-                    username=login_id, password=login_password)
+        user = None
+        if login_email:
+            user = authenticate(
+                email=login_email,
+                password=login_password)
+        else:
+            user = authenticate(
+                username="foo",
+                password="foo")
+
+        if user is not None:
             clear_session(request)
             request.session[kEmail] = user.email
             request.session[kUsername] = user.username
-
             redirect_url = redirect_url + urllib.unquote_plus(
                 '?auth_user=%s' % (user.username))
             return HttpResponseRedirect(redirect_url)
-        except User.DoesNotExist:
+
+        # TODO: Add support for "you got the username right, but your password is wrong"
+
+        # if user:
+        #     clear_session(request)
+        #     request.session[kEmail] = legacy_user.email
+        #     request.session[kUsername] = legacy_user.username
+        #     redirect_url = redirect_url + urllib.unquote_plus(
+        #         '?auth_user=%s' % (user.username))
+        #     return redirect(redirect_url)
+
+        # if user is None:
+        #     raise Exception(user)
+
+        else:
+            legacy_user = None
+            migrated_user = None
             try:
-                if email:
-                    User.objects.get(email=login_id)
+                hashed_password = hashlib.sha1(
+                    request.POST["login_password"]).hexdigest()
+                if login_email:
+                    legacy_user = DataHubLegacyUser.objects.get(
+                        email=login_id, password=hashed_password)
                 else:
-                    User.objects.get(username=login_id)
-                errors.append(
-                    'Wrong password. Please try again.<br /><br />'
-                    '<a class="blue bold" href="/account/forgot">'
-                    'Click Here</a> to reset your password.')
-            except User.DoesNotExist:
-                errors.append(
-                    'Could not find any account associated with login_id: '
-                    '%s.<br /><br /><a class="blue bold" '
-                    'href="/account/register?redirect_url=%s">Click Here</a> '
-                    'to create an account.'
-                    % (login_id, urllib.quote_plus(redirect_url)))
-            return login_form(
-                request, redirect_url=urllib.quote_plus(redirect_url),
-                errors=errors)
-        except:
-            errors.append('Login failed.')
-            return login_form(
-                request, redirect_url=urllib.quote_plus(redirect_url),
-                errors=errors)
+                    legacy_user = DataHubLegacyUser.objects.get(
+                        username=login_id, password=hashed_password)
+                clear_session(request)
+                request.session[kEmail] = legacy_user.email
+                request.session[kUsername] = legacy_user.username
+
+                if user is None:
+                    migrated_user = User.objects.create_user(
+                        legacy_user.username,
+                        legacy_user.email,
+                        login_password)
+                    migrated_user.save()
+
+                redirect_url = redirect_url + urllib.unquote_plus(
+                    '?auth_user=%s' % (legacy_user.username))
+                return HttpResponseRedirect(redirect_url)
+            except DataHubLegacyUser.DoesNotExist:
+                try:
+                    if email:
+                        DataHubLegacyUser.objects.get(email=login_id)
+                    else:
+                        DataHubLegacyUser.objects.get(username=login_id)
+                    errors.append(
+                        'Wrong password. Please try again.<br /><br />'
+                        '<a class="blue bold" href="/account/forgot">'
+                        'Click Here</a> to reset your password.')
+                except DataHubLegacyUser.DoesNotExist:
+                    errors.append(
+                        'Could not find any account associated with login_id: '
+                        '%s.<br /><br /><a class="blue bold" '
+                        'href="/account/register?redirect_url=%s">Click Here</a> '
+                        'to create an account.'
+                        % (login_id, urllib.quote_plus(redirect_url)))
+                return login_form(
+                    request, redirect_url=urllib.quote_plus(redirect_url),
+                    errors=errors)
+            # except:
+            #     errors.append('Login failed.')
+            #     return login_form(
+            #         request, redirect_url=urllib.quote_plus(redirect_url),
+            #         errors=errors)
     else:
         try:
             user_info = oidc_user_info(request)
             issuer = user_info['issuer']
             subject = user_info['sub']
             try:
-                user = User.objects.get(issuer=issuer, subject=subject)
+                user = DataHubLegacyUser.objects.get(issuer=issuer, subject=subject)
                 clear_session(request)
                 request.session[kEmail] = user.email
                 request.session[kUsername] = user.username
@@ -155,7 +202,7 @@ def login(request):
                     '?auth_user=%s' % (user.username))
                 logger.debug("logging in without a password")
                 return HttpResponseRedirect(redirect_url)
-            except User.DoesNotExist:
+            except DataHubLegacyUser.DoesNotExist:
                 pass
         except Exception:
             pass
@@ -189,7 +236,7 @@ def register(request):
                 issuer = user_info['issuer']
                 subject = user_info['sub']
                 try:
-                    user = User.objects.get(issuer=issuer, subject=subject)
+                    user = DataHubLegacyUser.objects.get(issuer=issuer, subject=subject)
                     errors.append("Another user is already linked "
                                   "to this external account.")
                     error = True
@@ -197,7 +244,7 @@ def register(request):
                     # for an external identity that already has an account,
                     # DataHub should offer to log the user in under that
                     # account instead of just dying at the registration screen.
-                except User.DoesNotExist:
+                except DataHubLegacyUser.DoesNotExist:
                     pass
             except Exception:
                 issuer = None
@@ -221,10 +268,21 @@ def register(request):
                 error = True
 
             try:
-                user = User.objects.get(username=username)
+                user = DataHubLegacyUser.objects.get(username=username)
                 errors.append("Username already taken.")
                 error = True
-            except User.DoesNotExist:
+            except DataHubLegacyUser.DoesNotExist:
+                pass
+
+            try:
+                user = DataHubLegacyUser.objects.get(email=email)
+                errors.append(
+                    'Account with the email address <a href="mailto:%s">%s</a>'
+                    ' already exists.<br /> <br />Please <a class="blue bold" '
+                    'href="/account/login?login_email=%s">Sign In</a>.'
+                    % (email, email, urllib.quote_plus(email)))
+                error = True
+            except DataHubLegacyUser.DoesNotExist:
                 pass
 
             if not error:
@@ -249,7 +307,7 @@ def register(request):
                     redirect_url=urllib.quote_plus(redirect_url),
                     errors=errors)
 
-            user = User(
+            user = DataHubLegacyUser(
                 username=username, email=email, password=hashed_password,
                 issuer=issuer, subject=subject)
             user.save()
@@ -282,17 +340,7 @@ def register(request):
             redirect_url = redirect_url + \
                 urllib.unquote_plus('?auth_user=%s' % (user.username))
             return HttpResponseRedirect(redirect_url)
-        except IntegrityError:
-            errors.append(
-                'Account with the email address <a href="mailto:%s">%s</a>'
-                ' already exists.<br /> <br />Please <a class="blue bold" '
-                'href="/account/login?login_email=%s">Sign In</a>.'
-                % (email, email, urllib.quote_plus(email)))
-            return register_form(
-                request,
-                redirect_url=urllib.quote_plus(redirect_url),
-                errors=errors)
-        except Exception, e:
+        except DataHubLegacyUser.DoesNotExist, e:
             errors.append("Error %s." % (str(e)))
             return register_form(
                 request,
@@ -313,6 +361,7 @@ def clear_session(request):
 
 
 def logout(request):
+    django_logout(request)
     clear_session(request)
     c = {
         'msg_title': 'Thank you for using DataHub!',
@@ -328,7 +377,7 @@ def forgot(request):
         errors = []
         try:
             user_email = request.POST["email"].lower()
-            user = User.objects.get(email=user_email)
+            user = DataHubLegacyUser.objects.get(email=user_email)
 
             encrypted_email = encrypt_text(user_email)
 
@@ -358,7 +407,7 @@ def forgot(request):
 
             return render_to_response('confirmation.html', c)
 
-        except User.DoesNotExist:
+        except DataHubLegacyUser.DoesNotExist:
             errors.append(
                 "Invalid Email Address.")
         except Exception, e:
@@ -382,7 +431,7 @@ def verify(request, encrypted_email):
     c = {'msg_title': 'DataHub Account Verification'}
     try:
         user_email = decrypt_text(encrypted_email)
-        user = User.objects.get(email=user_email)
+        user = DataHubLegacyUser.objects.get(email=user_email)
         c.update({
             'msg_body': 'Thanks for verifying your email address!<br /> <br />'
                         '<a href="/">Click Here</a> to start using DataHub.'
@@ -420,7 +469,7 @@ def reset(request, encrypted_email):
 
             if not error:
                 hashed_password = hashlib.sha1(password).hexdigest()
-                user = User.objects.get(email=user_email)
+                user = DataHubLegacyUser.objects.get(email=user_email)
                 try:
                     DataHubManager.create_user(
                         username=user.username, password=hashed_password)
@@ -445,7 +494,7 @@ def reset(request, encrypted_email):
 
             else:
                 hashed_password = hashlib.sha1(password).hexdigest()
-                user = User.objects.get(email=user_email)
+                user = DataHubLegacyUser.objects.get(email=user_email)
                 user.password = hashed_password
                 user.save()
                 c = {
@@ -469,7 +518,7 @@ def reset(request, encrypted_email):
     else:
         try:
             user_email = decrypt_text(encrypted_email)
-            User.objects.get(email=user_email)
+            DataHubLegacyUser.objects.get(email=user_email)
             c = {
                 'user_email': user_email,
                 'encrypted_email': encrypted_email
@@ -498,11 +547,11 @@ def get_login(request):
     return login
 
 
-@login_required
+@dh_login_required
 def jdbc_password(request):
     # this is not safe. Will be fixed using OIDC connect - ARC 2015-07-06
     login = request.session[kUsername]
-    user = User.objects.get(username=login)
+    user = DataHubLegacyUser.objects.get(username=login)
     return HttpResponse(user.password)
 
 
@@ -518,19 +567,19 @@ def account_settings(request, redirect_url='/', errors=[]):
     c.update(csrf(request))
     username = get_login(request)
     try:
-        user = User.objects.get(username=username)
+        user = DataHubLegacyUser.objects.get(username=username)
         wanted_attrs = {'username', 'email', 'password', 'subject', 'issuer'}
         values = dict([i, getattr(user, i)] for i in wanted_attrs)
         if len(values['password']) > 0:
             values['password'] = "********************************"
         c['values'] = values
-    except User.DoesNotExist:
+    except DataHubLegacyUser.DoesNotExist:
         c['errors'] = ["User does not exist."]
 
     return render_to_response('account-settings.html', c)
 
 
-@login_required
+@dh_login_required
 def add_login(request):
     """Returns a form offering a choice of identity providers.
 
@@ -541,17 +590,17 @@ def add_login(request):
     c = {}
     try:
         username = get_login(request)
-        user = User.objects.get(username=username)
+        user = DataHubLegacyUser.objects.get(username=username)
         wanted_attrs = {'username', 'email', 'subject', 'issuer'}
         values = dict([i, getattr(user, i)] for i in wanted_attrs)
         c['values'] = values
-    except User.DoesNotExist:
+    except DataHubLegacyUser.DoesNotExist:
         c['errors'] = ["User does not exist."]
 
     return render_to_response('add-login.html', c)
 
 
-@login_required
+@dh_login_required
 def confirm_add_login(request):
     """Returns a form to confirm adding an external login to the current account.
 
@@ -571,15 +620,15 @@ def confirm_add_login(request):
         return HttpResponse("Error getting OIDC info")
 
     username = get_login(request)
-    user = User.objects.get(username=username)
+    user = DataHubLegacyUser.objects.get(username=username)
     if user.issuer and user.subject:
         return HttpResponse("Your account already has one link.")
 
     try:
-        User.objects.get(issuer=issuer, subject=subject)
+        DataHubLegacyUser.objects.get(issuer=issuer, subject=subject)
         return HttpResponse("Another user is already linked "
                             "to that external account.")
-    except User.DoesNotExist:
+    except DataHubLegacyUser.DoesNotExist:
         pass
 
     if request.method == "POST":

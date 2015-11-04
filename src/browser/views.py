@@ -488,7 +488,7 @@ def table_export(request, repo_base, repo, table_name):
           {'error': str(e)}),
         content_type="application/json")
 
-@login_required
+@dh_login_required
 def table_delete(request, repo_base, repo, table_name):
   try:
     login = get_login(request)
@@ -636,7 +636,7 @@ def file_download(request, repo_base, repo, file_name):
 '''
 Query 
 '''
-@login_required
+@dh_login_required
 def query(request, repo_base, repo):
   try:
     login = get_login(request)
@@ -760,7 +760,7 @@ def create_annotation(request):
 Cards
 '''
 
-@login_required
+@dh_login_required
 def card(request, repo_base, repo, card_name):
   try:
     login = get_login(request)
@@ -837,7 +837,7 @@ def card(request, repo_base, repo, card_name):
           {'error': str(e)}),
         content_type="application/json")
 
-@login_required
+@dh_login_required
 def card_create(request, repo_base, repo):
   try:    
     card_name = request.POST['card-name']
@@ -854,7 +854,7 @@ def card_create(request, repo_base, repo):
           {'error': str(e)}),
         content_type="application/json")
 
-@login_required
+@dh_login_required
 def card_export(request, repo_base, repo, card_name):
   try:
     login = get_login(request)
@@ -880,7 +880,7 @@ def card_export(request, repo_base, repo, card_name):
           {'error': str(e)}),
         content_type="application/json")
 
-@login_required
+@dh_login_required
 def card_delete(request, repo_base, repo, card_name):
   try:    
     login = get_login(request)
@@ -904,10 +904,10 @@ def card_delete(request, repo_base, repo, card_name):
 Developer Apps
 '''
 
-@login_required
+@dh_login_required
 def apps (request):
   login = get_login(request)
-  user = User.objects.get(username=login)
+  user = DataHubLegacyUser.objects.get(username=login)
   user_apps = App.objects.filter(user=user)
   apps = []
   for app in user_apps:
@@ -922,13 +922,13 @@ def apps (request):
       'apps': apps}
   return render_to_response('apps.html', c)
 
-@login_required
+@dh_login_required
 def app_register (request):
   login = get_login(request)
 
   if request.method == "POST":
     try:
-      user = User.objects.get(username=login)
+      user = DataHubLegacyUser.objects.get(username=login)
       app_id = request.POST["app-id"].lower()
       app_name = request.POST["app-name"]
       app_token = str(uuid.uuid4())
@@ -956,11 +956,11 @@ def app_register (request):
     c.update(csrf(request))
     return render_to_response('app-create.html', c)
 
-@login_required
+@dh_login_required
 def app_remove (request, app_id):
   try:
     login = get_login(request)
-    user = User.objects.get(username=login)
+    user = DataHubLegacyUser.objects.get(username=login)
     app = App.objects.get(user=user, app_id=app_id)
     app.delete()
 
@@ -973,7 +973,7 @@ def app_remove (request, app_id):
     return render_to_response('apps.html', c)
 
 
-@login_required
+@dh_login_required
 def app_allow_access(request, app_id, repo_name):
   login = get_login(request)
   try:  

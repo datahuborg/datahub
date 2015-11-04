@@ -15,26 +15,26 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 def account_login(username, email, password):
     hashed_password = hashlib.sha1(password).hexdigest()
     if username:
-        return User.objects.get(username=username, password=hashed_password)
+        return DataHubLegacyUser.objects.get(username=username, password=hashed_password)
     else:
-        return User.objects.get(email=email, password=hashed_password)
+        return DataHubLegacyUser.objects.get(email=email, password=hashed_password)
 
 
 def account_register(username, email, password, repo_name, app_id, app_token):
     try:
-        user = User.objects.get(username=username)
+        user = DataHubLegacyUser.objects.get(username=username)
         raise Exception("Duplicate username (email=%s)" % (user.email))
-    except User.DoesNotExist:
+    except DataHubLegacyUser.DoesNotExist:
         pass
 
     try:
-        user = User.objects.get(email=email)
+        user = DataHubLegacyUser.objects.get(email=email)
         raise Exception("Duplicate email (username=%s)" % (user.username))
-    except User.DoesNotExist:
+    except DataHubLegacyUser.DoesNotExist:
         pass
 
     hashed_password = hashlib.sha1(password).hexdigest()
-    user = User(username=username, email=email, password=hashed_password)
+    user = DataHubLegacy(username=username, email=email, password=hashed_password)
     user.save()
 
     try:
@@ -101,5 +101,5 @@ def account_remove(username, app_id, app_token):
 
     DataHubManager.remove_user(username=username)
 
-    user = User.objects.get(username=username)
+    user = DataHubLegacyUser.objects.get(username=username)
     user.delete()

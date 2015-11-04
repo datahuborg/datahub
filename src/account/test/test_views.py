@@ -5,7 +5,7 @@ from django.test import Client
 from django.http import HttpRequest
 from django.core.urlresolvers import resolve
 
-from inventory.models import User
+from inventory.models import DataHubLegacyUser
 from account.auth import login, register, clear_session, logout, forgot
 from account.auth import verify, reset, jdbc_password
 
@@ -16,7 +16,7 @@ class LoginPageTest(TestCase):
         self.client = Client(enforce_csrf_checks=False)
         self.password = "password"
         self.hashed_password = hashlib.sha1("password").hexdigest()
-        self.user, created = User.objects.get_or_create(
+        self.user, created = DataHubLegacyUser.objects.get_or_create(
             id=10,
             username="user",
             password=self.hashed_password,
@@ -70,7 +70,7 @@ class LogoutPageTest(TestCase):
         self.client = Client(enforce_csrf_checks=False)
         self.password = "password"
         self.hashed_password = hashlib.sha1("password").hexdigest()
-        self.user, created = User.objects.get_or_create(
+        self.user, created = DataHubLegacyUser.objects.get_or_create(
             id=10,
             username="user",
             password=self.hashed_password,
@@ -153,7 +153,7 @@ class JdbcPasswordTest(TestCase):
         self.client = Client(enforce_csrf_checks=False)
         self.password = "password"
         self.hashed_password = hashlib.sha1("password").hexdigest()
-        self.user, created = User.objects.get_or_create(
+        self.user, created = DataHubLegacyUser.objects.get_or_create(
             id=10, username="user",
             password=self.hashed_password,
             email="noreply.csail.mit.edu",

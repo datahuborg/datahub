@@ -10,7 +10,7 @@ from account.auth import *
 Datahub Console
 '''
 
-@login_required
+@dh_login_required
 def index(request):
   return render_to_response("console.html", {
     'login': get_login(request)})

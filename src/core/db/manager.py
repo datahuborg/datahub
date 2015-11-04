@@ -24,7 +24,7 @@ class DataHubManager:
       username = app.app_id
       password = hashlib.sha1(app.app_token).hexdigest()
     else:
-      user = User.objects.get(username=user)
+      user = DataHubLegacyUser.objects.get(username=user)
       username = user.username
       password = user.password
     
