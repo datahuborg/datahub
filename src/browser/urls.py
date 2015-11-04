@@ -28,10 +28,10 @@ urlpatterns = patterns('',
     url(r'^account/', include('account.urls')),
     url(r'^oidc/', include('oidc.urls')),
     url('', include('social.apps.django_app.urls', namespace='social')),
-    url(r'^login', 'account.views.login'),
+    url(r'^account/login', 'account.views.login', name='login'),
     url(r'^home', 'account.views.home'),
-    url(r'^logout', 'account.views.logout'),
-    url(r'^choose_username', 'account.views.get_username'),
+    url(r'^account/logout', 'account.views.logout', name='logout'),
+    url(r'^account/choose_username', 'account.views.get_username'),
     #### End Account Related ####
 
 
