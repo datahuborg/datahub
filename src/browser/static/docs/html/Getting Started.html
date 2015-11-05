@@ -72,7 +72,7 @@
 <p>DataHub is built on the <a class="reference external" href="http://www.postgresql.org/">PostgreSQL</a>
 database.</p>
 <ol class="arabic simple">
-<li>Install Postgres and create a user called <code class="docutils literal"><span class="pre">postgres</span></code>. See
+<li><a class="reference external" href="http://www.postgresql.org/download/">Install Postgres</a> and create a user called <code class="docutils literal"><span class="pre">postgres</span></code>. See
 <a class="reference external" href="https://wiki.postgresql.org/wiki/First_steps">here</a> for
 step-by-step instructions.</li>
 <li>When the Postgres server is running, open the Postgres shell
@@ -148,6 +148,10 @@ to <code class="docutils literal"><span class="pre">source</span> <span class="p
 </div>
 <div class="section" id="vagrant-environment-setup-optional">
 <h2>Vagrant Environment Setup (optional)<a class="headerlink" href="#vagrant-environment-setup-optional" title="Permalink to this headline">¶</a></h2>
+<p>Vagrant setup is much less error-prone than standard setup. However, unlike
+standard setup, it does not allow you to quickly debug and make changes to
+DataHub. If you plan to develop apps using datahub, but don&#8217;t plan to work on
+DataHub&#8217;s code base, this is the right choice for you.</p>
 <p>Follow these steps:</p>
 <ol class="arabic simple">
 <li>You need internet access the first time you do these steps.</li>
@@ -155,9 +159,9 @@ to <code class="docutils literal"><span class="pre">source</span> <span class="p
 <li>Download and install Vagrant <a class="reference external" href="https://www.vagrantup.com/downloads.html">https://www.vagrantup.com/downloads.html</a></li>
 <li>Add this line to your hosts file:
 <code class="docutils literal"><span class="pre">192.168.50.4</span>&nbsp;&nbsp;&nbsp; <span class="pre">datahub-local.mit.edu</span></code></li>
-<li>Then start the environment with: <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code> After some time your
+<li>Then start the environment with: <code class="docutils literal"><span class="pre">$</span> <span class="pre">vagrant</span> <span class="pre">up</span></code> After some time your
 environment is setup and running. You can go to
-<a class="reference external" href="http://datahub-local.mit.edu">http://datahub-local.mit.edu</a> and start using Datahub.</li>
+<a class="reference external" href="https://datahub-local.mit.edu">https://datahub-local.mit.edu</a> and start using Datahub.</li>
 </ol>
 <div class="section" id="to-manually-stop-start-your-docker-containers">
 <h3>To manually stop/start your docker containers:<a class="headerlink" href="#to-manually-stop-start-your-docker-containers" title="Permalink to this headline">¶</a></h3>
@@ -179,9 +183,9 @@ shell access to container
 <div class="section" id="run-test-with-behave-in-vagrant">
 <h3>Run test with <code class="docutils literal"><span class="pre">behave</span></code> in Vagrant:<a class="headerlink" href="#run-test-with-behave-in-vagrant" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
-<li>Login in VM <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">ssh</span></code></li>
+<li>Login in VM <code class="docutils literal"><span class="pre">$</span> <span class="pre">vagrant</span> <span class="pre">ssh</span></code></li>
 <li>Get shell access to datahub container
-<code class="docutils literal"><span class="pre">sudo</span> <span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">-i</span> <span class="pre">-t</span> <span class="pre">datahub</span> <span class="pre">/bin/bash</span></code></li>
+<code class="docutils literal"><span class="pre">$</span> <span class="pre">sudo</span> <span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">-i</span> <span class="pre">-t</span> <span class="pre">datahub</span> <span class="pre">/bin/bash</span></code></li>
 <li>Change directory and execute <code class="docutils literal"><span class="pre">behave</span></code> <code class="docutils literal"><span class="pre">cd</span> <span class="pre">/datahub/src</span>&nbsp;&nbsp; <span class="pre">behave</span></code></li>
 </ol>
 </div>
@@ -206,6 +210,15 @@ there is no need for internet connection).</li>
 </div>
 <div class="section" id="testing-datahub">
 <h2>Testing DataHub<a class="headerlink" href="#testing-datahub" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="functional-tests">
+<h3>Functional Tests<a class="headerlink" href="#functional-tests" title="Permalink to this headline">¶</a></h3>
+<p>Functional tests are used to test DataHub&#8217;s functionality</p>
+<p>Run them from the <code class="docutils literal"><span class="pre">/src</span></code> directory:</p>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">$</span> <span class="pre">cd</span> <span class="pre">src</span></code></div>
+<div class="line"><code class="docutils literal"><span class="pre">$</span> <span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">test</span> <span class="pre">functional_tests</span></code></div>
+</div>
+</div>
 <div class="section" id="unittests">
 <h3>Unittests<a class="headerlink" href="#unittests" title="Permalink to this headline">¶</a></h3>
 <p>Unitests are used to test DataHub&#8217;s models and views.</p>
@@ -265,6 +278,7 @@ there is no need for internet connection).</li>
 </li>
 <li><a class="reference internal" href="#building-sphinx-docs">Building Sphinx Docs</a></li>
 <li><a class="reference internal" href="#testing-datahub">Testing DataHub</a><ul>
+<li><a class="reference internal" href="#functional-tests">Functional Tests</a></li>
 <li><a class="reference internal" href="#unittests">Unittests</a></li>
 <li><a class="reference internal" href="#bdd-testing-with-behave">BDD Testing with Behave</a></li>
 </ul>
