@@ -23,4 +23,3 @@ openssl req \
 cd /vagrant
 sh provisions/docker/build-images.sh
 sh provisions/docker/create-dev-containers.sh
-sh provisions/docker/start-containers.sh
