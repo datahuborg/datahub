@@ -2,8 +2,8 @@ DataHub
 ===========
 
 ### Dependencies
-* `thrift (0.9.1)`
-* `postgres (9.3)`
+* `thrift (0.9.2)`
+* `postgres (9.4.5)`
 
 
 ### Optional Dependencies 
