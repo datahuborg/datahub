@@ -1,4 +1,4 @@
-*Note: The project is under development. It is not ready for deployment yet.*
+*Note: This project is under development. It is not yet ready for production use.*
 
 DataHub
 ===========
@@ -10,14 +10,14 @@ DataHub is an experimental hosted platform (GitHub-like) for organizing, managin
 
 ### Get Started
 
-+ [https://github.com/abhardwaj/datahub/wiki/Getting-Started](https://github.com/abhardwaj/datahub/wiki/Getting-Started)
++ [https://github.com/datahuborg/datahub/wiki/Getting-Started](https://github.com/datahuborg/datahub/wiki/Getting-Started)
 
 ### Example Code
 
-+ [https://github.com/abhardwaj/datahub/tree/master/src/examples](https://github.com/abhardwaj/datahub/tree/master/src/examples)
++ [https://github.com/datahuborg/datahub/tree/master/src/examples](https://github.com/datahuborg/datahub/tree/master/src/examples)
 
 ### Demo
-+ [http://datahub.csail.mit.edu](http://datahub.csail.mit.edu)
++ [https://datahub.csail.mit.edu](https://datahub.csail.mit.edu)
 
 ### Contact Info
 + [datahub@csail.mit.edu](mailto:datahub@csail.mit.edu)
