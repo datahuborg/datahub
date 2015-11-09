@@ -45,8 +45,8 @@ Vagrant is the recommend method for developing with DataHub. It provides a VM ma
     $ vagrant up
     ```
 
-The last step could take several minutes depending on the speed of your connection and computer.
+This last step might take several minutes depending on your connection and computer.
 
 When `vagrant up` finishes, you can find your environment running at [http://datahub-local.mit.edu](http://datahub-local.mit.edu).
 
-Note that datahub-local.mit.edu is local to your computer and unreachable by other machines. Because it is local, you can edit DataHub's files on your computer, and those changes will be reflected on datahub-local.mit.edu.
+Vagrant keeps your working copy and the VM in sync, so edits you make to DataHub's code will be reflected on datahub-local.mit.edu. Changes to static files like CSS, JS, and documentation must be collected before the server will notice them. For more information, see the docs at [https://github.com/datahuborg/datahub/wiki/Getting-Started](https://github.com/datahuborg/datahub/wiki/Getting-Started).
