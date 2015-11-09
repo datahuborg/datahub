@@ -1,6 +1,39 @@
 Getting Started
 ****************
 
+==========
+Quickstart
+==========
+
+-------------------
+Set up with Vagrant
+-------------------
+
+Vagrant is the recommend method for developing with DataHub. It provides a VM matching the DataHub production server, regardless of your host operating system.
+
+
+
+1. Install VirtualBox `<https://www.virtualbox.org/>`_.
+2. Install Vagrant `<https://www.vagrantup.com/downloads.html>`_.
+3. Clone DataHub:
+    .. code-block:: bash
+    
+        $ git clone https://github.com/datahuborg/datahub.git
+4. Add this line to your hosts file (/etc/hosts on most systems):
+    .. code-block:: bash
+    
+        192.168.50.4    datahub-local.mit.edu
+5. From your clone, start the VM:
+    .. code-block:: bash
+    
+        $ vagrant up
+
+This last step could take several minutes depending on the speed of your connection and computer.
+
+Once ``vagrant up`` finishes, you can see your environment running at `<http://datahub-local.mit.edu>`_.
+
+Note that datahub-local.mit.edu is local to your computer and unreachable by other machines. Because it is local, you can edit DataHub's files on your computer, and those changes will be reflected on datahub-local.mit.edu.
+
 ==============
 Standard Setup
 ==============
@@ -98,69 +131,6 @@ Run test with ``behave``
 ------------------------
 
 ``cd /datahub/src behave``
-
-
-====================================
-Vagrant Environment Setup (optional)
-====================================
-
-Vagrant setup is much less error-prone than standard setup. However, unlike 
-standard setup, it does not allow you to quickly debug and make changes to
-DataHub. If you plan to develop apps using datahub, but don't plan to work on
-DataHub's code base, this is the right choice for you.
-
-Follow these steps:
-
-1. You need internet access the first time you do these steps.
-2. Download and install VirtualBox https://www.virtualbox.org/
-3. Download and install Vagrant https://www.vagrantup.com/downloads.html
-4. Add this line to your hosts file:
-   ``192.168.50.4    datahub-local.mit.edu``
-5. Then start the environment with: ``$ vagrant up`` After some time your
-   environment is setup and running. You can go to
-   https://datahub-local.mit.edu and start using Datahub.
-
-
-----------------------------------------------
-To manually stop/start your docker containers:
-----------------------------------------------
-
--  First login into VM:
-
-::
-
-    vagrant ssh
-
--  Then List docker containers ``sudo docker ps``
-
--  Stop docker datahub ``sudo docker stop datahub``
-
--  Start docker container ``sudo docker start datahub``
-
--  Execute command inside container, bellow is the example of getting
-   shell access to container
-   ``sudo docker exec -i -t datahub /bin/bash``
-
-------------------------------------
-Run test with ``behave`` in Vagrant:
-------------------------------------
-
-1. Login in VM ``$ vagrant ssh``
-2. Get shell access to datahub container
-   ``$ sudo docker exec -i -t datahub /bin/bash``
-3. Change directory and execute ``behave`` ``cd /datahub/src   behave``
-
-----------------
-Shutdown Vagrant
-----------------
-
-1. Exit docker shell with ``exit`` (if you are in docker)
-2. Exit the vm with ``exit`` (if you are in vagrant VM)
-3. Shutdown the vm with ``vagrant halt`` (next time you do
-   ``vagrant up`` will be much faster as packages are already installed;
-   there is no need for internet connection).
-4. If you want to delete the vm ``vagrant destroy`` (if you do
-   ``vagrant up`` again, it will download and install all the packages).
 
 ====================
 Building Sphinx Docs
