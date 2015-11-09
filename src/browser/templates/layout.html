@@ -98,7 +98,7 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
           </li>
 
           <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="id_user_menu" role="button" aria-expanded="false">
               <i class="fa fa-user"></i> <strong>{{ login }}</strong> <i class="fa fa-caret-down"></i>
             </a>
             
@@ -107,14 +107,14 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
               <li><a href="/developer/apps" title="Create App">Create App</a></li>
               <li class="divider"></li>
               <li><a href="/account/settings" title="Sign Out">Settings</a></li>  
-              <li><a href="/account/logout" title="Sign Out">Sign Out</a></li>  
+              <li><a href="/account/logout" id="id_sign_out" title="Sign Out">Sign Out</a></li>  
             </ul>
           </li>     
         </ul>
       {% else %}
         <div class="nav navbar-nav navbar-right">
-          <a href="/account/login" title="Sign In" class="btn navbar-btn btn-primary">Sign In</a> &nbsp; &nbsp;
-          <a href="/account/register" title="Sign Up" class="btn navbar-btn btn-success">Sign Up</a>
+          <a href="/account/login" title="Sign In" id="id_sign_in" class="btn navbar-btn btn-primary">Sign In</a> &nbsp; &nbsp;
+          <a href="/account/register" title="Sign Up" id="id_sign_up" class="btn navbar-btn btn-success">Sign Up</a>
         </div>
       {% endif %}
     {% endblock %}    

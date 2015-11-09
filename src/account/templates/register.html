@@ -1,6 +1,6 @@
 {% extends "minimal-layout.html" %}
 {% block headlink-right %}
-  <a href="/account/login" title="Sign In" class="btn btn-primary navbar-btn">Sign In</a>
+  <a href="/account/login" title="Sign In" id="id_sign_in" class="btn btn-primary navbar-btn">Sign In</a>
 {% endblock %}
 {% block content %}
 <div class="container">
@@ -20,7 +20,7 @@
   <input type="text" class="form-control" name="email" id="email" placeholder="Your email address" {% if values.email %}value="{{values.email}}"{% endif %}/><br />
   <label for="password">Password</label><br />
   <input type="password" class="form-control" name="password" id="password" placeholder="Create a password" {% if values.password %}value="{{values.password}}"{% endif %}/><br />
-  <button type="submit" class="btn btn-lg btn-success btn-block">Sign Up for DataHub</button>
+  <button type="submit" id="id_register" class="btn btn-lg btn-success btn-block">Sign Up for DataHub</button>
   <br />
 </form>
 </div>
