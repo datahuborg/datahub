@@ -5,11 +5,11 @@ from django.test import Client
 from django.core.urlresolvers import resolve
 
 from core.db.manager import DataHubManager
-from inventory.models import User
+from django.contrib.auth.models import User
 from browser.views import home
 from browser.views import repo_create
 
-class BrowserPagesNotRequiringAuthentication(TestCase):
+class BrowserPagesNotRequiringAuth(TestCase):
     def setUp(self):
         self.client = Client(enforce_csrf_checks=False)
 
@@ -25,55 +25,67 @@ class BrowserPagesNotRequiringAuthentication(TestCase):
 
 # tests below this comment require authentication
 # if these fail because a role/database already exists
-# you will need to log into postgres and
+# you may need to log into postgres and
 # drop database username;
 # drop role username;
+
 
 class CreateAndDeleteRepo(TestCase):
     def setUp(self):
         self.client = Client(enforce_csrf_checks=False)
 
         # create the user
-        self.username = "username"
-        self.password = "password"
+        self.username = "test_username"
+        self.password = "test_password"
+        self.email = "test_email@csail.mit.edu"
+        self.user = User.objects.create_user(self.username, self.email, self.password)
         self.hashed_password = hashlib.sha1(self.password).hexdigest()
+
+        # create user's database
         DataHubManager.create_user(username=self.username, password=self.hashed_password)
         
-        user = DataHubLegacy(username=self.username, email="noreply@mit.edu", 
-            password=self.hashed_password)
-        user.save()
-       
         # log the user in
-        login_credentials = {'login_id': self.username, 
-        'login_password': self.password}
-        self.client.post('/account/login', login_credentials) 
+        self.client.login(username=self.username, password=self.password)
 
     def tearDown(self):
+        # remove the postgres db. User will log out automatically.
         DataHubManager.remove_user_and_database(username=self.username)
 
     def test_create_repo_resolves_to_create_func(self):
-        found = resolve('/create/' + self.username+ '/repo/')
+        try:
+            found = resolve('/create/' + self.username+ '/repo/')
+        except:
+            self.fail("exception at test_create_repo_resolves_to_create_func hit")
+
         self.assertEqual(found.func, repo_create)
 
     def test_create_repo_returns_correct_page(self):
-        login_credentials = {'login_id': self.username, 
-        'login_password': self.password}
+        try:
+            login_credentials = {'login_id': self.username, 
+            'login_password': self.password}
 
-        response = self.client.get('/create/' + self.username + '/repo', follow=True)
+            response = self.client.get('/create/' + self.username + '/repo', follow=True)
+        except:
+            self.fail("exception at test_create_repo_returns_correct_page hit")
+
         self.assertTemplateUsed(response, 'repo-create.html')
 
-
     def test_create_repo_creates_a_repo(self):
-        # create the new repo
-        post_object = {'repo': 'repo_name'}
-        response = self.client.post('/create/' + self.username + '/repo', post_object)
+        try:
+            # create the new repo
+            post_object = {'repo': 'repo_name'}
+            response = self.client.post('/create/' + self.username + '/repo', post_object)
 
-        # get a list of repos that the user owns
-        manager = DataHubManager(user=self.username)
-        res = manager.list_repos() 
-        repos = [t[0] for t in res['tuples']]
+            # get a list of repos that the user owns
+            # import pdb; pdb.set_trace()
+            manager = DataHubManager(user=self.username)
+            res = manager.list_repos() 
+            repos = [t[0] for t in res['tuples']]
 
-        # make sure that it's in there
+            # make sure that it's in there
+        except:
+            self.fail("exception at test_create_repo_creates_a_repo")
+
         self.assertTrue('repo_name' in repos)
 
     def createCard(self):
@@ -90,3 +102,4 @@ class CreateAndDeleteRepo(TestCase):
 
     def deleteAnnotation(self):
         pass
+
