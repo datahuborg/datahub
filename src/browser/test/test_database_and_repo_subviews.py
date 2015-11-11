@@ -20,8 +20,6 @@ from mock import MagicMock, patch
 class CreateAndDeleteRepo(TestCase):
 
     def setUp(self):
-        self.client = Client(enforce_csrf_checks=False)
-
         # create the user
         self.username = "test_username"
         self.password = "test_password"
@@ -137,8 +135,6 @@ class CreateAndDeleteRepo(TestCase):
 class RepoFeaturePages(TestCase):
 
     def setUp(self):
-        self.client = Client(enforce_csrf_checks=False)
-
         # create the user
         self.username = "test_username"
         self.password = "test_password"
@@ -223,23 +219,3 @@ class RepoFeaturePages(TestCase):
 
         mock_list_tables.assert_not_called()
         mock_list_views.assert_not_called()
-
-    # *** Files Tab ***
-
-    # def test_create_table(self):
-    #     pass
-
-    # def createCard(self):
-    #     pass
-
-    # def createAnotation(self):
-    #     pass
-
-    # def deleteRepo(self):
-    #     pass
-
-    # def deleteCard(self):
-    #     pass
-
-    # def deleteAnnotation(self):
-    #     pass

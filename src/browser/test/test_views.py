@@ -10,8 +10,6 @@ from browser.views import home
 from browser.views import repo_create
 
 class BrowserPagesNotRequiringAuth(TestCase):
-    def setUp(self):
-        self.client = Client(enforce_csrf_checks=False)
 
     def test_home_url_resolves_to_home_func(self):
         found = resolve('/')
