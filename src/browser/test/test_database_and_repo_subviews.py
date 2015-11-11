@@ -1,11 +1,14 @@
+import os
 import hashlib
+from mock import MagicMock, patch
+
 from django.test import TestCase
-from django.test import Client
 from django.core.urlresolvers import resolve
 from django.contrib.auth.models import User
+
 from core.db.manager import DataHubManager
 import browser.views
-from mock import MagicMock, patch
+
 
 
 # tests below this comment require authentication
@@ -132,7 +135,7 @@ class CreateAndDeleteRepo(TestCase):
         mock_delete_repo.assert_not_called()
 
 
-class RepoFeaturePages(TestCase):
+class RepoTablesAndViewsTab(TestCase):
 
     def setUp(self):
         # create the user
@@ -194,7 +197,7 @@ class RepoFeaturePages(TestCase):
         try:
             mock_list_tables.return_value = {'tuples': []}
             mock_list_views.return_value = {'tuples': []}
-            response = self.client.get(
+            self.client.get(
                 '/browse/' + self.username + '/' + self.repo_name + "/tables")
 
         except:
@@ -211,11 +214,128 @@ class RepoFeaturePages(TestCase):
         try:
             mock_list_tables.return_value = {'tuples': []}
             mock_list_views.return_value = {'tuples': []}
-            response = self.client.get(
-                '/browse/' + 'wrong_username' + '/' + self.repo_name + "/tables")
+            self.client.get(
+                '/browse/' + 'wrong_username' + '/' + self.repo_name +
+                "/tables"
+                )
 
         except:
             self.fail("exception at test_table_view_calls_correct_function")
 
         mock_list_tables.assert_not_called()
         mock_list_views.assert_not_called()
+
+
+    # *** Cards Tab ***
+
+    # def test_cards_view_returns_correct_function(self):
+    #     try:
+    #         found = resolve(
+    #             '/browse/' + self.username + "/" + self.repo_name + "/cards")
+    #     except:
+    #         self.fail("exception at test_create_repo_resolves_to_create_func")
+
+    #     self.assertEqual(found.func, browser.views.repo_files)
+
+    # def test_cards_view_returns_correct_page(self):
+    #     try:
+    #         response = self.client.get(
+    #             '/browse/' + self.username + '/' + self.repo_name + "/cards")
+    #     except:
+    #         self.fail("exception at test_table_view_returns_correct_page")
+    #         # if this fails, it's likely because the folder for user data
+    #         # is hardcoded as '/user_data/USERNAME/REPO', and the app doesn't
+    #         # have permission to write there.
+    #         # You may have to chmod the folder
+
+    #     self.assertTemplateUsed(response, 'repo-browse-files.html')
+
+
+class RepoCardsTab(TestCase):
+
+    def setUp(self):
+        # create the user
+        self.username = "test_username"
+        self.password = "test_password"
+        self.email = "test_email@csail.mit.edu"
+        self.user = User.objects.create_user(
+            self.username, self.email, self.password)
+        self.hashed_password = hashlib.sha1(self.password).hexdigest()
+
+        # Mock out a repo for the user
+        self.repo_name = 'test_repo'
+        self.mock_list_repos = self.create_patch(
+                    'core.db.manager.DataHubManager.list_repos')
+        self.mock_list_repos.return_value = {'tuples': [[self.repo_name]]}
+
+        # mock out that they have priviledges
+        self.mock_has_repo_privilege = self.create_patch(
+                    'core.db.manager.DataHubManager.has_repo_privilege')
+        self.mock_has_repo_privilege.return_value = {'tuples': [[[True]]]}
+
+        # make their files folder
+        repo_dir = '/user_data/%s/%s' %(self.username, self.repo_name)
+        if not os.path.exists(repo_dir):
+            os.makedirs(repo_dir)
+
+        # put a file in it, if there wasn't one already.
+
+        # log the user in
+        self.client.login(username=self.username, password=self.password)
+
+    # *** Files Tab ***
+
+    def create_patch(self, name):
+        # helper method for creating patches
+        patcher = patch(name)
+        thing = patcher.start()
+        self.addCleanup(patcher.stop)
+        return thing
+
+    def test_files_view_returns_correct_function(self):
+        found = resolve(
+            '/browse/' + self.username + "/" + self.repo_name + "/files")
+
+        self.assertEqual(found.func, browser.views.repo_files)
+
+    def test_files_view_returns_correct_page(self):
+        response = self.client.get(
+                '/browse/' + self.username + '/' + self.repo_name + "/files")
+        
+        self.assertTemplateUsed(response, 'repo-browse-files.html')
+
+    def test_files_view_checks_for_repo_permission(self):
+        self.assertEqual(self.mock_has_repo_privilege.called, False)
+        self.client.get(
+            '/browse/' + self.username + '/' + self.repo_name + "/files")
+        
+        self.mock_has_repo_privilege.assert_called_once_with('test_username', 'test_username', 'test_repo', 'USAGE')
+
+
+    def test_files_view_returns_existing_files(self):
+        response = self.client.get(
+            '/browse/' + self.username + '/' + self.repo_name + "/files")
+        pass
+
+    def test_files_view_cannot_be_accessed_by_wrong_user(self):
+        pass
+
+
+
+    # def test_create_table(self):
+    #     pass
+
+    # def createCard(self):
+    #     pass
+
+    # def createAnotation(self):
+    #     pass
+
+    # def deleteRepo(self):
+    #     pass
+
+    # def deleteCard(self):
+    #     pass
+
+    # def deleteAnnotation(self):
+    #     pass
