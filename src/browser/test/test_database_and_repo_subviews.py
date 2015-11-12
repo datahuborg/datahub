@@ -151,10 +151,15 @@ class RepoTablesAndViewsTab(TestCase):
             'core.db.manager.DataHubManager.list_repos')
         self.mock_list_repos.return_value = {'tuples': [[self.repo_name]]}
 
-        # mock out that they have priviledges
-        self.mock_has_repo_privilege = self.create_patch(
-            'core.db.manager.DataHubManager.has_repo_privilege')
-        self.mock_has_repo_privilege.return_value = {'tuples': [[[True]]]}
+        # mock out that they have tables and views, and repo priviledges
+        self.mock_DataHubManager = self.create_patch(
+            'browser.views.DataHubManager')
+        self.mock_DataHubManager.return_value.list_tables.return_value = {
+            'tuples': ['table_1']}
+        self.mock_DataHubManager.return_value.list_views.return_value = {
+            'tuples': ['view_1']}
+        self.mock_DataHubManager.has_repo_privilege.return_value = {
+            'tuples': [[True]]}
 
        # log the user in
         self.client.login(username=self.username, password=self.password)
@@ -171,61 +176,38 @@ class RepoTablesAndViewsTab(TestCase):
     def test_table_view_returns_correct_function(self):
         found = resolve(
             '/browse/' + self.username + "/" + self.repo_name + "/tables")
-
         self.assertEqual(found.func, browser.views.repo_tables)
 
     def test_table_view_returns_correct_page(self):
-        # Mock out DataHubManager in views.py
-        mock_DataHubManager = self.create_patch('browser.views.DataHubManager')
-        mock_DataHubManager.return_value.list_tables.return_value = {
-            'tuples': []}
-        mock_DataHubManager.return_value.list_views.return_value = {
-            'tuples': []}
-
-        try:
-            response = self.client.get(
-                '/browse/' + self.username + '/' + self.repo_name + "/tables")
-        except:
-            self.fail("exception at test_table_view_returns_correct_page")
-
+        response = self.client.get(
+            '/browse/' + self.username + '/' + self.repo_name + "/tables")
         self.assertTemplateUsed(response, 'repo-browse-tables.html')
 
-    # def test_table_view_calls_correct_manager_functions(self):
-    #     mock_list_tables = self.create_patch(
-    #         'core.db.manager.DataHubManager.list_tables')
-    #     mock_list_views = self.create_patch(
-    #         'core.db.manager.DataHubManager.list_views')
-    #     try:
-    #         mock_list_tables.return_value = {'tuples': []}
-    #         mock_list_views.return_value = {'tuples': []}
-    #         self.client.get(
-    #             '/browse/' + self.username + '/' + self.repo_name + "/tables")
+    def test_table_view_calls_correct_manager_functions(self):
+        self.client.get(
+            '/browse/' + self.username + '/' + self.repo_name + "/tables")
 
-    #     except:
-    #         self.fail("exception at test_table_view_calls_correct_function")
+        self.mock_DataHubManager.return_value.list_tables.assert_called_once_with(
+            self.repo_name)
+        self.mock_DataHubManager.return_value.list_tables.assert_called_once_with(
+            self.repo_name)
+        self.mock_DataHubManager.has_repo_privilege.assert_called_once_with(
+            self.username, self.username, self.repo_name, 'USAGE')
 
-    #     mock_list_tables.assert_called_once_with(self.repo_name)
-    #     mock_list_views.assert_called_once_with(self.repo_name)
+    def test_table_view_throws_err_on_wrong_user(self):
+        # set up has_repo_priviledge to raise an exception
+        self.mock_DataHubManager.has_repo_privilege.return_value = False
 
-    # def test_table_view_cannot_happen_for_another_user_correct_functions(self):
-    #     mock_list_tables = self.create_patch(
-    #         'core.db.manager.DataHubManager.list_tables')
-    #     mock_list_views = self.create_patch(
-    #         'core.db.manager.DataHubManager.list_views')
-    #     try:
-    #         mock_list_tables.return_value = {'tuples': []}
-    #         mock_list_views.return_value = {'tuples': []}
-    #         self.client.get(
-    #             '/browse/' + 'wrong_username' + '/' + self.repo_name +
-    #             "/tables"
-    #             )
+        self.client.get(
+            '/browse/' + 'wrong_username' + '/' + self.repo_name +
+            "/tables"
+        )
 
-    #     except:
-    #         self.fail("exception at test_table_view_calls_correct_function")
-
-    #     mock_list_tables.assert_not_called()
-    #     mock_list_views.assert_not_called()
-
+        self.mock_DataHubManager.has_repo_privilege.assert_called_once_with(
+            self.username, 'wrong_username', self.repo_name, 'USAGE')
+        self.mock_DataHubManager.return_value.list_tables.assert_not_called()
+        self.mock_DataHubManager.return_value.list_views.assert_not_called()
+        
     # *** Cards Tab ***
 
     # def test_cards_view_returns_correct_function(self):
