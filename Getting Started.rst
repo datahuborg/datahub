@@ -190,6 +190,12 @@ Alternatively, they can be run individually:
 | ``$ python manage.py test account`` - tests account management views
 | ``$ python manage.py test browser`` - tests datahub core views
 
+Coverage tests indicate what parts of the code have been tested:
+| ``$ cd src`` 
+| ``$ coverage run --source='.' manage.py test browser``
+| ``$ coverage report``
+| ``$ open htmlcov/index.html``
+
 -----------------------
 BDD Testing with Behave
 -----------------------
