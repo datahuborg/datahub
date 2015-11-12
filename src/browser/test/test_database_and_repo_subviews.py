@@ -30,16 +30,30 @@ class CreateAndDeleteRepo(TestCase):
             self.username, self.email, self.password)
         self.hashed_password = hashlib.sha1(self.password).hexdigest()
 
-        # create user's database
-        DataHubManager.create_user(
-            username=self.username, password=self.hashed_password)
+        # Mock out a repo for the user
+        self.repo_name = 'test_repo'
+        self.mock_list_repos = self.create_patch(
+            'core.db.manager.DataHubManager.list_repos')
+        self.mock_list_repos.return_value = {'tuples': [[self.repo_name]]}
 
-        # log the user in
+        # mock out that they have tables and views, and repo priviledges
+        self.mock_DataHubManager = self.create_patch(
+            'browser.views.DataHubManager')
+        self.mock_DataHubManager.return_value.create_repo.return_value = {
+            'tuples': [self.repo_name]}
+        self.mock_DataHubManager.return_value.delete_repo.return_value = {
+            'tuples': [self.repo_name]}
+        
+            
+        self.mock_DataHubManager.has_repo_privilege.return_value = {
+            'tuples': [[True]]}
+
+       # log the user in
         self.client.login(username=self.username, password=self.password)
 
     def tearDown(self):
+        pass
         # remove the postgres db. User will log out automatically.
-        DataHubManager.remove_user_and_database(username=self.username)
 
     def create_patch(self, name):
         # helper method for creating patches
@@ -51,87 +65,46 @@ class CreateAndDeleteRepo(TestCase):
     # *** Create Repos ***
 
     def test_create_repo_resolves_to_correct_view_function(self):
-        try:
-            found = resolve('/create/' + self.username + '/repo/')
-        except:
-            self.fail(
-                "exception at test_create_repo_resolves_to_correct_view_function")
+        found = resolve('/create/' + self.username + '/repo/')
 
         self.assertEqual(found.func, browser.views.repo_create)
 
     def test_create_repo_returns_correct_page(self):
-        try:
-            response = self.client.get(
-                '/create/' + self.username + '/repo', follow=True)
-        except:
-            self.fail("exception at test_create_repo_returns_correct_page")
+        response = self.client.get(
+            '/create/' + self.username + '/repo', follow=True)
 
         self.assertTemplateUsed(response, 'repo-create.html')
 
     def test_create_repo_calls_correct_function(self):
         # The method checks to make sure that the correct method is called.
-        mock_create_repo = self.create_patch(
-            'core.db.manager.DataHubManager.create_repo')
-        try:
-            # create the new repo
-            mock_create_repo.return_value = None
-            post_object = {'repo': 'repo_name'}
-            self.client.post('/create/' + self.username + '/repo', post_object)
+        post_object = {'repo': 'repo_name'}
+        self.client.post('/create/' + self.username + '/repo', post_object)
 
-        except:
-            self.fail("exception at test_create_repo_calls_correct_function")
-        mock_create_repo.assert_called_once_with('repo_name')
+        self.mock_DataHubManager.return_value.create_repo.assert_called_once_with(
+            'repo_name')
 
     def test_create_repo_cannot_happen_on_another_user_acct(self):
-        mock_create_repo = self.create_patch(
-            'core.db.manager.DataHubManager.create_repo')
-        try:
-            # create the new repo
-            mock_create_repo.return_value = None
-            post_object = {'repo': 'repo_name'}
-            self.client.post(
-                '/create/' + 'bac_username' + '/repo', post_object)
+        post_object = {'repo': 'repo_name'}
+        self.client.post(
+            '/create/' + 'bac_username' + '/repo', post_object)
 
-        except:
-            self.fail(
-                "exception at test_create_repo_cannot_happen_on_another_user_acct")
-
-        mock_create_repo.assert_not_called()
+        self.mock_DataHubManager.return_value.create_repo.assert_not_called()
 
     # *** Delete Repos ***
 
     def test_delete_repo_resolves_to_correct_view_function(self):
-        try:
-            found = resolve('/delete/' + self.username + '/repo/')
-        except:
-            self.fail(
-                "exception at test_delete_repo_resolves_to_correct_view_function")
-
+        found = resolve('/delete/' + self.username + '/repo/')
         self.assertEqual(found.func, browser.views.repo_delete)
 
     def test_delete_repo_calls_correct_function(self):
-        mock_delete_repo = self.create_patch(
-            'core.db.manager.DataHubManager.delete_repo')
-        try:
-            mock_delete_repo.return_value = None
-            self.client.post('/delete/' + self.username + '/repo_name')
+        self.client.post('/delete/' + self.username + '/repo_name')
 
-        except:
-            self.fail('exception at test_delete_repo_calls_correct_function')
-
-        self.assertEqual(mock_delete_repo.call_count, 1)
+        self.assertEqual(self.mock_DataHubManager.return_value.delete_repo.call_count, 1)
 
     def test_delete_cannot_happen_on_another_user_acct(self):
-        mock_delete_repo = self.create_patch(
-            'core.db.manager.DataHubManager.delete_repo')
-        try:
-            mock_delete_repo.return_value = None
-            self.client.post('/delete/' + 'wrong_username' + '/repo_name')
+        self.client.post('/delete/' + 'wrong_username' + '/repo_name')
 
-        except:
-            self.fail('exception at test_delete_repo_calls_correct_function')
-
-        mock_delete_repo.assert_not_called()
+        self.mock_DataHubManager.return_value.delete_repo.assert_not_called()
 
 
 class RepoTablesAndViewsTab(TestCase):
@@ -207,7 +180,7 @@ class RepoTablesAndViewsTab(TestCase):
             self.username, 'wrong_username', self.repo_name, 'USAGE')
         self.mock_DataHubManager.return_value.list_tables.assert_not_called()
         self.mock_DataHubManager.return_value.list_views.assert_not_called()
-        
+
     # *** Cards Tab ***
 
     # def test_cards_view_returns_correct_function(self):
@@ -233,7 +206,7 @@ class RepoTablesAndViewsTab(TestCase):
     #     self.assertTemplateUsed(response, 'repo-browse-files.html')
 
 
-class RepoCardsTab(TestCase):
+class RepoFilesTab(TestCase):
 
     def setUp(self):
         # create the user
@@ -319,3 +292,10 @@ class RepoCardsTab(TestCase):
 
     # def deleteAnnotation(self):
     #     pass
+
+# to do:
+# finish converting to mocked DataHubManager
+# share repo
+# test creating tables
+# test all of cards
+# test uploading files
