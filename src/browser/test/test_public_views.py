@@ -1,13 +1,8 @@
-import hashlib
-
 from django.test import TestCase
-from django.test import Client
 from django.core.urlresolvers import resolve
 
-from core.db.manager import DataHubManager
-from django.contrib.auth.models import User
 from browser.views import home
-from browser.views import repo_create
+
 
 class BrowserPagesNotRequiringAuth(TestCase):
 
@@ -19,4 +14,3 @@ class BrowserPagesNotRequiringAuth(TestCase):
         response = self.client.get('/', follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'index.html')
-

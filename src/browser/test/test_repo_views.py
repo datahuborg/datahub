@@ -1,12 +1,11 @@
 import os
 import hashlib
-from mock import MagicMock, patch
+from mock import patch
 
 from django.test import TestCase
 from django.core.urlresolvers import resolve
 from django.contrib.auth.models import User
 
-from core.db.manager import DataHubManager
 import browser.views
 
 
@@ -43,8 +42,6 @@ class CreateAndDeleteRepo(TestCase):
             'tuples': [self.repo_name]}
         self.mock_DataHubManager.return_value.delete_repo.return_value = {
             'tuples': [self.repo_name]}
-        
-            
         self.mock_DataHubManager.has_repo_privilege.return_value = {
             'tuples': [[True]]}
 
@@ -99,7 +96,8 @@ class CreateAndDeleteRepo(TestCase):
     def test_delete_repo_calls_correct_function(self):
         self.client.post('/delete/' + self.username + '/repo_name')
 
-        self.assertEqual(self.mock_DataHubManager.return_value.delete_repo.call_count, 1)
+        self.assertEqual(
+            self.mock_DataHubManager.return_value.delete_repo.call_count, 1)
 
     def test_delete_cannot_happen_on_another_user_acct(self):
         self.client.post('/delete/' + 'wrong_username' + '/repo_name')
@@ -107,7 +105,7 @@ class CreateAndDeleteRepo(TestCase):
         self.mock_DataHubManager.return_value.delete_repo.assert_not_called()
 
 
-class RepoTablesAndViewsTab(TestCase):
+class RepoTableCardViews(TestCase):
 
     def setUp(self):
         # create the user
@@ -167,7 +165,7 @@ class RepoTablesAndViewsTab(TestCase):
         self.mock_DataHubManager.has_repo_privilege.assert_called_once_with(
             self.username, self.username, self.repo_name, 'USAGE')
 
-    def test_table_view_throws_err_on_wrong_user(self):
+    def test_table_view_rejects_wrong_user(self):
         # set up has_repo_priviledge to raise an exception
         self.mock_DataHubManager.has_repo_privilege.return_value = False
 
@@ -183,27 +181,29 @@ class RepoTablesAndViewsTab(TestCase):
 
     # *** Cards Tab ***
 
-    # def test_cards_view_returns_correct_function(self):
-    #     try:
-    #         found = resolve(
-    #             '/browse/' + self.username + "/" + self.repo_name + "/cards")
-    #     except:
-    #         self.fail("exception at test_create_repo_resolves_to_create_func")
+    def test_cards_view_returns_correct_function(self):
+        found = resolve(
+            '/browse/' + self.username + "/" + self.repo_name + "/cards")
 
-    #     self.assertEqual(found.func, browser.views.repo_files)
+        self.assertEqual(found.func, browser.views.repo_cards)
 
-    # def test_cards_view_returns_correct_page(self):
-    #     try:
-    #         response = self.client.get(
-    #             '/browse/' + self.username + '/' + self.repo_name + "/cards")
-    #     except:
-    #         self.fail("exception at test_table_view_returns_correct_page")
-    # if this fails, it's likely because the folder for user data
-    # is hardcoded as '/user_data/USERNAME/REPO', and the app doesn't
-    # have permission to write there.
-    # You may have to chmod the folder
+    def test_cards_view_returns_correct_page(self):
+        mock_all_cards = self.create_patch('browser.views.Card.objects.all')
 
-    #     self.assertTemplateUsed(response, 'repo-browse-files.html')
+        response = self.client.get(
+            '/browse/' + self.username + '/' + self.repo_name + "/cards")
+
+        self.assertTemplateUsed(response, 'repo-browse-cards.html')
+
+    def test_cards_view_rejects_wrong_user(self):
+        self.mock_DataHubManager.has_repo_privilege.return_value = False
+
+        response = self.client.get(
+            '/browse/' + 'wrong_username' + '/' + self.repo_name + "/cards")
+
+        self.mock_DataHubManager.has_repo_privilege.assert_called_once_with(
+            self.username, 'wrong_username', self.repo_name, 'USAGE')
+        self.assertTemplateNotUsed(response, 'repo-browse-cards.html')
 
 
 class RepoFilesTab(TestCase):
@@ -294,8 +294,14 @@ class RepoFilesTab(TestCase):
     #     pass
 
 # to do:
-# finish converting to mocked DataHubManager
-# share repo
+# mock out login_required
+# share/unshare repo
+# create/delete table
+# table export
+# query
+
+#
+
+
 # test creating tables
-# test all of cards
 # test uploading files
