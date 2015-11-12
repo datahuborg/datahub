@@ -28,7 +28,7 @@ For example, a user, ``grad_student`` has a datahub account. In this case, they 
 Generating Native Code
 ======================
 DataHub uses `Apache Thrift <https://thrift.apache.org/>`_ to generate native
-code for your datahub client. You will neeed to do this before connecting to user accounts.
+code for your datahub client. You will need to do this before connecting to user accounts.
 You can generate native code using the commands below. 
 
 ---------------
