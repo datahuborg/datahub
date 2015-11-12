@@ -8,26 +8,17 @@ from django.contrib.auth.models import User
 
 import browser.views
 
-
-# tests below this comment require authentication
-# if these fail because a role/database already exists
-# you may need to log into postgres and
-# drop database username;
-# drop role username;
-
-# These are really more integration than unit tests, since they add data
-# into the database. There's not a good way around this for now.
-
 class CreateAndDeleteRepo(TestCase):
-
     def setUp(self):
-        # create the user
+        # set up the user. This is the only integration-ey part
+        # It's because I had trouble mocking out 
+        # django.contrib.auth.decorators.login_required
         self.username = "test_username"
         self.password = "test_password"
         self.email = "test_email@csail.mit.edu"
         self.user = User.objects.create_user(
             self.username, self.email, self.password)
-        self.hashed_password = hashlib.sha1(self.password).hexdigest()
+
 
         # Mock out a repo for the user
         self.repo_name = 'test_repo'
@@ -114,7 +105,6 @@ class RepoTableCardViews(TestCase):
         self.email = "test_email@csail.mit.edu"
         self.user = User.objects.create_user(
             self.username, self.email, self.password)
-        self.hashed_password = hashlib.sha1(self.password).hexdigest()
 
         # Mock out a repo for the user
         self.repo_name = 'test_repo'
@@ -215,7 +205,6 @@ class RepoFilesTab(TestCase):
         self.email = "test_email@csail.mit.edu"
         self.user = User.objects.create_user(
             self.username, self.email, self.password)
-        self.hashed_password = hashlib.sha1(self.password).hexdigest()
 
         # Mock out a repo for the user
         self.repo_name = 'test_repo'
@@ -238,7 +227,6 @@ class RepoFilesTab(TestCase):
         # log the user in
         self.client.login(username=self.username, password=self.password)
 
-    # *** Files Tab ***
 
     def create_patch(self, name):
         # helper method for creating patches
@@ -274,6 +262,26 @@ class RepoFilesTab(TestCase):
 
     def test_files_view_cannot_be_accessed_by_wrong_user(self):
         pass
+
+
+class HomePage(TestCase):
+    def setUp(self):
+        # create the user
+        self.username = "test_username"
+        self.password = "test_password"
+        self.email = "test_email@csail.mit.edu"
+        self.user = User.objects.create_user(
+            self.username, self.email, self.password)
+
+        # put a file in it, if there wasn't one already.
+
+        # log the user in
+        self.client.login(username=self.username, password=self.password)
+
+    def test_authenticated_user_home_redirects_to_browse(self):
+        response = self.client.get('/')
+        self.assertRedirects(response, '/browse/' + self.username)
+
 
     # def test_create_table(self):
     #     pass

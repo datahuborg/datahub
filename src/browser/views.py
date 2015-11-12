@@ -42,8 +42,8 @@ account_processor = AccountService.Processor(handler)
 
 def home(request):
   try:
-    login = get_login(request)
-    if login:
+    login = request.user.get_username()
+    if login and (login != ''):
       return HttpResponseRedirect('/browse/%s' %(login))
     else:
       return HttpResponseRedirect('/www')
