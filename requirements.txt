@@ -16,5 +16,4 @@ Sphinx==1.3.1
 pdb==0.1
 coverage
 selenium
-behave==1.2.5
-BeautifulSoup4
+gunicorn==19.3.0
