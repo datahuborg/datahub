@@ -1,7 +1,10 @@
+import os.path
 # DataHub Settings.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 ADMINS = (
   ('Anant Bhardwaj', 'anantb@csail.mit.edu'),
@@ -74,8 +77,8 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = 'k+)#kqr2pgvqm_6y8hq+tj#p12&amp;p%dz#_exvw2x4@##dyz!or*'
+# Generate a new SECRET_KEY with `python src/manage.py generatesecretkey`.
+from secret_key import *
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (

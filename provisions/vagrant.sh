@@ -23,3 +23,6 @@ openssl req \
 cd /vagrant
 sh provisions/docker/build-images.sh
 sh provisions/docker/create-dev-containers.sh
+
+echo "Generating a new Django SECRET_KEY..."
+docker run --rm --volumes-from app datahuborg/datahub /bin/bash -c "python src/manage.py generatesecretkey"
