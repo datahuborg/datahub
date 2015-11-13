@@ -8,17 +8,18 @@ from django.contrib.auth.models import User
 
 import browser.views
 
+
 class CreateAndDeleteRepo(TestCase):
+
     def setUp(self):
         # set up the user. This is the only integration-ey part
-        # It's because I had trouble mocking out 
+        # It's because I had trouble mocking out
         # django.contrib.auth.decorators.login_required
         self.username = "test_username"
         self.password = "test_password"
         self.email = "test_email@csail.mit.edu"
         self.user = User.objects.create_user(
             self.username, self.email, self.password)
-
 
         # Mock out a repo for the user
         self.repo_name = 'test_repo'
@@ -134,6 +135,11 @@ class RepoTableCardViews(TestCase):
 
     # *** Tables & Views Tab ***
 
+    def test_repo_main_view_redirects_to_tables_view(self):
+        response = self.client.get(
+            '/browse/' + self.username + "/" + self.repo_name, follow=True)
+        self.assertTemplateUsed(response, "repo-browse-tables.html")
+
     def test_table_view_returns_correct_function(self):
         found = resolve(
             '/browse/' + self.username + "/" + self.repo_name + "/tables")
@@ -227,7 +233,6 @@ class RepoFilesTab(TestCase):
         # log the user in
         self.client.login(username=self.username, password=self.password)
 
-
     def create_patch(self, name):
         # helper method for creating patches
         patcher = patch(name)
@@ -264,7 +269,8 @@ class RepoFilesTab(TestCase):
         pass
 
 
-class HomePage(TestCase):
+class RepoMainPage(TestCase):
+
     def setUp(self):
         # create the user
         self.username = "test_username"
@@ -273,33 +279,42 @@ class HomePage(TestCase):
         self.user = User.objects.create_user(
             self.username, self.email, self.password)
 
-        # put a file in it, if there wasn't one already.
-
         # log the user in
         self.client.login(username=self.username, password=self.password)
 
-    def test_authenticated_user_home_redirects_to_browse(self):
-        response = self.client.get('/')
-        self.assertRedirects(response, '/browse/' + self.username)
+        # Mock the DataHubManager
+        self.mock_DataHubManager = self.create_patch(
+            'browser.views.DataHubManager')
+        self.mock_DataHubManager.return_value.list_repos.return_value = {
+            'tuples': ['repo_1']}
+        self.mock_DataHubManager.return_value.list_collaborators.return_value = {
+            'tuples': ['collaborator_1']
+        }
+
+    def create_patch(self, name):
+        # helper method for creating patches
+        patcher = patch(name)
+        thing = patcher.start()
+        self.addCleanup(patcher.stop)
+        return thing
+
+    def test_repo_main_view_returns_correct_function(self):
+        found = resolve('/browse/' + self.username)
+        self.assertEqual(found.func, browser.views.user)
+
+    def test_repo_main_view_returns_correct_page(self):
+        response = self.client.get('/browse/' + self.username)
+        self.assertTemplateUsed(response, 'user-browse.html')
+
+    def test_repo_main_view_tests_for_repo_priviledge(self):
+        self.mock_DataHubManager.has_base_privilege.return_value = False
+        response = self.client.get('/browse/' + self.username)
+
+        self.mock_DataHubManager.has_base_privilege.assert_called_once_with(
+            self.username, self.username, 'CONNECT')
+        self.assertTemplateNotUsed(response, 'user-browse.html')
 
 
-    # def test_create_table(self):
-    #     pass
-
-    # def createCard(self):
-    #     pass
-
-    # def createAnotation(self):
-    #     pass
-
-    # def deleteRepo(self):
-    #     pass
-
-    # def deleteCard(self):
-    #     pass
-
-    # def deleteAnnotation(self):
-    #     pass
 
 # to do:
 # mock out login_required
