@@ -306,13 +306,98 @@ class RepoMainPage(TestCase):
         response = self.client.get('/browse/' + self.username)
         self.assertTemplateUsed(response, 'user-browse.html')
 
-    def test_repo_main_view_tests_for_repo_priviledge(self):
+    def test_repo_main_view_checks_for_repo_priviledge(self):
         self.mock_DataHubManager.has_base_privilege.return_value = False
         response = self.client.get('/browse/' + self.username)
 
         self.mock_DataHubManager.has_base_privilege.assert_called_once_with(
             self.username, self.username, 'CONNECT')
         self.assertTemplateNotUsed(response, 'user-browse.html')
+
+
+class RepoSettingsPage(TestCase):
+
+    def setUp(self):
+        # create the user
+        self.username = "test_username"
+        self.password = "test_password"
+        self.email = "test_email@csail.mit.edu"
+        self.user = User.objects.create_user(
+            self.username, self.email, self.password)
+
+        # log the user in
+        self.client.login(username=self.username, password=self.password)
+
+        # Mock the DataHubManager
+        self.mock_DataHubManager = self.create_patch(
+            'browser.views.DataHubManager')
+        self.mock_DataHubManager.has_base_privilege.return_value = {
+            'tuples': [True]}
+        self.mock_DataHubManager.has_repo_privilege.return_value = {
+            'tuples': [[True]]}
+        # self.mock_DataHubManager.return_value.list_repos.return_value = {
+        #     'tuples': ['repo_1']}
+        self.mock_DataHubManager.return_value.list_collaborators.return_value = {
+            'tuples': ['collaborator_1']}
+
+        self.repo_name = "repo_name"
+
+    def create_patch(self, name):
+        # helper method for creating patches
+        patcher = patch(name)
+        thing = patcher.start()
+        self.addCleanup(patcher.stop)
+        return thing
+
+    # *** Settings Page ***
+
+    def test_repo_settings_resolves_to_correct_function(self):
+        found = resolve('/settings/' + self.username + '/' + self.repo_name)
+        self.assertEqual(found.func, browser.views.repo_settings)
+
+    def test_repo_settings_returns_correct_page(self):
+        response = self.client.get(
+            '/settings/' + self.username + '/' + self.repo_name)
+        self.assertTemplateUsed(response, 'repo-settings.html')
+
+    def test_repo_settings_checks_for_repo_priviledge(self):
+        self.mock_DataHubManager.has_repo_privilege.return_value = False
+        response = self.client.get(
+            '/settings/' + self.username + '/' + self.repo_name)
+        self.mock_DataHubManager.has_repo_privilege.assert_called_once_with(
+            self.username, self.username, self.repo_name, 'CREATE')
+        self.assertTemplateNotUsed(response, 'repo-settings.html')
+
+    # *** Add Collaborators ***
+
+    def test_add_collaborators_resolves_to_correct_function(self):
+        add_url = '/collaborator/repo/' + \
+            self.username + '/' + self.repo_name + '/add'
+        found = resolve(add_url)
+        self.assertEqual(found.func, browser.views.repo_collaborators_add)
+
+    def test_add_collaborators_returns_correct_page_and_adds_collaborator(self):
+        self.mock_DataHubManager.return_value.add_collaborator
+        add_url = '/collaborator/repo/' + \
+            self.username + '/' + self.repo_name + '/add'
+        response = self.client.post(
+            add_url, {'collaborator_username': 'test_collaborator'}, follow=True)
+
+        self.assertTemplateUsed(response, 'repo-settings.html')
+        self.mock_DataHubManager.return_value.add_collaborator.assert_called_once_with(
+            self.repo_name, 'test_collaborator', privileges=['SELECT', 'INSERT', 'UPDATE'])
+
+    def test_add_collaborators_checks_priviledges_before_adding(self):
+        self.mock_DataHubManager.return_value.add_collaborator
+        self.mock_DataHubManager.has_repo_privilege.return_value = False
+
+        add_url = '/collaborator/repo/' + \
+            'wrong_username' + '/' + self.repo_name + '/add'
+        response = self.client.post(
+            add_url, {'collaborator_username': 'test_collaborator'}, follow=True)
+
+        self.mock_DataHubManager.has_repo_privilege.assert_called_once_with(self.username, 'wrong_username', self.repo_name, 'CREATE')
+        self.mock_DataHubManager.return_value.add_collaborator.assert_not_called()
 
 
 
