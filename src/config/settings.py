@@ -1,7 +1,10 @@
+import os.path
 # DataHub Settings.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 ADMINS = (
   ('Anant Bhardwaj', 'anantb@csail.mit.edu'),
@@ -53,7 +56,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = '/static/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -74,8 +77,8 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = 'k+)#kqr2pgvqm_6y8hq+tj#p12&amp;p%dz#_exvw2x4@##dyz!or*'
+# Generate a new SECRET_KEY with `python src/manage.py generatesecretkey`.
+from secret_key import *
 
 TEMPLATES = [
     {

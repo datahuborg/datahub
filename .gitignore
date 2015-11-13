@@ -88,6 +88,5 @@ Pods
 # Vagrant
 .vagrant
 
-# DataHub-specific
-stunnel/datahub.conf
-stunnel.log
+# Developer Specific
+devnotes.txt
