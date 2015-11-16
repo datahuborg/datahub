@@ -160,20 +160,7 @@ LOGIN_REDIRECT_URL = '/'
 # crispy_forms settings
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
-# python-social-auth settings
-AUTHENTICATION_BACKENDS = (
-    'social.backends.google.GoogleOAuth2',
-    'social.backends.twitter.TwitterOAuth',
-    'django.contrib.auth.backends.ModelBackend',
-)
-
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
-
-SOCIAL_AUTH_TWITTER_KEY = ''
-SOCIAL_AUTH_TWITTER_SECRET = ''
 
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = True  # Make sure OAuth redirects use HTTPS, e.g. https://localhost/complete/twitter
 
@@ -223,9 +210,8 @@ LOGGING = {
   }
 }
 
-# server_settings
+# Instances should create a local_settings.py to define custom settings.
 try:
-  from server_settings import *
-  USE_X_FORWARDED_HOST = True
+    from local_settings import *
 except ImportError:
-  pass
+    from default_settings import *
