@@ -24,5 +24,9 @@ cd /vagrant
 sh provisions/docker/build-images.sh
 sh provisions/docker/create-dev-containers.sh
 
-echo "Generating a new Django SECRET_KEY..."
-docker run --rm --volumes-from app datahuborg/datahub /bin/bash -c "python src/manage.py generatesecretkey"
+if [ ! -f src/config/secret_key.py ]; then
+    echo "No Django SECRET_KEY found, generating a new one..."
+    echo "SECRET_KEY = 'foo'" > src/config/secret_key.py
+    docker run --rm --volumes-from app datahuborg/datahub /bin/bash -c "python src/manage.py generatesecretkey"
+    echo "Done."
+fi
