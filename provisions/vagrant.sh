@@ -26,7 +26,6 @@ sh provisions/docker/create-dev-containers.sh
 
 if [ ! -f src/config/secret_key.py ]; then
     echo "No Django SECRET_KEY found, generating a new one..."
-    echo "SECRET_KEY = 'foo'" > src/config/secret_key.py
-    docker run --rm --volumes-from app datahuborg/datahub /bin/bash -c "python src/manage.py generatesecretkey"
+    docker run --rm --volumes-from app datahuborg/datahub /bin/bash -c "python src/scripts/generate_secret_key.py"
     echo "Done."
 fi
