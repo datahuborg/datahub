@@ -100,7 +100,12 @@
         </table>
         <br />
         </div>
+        <div class="inlineblock floatright">
+          {%block pagination %}
+          {% endblock %}
+        </div>
       {% endblock %}
+
     {% else %}
       {% block table-empty-warning %}
       <p class="bg-warning">The <strong>{{table}}</strong> table is empty.</p>
@@ -228,6 +233,5 @@ $('.annotation-modal-dialog').on('click', function(e){
 
 {% block extra %}
 {% endblock %}
-
 
 {% endblock %}
