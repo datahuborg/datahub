@@ -10,7 +10,7 @@ DataHub is an experimental hosted platform (GitHub-like) for organizing, managin
 
 ### Get Started
 
-+ [https://github.com/datahuborg/datahub/wiki/Getting-Started](https://github.com/datahuborg/datahub/wiki/Getting-Started)
++ [https://datahub.csail.mit.edu/static/docs/html/index.html](https://datahub.csail.mit.edu/static/docs/html/index.html)
 
 ### Example Code
 
@@ -49,4 +49,4 @@ This last step might take several minutes depending on your connection and compu
 
 When `vagrant up` finishes, you can find your environment running at [http://datahub-local.mit.edu](http://datahub-local.mit.edu).
 
-Vagrant keeps your working copy and the VM in sync, so edits you make to DataHub's code will be reflected on datahub-local.mit.edu. Changes to static files like CSS, JS, and documentation must be collected before the server will notice them. For more information, see the docs at [https://github.com/datahuborg/datahub/wiki/Getting-Started](https://github.com/datahuborg/datahub/wiki/Getting-Started).
+Vagrant keeps your working copy and the VM in sync, so edits you make to DataHub's code will be reflected on datahub-local.mit.edu. Changes to static files like CSS, JS, and documentation must be collected before the server will notice them. For more information, see the docs at [https://datahub.csail.mit.edu/static/docs/html/index.html](https://datahub.csail.mit.edu/static/docs/html/index.html).
