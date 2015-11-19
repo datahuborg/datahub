@@ -21,30 +21,30 @@
 # other.
 
 echo "Creating Docker containers..."
-echo "(1/5) Creating \"logs\" - Data container for all server logs"
+echo "(1/6) Creating \"logs\" - Data container for all server logs"
 docker create --name logs \
     -v /var/log/postgresql \
     -v /var/log/gunicorn \
     -v /var/log/nginx \
     --entrypoint /bin/true \
     datahuborg/postgres
-echo "(2/5) Creating \"data\" - Data container for Postgres db and user_data uploads"
+echo "(2/6) Creating \"data\" - Data container for Postgres db and user_data uploads"
 docker create --name data \
     --entrypoint /bin/true \
     datahuborg/postgres
-echo "(3/5) Creating \"db\" - Postgres server"
+echo "(3/6) Creating \"db\" - Postgres server"
 docker create --name db \
     --volumes-from logs \
     --volumes-from data \
     datahuborg/postgres
-echo "(4/5) Creating \"app\" - gunicorn server hosting DataHub"
+echo "(4/6) Creating \"app\" - gunicorn server hosting DataHub"
 docker create --name app \
     --volumes-from logs \
     --volumes-from data \
     --link db:db \
     -v /vagrant:/datahub \
     datahuborg/datahub gunicorn --config=provisions/gunicorn/config_dev.py browser.wsgi
-echo "(5/5) Creating \"web\" - nginx http proxy"
+echo "(5/6) Creating \"web\" - nginx http proxy"
 docker create --name web \
     --volumes-from logs \
     --volumes-from app \
@@ -52,4 +52,7 @@ docker create --name web \
     --link app:app \
     -p 80:80 -p 443:443 \
     datahuborg/nginx
+echo "(6/6) Creating \"test browser\" - phantomjs"
+docker create --name phantomjs \
+    wernight/phantomjs
 echo "Done."
