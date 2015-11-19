@@ -156,7 +156,10 @@ Testing DataHub
 Functional Tests
 ----------------
 
-Functional tests are used to test DataHub's functionality
+Functional tests are used to test DataHub's functionality.
+
+You will need to install the 
+`PhantomJS browser <http://phantomjs.org/download.html>`_ before running.
 
 Run them from the ``/src`` directory:
 
