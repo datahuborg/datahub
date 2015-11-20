@@ -1,0 +1,28 @@
+engines:
+  pep8:
+    enabled: true
+  radon:
+    enabled: true
+  fixme:
+    enabled: true
+    checks:
+      bug:
+        enabled: false
+ratings:
+  paths:
+  - "**.py"
+exclude_paths:
+- ".codeclimate.yml"
+- "conf.py"
+- "data/**/*"
+- "src/browser/static/docs/**/*"
+- "src/browser/static/lib/**/*"
+- "**/bootstrap.css"
+- "**/bootstrap.css.map"
+- "**/bootstrap-*.css.map"
+- "**/bootstrap.js"
+- "**/bootstrap-*.js"
+- "**/jquery.js"
+- "**/jquery-ui.js"
+- "**/d3.js"
+- "**/handlebars.js"
