@@ -106,3 +106,19 @@ class Permission (models.Model):
 
   class Meta:
     db_table = "permissions"
+
+# Keeps track of repos that users are made collaborators of
+class Collaborator (models.Model):
+  id = models.AutoField(primary_key=True)
+  timestamp = models.DateTimeField(auto_now=True)
+  user = models.ForeignKey('User')
+  repo_name = models.CharField(max_length=50)
+  repo_owner = models.CharField(max_length=50)
+  permission = models.CharField(max_length=50)
+
+  def __unicode__ (self):
+    return self.id
+
+  class Meta:
+    db_table = "collaborators"
+

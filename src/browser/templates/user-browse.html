@@ -50,6 +50,12 @@
           </tr>
         {% endfor %}
 
+        {% for repo in collaborator_repos}
+          <tr>
+            <td><a class="link" href=/browse/{{repo.repo_owner}}/{{repo.repo_name}}>{{repo.repo_name}}</a></td>
+          </tr>
+        {% endfor %}
+
       </table>
     </div>
   {% else %}

@@ -54,7 +54,7 @@ class PGBackend:
 
   def list_repos(self):
     query = ''' SELECT schema_name AS repo_name
-                FROM information_schema.schemata
+                FROM information_schema.schemata 
                 WHERE schema_owner = '%s'
             ''' %(self.user)
     return self.execute_sql(query)

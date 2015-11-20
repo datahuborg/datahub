@@ -140,6 +140,8 @@ def user(request, repo_base):
 
     visible_repos = []
     
+
+    # Repos in personal directory
     for repo in repos:
       res = manager.list_collaborators(repo_base, repo)
 
@@ -157,11 +159,20 @@ def user(request, repo_base):
           'collaborators_str': ', '.join(collaborators),
           'num_collaborators': len(collaborators)
       })
-    
+
+
+    ####### Repos where user is not owner, but is added as collaborator #################
+    collaborator_repos = []
+    user = User.objects.get(username=repo_base)
+    collaborator_repos = Collaborator.objects.filter(user=user)
+    for repo in collaborator_repos:
+      collaborator_repos.append(repo.repo_name)
+
     return render_to_response("user-browse.html", {
         'login': get_login(request),
         'repo_base': repo_base,
-        'repos': visible_repos})    
+        'repos': visible_repos
+        'collaborator_repos': collaborator_repos})    
   
   except Exception, e:
     return HttpResponse(json.dumps(
