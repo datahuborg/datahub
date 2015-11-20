@@ -1,4 +1,4 @@
-*Note: The project is under development. It is not ready for deployment yet.*
+*Note: This project is under development. It is not yet ready for production use.*
 
 DataHub
 ===========
@@ -10,79 +10,43 @@ DataHub is an experimental hosted platform (GitHub-like) for organizing, managin
 
 ### Get Started
 
-+ [https://github.com/abhardwaj/datahub/wiki/Getting-Started](https://github.com/abhardwaj/datahub/wiki/Getting-Started)
++ [https://datahub.csail.mit.edu/static/docs/html/index.html](https://datahub.csail.mit.edu/static/docs/html/index.html)
 
 ### Example Code
 
-+ [https://github.com/abhardwaj/datahub/tree/master/src/examples](https://github.com/abhardwaj/datahub/tree/master/src/examples)
++ [https://github.com/datahuborg/datahub/tree/master/src/examples](https://github.com/datahuborg/datahub/tree/master/src/examples)
 
 ### Demo
-+ [http://datahub.csail.mit.edu](http://datahub.csail.mit.edu)
++ [https://datahub.csail.mit.edu](https://datahub.csail.mit.edu)
 
 ### Contact Info
 + [datahub@csail.mit.edu](mailto:datahub@csail.mit.edu)
 
------------------------------
-### Vagrant environment
+## Quickstart
 
-Follow these steps:
+Vagrant is the recommend method for developing with DataHub. It provides a VM matching the DataHub production server, regardless of your host system.
 
-1. You need internet access the first time you do these steps.
-2. Download and install VirtualBox [https://www.virtualbox.org/](https://www.virtualbox.org/)
-3. Download and install Vagrant [https://www.vagrantup.com/downloads.html](https://www.vagrantup.com/downloads.html)
-4. Add this line to your hosts file:
-  ```
-  192.168.50.4    datahub-local.mit.edu
-  ```
-5. Then start the environment with:
-  ```
-  vagrant up
-  ```
-  After some time your environment is setup and running. You can go to [http://datahub-local.mit.edu](http://datahub-local.mit.edu) and start using Datahub.
+1. Install VirtualBox [https://www.virtualbox.org/](https://www.virtualbox.org/).
 
-If you want to manually stop/start your docker containers, first login into VM:
-```
-vagrant ssh
-```
-Then
-* List docker containers
-  ```
-  sudo docker ps
-  ```
-* Stop docker datahub
-  ```
-  sudo docker stop datahub
-  ```
+1. Install Vagrant [https://www.vagrantup.com/downloads.html](https://www.vagrantup.com/downloads.html).
 
-* Start docker container
-  ```
-  sudo docker start datahub
-  ```
+1. Clone DataHub:
+    ```bash
+    $ git clone https://github.com/datahuborg/datahub.git
+    ```
 
-* Execute command inside container, bellow is the example of getting shell access to container
-  ```
-  sudo docker exec -i -t datahub /bin/bash
-  ```
+1. Add this line to your hosts file (/etc/hosts on most systems):
+    ```bash
+    192.168.50.4    datahub-local.mit.edu
+    ```
 
-Run test with `behave`:
+1. From your clone, start the VM:
+    ```bash
+    $ vagrant up
+    ```
 
-1. Login in VM
-  ```
-  vagrant ssh
-  ```
-2. Get shell access to datahub container
-  ```
-  sudo docker exec -i -t datahub /bin/bash
-  ```
-3. Change directory and execute `behave`
-  ```
-  cd /datahub/src
-  behave
-  ```
+This last step might take several minutes depending on your connection and computer.
 
-Shutdown Vagrant
+When `vagrant up` finishes, you can find your environment running at [http://datahub-local.mit.edu](http://datahub-local.mit.edu).
 
-  1. Exit docker shell with `exit` (if you are in docker)
-  2. Exit the vm with `exit` (if you are in vagrant VM)
-  3. Shutdown the vm with `vagrant halt` (next time you do `vagrant up` will be much faster as packages are already installed; there is no need for internet connection).
-  4. If you want to delete the vm `vagrant destroy` (if you do `vagrant up` again, it will download and install all the packages).
+Vagrant keeps your working copy and the VM in sync, so edits you make to DataHub's code will be reflected on datahub-local.mit.edu. Changes to static files like CSS, JS, and documentation must be collected before the server will notice them. For more information, see the docs at [https://datahub.csail.mit.edu/static/docs/html/index.html](https://datahub.csail.mit.edu/static/docs/html/index.html).

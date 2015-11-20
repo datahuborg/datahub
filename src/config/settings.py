@@ -1,3 +1,5 @@
+from __future__ import print_function
+import sys
 # DataHub Settings.
 
 DEBUG = True
@@ -53,7 +55,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = '/static/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -74,8 +76,12 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = 'k+)#kqr2pgvqm_6y8hq+tj#p12&amp;p%dz#_exvw2x4@##dyz!or*'
+# SECRET_KEY should be unique to each site. Sites should be discouraged from using this default key.
+try:
+  from secret_key import *
+except ImportError, e:
+  SECRET_KEY = 'k+)#kqr2pgvqm_6y8hq+tj#p12&amp;p%dz#_exvw2x4@##dyz!or*'
+  print("Warning: Could not find src/config/secret_key.py. Using the default SECRET_KEY for now. Run `src/scripts/generate_secret_key.py` to create a new key.", file=sys.stderr)
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (

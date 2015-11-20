@@ -33,6 +33,10 @@ class CreateAndDeleteRepo(TestCase):
     def setUp(self):
         self.client = Client(enforce_csrf_checks=False)
 
+        # Need to mock out the authentication system here
+        # So that we aren't actually testing the auth/db systems, too
+        # ARC
+
         # create the user
         self.username = "username"
         self.password = "password"

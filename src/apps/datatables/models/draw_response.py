@@ -1,4 +1,5 @@
 import json
+import decimal
 
 class DrawResponse:
     def __init__(self, draw):
@@ -17,13 +18,18 @@ class DrawResponse:
         response["query"] = self.query
         if self.error is not None:
             response.error["error"] = self.error
-        return json.dumps(response, default=date_handler)
+        return json.dumps(response, default=strange_data_handler)
 
     def __repr__(self):
         return "DrawResponse(draw=%s, records_total=%s, records_filtered=%s, error=%s, data=%s, query=%s)" % (self.draw, self.records_total, self.records_filtered, self.error, self.data, self.query)
 
 
-def date_handler(obj):
+def strange_data_handler(obj):
     ''' used to handle datetime objects, 
         which json_dumps will otherwise choke on. '''
-    return obj.isoformat() if hasattr(obj, 'isoformat') else obj
+    if hasattr(obj, 'isoformat'):
+        return obj.isoformat()
+    elif isinstance(obj, decimal.Decimal):
+        return str(obj)
+    else:
+        obj

@@ -1,0 +1,2 @@
+# The SECRET_KEY should be different for each project and not stored in git.
+secret_key.py
