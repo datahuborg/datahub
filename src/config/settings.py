@@ -13,7 +13,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 db_password ='postgres'
-db_host = 'localhost'
+db_host = 'db'
 
 if 'TRAVIS' in os.environ:
   db_password = ''
