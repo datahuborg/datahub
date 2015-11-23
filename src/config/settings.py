@@ -1,5 +1,6 @@
 from __future__ import print_function
 import sys
+import os
 # DataHub Settings.
 
 DEBUG = True
@@ -11,13 +12,20 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+db_password ='postgres'
+db_host = 'localhost'
+
+if 'TRAVIS' in os.environ:
+  db_password = ''
+  db_host = 'localhost'
+
 DATABASES = {
   'default': {
     'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
     'NAME': 'datahub',                      # Or path to database file if using sqlite3.
     'USER': 'postgres',                      # Not used with sqlite3.
-    'PASSWORD': 'postgres',                  # Not used with sqlite3.
-    'HOST': 'db',                        # Change to localhost if not using the Vagrant/Docker setup.
+    'PASSWORD': db_password,             # Not used with sqlite3
+    'HOST': db_host,                        # Change to localhost if not using the Vagrant/Docker setup.
                                          # Docker adds the db container to /etc/hosts automatically.
     'PORT': '5432',                      # Set to empty string for default. Not used with sqlite3.
   }
