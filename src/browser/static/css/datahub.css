@@ -78,12 +78,13 @@ body {
 }
 
 .signup-or hr {
-  margin-top: 10px;
+  margin-top: 0px;
   margin-bottom: 10px;
   border-color: #ddd;
 }
 
 .signup-or .or-text {
+  margin-top: -10px;
   text-align:center;
   line-height: 16px;
   color:#aaa;

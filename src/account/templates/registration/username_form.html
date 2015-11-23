@@ -8,19 +8,24 @@
 
 {% block content %}
 
-<div class="container">
+<div class="container-fluid" style="max-width: 768px;">
 
-<form class="col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4" role="form" method="POST" action="{{ action }}">
+<form class="col-xs-12 col-sm-6 col-sm-offset-3" role="form" method="POST" action="{{ action }}">
 
 {% if user.is_authenticated %}
 <p>You already have a username.</p>
 {% else %}
-<p>Please choose a username.</p>
+<h3>Create a new account</h3>
+<br/>
 {% endif %}
 
 {% csrf_token %}
 
-{{ form.as_ul }}
+<p>Authenticated as {{ social.name }} user {{ social.username }}.</p>
+
+
+{{ form|crispy }}
+{# {{ form.as_ul }} #}
 
 <button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
 <input type="hidden" name="next" value="{{ next }}" />

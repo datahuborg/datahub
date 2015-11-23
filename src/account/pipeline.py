@@ -9,6 +9,7 @@ def get_username(strategy, details, is_new=False, *args, **kwargs):
         # request['preferred_username'] is set by the pipeline infrastructure
         # because it exists in FIELDS_STORED_IN_SESSION.
         preferred_username = strategy.session.get('preferred_username', None)
+        email = strategy.session.get('email', None)
         if not preferred_username:
 
             # if we return something besides a dict or None, then that is
@@ -19,7 +20,7 @@ def get_username(strategy, details, is_new=False, *args, **kwargs):
         # grab the user object from the database (remember that they may
         # not be logged in yet) and set their password.  (Assumes that the
         # email address was captured in an earlier step.)
-        result = {'username': preferred_username}
+        result = {'username': preferred_username, 'email': email}
         return result
     else:
         return None
