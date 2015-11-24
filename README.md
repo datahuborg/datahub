@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/datahuborg/datahub.svg?branch=master)](https://travis-ci.org/datahuborg/datahub)
+[![Build Status](https://travis-ci.org/datahuborg/datahub.svg?branch=master)](https://travis-ci.org/datahuborg/datahub) [![Code Climate](https://codeclimate.com/github/datahuborg/datahub/badges/gpa.svg)](https://codeclimate.com/github/datahuborg/datahub)
 
 *Note: This project is under development. It is not yet ready for production use.*
 
