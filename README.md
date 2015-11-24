@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/datahuborg/datahub.svg?branch=master)](https://travis-ci.org/datahuborg/datahub)
+
 *Note: This project is under development. It is not yet ready for production use.*
 
 DataHub
