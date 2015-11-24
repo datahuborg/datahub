@@ -15,6 +15,7 @@ exclude_paths:
 - ".codeclimate.yml"
 - "conf.py"
 - "data/**/*"
+- "**/gen_*/**/*"
 - "src/browser/static/docs/**/*"
 - "src/browser/static/lib/**/*"
 - "**/bootstrap.css"
