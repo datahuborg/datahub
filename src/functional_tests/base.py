@@ -1,7 +1,9 @@
 import sys
+import os
 import requests
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import warnings
 
 
@@ -16,6 +18,12 @@ class FunctionalTest(StaticLiveServerTestCase):
                 # skip the normal setup and use a server_url variable
                 cls.server_url = 'http://' + arg.split('=')[1]
                 return
+
+            # if testing in vagrant + docker, use the docker link
+            if os.environ.get('datahub_docker_testing') == 'true'
+                cls.server_url = 'http://web'
+                return
+
         super(FunctionalTest, cls).setUpClass()
         cls.server_url = cls.live_server_url
 
@@ -25,7 +33,17 @@ class FunctionalTest(StaticLiveServerTestCase):
             super(FunctionalTest, cls).tearDownClass()
 
     def setUp(self):
-        self.browser = webdriver.PhantomJS()
+        # if testing in vagrant + docker, use the phantomjs docker container
+        if os.environ.get('datahub_docker_testing') == 'true':
+            desired_capabilities=DesiredCapabilities.PHANTOMJS
+            desired_capabilities['acceptSslCerts'] = True
+
+            self.browser = webdriver.Remote(
+                command_executor='http://phantomjs:8910',
+                desired_capabilities=DesiredCapabilities.PHANTOMJS)
+        else:
+            self.browser = webdriver.PhantomJS()
+
         self.browser.implicitly_wait(3)
 
         # default username and password for loggin in a user manually
