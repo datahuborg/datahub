@@ -12,18 +12,21 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-# vagrant default values
-DB_PASSWORD ='postgres'
-DB_HOST = 'db'
+# Declare some variables
+DB_PASSWORD, DB_HOST = None, None
 
-# travis defaults to a blank postgres password
-if 'TRAVIS' in os.environ:
+if 'TRAVIS' in os.environ: # travis setup
+  DB_HOST = 'localhost'
   DB_PASSWORD = ''
+elif os.environ.get('USER') == 'vagrant': # vagrant setup
+  print('settings thinks user is vagrant')
+  DB_HOST = 'db'
+  DB_PASSWORD ='postgres'
+else: # local machine setup. edit as necessary
+  print('settings thinks user is local machine')
   DB_HOST = 'localhost'
+  DB_PASSWORD ='postgres'
 
-# if running in travis or local machine, DB_HOST should be localhost
-if os.environ.get('SUDO_USER') is not 'vagrant':
-  DB_HOST = 'localhost'
 
 DATABASES = {
   'default': {

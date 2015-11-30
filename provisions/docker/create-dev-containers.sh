@@ -39,6 +39,7 @@ docker create --name db \
     datahuborg/postgres
 echo "(4/6) Creating \"app\" - gunicorn server hosting DataHub"
 docker create --name app \
+    --env 'USER=vagrant' \
     --volumes-from logs \
     --volumes-from data \
     --link db:db \
