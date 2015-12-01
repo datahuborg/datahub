@@ -55,6 +55,7 @@ docker create --name web \
     datahuborg/nginx
 echo "(6/6) Creating \"test browser\" - phantomjs"
 docker create --name phantomjs \
+    --env 'USER=vagrant' \
     --link web:web \
     wernight/phantomjs \
     phantomjs --webdriver=8910

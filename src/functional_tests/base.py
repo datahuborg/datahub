@@ -20,7 +20,7 @@ class FunctionalTest(StaticLiveServerTestCase):
                 return
 
             # if testing in vagrant + docker, use the docker link
-            if os.environ.get('datahub_docker_testing') == 'true'
+            if os.environ.get('datahub_docker_testing') == 'true':
                 cls.server_url = 'http://web'
                 return
 
