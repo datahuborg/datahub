@@ -155,7 +155,7 @@ INSTALLED_APPS = (
 )
 
 # django.contrib.auth settings
-LOGIN_URL = '/account/django/login'
+LOGIN_URL = '/account/login'
 LOGIN_REDIRECT_URL = '/'
 
 # crispy_forms settings
@@ -177,11 +177,15 @@ SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.user.create_user',
     'social.pipeline.social_auth.associate_user',
     'social.pipeline.social_auth.load_extra_data',
-    'social.pipeline.user.user_details'
+
+    # Uncomment to keeps things like the user's real name and email address up
+    # to date. DataHub doesn't need to know someone's real name.
+    # 'social.pipeline.user.user_details',
 )
 
 SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['preferred_username']
-FIELDS_STORED_IN_SESSION = ['preferred_username']
+
+SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['username', 'email']
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
