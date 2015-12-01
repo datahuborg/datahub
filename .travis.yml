@@ -28,4 +28,5 @@ script:
   - python manage.py test www        # tests home page
   - python manage.py test account    # tests account management views
   - python manage.py test browser    # tests datahub core views
-  # - python manage.py test functional_tests
+  - python manage.py test functional_tests.test_login_auth
+  - python manage.py test functional_tests.test_layout_and_styling
