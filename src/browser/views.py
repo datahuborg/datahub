@@ -87,8 +87,8 @@ def service_core_binary(request):
         pass
     resp['Access-Control-Allow-Methods'] = "POST, PUT, GET, DELETE, OPTIONS"
     resp['Access-Control-Allow-Credentials'] = "true"
-    resp['Access-Control-Allow-Headers'] = "Authorization, Cache-Control, "
-    "If-Modified-Since, Content-Type"
+    resp['Access-Control-Allow-Headers'] = ("Authorization, Cache-Control, "
+                                            "If-Modified-Since, Content-Type")
 
     return resp
 
@@ -120,8 +120,8 @@ def service_account_binary(request):
         pass
     resp['Access-Control-Allow-Methods'] = "POST, PUT, GET, DELETE, OPTIONS"
     resp['Access-Control-Allow-Credentials'] = "true"
-    resp['Access-Control-Allow-Headers'] = "Authorization, Cache-Control, "
-    "If-Modified-Since, Content-Type"
+    resp['Access-Control-Allow-Headers'] = ("Authorization, Cache-Control, "
+                                            "If-Modified-Since, Content-Type")
 
     return resp
 
@@ -154,8 +154,8 @@ def service_core_json(request):
         pass
     resp['Access-Control-Allow-Methods'] = "POST, PUT, GET, DELETE, OPTIONS"
     resp['Access-Control-Allow-Credentials'] = "true"
-    resp['Access-Control-Allow-Headers'] = "Authorization, Cache-Control, "
-    "If-Modified-Since, Content-Type"
+    resp['Access-Control-Allow-Headers'] = ("Authorization, Cache-Control, "
+                                            "If-Modified-Since, Content-Type")
 
     return resp
 
