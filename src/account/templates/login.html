@@ -1,4 +1,7 @@
 {% extends "minimal-layout.html" %}
+
+{% load crispy_forms_tags %}
+
 {% block headlink-right %}
   <a href="/account/register" title="Sign Up" id="id_sign_up" class="btn btn-success navbar-btn">Sign Up</a>
 {% endblock %}
@@ -39,10 +42,7 @@
     <div class="col-xs-5"><hr></div>
   </div>
   <br />
-  <label for="login_id">Username or Email</label><br />
-  <input type="text" class="form-control" name="login_id" id="id_username" {% if values.login_id %}value="{{values.login_id}}"{% endif %}/><br />
-  <label for="login_password">Password</label><br />
-  <input type="password" class="form-control" name="login_password" id="id_password" {% if values.login_password %}value="{{values.login_password}}"{% endif %}/><br />
+  {{ form|crispy }}
   <button class="btn btn-lg btn-primary btn-block" id="id_sign_in_action" type="submit">Sign In</button>
   {% endif %}
 </form>

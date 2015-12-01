@@ -1,7 +1,4 @@
 from django.conf.urls import patterns, include, url
-from django.views.generic.edit import CreateView
-from django.contrib.auth.forms import UserCreationForm
-from django.dispatch import receiver
 
 urlpatterns = patterns(
     '',
