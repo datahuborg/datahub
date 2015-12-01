@@ -51,6 +51,14 @@ class PGBackend:
         self.connection.close()
 
     def create_repo(self, repo):
+        ''' creates a postgres schema for the user.
+        This method DOES NOT pass both a query and params to execute_sql.
+        This is generally unsafe. In this case, execute_sql params doesn't
+        allow unquoted strings to be passed, so there's not another good way
+        to do it.'''
+        if not repo.isalnum():
+            raise ValueError('repo name contains non alphanumeric characters')
+
         query = ''' CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s ''' % (
             repo, self.user)
         return self.execute_sql(query)
