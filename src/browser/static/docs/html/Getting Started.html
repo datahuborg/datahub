@@ -282,7 +282,7 @@ e41f0f5135db        datahuborg/postgres   <span class="s2">&quot;/bin/true&quot;
 </pre></div>
 </div>
 <p>Because the server is containerized, most server commands must be run in a container. Docker commands can be complicated, so several common tasks have been made into scripts under <code class="docutils literal"><span class="pre">provisions/docker</span></code>:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd</span> /datahub
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd</span> /vagrant
 <span class="nv">$ </span>sudo sh provisions/docker/back-up-database.sh
 <span class="nv">$ </span>sudo sh provisions/docker/create-dev-containers.sh
 <span class="nv">$ </span>sudo sh provisions/docker/rebuild-and-collect-static-files.sh

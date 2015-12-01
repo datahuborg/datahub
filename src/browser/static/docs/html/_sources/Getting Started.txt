@@ -256,7 +256,7 @@ Because the server is containerized, most server commands must be run in a conta
 
 .. code-block:: bash
 
-    $ cd /datahub
+    $ cd /vagrant
     $ sudo sh provisions/docker/back-up-database.sh
     $ sudo sh provisions/docker/create-dev-containers.sh
     $ sudo sh provisions/docker/rebuild-and-collect-static-files.sh
