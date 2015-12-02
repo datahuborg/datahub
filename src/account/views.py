@@ -175,9 +175,9 @@ def register(request):
 
 
 
-# Called by the get_username pipeline. Look for pipeline.py and the
+# Called by the get_user_details pipeline. Look for pipeline.py and the
 # SOCIAL_AUTH_PIPELINE section of settings.py.
-def get_username(request):
+def get_user_details(request):
     # Prepopulate the form with values provided by the identity provider.
     pipeline_args = request.session['partial_pipeline']['kwargs']
     backend = request.session['partial_pipeline']['backend']

@@ -32,7 +32,7 @@ urlpatterns = patterns('',
     url(r'^account/register', 'account.views.register', name='register'),
     url(r'^home', 'account.views.home'),
     url(r'^account/logout', 'account.views.logout', name='logout'),
-    url(r'^account/choose_username', 'account.views.get_username'),
+    url(r'^account/choose_username', 'account.views.get_user_details'),
     #### End Account Related ####
 
 
