@@ -98,8 +98,7 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res
 
-    def add_collaborator(self, repo, username, privileges=[],
-                         auto_in_future=True):
+    def add_collaborator(self, repo, username, privileges=[]):
         query = ('BEGIN;'
                  'GRANT USAGE ON SCHEMA %s TO %s;'
                  'GRANT %s ON ALL TABLES IN SCHEMA %s TO %s;'
@@ -113,16 +112,6 @@ class PGBackend:
                   username, repo, privileges_str, username]
         params = tuple(map(lambda x: AsIs(x), params))
         self.execute_sql(query, params)
-
-        # query = 'GRANT %s ON ALL TABLES IN SCHEMA %s TO %s;'
-        # ''' % (privileges_str, repo, username)
-        # self.execute_sql(query)
-
-        # query = ('ALTER DEFAULT PRIVILEGES IN SCHEMA %s'
-        #          'GRANT %s ON TABLES TO %s;'
-        #          )
-        # ''' % (repo, privileges_str, username)
-        # self.execute_sql(query)
 
     def delete_collaborator(self, repo, username):
         query = ''' REVOKE ALL ON ALL TABLES IN SCHEMA %s FROM %s CASCADE;

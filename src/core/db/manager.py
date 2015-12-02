@@ -64,12 +64,12 @@ class DataHubManager:
     def execute_sql(self, query, params=None):
         return self.user_con.execute_sql(query=query, params=params)
 
-    def add_collaborator(self, repo, username, privileges, auto_in_future=True):
+    def add_collaborator(self, repo, username, privileges):
         return self.user_con.add_collaborator(
             repo=repo,
             username=username,
-            privileges=privileges,
-            auto_in_future=auto_in_future)
+            privileges=privileges
+            )
 
     def delete_collaborator(self, repo, username):
         return self.user_con.delete_collaborator(repo=repo, username=username)

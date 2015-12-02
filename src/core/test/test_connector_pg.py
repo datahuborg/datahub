@@ -133,7 +133,7 @@ class SchemaListCreateDeleteShare(TestCase):
                 self.backend.delete_repo(noun)
             self.assertFalse(self.mock_execute_sql.called)
 
-    def test_add_collaborator_happy_path_auto_in_future(self):
+    def test_add_collaborator_happy_path(self):
         privileges = ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'TRUNCATE',
                       'REFERENCES', 'TRIGGER', 'CREATE', 'CONNECT',
                       'TEMPORARY', 'EXECUTE', 'USAGE']

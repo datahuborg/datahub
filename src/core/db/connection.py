@@ -33,8 +33,7 @@ class DataHubConnection:
         return self.backend.add_collaborator(
             repo=repo,
             username=username,
-            privileges=privileges,
-            auto_in_future=auto_in_future)
+            privileges=privileges)
 
     def delete_collaborator(self, repo, username):
         return self.backend.delete_collaborator(repo=repo, username=username)
