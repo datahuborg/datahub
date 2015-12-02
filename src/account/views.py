@@ -41,13 +41,13 @@ def provider_details():
         {
             'backend': 'steam',
             'name': 'Steam',
-            'icon': 'steam',
+            'icon': 'steam-square',
             'priority': 0,
         },
         {
             'backend': 'facebook',
             'name': 'Facebook',
-            'icon': 'facebook',
+            'icon': 'facebook-official',
             'priority': -80,
         },
         {
