@@ -171,6 +171,18 @@ class PGBackend:
         c.close()
         return result
 
+    def user_exists(self, username):
+        query = "SELECT 1 FROM pg_roles WHERE rolname=%s"
+        params = (username,)
+        result = self.execute_sql(query, params)
+        return (result['row_count'] > 0)
+
+    def database_exists(self, db_name):
+        query = "SELECT 1 FROM pg_database WHERE datname=%s"
+        params = (db_name,)
+        result = self.execute_sql(query, params)
+        return (result['row_count'] > 0)
+
     def create_user(self, username, password, create_db):
         query = ''' CREATE ROLE %s WITH LOGIN
                 NOCREATEDB NOCREATEROLE NOCREATEUSER PASSWORD '%s'

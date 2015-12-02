@@ -79,6 +79,20 @@ class DataHubManager:
   The following methods run in superuser mode only
   '''
 
+    @staticmethod
+    def user_exists(username):
+        superuser_con = DataHubConnection(
+            user=settings.DATABASES['default']['USER'],
+            password=settings.DATABASES['default']['USER'])
+        return superuser_con.user_exists(username)
+
+    @staticmethod
+    def database_exists(db_name):
+        superuser_con = DataHubConnection(
+            user=settings.DATABASES['default']['USER'],
+            password=settings.DATABASES['default']['USER'])
+        return superuser_con.database_exists(db_name)
+
     ''' User/Role Management '''
 
     @staticmethod

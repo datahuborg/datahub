@@ -72,6 +72,12 @@ class DataHubConnection:
     The following methods works only in superuser mode
     '''
 
+    def user_exists(self, username):
+        return self.backend.user_exists(username)
+
+    def database_exists(self, db_name):
+        return self.backend.database_exists(db_name)
+
     def create_user(self, username, password, create_db):
         return self.backend.create_user(username, password, create_db)
 
