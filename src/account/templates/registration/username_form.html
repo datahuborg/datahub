@@ -34,31 +34,3 @@
 
 </div>
 {% endblock %}
-
-So far:
-
-- Users can sign up with social providers and choose their username before proceeding.
-
-Up next:
-
-- Suggest a username in the username form.
-    - Base it on their preferred_username if that's available from their provider and not taken.
-    - Otherwise use their email address if that's not taken.
-
-- Add another pipeline step which creates the user's repo in DataHub.
-
-- Push all of the login and account management URLs back under /account.
-
-- Redirect logged in users to their repo page.
-
-- Make the login page only accept existing users.
-
-- Make a sign up page for new users.
-    - Social accounts from existing users skip registration steps and get logged in.
-
-- Make email and passwords an option for logging in.
-
-- Make the account management page work again.
-    - Allow users to add social logins and an email/password login to their account.
-    - Allow users to remove social logins and an email/password login from their account.
-    - Make sure accounts are required to have at least one method of logging in.
