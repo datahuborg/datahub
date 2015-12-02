@@ -95,7 +95,7 @@ def login(request):
     if request.method == 'POST':
         form = forms.LoginForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
+            username = form.cleaned_data['username'].lower()
             password = form.cleaned_data['password']
             # If username looks like an email address, look up the username
             # associated with that address.
@@ -142,8 +142,8 @@ def register(request):
     if request.method == 'POST':
         form = forms.RegistrationForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
-            email = form.cleaned_data['email']
+            username = form.cleaned_data['username'].lower()
+            email = form.cleaned_data['email'].lower()
             password = form.cleaned_data['password']
             User.objects.create_user(username, email, password)
             # A signal handler in signals.py listens for the pre_save signal
@@ -203,8 +203,8 @@ def get_user_details(request):
             # Because of FIELDS_STORED_IN_SESSION, preferred_username will be
             # copied to the request dictionary when the pipeline resumes.
             d = {
-                'preferred_username': form.cleaned_data['username'],
-                'email': form.cleaned_data['email'],
+                'preferred_username': form.cleaned_data['username'].lower(),
+                'email': form.cleaned_data['email'].lower(),
             }
             request.session.update(d)
 

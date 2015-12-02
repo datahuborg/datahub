@@ -22,7 +22,7 @@ class UsernameForm(forms.Form):
 
     def validate_unique_username(value):
         try:
-            User.objects.get(username=value)
+            User.objects.get(username=value.lower())
             raise forms.ValidationError(
                 ('The username %(value)s is not available.'),
                 params={'value': value},
@@ -32,7 +32,7 @@ class UsernameForm(forms.Form):
 
     def validate_unique_email(value):
         try:
-            User.objects.get(email=value)
+            User.objects.get(email=value.lower())
             raise forms.ValidationError(
                 ('The email address %(value)s is in use by another account.'),
                 params={'value': value},
