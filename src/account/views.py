@@ -174,7 +174,6 @@ def register(request):
     return render_to_response('register.html', context_instance=context)
 
 
-
 # Called by the get_user_details pipeline. Look for pipeline.py and the
 # SOCIAL_AUTH_PIPELINE section of settings.py.
 def get_user_details(request):
@@ -191,7 +190,7 @@ def get_user_details(request):
         providers = provider_details()
         provider = next((p for p in providers if p['backend'] == backend), None)
         social = {
-            'username': pipeline_args['username'],
+            'username': details['username'],
             'name': provider['name'],
             'icon': provider['icon'],
         }
