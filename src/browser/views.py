@@ -56,68 +56,109 @@ def home(request):
 def about(request):
   return HttpResponseRedirect('/www')
 
+
 '''
 APIs and Services
 '''
 
+
 @csrf_exempt
 def service_core_binary(request):
-  try:
-    iprot = TBinaryProtocol.TBinaryProtocol(TMemoryBuffer(request.body))
-    oprot = TBinaryProtocol.TBinaryProtocol(TMemoryBuffer())
-    core_processor.process(iprot, oprot)
-    resp = HttpResponse(oprot.trans.getvalue())
-    
+    # Catch CORS preflight requests
+    if request.method == 'OPTIONS':
+        resp = HttpResponse('')
+        resp['Content-Type'] = 'text/plain charset=UTF-8'
+        resp['Content-Length'] = 0
+        resp.status_code = 204
+    else:
+        try:
+            iprot = TBinaryProtocol.TBinaryProtocol(
+                TMemoryBuffer(request.body))
+            oprot = TBinaryProtocol.TBinaryProtocol(TMemoryBuffer())
+            core_processor.process(iprot, oprot)
+            resp = HttpResponse(oprot.trans.getvalue())
+
+        except Exception, e:
+            resp = HttpResponse(
+                json.dumps({'error': str(e)}),
+                content_type="application/json")
     try:
-      resp['Access-Control-Allow-Origin'] = request.META['HTTP_ORIGIN']
+        resp['Access-Control-Allow-Origin'] = request.META['HTTP_ORIGIN']
     except:
-      pass
-    
+        pass
+    resp['Access-Control-Allow-Methods'] = "POST, PUT, GET, DELETE, OPTIONS"
+    resp['Access-Control-Allow-Credentials'] = "true"
+    resp['Access-Control-Allow-Headers'] = ("Authorization, Cache-Control, "
+                                            "If-Modified-Since, Content-Type")
+
     return resp
-  except Exception, e:
-    return HttpResponse(
-        json.dumps({'error': str(e)}),
-        content_type="application/json")
+
 
 @csrf_exempt
 def service_account_binary(request):
-  try:
-    iprot = TBinaryProtocol.TBinaryProtocol(TMemoryBuffer(request.body))
-    oprot = TBinaryProtocol.TBinaryProtocol(TMemoryBuffer())
-    account_processor.process(iprot, oprot)
-    resp = HttpResponse(oprot.trans.getvalue())
-    
+    # Catch CORS preflight requests
+    if request.method == 'OPTIONS':
+        resp = HttpResponse('')
+        resp['Content-Type'] = 'text/plain charset=UTF-8'
+        resp['Content-Length'] = 0
+        resp.status_code = 204
+    else:
+        try:
+            iprot = TBinaryProtocol.TBinaryProtocol(
+                TMemoryBuffer(request.body))
+            oprot = TBinaryProtocol.TBinaryProtocol(TMemoryBuffer())
+            account_processor.process(iprot, oprot)
+            resp = HttpResponse(oprot.trans.getvalue())
+
+        except Exception, e:
+            resp = HttpResponse(
+                json.dumps({'error': str(e)}),
+                content_type="application/json")
+
     try:
-      resp['Access-Control-Allow-Origin'] = request.META['HTTP_ORIGIN']
+        resp['Access-Control-Allow-Origin'] = request.META['HTTP_ORIGIN']
     except:
-      pass
+        pass
+    resp['Access-Control-Allow-Methods'] = "POST, PUT, GET, DELETE, OPTIONS"
+    resp['Access-Control-Allow-Credentials'] = "true"
+    resp['Access-Control-Allow-Headers'] = ("Authorization, Cache-Control, "
+                                            "If-Modified-Since, Content-Type")
 
     return resp
-  except Exception, e:
-    return HttpResponse(
-        json.dumps({'error': str(e)}),
-        content_type="application/json")
+
 
 @csrf_exempt
 def service_core_json(request):
-  try:
-    iprot = TJSONProtocol.TJSONProtocol(TMemoryBuffer(request.body))
-    oprot = TJSONProtocol.TJSONProtocol(TMemoryBuffer())
-    core_processor.process(iprot, oprot)
-    resp = HttpResponse(
-        oprot.trans.getvalue(),
-        content_type="application/json")
-    
+    # Catch CORS preflight requests
+    if request.method == 'OPTIONS':
+        resp = HttpResponse('')
+        resp['Content-Type'] = 'text/plain charset=UTF-8'
+        resp['Content-Length'] = 0
+        resp.status_code = 204
+    else:
+        try:
+            iprot = TJSONProtocol.TJSONProtocol(TMemoryBuffer(request.body))
+            oprot = TJSONProtocol.TJSONProtocol(TMemoryBuffer())
+            core_processor.process(iprot, oprot)
+            resp = HttpResponse(
+                oprot.trans.getvalue(),
+                content_type="application/json")
+
+        except Exception, e:
+            resp = HttpResponse(
+                json.dumps({'error': str(e)}),
+                content_type="application/json")
+
     try:
-      resp['Access-Control-Allow-Origin'] = request.META['HTTP_ORIGIN']
+        resp['Access-Control-Allow-Origin'] = request.META['HTTP_ORIGIN']
     except:
-      pass
-    
+        pass
+    resp['Access-Control-Allow-Methods'] = "POST, PUT, GET, DELETE, OPTIONS"
+    resp['Access-Control-Allow-Credentials'] = "true"
+    resp['Access-Control-Allow-Headers'] = ("Authorization, Cache-Control, "
+                                            "If-Modified-Since, Content-Type")
+
     return resp
-  except Exception, e:
-    return HttpResponse(
-        json.dumps({'error': str(e)}),
-        content_type="application/json")
 
 
 '''

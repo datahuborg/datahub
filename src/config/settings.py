@@ -1,10 +1,10 @@
-import os.path
+from __future__ import print_function
+import sys
+import os
 # DataHub Settings.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-
-SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 ADMINS = (
     ('Anant Bhardwaj', 'anantb@csail.mit.edu'),
@@ -12,13 +12,20 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+db_password ='postgres'
+db_host = 'db'
+
+if 'TRAVIS' in os.environ:
+    db_password = ''
+    db_host = 'localhost'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'datahub',
         'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'db',
+        'PASSWORD': db_password,
+        'HOST': db_host,
         # Change HOST to localhost if not using the Vagrant/Docker setup.
         # Docker adds the db container to /etc/hosts automatically.
         'PORT': '5432',
@@ -78,8 +85,12 @@ STATICFILES_FINDERS = (
     # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# Generate a new SECRET_KEY with `python src/manage.py generatesecretkey`.
-from secret_key import *
+# SECRET_KEY should be unique to each site. Sites should be discouraged from using this default key.
+try:
+  from secret_key import *
+except ImportError, e:
+  SECRET_KEY = 'k+)#kqr2pgvqm_6y8hq+tj#p12&amp;p%dz#_exvw2x4@##dyz!or*'
+  print("Warning: Could not find src/config/secret_key.py. Using the default SECRET_KEY for now. Run `src/scripts/generate_secret_key.py` to create a new key.", file=sys.stderr)
 
 TEMPLATES = [
     {
