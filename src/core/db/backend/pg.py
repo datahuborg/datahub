@@ -1,14 +1,12 @@
 import os
-import psycopg2
-import re
 import shutil
+import re
+import psycopg2
+from psycopg2.extensions import AsIs
 
 from config import settings
 
 '''
-@author: anant bhardwaj
-@date: Oct 3, 2013
-
 DataHub internal APIs for postgres repo_base
 '''
 HOST = settings.DATABASES['default']['HOST']
@@ -50,31 +48,50 @@ class PGBackend:
     def close_connection(self):
         self.connection.close()
 
-    def create_repo(self, repo):
-        ''' creates a postgres schema for the user.
-        This method DOES NOT pass both a query and params to execute_sql.
-        This is generally unsafe. In this case, execute_sql params doesn't
-        allow unquoted strings to be passed, so there's not another good way
-        to do it.'''
-        if not repo.isalnum():
-            raise ValueError('repo name contains non alphanumeric characters')
+    def is_valid_noun_name(self, noun):
+        ''' throws exceptions unless the noun contains only alphanumeric
+            chars, hyphens, and underscores, and must not begin or end with
+            a hyphen or underscore
+        '''
 
-        query = ''' CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s ''' % (
-            repo, self.user)
-        return self.execute_sql(query)
+        invalid_noun_msg = (
+        "Usernames, repo names, and table names may only contain alphanumeric "
+        "characters, hyphens, and underscores, and must not begin or end with "
+        "an a hyphen or underscore."
+        )
+
+        regex = r'^(?![\-\_])[\w\-\_]+(?<![\-\_])$'
+        valid_pattern = re.compile(regex)
+        matches = valid_pattern.match(noun)
+
+        if matches is None:
+            raise ValueError(invalid_noun_msg)
+
+    def create_repo(self, repo):
+        ''' creates a postgres schema for the user.'''
+        self.is_valid_noun_name(repo)
+
+        query = ''' CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s '''
+        params = (AsIs(repo), AsIs(self.user))
+        return self.execute_sql(query, params)
 
     def list_repos(self):
-        query = ''' SELECT schema_name AS repo_name
-                FROM information_schema.schemata
-                WHERE schema_owner = '%s'
-            ''' % (self.user)
-        return self.execute_sql(query)
+        query = ''' SELECT schema_name AS repo_name 
+                    FROM information_schema.schemata 
+                    WHERE schema_owner = %s'''
+        params = (self.user,)
+        return self.execute_sql(query, params)
 
     def delete_repo(self, repo, force=False):
+        ''' deletes a repo and the folder the user's repo files are in. '''
+        self.is_valid_noun_name(repo)
+
+        # delete the folder that repo files are in
         repo_dir = '/user_data/%s/%s' % (self.user, repo)
         if os.path.exists(repo_dir):
             shutil.rmtree(repo_dir)
 
+        # drop the schema
         query = ''' DROP SCHEMA %s %s
             ''' % (repo, 'CASCADE' if force else '')
         res = self.execute_sql(query)
