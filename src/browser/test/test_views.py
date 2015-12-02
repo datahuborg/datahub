@@ -42,15 +42,15 @@ class CreateAndDeleteRepo(TestCase):
         self.password = "password"
         self.hashed_password = hashlib.sha1(self.password).hexdigest()
         DataHubManager.create_user(username=self.username, password=self.hashed_password)
-        
-        user = DataHubLegacy(username=self.username, email="noreply@mit.edu", 
+
+        user = DataHubLegacyUser(username=self.username, email="noreply@mit.edu", 
             password=self.hashed_password)
         user.save()
-       
+
         # log the user in
-        login_credentials = {'login_id': self.username, 
+        login_credentials = {'login_id': self.username,
         'login_password': self.password}
-        self.client.post('/account/login', login_credentials) 
+        self.client.post('/account/login', login_credentials)
 
     def tearDown(self):
         DataHubManager.remove_user_and_database(username=self.username)

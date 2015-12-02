@@ -5,9 +5,9 @@ class UserTests(TestCase):
     def test_fields(self):
         """ saving and loading users"""
 
-        initial_user = DataHubLegacy(id=10, username="user", password="pass", email="email", 
+        initial_user = DataHubLegacyUser(id=10, username="user", password="pass", email="email", 
             f_name="f_name", l_name="l_name", active=True).save()
-        loaded_user = DataHubLegacy.objects.get(id=10)
+        loaded_user = DataHubLegacyUser.objects.get(id=10)
 
         self.assertEqual(loaded_user.id, 10)
         self.assertEqual(loaded_user.username, "user")
@@ -49,7 +49,7 @@ class AppTest(TestCase):
     """test saving and loading apps"""   
 
     def setUp(self):
-        self.user, created = DataHubLegacy.objects.get_or_create(id=10, username="user", password="pass", email="email", 
+        self.user, created = DataHubLegacyUser.objects.get_or_create(id=10, username="user", password="pass", email="email", 
             f_name="f_name", l_name="l_name", active=True)
 
 
@@ -67,7 +67,7 @@ class PermissionTest(TestCase):
     """test permissions granted to apps"""
 
     def setUp(self):
-        self.user, created = DataHubLegacy.objects.get_or_create(id=10, username="user", password="pass", email="email", 
+        self.user, created = DataHubLegacyUser.objects.get_or_create(id=10, username="user", password="pass", email="email", 
             f_name="f_name", l_name="l_name", active=True)
 
         self.app, created = App.objects.get_or_create(app_id="app_id", id=10, 

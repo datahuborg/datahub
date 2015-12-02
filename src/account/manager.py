@@ -34,7 +34,7 @@ def account_register(username, email, password, repo_name, app_id, app_token):
         pass
 
     hashed_password = hashlib.sha1(password).hexdigest()
-    user = DataHubLegacy(username=username, email=email, password=hashed_password)
+    user = DataHubLegacyUser(username=username, email=email, password=hashed_password)
     user.save()
 
     try:
