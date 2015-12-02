@@ -55,9 +55,9 @@ class PGBackend:
         '''
 
         invalid_noun_msg = (
-        "Usernames, repo names, and table names may only contain alphanumeric "
-        "characters, hyphens, and underscores, and must not begin or end with "
-        "an a hyphen or underscore."
+            "Usernames, repo names, and table names may only contain alphanumeric "
+            "characters, hyphens, and underscores, and must not begin or end with "
+            "an a hyphen or underscore."
         )
 
         regex = r'^(?![\-\_])[\w\-\_]+(?<![\-\_])$'
@@ -71,14 +71,15 @@ class PGBackend:
         ''' creates a postgres schema for the user.'''
         self.is_valid_noun_name(repo)
 
-        query = ''' CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s '''
+        query = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'
         params = (AsIs(repo), AsIs(self.user))
         return self.execute_sql(query, params)
 
     def list_repos(self):
-        query = ''' SELECT schema_name AS repo_name 
-                    FROM information_schema.schemata 
-                    WHERE schema_owner = %s'''
+        query = ('SELECT schema_name AS repo_name '
+                 'FROM information_schema.schemata '
+                 'WHERE schema_owner = %s')
+
         params = (self.user,)
         return self.execute_sql(query, params)
 
@@ -92,26 +93,36 @@ class PGBackend:
             shutil.rmtree(repo_dir)
 
         # drop the schema
-        query = ''' DROP SCHEMA %s %s
-            ''' % (repo, 'CASCADE' if force else '')
-        res = self.execute_sql(query)
+        query = 'DROP SCHEMA %s %s'
+        params = (AsIs(repo), AsIs('CASCADE') if force else None)
+        res = self.execute_sql(query, params)
         return res
 
-    def add_collaborator(self, repo, username, privileges, auto_in_future=True):
-        query = ''' GRANT USAGE ON SCHEMA %s TO %s;
-            ''' % (repo, username)
-        self.execute_sql(query)
+    def add_collaborator(self, repo, username, privileges=[],
+                         auto_in_future=True):
+        query = ('BEGIN;'
+                 'GRANT USAGE ON SCHEMA %s TO %s;'
+                 'GRANT %s ON ALL TABLES IN SCHEMA %s TO %s;'
+                 'ALTER DEFAULT PRIVILEGES IN SCHEMA %s '
+                 'GRANT %s ON TABLES TO %s;'
+                 'COMMIT;'
+                 )
 
         privileges_str = ', '.join(privileges)
+        params = [repo, username, privileges_str, repo,
+                  username, repo, privileges_str, username]
+        params = tuple(map(lambda x: AsIs(x), params))
+        self.execute_sql(query, params)
 
-        query = ''' GRANT %s ON ALL TABLES IN SCHEMA %s TO %s;
-            ''' % (privileges_str, repo, username)
-        self.execute_sql(query)
+        # query = 'GRANT %s ON ALL TABLES IN SCHEMA %s TO %s;'
+        # ''' % (privileges_str, repo, username)
+        # self.execute_sql(query)
 
-        query = ''' ALTER DEFAULT PRIVILEGES IN SCHEMA %s
-                GRANT %s ON TABLES TO %s;
-            ''' % (repo, privileges_str, username)
-        self.execute_sql(query)
+        # query = ('ALTER DEFAULT PRIVILEGES IN SCHEMA %s'
+        #          'GRANT %s ON TABLES TO %s;'
+        #          )
+        # ''' % (repo, privileges_str, username)
+        # self.execute_sql(query)
 
     def delete_collaborator(self, repo, username):
         query = ''' REVOKE ALL ON ALL TABLES IN SCHEMA %s FROM %s CASCADE;
