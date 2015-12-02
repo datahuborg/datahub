@@ -1,7 +1,5 @@
 from django.conf import settings
 from django.shortcuts import render_to_response, redirect, render
-from django import forms
-from django.core.validators import RegexValidator
 from django.contrib.auth import logout as django_logout, \
                                 login as django_login, \
                                 authenticate
@@ -10,9 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.template.context import RequestContext
 from social.backends.utils import load_backends
 from operator import itemgetter
-from django.dispatch import receiver
-from django.db.models.signals import pre_save
-from django.db.utils import IntegrityError
+import forms
 
 
 def provider_details():
@@ -97,15 +93,15 @@ def login(request):
     Facebook, Twitter, etc).
     """
     if request.method == 'POST':
-        form = LoginForm(request.POST)
+        form = forms.LoginForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             # If username looks like an email address, look up the username
             # associated with that address.
             #
-            # The username regex disallows the @ symbol, and the email regex
-            # requires it.
+            # This assumes the username regex disallows the @ symbol, and the
+            # email regex requires it.
             if '@' in username:
                 try:
                     user = User.objects.get(email=username)
@@ -115,6 +111,7 @@ def login(request):
             user = authenticate(username=username, password=password)
             if user is not None and user.is_active:
                 django_login(request, user)
+                return redirect('/')
             else:
                 form.add_error(None, "Username and password do not match.")
         else:
@@ -122,7 +119,7 @@ def login(request):
             # errors.
             pass
     else:
-        form = LoginForm()
+        form = forms.LoginForm()
 
     providers = provider_details()
     context = RequestContext(request, {
@@ -143,12 +140,20 @@ def register(request):
     Facebook, Twitter, etc).
     """
     if request.method == 'POST':
-        form = RegistrationForm(request.POST)
+        form = forms.RegistrationForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data['username']
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
             User.objects.create_user(username, email, password)
+            # A signal handler in signals.py listens for the pre_save signal
+            # and throws an IntegrityError if the user's email address is not
+            # unique. Username uniqueness is handled by the model.
+            #
+            # In the future, another pre_save signal handler will check if a
+            # DataHub database exists for the user and create one if it
+            # doesn't exist. If the database cannot be create, that handler
+            # will throw an exception.
             user = authenticate(username=username, password=password)
             if user is not None and user.is_active:
                 django_login(request, user)
@@ -158,7 +163,7 @@ def register(request):
             # errors.
             pass
     else:
-        form = RegistrationForm()
+        form = forms.RegistrationForm()
 
     providers = provider_details()
     context = RequestContext(request, {
@@ -168,101 +173,6 @@ def register(request):
         'providers': providers})
     return render_to_response('register.html', context_instance=context)
 
-
-#
-# Should move this to a separate signals.py, register it in a ready() method,
-# and leave a note here that email uniqueness is enforced by a pre_save signal
-# handler on the User model.
-@receiver(pre_save, sender=User, dispatch_uid="dh_unique_username")
-def user_pre_save(sender, instance=None, **kwargs):
-    """
-    Validates new user attributes at database save time. beyond the User model's rules.
-
-    Check here in validation and in the pipeline at create_user that the provided email address is already in use, 
-    """
-    email = instance.email
-    username = instance.username
-    if not email:
-        raise IntegrityError("Email required.")
-    if sender.objects.filter(email=email).exclude(username=username).count():
-        raise IntegrityError(
-            "The email address {0} is in use by another account.".format(email))
-
-
-class UsernameForm(forms.Form):
-
-    """
-    A form that asks for a username and email address.
-
-    Used by social auth flows, which authenticate new users before they've had
-    a chance to provide that info.
-    """
-
-    invalid_username_msg = (
-        "Usernames may only contain alphanumeric characters, hyphens, and "
-        "underscores, and must not begin or end with an a hyphen or "
-        "underscore."
-        )
-    regex = r'^(?![\-\_])[\w\-\_]+(?<![\-\_])$'
-    validate_username = RegexValidator(regex, invalid_username_msg)
-
-    def validate_unique_username(value):
-        try:
-            User.objects.get(username=value)
-            raise forms.ValidationError(
-                ('The username %(value)s is not available.'),
-                params={'value': value},
-            )
-        except User.DoesNotExist:
-            return True
-
-    def validate_unique_email(value):
-        try:
-            User.objects.get(email=value)
-            raise forms.ValidationError(
-                ('The email address %(value)s is in use by another account.'),
-                params={'value': value},
-            )
-        except User.DoesNotExist:
-            return True
-
-    username = forms.CharField(
-        label='DataHub Username',
-        min_length=3,
-        max_length=255,
-        validators=[validate_username, validate_unique_username])
-    email = forms.EmailField(
-        max_length=255,
-        validators=[validate_unique_email])
-
-
-class RegistrationForm(UsernameForm):
-
-    """
-    A form that asks for a username, email address, and password.
-
-    Used for creating new users. The rendered template includes social auth
-    registration links, which circumvent this form and lead to the social
-    pipeline and UsernameForm.
-    """
-
-    password = forms.CharField(label=("Password"),
-                               widget=forms.PasswordInput)
-
-
-class LoginForm(forms.Form):
-
-    """
-    A form that asks for either a username or email address plus a password.
-
-    Used to log in existing users. The rendered template includes social auth
-    login links.
-    """
-
-    # `username` could be a username or email address, so be lax validating it.
-    username = forms.CharField()
-    password = forms.CharField(label=("Password"),
-                               widget=forms.PasswordInput)
 
 
 # Called by the get_username pipeline. Look for pipeline.py and the
@@ -289,7 +199,7 @@ def get_username(request):
         social = None
 
     if request.method == 'POST':
-        form = UsernameForm(request.POST)
+        form = forms.UsernameForm(request.POST)
         if form.is_valid():
             # Because of FIELDS_STORED_IN_SESSION, preferred_username will be
             # copied to the request dictionary when the pipeline resumes.
@@ -303,7 +213,7 @@ def get_username(request):
             # tell the pipeline to resume by using the "complete" endpoint
             return redirect('social:complete', backend=backend)
     else:
-        form = UsernameForm(initial={'email': details['email']})
+        form = forms.UsernameForm(initial={'email': details['email']})
 
     context = RequestContext(request, {
         'form': form,
