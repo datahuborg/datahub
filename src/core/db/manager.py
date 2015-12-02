@@ -5,7 +5,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 from config import settings
 from core.db.connection import DataHubConnection
 from inventory.models import *
-
+from django.contrib.auth.models import User
 
 '''
 Datahub DB Manager
@@ -26,7 +26,7 @@ class DataHubManager:
             username = app.app_id
             password = hashlib.sha1(app.app_token).hexdigest()
         else:
-            user = DataHubLegacyUser.objects.get(username=user)
+            user = User.objects.get(username=user)
             username = user.username
             password = user.password
 
