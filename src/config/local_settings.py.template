@@ -17,6 +17,11 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
 #   http://psa.matiasaguirre.net/docs/backends/facebook.html#oauth2
 SOCIAL_AUTH_FACEBOOK_KEY = ''
 SOCIAL_AUTH_FACEBOOK_SECRET = ''
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+  'locale': 'en_US',
+  'fields': 'id, name, email'
+}
 
 # Check docs at:
 #   http://psa.matiasaguirre.net/docs/backends/twitter.html
