@@ -85,6 +85,9 @@ DerivedData
 # Pods - for those of you who use CocoaPods
 Pods
 
+# Sublime Text
+*.sublime-project
+
 # Vagrant
 .vagrant
 
