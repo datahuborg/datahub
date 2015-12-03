@@ -940,7 +940,8 @@ def card_create(request, repo_base, repo):
         url = '/browse/%s/%s/card/%s' % (repo_base, repo, card_name)
 
         card = Card(
-            repo_base=repo_base, repo_name=repo, card_name=card_name, query=query)
+            repo_base=repo_base, repo_name=repo,
+            card_name=card_name, query=query)
         card.save()
         return HttpResponseRedirect(url)
     except Exception, e:
@@ -1036,7 +1037,8 @@ def app_register(request):
             app_name = request.POST["app-name"]
             app_token = str(uuid.uuid4())
             app = App(
-                app_id=app_id, app_name=app_name, user=user, app_token=app_token)
+                app_id=app_id, app_name=app_name,
+                user=user, app_token=app_token)
             app.save()
 
             try:
@@ -1111,11 +1113,13 @@ def app_allow_access(request, app_id, repo_name):
                 return HttpResponseRedirect(redirect_url)
             else:
                 if access_val == 'allow':
-                    return HttpResponseRedirect('/settings/%s/%s' % (login, repo_name))
+                    return HttpResponseRedirect(
+                        '/settings/%s/%s' % (login, repo_name))
                 else:
                     res = {
-                        'msg_title': 'Access Request',
-                        'msg_body': 'Permission denied to the app %s.' % (app_id)
+                        'msg_title': "Access Request",
+                        'msg_body':
+                            "Permission denied to the app {0}.".format(app_id)
                     }
                     return render_to_response('confirmation.html', res)
         else:
