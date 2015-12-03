@@ -1,9 +1,8 @@
 import json
-from django.shortcuts import render
 from django.http import HttpResponse
 
 from core.db.manager import DataHubManager
-from account.auth import *
+from django.contrib.auth.decorators import login_required
 
 '''
 Returns a successful JSON response.
@@ -90,7 +89,7 @@ If there was a failure, the response is JSON of the form:
 
 @login_required
 def repos(request):
-    username = get_login(request)
+    username = request.user.username
     manager = DataHubManager(username)
     repos = get_repos(manager)
     if repos is not None:
@@ -116,7 +115,7 @@ If there was a failure, the response is JSON of the form:
 
 @login_required
 def tables(request, repo_name):
-    username = get_login(request)
+    username = request.user.username
     manager = DataHubManager(username)
     repos = get_repos(manager)
     if repos is not None and repo_name in repos:
@@ -144,7 +143,7 @@ If there was a failure, the response is JSON of the form:
 
 @login_required
 def schema(request, repo_name, table_name):
-    username = get_login(request)
+    username = request.user.username
     manager = DataHubManager(username)
     repos = get_repos(manager)
     if repos is not None and repo_name in repos:
