@@ -121,40 +121,48 @@ class PGBackend:
         self.execute_sql(query, params)
 
     def delete_collaborator(self, repo, username):
-        query = ''' REVOKE ALL ON ALL TABLES IN SCHEMA %s FROM %s CASCADE;
-            ''' % (repo, username)
-        self.execute_sql(query)
-        query = ''' REVOKE ALL ON SCHEMA %s FROM %s CASCADE;
-            ''' % (repo, username)
-        self.execute_sql(query)
-        query = ''' ALTER DEFAULT PRIVILEGES IN SCHEMA %s
-                REVOKE ALL ON TABLES FROM %s;
-            ''' % (repo, username)
-        self.execute_sql(query)
+        self._check_for_injections(repo)
+        self._check_for_injections(username)
+
+        query = ('BEGIN;'
+                 'REVOKE ALL ON ALL TABLES IN SCHEMA %s FROM %s CASCADE;'
+                 'REVOKE ALL ON SCHEMA %s FROM %s CASCADE;'
+                 'ALTER DEFAULT PRIVILEGES IN SCHEMA %s '
+                 'REVOKE ALL ON TABLES FROM %s;'
+                 'COMMIT;'
+                 )
+        params = [repo, username, repo, username, repo, username]
+        params = tuple(map(lambda x: AsIs(x), params))
+
+        self.execute_sql(query, params)
 
     def list_tables(self, repo):
         res = self.list_repos()
+        self._check_for_injections(repo)
 
         all_repos = [t[0] for t in res['tuples']]
         if repo not in all_repos:
             raise LookupError('Invalid repository name: %s' % (repo))
 
-        query = ''' SELECT table_name FROM information_schema.tables
-                WHERE table_schema = '%s' AND table_type = 'BASE TABLE'
-            ''' % (repo)
-        return self.execute_sql(query)
+        query = ('SELECT table_name FROM information_schema.tables '
+                'WHERE table_schema = %s AND table_type = \'BASE TABLE\';'
+                )
+        params = (repo,)
+        return self.execute_sql(query, params)
 
     def list_views(self, repo):
         res = self.list_repos()
+        self._check_for_injections(repo)
 
         all_repos = [t[0] for t in res['tuples']]
         if repo not in all_repos:
             raise LookupError('Invalid repository name: %s' % (repo))
 
-        query = ''' SELECT table_name FROM information_schema.tables
-                WHERE table_schema = '%s' AND table_type = 'VIEW'
-            ''' % (repo)
-        return self.execute_sql(query)
+        query = ('SELECT table_name FROM information_schema.tables '
+                'WHERE table_schema = %s AND table_type = \'VIEW\';'
+                )
+        params = (repo,)
+        return self.execute_sql(query, params)
 
     def get_schema(self, table):
         tokens = table.split('.')
@@ -184,7 +192,6 @@ class PGBackend:
             'fields': []
         }
 
-        import pdb; pdb.set_trace()
         conn = self.connection
         cur = conn.cursor()
         cur.execute(query.strip(), params)

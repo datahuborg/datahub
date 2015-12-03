@@ -12,6 +12,7 @@ from core.db.manager import DataHubManager
 
 
 class HelperMethods(TestCase):
+
     ''' tests connections, validation and execution methods in PGBackend'''
 
     def setUp(self):
@@ -30,7 +31,6 @@ class HelperMethods(TestCase):
         self.backend = PGBackend(self.username,
                                  self.password,
                                  repo_base=self.username)
-
 
     def create_patch(self, name):
         # helper method for creating patches
@@ -52,16 +52,14 @@ class HelperMethods(TestCase):
             except ValueError:
                 self.fail('check_for_injections failed to verify a good name')
 
-
     # def test_execute_sql_strips_queries(self):
     #     mock_connection = self.create_patch(
     #         'core.db.backend.pg.PGBackend.__open_connection__')
 
-
     #     query = ' This query needs stripping; '
     #     self.backend.execute_sql(query)
 
-    #     self.assertTrue(True) 
+    #     self.assertTrue(True)
 
 
 class SchemaListCreateDeleteShare(TestCase):
@@ -187,8 +185,6 @@ class SchemaListCreateDeleteShare(TestCase):
                             'COMMIT;'
                             )
 
-        
-
         product = itertools.product(self.good_nouns, self.good_nouns,
                                     privileges)
 
@@ -199,23 +195,82 @@ class SchemaListCreateDeleteShare(TestCase):
             params = (repo, receiver, privilege, repo, receiver,
                       repo, privilege, receiver)
 
-            
             self.backend.add_collaborator(
                 repo=repo, username=receiver, privileges=[privilege])
 
-            self.assertTrue(
+            self.assertEqual(
                 self.mock_execute_sql.call_args[0][0], add_collab_query)
-            self.assertTrue(self.mock_execute_sql.call_args[0][1], params)
-            self.assertTrue(self.mock_as_is.call_count == len(params))
+            self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+            self.assertEqual(self.mock_as_is.call_count, len(params))
 
             self.assertEqual(self.mock_check_for_injections.call_count, 3)
 
             self.reset_mocks()
 
-    # def test_add_collaborator_concatinates_privileges(self):
-    #     privileges = ['SELECT', 'USAGE']
-    #     repo = 'repo'
-    #     sender = 'sender'
-    #     receiver = 'receiver'
+    def test_add_collaborator_concatinates_privileges(self):
+        privileges = ['SELECT', 'USAGE']
+        repo = 'repo'
+        receiver = 'receiver'
 
-    #     self.backend.add_collaborator(repo=repo, username=)
+        self.backend.add_collaborator(repo=repo,
+                                      username=receiver, privileges=privileges)
+
+        # make sure that the privileges are passed as a string in params
+        self.assertTrue(
+            'SELECT, USAGE' in self.mock_execute_sql.call_args[0][1])
+
+    def test_delete_collaborator(self):
+        delete_collab_sql = ('BEGIN;'
+                             'REVOKE ALL ON ALL TABLES IN SCHEMA %s '
+                             'FROM %s CASCADE;'
+                             'REVOKE ALL ON SCHEMA %s FROM %s CASCADE;'
+                             'ALTER DEFAULT PRIVILEGES IN SCHEMA %s '
+                             'REVOKE ALL ON TABLES FROM %s;'
+                             'COMMIT;'
+                             )
+
+        product = itertools.product(self.good_nouns, self.good_nouns)
+
+        for repo, username in product:
+            params = (repo, username, repo, username, repo, username)
+            self.backend.delete_collaborator(repo=repo, username=username)
+
+            self.assertEqual(
+                self.mock_execute_sql.call_args[0][0], delete_collab_sql)
+            self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+            self.assertEqual(self.mock_as_is.call_count, len(params))
+            self.assertEqual(self.mock_check_for_injections.call_count, 2)
+
+            self.reset_mocks()
+
+    def test_list_tables(self):
+        repo = 'repo'
+        list_tables_query = ('SELECT table_name FROM information_schema.tables '
+                            'WHERE table_schema = %s '
+                            'AND table_type = \'BASE TABLE\';')
+        params = (repo,)
+
+        # list_tables depends on list_repos, which is being mocked out
+        mock_list_repos = self.create_patch('core.db.backend.pg.PGBackend.list_repos')
+        mock_list_repos.return_value = {'tuples': [[repo]]}
+
+        self.backend.list_tables(repo)
+        self.assertEqual(self.mock_execute_sql.call_args[0][0], list_tables_query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_check_for_injections.call_count, 1)
+
+    def test_list_views(self):
+        repo = 'repo'
+        list_views_query = ('SELECT table_name FROM information_schema.tables '
+                            'WHERE table_schema = %s '
+                            'AND table_type = \'VIEW\';')
+        params = (repo,)
+
+        # list_views depends on list_repos, which is being mocked out
+        mock_list_repos = self.create_patch('core.db.backend.pg.PGBackend.list_repos')
+        mock_list_repos.return_value = {'tuples': [[repo]]}
+
+        self.backend.list_tables(repo)
+        self.assertEqual(self.mock_execute_sql.call_args[0][0], list_views_query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_check_for_injections.call_count, 1)
