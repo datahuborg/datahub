@@ -48,7 +48,7 @@ class PGBackend:
     def close_connection(self):
         self.connection.close()
 
-    def _is_valid_noun_name(self, noun):
+    def _check_for_injections(self, noun):
         ''' throws exceptions unless the noun contains only alphanumeric
             chars, hyphens, and underscores, and must not begin or end with
             a hyphen or underscore
@@ -69,7 +69,7 @@ class PGBackend:
 
     def create_repo(self, repo):
         ''' creates a postgres schema for the user.'''
-        self._is_valid_noun_name(repo)
+        self._check_for_injections(repo)
 
         query = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'
         params = (AsIs(repo), AsIs(self.user))
@@ -85,7 +85,7 @@ class PGBackend:
 
     def delete_repo(self, repo, force=False):
         ''' deletes a repo and the folder the user's repo files are in. '''
-        self._is_valid_noun_name(repo)
+        self._check_for_injections(repo)
 
         # delete the folder that repo files are in
         repo_dir = '/user_data/%s/%s' % (self.user, repo)
@@ -99,6 +99,13 @@ class PGBackend:
         return res
 
     def add_collaborator(self, repo, username, privileges=[]):
+        # check that all repo names, usernames, and privileges passed aren't
+        # sql injections
+        self._check_for_injections(repo)
+        self._check_for_injections(username)
+        for privilege in privileges:
+            self._check_for_injections(privilege)
+
         query = ('BEGIN;'
                  'GRANT USAGE ON SCHEMA %s TO %s;'
                  'GRANT %s ON ALL TABLES IN SCHEMA %s TO %s;'
@@ -177,23 +184,24 @@ class PGBackend:
             'fields': []
         }
 
+        import pdb; pdb.set_trace()
         conn = self.connection
-        c = conn.cursor()
-        c.execute(query.strip(), params)
+        cur = conn.cursor()
+        cur.execute(query.strip(), params)
 
         try:
-            result['tuples'] = c.fetchall()
+            result['tuples'] = cur.fetchall()
         except:
             pass
 
         result['status'] = True
-        result['row_count'] = c.rowcount
-        if c.description:
+        result['row_count'] = cur.rowcount
+        if cur.description:
             result['fields'] = [
-                {'name': col[0], 'type': col[1]} for col in c.description]
+                {'name': col[0], 'type': col[1]} for col in cur.description]
 
         tokens = query.strip().split(' ', 2)
-        c.close()
+        cur.close()
         return result
 
     def create_user(self, username, password, create_db):

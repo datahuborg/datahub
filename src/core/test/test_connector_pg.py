@@ -26,19 +26,42 @@ class HelperMethods(TestCase):
         self.username = "username"
         self.password = "password"
 
+        # self.mock_psychopg = self.create_patch('core.db.backend.pg.psycopg2')
         self.backend = PGBackend(self.username,
                                  self.password,
                                  repo_base=self.username)
 
-    def test_is_valid_noun_name(self):
+
+    def create_patch(self, name):
+        # helper method for creating patches
+        patcher = patch(name)
+        thing = patcher.start()
+        self.addCleanup(patcher.stop)
+        return thing
+
+    def check_for_injections(self):
         ''' tests  validation against some sql injection attacks'''
 
         for noun in self.bad_nouns:
             with self.assertRaises(ValueError):
-                self.backend._is_valid_noun_name(noun)
+                self.backend._check_for_injections(noun)
 
-    def test_execute_sql(self):
-        pass
+        for noun in self.good_nouns:
+            try:
+                self.backend._check_for_injections(noun)
+            except ValueError:
+                self.fail('check_for_injections failed to verify a good name')
+
+
+    # def test_execute_sql_strips_queries(self):
+    #     mock_connection = self.create_patch(
+    #         'core.db.backend.pg.PGBackend.__open_connection__')
+
+
+    #     query = ' This query needs stripping; '
+    #     self.backend.execute_sql(query)
+
+    #     self.assertTrue(True) 
 
 
 class SchemaListCreateDeleteShare(TestCase):
@@ -64,8 +87,8 @@ class SchemaListCreateDeleteShare(TestCase):
         self.mock_execute_sql.return_value = True
 
         # mock the is_valid_noun_name, which checks for injection attacks
-        self.mock_is_valid_noun_name = self.create_patch(
-            'core.db.backend.pg.PGBackend._is_valid_noun_name')
+        self.mock_check_for_injections = self.create_patch(
+            'core.db.backend.pg.PGBackend._check_for_injections')
 
         # mock the psycopg2.extensions.AsIs, which many of the pg.py methods use
         # Its return value (side effect) is the call value
@@ -88,7 +111,7 @@ class SchemaListCreateDeleteShare(TestCase):
         # clears the mock call arguments and sets their call counts to 0
         self.mock_as_is.reset_mock()
         self.mock_execute_sql.reset_mock()
-        self.mock_is_valid_noun_name.reset_mock()
+        self.mock_check_for_injections.reset_mock()
 
     # testing externally called methods in PGBackend
     def test_create_repo_happy_path(self):
@@ -103,17 +126,11 @@ class SchemaListCreateDeleteShare(TestCase):
             self.assertEqual(
                 self.mock_execute_sql.call_args[0][1][1], self.username)
 
-            self.assertTrue(self.mock_as_is.called, True)
-            self.assertTrue(self.mock_is_valid_noun_name.called, True)
+            self.assertTrue(self.mock_as_is.called)
+            self.assertTrue(self.mock_check_for_injections.called)
 
             # reset mocks
             self.reset_mocks()
-
-    # def test_create_repo_sad_path(self):
-    #     for noun in self.bad_nouns:
-    #         with self.assertRaises(ValueError):
-    #             self.backend.create_repo(noun)
-    #         self.assertFalse(self.mock_execute_sql.called)
 
     def test_list_repo(self):
         # the user is already logged in, so there's not much to be tested here
@@ -138,12 +155,11 @@ class SchemaListCreateDeleteShare(TestCase):
             self.assertEqual(
                 self.mock_execute_sql.call_args[0][1][1], 'CASCADE')
             self.assertTrue(self.mock_as_is.called)
+            self.assertTrue(self.mock_check_for_injections)
 
             self.reset_mocks()
 
-
-
-    def test_delete_repo_happy_path_no_cascade(self):
+    def test_delete_repo_no_cascade(self):
         drop_schema_sql = 'DROP SCHEMA %s %s'
         for noun in self.good_nouns:
             self.backend.delete_repo(repo=noun, force=False)
@@ -154,16 +170,11 @@ class SchemaListCreateDeleteShare(TestCase):
             self.assertEqual(
                 self.mock_execute_sql.call_args[0][1][1], None)
             self.assertTrue(self.mock_as_is.called)
+            self.assertTrue(self.mock_check_for_injections.called)
 
             self.reset_mocks()
 
-    # def test_delete_repo_sad_path(self):
-    #     for noun in self.bad_nouns:
-    #         with self.assertRaises(ValueError):
-    #             self.backend.delete_repo(noun)
-    #         self.assertFalse(self.mock_execute_sql.called)
-
-    def test_add_collaborator_happy_path(self):
+    def test_add_collaborator(self):
         privileges = ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'TRUNCATE',
                       'REFERENCES', 'TRIGGER', 'CREATE', 'CONNECT',
                       'TEMPORARY', 'EXECUTE', 'USAGE']
@@ -176,22 +187,35 @@ class SchemaListCreateDeleteShare(TestCase):
                             'COMMIT;'
                             )
 
+        
+
         product = itertools.product(self.good_nouns, self.good_nouns,
-                                    self.good_nouns, privileges
-                                    )
+                                    privileges)
 
         # test every combo here. For now, don't test combined priviledges
-        for repo, sender, receiver, privilege in product:
+
+        for repo, receiver, privilege in product:
+
             params = (repo, receiver, privilege, repo, receiver,
                       repo, privilege, receiver)
 
+            
             self.backend.add_collaborator(
-                sender, receiver, [privilege])
+                repo=repo, username=receiver, privileges=[privilege])
 
             self.assertTrue(
                 self.mock_execute_sql.call_args[0][0], add_collab_query)
             self.assertTrue(self.mock_execute_sql.call_args[0][1], params)
             self.assertTrue(self.mock_as_is.call_count == len(params))
 
+            self.assertEqual(self.mock_check_for_injections.call_count, 3)
+
             self.reset_mocks()
 
+    # def test_add_collaborator_concatinates_privileges(self):
+    #     privileges = ['SELECT', 'USAGE']
+    #     repo = 'repo'
+    #     sender = 'sender'
+    #     receiver = 'receiver'
+
+    #     self.backend.add_collaborator(repo=repo, username=)
