@@ -8,14 +8,19 @@ from account.auth import *
 '''
 Returns a successful JSON response.
 
-@param json_dict - A dictionary representing the JSON to be sent to the user. It will be augmented
-                    with the property, json_dict.success = true
+@param json_dict - A dictionary representing the JSON to be sent to the user.
+                   It will be augmented with the property,
+                   json_dict.success = true
 
-@return An HttpResponse representing the json_dict (augmented with the "success" property).
+@return An HttpResponse representing the json_dict (augmented with the
+        "success" property).
 '''
+
+
 def json_response(json_dict):
     json_dict["success"] = True
-    return HttpResponse(json.dumps(json_dict), content_type="application/json")
+    return HttpResponse(json.dumps(json_dict),
+                        content_type="application/json")
 
 '''
 Returns a failure JSON response.
@@ -25,16 +30,22 @@ Returns a failure JSON response.
     "success": false
 }
 '''
+
+
 def error_response():
-    return HttpResponse(json.dumps({"success": False}), content_type="application/json")
+    return HttpResponse(json.dumps({"success": False}),
+                        content_type="application/json")
 
 '''
 Return the repos associated with this user.
 
 @param manager - A DataHubManager object associated with the current user.
 
-@return a list of the repo names associated with the current user, or None if there is an error.
+@return a list of the repo names associated with the current user, or None if
+        there is an error.
 '''
+
+
 def get_repos(manager):
     result_set = manager.list_repos()
     if 'tuples' in result_set:
@@ -46,20 +57,23 @@ def get_repos(manager):
 Return the tables in a repo associated with this user.
 
 @param manager - A DataHubManager object associated with the current user.
-@param repo_name - The name of the repo, the user must be associated with this repo.
+@param repo_name - The name of the repo, the user must be associated with this
+                   repo.
 
 @return a list of the tables in the repo with name = repo_name.
 '''
+
+
 def get_tables(manager, repo_name):
     result_set = manager.list_tables(repo_name)
     if 'tuples' in result_set:
         tables = [t[0] for t in result_set['tuples']]
-        return tables 
+        return tables
     return None
 
 '''
-Return the list of repos associated with the current user. If successful, the response is JSON of 
-the form:
+Return the list of repos associated with the current user.
+If successful, the response is JSON of the form:
 
 {
     "success": true,
@@ -72,6 +86,8 @@ If there was a failure, the response is JSON of the form:
     "success": false
 }
 '''
+
+
 @login_required
 def repos(request):
     username = get_login(request)
@@ -82,7 +98,7 @@ def repos(request):
     return error_response()
 
 '''
-Return the list of tables in the repo associated with the current user. 
+Return the list of tables in the repo associated with the current user.
 If successful, the response is JSON of the form:
 
 {
@@ -96,6 +112,8 @@ If there was a failure, the response is JSON of the form:
     "success": false
 }
 '''
+
+
 @login_required
 def tables(request, repo_name):
     username = get_login(request)
@@ -108,8 +126,8 @@ def tables(request, repo_name):
     return error_response()
 
 '''
-Return the schema for the table in the given repo associated with the current user. 
-If successful, the response is JSON of the form:
+Return the schema for the table in the given repo associated with the current
+user. If successful, the response is JSON of the form:
 
 {
     "success": true,
@@ -122,6 +140,8 @@ If there was a failure, the response is JSON of the form:
     "success": false
 }
 '''
+
+
 @login_required
 def schema(request, repo_name, table_name):
     username = get_login(request)
