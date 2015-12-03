@@ -458,7 +458,7 @@ def table(request, repo_base, repo, table):
         dh_table_name = '%s.%s.%s' % (repo_base, repo, table)
 
         res = DataHubManager.has_table_privilege(
-        login, repo_base, dh_table_name, 'SELECT')
+            username, repo_base, dh_table_name, 'SELECT')
 
         if not (res and res['tuples'][0][0]):
             raise Exception('Access denied. Missing required privileges.')
@@ -476,7 +476,7 @@ def table(request, repo_base, repo, table):
 
         current_page = 1
         try:
-      current_page = int(request.REQUEST['page'])
+            current_page = int(request.POST['page'])
         except:
             pass
 
