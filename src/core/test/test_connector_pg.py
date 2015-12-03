@@ -11,11 +11,34 @@ from core.db.backend.pg import PGBackend
 from core.db.manager import DataHubManager
 
 
-# tests below this comment require authentication
-# if these fail because a role/database already exists
-# you will need to log into postgres and
-# drop database username;
-# drop role username;
+class HelperMethods(TestCase):
+    ''' tests connections, validation and execution methods in PGBackend'''
+
+    def setUp(self):
+        # some words to test out
+        self.good_nouns = ['good', 'good_noun', 'good-noun']
+
+        # some words that shoudl throw validation errors
+        self.bad_nouns = ['_foo', 'foo_', '-foo', 'foo-', 'foo bar',
+                          'injection;attack', ';injection', 'injection;',
+                          ]
+
+        self.username = "username"
+        self.password = "password"
+
+        self.backend = PGBackend(self.username,
+                                 self.password,
+                                 repo_base=self.username)
+
+    def test_is_valid_noun_name(self):
+        ''' tests  validation against some sql injection attacks'''
+
+        for noun in self.bad_nouns:
+            with self.assertRaises(ValueError):
+                self.backend._is_valid_noun_name(noun)
+
+    def test_execute_sql(self):
+        pass
 
 
 class SchemaListCreateDeleteShare(TestCase):
@@ -27,30 +50,22 @@ class SchemaListCreateDeleteShare(TestCase):
     def setUp(self):
         # some words to test out
         self.good_nouns = ['good', 'good_noun', 'good-noun']
+        # some words that shoudl throw validation errors
         self.bad_nouns = ['_foo', 'foo_', '-foo', 'foo-', 'foo bar',
                           'injection;attack', ';injection', 'injection;',
                           ]
 
-        # create the user... this should be moved to the new auth system
-        # so that it stops being an integration test.
         self.username = "username"
         self.password = "password"
-        # self.hashed_password = hashlib.sha1(self.password).hexdigest()
-        # DataHubManager.create_user(username=self.username, password=self.hashed_password)
-
-        # user = User(username=self.username, email="noreply@mit.edu",
-        #     password=self.hashed_password)
-        # user.save()
-
-        # log the user in
-        # login_credentials = {'login_id': self.username,
-        # 'login_password': self.password}
-        # self.client.post('/account/login', login_credentials)
 
         # mock the execute_sql function
         self.mock_execute_sql = self.create_patch(
             'core.db.backend.pg.PGBackend.execute_sql')
         self.mock_execute_sql.return_value = True
+
+        # mock the is_valid_noun_name, which checks for injection attacks
+        self.mock_is_valid_noun_name = self.create_patch(
+            'core.db.backend.pg.PGBackend._is_valid_noun_name')
 
         # mock the psycopg2.extensions.AsIs, which many of the pg.py methods use
         # Its return value (side effect) is the call value
@@ -62,9 +77,6 @@ class SchemaListCreateDeleteShare(TestCase):
                                  self.password,
                                  repo_base=self.username)
 
-    def tearDown(self):
-        DataHubManager.remove_user_and_database(username=self.username)
-
     def create_patch(self, name):
         # helper method for creating patches
         patcher = patch(name)
@@ -72,6 +84,13 @@ class SchemaListCreateDeleteShare(TestCase):
         self.addCleanup(patcher.stop)
         return thing
 
+    def reset_mocks(self):
+        # clears the mock call arguments and sets their call counts to 0
+        self.mock_as_is.reset_mock()
+        self.mock_execute_sql.reset_mock()
+        self.mock_is_valid_noun_name.reset_mock()
+
+    # testing externally called methods in PGBackend
     def test_create_repo_happy_path(self):
         create_repo_sql = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'
 
@@ -83,16 +102,21 @@ class SchemaListCreateDeleteShare(TestCase):
                 self.mock_execute_sql.call_args[0][1][0], noun)
             self.assertEqual(
                 self.mock_execute_sql.call_args[0][1][1], self.username)
-            self.assertTrue(self.mock_as_is.called, True)
 
-    def test_create_repo_sad_path(self):
-        for noun in self.bad_nouns:
-            with self.assertRaises(ValueError):
-                self.backend.create_repo(noun)
-            self.assertFalse(self.mock_execute_sql.called)
+            self.assertTrue(self.mock_as_is.called, True)
+            self.assertTrue(self.mock_is_valid_noun_name.called, True)
+
+            # reset mocks
+            self.reset_mocks()
+
+    # def test_create_repo_sad_path(self):
+    #     for noun in self.bad_nouns:
+    #         with self.assertRaises(ValueError):
+    #             self.backend.create_repo(noun)
+    #         self.assertFalse(self.mock_execute_sql.called)
 
     def test_list_repo(self):
-        # the user is already logged in, so there's not much to be tested ehre
+        # the user is already logged in, so there's not much to be tested here
         # except that the arguments are passed correctly
         list_repo_sql = ('SELECT schema_name AS repo_name '
                          'FROM information_schema.schemata '
@@ -115,6 +139,10 @@ class SchemaListCreateDeleteShare(TestCase):
                 self.mock_execute_sql.call_args[0][1][1], 'CASCADE')
             self.assertTrue(self.mock_as_is.called)
 
+            self.reset_mocks()
+
+
+
     def test_delete_repo_happy_path_no_cascade(self):
         drop_schema_sql = 'DROP SCHEMA %s %s'
         for noun in self.good_nouns:
@@ -127,11 +155,13 @@ class SchemaListCreateDeleteShare(TestCase):
                 self.mock_execute_sql.call_args[0][1][1], None)
             self.assertTrue(self.mock_as_is.called)
 
-    def test_delete_repo_sad_path(self):
-        for noun in self.bad_nouns:
-            with self.assertRaises(ValueError):
-                self.backend.delete_repo(noun)
-            self.assertFalse(self.mock_execute_sql.called)
+            self.reset_mocks()
+
+    # def test_delete_repo_sad_path(self):
+    #     for noun in self.bad_nouns:
+    #         with self.assertRaises(ValueError):
+    #             self.backend.delete_repo(noun)
+    #         self.assertFalse(self.mock_execute_sql.called)
 
     def test_add_collaborator_happy_path(self):
         privileges = ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'TRUNCATE',
@@ -163,5 +193,5 @@ class SchemaListCreateDeleteShare(TestCase):
             self.assertTrue(self.mock_execute_sql.call_args[0][1], params)
             self.assertTrue(self.mock_as_is.call_count == len(params))
 
-            self.mock_execute_sql.reset_mock()
-            self.mock_as_is.reset_mock()
+            self.reset_mocks()
+

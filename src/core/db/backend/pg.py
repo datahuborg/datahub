@@ -48,7 +48,7 @@ class PGBackend:
     def close_connection(self):
         self.connection.close()
 
-    def is_valid_noun_name(self, noun):
+    def _is_valid_noun_name(self, noun):
         ''' throws exceptions unless the noun contains only alphanumeric
             chars, hyphens, and underscores, and must not begin or end with
             a hyphen or underscore
@@ -69,7 +69,7 @@ class PGBackend:
 
     def create_repo(self, repo):
         ''' creates a postgres schema for the user.'''
-        self.is_valid_noun_name(repo)
+        self._is_valid_noun_name(repo)
 
         query = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'
         params = (AsIs(repo), AsIs(self.user))
@@ -85,7 +85,7 @@ class PGBackend:
 
     def delete_repo(self, repo, force=False):
         ''' deletes a repo and the folder the user's repo files are in. '''
-        self.is_valid_noun_name(repo)
+        self._is_valid_noun_name(repo)
 
         # delete the folder that repo files are in
         repo_dir = '/user_data/%s/%s' % (self.user, repo)
