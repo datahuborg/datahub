@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from core.db.manager import DataHubManager
 from django.core.validators import RegexValidator
 
 
@@ -21,14 +22,25 @@ class UsernameForm(forms.Form):
     validate_username = RegexValidator(regex, invalid_username_msg)
 
     def validate_unique_username(value):
+        username = value.lower()
         try:
-            User.objects.get(username=value.lower())
+            User.objects.get(username=username)
             raise forms.ValidationError(
                 ('The username %(value)s is not available.'),
                 params={'value': value},
             )
         except User.DoesNotExist:
-            return True
+            pass
+
+        db_exists = DataHubManager.database_exists(username)
+        user_exists = DataHubManager.user_exists(username)
+        if db_exists or user_exists:
+            raise forms.ValidationError(
+                ('The username %(value)s is not available.'),
+                params={'value': value},
+            )
+        return True
+
 
     def validate_unique_email(value):
         try:
