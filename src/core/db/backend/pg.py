@@ -145,8 +145,8 @@ class PGBackend:
             raise LookupError('Invalid repository name: %s' % (repo))
 
         query = ('SELECT table_name FROM information_schema.tables '
-                'WHERE table_schema = %s AND table_type = \'BASE TABLE\';'
-                )
+                 'WHERE table_schema = %s AND table_type = \'BASE TABLE\';'
+                 )
         params = (repo,)
         return self.execute_sql(query, params)
 
@@ -159,25 +159,30 @@ class PGBackend:
             raise LookupError('Invalid repository name: %s' % (repo))
 
         query = ('SELECT table_name FROM information_schema.tables '
-                'WHERE table_schema = %s AND table_type = \'VIEW\';'
-                )
+                 'WHERE table_schema = %s '
+                 'AND table_type = \'VIEW\';')
+        
         params = (repo,)
         return self.execute_sql(query, params)
 
     def get_schema(self, table):
         tokens = table.split('.')
+        for token in tokens:
+            self._check_for_injections(token)
 
         if len(tokens) < 2:
             raise NameError(
                 "Invalid name: '%s'.\n"
                 "HINT: use <repo-name>.<table-name> " % (table))
 
-        query = ''' SELECT column_name, data_type
-                FROM information_schema.columns
-                WHERE table_name = '%s'
-                AND table_schema = '%s'
-            ''' % (tokens[-1], tokens[-2])
-        res = self.execute_sql(query)
+        query = ('SELECT column_name, data_type '
+                 'FROM information_schema.columns '
+                 'WHERE table_name = %s '
+                 'AND table_schema = %s;'
+                 )
+
+        params = (tokens[-1], tokens[-2])
+        res = self.execute_sql(query, params)
 
         if res['row_count'] < 1:
             raise NameError("Invalid reference: '%s'.\n" % (table))

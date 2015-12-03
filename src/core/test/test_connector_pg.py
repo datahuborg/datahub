@@ -246,16 +246,18 @@ class SchemaListCreateDeleteShare(TestCase):
     def test_list_tables(self):
         repo = 'repo'
         list_tables_query = ('SELECT table_name FROM information_schema.tables '
-                            'WHERE table_schema = %s '
-                            'AND table_type = \'BASE TABLE\';')
+                             'WHERE table_schema = %s '
+                             'AND table_type = \'BASE TABLE\';')
         params = (repo,)
 
         # list_tables depends on list_repos, which is being mocked out
-        mock_list_repos = self.create_patch('core.db.backend.pg.PGBackend.list_repos')
+        mock_list_repos = self.create_patch(
+            'core.db.backend.pg.PGBackend.list_repos')
         mock_list_repos.return_value = {'tuples': [[repo]]}
 
         self.backend.list_tables(repo)
-        self.assertEqual(self.mock_execute_sql.call_args[0][0], list_tables_query)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], list_tables_query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
 
@@ -267,10 +269,33 @@ class SchemaListCreateDeleteShare(TestCase):
         params = (repo,)
 
         # list_views depends on list_repos, which is being mocked out
-        mock_list_repos = self.create_patch('core.db.backend.pg.PGBackend.list_repos')
+        mock_list_repos = self.create_patch(
+            'core.db.backend.pg.PGBackend.list_repos')
         mock_list_repos.return_value = {'tuples': [[repo]]}
 
-        self.backend.list_tables(repo)
-        self.assertEqual(self.mock_execute_sql.call_args[0][0], list_views_query)
+        self.backend.list_views(repo)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], list_views_query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
+
+    def test_get_schema(self):
+        # currently not testing the need to specify a repo, since we may
+        # want to enable public tables
+        
+        self.mock_execute_sql.return_value = {'row_count': 1}
+
+        table = 'repo.table'
+        get_schema_query = ('SELECT column_name, data_type '
+                           'FROM information_schema.columns '
+                           'WHERE table_name = %s '
+                           'AND table_schema = %s;'
+                           )
+        params = ('table', 'repo')
+
+        self.backend.get_schema(table)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], get_schema_query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+
