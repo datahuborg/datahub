@@ -282,15 +282,15 @@ class SchemaListCreateDeleteShare(TestCase):
     def test_get_schema(self):
         # currently not testing the need to specify a repo, since we may
         # want to enable public tables
-        
+
         self.mock_execute_sql.return_value = {'row_count': 1}
 
         table = 'repo.table'
         get_schema_query = ('SELECT column_name, data_type '
-                           'FROM information_schema.columns '
-                           'WHERE table_name = %s '
-                           'AND table_schema = %s;'
-                           )
+                            'FROM information_schema.columns '
+                            'WHERE table_name = %s '
+                            'AND table_schema = %s;'
+                            )
         params = ('table', 'repo')
 
         self.backend.get_schema(table)
@@ -299,3 +299,34 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_check_for_injections.call_count, 2)
 
+    def test_create_user_no_create_db(self):
+        create_user_query = ('CREATE ROLE %s WITH LOGIN '
+                             'NOCREATEDB NOCREATEROLE NOCREATEUSER PASSWORD %s')
+
+        username = 'username'
+        password = 'password'
+
+        self.backend.create_user(username, password)
+        params = (username, password)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], create_user_query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, 1)
+        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+
+    def test_create_user_db(self):
+        create_db_query = ('BEGIN; '
+                           'CREATE DATABASE %s; '
+                           'ALTER DATABASE %s OWNER TO %s; '
+                           'COMMIT;')
+        username = 'username'
+
+        self.backend.create_user_database(username)
+        params = (username, username, username)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], create_db_query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, len(params))
+        self.assertEqual(self.mock_check_for_injections.call_count, 1)

@@ -216,20 +216,32 @@ class PGBackend:
         cur.close()
         return result
 
-    def create_user(self, username, password, create_db):
-        query = ''' CREATE ROLE %s WITH LOGIN 
-                NOCREATEDB NOCREATEROLE NOCREATEUSER PASSWORD '%s'
-            ''' % (username, password)
-        self.execute_sql(query)
+    def create_user(self, username, password, create_db=None):
+        self._check_for_injections(username)
+        self._check_for_injections(password)
+
+        query = ('CREATE ROLE %s WITH LOGIN '
+                 'NOCREATEDB NOCREATEROLE NOCREATEUSER PASSWORD %s')
+        params = (AsIs(username), password)
+        self.execute_sql(query, params)
 
         if not create_db:
             return
 
-        query = ''' CREATE DATABASE %s ''' % (username)
-        self.execute_sql(query)
+        self.create_user_database(username)
 
-        query = ''' ALTER DATABASE %s OWNER TO %s ''' % (username, username)
-        return self.execute_sql(query)
+    def create_user_database(self, username):
+        self._check_for_injections(username)
+
+        query = ('BEGIN; '
+                 'CREATE DATABASE %s; '
+                 'ALTER DATABASE %s OWNER TO %s; '
+                 'COMMIT;')
+
+        params = (AsIs(username), AsIs(username), AsIs(username))
+
+        return self.execute_sql(query, params)
+
 
     def remove_user(self, username):
         query = ''' DROP ROLE %s ''' % (username)
