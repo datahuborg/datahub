@@ -71,7 +71,7 @@ urlpatterns = patterns('',
 
     url(r'^delete/(\w+)/(\w+)/card/(\w+)/?$', 'browser.views.card_delete'),
 
-    url(r'^delete/(\w+)/(\w+)/file/([\w\d\-\.]+)/?$', 'browser.views.file_delete'),
+    url(r'^delete/(\w+)/(\w+)/file/([ -~]+)/?$', 'browser.views.file_delete'),
     ### End Delete ####
 
 
@@ -83,8 +83,8 @@ urlpatterns = patterns('',
 
     ### Special File Operations ####
     url(r'^upload/(\w+)/(\w+)/file/?$', 'browser.views.file_upload'),
-    url(r'^import/(\w+)/(\w+)/file/([\w\d\-\.]+)', 'browser.views.file_import'),
-    url(r'^download/(\w+)/(\w+)/file/([\w\d\-\.]+)', 'browser.views.file_download'),
+    url(r'^import/(\w+)/(\w+)/file/([ -~]+)', 'browser.views.file_import'),
+    url(r'^download/(\w+)/(\w+)/file/([ -~]+)', 'browser.views.file_download'),
     ### End Special File Operations ####
 
 
