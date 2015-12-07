@@ -53,7 +53,7 @@ class CreateAndDeleteRepo(TestCase):
         self.client.post('/account/login', login_credentials) 
 
     def tearDown(self):
-        DataHubManager.remove_user_and_database(username=self.username)
+        DataHubManager.remove_user(username=self.username, remove_db=True)
 
     def test_create_repo_resolves_to_create_func(self):
         found = resolve('/create/' + self.username+ '/repo/')

@@ -308,12 +308,26 @@ class SchemaListCreateDeleteShare(TestCase):
 
         self.backend.create_user(username, password)
         params = (username, password)
+        mock_create_user_database = self.create_patch(
+            'core.db.backend.pg.PGBackend.create_user_database')
 
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], create_user_query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_as_is.call_count, 1)
         self.assertEqual(self.mock_check_for_injections.call_count, 2)
+        self.assertFalse(mock_create_user_database.called)
+
+    def test_create_user_calls_create_db(self):
+        username = 'username'
+        password = 'password'
+        mock_create_user_database = self.create_patch(
+            'core.db.backend.pg.PGBackend.create_user_database')
+
+        self.backend.create_user(
+            username=username, password=password, create_db=True)
+        self.assertTrue(mock_create_user_database.called)
+
 
     def test_create_user_db(self):
         create_db_query = ('BEGIN; '
@@ -327,6 +341,41 @@ class SchemaListCreateDeleteShare(TestCase):
 
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], create_db_query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, len(params))
+        self.assertEqual(self.mock_check_for_injections.call_count, 1)
+
+
+    def test_remove_user_no_remove_db(self):
+        query = 'DROP ROLE %s;'
+        username = "username"
+        params = (username,)
+        mock_remove_db = self.create_patch(
+            'core.db.backend.pg.PGBackend.remove_database')
+        self.backend.remove_user(username, remove_db=None)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, len(params))
+        self.assertEqual(self.mock_check_for_injections.call_count, 1)
+        self.assertFalse(mock_remove_db.called)
+
+    def test_remove_user_calls_remove_db(self):
+        username = "username"
+        mock_remove_db = self.create_patch(
+            'core.db.backend.pg.PGBackend.remove_database')
+        self.backend.remove_user(username, remove_db=True)
+        self.assertTrue(mock_remove_db.called)
+
+    def test_remove_database(self):
+        query = 'DROP DATABASE %s;'
+        username = 'username'
+        params = (username,)
+        self.backend.remove_database(username)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_as_is.call_count, len(params))
         self.assertEqual(self.mock_check_for_injections.call_count, 1)

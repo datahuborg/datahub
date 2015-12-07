@@ -161,7 +161,7 @@ class PGBackend:
         query = ('SELECT table_name FROM information_schema.tables '
                  'WHERE table_schema = %s '
                  'AND table_type = \'VIEW\';')
-        
+
         params = (repo,)
         return self.execute_sql(query, params)
 
@@ -216,17 +216,16 @@ class PGBackend:
         cur.close()
         return result
 
-    def create_user(self, username, password, create_db=None):
+    def create_user(self, username, password, create_db=False):
         self._check_for_injections(username)
         self._check_for_injections(password)
 
         query = ('CREATE ROLE %s WITH LOGIN '
                  'NOCREATEDB NOCREATEROLE NOCREATEUSER PASSWORD %s')
         params = (AsIs(username), password)
-        self.execute_sql(query, params)
 
         if not create_db:
-            return
+            return self.execute_sql(query, params)
 
         self.create_user_database(username)
 
@@ -242,20 +241,22 @@ class PGBackend:
 
         return self.execute_sql(query, params)
 
+    def remove_user(self, username, remove_db=False):
+        if remove_db:
+            self.remove_database(username)
 
-    def remove_user(self, username):
-        query = ''' DROP ROLE %s ''' % (username)
-        return self.execute_sql(query)
+        self._check_for_injections(username)
+        query = 'DROP ROLE %s;'
+        params = (AsIs(username),)
+        return self.execute_sql(query, params)
 
-    def remove_user_and_database(self, username):
+    def remove_database(self, username):
         # This is not safe. If a user has shared repos
         # with another user, it will crash.
-        # The method is here primarily for testing purposes.
-        query = ''' DROP DATABASE %s''' % (username)
-        self.execute_sql(query)
-
-        query = ''' DROP ROLE %s''' % (username)
-        return self.execute_sql(query)
+        self._check_for_injections(username)
+        query = 'DROP DATABASE %s;'
+        params = (AsIs(username),)
+        return self.execute_sql(query, params)
 
     def change_password(self, username, password):
         query = ''' ALTER ROLE %s WITH PASSWORD '%s'
