@@ -76,7 +76,7 @@ class SchemaListCreateDeleteShare(TestCase):
                           ]
 
         self.username = "username"
-        self.password = "password"
+        self.password = "p4 sS_W&*^;0Rd$_"
 
         # mock the execute_sql function
         self.mock_execute_sql = self.create_patch(
@@ -190,7 +190,7 @@ class SchemaListCreateDeleteShare(TestCase):
         product = itertools.product(self.good_nouns, self.good_nouns,
                                     privileges)
 
-        # test every combo here. For now, don't test combined priviledges
+        # test every combo here. For now, don't test combined privileges
 
         for repo, receiver, privilege in product:
 
@@ -374,12 +374,89 @@ class SchemaListCreateDeleteShare(TestCase):
 
     def test_remove_database(self):
         query = 'DROP DATABASE %s;'
-        username = 'username'
-        params = (username,)
-        self.backend.remove_database(username)
+        params = (self.username,)
+        self.backend.remove_database(self.username)
 
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_as_is.call_count, len(params))
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
+
+    def test_change_password(self):
+        query = 'ALTER ROLE %s WITH PASSWORD %s;'
+        params = (self.username, self.password)
+        self.backend.change_password(self.username, self.password)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, 1)
+        self.assertEqual(self.mock_check_for_injections.call_count, 1)
+
+    def test_list_collaborators(self):
+        query = 'SELECT unnest(nspacl) FROM pg_namespace WHERE nspname=%s;'
+        repo = 'repo'
+        params = (repo,)
+        self.backend.list_collaborators(repo_base=self.username, repo=repo)
+
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, 0)
+
+    def test_has_base_privilege(self):
+        query = 'SELECT has_database_privilege(%s, %s);'
+        privilege = 'CONNECT'
+        params = (self.username, privilege)
+        self.backend.has_base_privilege(
+            login=self.username, privilege=privilege)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, 0)
+
+    def test_has_repo_privilege(self):
+        query = 'SELECT has_schema_privilege(%s, %s, %s);'
+        repo = 'repo'
+        privilege = 'CONNECT'
+        params = (self.username, repo, privilege)
+        self.backend.has_repo_privilege(
+            login=self.username, repo=repo, privilege=privilege)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, 0)
+
+    def test_has_repo_privilege(self):
+        query = 'SELECT has_table_privilege(%s, %s, %s);'
+        table = 'table'
+        privilege = 'CONNECT'
+        params = (self.username, table, privilege)
+        self.backend.has_table_privilege(
+            login=self.username, table=table, privilege=privilege)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, 0)
+
+    def test_has_column_privilege(self):
+        query = 'SELECT has_column_privilege(%s, %s, %s, %s);'
+        table = 'table'
+        column = 'column'
+        privilege = 'CONNECT'
+        params = (self.username, table, column, privilege)
+
+        self.backend.has_column_privilege(
+            login=self.username, table=table,
+            column=column, privilege=privilege)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, 0)
+

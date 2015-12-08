@@ -55,9 +55,9 @@ class PGBackend:
         '''
 
         invalid_noun_msg = (
-            "Usernames, repo names, and table names may only contain alphanumeric "
-            "characters, hyphens, and underscores, and must not begin or end with "
-            "an a hyphen or underscore."
+            "Usernames, repo names, and table names may only contain "
+            "alphanumeric characters, hyphens, and underscores, and must not "
+            "begin or end with an a hyphen or underscore."
         )
 
         regex = r'^(?![\-\_])[\w\-\_]+(?<![\-\_])$'
@@ -259,35 +259,35 @@ class PGBackend:
         return self.execute_sql(query, params)
 
     def change_password(self, username, password):
-        query = ''' ALTER ROLE %s WITH PASSWORD '%s'
-            ''' % (username, password)
-        return self.execute_sql(query)
+        self._check_for_injections(username)
+        query = 'ALTER ROLE %s WITH PASSWORD %s;'
+        params = (AsIs(username), password)
+        return self.execute_sql(query, params)
 
     def list_collaborators(self, repo_base, repo):
-        query = ''' SELECT unnest(nspacl) FROM
-                pg_namespace WHERE nspname='%s';
-            ''' % (repo)
-        return self.execute_sql(query)
+        query = 'SELECT unnest(nspacl) FROM pg_namespace WHERE nspname=%s;'
+        params = (repo, )
+        return self.execute_sql(query, params)
 
     def has_base_privilege(self, login, privilege):
-        query = ''' SELECT has_database_privilege('%s', '%s')
-            ''' % (login, privilege)
-        return self.execute_sql(query)
+        query = 'SELECT has_database_privilege(%s, %s);'
+        params = (login, privilege)
+        return self.execute_sql(query, params)
 
     def has_repo_privilege(self, login, repo, privilege):
-        query = ''' SELECT has_schema_privilege('%s', '%s', '%s')
-            ''' % (login, repo, privilege)
-        return self.execute_sql(query)
+        query = 'SELECT has_schema_privilege(%s, %s, %s);'
+        params = (login, repo, privilege)
+        return self.execute_sql(query, params)
 
     def has_table_privilege(self, login, table, privilege):
-        query = ''' SELECT has_table_privilege('%s', '%s', '%s')
-            ''' % (login, table, privilege)
-        return self.execute_sql(query)
+        query = 'SELECT has_table_privilege(%s, %s, %s);'
+        params = (login, table, privilege)
+        return self.execute_sql(query, params)
 
     def has_column_privilege(self, login, table, column, privilege):
-        query = ''' SELECT has_column_privilege('%s', '%s', '%s')
-            ''' % (login, table, column, privilege)
-        return self.execute_sql(query)
+        query = 'SELECT has_column_privilege(%s, %s, %s, %s);'
+        params = (login, table, column, privilege)
+        return self.execute_sql(query, params)
 
     def export_table(self, table_name, file_path, file_format='CSV',
                      delimiter=',', header=True):
