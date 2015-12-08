@@ -22,4 +22,5 @@ python-social-auth==0.2.13
 django-crispy-forms==1.5.2
 
 selenium
+factory_boy
 gunicorn==19.3.0
