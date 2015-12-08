@@ -34,7 +34,7 @@ class FunctionalTest(StaticLiveServerTestCase):
 
     def setUp(self):
         if os.environ.get('DATAHUB_DOCKER_TESTING') == 'true':
-            desired_capabilities=DesiredCapabilities.PHANTOMJS
+            desired_capabilities = DesiredCapabilities.PHANTOMJS
             desired_capabilities['acceptSslCerts'] = True
 
             self.browser = webdriver.Remote(
