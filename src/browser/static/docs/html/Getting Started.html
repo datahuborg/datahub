@@ -182,35 +182,42 @@ to <code class="docutils literal"><span class="pre">source</span> <span class="p
 </div>
 <div class="section" id="testing-datahub">
 <h2>Testing DataHub<a class="headerlink" href="#testing-datahub" title="Permalink to this headline">¶</a></h2>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Instructions for running tests on the Vagrant setup are forthcoming.</p>
-</div>
 <div class="section" id="functional-tests">
 <h3>Functional Tests<a class="headerlink" href="#functional-tests" title="Permalink to this headline">¶</a></h3>
-<p>Functional tests are used to test DataHub&#8217;s functionality</p>
-<p>Run them from the <code class="docutils literal"><span class="pre">/src</span></code> directory:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd </span>src
+<p>DataHub uses Selenium and PhantomJS to test functionality from an end user&#8217;s perspective. Both are installed as part of DataHub&#8217;s Vagrant setup.</p>
+<p>You can run the functional tests with:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>vagrant ssh
+<span class="nv">$ </span><span class="nb">cd</span> /vagrant
+<span class="nv">$ </span>sudo sh provisions/docker/run-tests.sh
+<span class="nv">$ </span><span class="nb">cd </span>src
 <span class="nv">$ </span>python manage.py <span class="nb">test </span>functional_tests
 </pre></div>
 </div>
+<p>You can exit the testing container with control-d or via the command <code class="docutils literal"><span class="pre">exit</span></code>.</p>
 </div>
 <div class="section" id="unit-tests">
 <h3>Unit Tests<a class="headerlink" href="#unit-tests" title="Permalink to this headline">¶</a></h3>
 <p>Unit tests are used to test DataHub&#8217;s models and views.</p>
 <p>Run them from the <code class="docutils literal"><span class="pre">/src</span></code> directory:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd </span>src
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>vagrant ssh
+<span class="nv">$ </span><span class="nb">cd</span> /vagrant
+<span class="nv">$ </span>sudo sh provisions/docker/run-tests.sh
+<span class="nv">$ </span><span class="nb">cd </span>src
 <span class="nv">$ </span>python manage.py <span class="nb">test</span>
 </pre></div>
 </div>
 <p>Alternatively, they can be run individually:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd </span>src
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>vagrant ssh
+<span class="nv">$ </span><span class="nb">cd</span> /vagrant
+<span class="nv">$ </span>sudo sh provisions/docker/run-tests.sh
+<span class="nv">$ </span><span class="nb">cd </span>src
 <span class="nv">$ </span>python manage.py <span class="nb">test </span>inventory  <span class="c"># tests models</span>
 <span class="nv">$ </span>python manage.py <span class="nb">test </span>www        <span class="c"># tests home page</span>
 <span class="nv">$ </span>python manage.py <span class="nb">test </span>account    <span class="c"># tests account management views</span>
 <span class="nv">$ </span>python manage.py <span class="nb">test </span>browser    <span class="c"># tests datahub core views</span>
 </pre></div>
 </div>
+<p>You can exit the testing container with control-d or via the command <code class="docutils literal"><span class="pre">exit</span></code>.</p>
 </div>
 </div>
 <div class="section" id="managing-datahub">
@@ -265,7 +272,7 @@ e41f0f5135db        datahuborg/postgres   <span class="s2">&quot;/bin/true&quot;
 </pre></div>
 </div>
 <p>Because the server is containerized, most server commands must be run in a container. Docker commands can be complicated, so several common tasks have been made into scripts under <code class="docutils literal"><span class="pre">provisions/docker</span></code>:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd</span> /datahub
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd</span> /vagrant
 <span class="nv">$ </span>sudo sh provisions/docker/back-up-database.sh
 <span class="nv">$ </span>sudo sh provisions/docker/create-dev-containers.sh
 <span class="nv">$ </span>sudo sh provisions/docker/rebuild-and-collect-static-files.sh

@@ -7,28 +7,31 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-  ('Anant Bhardwaj', 'anantb@csail.mit.edu'),
+    ('Anant Bhardwaj', 'anantb@csail.mit.edu'),
 )
 
 MANAGERS = ADMINS
 
-db_password ='postgres'
-db_host = 'db'
-
 if 'TRAVIS' in os.environ:
-  db_password = ''
-  db_host = 'localhost'
+    DB_HOST = 'localhost'
+    DB_PASSWORD = ''
+else:
+    DB_HOST = 'db'
+    DB_PASSWORD = 'postgres'
 
 DATABASES = {
-  'default': {
-    'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-    'NAME': 'datahub',                      # Or path to database file if using sqlite3.
-    'USER': 'postgres',                      # Not used with sqlite3.
-    'PASSWORD': db_password,             # Not used with sqlite3
-    'HOST': db_host,                        # Change to localhost if not using the Vagrant/Docker setup.
-                                         # Docker adds the db container to /etc/hosts automatically.
-    'PORT': '5432',                      # Set to empty string for default. Not used with sqlite3.
-  }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'datahub',
+        'USER': 'postgres',
+        # Change to localhost if not using the Vagrant/Docker setup.
+        'PASSWORD': DB_PASSWORD,
+        # Docker adds the db container to
+        # /etc/hosts automatically.
+        # Set to empty string for default. Not used with sqlite3.
+        'HOST': DB_HOST,
+        'PORT': '5432',
+    }
 }
 
 
@@ -71,41 +74,43 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-  # Put strings here, like "/home/html/static" or "C:/www/django/static".
-  # Always use forward slashes, even on Windows.
-  # Don't forget to use absolute paths, not relative paths.
+    # Put strings here, like "/home/html/static" or "C:/www/django/static".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
 )
 
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
-  'django.contrib.staticfiles.finders.FileSystemFinder',
-  'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# SECRET_KEY should be unique to each site. Sites should be discouraged from using this default key.
+# SECRET_KEY should be unique to each site. Sites should be discouraged
+# from using this default key.
 try:
-  from secret_key import *
+    from secret_key import *
 except ImportError, e:
-  SECRET_KEY = 'k+)#kqr2pgvqm_6y8hq+tj#p12&amp;p%dz#_exvw2x4@##dyz!or*'
-  print("Warning: Could not find src/config/secret_key.py. Using the default SECRET_KEY for now. Run `src/scripts/generate_secret_key.py` to create a new key.", file=sys.stderr)
+    SECRET_KEY = 'k+)#kqr2pgvqm_6y8hq+tj#p12&amp;p%dz#_exvw2x4@##dyz!or*'
+    print("Warning: Could not find src/config/secret_key.py. Using the default SECRET_KEY for now. Run `src/scripts/generate_secret_key.py` to create a new key.",
+          file=sys.stderr)
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-  'django.template.loaders.filesystem.Loader',
-  'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+    #     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
-  'django.middleware.common.CommonMiddleware',
-  'django.contrib.sessions.middleware.SessionMiddleware',
-  'django.middleware.csrf.CsrfViewMiddleware',
-  'django.contrib.auth.middleware.AuthenticationMiddleware',
-  'django.contrib.messages.middleware.MessageMiddleware',
-  # Uncomment the next line for simple clickjacking protection:
-  # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    # Uncomment the next line for simple clickjacking protection:
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 ROOT_URLCONF = 'browser.urls'
@@ -114,28 +119,28 @@ ROOT_URLCONF = 'browser.urls'
 WSGI_APPLICATION = 'browser.wsgi.application'
 
 TEMPLATE_DIRS = (
-  # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-  # Always use forward slashes, even on Windows.
-  # Don't forget to use absolute paths, not relative paths.
+    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
 )
 
 INSTALLED_APPS = (
-  'django.contrib.contenttypes',
-  'django.contrib.sessions',
-  'django.contrib.sites',
-  'django.contrib.messages',
-  'django.contrib.staticfiles',
-  'account',
-  'console',
-  'browser',
-  'dataq',
-  'sentiment',
-  'datatables',
-  'dbwipes',
-  'inventory',
-  'refiner',
-  'viz2',
-  'www'
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'account',
+    'console',
+    'browser',
+    'dataq',
+    'sentiment',
+    'datatables',
+    'dbwipes',
+    'inventory',
+    'refiner',
+    'viz2',
+    'www'
 )
 
 # A sample logging configuration. The only tangible logging
@@ -144,32 +149,32 @@ INSTALLED_APPS = (
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
 LOGGING = {
-  'version': 1,
-  'disable_existing_loggers': False,
-  'filters': {
-    'require_debug_false': {
-      '()': 'django.utils.log.RequireDebugFalse'
-    }
-  },
-  'handlers': {
-    'mail_admins': {
-      'level': 'ERROR',
-      'filters': ['require_debug_false'],
-      'class': 'django.utils.log.AdminEmailHandler'
-    }
-  },
-  'loggers': {
-    'django.request': {
-      'handlers': ['mail_admins'],
-      'level': 'ERROR',
-      'propagate': True,
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
     },
-  }
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    }
 }
 
 # server_settings
 try:
-  from server_settings import *
-  USE_X_FORWARDED_HOST = True
+    from server_settings import *
+    USE_X_FORWARDED_HOST = True
 except ImportError:
-  pass
+    pass

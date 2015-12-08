@@ -150,24 +150,27 @@ When submitting a pull request, you must include Sphinx documentation. You can a
 Testing DataHub
 ===============
 
-.. note:: Instructions for running tests on the Vagrant setup are forthcoming.
-
 ----------------
 Functional Tests
 ----------------
 
-Functional tests are used to test DataHub's functionality
+DataHub uses Selenium and PhantomJS to test functionality from an end user's perspective. Both are installed as part of DataHub's Vagrant setup.
 
-Run them from the ``/src`` directory:
+You can run the functional tests with:
 
 .. code-block:: bash
 
+    $ vagrant ssh
+    $ cd /vagrant
+    $ sudo sh provisions/docker/run-tests.sh
     $ cd src
     $ python manage.py test functional_tests
 
----------
+You can exit the testing container with control-d or via the command ``exit``.
+
+----------
 Unit Tests
----------
+----------
 
 Unit tests are used to test DataHub's models and views.
 
@@ -175,6 +178,9 @@ Run them from the ``/src`` directory:
 
 .. code-block:: bash
 
+    $ vagrant ssh
+    $ cd /vagrant
+    $ sudo sh provisions/docker/run-tests.sh
     $ cd src
     $ python manage.py test
 
@@ -182,11 +188,16 @@ Alternatively, they can be run individually:
 
 .. code-block:: bash
 
+    $ vagrant ssh
+    $ cd /vagrant
+    $ sudo sh provisions/docker/run-tests.sh
     $ cd src
     $ python manage.py test inventory  # tests models
     $ python manage.py test www        # tests home page
     $ python manage.py test account    # tests account management views
     $ python manage.py test browser    # tests datahub core views
+
+You can exit the testing container with control-d or via the command ``exit``.
 
 ================
 Managing DataHub
@@ -253,7 +264,7 @@ Because the server is containerized, most server commands must be run in a conta
 
 .. code-block:: bash
 
-    $ cd /datahub
+    $ cd /vagrant
     $ sudo sh provisions/docker/back-up-database.sh
     $ sudo sh provisions/docker/create-dev-containers.sh
     $ sudo sh provisions/docker/rebuild-and-collect-static-files.sh
