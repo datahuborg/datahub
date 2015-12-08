@@ -12,35 +12,24 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-# Declare some variables
-DB_PASSWORD, DB_HOST = None, None
-
-if 'TRAVIS' in os.environ:  # travis setup
+if 'TRAVIS' in os.environ:
     DB_HOST = 'localhost'
     DB_PASSWORD = ''
-elif os.environ.get('USER') == 'vagrant':  # vagrant setup
-    print('settings thinks user is vagrant')
+else:
     DB_HOST = 'db'
     DB_PASSWORD = 'postgres'
-else:  # local machine setup. edit as necessary
-    print('settings thinks user is local machine')
-    DB_HOST = 'localhost'
-    DB_PASSWORD = 'postgres'
-
 
 DATABASES = {
     'default': {
-        # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        # Or path to database file if using sqlite3.
         'NAME': 'datahub',
-        'USER': 'postgres',                      # Not used with sqlite3.
-        'PASSWORD': DB_PASSWORD,             # Not used with sqlite3
+        'USER': 'postgres',
         # Change to localhost if not using the Vagrant/Docker setup.
-        'HOST': DB_HOST,
+        'PASSWORD': DB_PASSWORD,
         # Docker adds the db container to
         # /etc/hosts automatically.
         # Set to empty string for default. Not used with sqlite3.
+        'HOST': DB_HOST,
         'PORT': '5432',
     }
 }

@@ -19,8 +19,8 @@ class FunctionalTest(StaticLiveServerTestCase):
                 cls.server_url = 'http://' + arg.split('=')[1]
                 return
 
-            # if testing in vagrant + docker, use the docker link
-            if os.environ.get('datahub_docker_testing') == 'true':
+            if os.environ.get('DATAHUB_DOCKER_TESTING') == 'true':
+                # web is the name of the nginx Docker container.
                 cls.server_url = 'http://web'
                 return
 
@@ -33,12 +33,12 @@ class FunctionalTest(StaticLiveServerTestCase):
             super(FunctionalTest, cls).tearDownClass()
 
     def setUp(self):
-        # if testing in vagrant + docker, use the phantomjs docker container
-        if os.environ.get('datahub_docker_testing') == 'true':
+        if os.environ.get('DATAHUB_DOCKER_TESTING') == 'true':
             desired_capabilities=DesiredCapabilities.PHANTOMJS
             desired_capabilities['acceptSslCerts'] = True
 
             self.browser = webdriver.Remote(
+                # phantomjs is the name of the phantomjs Docker container.
                 command_executor='http://phantomjs:8910',
                 desired_capabilities=DesiredCapabilities.PHANTOMJS)
         else:
