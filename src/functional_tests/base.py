@@ -25,7 +25,7 @@ class FunctionalTest(StaticLiveServerTestCase):
             super(FunctionalTest, cls).tearDownClass()
 
     def setUp(self):
-        self.browser = webdriver.Firefox()
+        self.browser = webdriver.PhantomJS()
         self.browser.implicitly_wait(3)
 
         # default username and password for loggin in a user manually
@@ -36,40 +36,40 @@ class FunctionalTest(StaticLiveServerTestCase):
     def tearDown(self):
         self.browser.quit()
 
-    def test_external_links(self):
-        # supress warnings for testing external links
-        # Particularly, because local testing will give unverified certs errors
-        # print('\n\n---- TESTING EXTERNAL LINKS ----\n')
-        # print('--THIS MAKE TAKE A FEW SECONDS--\n\n')
+    # def test_external_links(self):
+    #     # supress warnings for testing external links
+    #     # Particularly, because local testing will give unverified certs errors
+    #     # print('\n\n---- TESTING EXTERNAL LINKS ----\n')
+    #     # print('--THIS MAKE TAKE A FEW SECONDS--\n\n')
 
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            self._test_external_links()
+    #     with warnings.catch_warnings():
+    #         warnings.simplefilter("ignore")
+    #         self._test_external_links()
 
-    def _test_external_links(self):
-        # Justin gets a list of external links
-        links = self.browser.find_elements_by_xpath(
-            "//a[(starts-with(@href, 'http'))]")
-        links = map(lambda x: x.get_attribute('href'), links)
+    # def _test_external_links(self):
+    #     # Justin gets a list of external links
+    #     links = self.browser.find_elements_by_xpath(
+    #         "//a[(starts-with(@href, 'http'))]")
+    #     links = map(lambda x: x.get_attribute('href'), links)
 
-        # he prepares to make note of which tests fail
-        failing_links = []
+    #     # he prepares to make note of which tests fail
+    #     failing_links = []
 
-        # He tries each of them, to make sure that they work
-        for link in links:
-            try:
-                r = requests.get(link, verify=False)
-                if r.status_code != (200 or 302):
-                    failing_link = {'link': link, 'reason': r.status_code}
-                    failing_links.append(failing_link)
-            except:
-                failing_link = {'link': link, 'reason': 'exception'}
-                failing_links.append(failing_link)
+    #     # He tries each of them, to make sure that they work
+    #     for link in links:
+    #         try:
+    #             r = requests.get(link, verify=False)
+    #             if r.status_code != (200 or 302):
+    #                 failing_link = {'link': link, 'reason': r.status_code}
+    #                 failing_links.append(failing_link)
+    #         except:
+    #             failing_link = {'link': link, 'reason': 'exception'}
+    #             failing_links.append(failing_link)
 
-        # If there are links that failed, the test fails
-        if len(failing_links) > 0:
-            print("Some links on the did not check out")
-            self.fail(failing_links)
+    #     # If there are links that failed, the test fails
+    #     if len(failing_links) > 0:
+    #         print("Some links on the did not check out")
+    #         self.fail(failing_links)
 
     def sign_up_manually(self):
         self.browser.get(self.server_url + '/account/register')
