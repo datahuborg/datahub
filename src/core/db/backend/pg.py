@@ -232,12 +232,16 @@ class PGBackend:
     def create_user_database(self, username):
         self._check_for_injections(username)
 
-        query = ('BEGIN; '
-                 'CREATE DATABASE %s; '
-                 'ALTER DATABASE %s OWNER TO %s; '
-                 'COMMIT;')
+        # lines need to be executed seperately because
+        # "CREATE DATABASE cannot be executed from a 
+        # function or multi-command string"
 
-        params = (AsIs(username), AsIs(username), AsIs(username))
+        query = ('CREATE DATABASE %s; ')
+        params = (AsIs(username),)
+        self.execute_sql(query, params)
+
+        query = ('ALTER DATABASE %s OWNER TO %s; ')
+        params = (AsIs(username), AsIs(username))
 
         return self.execute_sql(query, params)
 

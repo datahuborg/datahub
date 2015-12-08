@@ -328,23 +328,25 @@ class SchemaListCreateDeleteShare(TestCase):
             username=username, password=password, create_db=True)
         self.assertTrue(mock_create_user_database.called)
 
-
     def test_create_user_db(self):
-        create_db_query = ('BEGIN; '
-                           'CREATE DATABASE %s; '
-                           'ALTER DATABASE %s OWNER TO %s; '
-                           'COMMIT;')
+        create_db_query_1 = 'CREATE DATABASE %s; '
+        create_db_query_2 = 'ALTER DATABASE %s OWNER TO %s; '
         username = 'username'
 
         self.backend.create_user_database(username)
-        params = (username, username, username)
+        params_1 = (username,)
+        params_2 = (username, username)
 
-        self.assertEqual(
-            self.mock_execute_sql.call_args[0][0], create_db_query)
-        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
-        self.assertEqual(self.mock_as_is.call_count, len(params))
+        call_args_1 = self.mock_execute_sql.call_args_list[0][0]
+        self.assertEqual(call_args_1[0], create_db_query_1)
+        self.assertEqual(call_args_1[1], params_1)
+
+        call_args_2 = self.mock_execute_sql.call_args_list[1][0]
+        self.assertEqual(call_args_2[0], create_db_query_2)
+        self.assertEqual(call_args_2[1], params_2)
+
+        self.assertEqual(self.mock_as_is.call_count, len(params_1 + params_2))
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
-
 
     def test_remove_user_no_remove_db(self):
         query = 'DROP ROLE %s;'
