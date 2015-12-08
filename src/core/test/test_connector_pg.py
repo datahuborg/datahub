@@ -1,14 +1,10 @@
-from mock import patch, Mock
-import hashlib
+from mock import patch
 import itertools
 
 from django.test import TestCase
-from django.test import Client
 
-from inventory.models import User
 
 from core.db.backend.pg import PGBackend
-from core.db.manager import DataHubManager
 
 
 class HelperMethods(TestCase):
@@ -27,7 +23,10 @@ class HelperMethods(TestCase):
         self.username = "username"
         self.password = "password"
 
-        # self.mock_psychopg = self.create_patch('core.db.backend.pg.psycopg2')
+        # mock open connection, or else it will try to create a real db connection
+        self.mock_psychopg = self.create_patch('core.db.backend.pg.psycopg2')
+
+        # open mocked connection
         self.backend = PGBackend(self.username,
                                  self.password,
                                  repo_base=self.username)
@@ -39,7 +38,7 @@ class HelperMethods(TestCase):
         self.addCleanup(patcher.stop)
         return thing
 
-    def check_for_injections(self):
+    def test_check_for_injections(self):
         ''' tests  validation against some sql injection attacks'''
 
         for noun in self.bad_nouns:
@@ -87,6 +86,9 @@ class SchemaListCreateDeleteShare(TestCase):
         # mock the is_valid_noun_name, which checks for injection attacks
         self.mock_check_for_injections = self.create_patch(
             'core.db.backend.pg.PGBackend._check_for_injections')
+
+        # mock open connection, or else it will try to create a real db connection
+        self.mock_open_connection = self.create_patch('core.db.backend.pg.PGBackend.__open_connection__')
 
         # mock the psycopg2.extensions.AsIs, which many of the pg.py methods use
         # Its return value (side effect) is the call value
