@@ -460,3 +460,68 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_as_is.call_count, 0)
 
+    def test_export_table_with_header(self):
+        query = 'COPY %s TO %s WITH %s %s DELIMITER %s;'
+        table_name = 'table_name'
+        file_path = 'file_path'
+        file_format = 'file_format'
+        delimiter = ','
+        header = True
+
+        params = (table_name, file_path, file_format, 'HEADER', delimiter)
+        self.backend.export_table(table_name, file_path,
+                                  file_format, delimiter, header)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, 3)
+        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+
+    def test_export_table_with_no_header(self):
+        table_name = 'table_name'
+        file_path = 'file_path'
+        file_format = 'file_format'
+        delimiter = ','
+        header = False
+
+        params = (table_name, file_path, file_format, '', delimiter)
+        self.backend.export_table(table_name, file_path,
+                                  file_format, delimiter, header)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][1], params)
+
+    def test_export_query_with_header(self):
+        query = 'COPY (%s) TO %s WITH %s %s DELIMITER %s;'
+
+        passed_query = 'myquery'
+        file_path = 'file_path'
+        file_format = 'CSV'
+        delimiter = ','
+        header = True
+
+        params = (passed_query, file_path, file_format, 'HEADER', delimiter)
+        self.backend.export_query(passed_query, file_path,
+                                 file_format, delimiter, header)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, 3)
+        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+
+    def test_export_query_with_no_header(self):
+        query = 'COPY (%s) TO %s WITH %s %s DELIMITER %s;'
+
+        passed_query = 'myquery'
+        file_path = 'file_path'
+        file_format = 'CSV'
+        delimiter = ','
+        header = False
+
+        params = (passed_query, file_path, file_format, '', delimiter)
+        self.backend.export_query(passed_query, file_path,
+                                 file_format, delimiter, header)
+
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)

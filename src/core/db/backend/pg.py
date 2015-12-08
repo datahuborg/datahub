@@ -292,21 +292,39 @@ class PGBackend:
     def export_table(self, table_name, file_path, file_format='CSV',
                      delimiter=',', header=True):
         header_option = 'HEADER' if header else ''
-        return self.execute_sql(
-            ''' COPY %s TO '%s'
-            WITH %s %s DELIMITER '%s';
-        ''' % (table_name, file_path, file_format, header_option, delimiter))
+
+        self._check_for_injections(table_name)
+        self._check_for_injections(file_format)
+
+        query = 'COPY %s TO %s WITH %s %s DELIMITER %s;'
+        params = (AsIs(table_name), file_path,
+                  AsIs(file_format), AsIs(header_option), delimiter)
+
+        return self.execute_sql(query, params)
 
     def export_query(self, query, file_path, file_format='CSV',
                      delimiter=',', header=True):
+        # warning: this method is inherently unsafe, since there's no way to
+        # properly escape the query string! I've kept in in here because
+        # a) I'm not sure if anything relies on it
+        # b) This is run from the user's database account. The user is therefore
+        # only able to steal/mess up their own data.
+        # That said, I'd really be happier if it could be childproofed somehow.
+
         header_option = 'HEADER' if header else ''
-        return self.execute_sql(
-            ''' COPY (%s) TO '%s'
-            WITH %s %s DELIMITER '%s';
-        ''' % (query, file_path, file_format, header_option, delimiter))
+
+        self._check_for_injections(file_format)
+        self._check_for_injections(header_option)
+
+        meta_query = 'COPY (%s) TO %s WITH %s %s DELIMITER %s;'
+        params = (AsIs(query), file_path, AsIs(file_format),
+                  AsIs(header_option), delimiter)
+
+        return self.execute_sql(meta_query, params)
 
     def import_file(self, table_name, file_path, file_format='CSV',
-                    delimiter=',', header=True, encoding='ISO-8859-1', quote_character='"'):
+                    delimiter=',', header=True, encoding='ISO-8859-1',
+                    quote_character='"'):
         try:
             header_option = 'HEADER' if header else ''
             if quote_character == "'":
