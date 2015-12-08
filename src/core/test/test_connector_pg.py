@@ -308,7 +308,7 @@ class SchemaListCreateDeleteShare(TestCase):
         username = 'username'
         password = 'password'
 
-        self.backend.create_user(username, password)
+        self.backend.create_user(username, password, create_db=False)
         params = (username, password)
         mock_create_user_database = self.create_patch(
             'core.db.backend.pg.PGBackend.create_user_database')
@@ -317,7 +317,7 @@ class SchemaListCreateDeleteShare(TestCase):
             self.mock_execute_sql.call_args[0][0], create_user_query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_as_is.call_count, 1)
-        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+        self.assertEqual(self.mock_check_for_injections.call_count, 1)
         self.assertFalse(mock_create_user_database.called)
 
     def test_create_user_calls_create_db(self):

@@ -212,40 +212,36 @@ class PGBackend:
             result['fields'] = [
                 {'name': col[0], 'type': col[1]} for col in cur.description]
 
-        tokens = query.strip().split(' ', 2)
+        query.strip().split(' ', 2)
         cur.close()
         return result
 
-    def create_user(self, username, password, create_db=False):
+    def create_user(self, username, password, create_db=True):
         self._check_for_injections(username)
-        self._check_for_injections(password)
 
         query = ('CREATE ROLE %s WITH LOGIN '
                  'NOCREATEDB NOCREATEROLE NOCREATEUSER PASSWORD %s')
         params = (AsIs(username), password)
+        self.execute_sql(query, params)
 
-        if not create_db:
-            return self.execute_sql(query, params)
-
-        self.create_user_database(username)
+        if create_db:
+            return self.create_user_database(username)
 
     def create_user_database(self, username):
-        self._check_for_injections(username)
-
         # lines need to be executed seperately because
         # "CREATE DATABASE cannot be executed from a 
         # function or multi-command string"
+        self._check_for_injections(username)
 
-        query = ('CREATE DATABASE %s; ')
+        query = 'CREATE DATABASE %s; '
         params = (AsIs(username),)
         self.execute_sql(query, params)
 
-        query = ('ALTER DATABASE %s OWNER TO %s; ')
+        query = 'ALTER DATABASE %s OWNER TO %s; '
         params = (AsIs(username), AsIs(username))
-
         return self.execute_sql(query, params)
 
-    def remove_user(self, username, remove_db=False):
+    def remove_user(self, username, remove_db=True):
         if remove_db:
             self.remove_database(username)
 

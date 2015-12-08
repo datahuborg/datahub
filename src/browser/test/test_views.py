@@ -9,6 +9,7 @@ from inventory.models import User
 from browser.views import home
 from browser.views import repo_create
 
+
 class BrowserPagesNotRequiringAuthentication(TestCase):
     def setUp(self):
         self.client = Client(enforce_csrf_checks=False)
@@ -42,11 +43,11 @@ class CreateAndDeleteRepo(TestCase):
         self.password = "password"
         self.hashed_password = hashlib.sha1(self.password).hexdigest()
         DataHubManager.create_user(username=self.username, password=self.hashed_password)
-        
+
         user = User(username=self.username, email="noreply@mit.edu", 
             password=self.hashed_password)
         user.save()
-       
+
         # log the user in
         login_credentials = {'login_id': self.username, 
         'login_password': self.password}
@@ -65,7 +66,6 @@ class CreateAndDeleteRepo(TestCase):
 
         response = self.client.get('/create/' + self.username + '/repo', follow=True)
         self.assertTemplateUsed(response, 'repo-create.html')
-
 
     def test_create_repo_creates_a_repo(self):
         # create the new repo

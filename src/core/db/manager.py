@@ -93,7 +93,7 @@ class DataHubManager:
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
-        return superuser_con.remove_user(username=username)
+        return superuser_con.remove_user(username=username, remove_db=remove_db)
 
     @staticmethod
     def change_password(username, password):
