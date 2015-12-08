@@ -42,7 +42,7 @@ account_processor = AccountService.Processor(handler)
 
 def home(request):
     try:
-        login = get_login(request)
+        login = request.user.username
         if login:
             return HttpResponseRedirect('/browse/%s' % (login))
         else:
@@ -492,7 +492,6 @@ def table(request, repo_base, repo, table):
         if end_page > total_pages:
             end_page = total_pages
 
-        print "-------------"
         res = manager.execute_sql(
             query='SELECT * from %s LIMIT %s OFFSET %s'
             % (dh_table_name, limit, (current_page - 1) * limit))
@@ -558,14 +557,14 @@ def table_export(request, repo_base, repo, table_name):
             content_type="application/json")
 
 
-@dh_login_required
+@login_required
 def table_delete(request, repo_base, repo, table_name):
     try:
-        login = get_login(request)
+        username = request.user.username
         dh_table_name = '%s.%s.%s' % (repo_base, repo, table_name)
 
         res = DataHubManager.has_table_privilege(
-            login, repo_base, dh_table_name, 'DELETE')
+            username, repo_base, dh_table_name, 'DELETE')
 
         if not (res and res['tuples'][0][0]):
             raise Exception('Access denied. Missing required privileges.')
@@ -723,12 +722,12 @@ Query
 '''
 
 
-@dh_login_required
+@login_required
 def query(request, repo_base, repo):
     try:
-        login = get_login(request)
+        username = request.user.username
         data = {
-            'login': get_login(request),
+            'login': username,
             'repo_base': repo_base,
             'repo': repo,
             'select_query': False,
@@ -852,10 +851,10 @@ Cards
 '''
 
 
-@dh_login_required
+@login_required
 def card(request, repo_base, repo, card_name):
     try:
-        login = get_login(request)
+        username = request.user.username
         card = Card.objects.get(repo_base=repo_base,
                                 repo_name=repo, card_name=card_name)
         query = card.query
@@ -908,7 +907,7 @@ def card(request, repo_base, repo, card_name):
             pass
 
         data = {
-            'login': get_login(request),
+            'login': username,
             'repo_base': repo_base,
             'repo': repo,
             'card_name': card_name,
@@ -932,7 +931,8 @@ def card(request, repo_base, repo, card_name):
             content_type="application/json")
 
 
-@dh_login_required
+# Test if this cares who calls it
+@login_required
 def card_create(request, repo_base, repo):
     try:
         card_name = request.POST['card-name']
@@ -951,15 +951,15 @@ def card_create(request, repo_base, repo):
             content_type="application/json")
 
 
-@dh_login_required
+@login_required
 def card_export(request, repo_base, repo, card_name):
     try:
-        login = get_login(request)
+        username = request.user.username
         card = Card.objects.get(repo_base=repo_base,
                                 repo_name=repo, card_name=card_name)
         query = card.query
         res = DataHubManager.has_repo_privilege(
-            login, repo_base, repo, 'CREATE')
+            username, repo_base, repo, 'CREATE')
 
         if not (res and res['tuples'][0][0]):
             raise Exception('Access denied. Missing required privileges.')
@@ -980,12 +980,12 @@ def card_export(request, repo_base, repo, card_name):
             content_type="application/json")
 
 
-@dh_login_required
+@login_required
 def card_delete(request, repo_base, repo, card_name):
     try:
-        login = get_login(request)
+        username = request.user.username
         res = DataHubManager.has_repo_privilege(
-            login, repo_base, repo, 'CREATE')
+            username, repo_base, repo, 'CREATE')
 
         if not (res and res['tuples'][0][0]):
             raise Exception('Access denied. Missing required privileges.')
@@ -1006,11 +1006,11 @@ def card_delete(request, repo_base, repo, card_name):
 Developer Apps
 '''
 
-
-@dh_login_required
+# Foreign keys, migration of old users to new
+@login_required
 def apps(request):
-    login = get_login(request)
-    user = DataHubLegacyUser.objects.get(username=login)
+    username = request.user.username
+    user = DataHubLegacyUser.objects.get(username=username)
     user_apps = App.objects.filter(user=user)
     apps = []
     for app in user_apps:
@@ -1026,13 +1026,13 @@ def apps(request):
     return render_to_response('apps.html', c)
 
 
-@dh_login_required
+@login_required
 def app_register(request):
-    login = get_login(request)
+    username = request.user.username
 
     if request.method == "POST":
         try:
-            user = DataHubLegacyUser.objects.get(username=login)
+            user = DataHubLegacyUser.objects.get(username=username)
             app_id = request.POST["app-id"].lower()
             app_name = request.POST["app-name"]
             app_token = str(uuid.uuid4())
@@ -1052,21 +1052,21 @@ def app_register(request):
             return HttpResponseRedirect('/developer/apps')
         except Exception, e:
             c = {
-                'login': login,
+                'login': username,
                 'errors': [str(e)]}
             c.update(csrf(request))
             return render_to_response('app-create.html', c)
     else:
-        c = {'login': login}
+        c = {'login': username}
         c.update(csrf(request))
         return render_to_response('app-create.html', c)
 
 
-@dh_login_required
+@login_required
 def app_remove(request, app_id):
     try:
-        login = get_login(request)
-        user = DataHubLegacyUser.objects.get(username=login)
+        username = request.user.username
+        user = DataHubLegacyUser.objects.get(username=username)
         app = App.objects.get(user=user, app_id=app_id)
         app.delete()
 
@@ -1079,9 +1079,9 @@ def app_remove(request, app_id):
         return render_to_response('apps.html', c)
 
 
-@dh_login_required
+@login_required
 def app_allow_access(request, app_id, repo_name):
-    login = get_login(request)
+    username = request.user.username
     try:
         app = None
         try:
@@ -1102,19 +1102,19 @@ def app_allow_access(request, app_id, repo_name):
 
             if access_val == 'allow':
                 account_grant_permission(
-                    username=login,
+                    username=username,
                     repo_name=repo_name,
                     app_id=app_id,
                     app_token=app.app_token)
 
             if redirect_url:
                 redirect_url = redirect_url + \
-                    urllib.unquote_plus('?auth_user=%s' % (login))
+                    urllib.unquote_plus('?auth_user=%s' % (username))
                 return HttpResponseRedirect(redirect_url)
             else:
                 if access_val == 'allow':
                     return HttpResponseRedirect(
-                        '/settings/%s/%s' % (login, repo_name))
+                        '/settings/%s/%s' % (username, repo_name))
                 else:
                     res = {
                         'msg_title': "Access Request",
@@ -1124,7 +1124,7 @@ def app_allow_access(request, app_id, repo_name):
                     return render_to_response('confirmation.html', res)
         else:
             res = {
-                'login': login,
+                'login': username,
                 'repo_name': repo_name,
                 'app_id': app_id,
                 'app_name': app.app_name}
