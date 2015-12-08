@@ -40,7 +40,10 @@ class CreateAndDeleteRepo(TestCase):
 
         # create the user
         self.username = "username"
-        self.password = "password"
+
+        # password is intentionally complicated to test db integration edge 
+        # cases
+        self.password = "p4 sS_W&*^;0Rd$_"
         self.hashed_password = hashlib.sha1(self.password).hexdigest()
         DataHubManager.create_user(username=self.username, password=self.hashed_password)
 
