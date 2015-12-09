@@ -254,7 +254,8 @@ class SchemaListCreateDeleteShare(TestCase):
 
     def test_list_tables(self):
         repo = 'repo'
-        list_tables_query = ('SELECT table_name FROM information_schema.tables '
+        list_tables_query = ('SELECT table_name FROM '
+                             'information_schema.tables '
                              'WHERE table_schema = %s '
                              'AND table_type = \'BASE TABLE\';')
         params = (repo,)
@@ -581,6 +582,7 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
 
     def test_import_file_w_dbtruck(self):
-        # DBTruck is not tested for safety/security... At all. Th method does so little
+        # DBTruck is not tested for safety/security... At all.
+        # The method does so little
         # that it doesn't even make much sense to test it.
         pass
