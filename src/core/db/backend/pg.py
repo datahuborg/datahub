@@ -305,13 +305,15 @@ class PGBackend:
     def export_query(self, query, file_path, file_format='CSV',
                      delimiter=',', header=True):
         # warning: this method is inherently unsafe, since there's no way to
-        # properly escape the query string! I've kept in in here because
-        # a) I'm not sure if anything relies on it
-        # b) This is run from the user's database account. The user is therefore
-        # only able to steal/mess up their own data.
-        # That said, I'd really be happier if it could be childproofed somehow.
+        # properly escape the query string, and it runs as root!
+
+        # I've made it safer by stripping out everything after the semicolon
+        # in the passed query.
+        # manager.py should also check to ensure the user has repo/folder access
+        # RogerTangos 2015-012-09
 
         header_option = 'HEADER' if header else ''
+        query = query.split(';')[0] + ';'
 
         self._check_for_injections(file_format)
         self._check_for_injections(header_option)
@@ -325,29 +327,23 @@ class PGBackend:
     def import_file(self, table_name, file_path, file_format='CSV',
                     delimiter=',', header=True, encoding='ISO-8859-1',
                     quote_character='"'):
+
+        header_option = 'HEADER' if header else ''
+        self._check_for_injections(table_name)
+        self._check_for_injections(file_format)
+        self._check_for_injections(header_option)
+
+        query = 'COPY %s FROM %s WITH %s %s DELIMITER %s ENCODING %s QUOTE %s;'
+        params = (AsIs(table_name), file_path, AsIs(file_format),
+                  AsIs(header_option), delimiter, encoding, quote_character)
         try:
-            header_option = 'HEADER' if header else ''
-            if quote_character == "'":
-                quote_character = "''"
-
-            escape = ''
-            if delimiter.startswith('\\'):
-                escape = 'E'
-
-            return self.execute_sql(
-                ''' COPY %s FROM '%s'
-              WITH %s %s DELIMITER %s'%s' ENCODING '%s' QUOTE '%s';
-          ''' % (table_name, file_path, file_format,
-                 header_option, escape, delimiter, encoding, quote_character))
-        except Exception, e:
-            self.execute_sql(
-                ''' DROP TABLE IF EXISTS %s;
-          ''' % (table_name))
+            self.execute_sql(query, params)
+        except Exception,e:
+            self.execute_sql('DROP TABLE IF EXISTS %s', (AsIs(table_name),))
             raise ImportError(e)
 
-            """
-      Try importing using dbtruck.
-      """
+            # Try importing using dbtruck. Was never enabled by anant.
+            # RogerTangos 2015-12-09
             # return self.import_file_w_dbtruck(table_name, file_path)
 
     def import_file_w_dbtruck(self, table_name, file_path):

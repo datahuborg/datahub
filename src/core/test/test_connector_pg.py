@@ -495,7 +495,7 @@ class SchemaListCreateDeleteShare(TestCase):
     def test_export_query_with_header(self):
         query = 'COPY (%s) TO %s WITH %s %s DELIMITER %s;'
 
-        passed_query = 'myquery'
+        passed_query = 'myquery;'
         file_path = 'file_path'
         file_format = 'CSV'
         delimiter = ','
@@ -514,7 +514,7 @@ class SchemaListCreateDeleteShare(TestCase):
     def test_export_query_with_no_header(self):
         query = 'COPY (%s) TO %s WITH %s %s DELIMITER %s;'
 
-        passed_query = 'myquery'
+        passed_query = 'myquery;'
         file_path = 'file_path'
         file_format = 'CSV'
         delimiter = ','
@@ -525,3 +525,57 @@ class SchemaListCreateDeleteShare(TestCase):
                                  file_format, delimiter, header)
 
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+
+    def test_export_query_removes_text_after_first_semicolon(self):
+        passed_query = ' text before semicolon; text after; '
+        file_path = 'file_path'
+        file_format = 'CSV'
+        delimiter = ','
+        header = False
+
+        passed_query_cleaned = ' text before semicolon;'
+        params = (passed_query_cleaned, file_path, file_format, '', delimiter)
+        self.backend.export_query(passed_query, file_path,
+                                  file_format, delimiter, header)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+
+    def test_import_file_with_header(self):
+        query = 'COPY %s FROM %s WITH %s %s DELIMITER %s ENCODING %s QUOTE %s;'
+        table_name = 'table_name'
+        file_path = 'file_path'
+        file_format = 'file_format'
+        delimiter = ','
+        header = True
+        encoding = 'ISO-8859-1'
+        quote_character = '"'
+
+        params = (table_name, file_path, file_format,
+                  'HEADER', delimiter, encoding, quote_character)
+        self.backend.import_file(table_name, file_path, file_format, delimiter,
+                                 header, encoding, quote_character)
+
+        self.assertEqual(self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, 3)
+        self.assertEqual(self.mock_check_for_injections. call_count, 3)
+
+    def test_import_table_with_no_header(self):
+        query = 'COPY %s FROM %s WITH %s %s DELIMITER %s ENCODING %s QUOTE %s;'
+        table_name = 'table_name'
+        file_path = 'file_path'
+        file_format = 'file_format'
+        delimiter = ','
+        header = False
+        encoding = 'ISO-8859-1'
+        quote_character = '"'
+
+        params = (table_name, file_path, file_format,
+                  '', delimiter, encoding, quote_character)
+        self.backend.import_file(table_name, file_path, file_format, delimiter,
+                                 header, encoding, quote_character)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+
+    def test_import_file_w_dbtruck(self):
+        # DBTruck is not tested for safety/security... At all. Th method does so little
+        # that it doesn't even make much sense to test it.
+        pass
