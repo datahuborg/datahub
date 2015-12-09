@@ -229,7 +229,7 @@ class PGBackend:
 
     def create_user_database(self, username):
         # lines need to be executed seperately because
-        # "CREATE DATABASE cannot be executed from a 
+        # "CREATE DATABASE cannot be executed from a
         # function or multi-command string"
         self._check_for_injections(username)
 
@@ -347,8 +347,10 @@ class PGBackend:
             # return self.import_file_w_dbtruck(table_name, file_path)
 
     def import_file_w_dbtruck(self, table_name, file_path):
+        # dbtruck is not tested for safety. At all. It's currently disabled
+        # in the project RogerTangos 2015-12-09
         from dbtruck.dbtruck import import_datafiles
-        from dbtruck.util import get_logger
+        # from dbtruck.util import get_logger
         from dbtruck.exporters.pg import PGMethods
 
         dbsettings = {
