@@ -23,7 +23,8 @@ class HelperMethods(TestCase):
         self.username = "username"
         self.password = "password"
 
-        # mock open connection, or else it will try to create a real db connection
+        # mock open connection,
+        # or else it will try to create a real db connection
         self.mock_psychopg = self.create_patch('core.db.backend.pg.psycopg2')
 
         # open mocked connection
@@ -91,11 +92,12 @@ class SchemaListCreateDeleteShare(TestCase):
         self.mock_check_for_injections = self.create_patch(
             'core.db.backend.pg.PGBackend._check_for_injections')
 
-        # mock open connection, or else it will try to create a real db connection
+        # mock open connection, or else it will try to
+        # create a real db connection
         self.mock_open_connection = self.create_patch(
             'core.db.backend.pg.PGBackend.__open_connection__')
 
-        # mock the psycopg2.extensions.AsIs, which many of the pg.py methods use
+        # mock the psycopg2.extensions.AsIs - many of the pg.py methods use it
         # Its return value (side effect) is the call value
         self.mock_as_is = self.create_patch('core.db.backend.pg.AsIs')
         self.mock_as_is.side_effect = lambda x: x
@@ -308,7 +310,8 @@ class SchemaListCreateDeleteShare(TestCase):
 
     def test_create_user_no_create_db(self):
         create_user_query = ('CREATE ROLE %s WITH LOGIN '
-                             'NOCREATEDB NOCREATEROLE NOCREATEUSER PASSWORD %s')
+                             'NOCREATEDB NOCREATEROLE NOCREATEUSER '
+                             'PASSWORD %s')
 
         username = 'username'
         password = 'password'
@@ -404,7 +407,6 @@ class SchemaListCreateDeleteShare(TestCase):
         repo = 'repo'
         params = (repo,)
         self.backend.list_collaborators(repo_base=self.username, repo=repo)
-
 
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], query)
@@ -508,7 +510,7 @@ class SchemaListCreateDeleteShare(TestCase):
 
         params = (passed_query, file_path, file_format, 'HEADER', delimiter)
         self.backend.export_query(passed_query, file_path,
-                                 file_format, delimiter, header)
+                                  file_format, delimiter, header)
 
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], query)
@@ -517,8 +519,6 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_check_for_injections.call_count, 2)
 
     def test_export_query_with_no_header(self):
-        query = 'COPY (%s) TO %s WITH %s %s DELIMITER %s;'
-
         passed_query = 'myquery'
         file_path = 'file_path'
         file_format = 'CSV'
@@ -527,7 +527,7 @@ class SchemaListCreateDeleteShare(TestCase):
 
         params = (passed_query, file_path, file_format, '', delimiter)
         self.backend.export_query(passed_query, file_path,
-                                 file_format, delimiter, header)
+                                  file_format, delimiter, header)
 
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
 

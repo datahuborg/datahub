@@ -69,7 +69,7 @@ class DataHubManager:
             repo=repo,
             username=username,
             privileges=privileges
-            )
+        )
 
     def delete_collaborator(self, repo, username):
         return self.user_con.delete_collaborator(repo=repo, username=username)
@@ -93,20 +93,23 @@ class DataHubManager:
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
-        return superuser_con.remove_user(username=username, remove_db=remove_db)
+        return superuser_con.remove_user(username=username,
+                                         remove_db=remove_db)
 
     @staticmethod
     def change_password(username, password):
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
-        return superuser_con.change_password(username=username, password=password)
+        return superuser_con.change_password(username=username,
+                                             password=password)
 
     ''' Import/Export Files '''
 
     @staticmethod
     def import_file(repo_base, table_name, file_path, file_format='CSV',
-                    delimiter=',', header=True, encoding='ISO-8859-1', quote_character='"'):
+                    delimiter=',', header=True, encoding='ISO-8859-1',
+                    quote_character='"'):
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
@@ -183,8 +186,9 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
             repo_base=repo_base)
-        return superuser_con.has_column_privilege(login=login,
-                                                  table=table, column=column, privilege=privilege)
+        return superuser_con.has_column_privilege(login=login, table=table,
+                                                  column=column,
+                                                  privilege=privilege)
 
     @staticmethod
     def list_collaborators(repo_base, repo):

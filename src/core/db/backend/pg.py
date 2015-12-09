@@ -342,7 +342,7 @@ class PGBackend:
                   AsIs(header_option), delimiter, encoding, quote_character)
         try:
             self.execute_sql(query, params)
-        except Exception,e:
+        except Exception, e:
             self.execute_sql('DROP TABLE IF EXISTS %s', (AsIs(table_name),))
             raise ImportError(e)
 

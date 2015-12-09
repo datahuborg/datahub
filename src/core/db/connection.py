@@ -29,7 +29,8 @@ class DataHubConnection:
     def delete_repo(self, repo, force=False):
         return self.backend.delete_repo(repo=repo, force=force)
 
-    def add_collaborator(self, repo, username, privileges, auto_in_future=True):
+    def add_collaborator(self, repo, username,
+                         privileges, auto_in_future=True):
         return self.backend.add_collaborator(
             repo=repo,
             username=username,
