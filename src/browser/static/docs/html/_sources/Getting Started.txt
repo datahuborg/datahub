@@ -195,6 +195,7 @@ Alternatively, they can be run individually:
     $ python manage.py test inventory  # tests models
     $ python manage.py test www        # tests home page
     $ python manage.py test account    # tests account management views
+    $ python manage.py test core       # tests datahub core database access
     $ python manage.py test browser    # tests datahub core views
 
 You can exit the testing container with control-d or via the command ``exit``.
