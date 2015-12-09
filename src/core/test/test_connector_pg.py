@@ -51,14 +51,18 @@ class HelperMethods(TestCase):
             except ValueError:
                 self.fail('check_for_injections failed to verify a good name')
 
+    def test_check_open_connections(self):
+        self.assertTrue(self.mock_psychopg.connect.called)
+
     # def test_execute_sql_strips_queries(self):
-    #     mock_connection = self.create_patch(
-    #         'core.db.backend.pg.PGBackend.__open_connection__')
-
     #     query = ' This query needs stripping; '
-    #     self.backend.execute_sql(query)
+    #     params = ('param1', 'param2')
+    #     self.backend.execute_sql(query, params)
 
-    #     self.assertTrue(True)
+    #     m = self.mock_psychopg
+    #     import pdb; pdb.set_trace()
+
+    #     self.assertTrue(self.mock_psychopg.connect.cursor.execute.called)
 
 
 class SchemaListCreateDeleteShare(TestCase):
@@ -88,7 +92,8 @@ class SchemaListCreateDeleteShare(TestCase):
             'core.db.backend.pg.PGBackend._check_for_injections')
 
         # mock open connection, or else it will try to create a real db connection
-        self.mock_open_connection = self.create_patch('core.db.backend.pg.PGBackend.__open_connection__')
+        self.mock_open_connection = self.create_patch(
+            'core.db.backend.pg.PGBackend.__open_connection__')
 
         # mock the psycopg2.extensions.AsIs, which many of the pg.py methods use
         # Its return value (side effect) is the call value
