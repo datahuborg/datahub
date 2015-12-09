@@ -467,7 +467,7 @@ class SchemaListCreateDeleteShare(TestCase):
 
     def test_export_table_with_header(self):
         query = 'COPY %s TO %s WITH %s %s DELIMITER %s;'
-        table_name = 'table_name'
+        table_name = 'user_name.repo_name.table_name'
         file_path = 'file_path'
         file_format = 'file_format'
         delimiter = ','
@@ -481,7 +481,7 @@ class SchemaListCreateDeleteShare(TestCase):
             self.mock_execute_sql.call_args[0][0], query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_as_is.call_count, 3)
-        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+        self.assertEqual(self.mock_check_for_injections.call_count, 4)
 
     def test_export_table_with_no_header(self):
         table_name = 'table_name'
@@ -500,7 +500,7 @@ class SchemaListCreateDeleteShare(TestCase):
     def test_export_query_with_header(self):
         query = 'COPY (%s) TO %s WITH %s %s DELIMITER %s;'
 
-        passed_query = 'myquery;'
+        passed_query = 'myquery'
         file_path = 'file_path'
         file_format = 'CSV'
         delimiter = ','
@@ -519,7 +519,7 @@ class SchemaListCreateDeleteShare(TestCase):
     def test_export_query_with_no_header(self):
         query = 'COPY (%s) TO %s WITH %s %s DELIMITER %s;'
 
-        passed_query = 'myquery;'
+        passed_query = 'myquery'
         file_path = 'file_path'
         file_format = 'CSV'
         delimiter = ','
@@ -531,14 +531,14 @@ class SchemaListCreateDeleteShare(TestCase):
 
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
 
-    def test_export_query_removes_text_after_first_semicolon(self):
+    def test_export_query_only_executes_text_before_semicolon(self):
         passed_query = ' text before semicolon; text after; '
         file_path = 'file_path'
         file_format = 'CSV'
         delimiter = ','
         header = False
 
-        passed_query_cleaned = ' text before semicolon;'
+        passed_query_cleaned = ' text before semicolon'
         params = (passed_query_cleaned, file_path, file_format, '', delimiter)
         self.backend.export_query(passed_query, file_path,
                                   file_format, delimiter, header)
@@ -546,7 +546,7 @@ class SchemaListCreateDeleteShare(TestCase):
 
     def test_import_file_with_header(self):
         query = 'COPY %s FROM %s WITH %s %s DELIMITER %s ENCODING %s QUOTE %s;'
-        table_name = 'table_name'
+        table_name = 'user_name.repo_name.table_name'
         file_path = 'file_path'
         file_format = 'file_format'
         delimiter = ','
@@ -562,7 +562,7 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_execute_sql.call_args[0][0], query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_as_is.call_count, 3)
-        self.assertEqual(self.mock_check_for_injections. call_count, 3)
+        self.assertEqual(self.mock_check_for_injections. call_count, 5)
 
     def test_import_table_with_no_header(self):
         query = 'COPY %s FROM %s WITH %s %s DELIMITER %s ENCODING %s QUOTE %s;'

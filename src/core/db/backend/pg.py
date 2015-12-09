@@ -293,7 +293,9 @@ class PGBackend:
                      delimiter=',', header=True):
         header_option = 'HEADER' if header else ''
 
-        self._check_for_injections(table_name)
+        for word in table_name.split('.'):
+            self._check_for_injections(word)
+
         self._check_for_injections(file_format)
 
         query = 'COPY %s TO %s WITH %s %s DELIMITER %s;'
@@ -313,7 +315,7 @@ class PGBackend:
         # RogerTangos 2015-012-09
 
         header_option = 'HEADER' if header else ''
-        query = query.split(';')[0] + ';'
+        query = query.split(';')[0]
 
         self._check_for_injections(file_format)
         self._check_for_injections(header_option)
@@ -329,7 +331,9 @@ class PGBackend:
                     quote_character='"'):
 
         header_option = 'HEADER' if header else ''
-        self._check_for_injections(table_name)
+
+        for word in table_name.split('.'):
+            self._check_for_injections(word)
         self._check_for_injections(file_format)
         self._check_for_injections(header_option)
 
