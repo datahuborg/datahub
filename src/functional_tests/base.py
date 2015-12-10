@@ -54,7 +54,7 @@ class FunctionalTest(StaticLiveServerTestCase):
     def tearDown(self):
         self.browser.quit()
 
-    def test_external_links(self):
+    def check_external_links(self):
         # supress warnings for testing external links
         # Particularly, because local testing will give unverified certs errors
         # print('\n\n---- TESTING EXTERNAL LINKS ----\n')
@@ -62,9 +62,9 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            self._test_external_links()
+            self._check_external_links()
 
-    def _test_external_links(self):
+    def _check_external_links(self):
         # Justin gets a list of external links
         links = self.browser.find_elements_by_xpath(
             "//a[(starts-with(@href, 'http'))]")
@@ -97,7 +97,7 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         # Justin adds an email
         self.browser.find_element_by_id('email').send_keys(
-            self.username+'@sharklasers.com'
+            self.username + '@sharklasers.com'
         )
 
         # Justin adds a password
@@ -105,7 +105,6 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         # Justin clicks sign up
         self.browser.find_element_by_id('id_register').click()
-
 
     def sign_in_manually(self):
         # Justin goes to the sign in page
@@ -115,5 +114,5 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.find_element_by_id('id_username').send_keys(self.username)
         self.browser.find_element_by_id('id_password').send_keys(self.password)
 
-        # He clicks sign in 
+        # He clicks sign in
         self.browser.find_element_by_id('id_sign_in_action').click()
