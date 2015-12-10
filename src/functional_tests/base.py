@@ -1,7 +1,9 @@
 import sys
+import os
 import requests
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import warnings
 
 
@@ -16,6 +18,12 @@ class FunctionalTest(StaticLiveServerTestCase):
                 # skip the normal setup and use a server_url variable
                 cls.server_url = 'http://' + arg.split('=')[1]
                 return
+
+            if os.environ.get('DATAHUB_DOCKER_TESTING') == 'true':
+                # web is the name of the nginx Docker container.
+                cls.server_url = 'http://web'
+                return
+
         super(FunctionalTest, cls).setUpClass()
         cls.server_url = cls.live_server_url
 
@@ -25,7 +33,17 @@ class FunctionalTest(StaticLiveServerTestCase):
             super(FunctionalTest, cls).tearDownClass()
 
     def setUp(self):
-        self.browser = webdriver.Firefox()
+        if os.environ.get('DATAHUB_DOCKER_TESTING') == 'true':
+            desired_capabilities = DesiredCapabilities.PHANTOMJS
+            desired_capabilities['acceptSslCerts'] = True
+
+            self.browser = webdriver.Remote(
+                # phantomjs is the name of the phantomjs Docker container.
+                command_executor='http://phantomjs:8910',
+                desired_capabilities=DesiredCapabilities.PHANTOMJS)
+        else:
+            self.browser = webdriver.PhantomJS()
+
         self.browser.implicitly_wait(3)
 
         # default username and password for loggin in a user manually
@@ -36,7 +54,7 @@ class FunctionalTest(StaticLiveServerTestCase):
     def tearDown(self):
         self.browser.quit()
 
-    def test_external_links(self):
+    def check_external_links(self):
         # supress warnings for testing external links
         # Particularly, because local testing will give unverified certs errors
         # print('\n\n---- TESTING EXTERNAL LINKS ----\n')
@@ -44,9 +62,9 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            self._test_external_links()
+            self._check_external_links()
 
-    def _test_external_links(self):
+    def _check_external_links(self):
         # Justin gets a list of external links
         links = self.browser.find_elements_by_xpath(
             "//a[(starts-with(@href, 'http'))]")
@@ -79,7 +97,7 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         # Justin adds an email
         self.browser.find_element_by_id('email').send_keys(
-            self.username+'@sharklasers.com'
+            self.username + '@sharklasers.com'
         )
 
         # Justin adds a password
@@ -87,7 +105,6 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         # Justin clicks sign up
         self.browser.find_element_by_id('id_register').click()
-
 
     def sign_in_manually(self):
         # Justin goes to the sign in page
@@ -97,5 +114,5 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.find_element_by_id('id_username').send_keys(self.username)
         self.browser.find_element_by_id('id_password').send_keys(self.password)
 
-        # He clicks sign in 
+        # He clicks sign in
         self.browser.find_element_by_id('id_sign_in_action').click()

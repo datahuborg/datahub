@@ -8,7 +8,8 @@ sleep 5
 echo "Running Django migrations..."
 docker run \
     --rm \
-    --link db:db \
+    --env 'USER=vagrant' \
+    --link db \
     --volumes-from app \
     datahuborg/datahub \
     /bin/bash -c "python src/manage.py migrate --noinput"

@@ -9,6 +9,7 @@ from inventory.models import User
 from browser.views import home
 from browser.views import repo_create
 
+
 class BrowserPagesNotRequiringAuthentication(TestCase):
     def setUp(self):
         self.client = Client(enforce_csrf_checks=False)
@@ -39,11 +40,14 @@ class CreateAndDeleteRepo(TestCase):
 
         # create the user
         self.username = "username"
-        self.password = "password"
+
+        # password is intentionally complicated to test db integration edge 
+        # cases
+        self.password = "p4 sS_W&*^;0Rd$_"
         self.hashed_password = hashlib.sha1(self.password).hexdigest()
         DataHubManager.create_user(username=self.username, password=self.hashed_password)
 
-        user = DataHubLegacyUser(username=self.username, email="noreply@mit.edu", 
+        user = User(username=self.username, email="noreply@mit.edu", 
             password=self.hashed_password)
         user.save()
 
@@ -53,7 +57,7 @@ class CreateAndDeleteRepo(TestCase):
         self.client.post('/account/login', login_credentials)
 
     def tearDown(self):
-        DataHubManager.remove_user_and_database(username=self.username)
+        DataHubManager.remove_user(username=self.username, remove_db=True)
 
     def test_create_repo_resolves_to_create_func(self):
         found = resolve('/create/' + self.username+ '/repo/')
@@ -65,7 +69,6 @@ class CreateAndDeleteRepo(TestCase):
 
         response = self.client.get('/create/' + self.username + '/repo', follow=True)
         self.assertTemplateUsed(response, 'repo-create.html')
-
 
     def test_create_repo_creates_a_repo(self):
         # create the new repo

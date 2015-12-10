@@ -29,13 +29,11 @@ class DataHubConnection:
     def delete_repo(self, repo, force=False):
         return self.backend.delete_repo(repo=repo, force=force)
 
-    def add_collaborator(self, repo, username, privileges,
-                         auto_in_future=True):
+    def add_collaborator(self, repo, username, privileges):
         return self.backend.add_collaborator(
             repo=repo,
             username=username,
-            privileges=privileges,
-            auto_in_future=auto_in_future)
+            privileges=privileges)
 
     def delete_collaborator(self, repo, username):
         return self.backend.delete_collaborator(repo=repo, username=username)
@@ -81,11 +79,8 @@ class DataHubConnection:
     def create_user(self, username, password, create_db):
         return self.backend.create_user(username, password, create_db)
 
-    def remove_user(self, username):
-        return self.backend.remove_user(username)
-
-    def remove_user_and_database(self, username):
-        return self.backend.remove_user_and_database(username)
+    def remove_user(self, username, remove_db):
+        return self.backend.remove_user(username, remove_db)
 
     def change_password(self, username, password):
         return self.backend.change_password(username, password)

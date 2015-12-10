@@ -91,5 +91,8 @@ Pods
 # Vagrant
 .vagrant
 
+# PhantomJS Browser
+ghostdriver.log
+
 # Developer Specific
 devnotes.txt

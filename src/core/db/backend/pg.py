@@ -1,13 +1,12 @@
 import os
-import psycopg2
 import shutil
+import re
+import psycopg2
+from psycopg2.extensions import AsIs
 
 from config import settings
 
 '''
-@author: anant bhardwaj
-@date: Oct 3, 2013
-
 DataHub internal APIs for postgres repo_base
 '''
 HOST = settings.DATABASES['default']['HOST']
@@ -49,95 +48,140 @@ class PGBackend:
     def close_connection(self):
         self.connection.close()
 
+    def _check_for_injections(self, noun):
+        ''' throws exceptions unless the noun contains only alphanumeric
+            chars, hyphens, and underscores, and must not begin or end with
+            a hyphen or underscore
+        '''
+        invalid_noun_msg = (
+            "Usernames, repo names, and table names may only contain "
+            "alphanumeric characters, hyphens, and underscores, and must not "
+            "begin or end with an a hyphen or underscore."
+        )
+
+        regex = r'^(?![\-\_])[\w\-\_]+(?<![\-\_])$'
+        valid_pattern = re.compile(regex)
+        matches = valid_pattern.match(noun)
+
+        if matches is None:
+            raise ValueError(invalid_noun_msg)
+
     def create_repo(self, repo):
-        query = ''' CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s ''' % (
-            repo, self.user)
-        return self.execute_sql(query)
+        ''' creates a postgres schema for the user.'''
+        self._check_for_injections(repo)
+
+        query = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'
+        params = (AsIs(repo), AsIs(self.user))
+        return self.execute_sql(query, params)
 
     def list_repos(self):
-        query = ''' SELECT schema_name AS repo_name
-                FROM information_schema.schemata
-                WHERE schema_owner = '%s'
-            ''' % (self.user)
-        return self.execute_sql(query)
+        query = ('SELECT schema_name AS repo_name '
+                 'FROM information_schema.schemata '
+                 'WHERE schema_owner = %s')
+
+        params = (self.user,)
+        return self.execute_sql(query, params)
 
     def delete_repo(self, repo, force=False):
+        ''' deletes a repo and the folder the user's repo files are in. '''
+        self._check_for_injections(repo)
+
+        # delete the folder that repo files are in
         repo_dir = '/user_data/%s/%s' % (self.user, repo)
         if os.path.exists(repo_dir):
             shutil.rmtree(repo_dir)
 
-        query = ''' DROP SCHEMA %s %s
-            ''' % (repo, 'CASCADE' if force else '')
-        res = self.execute_sql(query)
+        # drop the schema
+        query = 'DROP SCHEMA %s %s'
+        params = (AsIs(repo), AsIs('CASCADE') if force else None)
+        res = self.execute_sql(query, params)
         return res
 
-    def add_collaborator(self, repo, username, privileges,
-                         auto_in_future=True):
-        query = ''' GRANT USAGE ON SCHEMA %s TO %s;
-            ''' % (repo, username)
-        self.execute_sql(query)
+    def add_collaborator(self, repo, username, privileges=[]):
+        # check that all repo names, usernames, and privileges passed aren't
+        # sql injections
+        self._check_for_injections(repo)
+        self._check_for_injections(username)
+        for privilege in privileges:
+            self._check_for_injections(privilege)
+
+        query = ('BEGIN;'
+                 'GRANT USAGE ON SCHEMA %s TO %s;'
+                 'GRANT %s ON ALL TABLES IN SCHEMA %s TO %s;'
+                 'ALTER DEFAULT PRIVILEGES IN SCHEMA %s '
+                 'GRANT %s ON TABLES TO %s;'
+                 'COMMIT;'
+                 )
 
         privileges_str = ', '.join(privileges)
-
-        query = ''' GRANT %s ON ALL TABLES IN SCHEMA %s TO %s;
-            ''' % (privileges_str, repo, username)
-        self.execute_sql(query)
-
-        query = ''' ALTER DEFAULT PRIVILEGES IN SCHEMA %s
-                GRANT %s ON TABLES TO %s;
-            ''' % (repo, privileges_str, username)
-        self.execute_sql(query)
+        params = [repo, username, privileges_str, repo,
+                  username, repo, privileges_str, username]
+        params = tuple(map(lambda x: AsIs(x), params))
+        self.execute_sql(query, params)
 
     def delete_collaborator(self, repo, username):
-        query = ''' REVOKE ALL ON ALL TABLES IN SCHEMA %s FROM %s CASCADE;
-            ''' % (repo, username)
-        self.execute_sql(query)
-        query = ''' REVOKE ALL ON SCHEMA %s FROM %s CASCADE;
-            ''' % (repo, username)
-        self.execute_sql(query)
-        query = ''' ALTER DEFAULT PRIVILEGES IN SCHEMA %s
-                REVOKE ALL ON TABLES FROM %s;
-            ''' % (repo, username)
-        self.execute_sql(query)
+        self._check_for_injections(repo)
+        self._check_for_injections(username)
+
+        query = ('BEGIN;'
+                 'REVOKE ALL ON ALL TABLES IN SCHEMA %s FROM %s CASCADE;'
+                 'REVOKE ALL ON SCHEMA %s FROM %s CASCADE;'
+                 'ALTER DEFAULT PRIVILEGES IN SCHEMA %s '
+                 'REVOKE ALL ON TABLES FROM %s;'
+                 'COMMIT;'
+                 )
+        params = [repo, username, repo, username, repo, username]
+        params = tuple(map(lambda x: AsIs(x), params))
+
+        self.execute_sql(query, params)
 
     def list_tables(self, repo):
         res = self.list_repos()
+        self._check_for_injections(repo)
 
         all_repos = [t[0] for t in res['tuples']]
         if repo not in all_repos:
             raise LookupError('Invalid repository name: %s' % (repo))
 
-        query = ''' SELECT table_name FROM information_schema.tables
-                WHERE table_schema = '%s' AND table_type = 'BASE TABLE'
-            ''' % (repo)
-        return self.execute_sql(query)
+        query = ('SELECT table_name FROM information_schema.tables '
+                 'WHERE table_schema = %s AND table_type = \'BASE TABLE\';'
+                 )
+        params = (repo,)
+        return self.execute_sql(query, params)
 
     def list_views(self, repo):
         res = self.list_repos()
+        self._check_for_injections(repo)
 
         all_repos = [t[0] for t in res['tuples']]
         if repo not in all_repos:
             raise LookupError('Invalid repository name: %s' % (repo))
 
-        query = ''' SELECT table_name FROM information_schema.tables
-                WHERE table_schema = '%s' AND table_type = 'VIEW'
-            ''' % (repo)
-        return self.execute_sql(query)
+        query = ('SELECT table_name FROM information_schema.tables '
+                 'WHERE table_schema = %s '
+                 'AND table_type = \'VIEW\';')
+
+        params = (repo,)
+        return self.execute_sql(query, params)
 
     def get_schema(self, table):
         tokens = table.split('.')
+        for token in tokens:
+            self._check_for_injections(token)
 
         if len(tokens) < 2:
             raise NameError(
                 "Invalid name: '%s'.\n"
                 "HINT: use <repo-name>.<table-name> " % (table))
 
-        query = ''' SELECT column_name, data_type
-                FROM information_schema.columns
-                WHERE table_name = '%s'
-                AND table_schema = '%s'
-            ''' % (tokens[-1], tokens[-2])
-        res = self.execute_sql(query)
+        query = ('SELECT column_name, data_type '
+                 'FROM information_schema.columns '
+                 'WHERE table_name = %s '
+                 'AND table_schema = %s;'
+                 )
+
+        params = (tokens[-1], tokens[-2])
+        res = self.execute_sql(query, params)
 
         if res['row_count'] < 1:
             raise NameError("Invalid reference: '%s'.\n" % (table))
@@ -153,22 +197,22 @@ class PGBackend:
         }
 
         conn = self.connection
-        c = conn.cursor()
-        c.execute(query.strip(), params)
+        cur = conn.cursor()
+        cur.execute(query.strip(), params)
 
         try:
-            result['tuples'] = c.fetchall()
+            result['tuples'] = cur.fetchall()
         except:
             pass
 
         result['status'] = True
-        result['row_count'] = c.rowcount
-        if c.description:
+        result['row_count'] = cur.rowcount
+        if cur.description:
             result['fields'] = [
-                {'name': col[0], 'type': col[1]} for col in c.description]
+                {'name': col[0], 'type': col[1]} for col in cur.description]
 
-        tokens = query.strip().split(' ', 2)
-        c.close()
+        query.strip().split(' ', 2)
+        cur.close()
         return result
 
     def user_exists(self, username):
@@ -183,113 +227,145 @@ class PGBackend:
         result = self.execute_sql(query, params)
         return (result['row_count'] > 0)
 
-    def create_user(self, username, password, create_db):
-        query = ''' CREATE ROLE %s WITH LOGIN
-                NOCREATEDB NOCREATEROLE NOCREATEUSER PASSWORD '%s'
-            ''' % (username, password)
-        self.execute_sql(query)
+    def create_user(self, username, password, create_db=True):
+        self._check_for_injections(username)
 
-        if not create_db:
-            return
+        query = ('CREATE ROLE %s WITH LOGIN '
+                 'NOCREATEDB NOCREATEROLE NOCREATEUSER PASSWORD %s')
+        params = (AsIs(username), password)
+        self.execute_sql(query, params)
 
-        query = ''' CREATE DATABASE %s ''' % (username)
-        self.execute_sql(query)
+        if create_db:
+            return self.create_user_database(username)
 
-        query = ''' ALTER DATABASE %s OWNER TO %s ''' % (username, username)
-        return self.execute_sql(query)
+    def create_user_database(self, username):
+        # lines need to be executed seperately because
+        # "CREATE DATABASE cannot be executed from a
+        # function or multi-command string"
+        self._check_for_injections(username)
 
-    def remove_user(self, username):
-        query = ''' DROP ROLE %s ''' % (username)
-        return self.execute_sql(query)
+        query = 'CREATE DATABASE %s; '
+        params = (AsIs(username),)
+        self.execute_sql(query, params)
 
-    def remove_user_and_database(self, username):
+        query = 'ALTER DATABASE %s OWNER TO %s; '
+        params = (AsIs(username), AsIs(username))
+        return self.execute_sql(query, params)
+
+    def remove_user(self, username, remove_db=True):
+        if remove_db:
+            self.remove_database(username)
+
+        self._check_for_injections(username)
+        query = 'DROP ROLE %s;'
+        params = (AsIs(username),)
+        return self.execute_sql(query, params)
+
+    def remove_database(self, username):
         # This is not safe. If a user has shared repos
         # with another user, it will crash.
-        # The method is here primarily for testing purposes.
-        query = ''' DROP DATABASE %s''' % (username)
-        self.execute_sql(query)
-
-        query = ''' DROP ROLE %s''' % (username)
-        return self.execute_sql(query)
+        self._check_for_injections(username)
+        query = 'DROP DATABASE %s;'
+        params = (AsIs(username),)
+        return self.execute_sql(query, params)
 
     def change_password(self, username, password):
-        query = ''' ALTER ROLE %s WITH PASSWORD '%s'
-            ''' % (username, password)
-        return self.execute_sql(query)
+        self._check_for_injections(username)
+        query = 'ALTER ROLE %s WITH PASSWORD %s;'
+        params = (AsIs(username), password)
+        return self.execute_sql(query, params)
 
     def list_collaborators(self, repo_base, repo):
-        query = ''' SELECT unnest(nspacl) FROM
-                pg_namespace WHERE nspname='%s';
-            ''' % (repo)
-        return self.execute_sql(query)
+        query = 'SELECT unnest(nspacl) FROM pg_namespace WHERE nspname=%s;'
+        params = (repo, )
+        return self.execute_sql(query, params)
 
     def has_base_privilege(self, login, privilege):
-        query = ''' SELECT has_database_privilege('%s', '%s')
-            ''' % (login, privilege)
-        return self.execute_sql(query)
+        query = 'SELECT has_database_privilege(%s, %s);'
+        params = (login, privilege)
+        return self.execute_sql(query, params)
 
     def has_repo_privilege(self, login, repo, privilege):
-        query = ''' SELECT has_schema_privilege('%s', '%s', '%s')
-            ''' % (login, repo, privilege)
-        return self.execute_sql(query)
+        query = 'SELECT has_schema_privilege(%s, %s, %s);'
+        params = (login, repo, privilege)
+        return self.execute_sql(query, params)
 
     def has_table_privilege(self, login, table, privilege):
-        query = ''' SELECT has_table_privilege('%s', '%s', '%s')
-            ''' % (login, table, privilege)
-        return self.execute_sql(query)
+        query = 'SELECT has_table_privilege(%s, %s, %s);'
+        params = (login, table, privilege)
+        return self.execute_sql(query, params)
 
     def has_column_privilege(self, login, table, column, privilege):
-        query = ''' SELECT has_column_privilege('%s', '%s', '%s')
-            ''' % (login, table, column, privilege)
-        return self.execute_sql(query)
+        query = 'SELECT has_column_privilege(%s, %s, %s, %s);'
+        params = (login, table, column, privilege)
+        return self.execute_sql(query, params)
 
     def export_table(self, table_name, file_path, file_format='CSV',
                      delimiter=',', header=True):
         header_option = 'HEADER' if header else ''
-        return self.execute_sql(
-            ''' COPY %s TO '%s'
-            WITH %s %s DELIMITER '%s';
-        ''' % (table_name, file_path, file_format, header_option, delimiter))
+
+        for word in table_name.split('.'):
+            self._check_for_injections(word)
+
+        self._check_for_injections(file_format)
+
+        query = 'COPY %s TO %s WITH %s %s DELIMITER %s;'
+        params = (AsIs(table_name), file_path,
+                  AsIs(file_format), AsIs(header_option), delimiter)
+
+        return self.execute_sql(query, params)
 
     def export_query(self, query, file_path, file_format='CSV',
                      delimiter=',', header=True):
+        # warning: this method is inherently unsafe, since there's no way to
+        # properly escape the query string, and it runs as root!
+
+        # I've made it safer by stripping out everything after the semicolon
+        # in the passed query.
+        # manager.py should also check to ensure the user has repo/folder access
+        # RogerTangos 2015-012-09
+
         header_option = 'HEADER' if header else ''
-        return self.execute_sql(
-            ''' COPY (%s) TO '%s'
-            WITH %s %s DELIMITER '%s';
-        ''' % (query, file_path, file_format, header_option, delimiter))
+        query = query.split(';')[0]
+
+        self._check_for_injections(file_format)
+        self._check_for_injections(header_option)
+
+        meta_query = 'COPY (%s) TO %s WITH %s %s DELIMITER %s;'
+        params = (AsIs(query), file_path, AsIs(file_format),
+                  AsIs(header_option), delimiter)
+
+        return self.execute_sql(meta_query, params)
 
     def import_file(self, table_name, file_path, file_format='CSV',
                     delimiter=',', header=True, encoding='ISO-8859-1',
                     quote_character='"'):
+
+        header_option = 'HEADER' if header else ''
+
+        for word in table_name.split('.'):
+            self._check_for_injections(word)
+        self._check_for_injections(file_format)
+        self._check_for_injections(header_option)
+
+        query = 'COPY %s FROM %s WITH %s %s DELIMITER %s ENCODING %s QUOTE %s;'
+        params = (AsIs(table_name), file_path, AsIs(file_format),
+                  AsIs(header_option), delimiter, encoding, quote_character)
         try:
-            header_option = 'HEADER' if header else ''
-            if quote_character == "'":
-                quote_character = "''"
-
-            escape = ''
-            if delimiter.startswith('\\'):
-                escape = 'E'
-
-            return self.execute_sql(
-                ''' COPY %s FROM '%s'
-              WITH %s %s DELIMITER %s'%s' ENCODING '%s' QUOTE '%s';
-          ''' % (table_name, file_path, file_format,
-                 header_option, escape, delimiter, encoding, quote_character))
+            self.execute_sql(query, params)
         except Exception, e:
-            self.execute_sql(
-                ''' DROP TABLE IF EXISTS %s;
-          ''' % (table_name))
+            self.execute_sql('DROP TABLE IF EXISTS %s', (AsIs(table_name),))
             raise ImportError(e)
 
-            """
-      Try importing using dbtruck.
-      """
+            # Try importing using dbtruck. Was never enabled by anant.
+            # RogerTangos 2015-12-09
             # return self.import_file_w_dbtruck(table_name, file_path)
 
     def import_file_w_dbtruck(self, table_name, file_path):
+        # dbtruck is not tested for safety. At all. It's currently disabled
+        # in the project RogerTangos 2015-12-09
         from dbtruck.dbtruck import import_datafiles
-        from dbtruck.util import get_logger
+        # from dbtruck.util import get_logger
         from dbtruck.exporters.pg import PGMethods
 
         dbsettings = {

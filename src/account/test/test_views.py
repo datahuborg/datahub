@@ -2,12 +2,10 @@ import hashlib
 
 from django.test import TestCase
 from django.test import Client
-from django.http import HttpRequest
 from django.core.urlresolvers import resolve
 
-from inventory.models import DataHubLegacyUser
-from account.auth import login, register, clear_session, logout, forgot
-from account.auth import verify, reset, jdbc_password
+from inventory.models import User
+from account.auth import login, register, logout, forgot
 
 
 class LoginPageTest(TestCase):
@@ -16,14 +14,12 @@ class LoginPageTest(TestCase):
         self.client = Client(enforce_csrf_checks=False)
         self.password = "password"
         self.hashed_password = hashlib.sha1("password").hexdigest()
-        self.user, created = DataHubLegacyUser.objects.get_or_create(
-            id=10,
-            username="user",
+        self.user, created = User.objects.get_or_create(
+            id=10, username="user",
             password=self.hashed_password,
             email="noreply.csail.mit.edu",
             f_name="f_name",
-            l_name="l_name",
-            active=True)
+            l_name="l_name", active=True)
 
     def test_login_url_resolves_to_login_page_view(self):
         found = resolve('/account/login')
@@ -35,9 +31,8 @@ class LoginPageTest(TestCase):
         self.assertTemplateUsed(response, 'login.html')
 
     def test_login_page_allows_user_to_login(self):
-        login_credentials = {
-            'login_id': self.user.username,
-            'login_password': self.password}
+        login_credentials = {'login_id': self.user.username,
+                             'login_password': self.password}
         response = self.client.post('/account/login', login_credentials)
 
         # should redirect to the authenticated user page
@@ -46,6 +41,7 @@ class LoginPageTest(TestCase):
 
 
 class RegisterPageTest(TestCase):
+
     def setUp(self):
         self.client = Client(enforce_csrf_checks=False)
 
@@ -68,18 +64,17 @@ class RegisterPageTest(TestCase):
 
 
 class LogoutPageTest(TestCase):
+
     def setUp(self):
         self.client = Client(enforce_csrf_checks=False)
         self.password = "password"
         self.hashed_password = hashlib.sha1("password").hexdigest()
-        self.user, created = DataHubLegacyUser.objects.get_or_create(
-            id=10,
-            username="user",
+        self.user, created = User.objects.get_or_create(
+            id=10, username="user",
             password=self.hashed_password,
             email="noreply.csail.mit.edu",
             f_name="f_name",
-            l_name="l_name",
-            active=True)
+            l_name="l_name", active=True)
 
     def test_logout_url_resolves_to_logout_page_view(self):
         found = resolve('/account/logout')
@@ -87,9 +82,8 @@ class LogoutPageTest(TestCase):
 
     def test_logout_page_returns_correct_template(self):
         # log the user in
-        login_credentials = {
-            'login_id': self.user.username,
-            'login_password': self.password}
+        login_credentials = {'login_id': self.user.username,
+                             'login_password': self.password}
         response = self.client.post('/account/login', login_credentials)
 
         # user should redirect to the authenticated user page
@@ -104,9 +98,8 @@ class LogoutPageTest(TestCase):
     def test_logout_page_actually_logs_users_out(self):
 
         # log the user in
-        login_credentials = {
-            'login_id': self.user.username,
-            'login_password': self.password}
+        login_credentials = {'login_id': self.user.username,
+                             'login_password': self.password}
         response = self.client.post('/account/login', login_credentials)
 
         # user should redirect to the authenticated user page
@@ -123,6 +116,7 @@ class LogoutPageTest(TestCase):
 
 
 class ForgotPasswordPageTest(TestCase):
+
     def setUp(self):
         self.client = Client(enforce_csrf_checks=False)
         # create a new user
@@ -148,18 +142,18 @@ class ForgotPasswordPageTest(TestCase):
 
 
 class JdbcPasswordTest(TestCase):
+
     def setUp(self):
         # create a new user
         self.client = Client(enforce_csrf_checks=False)
         self.password = "password"
         self.hashed_password = hashlib.sha1("password").hexdigest()
-        self.user, created = DataHubLegacyUser.objects.get_or_create(
+        self.user, created = User.objects.get_or_create(
             id=10, username="user",
             password=self.hashed_password,
             email="noreply.csail.mit.edu",
             f_name="f_name",
-            l_name="l_name",
-            active=True)
+            l_name="l_name", active=True)
 
     def test_jdbc_password_unauthenticated(self):
         # test that this redirects unauthentiated users to the login page
@@ -169,25 +163,21 @@ class JdbcPasswordTest(TestCase):
 
     def test_jdbc_password_authenticated(self):
         # login
-        login_credentials = {
-            'login_id': self.user.username,
-            'login_password': self.password}
+        login_credentials = {'login_id': self.user.username,
+                             'login_password': self.password}
         response = self.client.post('/account/login', login_credentials)
 
         # get the jdbc password
         response = self.client.get('/account/jdbc_password', follow=True)
 
         # this is not safe. Will be fixed using OIDC connect - ARC 2015-07-06
-        self.assertContains(
-            response,
-            self.hashed_password,
-            count=None,
-            status_code=200,
-            msg_prefix='',
-            html=False)
+        self.assertContains(response, self.hashed_password,
+                            count=None, status_code=200,
+                            msg_prefix='', html=False)
 
 
 class ResetPasswordTest(TestCase):
+
     def setUp(self):
         self.client = Client(enforce_csrf_checks=False)
         # create a new user

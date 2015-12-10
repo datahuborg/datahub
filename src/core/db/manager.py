@@ -64,20 +64,19 @@ class DataHubManager:
     def execute_sql(self, query, params=None):
         return self.user_con.execute_sql(query=query, params=params)
 
-    def add_collaborator(self, repo, username, privileges,
-                         auto_in_future=True):
+    def add_collaborator(self, repo, username, privileges):
         return self.user_con.add_collaborator(
             repo=repo,
             username=username,
-            privileges=privileges,
-            auto_in_future=auto_in_future)
+            privileges=privileges
+        )
 
     def delete_collaborator(self, repo, username):
         return self.user_con.delete_collaborator(repo=repo, username=username)
 
     '''
-  The following methods run in superuser mode only
-  '''
+    The following methods run in superuser mode only
+    '''
 
     @staticmethod
     def user_exists(username):
@@ -104,25 +103,20 @@ class DataHubManager:
             username=username, password=password, create_db=create_db)
 
     @staticmethod
-    def remove_user(username):
+    def remove_user(username, remove_db=True):
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
-        return superuser_con.remove_user(username=username)
-
-    @staticmethod
-    def remove_user_and_database(username):
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'])
-        return superuser_con.remove_user_and_database(username=username)
+        return superuser_con.remove_user(username=username,
+                                         remove_db=remove_db)
 
     @staticmethod
     def change_password(username, password):
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
-        return superuser_con.change_password(username=username, password=password)
+        return superuser_con.change_password(username=username,
+                                             password=password)
 
     ''' Import/Export Files '''
 
@@ -207,7 +201,8 @@ class DataHubManager:
             password=settings.DATABASES['default']['USER'],
             repo_base=repo_base)
         return superuser_con.has_column_privilege(login=login,
-                                                  table=table, column=column,
+                                                  table=table,
+                                                  column=column,
                                                   privilege=privilege)
 
     @staticmethod
