@@ -1,10 +1,8 @@
 import codecs
-import collections
 import csv
 import json
 import os
 import re
-import sys
 import urllib
 import uuid
 
@@ -12,15 +10,12 @@ from django.contrib.auth.decorators import login_required
 from django.core.context_processors import csrf
 from django.http import *
 from django.shortcuts import render_to_response
-from django.utils.http import urlquote_plus
 from django.views.decorators.csrf import csrf_exempt
 
 from thrift.protocol import TBinaryProtocol
 from thrift.protocol import TJSONProtocol
-from thrift.transport import TTransport
 from thrift.transport.TTransport import TMemoryBuffer
 
-from account.auth import *
 from account.manager import *
 from core.db.manager import DataHubManager
 from datahub import DataHub
