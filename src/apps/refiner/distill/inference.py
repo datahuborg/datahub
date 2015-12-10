@@ -106,7 +106,7 @@ def extract(data, o_fields_structure, sep="\n"):
   out = []
   for line in o_data:
     o_chunks = parser.parse(line)
-    print line, o_chunks
+    # print line, o_chunks
     fields = extract_fields(o_chunks, o_fields_structure)
     out.append(fields)
   return out
