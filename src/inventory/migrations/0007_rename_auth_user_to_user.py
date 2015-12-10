@@ -24,11 +24,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='app',
             name='legacy_user',
-            field=models.ForeignKey(to='inventory.DataHubLegacyUser', null=True),
+            field=models.ForeignKey(
+                to='inventory.DataHubLegacyUser', null=True),
         ),
         migrations.AlterField(
             model_name='permission',
             name='legacy_user',
-            field=models.ForeignKey(to='inventory.DataHubLegacyUser', null=True),
+            field=models.ForeignKey(
+                to='inventory.DataHubLegacyUser', null=True),
         ),
     ]

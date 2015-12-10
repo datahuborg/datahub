@@ -11,7 +11,6 @@ def get_user_details(strategy, details, is_new=False, *args, **kwargs):
         # accounts.views.get_user_details.
         preferred_username = strategy.session.get('preferred_username', None)
         email = strategy.session.get('email', None)
-
         if not preferred_username:
             # If we return something besides a dict or None, then Python
             # Social Auth return it to the user. In this case we return a

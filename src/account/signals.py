@@ -22,7 +22,10 @@ def enforce_email_uniqueness(sender, instance, **kwargs):
         username = instance.username
         if not email:
             raise IntegrityError("Email required.")
-        if sender.objects.filter(email=email).exclude(username=username).count():
+        if (sender.objects
+                .filter(email=email)
+                .exclude(username=username)
+                .count()):
             raise IntegrityError(
                 "The email address {0} is associated with another account."
                 .format(email)
