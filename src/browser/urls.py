@@ -77,6 +77,7 @@ urlpatterns = patterns('',
 
     ### Export ###
     url(r'^export/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table_export'),
+    url(r'^export/(\w+)/(\w+)/card/(\w+)/?$', 'browser.views.card_export'),
 
     ### End Export ####
 

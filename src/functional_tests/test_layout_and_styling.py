@@ -2,7 +2,6 @@ import re
 from .base import FunctionalTest
 
 
-
 class LayoutAndStylingUnauthenticated(FunctionalTest):
 
     def test_front_page_content(self):
@@ -20,11 +19,11 @@ class LayoutAndStylingUnauthenticated(FunctionalTest):
 
     # skip this test for now. it times out in travis, and takes forever locally
     # def test_front_page_links(self):
-    #     # Justin goes to the home page
+        # Justin goes to the home page
     #     self.browser.get(self.server_url)
     #     self.browser.set_window_size(1024, 768)
 
-    #     # he verifies that all external links on the home page work
+        # he verifies that all external links on the home page work
     #     self.test_external_links()
 
     def test_login_signup_pages_content(self):
@@ -59,7 +58,4 @@ class LayoutAndStylingUnauthenticated(FunctionalTest):
         self.assertNotEqual(text_found, None)
 
 
-
 # class LayoutAndStylingLoginPageTest(FunctionalTest):
-
-

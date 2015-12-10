@@ -6,9 +6,9 @@ class LoginTest(FunctionalTest):
 
     def test_sign_in_bad_user(self):
         # Justin has not created an account, but he tries to sign in anyway
-       self.sign_in_manually() 
-       justin_url = self.browser.current_url
-       self.assertNotRegexpMatches(justin_url, self.username)
+        self.sign_in_manually()
+        justin_url = self.browser.current_url
+        self.assertNotRegexpMatches(justin_url, self.username)
 
     def test_register_user_manually_sign_in_and_delete(self):
         self.browser.get(self.server_url)
@@ -41,7 +41,7 @@ class LoginTest(FunctionalTest):
         self.assertRegexpMatches(justin_url, self.username)
 
         # DataHub deletes his user and database, somewhat vindictively
-        DataHubManager.remove_user_and_database(self.username)
+        DataHubManager.remove_user(self.username, remove_db=True)
 
         # Justin doesn't like DataHub
         # Justin goes to the settings page
@@ -62,7 +62,7 @@ class LoginTest(FunctionalTest):
     # def test_justin_hacks_the_planet(self):
     #     pass
         # Justin is hacking the planet
-        ## Justin sneakily registers his username again
+        # Justin sneakily registers his username again
 
         # His data does not reappear
 
