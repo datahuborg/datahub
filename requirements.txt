@@ -18,3 +18,4 @@ coverage
 selenium
 requests
 gunicorn==19.3.0
+mock==1.3.0
