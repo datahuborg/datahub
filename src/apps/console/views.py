@@ -1,6 +1,5 @@
 from django.shortcuts import render_to_response
-
-from account.auth import *
+from django.contrib.auth.decorators import login_required
 
 
 '''
@@ -10,7 +9,8 @@ from account.auth import *
 Datahub Console
 '''
 
-@dh_login_required
+
+@login_required
 def index(request):
-  return render_to_response("console.html", {
-    'login': get_login(request)})
+    return render_to_response("console.html", {
+        'login': request.user.username})
