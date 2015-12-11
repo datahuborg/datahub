@@ -162,16 +162,18 @@ def user(request, repo_base):
 
 
     ####### Repos where user is not owner, but is added as collaborator #################
-    collaborator_repos = []
+    #collaborator_repos = []
     user = User.objects.get(username=repo_base)
     collaborator_repos = Collaborator.objects.filter(user=user)
-    for repo in collaborator_repos:
-      collaborator_repos.append(repo.repo_name)
+    if not collaborator_repos:
+      pass
+    #for repo in collaborator_repos:
+      #collaborator_repos.append(repo.repo_name)
 
     return render_to_response("user-browse.html", {
         'login': get_login(request),
         'repo_base': repo_base,
-        'repos': visible_repos
+        'repos': visible_repos,
         'collaborator_repos': collaborator_repos})    
   
   except Exception, e:
@@ -325,6 +327,28 @@ def repo_delete(request, repo_base, repo):
           {'error': str(e)}),
         content_type="application/json")
 
+
+@login_required
+def repo_delete_collaborator(request, repo_base, repo_owner, repo_name):
+  try:
+    login = get_login(request)
+
+    if login != repo_base:
+      raise Exception(
+          'Permission denied. '
+          '%s can\'t remove self as a collaborator from %s in %s.' %(login, repo_name, repo_owner))
+
+    ######### Remove self as a collaborator from the django collabs table ###########
+    user = User.objects.get(username=repo_base)
+    Collaborator.objects.get(user=user, repo_name=repo_name, repo_owner=repo_owner).delete()
+
+    return HttpResponseRedirect('/browse/%s' %(repo_base))
+  except Exception, e:
+    return HttpResponse(
+        json.dumps(
+          {'error': str(e)}),
+        content_type="application/json")
+
 @login_required
 def repo_settings(request, repo_base, repo):
   try:
@@ -365,6 +389,12 @@ def repo_collaborators_add(request, repo_base, repo):
     manager = DataHubManager(user=repo_base)
     manager.add_collaborator(
         repo, username, privileges=['SELECT', 'INSERT', 'UPDATE'])
+
+    ######### Add the collaborator to the django collabs table ###########
+    user = User.objects.get(username=username)
+    Collaborator.objects.create(user=user, repo_name=repo, repo_owner=repo_base, permission="ALL")
+
+
     return HttpResponseRedirect('/settings/%s/%s' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(
@@ -383,6 +413,11 @@ def repo_collaborators_remove(request, repo_base, repo, username):
     
     manager = DataHubManager(user=repo_base)
     manager.delete_collaborator(repo, username)
+
+    ######### Remove the collaborator from the django collabs table ###########
+    user = User.objects.get(username=username)
+    Collaborator.objects.get(user=user, repo_name=repo, repo_owner=repo_base).delete()
+
     return HttpResponseRedirect('/settings/%s/%s' %(repo_base, repo))
   except Exception, e:
     return HttpResponse(

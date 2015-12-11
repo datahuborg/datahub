@@ -73,6 +73,8 @@ urlpatterns = patterns('',
     ### Delete ####
     url(r'^delete/(\w+)/(\w+)/?$', 'browser.views.repo_delete'),
 
+    url(r'^delete/collaborator/(\w+)/(\w+)/(\w+)/?$', 'browser.views.repo_delete_collaborator'),
+
     url(r'^delete/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table_delete'),
 
     url(r'^delete/(\w+)/(\w+)/card/(\w+)/?$', 'browser.views.card_delete'),
