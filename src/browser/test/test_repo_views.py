@@ -1,7 +1,10 @@
 import os
 import hashlib
-from mock import patch
 
+from mock import patch
+import factory
+
+from django.db.models import signals
 from django.test import TestCase
 from django.core.urlresolvers import resolve
 from django.contrib.auth.models import User
@@ -11,6 +14,7 @@ import browser.views
 
 class CreateAndDeleteRepo(TestCase):
 
+    @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
         # set up the user. This is the only integration-ey part
         # It's because I had trouble mocking out
@@ -99,6 +103,7 @@ class CreateAndDeleteRepo(TestCase):
 
 class RepoTableCardViews(TestCase):
 
+    @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
         # create the user
         self.username = "test_username"
@@ -204,6 +209,7 @@ class RepoTableCardViews(TestCase):
 
 class RepoFilesTab(TestCase):
 
+    @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
         # create the user
         self.username = "test_username"
@@ -271,6 +277,7 @@ class RepoFilesTab(TestCase):
 
 class RepoMainPage(TestCase):
 
+    @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
         # create the user
         self.username = "test_username"
@@ -317,6 +324,7 @@ class RepoMainPage(TestCase):
 
 class RepoSettingsPage(TestCase):
 
+    @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
         # create the user
         self.username = "test_username"
