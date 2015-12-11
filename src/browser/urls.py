@@ -33,6 +33,9 @@ urlpatterns = patterns('',
     url(r'^home', 'account.views.home'),
     url(r'^account/logout', 'account.views.logout', name='logout'),
     url(r'^account/choose_username', 'account.views.get_user_details'),
+    url(r'^account/forgot', 'account.views.forgot_password'),
+    url(r'^account/reset', 'account.views.reset_password'),
+    url(r'^account/verify', 'account.views.verify_email'),
     #### End Account Related ####
 
 

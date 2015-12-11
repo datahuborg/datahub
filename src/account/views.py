@@ -230,5 +230,38 @@ def home(request):
 
 
 def logout(request):
+    """
+    Log out the current user and clears their session data. Redirects to /.
+
+    Doesn't throw any errors if the user isn't logged in.
+    """
     django_logout(request)
     return redirect('/')
+
+
+def forgot_password(request):
+    """
+    Emails a password reset link to the given username or email address.
+
+    Does nothing for social auth users, since they have no DataHub password.
+    """
+    return HttpResponse('Not implemented yet.')
+
+
+@login_required()
+def verify_email(request):
+    """
+    Activates new users.
+
+    Receives email verification link from new user email.
+    """
+    return HttpResponse('Not implemented yet.')
+
+
+def reset_password(request):
+    """
+    Asks the user to choose a new password.
+
+    Receives password reset link from forgot password email.
+    """
+    return HttpResponse('Not implemented yet.')
