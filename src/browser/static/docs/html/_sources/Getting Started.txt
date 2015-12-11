@@ -270,6 +270,7 @@ Because the server is containerized, most server commands must be run in a conta
     $ sudo sh provisions/docker/create-dev-containers.sh
     $ sudo sh provisions/docker/rebuild-and-collect-static-files.sh
     $ sudo sh provisions/docker/restore-database.sh
+    $ sudo sh provisions/docker/run-test-container.sh
     $ sudo sh provisions/docker/start-containers.sh
     $ sudo sh provisions/docker/stop-containers.sh
 
@@ -295,6 +296,12 @@ Example Docker commands:
       --volumes-from app
       datahuborg/datahub \
       python src/manage.py collectstatic --noinput
+
+    # Pip install -r requirements.txt
+    sudo docker run --rm \
+    --volumes-from app \
+    datahuborg/datahub \
+    pip install -r requirements.txt
     
     # Note that `--rm` means it creates an ephemeral container. A new
     # lightweight VM is created just for that command, and is then
