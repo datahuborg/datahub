@@ -287,12 +287,12 @@ Example Docker commands:
     $ sudo docker run --rm \
       --link db:db \
       datahuborg/datahub \
-      python src/manage.py migrate
+      python src/manage.py migrate --noinput
     
     # Collect changes to Django's static files so the web container
     # can see them.
     $ sudo docker run --rm \
-      --volumes-from app
+      --volumes-from app \
       datahuborg/datahub \
       python src/manage.py collectstatic --noinput
     
