@@ -184,8 +184,6 @@ Run them from the ``/src`` directory:
     $ cd src
     $ python manage.py test
 
-Alternatively, they can be run individually:
-
 .. code-block:: bash
 
     $ vagrant ssh
