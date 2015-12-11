@@ -26,15 +26,6 @@ class LoginPageTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'login.html')
 
-    # def test_login_page_allows_user_to_login(self):
-    #     login_credentials = {'login_id': self.user.username,
-    #                          'login_password': self.password}
-    #     response = self.client.post('/account/login', login_credentials)
-
-    #     # should redirect to the authenticated user page
-    #     self.assertEqual(response.status_code, 302)
-    #     self.assertTrue("/?auth_user=user" in response.url)
-
 
 class RegisterPageTest(TestCase):
 
@@ -46,14 +37,6 @@ class RegisterPageTest(TestCase):
         response = self.client.get('/account/register', follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'register.html')
-
-#     def test_register_page_allows_new_user_registration(self):
-#         pass
-#         # functional test
-
-#     def test_registered_user_actually_exists(self):
-#         pass
-#         # functional test
 
 
 class LogoutPageTest(TestCase):
