@@ -158,7 +158,6 @@ INSTALLED_APPS = (
     'account',
     'console',
     'browser',
-    'oidc',
     'dataq',
     'sentiment',
     'datatables',
