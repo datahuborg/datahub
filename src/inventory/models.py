@@ -17,11 +17,6 @@ class DataHubLegacyUser(models.Model):
     l_name = models.CharField(max_length=50, null=True)
     password = models.CharField(max_length=50)
     active = models.BooleanField(default=False)
-    # `issuer` and `subject` are OIDC fields for identifying users based on
-    # their identity provider and their uid at the provider. `max_length=255`
-    # here is arbitrary.
-    issuer = models.CharField(max_length=255, null=True)
-    subject = models.CharField(max_length=255, null=True)
 
     def __unicode__(self):
         return self.username
