@@ -7,6 +7,7 @@ import urllib
 import uuid
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.context_processors import csrf
 from django.http import *
 from django.shortcuts import render_to_response
@@ -1005,7 +1006,7 @@ Developer Apps
 @login_required
 def apps(request):
     username = request.user.username
-    user = DataHubLegacyUser.objects.get(username=username)
+    user = User.objects.get(username=username)
     user_apps = App.objects.filter(user=user)
     apps = []
     for app in user_apps:
@@ -1016,7 +1017,7 @@ def apps(request):
              'date_created': app.timestamp})
     print apps
     c = {
-        'login': login,
+        'login': username,
         'apps': apps}
     return render_to_response('apps.html', c)
 
@@ -1027,7 +1028,7 @@ def app_register(request):
 
     if request.method == "POST":
         try:
-            user = DataHubLegacyUser.objects.get(username=username)
+            user = User.objects.get(username=username)
             app_id = request.POST["app-id"].lower()
             app_name = request.POST["app-name"]
             app_token = str(uuid.uuid4())
@@ -1061,7 +1062,7 @@ def app_register(request):
 def app_remove(request, app_id):
     try:
         username = request.user.username
-        user = DataHubLegacyUser.objects.get(username=username)
+        user = User.objects.get(username=username)
         app = App.objects.get(user=user, app_id=app_id)
         app.delete()
 
