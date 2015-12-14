@@ -296,10 +296,7 @@ Example Docker commands:
       python src/manage.py collectstatic --noinput
 
     # Pip install -r requirements.txt
-    sudo docker run --rm \
-    --volumes-from app \
-    datahuborg/datahub \
-    pip install -r requirements.txt
+    $ sudo docker exec app pip install -r requirements.txt
     
     # Note that `--rm` means it creates an ephemeral container. A new
     # lightweight VM is created just for that command, and is then
