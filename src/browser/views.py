@@ -17,7 +17,8 @@ from thrift.protocol import TBinaryProtocol
 from thrift.protocol import TJSONProtocol
 from thrift.transport.TTransport import TMemoryBuffer
 
-from account.manager import *
+from inventory.models import App
+from account.utils import grant_app_permission
 from core.db.manager import DataHubManager
 from datahub import DataHub
 from datahub.account import AccountService
@@ -1097,7 +1098,7 @@ def app_allow_access(request, app_id, repo_name):
             access_val = request.POST['access_val']
 
             if access_val == 'allow':
-                account_grant_permission(
+                grant_app_permission(
                     username=username,
                     repo_name=repo_name,
                     app_id=app_id,

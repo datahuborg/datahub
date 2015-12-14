@@ -1,86 +1,12 @@
-from django.conf import settings
 from django.shortcuts import render_to_response, redirect, render
 from django.contrib.auth import logout as django_logout, \
-                                login as django_login, \
-                                authenticate
+                                login as django_login
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.template.context import RequestContext
-from social.backends.utils import load_backends
-from operator import itemgetter
-import forms
-
-
-def provider_details():
-    # For templates. Intersect with settings.AUTHENTICATION_BACKENDS to limit
-    # to enabled social backends.
-    #
-    # `backend` is the backend name Python Social Auth understands.
-    # `name` is the display name to be shown in templates.
-    # `icon` is the id of the Font Awesome icon matching the backend.
-    # `priority` is the sort order. Lower numbers sort first.
-    providers = [
-        {
-            'backend': 'google-oauth2',
-            'name': 'Google',
-            'icon': 'google',
-            'priority': -90,
-        },
-        {
-            'backend': 'twitter',
-            'name': 'Twitter',
-            'icon': 'twitter',
-            'priority': 0,
-        },
-        {
-            'backend': 'reddit',
-            'name': 'Reddit',
-            'icon': 'reddit',
-            'priority': 0,
-        },
-        {
-            'backend': 'steam',
-            'name': 'Steam',
-            'icon': 'steam-square',
-            'priority': 0,
-        },
-        {
-            'backend': 'facebook',
-            'name': 'Facebook',
-            'icon': 'facebook-official',
-            'priority': -80,
-        },
-        {
-            'backend': 'flickr',
-            'name': 'Flickr',
-            'icon': 'flickr',
-            'priority': 0,
-        },
-        {
-            'backend': 'github',
-            'name': 'GitHub',
-            'icon': 'github',
-            'priority': 0,
-        },
-        {
-            'backend': 'twitch',
-            'name': 'Twitch',
-            'icon': 'twitch',
-            'priority': 0,
-        },
-        {
-            'backend': 'mit-oidc',
-            'name': 'MIT OpenID Connect',
-            'icon': 'mit',
-            'priority': -1000,
-        },
-    ]
-
-    enabled_backends = load_backends(settings.AUTHENTICATION_BACKENDS)
-
-    providers = [p for p in providers if p['backend'] in enabled_backends]
-    providers = sorted(providers, key=itemgetter('priority', 'name'))
-    return providers
+from account.forms import UsernameForm, RegistrationForm, LoginForm
+from account.utils import provider_details, datahub_authenticate
+from django.http import HttpResponse
 
 
 def login(request):
@@ -93,22 +19,11 @@ def login(request):
     Facebook, Twitter, etc).
     """
     if request.method == 'POST':
-        form = forms.LoginForm(request.POST)
+        form = LoginForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data['username'].lower()
             password = form.cleaned_data['password']
-            # If username looks like an email address, look up the username
-            # associated with that address.
-            #
-            # This assumes the username regex disallows the @ symbol, and the
-            # email regex requires it.
-            if '@' in username:
-                try:
-                    user = User.objects.get(email=username)
-                    username = user.username
-                except User.DoesNotExist:
-                    user = None
-            user = authenticate(username=username, password=password)
+            user = datahub_authenticate(username, password)
             if user is not None and user.is_active:
                 django_login(request, user)
                 return redirect('/')
@@ -119,7 +34,7 @@ def login(request):
             # errors.
             pass
     else:
-        form = forms.LoginForm()
+        form = LoginForm()
 
     providers = provider_details()
     context = RequestContext(request, {
@@ -140,7 +55,7 @@ def register(request):
     Facebook, Twitter, etc).
     """
     if request.method == 'POST':
-        form = forms.RegistrationForm(request.POST)
+        form = RegistrationForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data['username'].lower()
             email = form.cleaned_data['email'].lower()
@@ -152,18 +67,18 @@ def register(request):
             #
             # In the future, another pre_save signal handler will check if a
             # DataHub database exists for the user and create one if it
-            # doesn't exist. If the database cannot be create, that handler
+            # doesn't exist. If the database cannot be created, that handler
             # will throw an exception.
-            user = authenticate(username=username, password=password)
+            user = datahub_authenticate(username, password)
             if user is not None and user.is_active:
                 django_login(request, user)
                 return redirect('/')
         else:
-            # Form isn't valid. Fall through to return it to the user with
+            # Form isn't valid. Fall through and return it to the user with
             # errors.
             pass
     else:
-        form = forms.RegistrationForm()
+        form = RegistrationForm()
 
     providers = provider_details()
     context = RequestContext(request, {
@@ -174,21 +89,27 @@ def register(request):
     return render_to_response('register.html', context_instance=context)
 
 
-# Called by the get_user_details pipeline. Look for pipeline.py and the
-# SOCIAL_AUTH_PIPELINE section of settings.py.
 def get_user_details(request):
+    """
+    DataHub account registration form for social accounts.
+
+    Gives new users a chance to choose a DataHub username and set their email
+    address.
+
+    Called by the Python Social Auth pipeline's get_user_details step. For
+    more details, look for pipeline.py and the SOCIAL_AUTH_PIPELINE section
+    of settings.py.
+    """
     # Prepopulate the form with values provided by the identity provider.
-    pipeline_args = request.session['partial_pipeline']['kwargs']
     backend = request.session['partial_pipeline']['backend']
     try:
-        details = pipeline_args['details']
+        details = request.session['partial_pipeline']['kwargs']['details']
     except KeyError:
         details = None
     try:
         # Include details about the social login being used,
-        # e.g. "Authenticated as Facebook user FooBar."
-        providers = provider_details()
-        provider = next((p for p in providers if p['backend'] == backend), None)
+        # e.g. "Authenticated as Facebook user Foo Bar."
+        provider = provider_details(backend=backend)
         social = {
             'username': details['username'],
             'name': provider['name'],
@@ -198,7 +119,7 @@ def get_user_details(request):
         social = None
 
     if request.method == 'POST':
-        form = forms.UsernameForm(request.POST)
+        form = UsernameForm(request.POST)
         if form.is_valid():
             # Because of FIELDS_STORED_IN_SESSION, preferred_username will be
             # copied to the request dictionary when the pipeline resumes.
@@ -212,7 +133,7 @@ def get_user_details(request):
             # tell the pipeline to resume by using the "complete" endpoint
             return redirect('social:complete', backend=backend)
     else:
-        form = forms.UsernameForm(initial={'email': details['email']})
+        form = UsernameForm(initial={'email': details['email']})
 
     context = RequestContext(request, {
         'form': form,
@@ -231,7 +152,7 @@ def home(request):
 
 def logout(request):
     """
-    Log out the current user and clears their session data. Redirects to /.
+    Logs out the current user and clears their session data. Redirects to /.
 
     Doesn't throw any errors if the user isn't logged in.
     """
