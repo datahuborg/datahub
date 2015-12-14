@@ -232,11 +232,9 @@ def repo_tables(request, repo_base, repo):
         if not (res and res['tuples'][0][0]):
             raise Exception('Access denied. Missing required privileges.')
 
+        # get the base tables and views of the user's repo
         manager = DataHubManager(user=repo_base)
-
-        # get base_tables for a given repo
-        res = manager.list_tables(repo)
-        base_tables = [t[0] for t in res['tuples']]
+        base_tables = manager.list_tables(repo)
 
         # get views for a given repo
         res = manager.list_views(repo)
