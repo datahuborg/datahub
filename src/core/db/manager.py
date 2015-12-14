@@ -1,11 +1,11 @@
-import hashlib
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-
 from config import settings
 from core.db.connection import DataHubConnection
 from inventory.models import *
 from django.contrib.auth.models import User
+
+import hashlib
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 
 class DataHubManager:
