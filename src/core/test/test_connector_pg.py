@@ -260,6 +260,12 @@ class SchemaListCreateDeleteShare(TestCase):
                              'AND table_type = \'BASE TABLE\';')
         params = (repo,)
 
+        # execute sql should return this as a return value:
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 1, 'tuples': [
+                ('test_table',)],
+            'fields': [{'type': 1043, 'name': 'table_name'}]}
+
         # list_tables depends on list_repos, which is being mocked out
         mock_list_repos = self.create_patch(
             'core.db.backend.pg.PGBackend.list_repos')

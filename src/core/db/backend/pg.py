@@ -147,7 +147,10 @@ class PGBackend:
                  'WHERE table_schema = %s AND table_type = \'BASE TABLE\';'
                  )
         params = (repo,)
-        return self.execute_sql(query, params)
+
+        res = self.execute_sql(query, params)
+
+        return [t[0] for t in res['tuples']]
 
     def list_views(self, repo):
         res = self.list_repos()
