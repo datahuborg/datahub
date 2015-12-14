@@ -165,7 +165,10 @@ class PGBackend:
                  'AND table_type = \'VIEW\';')
 
         params = (repo,)
-        return self.execute_sql(query, params)
+
+        res = self.execute_sql(query, params)
+
+        return [t[0] for t in res['tuples']]
 
     def get_schema(self, table):
         tokens = table.split('.')

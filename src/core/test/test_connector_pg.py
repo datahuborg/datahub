@@ -260,22 +260,23 @@ class SchemaListCreateDeleteShare(TestCase):
                              'AND table_type = \'BASE TABLE\';')
         params = (repo,)
 
-        # execute sql should return this as a return value:
+        # execute sql should return this:
         self.mock_execute_sql.return_value = {
             'status': True, 'row_count': 1, 'tuples': [
                 ('test_table',)],
             'fields': [{'type': 1043, 'name': 'table_name'}]}
 
-        # list_tables depends on list_repos, which is being mocked out
+        # mocking out execute_sql's complicated return JSON
         mock_list_repos = self.create_patch(
             'core.db.backend.pg.PGBackend.list_repos')
         mock_list_repos.return_value = {'tuples': [[repo]]}
 
-        self.backend.list_tables(repo)
+        res = self.backend.list_tables(repo)
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], list_tables_query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
+        self.assertEqual(res, ['test_table'])
 
     def test_list_views(self):
         repo = 'repo'
@@ -284,16 +285,23 @@ class SchemaListCreateDeleteShare(TestCase):
                             'AND table_type = \'VIEW\';')
         params = (repo,)
 
+        # mocking out execute_sql's complicated return JSON
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 1, 'tuples': [
+                ('test_view',)],
+            'fields': [{'type': 1043, 'name': 'view_name'}]}
+
         # list_views depends on list_repos, which is being mocked out
         mock_list_repos = self.create_patch(
             'core.db.backend.pg.PGBackend.list_repos')
         mock_list_repos.return_value = {'tuples': [[repo]]}
 
-        self.backend.list_views(repo)
+        res = self.backend.list_views(repo)
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], list_views_query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
+        self.assertEqual(res, ['test_view'])
 
     def test_get_schema(self):
         # currently not testing the need to specify a repo, since we may
