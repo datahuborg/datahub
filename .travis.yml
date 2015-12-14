@@ -7,7 +7,7 @@ before_install:
   - sudo apt-get install libboost-dev libboost-test-dev libboost-program-options-dev libboost-system-dev libboost-filesystem-dev libevent-dev automake libtool flex bison pkg-config g++ libssl-dev ant default-jdk
   - travis_retry wget http://people.apache.org/~jfarrell/thrift/0.9.2/contrib/ubuntu/thrift-compiler_0.9.2_amd64.deb -O thrift-compiler.deb
   - sudo dpkg -i thrift-compiler.deb
-  - mkdir /user_data
+  - sudo mkdir /user_data
   - sudo chmod 776 /user_data
 
 install:
