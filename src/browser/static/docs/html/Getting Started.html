@@ -293,6 +293,7 @@ e41f0f5135db        datahuborg/postgres   <span class="s2">&quot;/bin/true&quot;
 <span class="nv">$ </span>sudo sh provisions/docker/create-dev-containers.sh
 <span class="nv">$ </span>sudo sh provisions/docker/rebuild-and-collect-static-files.sh
 <span class="nv">$ </span>sudo sh provisions/docker/restore-database.sh
+<span class="nv">$ </span>sudo sh provisions/docker/run-test-container.sh
 <span class="nv">$ </span>sudo sh provisions/docker/start-containers.sh
 <span class="nv">$ </span>sudo sh provisions/docker/stop-containers.sh
 </pre></div>
@@ -316,6 +317,12 @@ e41f0f5135db        datahuborg/postgres   <span class="s2">&quot;/bin/true&quot;
   --volumes-from app
   datahuborg/datahub <span class="se">\</span>
   python src/manage.py collectstatic --noinput
+
+<span class="c"># Pip install -r requirements.txt</span>
+sudo docker run --rm <span class="se">\</span>
+--volumes-from app <span class="se">\</span>
+datahuborg/datahub <span class="se">\</span>
+pip install -r requirements.txt
 
 <span class="c"># Note that `--rm` means it creates an ephemeral container. A new</span>
 <span class="c"># lightweight VM is created just for that command, and is then</span>

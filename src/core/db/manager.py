@@ -7,13 +7,6 @@ from core.db.connection import DataHubConnection
 from inventory.models import *
 from django.contrib.auth.models import User
 
-'''
-Datahub DB Manager
-
-@author: Anant Bhardwaj
-@date: Mar 21, 2013
-'''
-
 
 class DataHubManager:
 
