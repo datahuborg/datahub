@@ -235,10 +235,7 @@ def repo_tables(request, repo_base, repo):
         # get the base tables and views of the user's repo
         manager = DataHubManager(user=repo_base)
         base_tables = manager.list_tables(repo)
-
-        # get views for a given repo
-        res = manager.list_views(repo)
-        views = [t[0] for t in res['tuples']]
+        views = manager.list_views(repo)
 
         res = {
             'login': username,
