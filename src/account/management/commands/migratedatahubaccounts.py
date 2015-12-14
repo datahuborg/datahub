@@ -30,14 +30,13 @@ class Command(BaseCommand):
         old_users = DataHubLegacyUser.objects.all()
         apps = App.objects.all()
         users = User.objects.all()
-        print "Good morning, potato.\n"
-        print "Old model users: {0} New model users: {1}".format(
-            len(old_users), len(users))
-        print "Apps: {0}".format(len(apps))
+        print("Old model users: {0} New model users: {1}".format(
+            len(old_users), len(users)))
+        print("Apps: {0}".format(len(apps)))
 
         if len(users) > 0 and not options['force']:
-            print ("There are already some users using the new model. "
-                   "If this is expected, force migration with --force.")
+            print("There are already some users using the new model. "
+                  "If this is expected, force migration with --force.")
             return
 
         new_users = []
@@ -55,14 +54,14 @@ class Command(BaseCommand):
 
             for app in apps:
                 username = app.legacy_user.username
-                print "{0} legacy_user is {1}".format(
+                print("{0} legacy_user is {1}".format(
                     app.app_id,
                     username
-                    )
+                    ))
                 if app.user is None:
                     new_user = User.objects.get(username=username)
                     app.user = new_user
                     app.save(update_fields=['user'])
-                print "    user is {0}".format(app.user.username)
+                print("    user is {0}".format(app.user.username))
 
-        print "Migrated Users: {0}".format(new_users)
+        print("Migrated Users: {0}".format(new_users))
