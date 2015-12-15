@@ -95,6 +95,6 @@ class LoginForm(forms.Form):
     """
 
     # `username` could be a username or email address, so be lax validating it.
-    username = forms.CharField()
+    username = forms.CharField(label="Username or email address")
     password = forms.CharField(label=("Password"),
                                widget=forms.PasswordInput)

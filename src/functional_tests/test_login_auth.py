@@ -1,5 +1,4 @@
 from .base import FunctionalTest
-from core.db.manager import DataHubManager
 
 
 class LoginTest(FunctionalTest):
@@ -11,6 +10,7 @@ class LoginTest(FunctionalTest):
         self.assertNotRegexpMatches(justin_url, self.username)
 
     def test_register_user_manually_sign_in_and_delete(self):
+        # User visits DataHub homepage.
         self.browser.get(self.server_url)
         self.browser.set_window_size(1024, 768)
 
@@ -31,9 +31,9 @@ class LoginTest(FunctionalTest):
         # Justin signs out
         self.browser.find_element_by_id('id_sign_out').click()
 
-        # The URL bar now shows logout
+        # User is redirected back to DataHub homepage.
         justin_url = self.browser.current_url
-        self.assertRegexpMatches(justin_url, 'logout')
+        self.assertRegexpMatches(justin_url, 'www')
 
         # Justin is able to sign back in
         self.sign_in_manually()
@@ -41,7 +41,7 @@ class LoginTest(FunctionalTest):
         self.assertRegexpMatches(justin_url, self.username)
 
         # DataHub deletes his user and database, somewhat vindictively
-        DataHubManager.remove_user(self.username, remove_db=True)
+        self.delete_user(self.username)
 
         # Justin doesn't like DataHub
         # Justin goes to the settings page

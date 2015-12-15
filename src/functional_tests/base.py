@@ -6,11 +6,20 @@ from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import warnings
 
+from django.contrib.auth.models import User
+from core.db.manager import DataHubManager
+
 
 class FunctionalTest(StaticLiveServerTestCase):
 
     @classmethod
     def setUpClass(cls):  # only gets executed once
+        super(FunctionalTest, cls).setUpClass()
+        if os.environ.get('DATAHUB_DOCKER_TESTING') == 'true':
+            # web is the name of the nginx Docker container.
+            cls.server_url = 'http://web'
+            return
+
         for arg in sys.argv:
             # look for the liveserver string when
             # initializing
@@ -19,12 +28,7 @@ class FunctionalTest(StaticLiveServerTestCase):
                 cls.server_url = 'http://' + arg.split('=')[1]
                 return
 
-            if os.environ.get('DATAHUB_DOCKER_TESTING') == 'true':
-                # web is the name of the nginx Docker container.
-                cls.server_url = 'http://web'
-                return
 
-        super(FunctionalTest, cls).setUpClass()
         cls.server_url = cls.live_server_url
 
     @classmethod
@@ -48,11 +52,22 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         # default username and password for loggin in a user manually
         # use only lowercase here
-        self.username = 'cdefghi'
+        self.username = 'delete_me_cdefghi'
         self.password = 'cdefghi'
 
     def tearDown(self):
+        # Delete all users whose name starts with 'delete_me_'.
+        all_users = User.objects.all()
+        test_users = all_users.filter(username__startswith='delete_me_')
+        for user in test_users:
+            DataHubManager.remove_user(user.username, remove_db=True)
+            user.delete()
         self.browser.quit()
+
+    def delete_user(self, username):
+        user = User.objects.get(username=username)
+        DataHubManager.remove_user(user.username, remove_db=True)
+        user.delete()
 
     def check_external_links(self):
         # supress warnings for testing external links
@@ -93,18 +108,18 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.get(self.server_url + '/account/register')
 
         # Justin adds a username
-        self.browser.find_element_by_id('username').send_keys(self.username)
+        self.browser.find_element_by_id('id_username').send_keys(self.username)
 
         # Justin adds an email
-        self.browser.find_element_by_id('email').send_keys(
+        self.browser.find_element_by_id('id_email').send_keys(
             self.username + '@sharklasers.com'
         )
 
         # Justin adds a password
-        self.browser.find_element_by_id('password').send_keys(self.password)
+        self.browser.find_element_by_id('id_password').send_keys(self.password)
 
         # Justin clicks sign up
-        self.browser.find_element_by_id('id_register').click()
+        self.browser.find_element_by_id('id_sign_up_action').click()
 
     def sign_in_manually(self):
         # Justin goes to the sign in page
