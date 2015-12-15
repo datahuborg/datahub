@@ -8,6 +8,8 @@ fi
 echo "Removing dev app container..."
 (set -x; docker rm -f app)
 echo "Spinning up test app container..."
+echo "Run unit tests with commands like 'python manage.py test core'"
+echo "Run functional tests with commands like 'python manage.py test functional_tests.test_login_auth'"
 (set -x; docker run -ti --rm \
     -e "DATAHUB_DOCKER_TESTING=true" \
     -e "DJANGO_LIVE_TEST_SERVER_ADDRESS=0.0.0.0:8000" \

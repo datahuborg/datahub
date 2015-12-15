@@ -1,5 +1,4 @@
 import os
-import hashlib
 
 from mock import patch
 import factory
@@ -41,7 +40,7 @@ class CreateAndDeleteRepo(TestCase):
         self.mock_DataHubManager.has_repo_privilege.return_value = {
             'tuples': [[True]]}
 
-       # log the user in
+        # log the user in
         self.client.login(username=self.username, password=self.password)
 
     def tearDown(self):
@@ -128,7 +127,7 @@ class RepoTableCardViews(TestCase):
         self.mock_DataHubManager.has_repo_privilege.return_value = {
             'tuples': [[True]]}
 
-       # log the user in
+        # log the user in
         self.client.login(username=self.username, password=self.password)
 
     def create_patch(self, name):

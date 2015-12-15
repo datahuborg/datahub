@@ -17,7 +17,7 @@ from thrift.protocol import TBinaryProtocol
 from thrift.protocol import TJSONProtocol
 from thrift.transport.TTransport import TMemoryBuffer
 
-from inventory.models import App
+from inventory.models import App, Card
 from account.utils import grant_app_permission
 from core.db.manager import DataHubManager
 from datahub import DataHub

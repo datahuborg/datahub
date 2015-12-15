@@ -7,14 +7,14 @@ from django.db.models import signals
 from django.contrib.auth.models import User
 
 
-class LegacyuserTests(TestCase):
-    """ saving and loading users"""
+class LegacyUserTests(TestCase):
+
+    """Tests saving and loading legacy users."""
 
     def test_fields(self):
         models.DataHubLegacyUser.objects.create(
             id=10, email="foo@bar.fizz", username="foobar", f_name="f_name",
-            l_name="l_name", password="_h4rd;Pa_ss w-0Rd_", active=True,
-            issuer="issuer", subject="subject")
+            l_name="l_name", password="_h4rd;Pa_ss w-0Rd_", active=True)
         loaded_user = models.DataHubLegacyUser.objects.get(id=10)
 
         self.assertEqual(loaded_user.id, 10)
@@ -24,13 +24,12 @@ class LegacyuserTests(TestCase):
         self.assertEqual(loaded_user.l_name, "l_name")
         self.assertEqual(loaded_user.password, "_h4rd;Pa_ss w-0Rd_")
         self.assertEqual(loaded_user.active, True)
-        self.assertEqual(loaded_user.issuer, "issuer")
-        self.assertEqual(loaded_user.subject, "subject")
         self.assertEqual(unicode(loaded_user), "foobar")
 
 
 class CardTests(TestCase):
-    """test saving and loading cards"""
+
+    """Test saving and loading cards."""
 
     def test_fields(self):
         models.Card.objects.create(
@@ -47,7 +46,8 @@ class CardTests(TestCase):
 
 
 class AnnotationTest(TestCase):
-    """test saving and loading annotation"""
+
+    """Test saving and loading annotations."""
 
     def test_fields(self):
         models.Annotation.objects.create(
@@ -60,14 +60,14 @@ class AnnotationTest(TestCase):
 
 
 class AppTest(TestCase):
-    """test saving and loading apps"""
+
+    """Test saving and loading apps."""
 
     @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
         self.legacy_user = models.DataHubLegacyUser.objects.create(
             id=10, email="foo@bar.fizz", username="foobar", f_name="f_name",
-            l_name="l_name", password="_h4rd;Pa_ss w-0Rd_", active=True,
-            issuer="issuer", subject="subject")
+            l_name="l_name", password="_h4rd;Pa_ss w-0Rd_", active=True)
 
         self.user = User.objects.create_user(
             "username", "email@email.email", "password")
@@ -87,14 +87,14 @@ class AppTest(TestCase):
 
 
 class PermissionTest(TestCase):
-    """test permissions granted to apps"""
+
+    """Test permissions granted to apps."""
 
     @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
         self.legacy_user = models.DataHubLegacyUser.objects.create(
             id=10, email="foo@bar.fizz", username="foobar", f_name="f_name",
-            l_name="l_name", password="_h4rd;Pa_ss w-0Rd_", active=True,
-            issuer="issuer", subject="subject")
+            l_name="l_name", password="_h4rd;Pa_ss w-0Rd_", active=True)
 
         self.user = User.objects.create_user(
             "username", "email@email.email", "password")

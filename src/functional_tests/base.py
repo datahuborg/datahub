@@ -28,7 +28,6 @@ class FunctionalTest(StaticLiveServerTestCase):
                 cls.server_url = 'http://' + arg.split('=')[1]
                 return
 
-
         cls.server_url = cls.live_server_url
 
     @classmethod
