@@ -20,6 +20,9 @@
 # data path is declared in the base postgres image, so having one requires the
 # other.
 
+echo "Creating \"datahub_dev\" Docker network if needed..."
+docker network create datahub_dev 2> /dev/null
+
 echo "Creating Docker containers..."
 echo "(1/6) Creating \"logs\" - Data container for all server logs"
 docker create --name logs \
@@ -36,13 +39,14 @@ echo "(3/6) Creating \"db\" - Postgres server"
 docker create --name db \
     --volumes-from logs \
     --volumes-from data \
+    --net=datahub_dev \
     datahuborg/postgres
 echo "(4/6) Creating \"app\" - gunicorn server hosting DataHub"
 docker create --name app \
     --env 'USER=vagrant' \
     --volumes-from logs \
     --volumes-from data \
-    --link db:db \
+    --net=datahub_dev \
     -v /vagrant:/datahub \
     datahuborg/datahub gunicorn --config=provisions/gunicorn/config_dev.py browser.wsgi
 echo "(5/6) Creating \"web\" - nginx http proxy"
@@ -50,13 +54,13 @@ docker create --name web \
     --volumes-from logs \
     --volumes-from app \
     -v /ssl/:/etc/nginx/ssl/ \
-    --link app:app \
+    --net=datahub_dev \
     -p 80:80 -p 443:443 \
     datahuborg/nginx
-echo "(6/6) Creating \"test browser\" - phantomjs"
+echo "(6/6) Creating \"phantomjs\" - PhantomJS remote web driver for Selenium tests"
 docker create --name phantomjs \
     --env 'USER=vagrant' \
-    --link web:web \
+    --net=datahub_dev \
     wernight/phantomjs \
     phantomjs --webdriver=8910
 echo "Done."

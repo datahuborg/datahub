@@ -9,8 +9,8 @@ echo "Running Django migrations..."
 docker run \
     --rm \
     --env 'USER=vagrant' \
-    --link db \
     --volumes-from app \
+    --net=datahub_dev \
     datahuborg/datahub \
     /bin/bash -c "python src/manage.py migrate --noinput"
 docker start app
