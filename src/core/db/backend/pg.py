@@ -72,7 +72,9 @@ class PGBackend:
 
         query = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'
         params = (AsIs(repo), AsIs(self.user))
-        return self.execute_sql(query, params)
+
+        res = self.execute_sql(query, params)
+        return res['status']
 
     def list_repos(self):
         query = ('SELECT schema_name AS repo_name '
