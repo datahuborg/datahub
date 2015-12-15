@@ -66,7 +66,7 @@ class LoginTest(FunctionalTest):
 
         # His data does not reappear
 
-        # Justin has messed with the best. He does like the rest.
+        # Justin has messed with the best. He dies like the rest.
 
     # def delete_account(self):
     #     pass

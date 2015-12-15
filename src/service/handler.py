@@ -88,7 +88,10 @@ class DataHubHandler:
             manager = DataHubManager(
                 user=con.user, repo_base=con.repo_base, is_app=con.is_app)
             res = manager.create_repo(repo=repo_name)
-            return construct_result_set(res)
+            thrift_crazy_result = {'status': res, 'row_count': -1,
+                                   'tuples': [], 'fields': []}
+
+            return construct_result_set(thrift_crazy_result)
         except Exception, e:
             raise DBException(message=str(e))
 

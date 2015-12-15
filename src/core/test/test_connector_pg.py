@@ -121,23 +121,26 @@ class SchemaListCreateDeleteShare(TestCase):
         self.mock_check_for_injections.reset_mock()
 
     # testing externally called methods in PGBackend
-    def test_create_repo_happy_path(self):
+    def test_create_repo(self):
         create_repo_sql = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'
+        reponame = 'reponame'
+        self.mock_execute_sql.return_value = {'status': True, 'row_count': -1,
+                                              'tuples': [], 'fields': []}
 
-        for noun in self.good_nouns:
-            self.backend.create_repo(noun)
-            self.assertEqual(
-                self.mock_execute_sql.call_args[0][0], create_repo_sql)
-            self.assertEqual(
-                self.mock_execute_sql.call_args[0][1][0], noun)
-            self.assertEqual(
-                self.mock_execute_sql.call_args[0][1][1], self.username)
+        res = self.backend.create_repo(reponame)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], create_repo_sql)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][1][0], reponame)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][1][1], self.username)
 
-            self.assertTrue(self.mock_as_is.called)
-            self.assertTrue(self.mock_check_for_injections.called)
+        self.assertTrue(self.mock_as_is.called)
+        self.assertTrue(self.mock_check_for_injections.called)
+        self.assertEqual(res, True)
 
-            # reset mocks
-            self.reset_mocks()
+        # reset mocks
+        self.reset_mocks()
 
     def test_list_repo(self):
         # the user is already logged in, so there's not much to be tested here
