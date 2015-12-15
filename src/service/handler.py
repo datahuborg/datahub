@@ -80,7 +80,8 @@ class DataHubHandler:
     def create_repo(self, con, repo_name):
         try:
             '''
-            res = DataHubManager.has_base_privilege(con.user, con.repo_base, 'CREATE')
+            res = DataHubManager.has_base_privilege(
+                con.user, con.repo_base, 'CREATE')
             if not (res and res['tuples'][0][0]):
               raise Exception('Access denied. Missing required privileges.')
             '''
@@ -94,25 +95,38 @@ class DataHubHandler:
     def list_repos(self, con):
         try:
             '''
-            res = DataHubManager.has_base_privilege(con.user, con.repo_base, 'CONNECT')
+            res = DataHubManager.has_base_privilege(
+                con.user, con.repo_base, 'CONNECT')
             if not (res and res['tuples'][0][0]):
               raise Exception('Access denied. Missing required privileges.')
             '''
             manager = DataHubManager(
                 user=con.user, repo_base=con.repo_base, is_app=con.is_app)
             res = manager.list_repos()
-            return construct_result_set(res)
+
+            # prepare dumb thrift stuff
+            tuple_list = zip(res)
+            length = len(res)
+            thrift_crazy_result = {
+                'status': True, 'row_count': length,
+                'tuples': tuple_list,
+                'fields': [{'type': 1043, 'name': 'repo_name'}]
+                }
+
+            return construct_result_set(thrift_crazy_result)
         except Exception, e:
             raise DBException(message=str(e))
 
     def delete_repo(self, con, repo_name, force_if_non_empty):
         try:
             '''
-            res = DataHubManager.has_base_privilege(con.user, con.repo_base, 'CREATE')
+            res = DataHubManager.has_base_privilege(
+                con.user, con.repo_base, 'CREATE')
             if not (res and res['tuples'][0][0]):
               raise Exception('Access denied. Missing required privileges.')
 
-            res = DataHubManager.has_repo_privilege(con.user, con.repo_base, repo_name, 'CREATE')
+            res = DataHubManager.has_repo_privilege(
+                con.user, con.repo_base, repo_name, 'CREATE')
             if not (res and res['tuples'][0][0]):
               raise Exception('Access denied. Missing required privileges.')
             '''
@@ -126,14 +140,27 @@ class DataHubHandler:
     def list_tables(self, con, repo_name):
         try:
             '''
-            res = DataHubManager.has_repo_privilege(con.user, con.repo_base, repo_name, 'USAGE')
+            res = DataHubManager.has_repo_privilege(
+                con.user, con.repo_base, repo_name, 'USAGE')
             if not (res and res['tuples'][0][0]):
               raise Exception('Access denied. Missing required privileges.')
             '''
             manager = DataHubManager(
                 user=con.user, repo_base=con.repo_base, is_app=con.is_app)
             res = manager.list_tables(repo=repo_name)
-            return construct_result_set(res)
+
+            # create the crazy thrift tuple, since this is for consumption from
+            # 3rd party apps, and they haven't upgraded to the new list_tables
+            # ARC 2015-12-15
+            tuple_list = zip(res)
+            length = len(res)
+            thrift_crazy_result = {
+                'status': True, 'row_count': length,
+                'tuples': tuple_list,
+                'fields': [{'type': 1043, 'name': 'table_name'}]
+                }
+
+            return construct_result_set(thrift_crazy_result)
         except Exception, e:
             raise DBException(message=str(e))
 

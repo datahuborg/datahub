@@ -145,11 +145,18 @@ class SchemaListCreateDeleteShare(TestCase):
         list_repo_sql = ('SELECT schema_name AS repo_name '
                          'FROM information_schema.schemata '
                          'WHERE schema_owner = %s')
-        self.backend.list_repos()
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 1, 'tuples': [
+                ('test_table',)],
+            'fields': [{'type': 1043, 'name': 'table_name'}]}
+
+        res = self.backend.list_repos()
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], list_repo_sql)
         self.assertEqual(
             self.mock_execute_sql.call_args[0][1][0], self.username)
+
+        self.assertEqual(res, ['test_table'])
 
     def test_delete_repo_happy_path_cascade(self):
         drop_schema_sql = 'DROP SCHEMA %s %s'
@@ -269,7 +276,7 @@ class SchemaListCreateDeleteShare(TestCase):
         # mocking out execute_sql's complicated return JSON
         mock_list_repos = self.create_patch(
             'core.db.backend.pg.PGBackend.list_repos')
-        mock_list_repos.return_value = {'tuples': [[repo]]}
+        mock_list_repos.return_value = [repo]
 
         res = self.backend.list_tables(repo)
         self.assertEqual(
@@ -294,7 +301,7 @@ class SchemaListCreateDeleteShare(TestCase):
         # list_views depends on list_repos, which is being mocked out
         mock_list_repos = self.create_patch(
             'core.db.backend.pg.PGBackend.list_repos')
-        mock_list_repos.return_value = {'tuples': [[repo]]}
+        mock_list_repos.return_value = [repo]
 
         res = self.backend.list_views(repo)
         self.assertEqual(

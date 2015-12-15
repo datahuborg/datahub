@@ -175,8 +175,7 @@ def user(request, repo_base):
             raise Exception('Access denied. Missing required privileges.')
 
         manager = DataHubManager(user=repo_base)
-        res = manager.list_repos()
-        repos = [t[0] for t in res['tuples']]
+        repos = manager.list_repos()
 
         visible_repos = []
 

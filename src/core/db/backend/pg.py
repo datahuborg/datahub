@@ -80,7 +80,8 @@ class PGBackend:
                  'WHERE schema_owner = %s')
 
         params = (self.user,)
-        return self.execute_sql(query, params)
+        res = self.execute_sql(query, params)
+        return [t[0] for t in res['tuples']]
 
     def delete_repo(self, repo, force=False):
         ''' deletes a repo and the folder the user's repo files are in. '''
@@ -136,10 +137,9 @@ class PGBackend:
         self.execute_sql(query, params)
 
     def list_tables(self, repo):
-        res = self.list_repos()
         self._check_for_injections(repo)
 
-        all_repos = [t[0] for t in res['tuples']]
+        all_repos = self.list_repos()
         if repo not in all_repos:
             raise LookupError('Invalid repository name: %s' % (repo))
 
@@ -153,10 +153,9 @@ class PGBackend:
         return [t[0] for t in res['tuples']]
 
     def list_views(self, repo):
-        res = self.list_repos()
         self._check_for_injections(repo)
 
-        all_repos = [t[0] for t in res['tuples']]
+        all_repos = self.list_repos()
         if repo not in all_repos:
             raise LookupError('Invalid repository name: %s' % (repo))
 
