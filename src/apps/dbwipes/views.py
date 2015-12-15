@@ -105,7 +105,7 @@ def has_scorpion():
 def dbs(request):
   username = request.user.username
   manager = DataHubManager(user=username)
-  dbnames = pick(manager.list_repos()['tuples'], 0)
+  dbnames = manager.list_repos()
   #q = "SELECT datname FROM pg_database where datistemplate = false;"
   #dbnames = [str(row[0]) for row in manager.execute_sql(query=q)['tuples']]
   return {'databases': dbnames}
@@ -117,7 +117,7 @@ def tables(request):
   username = request.user.username
   manager = DataHubManager(user=username)
   repo = request.GET.get('repo')
-  tables = [str(row[0]) for row in manager.list_tables(repo)['tuples']]
+  tables = manager.list_tables(repo)
   return {'tables': tables}
 
 
