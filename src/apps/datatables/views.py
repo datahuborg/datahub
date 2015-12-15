@@ -40,17 +40,15 @@ def table(request, repo, table):
 
 
 def get_repos(manager):
-    result_set = manager.list_repos()
-    if 'tuples' in result_set:
-        repos = [t[0] for t in result_set['tuples']]
+    repos = manager.list_repos()
+    if len(repos) > 0:
         return repos
     return None
 
 
 def get_tables(manager, repo_name):
-    result_set = manager.list_tables(repo_name)
-    if 'tuples' in result_set:
-        tables = [t[0] for t in result_set['tuples']]
+    tables = manager.list_tables(repo_name)
+    if len(tables) > 0:
         return tables
     return None
 
