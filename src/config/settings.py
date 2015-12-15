@@ -91,7 +91,7 @@ STATICFILES_FINDERS = (
 # from using this default key.
 try:
     from secret_key import *
-except ImportError, e:
+except ImportError as e:
     SECRET_KEY = 'k+)#kqr2pgvqm_6y8hq+tj#p12&amp;p%dz#_exvw2x4@##dyz!or*'
     print("Warning: Could not find src/config/secret_key.py. Using the default SECRET_KEY for now. Run `src/scripts/generate_secret_key.py` to create a new key.",
           file=sys.stderr)

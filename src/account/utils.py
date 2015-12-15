@@ -10,13 +10,15 @@ from django.conf import settings
 
 
 def provider_details(backend=None):
-    # For templates. Intersect with settings.AUTHENTICATION_BACKENDS to limit
-    # to enabled social backends.
-    #
-    # `backend` is the backend name Python Social Auth understands.
-    # `name` is the display name to be shown in templates.
-    # `icon` is the id of the Font Awesome icon matching the backend.
-    # `priority` is the sort order. Lower numbers sort first.
+    """
+    Returns a list of tuples describing supported social providers.
+
+    If a backend is passed, only that backend's tuple is returned.
+    - `backend` is the backend name Python Social Auth understands.
+    - `name` is the display name to be shown in templates.
+    - `icon` is the id of the Font Awesome icon matching the backend.
+    - `priority` is the sort order. Lower numbers sort first.
+    """
     providers = [
         {
             'backend': 'google-oauth2',
@@ -121,14 +123,13 @@ def datahub_authenticate(username, password):
             DataHubLegacyUser.objects.get(
                 username=username,
                 password=hashed_password)
-            print("Found match for {0}".format(username))
+            print("Found partially migrated user {0}".format(username))
             user.set_password(password)
             user.save(update_fields=['password'])
             # Set the user's Postgres password to their hashed password
             DataHubManager.change_password(username, user.password)
-            print("Updated password for {0} to {1}".format(username, user.password))
+            print("Updated password for {0}".format(username))
         except DataHubLegacyUser.DoesNotExist:
-            print("Nope for {0}".format(username))
             pass
 
     user = django_authenticate(username=username, password=password)

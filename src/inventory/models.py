@@ -1,15 +1,11 @@
 from django.conf import settings
 from django.db import models
 
-'''
-Datahub Models
-
-@author: Anant Bhardwaj
-@date: Mar 21, 2013
-'''
-
 
 class DataHubLegacyUser(models.Model):
+
+    """DataHub's old User model. Replaced by the Django User model."""
+
     id = models.AutoField(primary_key=True)
     email = models.CharField(max_length=100, unique=True)
     username = models.CharField(max_length=50, unique=True)

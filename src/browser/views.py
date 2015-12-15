@@ -44,7 +44,7 @@ def home(request):
             return HttpResponseRedirect('/browse/%s' % (login))
         else:
             return HttpResponseRedirect('/www')
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps({'error': str(e)}),
             content_type="application/json")
@@ -77,7 +77,7 @@ def service_core_binary(request):
             core_processor.process(iprot, oprot)
             resp = HttpResponse(oprot.trans.getvalue())
 
-        except Exception, e:
+        except Exception as e:
             resp = HttpResponse(
                 json.dumps({'error': str(e)}),
                 content_type="application/json")
@@ -109,7 +109,7 @@ def service_account_binary(request):
             account_processor.process(iprot, oprot)
             resp = HttpResponse(oprot.trans.getvalue())
 
-        except Exception, e:
+        except Exception as e:
             resp = HttpResponse(
                 json.dumps({'error': str(e)}),
                 content_type="application/json")
@@ -143,7 +143,7 @@ def service_core_json(request):
                 oprot.trans.getvalue(),
                 content_type="application/json")
 
-        except Exception, e:
+        except Exception as e:
             resp = HttpResponse(
                 json.dumps({'error': str(e)}),
                 content_type="application/json")
@@ -205,7 +205,7 @@ def user(request, repo_base):
             'repo_base': repo_base,
             'repos': visible_repos})
 
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(json.dumps(
             {'error': str(e)}),
             content_type="application/json")
@@ -252,7 +252,7 @@ def repo_tables(request, repo_base, repo):
         res.update(csrf(request))
         return render_to_response("repo-browse-tables.html", res)
 
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(json.dumps(
             {'error': str(e)}),
             content_type="application/json")
@@ -283,7 +283,7 @@ def repo_files(request, repo_base, repo):
         res.update(csrf(request))
         return render_to_response("repo-browse-files.html", res)
 
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(json.dumps(
             {'error': str(e)}),
             content_type="application/json")
@@ -313,7 +313,7 @@ def repo_cards(request, repo_base, repo):
         res.update(csrf(request))
         return render_to_response("repo-browse-cards.html", res)
 
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(json.dumps(
             {'error': str(e)}),
             content_type="application/json")
@@ -342,7 +342,7 @@ def repo_create(request, repo_base):
             res.update(csrf(request))
             return render_to_response("repo-create.html", res)
 
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(json.dumps(
             {'error': str(e)}),
             content_type="application/json")
@@ -363,7 +363,7 @@ def repo_delete(request, repo_base, repo):
         manager = DataHubManager(user=repo_base)
         manager.delete_repo(repo=repo, force=True)
         return HttpResponseRedirect('/browse/%s' % (repo_base))
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),
@@ -394,7 +394,7 @@ def repo_settings(request, repo_base, repo):
             'collaborators': collaborators}
         res.update(csrf(request))
         return render_to_response("repo-settings.html", res)
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(json.dumps(
             {'error': str(e)}),
             content_type="application/json")
@@ -416,7 +416,7 @@ def repo_collaborators_add(request, repo_base, repo):
             repo, collaborator_username,
             privileges=['SELECT', 'INSERT', 'UPDATE'])
         return HttpResponseRedirect('/settings/%s/%s' % (repo_base, repo))
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),
@@ -436,7 +436,7 @@ def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
         manager = DataHubManager(user=repo_base)
         manager.delete_collaborator(repo, collaborator_username)
         return HttpResponseRedirect('/settings/%s/%s' % (repo_base, repo))
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),
@@ -521,7 +521,7 @@ def table(request, repo_base, repo, table):
 
         data.update(csrf(request))
         return render_to_response("table-browse.html", data)
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(json.dumps(
             {'error': str(e)}),
             content_type="application/json")
@@ -547,7 +547,7 @@ def table_export(request, repo_base, repo, table_name):
         DataHubManager.export_table(
             repo_base=repo_base, table_name=dh_table_name, file_path=file_path)
         return HttpResponseRedirect('/browse/%s/%s/files' % (repo_base, repo))
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),
@@ -571,7 +571,7 @@ def table_delete(request, repo_base, repo, table_name):
         query = '''DROP TABLE %s''' % (dh_table_name)
         manager.execute_sql(query=query)
         return HttpResponseRedirect('/browse/%s/%s' % (repo_base, repo))
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),
@@ -600,7 +600,7 @@ def file_upload(request, repo_base, repo):
         data_file = request.FILES['data_file']
         file_save(repo_base, repo, data_file)
         return HttpResponseRedirect('/browse/%s/%s/files' % (repo_base, repo))
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),
@@ -662,7 +662,7 @@ def file_import(request, repo_base, repo, file_name):
             header=header,
             quote_character=quote_character)
         return HttpResponseRedirect('/browse/%s/%s' % (repo_base, repo))
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),
@@ -683,7 +683,7 @@ def file_delete(request, repo_base, repo, file_name):
         file_path = '%s/%s' % (repo_dir, file_name)
         os.remove(file_path)
         return HttpResponseRedirect('/browse/%s/%s/files' % (repo_base, repo))
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),
@@ -707,7 +707,7 @@ def file_download(request, repo_base, repo, file_name):
         response[
             'Content-Disposition'] = 'attachment; filename="%s"' % (file_name)
         return response
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),
@@ -808,7 +808,7 @@ def query(request, repo_base, repo):
             return render_to_response("query-browse-results.html", data)
         else:
             return render_to_response("query.html", data)
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),
@@ -836,7 +836,7 @@ def create_annotation(request):
             annotation.save()
 
         return HttpResponseRedirect(url)
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),
@@ -921,7 +921,7 @@ def card(request, repo_base, repo, card_name):
 
         data.update(csrf(request))
         return render_to_response("card-browse.html", data)
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),
@@ -941,7 +941,7 @@ def card_create(request, repo_base, repo):
             card_name=card_name, query=query)
         card.save()
         return HttpResponseRedirect(url)
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),
@@ -970,7 +970,7 @@ def card_export(request, repo_base, repo, card_name):
         DataHubManager.export_query(
             repo_base=repo_base, query=query, file_path=file_path)
         return HttpResponseRedirect('/browse/%s/%s/files' % (repo_base, repo))
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),
@@ -992,7 +992,7 @@ def card_delete(request, repo_base, repo, card_name):
         card.delete()
 
         return HttpResponseRedirect('/browse/%s/%s/cards' % (repo_base, repo))
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),
@@ -1042,12 +1042,12 @@ def app_register(request):
                 hashed_password = hashlib.sha1(app_token).hexdigest()
                 DataHubManager.create_user(
                     username=app_id, password=hashed_password, create_db=False)
-            except Exception, e:
+            except Exception as e:
                 app.delete()
                 raise e
 
             return HttpResponseRedirect('/developer/apps')
-        except Exception, e:
+        except Exception as e:
             c = {
                 'login': username,
                 'errors': [str(e)]}
@@ -1070,7 +1070,7 @@ def app_remove(request, app_id):
         DataHubManager.remove_user(username=app_id)
 
         return HttpResponseRedirect('/developer/apps')
-    except Exception, e:
+    except Exception as e:
         c = {'errors': [str(e)]}
         c.update(csrf(request))
         return render_to_response('apps.html', c)
@@ -1131,7 +1131,7 @@ def app_allow_access(request, app_id, repo_name):
 
             res.update(csrf(request))
             return render_to_response('app-allow-access.html', res)
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps(
                 {'error': str(e)}),

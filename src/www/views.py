@@ -14,7 +14,7 @@ def index(request):
     try:
         c = {'login': request.user.username}
         return render_to_response("index.html", c)
-    except Exception, e:
+    except Exception as e:
         return HttpResponse(
             json.dumps({'error': str(e)}),
             content_type="application/json")
