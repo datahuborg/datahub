@@ -25,7 +25,6 @@ urlpatterns = patterns('',
     #### End WWW Pages ####
 
     #### Account Related ####
-    url(r'^account/', include('account.urls')),
     url('', include('social.apps.django_app.urls', namespace='social')),
     url(r'^account/login', 'account.views.login', name='login'),
     url(r'^account/register', 'account.views.register', name='register'),
