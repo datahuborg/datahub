@@ -120,7 +120,8 @@ class PGBackend:
         params = [repo, username, privileges_str, repo,
                   username, repo, privileges_str, username]
         params = tuple(map(lambda x: AsIs(x), params))
-        self.execute_sql(query, params)
+        res = self.execute_sql(query, params)
+        return res['status']
 
     def delete_collaborator(self, repo, username):
         self._check_for_injections(repo)

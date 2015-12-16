@@ -65,3 +65,35 @@ class LoginTest(FunctionalTest):
         for view_name in good_view_names:
             self.create_view_programmatically(
                 repo_name, table_name, view_name)
+
+    def test_add_collaborator(self):
+        alpha_user = 'delete_me_alpha_user'
+        beta_user = 'delete_me_beta_user'
+        repos = ['ginnjuice', 'beautiful']
+        tables = ['dre', 'snoop']
+
+        # make alpha_user
+        self.sign_up_manually(username=alpha_user, password=None)
+        self.sign_out_manually()
+
+        # make beta_user
+        self.sign_up_manually(username=beta_user, password=None)
+
+        # beta_user creates repos and puts tables in them
+        for repo in repos:
+            self.create_repo(repo, beta_user)
+
+            for table in tables:
+                self.create_table_programmatically(repo, table, beta_user)
+
+        # beta_user adds alpha_user as a collabortor to one repo
+        self.add_collaborator(repos[0], alpha_user)
+
+        # beta_user logs out
+        self.sign_out_manually()
+
+        # alpha_user logs in
+        self.sign_in_manually(alpha_user)
+
+        # user 1 can see one of beta_user's repos, but not the other
+        # user 1 selects from beta_user's repo. 

@@ -208,6 +208,9 @@ class SchemaListCreateDeleteShare(TestCase):
                             'COMMIT;'
                             )
 
+        self.mock_execute_sql.return_value = {'status': True, 'row_count': -1,
+                                              'tuples': [], 'fields': []}
+
         product = itertools.product(self.good_nouns, self.good_nouns,
                                     privileges)
 
@@ -218,7 +221,7 @@ class SchemaListCreateDeleteShare(TestCase):
             params = (repo, receiver, privilege, repo, receiver,
                       repo, privilege, receiver)
 
-            self.backend.add_collaborator(
+            res = self.backend.add_collaborator(
                 repo=repo, username=receiver, privileges=[privilege])
 
             self.assertEqual(
@@ -227,6 +230,7 @@ class SchemaListCreateDeleteShare(TestCase):
             self.assertEqual(self.mock_as_is.call_count, len(params))
 
             self.assertEqual(self.mock_check_for_injections.call_count, 3)
+            self.assertEqual(res, True)
 
             self.reset_mocks()
 
@@ -234,6 +238,8 @@ class SchemaListCreateDeleteShare(TestCase):
         privileges = ['SELECT', 'USAGE']
         repo = 'repo'
         receiver = 'receiver'
+        self.mock_execute_sql.return_value = {'status': True, 'row_count': -1,
+                                              'tuples': [], 'fields': []}
 
         self.backend.add_collaborator(repo=repo,
                                       username=receiver, privileges=privileges)

@@ -48,6 +48,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         else:
             self.browser = webdriver.PhantomJS()
 
+        self.browser.set_window_size(900, 600)
         self.browser.implicitly_wait(3)
 
         # default username and password for loggin in a user manually
@@ -105,6 +106,7 @@ class FunctionalTest(StaticLiveServerTestCase):
             self.fail(failing_links)
 
     def sign_up_manually(self, username=None, password=None):
+        # check for usernames that don't start with delete_me
         if username is None:
             username = self.username
         if password is None:
@@ -117,7 +119,7 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         # Justin adds an email
         self.browser.find_element_by_id('id_email').send_keys(
-            self.username + '@sharklasers.com'
+            username + '@sharklasers.com'
         )
 
         # Justin adds a password
@@ -132,6 +134,9 @@ class FunctionalTest(StaticLiveServerTestCase):
         if password is None:
             password = self.password
 
+        if not username.startswith('delete_me_'):
+            self.fail('test usernames must begin with "delete_me_"')
+
         # Justin goes to the sign in page
         self.browser.get(self.server_url + '/account/login')
 
@@ -142,9 +147,20 @@ class FunctionalTest(StaticLiveServerTestCase):
         # He clicks sign in
         self.browser.find_element_by_id('id_sign_in_action').click()
 
-    def create_repo(self, repo_name):
+    def sign_out_manually(self):
+        # This requires the browser not to be in mobile mode.
+        # it'd be nice to make the code less brittle, but I'm hesitant to do
+        # that unless we know that there are no big UX changes coming.
+        # ARC 2015-12-16
+        self.browser.find_element_by_id('id_user_menu').click()
+        self.browser.find_element_by_id('id_sign_out').click()
+
+    def create_repo(self, repo_name, username=None):
+        if username is None:
+            username = self.username
+
         # Justin goes to the main/repos page
-        self.browser.get(self.server_url + '/browse/' + self.username)
+        self.browser.get(self.server_url + '/browse/' + username)
 
         # He clicks the add repo button
         self.browser.find_element_by_class_name('glyphicon-plus').click()
@@ -160,12 +176,15 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         # check to see that the url is formatted correctly
         repo_url = self.browser.current_url
-        regex = '\/browse\/' + self.username + '\/' + repo_name + '\/tables'
+        regex = '\/browse\/' + username + '\/' + repo_name + '\/tables'
         self.assertRegexpMatches(repo_url, regex)
 
-    def delete_repo(self, repo_name):
+    def delete_repo(self, repo_name, username=None):
+        if username is None:
+            username = self.username
+
         # Justin goes to the main/repos page
-        self.browser.get(self.server_url + '/browse/' + self.username)
+        self.browser.get(self.server_url + '/browse/' + username)
 
         # Justin finds the delete button next to the given repo name
         search_string = ('//table/tbody/tr[td/a/text()="' +
@@ -188,9 +207,13 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         self.assertEqual(text_found, None)
 
-    def create_table_programmatically(self, repo_name, table_name):
+    def create_table_programmatically(self, repo_name, table_name,
+                                      username=None):
+        if username is None:
+            username = self.username
+
         # Justin goes to the main/repos page
-        self.browser.get(self.server_url + '/browse/' + self.username)
+        self.browser.get(self.server_url + '/browse/' + username)
 
         # check to see that the repo name appears on the page. Click on it.
         self.browser.find_element_by_link_text(repo_name).click()
@@ -205,7 +228,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.find_element_by_id('btn-run').click()
 
         # Go back to the repo page
-        url = (self.server_url + '/browse/' + self.username + '/' + repo_name)
+        url = (self.server_url + '/browse/' + username + '/' + repo_name)
         self.browser.get(url)
 
         # check to see whether the table is there
@@ -213,13 +236,17 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         # check to see that we're not in the table view
         table_url = self.browser.current_url
-        regex = ('\/browse\/' + self.username +
+        regex = ('\/browse\/' + username +
                  '\/' + repo_name + '\/table\/' + table_name)
 
         self.assertRegexpMatches(table_url, regex)
 
-    def create_view_programmatically(self, repo_name, table_name, view_name):
-        self.browser.get(self.server_url + '/browse/' + self.username)
+    def create_view_programmatically(self, repo_name, table_name, view_name,
+                                     username=None):
+        if username is None:
+            username = self.username
+
+        self.browser.get(self.server_url + '/browse/' + username)
 
         # check to see that the repo name appears on the page. Click on it.
         self.browser.find_element_by_link_text(repo_name).click()
@@ -234,7 +261,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.find_element_by_id('btn-run').click()
 
         # Go back to the repo page
-        url = (self.server_url + '/browse/' + self.username + '/' + repo_name)
+        url = (self.server_url + '/browse/' + username + '/' + repo_name)
         self.browser.get(url)
 
         # check to see whether the table is there
@@ -242,7 +269,24 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         # check to see that we're not in the table view
         table_url = self.browser.current_url
-        regex = ('\/browse\/' + self.username +
+        regex = ('\/browse\/' + username +
                  '\/' + repo_name + '\/table\/' + view_name)
 
         self.assertRegexpMatches(table_url, regex)
+
+    def add_collaborator(self, repo, collaborator):
+        # assumes the user is logged in
+        self.browser.find_element_by_id('logo').click()
+
+        # click the collaborators button
+        search_string = ('//table/tbody/tr[td/a/text()="' +
+                         repo +
+                         '"]/td/a[text()[contains(.,"collaborators")]]'
+                         )
+
+        element = self.browser.find_elements_by_xpath(search_string)
+        element[0].click()
+
+        self.browser.find_element_by_id(
+            'collaborator_username').send_keys(collaborator)
+        self.browser.find_element_by_id('add_collaborator').click()
