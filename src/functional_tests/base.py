@@ -181,3 +181,32 @@ class FunctionalTest(StaticLiveServerTestCase):
                  '\/' + repo_name + '\/table\/' + table_name )
 
         self.assertRegexpMatches(table_url, regex)
+
+    def create_view_programmatically(self, repo_name, table_name, view_name):
+        self.browser.get(self.server_url + '/browse/' + self.username)
+
+        # check to see that the repo name appears on the page. Click on it.
+        self.browser.find_element_by_link_text(repo_name).click()
+
+        ddl = ('create view ' + repo_name + '.' +
+               view_name + ' as select * from ' + repo_name + '.' + table_name)
+
+        # type some DDL into the sql field
+        self.browser.find_element_by_id('txt-sql').send_keys(ddl)
+
+        # click "run"
+        self.browser.find_element_by_id('btn-run').click()
+
+        # Go back to the repo page
+        url = (self.server_url + '/browse/' + self.username + '/' + repo_name)
+        self.browser.get(url)
+
+        # check to see whether the table is there
+        self.browser.find_element_by_link_text(view_name).click()
+
+        # check to see that we're not in the table view
+        table_url = self.browser.current_url
+        regex = ('\/browse\/' + self.username +
+                 '\/' + repo_name + '\/table\/' + view_name)
+
+        self.assertRegexpMatches(table_url, regex)

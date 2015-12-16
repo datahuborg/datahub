@@ -49,3 +49,16 @@ class LoginTest(FunctionalTest):
 
         for table_name in good_table_names:
             self.create_table_programmatically(repo_name, table_name)
+
+    def test_create_some_views(self):
+        good_view_names = ['nospace', 'alph4numeric', 'middle_underscore']
+        repo_name = 'repo_name'
+        table_name = 'table_name'
+
+        self.sign_up_manually()
+        self.create_repo(repo_name)
+        self.create_table_programmatically(repo_name, table_name)
+
+        for view_name in good_view_names:
+            self.create_view_programmatically(
+                repo_name, table_name, view_name)
