@@ -130,3 +130,54 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         # He clicks sign in
         self.browser.find_element_by_id('id_sign_in_action').click()
+
+    def create_repo(self, repo_name):
+        # Justin goes to the main/repos page
+        self.browser.get(self.server_url + '/browse/' + self.username)
+
+        # He clicks the add repo button
+        self.browser.find_element_by_class_name('glyphicon-plus').click()
+
+        # type the new repo id
+        self.browser.find_element_by_id('new_repo_name').send_keys(repo_name)
+
+        # click create
+        self.browser.find_element_by_id('new_repo_create').click()
+
+        # check to see that the repo name appears on the page. Click on it.
+        self.browser.find_element_by_link_text(repo_name).click()
+
+        # check to see that the url is formatted correctly
+        repo_url = self.browser.current_url
+        regex = '\/browse\/' + self.username + '\/' + repo_name + '\/tables'
+        self.assertRegexpMatches(repo_url, regex)
+
+    def create_table_programmatically(self, repo_name, table_name):
+        # Justin goes to the main/repos page
+        self.browser.get(self.server_url + '/browse/' + self.username)
+
+        # check to see that the repo name appears on the page. Click on it.
+        self.browser.find_element_by_link_text(repo_name).click()
+
+        ddl = ('create table ' + repo_name + '.' +
+               table_name + ' (id integer, words text)')
+
+        # type some DDL into the sql field
+        self.browser.find_element_by_id('txt-sql').send_keys(ddl)
+
+        # click "run"
+        self.browser.find_element_by_id('btn-run').click()
+
+        # Go back to the repo page
+        url = (self.server_url + '/browse/' + self.username + '/' + repo_name)
+        self.browser.get(url)
+
+        # check to see whether the table is there
+        self.browser.find_element_by_link_text(table_name).click()
+
+        # check to see that we're not in the table view
+        table_url = self.browser.current_url
+        regex = ('\/browse\/' + self.username +
+                 '\/' + repo_name + '\/table\/' + table_name )
+
+        self.assertRegexpMatches(table_url, regex)
