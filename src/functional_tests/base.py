@@ -104,11 +104,16 @@ class FunctionalTest(StaticLiveServerTestCase):
             print("Some links on the did not check out")
             self.fail(failing_links)
 
-    def sign_up_manually(self):
+    def sign_up_manually(self, username=None, password=None):
+        if username is None:
+            username = self.username
+        if password is None:
+            password = self.password
+
         self.browser.get(self.server_url + '/account/register')
 
         # Justin adds a username
-        self.browser.find_element_by_id('id_username').send_keys(self.username)
+        self.browser.find_element_by_id('id_username').send_keys(username)
 
         # Justin adds an email
         self.browser.find_element_by_id('id_email').send_keys(
@@ -116,18 +121,23 @@ class FunctionalTest(StaticLiveServerTestCase):
         )
 
         # Justin adds a password
-        self.browser.find_element_by_id('id_password').send_keys(self.password)
+        self.browser.find_element_by_id('id_password').send_keys(password)
 
         # Justin clicks sign up
         self.browser.find_element_by_id('id_sign_up_action').click()
 
-    def sign_in_manually(self):
+    def sign_in_manually(self, username=None, password=None):
+        if username is None:
+            username = self.username
+        if password is None:
+            password = self.password
+
         # Justin goes to the sign in page
         self.browser.get(self.server_url + '/account/login')
 
         # He fills in his username and password
-        self.browser.find_element_by_id('id_username').send_keys(self.username)
-        self.browser.find_element_by_id('id_password').send_keys(self.password)
+        self.browser.find_element_by_id('id_username').send_keys(username)
+        self.browser.find_element_by_id('id_password').send_keys(password)
 
         # He clicks sign in
         self.browser.find_element_by_id('id_sign_in_action').click()
