@@ -3,7 +3,7 @@ from .base import FunctionalTest
 
 class LoginTest(FunctionalTest):
 
-    def test_create_some_repos(self):
+    def test_create_delete_some_repos(self):
         good_repo_names = ['nospace', 'alph4numeric', 'middle_underscore']
 
         # Justin signs up and in
@@ -11,6 +11,9 @@ class LoginTest(FunctionalTest):
 
         for repo_name in good_repo_names:
             self.create_repo(repo_name)
+
+        for repo_name in good_repo_names:
+            self.delete_repo(repo_name)
 
     def test_cannot_create_bad_repos(self):
         bad_repo_names = ['one space', '_introUnderscore', 'semi;colon']

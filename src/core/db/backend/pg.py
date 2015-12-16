@@ -98,7 +98,7 @@ class PGBackend:
         query = 'DROP SCHEMA %s %s'
         params = (AsIs(repo), AsIs('CASCADE') if force else None)
         res = self.execute_sql(query, params)
-        return res
+        return res['status']
 
     def add_collaborator(self, repo, username, privileges=[]):
         # check that all repo names, usernames, and privileges passed aren't
@@ -329,8 +329,8 @@ class PGBackend:
 
         # I've made it safer by stripping out everything after the semicolon
         # in the passed query.
-        # manager.py should also check to ensure the user has repo/folder access
-        # RogerTangos 2015-012-09
+        # manager.py should also check to ensure the user has repo/folder
+        # access RogerTangos 2015-012-09
 
         header_option = 'HEADER' if header else ''
         query = query.split(';')[0]

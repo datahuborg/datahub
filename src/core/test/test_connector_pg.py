@@ -163,33 +163,37 @@ class SchemaListCreateDeleteShare(TestCase):
 
     def test_delete_repo_happy_path_cascade(self):
         drop_schema_sql = 'DROP SCHEMA %s %s'
-        for noun in self.good_nouns:
-            self.backend.delete_repo(repo=noun, force=True)
-            self.assertEqual(
-                self.mock_execute_sql.call_args[0][0], drop_schema_sql)
-            self.assertEqual(
-                self.mock_execute_sql.call_args[0][1][0], noun)
-            self.assertEqual(
-                self.mock_execute_sql.call_args[0][1][1], 'CASCADE')
-            self.assertTrue(self.mock_as_is.called)
-            self.assertTrue(self.mock_check_for_injections)
+        repo_name = 'repo_name'
+        self.mock_execute_sql.return_value = {'status': True, 'row_count': -1,
+                                              'tuples': [], 'fields': []}
 
-            self.reset_mocks()
+        res = self.backend.delete_repo(repo=repo_name, force=True)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], drop_schema_sql)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][1][0], repo_name)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][1][1], 'CASCADE')
+        self.assertTrue(self.mock_as_is.called)
+        self.assertTrue(self.mock_check_for_injections)
+        self.assertEqual(res, True)
 
     def test_delete_repo_no_cascade(self):
         drop_schema_sql = 'DROP SCHEMA %s %s'
-        for noun in self.good_nouns:
-            self.backend.delete_repo(repo=noun, force=False)
-            self.assertEqual(
-                self.mock_execute_sql.call_args[0][0], drop_schema_sql)
-            self.assertEqual(
-                self.mock_execute_sql.call_args[0][1][0], noun)
-            self.assertEqual(
-                self.mock_execute_sql.call_args[0][1][1], None)
-            self.assertTrue(self.mock_as_is.called)
-            self.assertTrue(self.mock_check_for_injections.called)
+        repo_name = 'repo_name'
+        self.mock_execute_sql.return_value = {'status': True, 'row_count': -1,
+                                              'tuples': [], 'fields': []}
 
-            self.reset_mocks()
+        res = self.backend.delete_repo(repo=repo_name, force=False)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], drop_schema_sql)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][1][0], repo_name)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][1][1], None)
+        self.assertTrue(self.mock_as_is.called)
+        self.assertTrue(self.mock_check_for_injections.called)
+        self.assertEqual(res, True)
 
     def test_add_collaborator(self):
         privileges = ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'TRUNCATE',

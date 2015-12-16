@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 import requests
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
@@ -152,6 +153,31 @@ class FunctionalTest(StaticLiveServerTestCase):
         regex = '\/browse\/' + self.username + '\/' + repo_name + '\/tables'
         self.assertRegexpMatches(repo_url, regex)
 
+    def delete_repo(self, repo_name):
+        # Justin goes to the main/repos page
+        self.browser.get(self.server_url + '/browse/' + self.username)
+
+        # Justin finds the delete button next to the given repo name
+        search_string = ('//table/tbody/tr[td/a/text()="' +
+                         repo_name +
+                         '"]/td/span[@title="Delete"]/a'
+                         )
+        delete_button = self.browser.find_elements_by_xpath(search_string)[0]
+
+        # he clicks the delete button
+        delete_button.click()
+
+        # he confirms the delete
+        search_string = '//button[text()="Delete"]'
+        delete_button = self.browser.find_elements_by_xpath(search_string)[0]
+        delete_button.click()
+
+        # the repo name now does not appear on the page
+        src = self.browser.page_source
+        text_found = re.search(repo_name, src)
+
+        self.assertEqual(text_found, None)
+
     def create_table_programmatically(self, repo_name, table_name):
         # Justin goes to the main/repos page
         self.browser.get(self.server_url + '/browse/' + self.username)
@@ -178,7 +204,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         # check to see that we're not in the table view
         table_url = self.browser.current_url
         regex = ('\/browse\/' + self.username +
-                 '\/' + repo_name + '\/table\/' + table_name )
+                 '\/' + repo_name + '\/table\/' + table_name)
 
         self.assertRegexpMatches(table_url, regex)
 
