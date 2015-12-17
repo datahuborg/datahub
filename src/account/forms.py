@@ -15,37 +15,22 @@ class UsernameForm(forms.Form):
     a chance to provide that info.
     """
 
-    invalid_username_msg = (
-        "Usernames may only contain alphanumeric characters, hyphens, and "
-        "underscores, and must not begin or end with an a hyphen or "
-        "underscore."
-        )
-    regex = r'^(?![\-\_])[\w\-\_]+(?<![\-\_])$'
-    validate_username = RegexValidator(regex, invalid_username_msg)
-
     def validate_unique_username(value):
         username = value.lower()
-        try:
-            User.objects.get(username=username)
-            raise forms.ValidationError(
-                ('The username %(value)s is not available.'),
-                params={'value': value},
-            )
-        except User.DoesNotExist:
-            pass
 
         try:
-            App.objects.get(app_id=username)
-            raise forms.ValidationError(
-                ('The username %(value)s is not available.'),
-                params={'value': value},
-            )
+            existing_user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            existing_user = None
+
+        try:
+            existing_app = App.objects.get(app_id=username)
         except App.DoesNotExist:
-            pass
+            existing_app = None
 
         db_exists = DataHubManager.database_exists(username)
         user_exists = DataHubManager.user_exists(username)
-        if db_exists or user_exists:
+        if existing_user or existing_app or db_exists or user_exists:
             raise forms.ValidationError(
                 ('The username %(value)s is not available.'),
                 params={'value': value},
@@ -56,18 +41,27 @@ class UsernameForm(forms.Form):
         try:
             User.objects.get(email=value.lower())
             raise forms.ValidationError(
-                ('The email address %(value)s is in use by another account.'),
+                ("The email address %(value)s is in use by another account."),
                 params={'value': value},
             )
         except User.DoesNotExist:
             return True
 
+    invalid_username_msg = (
+        "Usernames may only contain alphanumeric characters, hyphens, and "
+        "underscores, and must not begin or end with an a hyphen or "
+        "underscore."
+        )
+    regex = r'^(?![\-\_])[\w\-\_]+(?<![\-\_])$'
+    validate_username = RegexValidator(regex, invalid_username_msg)
+
     username = forms.CharField(
-        label='DataHub Username',
+        label="DataHub username",
         min_length=3,
         max_length=255,
         validators=[validate_username, validate_unique_username])
     email = forms.EmailField(
+        label="Email address",
         max_length=255,
         validators=[validate_unique_email])
 
