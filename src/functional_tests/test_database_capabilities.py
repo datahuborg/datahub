@@ -22,7 +22,6 @@ class LoginTest(FunctionalTest):
         self.sign_up_manually()
 
         for name in bad_repo_names:
-
             # He clicks the add repo button
             self.browser.find_element_by_class_name('glyphicon-plus').click()
 
@@ -67,33 +66,71 @@ class LoginTest(FunctionalTest):
                 repo_name, table_name, view_name)
 
     def test_add_collaborator(self):
-        alpha_user = 'delete_me_alpha_user'
-        beta_user = 'delete_me_beta_user'
+        snoop = 'delete_me_snoop'
+        dre = 'delete_me_dre'
         repos = ['ginnjuice', 'beautiful']
-        tables = ['dre', 'snoop']
+        tables = ['kush', 'bush']
 
-        # make alpha_user
-        self.sign_up_manually(username=alpha_user, password=None)
+        # make snoop
+        self.sign_up_manually(username=snoop, password=None)
         self.sign_out_manually()
 
-        # make beta_user
-        self.sign_up_manually(username=beta_user, password=None)
+        # make dre
+        self.sign_up_manually(username=dre, password=None)
 
-        # beta_user creates repos and puts tables in them
+        # dre creates repos and puts tables in them
         for repo in repos:
-            self.create_repo(repo, beta_user)
+            self.create_repo(repo, dre)
 
             for table in tables:
-                self.create_table_programmatically(repo, table, beta_user)
+                self.create_table_programmatically(repo, table, dre)
 
-        # beta_user adds alpha_user as a collabortor to one repo
-        self.add_collaborator(repos[0], alpha_user)
+        # dre adds snoop as a collabortor to one repo
+        self.add_collaborator(repos[0], snoop)
 
-        # beta_user logs out
+        # dre logs out
         self.sign_out_manually()
 
-        # alpha_user logs in
-        self.sign_in_manually(alpha_user)
+        # snoop logs in
+        self.sign_in_manually(snoop)
 
-        # user 1 can see one of beta_user's repos, but not the other
-        # user 1 selects from beta_user's repo. 
+        # snoop can see dre's repo[0], but not repo[1]
+
+        # Snoop goes to the dre url
+        self.browser.get(self.server_url + '/browse/' + dre)
+
+        # Snoop does not see repo[1], which is not shared
+        try:
+            self.browser.find_element_by_link_text(repo[1])
+            self.fail()
+        except:
+            pass
+
+        # Snoop sees ginjuice, which is shared, and clicks on it
+        self.browser.find_element_by_link_text(repos[0]).click()
+
+        # Snoop sees that the tables are shared
+        table_0 = self.browser.find_element_by_link_text(tables[0])
+        table_1 = self.browser.find_element_by_link_text(tables[1])
+
+        self.assertNotEqual(table_0, None)
+        self.assertNotEqual(table_1, None)
+
+        # Snoop clicks on a table
+        table_0.click()
+
+        # the url matches
+        regex = '\/browse\/' + dre + '\/' + repos[0] + '\/table\/' + tables[0]
+        self.assertRegexpMatches(self.browser.current_url, regex)
+
+        # snoop is a sneaky mother
+        # he tries to get early access to dre's "beautiful" repo
+        sneaky_url = self.server_url + '/browse/' + \
+            dre + '/' + repos[1] + '/tables'
+        self.browser.get(sneaky_url)
+
+        # the page says error.
+        page_source = self.browser.page_source
+        self.assertTrue('error' in page_source)
+
+        # Snoop gives up and takes a smoke break.
