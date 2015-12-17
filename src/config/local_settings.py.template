@@ -11,6 +11,17 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # Check docs at:
+#   https://docs.djangoproject.com/en/1.8/topics/email/
+#   https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-EMAIL_HOST
+EMAIL_HOST = ''
+EMAIL_PORT = 587
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_TIMEOUT = 300
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
+# Check docs at:
 #   http://psa.matiasaguirre.net/docs/backends/google.html#google-oauth2
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''

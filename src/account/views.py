@@ -160,7 +160,8 @@ def logout(request):
     return redirect('/')
 
 
-def forgot_password(request):
+# Password resets are handled by the default Django account tools in
+# browser/urls.py.
     """
     Emails a password reset link to the given username or email address.
 

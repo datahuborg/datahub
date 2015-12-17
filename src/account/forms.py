@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import PasswordResetForm
 from inventory.models import App
 from core.db.manager import DataHubManager
 from django.core.validators import RegexValidator
@@ -98,3 +99,40 @@ class LoginForm(forms.Form):
     username = forms.CharField(label="Username or email address")
     password = forms.CharField(label=("Password"),
                                widget=forms.PasswordInput)
+
+
+class ForgotPasswordForm(PasswordResetForm):
+
+    """
+    A form that asks for an email address to send a password reset link to.
+
+    Validates that the provided email is associated with an existing account
+    and that the account has a password to reset. Social logins do not have a
+    password to reset in DataHub.
+    """
+
+    def validate_resettable_email(value):
+        try:
+            user = User.objects.get(email=value.lower())
+        except User.DoesNotExist:
+            raise forms.ValidationError(
+                ("No account found for %(value)s."),
+                params={'value': value},
+            )
+        if user.has_usable_password():
+            return True
+        else:
+            raise forms.ValidationError(
+                ("%(value)s is a passwordless account. Please log in with its "
+                 "associated identity provider."),
+                params={'value': value},
+                )
+
+    email = forms.CharField(
+        label="Email address",
+        max_length=255,
+        validators=[validate_resettable_email])
+
+    class Meta:
+        model = User
+        fields = ('email',)
