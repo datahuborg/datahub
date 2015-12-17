@@ -9,6 +9,7 @@ from mock import patch, Mock
 
 
 class Initialization(TestCase):
+
     ''' test the correct user is returned '''
 
     @factory.django.mute_signals(signals.pre_save)
@@ -46,6 +47,7 @@ class Initialization(TestCase):
 
 
 class BasicOperations(TestCase):
+
     ''' tests basic operations in manager.py'''
 
     @factory.django.mute_signals(signals.pre_save)
@@ -98,3 +100,13 @@ class BasicOperations(TestCase):
 
         self.assertTrue(con_delete_repo.called)
         self.assertEqual(con_delete_repo.call_args[1]['force'], False)
+
+    def test_add_collaborator(self):
+        con_add_collab = self.mock_connection.return_value.add_collaborator
+        self.manager.add_collaborator('reponame', 'new_collaborator', 'select')
+
+        self.assertTrue(con_add_collab.called)
+        self.assertEqual(con_add_collab.call_args[1]['repo'], 'reponame')
+        self.assertEqual(
+            con_add_collab.call_args[1]['username'], 'new_collaborator')
+        self.assertEqual(con_add_collab.call_args[1]['privileges'], 'select')
