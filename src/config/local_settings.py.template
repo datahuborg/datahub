@@ -1,3 +1,5 @@
+DATAHUB_DOMAIN = 'datahub-local.mit.edu'
+
 # python-social-auth settings
 # Copy to local_settings.py and fill in settings below to enable social logins.
 

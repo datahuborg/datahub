@@ -40,6 +40,8 @@ TIME_ZONE = 'America/New_York'
 # Language code for this installation.
 LANGUAGE_CODE = 'en-us'
 
+DATAHUB_DOMAIN = 'datahub.csail.mit.edu'
+
 SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
@@ -235,3 +237,9 @@ try:
     from local_settings import *
 except ImportError:
     from default_settings import *
+
+try:
+    from site_utils import set_site_info
+    set_site_info(domain=DATAHUB_DOMAIN)
+except ImportError:
+    pass
