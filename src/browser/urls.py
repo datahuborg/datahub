@@ -1,59 +1,45 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic.base import RedirectView
 
-'''
-@author: Anant Bhardwaj
-@date: Mar 21, 2013
 
-Datahub URL Router
-'''
+urlpatterns = patterns(
+    '',
 
-urlpatterns = patterns('',
-
-    ########################################################################################
-    ######## ------------------------------ DataHub Core ------------------------- #########
-    ########################################################################################
-
-    #### Home Page ####
+    # Home Page
     url(r'^$', 'browser.views.home'),
     url(r'^about$', 'browser.views.about'),  # for backward compatibility
-    url(r'^favicon\.ico$', RedirectView.as_view(url='/static/images/favicon.ico', permanent=True)),
-    #### End Home ####
+    url(r'^favicon\.ico$',
+        RedirectView.as_view(url='/static/images/favicon.ico',
+                             permanent=True)),
 
-    #### WWW Pages ####
+    # WWW Pages
     url(r'^www/', include('www.urls')),
-    #### End WWW Pages ####
 
-    #### Account Related ####
+    # Account Related
     url('', include('social.apps.django_app.urls', namespace='social')),
-    url(r'^account/login', 'account.views.login', name='login'),
-    url(r'^account/register', 'account.views.register', name='register'),
-    url(r'^home', 'account.views.home'),
-    url(r'^account/logout', 'account.views.logout', name='logout'),
-    url(r'^account/choose_username', 'account.views.get_user_details'),
-    url(r'^account/forgot', 'account.views.forgot_password'),
-    url(r'^account/reset', 'account.views.reset_password'),
-    url(r'^account/verify', 'account.views.verify_email'),
-    #### End Account Related ####
+    url(r'^account/login/$', 'account.views.login', name='login'),
+    url(r'^account/register/$', 'account.views.register', name='register'),
+    url(r'^home/$', 'account.views.home'),
+    url(r'^account/logout/$', 'account.views.logout', name='logout'),
+    url(r'^account/choose_username/$', 'account.views.get_user_details'),
+    url(r'^account/reset/$', 'account.views.reset_password'),
+    url(r'^account/verify/$', 'account.views.verify_email'),
 
 
-    #### Thrift Services ####
+    # Thrift Services
     url(r'^service$', 'browser.views.service_core_binary'),
     url(r'^service/account$', 'browser.views.service_account_binary'),
     url(r'^service/json$', 'browser.views.service_core_json'),
-    #### End Thrift Services ####
 
-
-    #### Create ####
+    # Create
     url(r'^create/(\w+)/repo/?$', 'browser.views.repo_create'),
 
     url(r'^create/(\w+)/(\w+)/card/?$', 'browser.views.card_create'),
 
     url(r'^create/annotation/?$', 'browser.views.create_annotation'),
-    #### End Create ####
 
 
-    #### Browse ####
+    # Browse
     url(r'^browse/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table'),
 
     url(r'^browse/(\w+)/(\w+)/query/?$', 'browser.views.query'),
@@ -69,10 +55,9 @@ urlpatterns = patterns('',
     url(r'^browse/(\w+)/(\w+)/cards/?$', 'browser.views.repo_cards'),
 
     url(r'^browse/(\w+)/?$', 'browser.views.user'),
-    #### End Browse ####
 
 
-    ### Delete ####
+    # Delete
     url(r'^delete/(\w+)/(\w+)/?$', 'browser.views.repo_delete'),
 
     url(r'^delete/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table_delete'),
@@ -80,58 +65,48 @@ urlpatterns = patterns('',
     url(r'^delete/(\w+)/(\w+)/card/(\w+)/?$', 'browser.views.card_delete'),
 
     url(r'^delete/(\w+)/(\w+)/file/([ -~]+)/?$', 'browser.views.file_delete'),
-    ### End Delete ####
 
 
-    ### Export ###
+    # Export
     url(r'^export/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table_export'),
     url(r'^export/(\w+)/(\w+)/card/(\w+)/?$', 'browser.views.card_export'),
 
-    ### End Export ####
 
-
-    ### Special File Operations ####
+    # Special File Operations
     url(r'^upload/(\w+)/(\w+)/file/?$', 'browser.views.file_upload'),
     url(r'^import/(\w+)/(\w+)/file/([ -~]+)', 'browser.views.file_import'),
     url(r'^download/(\w+)/(\w+)/file/([ -~]+)', 'browser.views.file_download'),
-    ### End Special File Operations ####
 
 
-    #### Settings ####
+    # Settings
     url(r'^settings/(\w+)/(\w+)/?$', 'browser.views.repo_settings'),
 
-    #### End Settings ####
 
+    # Collaborators
+    url(r'^collaborator/repo/(\w+)/(\w+)/add/?$',
+        'browser.views.repo_collaborators_add'),
 
-    ### Collaborators ###
-    url(r'^collaborator/repo/(\w+)/(\w+)/add/?$', 'browser.views.repo_collaborators_add'),
+    url(r'^collaborator/repo/(\w+)/(\w+)/remove/(\w+)/?$',
+        'browser.views.repo_collaborators_remove'),
 
-    url(r'^collaborator/repo/(\w+)/(\w+)/remove/(\w+)/?$', 'browser.views.repo_collaborators_remove'),
-    ### End Collaborators ###
-
-    ### Developer Apps ###
+    # Developer Apps
     url(r'^developer/apps/?$', 'browser.views.apps'),
 
     url(r'^developer/apps/register/?$', 'browser.views.app_register'),
 
     url(r'^developer/apps/remove/(\w+)/?$', 'browser.views.app_remove'),
-    ### End Apps ###
 
-    ### Permissions ###
-    url(r'^permissions/apps/allow_access/(\w+)/(\w+)$', 'browser.views.app_allow_access'),
-
-    ########################################################################################
-    ######## ------------------------------ END DataHub Core --------------------- #########
-    ########################################################################################
+    # Permissions
+    url(r'^permissions/apps/allow_access/(\w+)/(\w+)$',
+        'browser.views.app_allow_access'),
 
 
-    #### Apps ####
-    url(r'^apps/console/', include('console.urls')), # console app
-    url(r'^apps/refiner/', include('refiner.urls')), # refiner app
-    url(r'^apps/dbwipes/', include('dbwipes.urls')), # dbwipes app
-    url(r'^apps/viz/', include('viz2.urls')), # viz app
-    url(r'^apps/sentiment/', include('sentiment.urls')), # sentiment app
-    url(r'^apps/dataq/', include('dataq.urls')), # dataq app
-    url(r'^apps/datatables/', include('datatables.urls')), # datatables app
-    #### End Apps ####
+    # Client Apps
+    url(r'^apps/console/', include('console.urls')),
+    url(r'^apps/refiner/', include('refiner.urls')),
+    url(r'^apps/dbwipes/', include('dbwipes.urls')),
+    url(r'^apps/viz/', include('viz2.urls')),
+    url(r'^apps/sentiment/', include('sentiment.urls')),
+    url(r'^apps/dataq/', include('dataq.urls')),
+    url(r'^apps/datatables/', include('datatables.urls')),
 )
