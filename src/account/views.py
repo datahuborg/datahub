@@ -145,11 +145,6 @@ def get_user_details(request):
                   context)
 
 
-@login_required(login_url='/')
-def home(request):
-    return render_to_response('home.html')
-
-
 def logout(request):
     """
     Logs out the current user and clears their session data. Redirects to /.
