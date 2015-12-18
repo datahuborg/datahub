@@ -188,4 +188,3 @@ class DataHubHandler:
             return construct_result_set(res)
         except Exception, e:
             raise DBException(message=str(e))
-

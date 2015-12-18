@@ -9,7 +9,7 @@ from core.db.backend.pg import PGBackend
 
 class HelperMethods(TestCase):
 
-    ''' tests connections, validation and execution methods in PGBackend'''
+    """Tests connections, validation and execution methods in PGBackend."""
 
     def setUp(self):
         # some words to test out
@@ -40,8 +40,7 @@ class HelperMethods(TestCase):
         return thing
 
     def test_check_for_injections(self):
-        ''' tests  validation against some sql injection attacks'''
-
+        """Tests validation against some sql injection attacks."""
         for noun in self.bad_nouns:
             with self.assertRaises(ValueError):
                 self.backend._check_for_injections(noun)
@@ -68,9 +67,11 @@ class HelperMethods(TestCase):
 
 class SchemaListCreateDeleteShare(TestCase):
 
-    ''' tests that items reach the execute_sql method in pg.py.
-        does not test execute_sql itself.
-    '''
+    """
+    Tests that items reach the execute_sql method in pg.py.
+
+    Does not test execute_sql itself.
+    """
 
     def setUp(self):
         # some words to test out

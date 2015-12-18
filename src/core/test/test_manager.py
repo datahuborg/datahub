@@ -5,12 +5,12 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 import factory
-from mock import patch, Mock
+from mock import patch
 
 
 class Initialization(TestCase):
 
-    ''' test the correct user is returned '''
+    """Test the correct user is returned."""
 
     @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
@@ -48,7 +48,7 @@ class Initialization(TestCase):
 
 class BasicOperations(TestCase):
 
-    ''' tests basic operations in manager.py'''
+    """Tests basic operations in manager.py."""
 
     @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
