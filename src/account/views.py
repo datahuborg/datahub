@@ -167,12 +167,3 @@ def verify_email(request):
     Receives email verification link from new user email.
     """
     return HttpResponse('Not implemented yet.')
-
-
-def reset_password(request):
-    """
-    Asks the user to choose a new password.
-
-    Receives password reset link from forgot password email.
-    """
-    return HttpResponse('Not implemented yet.')
