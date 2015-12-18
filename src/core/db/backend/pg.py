@@ -137,7 +137,8 @@ class PGBackend:
         params = [repo, username, repo, username, repo, username]
         params = tuple(map(lambda x: AsIs(x), params))
 
-        self.execute_sql(query, params)
+        res = self.execute_sql(query, params)
+        return res['status']
 
     def list_tables(self, repo):
         self._check_for_injections(repo)
