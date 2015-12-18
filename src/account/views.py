@@ -141,7 +141,7 @@ def get_user_details(request):
         'social': social
         })
 
-    return render(request, "registration/username_form.html",
+    return render(request, "username_form.html",
                   context)
 
 
