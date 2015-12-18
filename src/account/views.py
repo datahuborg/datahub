@@ -157,12 +157,6 @@ def logout(request):
 
 # Password resets are handled by the default Django account tools in
 # browser/urls.py.
-    """
-    Emails a password reset link to the given username or email address.
-
-    Does nothing for social auth users, since they have no DataHub password.
-    """
-    return HttpResponse('Not implemented yet.')
 
 
 @login_required()
