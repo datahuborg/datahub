@@ -208,7 +208,8 @@ class PGBackend:
         try:
             result['tuples'] = cur.fetchall()
         except psycopg2.ProgrammingError as e:
-            print("Postgres Query Error:" + e)
+            print "possible psycopg2.ProgrammingError in pg.execute_sql: "
+            print(e)
 
         result['status'] = True
         result['row_count'] = cur.rowcount
