@@ -110,3 +110,12 @@ class BasicOperations(TestCase):
         self.assertEqual(
             con_add_collab.call_args[1]['username'], 'new_collaborator')
         self.assertEqual(con_add_collab.call_args[1]['privileges'], 'select')
+
+    def test_delete_collaborator(self):
+        con_delete_collab = self.mock_connection.return_value.delete_collaborator
+        self.manager.delete_collaborator('reponame', 'old_collaborator')
+
+        self.assertTrue(con_delete_collab.called)
+        self.assertEqual(con_delete_collab.call_args[1]['repo'], 'reponame')
+        self.assertEqual(
+            con_delete_collab.call_args[1]['username'], 'old_collaborator')

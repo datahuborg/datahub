@@ -257,20 +257,21 @@ class SchemaListCreateDeleteShare(TestCase):
                              'REVOKE ALL ON TABLES FROM %s;'
                              'COMMIT;'
                              )
+        self.mock_execute_sql.return_value = {'status': True, 'row_count': -1,
+                                              'tuples': [], 'fields': []}
 
-        product = itertools.product(self.good_nouns, self.good_nouns)
+        repo = 'repo_name'
+        username = 'delete_me_user_name'
 
-        for repo, username in product:
-            params = (repo, username, repo, username, repo, username)
-            self.backend.delete_collaborator(repo=repo, username=username)
+        params = (repo, username, repo, username, repo, username)
+        res = self.backend.delete_collaborator(repo=repo, username=username)
 
-            self.assertEqual(
-                self.mock_execute_sql.call_args[0][0], delete_collab_sql)
-            self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
-            self.assertEqual(self.mock_as_is.call_count, len(params))
-            self.assertEqual(self.mock_check_for_injections.call_count, 2)
-
-            self.reset_mocks()
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], delete_collab_sql)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, len(params))
+        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+        self.assertEqual(res, True)
 
     def test_list_tables(self):
         repo = 'repo'

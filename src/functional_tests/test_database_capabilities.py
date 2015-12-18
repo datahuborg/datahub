@@ -65,7 +65,7 @@ class LoginTest(FunctionalTest):
             self.create_view_programmatically(
                 repo_name, table_name, view_name)
 
-    def test_add_collaborator(self):
+    def test_add_remove_collaborator(self):
         snoop = 'delete_me_snoop'
         dre = 'delete_me_dre'
         repos = ['ginnjuice', 'beautiful']
@@ -94,14 +94,12 @@ class LoginTest(FunctionalTest):
         # snoop logs in
         self.sign_in_manually(snoop)
 
-        # snoop can see dre's repo[0], but not repo[1]
-
         # Snoop goes to the dre url
         self.browser.get(self.server_url + '/browse/' + dre)
 
         # Snoop does not see repo[1], which is not shared
         try:
-            self.browser.find_element_by_link_text(repo[1])
+            self.browser.find_element_by_link_text(repos[1])
             self.fail()
         except:
             pass
@@ -133,4 +131,38 @@ class LoginTest(FunctionalTest):
         page_source = self.browser.page_source
         self.assertTrue('error' in page_source)
 
-        # Snoop gives up and takes a smoke break.
+        # Snoop gives up. He goes to the homepage, logs out
+        # and takes a smoke break.
+        self.browser.get(self.server_url + '/browse/' + snoop)
+        self.sign_out_manually()
+
+        # Dre gets word of what's happening. He signs back in
+        self.sign_in_manually(dre)
+
+        # And Dre removes Snoop's access
+        self.remove_collaborator(repo=repos[0], collaborator=snoop)
+
+        # Dre heads out to work on some headphones.
+        self.sign_out_manually()
+
+        # Snoop logs in and goes to the dre url
+        self.sign_in_manually(snoop)
+        self.browser.get(self.server_url + '/browse/' + dre)
+
+        # Snoop doesn't see repos[0], which dre removed his rights to
+        try:
+            self.browser.find_element_by_link_text(repos[0])
+            self.fail()
+        except:
+            pass
+
+        # He tries to sneak into repos[0], but can't get in either.
+        sneaky_url = self.server_url + '/browse/' + \
+            dre + '/' + repos[0] + '/tables'
+        self.browser.get(sneaky_url)
+
+        # the page says error.
+        page_source = self.browser.page_source
+        self.assertTrue('error' in page_source)
+
+        # Snoop and Dre aren't friends anymore.

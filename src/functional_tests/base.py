@@ -287,6 +287,29 @@ class FunctionalTest(StaticLiveServerTestCase):
         element = self.browser.find_elements_by_xpath(search_string)
         element[0].click()
 
+        # write the new collaborator name
         self.browser.find_element_by_id(
             'collaborator_username').send_keys(collaborator)
         self.browser.find_element_by_id('add_collaborator').click()
+
+    def remove_collaborator(self, repo, collaborator):
+        # assumes the user is logged in
+        self.browser.find_element_by_id('logo').click()
+
+        # click the collaborators button
+        search_string = ('//table/tbody/tr[td/a/text()="' +
+                         repo +
+                         '"]/td/a[text()[contains(.,"collaborators")]]'
+                         )
+
+        element = self.browser.find_elements_by_xpath(search_string)
+        element[0].click()
+
+        # click the remove link next to the user's name
+        search_string = '//table/tbody/tr/td/span[text()="' + collaborator + '"]/following-sibling::a[1]'
+        element = self.browser.find_elements_by_xpath(search_string)
+        element[0].click()
+
+        # check to make sure that the username isn't still on the page
+        page_source = self.browser.page_source
+        self.assertFalse(collaborator in page_source)
