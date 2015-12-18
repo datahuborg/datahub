@@ -200,14 +200,15 @@ class PGBackend:
             'fields': []
         }
 
-        conn = self.connection
-        cur = conn.cursor()
-        cur.execute(query.strip(), params)
+        query = query.strip()
+        cur = self.connection.cursor()
+        cur.execute(query, params)
 
+        # if cur.execute() failed, this will print it.
         try:
             result['tuples'] = cur.fetchall()
-        except:
-            pass
+        except psycopg2.ProgrammingError as e:
+            print("Postgres Query Error:" + e)
 
         result['status'] = True
         result['row_count'] = cur.rowcount
@@ -215,7 +216,6 @@ class PGBackend:
             result['fields'] = [
                 {'name': col[0], 'type': col[1]} for col in cur.description]
 
-        query.strip().split(' ', 2)
         cur.close()
         return result
 
