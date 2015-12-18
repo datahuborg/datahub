@@ -3,20 +3,15 @@
 {% load crispy_forms_tags %}
 
 {% block headlink-right %}
-  <a href="/account/login" title="Sign In" id="id_sign_in" class="btn btn-primary navbar-btn">Sign In</a>
+  <a href="{% url 'login' %}" title="Sign In" id="id_sign_in" class="btn btn-primary navbar-btn">Sign In</a>
 {% endblock %}
 {% block content %}
 <div class="container-fluid" style="max-width:768px;">
-<form class="col-xs-12 col-sm-6 col-sm-offset-3" role="form" method="POST" action="/account/register">
+<form class="col-xs-12 col-sm-6 col-sm-offset-3" role="form" method="POST" action="{% url 'register' %}">
   {% csrf_token %}
-  <input type="hidden" name="redirect_url" value="{{redirect_url}}" />
+  <input type="hidden" name="redirect_url" value="{{ redirect_url }}" />
   <h3>Create a new account</h3>
   <br />
-  <div id="error">
-    {% for error in errors %}
-      <span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
-    {% endfor %}
-  </div>
   <br />
   {% if user and not user.is_anonymous %}
   <p>Already logged in.</p>
@@ -31,7 +26,7 @@
     {% if provider.backend == 'mit-oidc' %}
       <a class="list-group-item" href="/oidc/login?provider=mit"><i class="fa icon-mit fa-lg fa-fw"></i>&nbsp; {{provider.name}}</a>
     {% else %}
-      <a class="list-group-item" href="{% url 'social:begin' provider.backend %}?next=/"><i class="fa fa-{{provider.icon}} fa-lg fa-fw"></i>&nbsp; {{provider.name}}</a>
+      <a class="list-group-item" href="{% url 'social:begin' provider.backend %}?next=/"><i class="fa fa-{{ provider.icon }} fa-lg fa-fw"></i>&nbsp; {{ provider.name }}</a>
     {% endif %}
   {% endfor %}
   </div>
