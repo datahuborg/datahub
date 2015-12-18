@@ -726,8 +726,9 @@ def query(request, repo_base, repo):
 
         data.update(csrf(request))
 
-        if 'q' in request.REQUEST:
-            query = request.REQUEST['q']
+        query = get_or_post(request, key='q', fallback=None)
+
+        if query:
             query = query.strip().rstrip(';')
 
             manager = DataHubManager(user=repo_base)
@@ -747,11 +748,7 @@ def query(request, repo_base, repo):
 
             total_pages = 1 + (int(count) / limit)
 
-            current_page = 1
-            try:
-                current_page = int(request.REQUEST['page'])
-            except:
-                pass
+            current_page = get_or_post(request, key='page', fallback=1)
 
             if current_page < 1:
                 current_page = 1
@@ -859,11 +856,7 @@ def card(request, repo_base, repo, card_name):
         count = int(num_rows)
         total_pages = 1 + (int(count) / limit)
 
-        current_page = 1
-        try:
-            current_page = int(request.REQUEST['page'])
-        except:
-            pass
+        current_page = get_or_post(request, key='page', fallback=1)
 
         if current_page < 1:
             current_page = 1
@@ -1082,10 +1075,7 @@ def app_allow_access(request, app_id, repo_name):
 
         app = App.objects.get(app_id=app_id)
 
-        redirect_url = None
-
-        if 'redirect_url' in request.REQUEST:
-            redirect_url = request.REQUEST['redirect_url']
+        redirect_url = get_or_post(request, key='redirect_url', fallback=None)
 
         if request.method == "POST":
 
@@ -1120,8 +1110,8 @@ def app_allow_access(request, app_id, repo_name):
                 'app_id': app_id,
                 'app_name': app.app_name}
 
-            if 'redirect_url' in request.REQUEST:
-                res['redirect_url'] = request.REQUEST['redirect_url']
+            if redirect_url:
+                res['redirect_url'] = redirect_url
 
             res.update(csrf(request))
             return render_to_response('app-allow-access.html', res)
