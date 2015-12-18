@@ -34,7 +34,7 @@ class RunDrawRequest:
     def where_clause(self):
         # Figure out the types of the columns so we'll know whether to use
         # numeric operations or string operations.
-        schema = self.manager.get_schema(self.repo + "." + self.table)['tuples']
+        schema = self.manager.get_schema(self.repo, self.table)
         type_for_col = {}
         for column in schema:
             type_for_col[column[0]] = column[1]

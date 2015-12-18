@@ -172,11 +172,27 @@ class DataHubHandler:
             raise DBException(message=str(e))
 
     def get_schema(self, con, table_name):
+        # this should really accept repo and table name as seperate
         try:
             manager = DataHubManager(
                 user=con.user, repo_base=con.repo_base, is_app=con.is_app)
-            res = manager.get_schema(table=table_name)
-            return construct_result_set(res)
+
+            # thrift isn't upgraded to use seperate repo and tokens yet,
+            # so they have to be split here, and then passed to the manager.
+            tokens = table_name.split('.')
+            repo = tokens[0]
+            table = tokens[1]
+            res = manager.get_schema(repo=repo, table=table)
+
+            # apps expect get_schema to return in a backwards way. It's made
+            # to be backwards here.
+            thrift_crazy_result = {
+                'status': True, 'row_count': 0, 'tuples': res,
+                'fields': [
+                    {'type': 1043, 'name': 'column_name'},
+                    {'type': 1043, 'name': 'data_type'}]}
+
+            return construct_result_set(thrift_crazy_result)
         except Exception, e:
             raise DBException(message=str(e))
 

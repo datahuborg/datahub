@@ -61,9 +61,9 @@ def schema(request, repo, table):
     if repos is not None and repo in repos:
         tables = get_tables(manager, repo)
         if tables is not None and table in tables:
-            schema = manager.get_schema(repo + "." + table)
-            if schema is not None and 'tuples' in schema:
-                return json_response({"schema": schema["tuples"]})
+            schema = manager.get_schema(repo, table)
+            if len(schema) > 0:
+                return json_response({"schema": schema})
     return error_response()
 
 
@@ -77,10 +77,10 @@ def aggregate(request, repo, table, agg_type, col_name):
         tables = get_tables(manager, repo)
         # Ensure that the table exists.
         if tables is not None and table in tables:
-            schema = manager.get_schema(repo + "." + table)
+            schema = manager.get_schema(repo, table)
             # Ensure that the schema for the repo.table exists.
-            if schema is not None and 'tuples' in schema:
-                for c_name, c_type in schema["tuples"]:
+            if len(schema) > 0:
+                for c_name, c_type in schema:
                     if c_name == col_name and can_apply(agg_type, col_name):
                         result = manager.execute_sql(
                             "SELECT %s(%s) FROM %s.%s" % (agg_type.lower(), col_name.lower(), repo, table))

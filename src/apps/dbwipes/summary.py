@@ -118,7 +118,12 @@ class Summary(object):
   @make_cache
   def get_columns_and_types(self):
     manager = DataHubManager(user=self.username)
-    rows = manager.get_schema(self.tablename)['tuples']
+
+    tokens = self.tablename.split('.')
+    repo = tokens[0]
+    table = tokens[1]
+
+    rows = manager.get_schema(repo, table)
     ret = []
     for col, typ in rows:
       if typ == 'text':
