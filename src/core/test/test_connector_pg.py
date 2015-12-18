@@ -54,15 +54,23 @@ class HelperMethods(TestCase):
     def test_check_open_connections(self):
         self.assertTrue(self.mock_psychopg.connect.called)
 
-    # def test_execute_sql_strips_queries(self):
-    #     query = ' This query needs stripping; '
-    #     params = ('param1', 'param2')
-    #     self.backend.execute_sql(query, params)
+    def test_execute_sql_strips_queries(self):
+        query = ' This query needs stripping; '
+        params = ('param1', 'param2')
+        mock_cursor = self.mock_psychopg.connect.return_value.cursor
+        mock_execute = mock_cursor.return_value.execute
+        mock_cursor.return_value.fetchall.return_value = 'sometuples'
+        mock_cursor.return_value.rowcount = 1000
 
-    #     m = self.mock_psychopg
-    #     import pdb; pdb.set_trace()
+        res = self.backend.execute_sql(query, params)
 
-    #     self.assertTrue(self.mock_psychopg.connect.cursor.execute.called)
+        self.assertTrue(mock_cursor.called)
+        self.assertTrue(mock_execute.called)
+
+        self.assertEqual(mock_execute.call_args[0][1], params)
+        self.assertEqual(res['tuples'], 'sometuples')
+        self.assertEqual(res['status'], True)
+        self.assertEqual(res['row_count'], 1000)
 
 
 class SchemaListCreateDeleteShare(TestCase):
