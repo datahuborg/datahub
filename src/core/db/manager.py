@@ -51,8 +51,8 @@ class DataHubManager:
     def list_views(self, repo):
         return self.user_con.list_views(repo=repo)
 
-    def get_schema(self, table):
-        return self.user_con.get_schema(table=table)
+    def get_schema(self, repo, table):
+        return self.user_con.get_schema(repo=repo, table=table)
 
     def execute_sql(self, query, params=None):
         return self.user_con.execute_sql(query=query, params=params)

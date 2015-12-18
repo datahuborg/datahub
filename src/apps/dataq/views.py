@@ -147,7 +147,7 @@ def schema(request, repo_name, table_name):
     if repos is not None and repo_name in repos:
         tables = get_tables(manager, repo_name)
         if tables is not None and table_name in tables:
-            schema = manager.get_schema(repo_name + "." + table_name)
-            if schema is not None and 'tuples' in schema:
-                return json_response({"schema": schema["tuples"]})
+            schema = manager.get_schema(repo_name, table_name)
+            if len(schema) > 0:
+                return json_response({"schema": schema})
     return error_response()

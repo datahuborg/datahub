@@ -139,9 +139,6 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertTrue(self.mock_check_for_injections.called)
         self.assertEqual(res, True)
 
-        # reset mocks
-        self.reset_mocks()
-
     def test_list_repo(self):
         # the user is already logged in, so there's not much to be tested here
         # except that the arguments are passed correctly
@@ -325,12 +322,19 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(res, ['test_view'])
 
     def test_get_schema(self):
-        # currently not testing the need to specify a repo, since we may
-        # want to enable public tables
 
-        self.mock_execute_sql.return_value = {'row_count': 1}
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 2,
+            'tuples': [(u'id', u'integer'), (u'words', u'text')],
+            'fields': [
+                {'type': 1043, 'name': 'column_name'},
+                {'type': 1043, 'name': 'data_type'}
+            ]
+        }
 
-        table = 'repo.table'
+        repo = 'repo'
+        table = 'table'
+
         get_schema_query = ('SELECT column_name, data_type '
                             'FROM information_schema.columns '
                             'WHERE table_name = %s '
@@ -338,7 +342,7 @@ class SchemaListCreateDeleteShare(TestCase):
                             )
         params = ('table', 'repo')
 
-        self.backend.get_schema(table)
+        self.backend.get_schema(repo, table)
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], get_schema_query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)

@@ -119,3 +119,11 @@ class BasicOperations(TestCase):
         self.assertEqual(con_delete_collab.call_args[1]['repo'], 'reponame')
         self.assertEqual(
             con_delete_collab.call_args[1]['username'], 'old_collaborator')
+
+    def test_get_schema(self):
+        con_get_schema = self.mock_connection.return_value.get_schema
+        self.manager.get_schema('reponame', 'tablename')
+
+        self.assertTrue(con_get_schema.called)
+        self.assertEqual(con_get_schema.call_args[1]['repo'], 'reponame')
+        self.assertEqual(con_get_schema.call_args[1]['table'], 'tablename')

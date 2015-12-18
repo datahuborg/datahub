@@ -123,9 +123,8 @@ def tables(request):
 
 
 def get_schema(repo, table, username):
-  full_tablename = "%s.%s" % (repo, table)
   manager = DataHubManager(user=username)
-  pairs = manager.get_schema(full_tablename)['tuples']
+  pairs = manager.get_schema(repo, table)
   schema = {}
   for col, typ in pairs:
     if typ == 'text':

@@ -173,15 +173,9 @@ class PGBackend:
 
         return [t[0] for t in res['tuples']]
 
-    def get_schema(self, table):
-        tokens = table.split('.')
-        for token in tokens:
-            self._check_for_injections(token)
-
-        if len(tokens) < 2:
-            raise NameError(
-                "Invalid name: '%s'.\n"
-                "HINT: use <repo-name>.<table-name> " % (table))
+    def get_schema(self, repo, table):
+        self._check_for_injections(repo)
+        self._check_for_injections(table)
 
         query = ('SELECT column_name, data_type '
                  'FROM information_schema.columns '
@@ -189,13 +183,14 @@ class PGBackend:
                  'AND table_schema = %s;'
                  )
 
-        params = (tokens[-1], tokens[-2])
+        params = (table, repo)
         res = self.execute_sql(query, params)
 
         if res['row_count'] < 1:
-            raise NameError("Invalid reference: '%s'.\n" % (table))
+            raise NameError("Invalid reference: '%s.%s'.\n" % (repo, table))
 
-        return res
+        # return will look like [('id', 'integer'), ('words', 'text')]
+        return res['tuples']
 
     def execute_sql(self, query, params=None):
         result = {
