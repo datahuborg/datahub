@@ -1,6 +1,8 @@
 from __future__ import print_function
 import sys
 import os
+
+from django.db.utils import OperationalError
 # DataHub Settings.
 
 DEBUG = True
@@ -241,5 +243,7 @@ except ImportError:
 try:
     from site_utils import set_site_info
     set_site_info(domain=DATAHUB_DOMAIN)
-except ImportError:
+except OperationalError:
+    # DB access fails during docker build. Ignore that here so the
+    # collectstatic call will succeed.
     pass
