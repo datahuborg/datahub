@@ -163,7 +163,9 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.get(self.server_url + '/browse/' + username)
 
         # He clicks the add repo button
-        self.browser.find_element_by_class_name('glyphicon-plus').click()
+        self.browser.find_element_by_xpath(
+            '(//a[@title="Create a New Repository"])[1]').click()
+
 
         # type the new repo id
         self.browser.find_element_by_id('new_repo_name').send_keys(repo_name)
@@ -176,7 +178,9 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         # check to see that the url is formatted correctly
         repo_url = self.browser.current_url
-        regex = '\/browse\/' + username + '\/' + repo_name + '\/tables'
+        regex = r'/browse/{username}/{repo}/tables'.format(
+                username=username, repo=repo_name)
+
         self.assertRegexpMatches(repo_url, regex)
 
     def delete_repo(self, repo_name, username=None):
@@ -186,20 +190,14 @@ class FunctionalTest(StaticLiveServerTestCase):
         # Justin goes to the main/repos page
         self.browser.get(self.server_url + '/browse/' + username)
 
-        # Justin finds the delete button next to the given repo name
-        search_string = ('//table/tbody/tr[td/a/text()="' +
-                         repo_name +
-                         '"]/td/span[@title="Delete"]/a'
-                         )
-        delete_button = self.browser.find_elements_by_xpath(search_string)[0]
-
-        # he clicks the delete button
-        delete_button.click()
+        # Justin clicks the delete button next to the given repo name
+        xpath = ('(//table/tbody/tr[td/a/text()="{repo}"]/td/'
+                 'span[@title="Delete"]/a)[1]').format(repo=repo_name)
+        self.browser.find_element_by_xpath(xpath).click()
 
         # he confirms the delete
-        search_string = '//button[text()="Delete"]'
-        delete_button = self.browser.find_elements_by_xpath(search_string)[0]
-        delete_button.click()
+        xpath = '(//button[text()="Delete"])[1]'
+        self.browser.find_element_by_xpath(xpath).click()
 
         # the repo name now does not appear on the page
         src = self.browser.page_source
@@ -218,8 +216,8 @@ class FunctionalTest(StaticLiveServerTestCase):
         # check to see that the repo name appears on the page. Click on it.
         self.browser.find_element_by_link_text(repo_name).click()
 
-        ddl = ('create table ' + repo_name + '.' +
-               table_name + ' (id integer, words text)')
+        ddl = ('create table {repo}.{table} (id integer, words text)'
+               .format(repo=repo_name, table=table_name))
 
         # type some DDL into the sql field
         self.browser.find_element_by_id('txt-sql').send_keys(ddl)
@@ -236,8 +234,8 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         # check to see that we're not in the table view
         table_url = self.browser.current_url
-        regex = ('\/browse\/' + username +
-                 '\/' + repo_name + '\/table\/' + table_name)
+        regex = r'/browse/{username}/{repo}/table/{table}'.format(
+                username=username, repo=repo_name, table=table_name)
 
         self.assertRegexpMatches(table_url, regex)
 
@@ -251,8 +249,8 @@ class FunctionalTest(StaticLiveServerTestCase):
         # check to see that the repo name appears on the page. Click on it.
         self.browser.find_element_by_link_text(repo_name).click()
 
-        ddl = ('create view ' + repo_name + '.' +
-               view_name + ' as select * from ' + repo_name + '.' + table_name)
+        ddl = ('create view {repo}.{view} as select * from {repo}.{table}'
+               .format(repo=repo_name, view=view_name, table=table_name))
 
         # type some DDL into the sql field
         self.browser.find_element_by_id('txt-sql').send_keys(ddl)
@@ -269,8 +267,8 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         # check to see that we're not in the table view
         table_url = self.browser.current_url
-        regex = ('\/browse\/' + username +
-                 '\/' + repo_name + '\/table\/' + view_name)
+        regex = r'/browse/{username}/{repo}/table/{view}'.format(
+                username=username, repo=repo_name, view=view_name)
 
         self.assertRegexpMatches(table_url, regex)
 
@@ -279,13 +277,9 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.find_element_by_id('logo').click()
 
         # click the collaborators button
-        search_string = ('//table/tbody/tr[td/a/text()="' +
-                         repo +
-                         '"]/td/a[text()[contains(.,"collaborators")]]'
-                         )
-
-        element = self.browser.find_elements_by_xpath(search_string)
-        element[0].click()
+        xpath = ('(//table/tbody/tr[td/a/text()="{repo}"]/td/a[text()['
+                 'contains(.,"collaborators")]])[1]').format(repo=repo)
+        self.browser.find_element_by_xpath(xpath).click()
 
         # write the new collaborator name
         self.browser.find_element_by_id(
@@ -297,18 +291,14 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.find_element_by_id('logo').click()
 
         # click the collaborators button
-        search_string = ('//table/tbody/tr[td/a/text()="' +
-                         repo +
-                         '"]/td/a[text()[contains(.,"collaborators")]]'
-                         )
-
-        element = self.browser.find_elements_by_xpath(search_string)
-        element[0].click()
+        xpath = ('(//table/tbody/tr[td/a/text()="{repo}"]/td/a[text()['
+                 'contains(.,"collaborators")]])[1]').format(repo=repo)
+        self.browser.find_element_by_xpath(xpath).click()
 
         # click the remove link next to the user's name
-        search_string = '//table/tbody/tr/td/span[text()="' + collaborator + '"]/following-sibling::a[1]'
-        element = self.browser.find_elements_by_xpath(search_string)
-        element[0].click()
+        xpath = ('(//table/tbody/tr/td[span/text()="{collaborator}"]'
+                 '/a[@title="Remove"])[1]').format(collaborator=collaborator)
+        self.browser.find_element_by_xpath(xpath).click()
 
         # check to make sure that the username isn't still on the page
         page_source = self.browser.page_source

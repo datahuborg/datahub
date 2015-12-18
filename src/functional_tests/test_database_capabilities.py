@@ -23,7 +23,8 @@ class LoginTest(FunctionalTest):
 
         for name in bad_repo_names:
             # He clicks the add repo button
-            self.browser.find_element_by_class_name('glyphicon-plus').click()
+            self.browser.find_element_by_xpath(
+                '(//a[@title="Create a New Repository"])[1]').click()
 
             # type the new repo id
             self.browser.find_element_by_id('new_repo_name').send_keys(name)
@@ -118,13 +119,14 @@ class LoginTest(FunctionalTest):
         table_0.click()
 
         # the url matches
-        regex = '\/browse\/' + dre + '\/' + repos[0] + '\/table\/' + tables[0]
+        regex = (r'/browse/{user}/{repo}/table/{table}'
+                 .format(user=dre, repo=repos[0], table=tables[0]))
         self.assertRegexpMatches(self.browser.current_url, regex)
 
         # snoop is a sneaky mother
         # he tries to get early access to dre's "beautiful" repo
-        sneaky_url = self.server_url + '/browse/' + \
-            dre + '/' + repos[1] + '/tables'
+        sneaky_url = ('{base}/browse/{user}/{repo}/tables'
+                      .format(base=self.server_url, user=dre, repo=repos[1]))
         self.browser.get(sneaky_url)
 
         # the page says error.
@@ -157,8 +159,8 @@ class LoginTest(FunctionalTest):
             pass
 
         # He tries to sneak into repos[0], but can't get in either.
-        sneaky_url = self.server_url + '/browse/' + \
-            dre + '/' + repos[0] + '/tables'
+        sneaky_url = ('{base}/browse/{user}/{repo}/tables'
+                      .format(base=self.server_url, user=dre, repo=repos[0]))
         self.browser.get(sneaky_url)
 
         # the page says error.

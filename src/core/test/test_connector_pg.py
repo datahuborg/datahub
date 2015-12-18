@@ -474,7 +474,7 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_as_is.call_count, 0)
 
-    def test_has_repo_privilege(self):
+    def test_has_table_privilege(self):
         query = 'SELECT has_table_privilege(%s, %s, %s);'
         table = 'table'
         privilege = 'CONNECT'
@@ -601,7 +601,6 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_check_for_injections. call_count, 5)
 
     def test_import_table_with_no_header(self):
-        query = 'COPY %s FROM %s WITH %s %s DELIMITER %s ENCODING %s QUOTE %s;'
         table_name = 'table_name'
         file_path = 'file_path'
         file_format = 'file_format'

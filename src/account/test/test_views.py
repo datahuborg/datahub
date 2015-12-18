@@ -77,7 +77,7 @@ class LogoutPageTest(TestCase):
         self.assertTrue(self.client.session.get('_auth_user_id'))
 
         # log the user out
-        self.client.get("/account/logout")
+        self.client.get("/account/logout", follow=True)
 
         # make sure the user is actually logged out
         self.assertEqual(self.client.session.get('_auth_user_id'), None)
