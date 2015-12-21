@@ -42,7 +42,7 @@ TIME_ZONE = 'America/New_York'
 # Language code for this installation.
 LANGUAGE_CODE = 'en-us'
 
-DATAHUB_DOMAIN = 'datahub.csail.mit.edu'
+DATAHUB_DOMAIN = 'datahub-local.mit.edu'
 
 SITE_ID = 1
 
@@ -237,12 +237,12 @@ LOGGING = {
 # Instances should create a local_settings.py to define custom settings.
 try:
     from local_settings import *
-except ImportError:
-    from default_settings import *
-
-try:
+    # Only set the Site model if local_settings exists. Otherwise assume this
+    # is a Travis CI build and that the domain doesn't matter.
     from site_utils import set_site_info
     set_site_info(domain=DATAHUB_DOMAIN)
+except ImportError:
+    from default_settings import *
 except OperationalError:
     # DB access fails during docker build. Ignore that here so the
     # collectstatic call will succeed.
