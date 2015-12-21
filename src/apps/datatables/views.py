@@ -22,7 +22,7 @@ def json_response(json_dict):
 
 @login_required
 def table(request, repo, table):
-    username = request.user.username
+    username = request.user.get_username()
     manager = DataHubManager(username)
     repos = get_repos(manager)
     if repos is not None and repo in repos:
@@ -55,7 +55,7 @@ def get_tables(manager, repo_name):
 
 @login_required
 def schema(request, repo, table):
-    username = request.user.username
+    username = request.user.get_username()
     manager = DataHubManager(username)
     repos = get_repos(manager)
     if repos is not None and repo in repos:
@@ -69,7 +69,7 @@ def schema(request, repo, table):
 
 @login_required
 def aggregate(request, repo, table, agg_type, col_name):
-    username = request.user.username
+    username = request.user.get_username()
     manager = DataHubManager(username)
     repos = get_repos(manager)
     # Ensure that the repo exists.

@@ -12,7 +12,7 @@ Datahub Viz
 
 @login_required
 def index(request):
-    login = request.user.username
+    login = request.user.get_username()
     return render_to_response("viz.html", {
         'login': login,
         'repo_base': login

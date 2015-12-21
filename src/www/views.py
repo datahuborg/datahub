@@ -12,7 +12,7 @@ Datahub Console
 
 def index(request):
     try:
-        c = {'login': request.user.username}
+        c = {'login': request.user.get_username()}
         return render_to_response("index.html", c)
     except Exception as e:
         return HttpResponse(

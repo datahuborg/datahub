@@ -39,9 +39,9 @@ account_processor = AccountService.Processor(handler)
 
 def home(request):
     try:
-        login = request.user.username
-        if login:
-            return HttpResponseRedirect('/browse/%s' % (login))
+        username = request.user.get_username()
+        if username:
+            return HttpResponseRedirect('/browse/%s' % (username))
         else:
             return HttpResponseRedirect('/www')
     except Exception as e:
@@ -168,7 +168,7 @@ Repository Base
 @login_required
 def user(request, repo_base):
     try:
-        username = request.user.username
+        username = request.user.get_username()
 
         res = DataHubManager.has_base_privilege(username, repo_base, 'CONNECT')
         if not (res and res['tuples'][0][0]):
@@ -224,7 +224,7 @@ def repo(request, repo_base, repo):
 @login_required
 def repo_tables(request, repo_base, repo):
     try:
-        username = request.user.username
+        username = request.user.get_username()
 
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'USAGE')
@@ -255,7 +255,7 @@ def repo_tables(request, repo_base, repo):
 @login_required
 def repo_files(request, repo_base, repo):
     try:
-        username = request.user.username
+        username = request.user.get_username()
 
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'USAGE')
@@ -286,7 +286,7 @@ def repo_files(request, repo_base, repo):
 @login_required
 def repo_cards(request, repo_base, repo):
     try:
-        username = request.user.username
+        username = request.user.get_username()
 
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'USAGE')
@@ -316,7 +316,7 @@ def repo_cards(request, repo_base, repo):
 @login_required
 def repo_create(request, repo_base):
     try:
-        username = request.user.username
+        username = request.user.get_username()
         if request.method == "POST":
             if username != repo_base:
                 raise Exception(
@@ -345,7 +345,7 @@ def repo_create(request, repo_base):
 @login_required
 def repo_delete(request, repo_base, repo):
     try:
-        username = request.user.username
+        username = request.user.get_username()
 
         if username != repo_base:
             raise Exception(
@@ -367,7 +367,7 @@ def repo_delete(request, repo_base, repo):
 @login_required
 def repo_settings(request, repo_base, repo):
     try:
-        username = request.user.username
+        username = request.user.get_username()
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
 
@@ -397,7 +397,7 @@ def repo_settings(request, repo_base, repo):
 @login_required
 def repo_collaborators_add(request, repo_base, repo):
     try:
-        username = request.user.username
+        username = request.user.get_username()
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
 
@@ -420,7 +420,7 @@ def repo_collaborators_add(request, repo_base, repo):
 @login_required
 def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
     try:
-        username = request.user.username
+        username = request.user.get_username()
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
 
@@ -445,7 +445,7 @@ Tables
 @login_required
 def table(request, repo_base, repo, table):
     try:
-        username = request.user.username
+        username = request.user.get_username()
         dh_table_name = '%s.%s.%s' % (repo_base, repo, table)
 
         res = DataHubManager.has_table_privilege(
@@ -524,7 +524,7 @@ def table(request, repo_base, repo, table):
 @login_required
 def table_export(request, repo_base, repo, table_name):
     try:
-        username = request.user.username
+        username = request.user.get_username()
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
 
@@ -551,7 +551,7 @@ def table_export(request, repo_base, repo, table_name):
 @login_required
 def table_delete(request, repo_base, repo, table_name):
     try:
-        username = request.user.username
+        username = request.user.get_username()
         dh_table_name = '%s.%s.%s' % (repo_base, repo, table_name)
 
         res = DataHubManager.has_table_privilege(
@@ -604,7 +604,7 @@ def file_upload(request, repo_base, repo):
 @login_required
 def file_import(request, repo_base, repo, file_name):
     try:
-        username = request.user.username
+        username = request.user.get_username()
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
 
@@ -666,7 +666,7 @@ def file_import(request, repo_base, repo, file_name):
 @login_required
 def file_delete(request, repo_base, repo, file_name):
     try:
-        username = request.user.username
+        username = request.user.get_username()
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
 
@@ -687,7 +687,7 @@ def file_delete(request, repo_base, repo, file_name):
 @login_required
 def file_download(request, repo_base, repo, file_name):
     try:
-        username = request.user.username
+        username = request.user.get_username()
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'USAGE')
 
@@ -716,7 +716,7 @@ Query
 @login_required
 def query(request, repo_base, repo):
     try:
-        username = request.user.username
+        username = request.user.get_username()
         data = {
             'login': username,
             'repo_base': repo_base,
@@ -842,7 +842,7 @@ Cards
 @login_required
 def card(request, repo_base, repo, card_name):
     try:
-        username = request.user.username
+        username = request.user.get_username()
         card = Card.objects.get(repo_base=repo_base,
                                 repo_name=repo, card_name=card_name)
         query = card.query
@@ -938,7 +938,7 @@ def card_create(request, repo_base, repo):
 @login_required
 def card_export(request, repo_base, repo, card_name):
     try:
-        username = request.user.username
+        username = request.user.get_username()
         card = Card.objects.get(repo_base=repo_base,
                                 repo_name=repo, card_name=card_name)
         query = card.query
@@ -967,7 +967,7 @@ def card_export(request, repo_base, repo, card_name):
 @login_required
 def card_delete(request, repo_base, repo, card_name):
     try:
-        username = request.user.username
+        username = request.user.get_username()
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
 
@@ -993,7 +993,7 @@ Developer Apps
 # Foreign keys, migration of old users to new
 @login_required
 def apps(request):
-    username = request.user.username
+    username = request.user.get_username()
     user = User.objects.get(username=username)
     user_apps = App.objects.filter(user=user)
     apps = []
@@ -1012,7 +1012,7 @@ def apps(request):
 
 @login_required
 def app_register(request):
-    username = request.user.username
+    username = request.user.get_username()
 
     if request.method == "POST":
         try:
@@ -1049,7 +1049,7 @@ def app_register(request):
 @login_required
 def app_remove(request, app_id):
     try:
-        username = request.user.username
+        username = request.user.get_username()
         user = User.objects.get(username=username)
         app = App.objects.get(user=user, app_id=app_id)
         app.delete()
@@ -1065,7 +1065,7 @@ def app_remove(request, app_id):
 
 @login_required
 def app_allow_access(request, app_id, repo_name):
-    username = request.user.username
+    username = request.user.get_username()
     try:
         app = None
         try:

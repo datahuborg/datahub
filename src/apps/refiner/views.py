@@ -18,7 +18,7 @@ Datahub Refiner
 @login_required
 def index(request):
     return render_to_response("refiner.html", {
-        'login': request.user.username
+        'login': request.user.get_username()
     })
 
 

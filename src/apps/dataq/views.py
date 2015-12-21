@@ -87,7 +87,7 @@ If there was a failure, the response is JSON of the form:
 
 @login_required
 def repos(request):
-    username = request.user.username
+    username = request.user.get_username()
     manager = DataHubManager(username)
     repos = get_repos(manager)
     if repos is not None:
@@ -113,7 +113,7 @@ If there was a failure, the response is JSON of the form:
 
 @login_required
 def tables(request, repo_name):
-    username = request.user.username
+    username = request.user.get_username()
     manager = DataHubManager(username)
     repos = get_repos(manager)
     if repos is not None and repo_name in repos:
@@ -141,7 +141,7 @@ If there was a failure, the response is JSON of the form:
 
 @login_required
 def schema(request, repo_name, table_name):
-    username = request.user.username
+    username = request.user.get_username()
     manager = DataHubManager(username)
     repos = get_repos(manager)
     if repos is not None and repo_name in repos:
