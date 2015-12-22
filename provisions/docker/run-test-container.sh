@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo "Starting phantomjs container..."
 if ! `docker inspect -f {{.State.Running}} phantomjs`; then
     (set -x; docker start phantomjs)
@@ -8,8 +10,9 @@ fi
 echo "Removing dev app container..."
 (set -x; docker rm -f app)
 echo "Spinning up test app container..."
-echo "Run unit tests with commands like 'python manage.py test core'"
-echo "Run functional tests with commands like 'python manage.py test functional_tests.test_login_auth'"
+echo "*** Run unit tests with 'sh /datahub/provisions/docker/run-unit-tests.sh'."
+echo "*** Run functional tests with 'sh /datahub/provisions/docker/run-functional-tests.sh'."
+echo "*** Run specific tests with commands like 'python manage.py test core'."
 (set -x; docker run -ti --rm \
     -e "DATAHUB_DOCKER_TESTING=true" \
     -e "DJANGO_LIVE_TEST_SERVER_ADDRESS=0.0.0.0:8000" \
