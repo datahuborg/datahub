@@ -170,10 +170,6 @@ def user(request, repo_base):
     try:
         username = request.user.get_username()
 
-        # res = DataHubManager.has_base_privilege(username, repo_base, 'CONNECT')
-        # if not (res and res['tuples'][0][0]):
-        #     raise Exception('Access denied. Missing required privileges.')
-
         manager = DataHubManager(user=username, repo_base=repo_base)
         repos = manager.list_repos()
 
@@ -181,12 +177,8 @@ def user(request, repo_base):
 
         for repo in repos:
             collaborators = manager.list_collaborators(repo_base, repo)
-
             collaborators = filter(
                 lambda x: x != '' and x != repo_base, collaborators)
-
-            if username not in collaborators and username != repo_base:
-                continue
 
             visible_repos.append({
                 'name': repo,
@@ -372,7 +364,7 @@ def repo_settings(request, repo_base, repo):
         if not (res and res['tuples'][0][0]):
             raise Exception('Access denied. Missing required privileges.')
 
-        manager = DataHubManager(user=repo_base)
+        manager = DataHubManager(user=username)
         collaborators = manager.list_collaborators(repo_base, repo)
 
         collaborators = filter(lambda x: x != '' and x !=
