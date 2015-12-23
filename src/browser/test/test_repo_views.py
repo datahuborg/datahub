@@ -293,9 +293,8 @@ class RepoMainPage(TestCase):
             'browser.views.DataHubManager')
         self.mock_DataHubManager.return_value.list_repos.return_value = {
             'tuples': ['repo_1']}
-        self.mock_DataHubManager.return_value.list_collaborators.return_value = {
-            'tuples': ['collaborator_1']
-        }
+        self.mock_DataHubManager.return_value.list_collaborators.return_value = [
+            'collaborator_1']
 
     def create_patch(self, name):
         # helper method for creating patches
@@ -344,8 +343,8 @@ class RepoSettingsPage(TestCase):
             'tuples': [[True]]}
         # self.mock_DataHubManager.return_value.list_repos.return_value = {
         #     'tuples': ['repo_1']}
-        self.mock_DataHubManager.return_value.list_collaborators.return_value = {
-            'tuples': ['collaborator_1']}
+        self.mock_DataHubManager.return_value.list_collaborators.return_value = [
+        'collaborator_1']
 
         self.repo_name = "repo_name"
 
@@ -403,9 +402,9 @@ class RepoSettingsPage(TestCase):
         response = self.client.post(
             add_url, {'collaborator_username': 'test_collaborator'}, follow=True)
 
-        self.mock_DataHubManager.has_repo_privilege.assert_called_once_with(self.username, 'wrong_username', self.repo_name, 'CREATE')
+        self.mock_DataHubManager.has_repo_privilege.assert_called_once_with(
+            self.username, 'wrong_username', self.repo_name, 'CREATE')
         self.mock_DataHubManager.return_value.add_collaborator.assert_not_called()
-
 
 
 # to do:

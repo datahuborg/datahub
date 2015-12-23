@@ -180,10 +180,8 @@ def user(request, repo_base):
         visible_repos = []
 
         for repo in repos:
-            res = manager.list_collaborators(repo_base, repo)
+            collaborators = manager.list_collaborators(repo_base, repo)
 
-            collaborators = [(c[0].split('=')[0]).strip()
-                             for c in res['tuples']]
             collaborators = filter(
                 lambda x: x != '' and x != repo_base, collaborators)
 
@@ -375,9 +373,8 @@ def repo_settings(request, repo_base, repo):
             raise Exception('Access denied. Missing required privileges.')
 
         manager = DataHubManager(user=repo_base)
-        res = manager.list_collaborators(repo_base, repo)
+        collaborators = manager.list_collaborators(repo_base, repo)
 
-        collaborators = [(c[0].split('=')[0]).strip() for c in res['tuples']]
         collaborators = filter(lambda x: x != '' and x !=
                                repo_base, collaborators)
 

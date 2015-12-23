@@ -453,14 +453,25 @@ class SchemaListCreateDeleteShare(TestCase):
 
     def test_list_collaborators(self):
         query = 'SELECT unnest(nspacl) FROM pg_namespace WHERE nspname=%s;'
-        repo = 'repo'
-        params = (repo,)
-        self.backend.list_collaborators(repo_base=self.username, repo=repo)
+        repo = 'repo_name'
+        params = (repo, )
+
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 2,
+            'tuples': [
+                ('al_carter=UC/al_carter',),
+                ('foo_bar=U/al_carter',)
+            ],
+            'fields': [{'type': 1033, 'name': 'unnest'}]}
+
+        res = self.backend.list_collaborators(repo)
 
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], query)
-        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
-        self.assertEqual(self.mock_as_is.call_count, 0)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][1], params)
+        self.assertFalse(self.mock_as_is.called)
+        self.assertEqual(res, ['al_carter', 'foo_bar'])
 
     def test_has_base_privilege(self):
         query = 'SELECT has_database_privilege(%s, %s);'

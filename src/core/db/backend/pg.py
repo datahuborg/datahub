@@ -280,10 +280,17 @@ class PGBackend:
         params = (AsIs(username), password)
         return self.execute_sql(query, params)
 
-    def list_collaborators(self, repo_base, repo):
+    def list_collaborators(self, repo):
         query = 'SELECT unnest(nspacl) FROM pg_namespace WHERE nspname=%s;'
         params = (repo, )
-        return self.execute_sql(query, params)
+        res = self.execute_sql(query, params)
+
+        collaborators = []
+        for c in res['tuples']:
+            c = c[0].split('=')[0].strip()
+            collaborators.append(c)
+
+        return collaborators
 
     def has_base_privilege(self, login, privilege):
         query = 'SELECT has_database_privilege(%s, %s);'

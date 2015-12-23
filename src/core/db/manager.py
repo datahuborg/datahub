@@ -204,4 +204,4 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
             repo_base=repo_base)
-        return superuser_con.list_collaborators(repo_base=repo_base, repo=repo)
+        return superuser_con.list_collaborators(repo=repo)

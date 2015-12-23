@@ -112,5 +112,5 @@ class DataHubConnection:
             file_format=file_format,
             delimiter=delimiter)
 
-    def list_collaborators(self, repo_base, repo):
-        return self.backend.list_collaborators(repo_base=repo_base, repo=repo)
+    def list_collaborators(self, repo):
+        return self.backend.list_collaborators(repo)
