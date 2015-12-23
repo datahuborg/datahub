@@ -79,10 +79,9 @@ class PGBackend:
     def list_repos(self):
         query = ('SELECT schema_name AS repo_name '
                  'FROM information_schema.schemata '
-                 'WHERE schema_owner = %s')
+                 'WHERE schema_owner != \'postgres\'')
 
-        params = (self.user,)
-        res = self.execute_sql(query, params)
+        res = self.execute_sql(query)
         return [t[0] for t in res['tuples']]
 
     def delete_repo(self, repo, force=False):
@@ -207,9 +206,10 @@ class PGBackend:
         # if cur.execute() failed, this will print it.
         try:
             result['tuples'] = cur.fetchall()
-        except psycopg2.ProgrammingError as e:
-            print "possible psycopg2.ProgrammingError in pg.execute_sql: "
-            print(e)
+        except psycopg2.ProgrammingError:
+            # print "possible psycopg2.ProgrammingError in pg.execute_sql: "
+            # print(e)
+            pass
 
         result['status'] = True
         result['row_count'] = cur.rowcount
