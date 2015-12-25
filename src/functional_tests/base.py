@@ -1,6 +1,7 @@
 import sys
 import os
 import re
+import datetime
 import requests
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
@@ -57,12 +58,29 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.password = 'cdefghi'
 
     def tearDown(self):
+        self.browser.get_screenshot_as_file(
+            'functional_tests/screenshots/' +
+            str(datetime.datetime.now()) + '.png'
+            )
+
         # Delete all users whose name starts with 'delete_me_'.
         all_users = User.objects.all()
         test_users = all_users.filter(username__startswith='delete_me_')
         for user in test_users:
             DataHubManager.remove_user(user.username, remove_db=True)
             user.delete()
+
+        # When building tests, it's possible to delete some combination of the
+        # django user/postgres user/postgres user database
+        # This tries to catch the edge cases.
+        all_users = DataHubManager.list_all_users()
+        test_users = filter(lambda x: x.startswith('delete_me_'), all_users)
+        for user in test_users:
+            try:
+                DataHubManager.remove_user(user, remove_db=True)
+            except:
+                pass
+
         self.browser.quit()
 
     def delete_user(self, username):
@@ -165,7 +183,6 @@ class FunctionalTest(StaticLiveServerTestCase):
         # He clicks the add repo button
         self.browser.find_element_by_xpath(
             '(//a[@title="Create a New Repository"])[1]').click()
-
 
         # type the new repo id
         self.browser.find_element_by_id('new_repo_name').send_keys(repo_name)
