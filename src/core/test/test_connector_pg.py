@@ -153,15 +153,18 @@ class SchemaListCreateDeleteShare(TestCase):
         # except that the arguments are passed correctly
         list_repo_sql = ('SELECT schema_name AS repo_name '
                          'FROM information_schema.schemata '
-                         'WHERE schema_owner != \'postgres\'')
+                         'WHERE schema_owner != %s')
         self.mock_execute_sql.return_value = {
             'status': True, 'row_count': 1, 'tuples': [
                 ('test_table',)],
             'fields': [{'type': 1043, 'name': 'table_name'}]}
 
+        params = (self.username,)
         res = self.backend.list_repos()
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], list_repo_sql)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][1], params)
 
         self.assertEqual(res, ['test_table'])
 
@@ -428,14 +431,37 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertTrue(mock_remove_db.called)
 
     def test_remove_database(self):
-        query = 'DROP DATABASE %s;'
-        params = (self.username,)
+        # mock out list_all_users
+        mock_list_all_users = self.create_patch(
+            'core.db.backend.pg.PGBackend.list_all_users')
+        mock_list_all_users.return_value = ['tweedledee', 'tweedledum']
+
         self.backend.remove_database(self.username)
 
+        # revoke statement stuff
+        revoke_query = 'REVOKE ALL ON DATABASE %s FROM %s;'
+        revoke_params_1 = (self.username, 'tweedledee')
+        revoke_params_2 = (self.username, 'tweedledum')
+
         self.assertEqual(
-            self.mock_execute_sql.call_args[0][0], query)
-        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
-        self.assertEqual(self.mock_as_is.call_count, len(params))
+            self.mock_execute_sql.call_args_list[0][0][0], revoke_query)
+        self.assertEqual(
+            self.mock_execute_sql.call_args_list[0][0][1], revoke_params_1)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args_list[1][0][0], revoke_query)
+        self.assertEqual(
+            self.mock_execute_sql.call_args_list[1][0][1], revoke_params_2)
+
+        # drop statement stuff
+        drop_query = 'DROP DATABASE %s;'
+        drop_params = (self.username,)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args_list[2][0][0], drop_query)
+        self.assertEqual(
+            self.mock_execute_sql.call_args_list[2][0][1], drop_params)
+        self.assertEqual(self.mock_as_is.call_count, 5)
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
 
     def test_change_password(self):
@@ -470,6 +496,25 @@ class SchemaListCreateDeleteShare(TestCase):
             self.mock_execute_sql.call_args[0][1], params)
         self.assertFalse(self.mock_as_is.called)
         self.assertEqual(res, ['al_carter', 'foo_bar'])
+
+    def test_list_all_users(self):
+        query = 'SELECT usename FROM pg_catalog.pg_user WHERE usename != %s'
+        params = (self.username,)
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 2,
+            'tuples': [(u'delete_me_alpha_user',), (u'delete_me_beta_user',)],
+            'fields': [{'type': 19, 'name': 'usename'}]
+            }
+
+        res = self.backend.list_all_users()
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][1], params)
+        self.assertFalse(self.mock_as_is.called)
+        self.assertEqual(res, ['delete_me_alpha_user', 'delete_me_beta_user'])
+
 
     def test_has_base_privilege(self):
         query = 'SELECT has_database_privilege(%s, %s);'

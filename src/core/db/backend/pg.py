@@ -79,9 +79,9 @@ class PGBackend:
     def list_repos(self):
         query = ('SELECT schema_name AS repo_name '
                  'FROM information_schema.schemata '
-                 'WHERE schema_owner != \'postgres\'')
-
-        res = self.execute_sql(query)
+                 'WHERE schema_owner != %s')
+        params = (self.user,)
+        res = self.execute_sql(query, params)
         return [t[0] for t in res['tuples']]
 
     def delete_repo(self, repo, force=False):
@@ -266,10 +266,31 @@ class PGBackend:
         params = (AsIs(username),)
         return self.execute_sql(query, params)
 
-    def remove_database(self, username):
-        # This is not safe. If a user has shared repos
-        # with another user, it will crash.
+    def list_all_users(self):
+        query = 'SELECT usename FROM pg_catalog.pg_user WHERE usename != %s'
+        params = (self.user,)
+        res = self.execute_sql(query, params)
+        user_tuples = res['tuples']
+
+        all_users_list = []
+        for user_tuple in user_tuples:
+            all_users_list.append(user_tuple[0])
+
+        return all_users_list
+
+    def remove_database(self, username, revoke_collaborators=True):
         self._check_for_injections(username)
+
+        # remove collaborator access to the database
+        if revoke_collaborators:
+            all_users = self.list_all_users()
+
+            for user in all_users:
+                query = "REVOKE ALL ON DATABASE %s FROM %s;"
+                params = (AsIs(username), AsIs(user))
+                self.execute_sql(query, params)
+
+        # drop database
         query = 'DROP DATABASE %s;'
         params = (AsIs(username),)
         return self.execute_sql(query, params)
