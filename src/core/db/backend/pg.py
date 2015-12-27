@@ -259,7 +259,12 @@ class PGBackend:
 
     def remove_user(self, username, remove_db=True):
         if remove_db:
-            self.remove_database(username)
+            try:
+                self.remove_database(username)
+            except psycopg2.ProgrammingError as e:
+                print e
+                print('this probably happened because the postgres role'
+                      'exists, but a database of the same name does not.')
 
         self._check_for_injections(username)
         query = 'DROP ROLE %s;'
