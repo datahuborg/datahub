@@ -38,6 +38,7 @@ class FunctionalTest(StaticLiveServerTestCase):
             super(FunctionalTest, cls).tearDownClass()
 
     def setUp(self):
+
         if os.environ.get('DATAHUB_DOCKER_TESTING') == 'true':
             desired_capabilities = DesiredCapabilities.PHANTOMJS
             desired_capabilities['acceptSslCerts'] = True
@@ -52,6 +53,10 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.set_window_size(900, 600)
         self.browser.implicitly_wait(3)
 
+        # test users DB's/ postgres usernames/django usernames can sometimes
+        # persist if previous testing didn't finish correctly.
+        self.delete_all_test_users()
+
         # default username and password for loggin in a user manually
         # use only lowercase here
         self.username = 'delete_me_cdefghi'
@@ -63,30 +68,28 @@ class FunctionalTest(StaticLiveServerTestCase):
             str(datetime.datetime.now()) + '.png'
             )
 
-        # Delete all users whose name starts with 'delete_me_'.
+        self.delete_all_test_users()
+        self.browser.quit()
+
+    def delete_all_test_users(self):
+
+        # Delete all django users whose name starts with 'delete_me_'.
         all_users = User.objects.all()
         test_users = all_users.filter(username__startswith='delete_me_')
         for user in test_users:
-            DataHubManager.remove_user(user.username, remove_db=True)
             user.delete()
 
         # When building tests, it's possible to delete some combination of the
         # django user/postgres user/postgres user database
         # This tries to catch the edge cases.
         all_users = DataHubManager.list_all_users()
+        # import pdb; pdb.set_trace()
         test_users = filter(lambda x: x.startswith('delete_me_'), all_users)
         for user in test_users:
             try:
                 DataHubManager.remove_user(user, remove_db=True)
             except:
-                pass
-
-        self.browser.quit()
-
-    def delete_user(self, username):
-        user = User.objects.get(username=username)
-        DataHubManager.remove_user(user.username, remove_db=True)
-        user.delete()
+                print('UNABLE TO DELETE USER ' + user)
 
     def check_external_links(self):
         # supress warnings for testing external links

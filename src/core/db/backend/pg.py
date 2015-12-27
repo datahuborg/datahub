@@ -80,7 +80,7 @@ class PGBackend:
         query = ('SELECT schema_name AS repo_name '
                  'FROM information_schema.schemata '
                  'WHERE schema_owner != %s')
-        params = (self.user,)
+        params = (settings.DATABASES['default']['USER'],)
         res = self.execute_sql(query, params)
         return [t[0] for t in res['tuples']]
 

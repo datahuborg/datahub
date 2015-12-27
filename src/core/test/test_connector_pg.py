@@ -148,7 +148,7 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertTrue(self.mock_check_for_injections.called)
         self.assertEqual(res, True)
 
-    def test_list_repo(self):
+    def test_list_repos(self):
         # the user is already logged in, so there's not much to be tested here
         # except that the arguments are passed correctly
         list_repo_sql = ('SELECT schema_name AS repo_name '
@@ -159,7 +159,7 @@ class SchemaListCreateDeleteShare(TestCase):
                 ('test_table',)],
             'fields': [{'type': 1043, 'name': 'table_name'}]}
 
-        params = (self.username,)
+        params = ('django database user',)
         res = self.backend.list_repos()
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], list_repo_sql)
