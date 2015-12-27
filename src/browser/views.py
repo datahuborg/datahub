@@ -167,7 +167,6 @@ Repository Base
 
 @login_required
 def user(request, repo_base):
-    try:
         username = request.user.get_username()
 
         manager = DataHubManager(user=username, repo_base=repo_base)
@@ -185,19 +184,12 @@ def user(request, repo_base):
                 'owner': repo_base,
                 'public': True if 'PUBLIC' in collaborators else False,
                 'collaborators': collaborators,
-                'collaborators_str': ', '.join(collaborators),
-                'num_collaborators': len(collaborators)
             })
 
         return render_to_response("user-browse.html", {
             'login': username,
             'repo_base': repo_base,
             'repos': visible_repos})
-
-    except Exception as e:
-        return HttpResponse(json.dumps(
-            {'error': str(e)}),
-            content_type="application/json")
 
 
 '''
