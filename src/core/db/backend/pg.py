@@ -206,10 +206,16 @@ class PGBackend:
         # if cur.execute() failed, this will print it.
         try:
             result['tuples'] = cur.fetchall()
+<<<<<<< HEAD
         except psycopg2.ProgrammingError:
             # print "possible psycopg2.ProgrammingError in pg.execute_sql: "
             # print(e)
             pass
+=======
+        except psycopg2.ProgrammingError as e:
+            print "possible psycopg2.ProgrammingError in pg.execute_sql: "
+            print(e)
+>>>>>>> 482c0fb373fb6fe0c9d9407155e93f634c75e438
 
         result['status'] = True
         result['row_count'] = cur.rowcount
