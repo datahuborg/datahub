@@ -3,7 +3,7 @@
 {% load crispy_forms_tags %}
 
 {% block headlink-right %}
-  <a href="/account/register" title="Sign Up" class="btn btn-success navbar-btn">Sign Up</a>
+<a href="{% url 'login' %}" title="Sign In" id="id_sign_in" class="btn navbar-btn btn-primary">Sign In</a>
 {% endblock %}
 
 {% block content %}
@@ -11,6 +11,7 @@
 <div class="container-fluid" style="max-width: 768px;">
 
 <form class="col-xs-12 col-sm-6 col-sm-offset-3" role="form" method="POST" action="{{ action }}">
+{% csrf_token %}
 
 {% if user.is_authenticated %}
 <p>You already have a username.</p>
@@ -19,13 +20,9 @@
 <br/>
 {% endif %}
 
-{% csrf_token %}
-
 <p>Authenticated as {{ social.name }} user {{ social.username }}.</p>
 
-
 {{ form|crispy }}
-{# {{ form.as_ul }} #}
 
 <button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
 <input type="hidden" name="next" value="{{ next }}" />
