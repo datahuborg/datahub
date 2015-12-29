@@ -14,8 +14,10 @@ def provider_details(backend=None):
     Returns a list of tuples describing supported social providers.
 
     If a backend is passed, only that backend's tuple is returned.
-    - `backend` is the backend name Python Social Auth understands.
-    - `name` is the display name to be shown in templates.
+    - `backend` is the name Python Social Auth understands.
+    - `name` is the name to show in templates.
+    - `org_name` is the name to show when referring to a backend's members,
+      e.g. "MIT user foo" instead of "MIT OpenID Connect user foo".
     - `icon` is the id of the Font Awesome icon matching the backend.
     - `priority` is the sort order. Lower numbers sort first.
     """
@@ -71,6 +73,7 @@ def provider_details(backend=None):
         {
             'backend': 'mit-oidc',
             'name': 'MIT OpenID Connect',
+            'org_name': 'MIT',
             'icon': 'mit',
             'priority': -1000,
         },

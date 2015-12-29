@@ -40,3 +40,9 @@ SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
 #   http://psa.matiasaguirre.net/docs/backends/twitter.html
 SOCIAL_AUTH_TWITTER_KEY = ''
 SOCIAL_AUTH_TWITTER_SECRET = ''
+
+# Register your own instance with MIT's identity provider at:
+#   https://oidc.mit.edu/manage/dev/dynreg/new
+SOCIAL_AUTH_MIT_OIDC_KEY = ''
+SOCIAL_AUTH_MIT_OIDC_SECRET = ''
+SOCIAL_AUTH_MIT_OIDC_ID_TOKEN_DECRYPTION_KEY = SOCIAL_AUTH_MIT_OIDC_SECRET

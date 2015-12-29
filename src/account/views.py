@@ -109,12 +109,8 @@ def get_user_details(request):
     try:
         # Include details about the social login being used,
         # e.g. "Authenticated as Facebook user Foo Bar."
-        provider = provider_details(backend=backend)
-        social = {
-            'username': details['username'],
-            'name': provider['name'],
-            'icon': provider['icon'],
-        }
+        social = provider_details(backend=backend)
+        social['username'] = details['username']
     except KeyError:
         social = None
 

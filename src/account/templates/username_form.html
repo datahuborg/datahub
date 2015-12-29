@@ -20,7 +20,7 @@
 <br/>
 {% endif %}
 
-<p>Authenticated as {{ social.name }} user {{ social.username }}.</p>
+<p>Authenticated as {% if social.org_name %}{{ social.org_name }}{% else %}{{ social.name }}{% endif %} user {{ social.username }}.</p>
 
 {{ form|crispy }}
 

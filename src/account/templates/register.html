@@ -24,7 +24,7 @@
   <div class="list-group">
   {% for provider in providers %}
     {% if provider.backend == 'mit-oidc' %}
-      <a class="list-group-item" href="/oidc/login?provider=mit"><i class="fa icon-mit fa-lg fa-fw"></i>&nbsp; {{provider.name}}</a>
+      <a class="list-group-item" href="{% url 'social:begin' provider.backend %}?next=/"><i class="fa icon-mit fa-lg fa-fw"></i>&nbsp; {{ provider.name }}</a>
     {% else %}
       <a class="list-group-item" href="{% url 'social:begin' provider.backend %}?next=/"><i class="fa fa-{{ provider.icon }} fa-lg fa-fw"></i>&nbsp; {{ provider.name }}</a>
     {% endif %}
