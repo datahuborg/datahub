@@ -52,8 +52,10 @@
 
       </table>
     </div>
+  {% elif repo_base != login %}
+    <p class="bg-warning"><strong>{{repo_base}}</strong> has not made any repositories avaialble to you.</p>
   {% else %}
-    <p class="bg-warning">No repository in <strong>{{repo_base}}</strong></p>
+    <p class="bg-warning">No repositories in <strong>{{repo_base}}</strong></p>
   {% endif %} 
   </div>
 </div>

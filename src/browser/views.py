@@ -199,40 +199,31 @@ Repository
 
 @login_required
 def repo(request, repo_base, repo):
-    return HttpResponseRedirect(
-        '/browse/%s/%s/tables' % (repo_base, repo))
+    return HttpResponseRedirect('/browse/%s/%s/tables' % (repo_base, repo))
 
 
 @login_required
 def repo_tables(request, repo_base, repo):
+    username = request.user.get_username()
+
+    # get the base tables and views of the user's repo
+    manager = DataHubManager(user=username, repo_base=repo_base)
     try:
-        username = request.user.get_username()
-
-        res = DataHubManager.has_repo_privilege(
-            username, repo_base, repo, 'USAGE')
-        if not (res and res['tuples'][0][0]):
-            raise Exception('Access denied. Missing required privileges.')
-
-        # get the base tables and views of the user's repo
-        manager = DataHubManager(user=repo_base)
         base_tables = manager.list_tables(repo)
         views = manager.list_views(repo)
+    except LookupError:
+        base_tables = []
+        views = []
 
-        res = {
-            'login': username,
-            'repo_base': repo_base,
-            'repo': repo,
-            'base_tables': base_tables,
-            'views': views}
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'base_tables': base_tables,
+        'views': views}
 
-        res.update(csrf(request))
-        return render_to_response("repo-browse-tables.html", res)
-
-    except Exception as e:
-        return HttpResponse(json.dumps(
-            {'error': str(e)}),
-            content_type="application/json")
-
+    res.update(csrf(request))
+    return render_to_response("repo-browse-tables.html", res)
 
 @login_required
 def repo_files(request, repo_base, repo):
