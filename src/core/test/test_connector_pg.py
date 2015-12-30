@@ -155,20 +155,20 @@ class SchemaListCreateDeleteShare(TestCase):
                          'FROM information_schema.schemata '
                          'WHERE schema_owner != %s')
 
-        # mock_settings = self.create_patch("core.db.backend.pg.settings.DATABASES")
-        # mock_settings. = {'default': {'USER': 'postgres'}}
+        mock_settings = self.create_patch("core.db.backend.pg.settings")
+        mock_settings.DATABASES = {'default': {'USER': 'postgres'}}
 
         self.mock_execute_sql.return_value = {
             'status': True, 'row_count': 1, 'tuples': [
                 ('test_table',)],
             'fields': [{'type': 1043, 'name': 'table_name'}]}
 
-        params = ('django database user',)
+        params = (mock_settings.DATABASES['default']['USER'],)
         res = self.backend.list_repos()
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], list_repo_sql)
-        # self.assertEqual(
-        #     self.mock_execute_sql.call_args[0][1], 'postgres')
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][1], params)
 
         self.assertEqual(res, ['test_table'])
 
