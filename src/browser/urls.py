@@ -55,6 +55,7 @@ urlpatterns = patterns(
     url(r'^browse/(\w+)/(\w+)/cards/?$', 'browser.views.repo_cards',
         name='browser-repo_cards'),
     url(r'^browse/(\w+)/?$', 'browser.views.user', name='browser-user'),
+    url(r'^browse/?$', 'browser.views.user', name='browser-user'),
 
 
     # Delete

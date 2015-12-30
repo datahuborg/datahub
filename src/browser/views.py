@@ -8,7 +8,10 @@ import uuid
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+
 from django.core.context_processors import csrf
+from django.core.urlresolvers import reverse
+
 from django.http import *
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
@@ -38,22 +41,15 @@ account_processor = AccountService.Processor(handler)
 
 
 def home(request):
-    try:
-        username = request.user.get_username()
-        if username:
-            return HttpResponseRedirect('/browse/%s' % (username))
-        else:
-            return HttpResponseRedirect('/www')
-    except Exception as e:
-        return HttpResponse(
-            json.dumps({'error': str(e)}),
-            content_type="application/json")
-
-# just for backward compatibility
+    username = request.user.get_username()
+    if username:
+        return HttpResponseRedirect(reverse('browser-user', args=(username,)))
+    else:
+        return HttpResponseRedirect(reverse('www:index'))
 
 
 def about(request):
-    return HttpResponseRedirect('/www')
+    return HttpResponseRedirect(reverse('www:index'))
 
 
 '''
@@ -166,8 +162,11 @@ Repository Base
 
 
 @login_required
-def user(request, repo_base):
+def user(request, repo_base=None):
         username = request.user.get_username()
+
+        if not repo_base:
+            repo_base = username
 
         manager = DataHubManager(user=username, repo_base=repo_base)
         repos = manager.list_repos()
@@ -224,6 +223,7 @@ def repo_tables(request, repo_base, repo):
 
     res.update(csrf(request))
     return render_to_response("repo-browse-tables.html", res)
+
 
 @login_required
 def repo_files(request, repo_base, repo):
