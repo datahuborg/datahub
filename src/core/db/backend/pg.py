@@ -320,7 +320,7 @@ class PGBackend:
 
     def has_base_privilege(self, login, privilege):
         '''
-        returns True or False for whether the user has privileges for the 
+        returns True or False for whether the user has privileges for the
         repo_base (database)
         '''
         query = 'SELECT has_database_privilege(%s, %s);'
@@ -341,12 +341,14 @@ class PGBackend:
     def has_table_privilege(self, login, table, privilege):
         query = 'SELECT has_table_privilege(%s, %s, %s);'
         params = (login, table, privilege)
-        return self.execute_sql(query, params)
+        res = self.execute_sql(query, params)
+        return res['tuples'][0][0]
 
     def has_column_privilege(self, login, table, column, privilege):
         query = 'SELECT has_column_privilege(%s, %s, %s, %s);'
         params = (login, table, column, privilege)
-        return self.execute_sql(query, params)
+        res = self.execute_sql(query, params)
+        return res['tuples'][0][0]
 
     def export_table(self, table_name, file_path, file_format='CSV',
                      delimiter=',', header=True):

@@ -426,7 +426,7 @@ def table(request, repo_base, repo, table):
         res = DataHubManager.has_table_privilege(
             username, repo_base, dh_table_name, 'SELECT')
 
-        if not (res and res['tuples'][0][0]):
+        if not res:
             raise Exception('Access denied. Missing required privileges.')
 
         manager = DataHubManager(user=repo_base)
@@ -532,7 +532,7 @@ def table_delete(request, repo_base, repo, table_name):
         res = DataHubManager.has_table_privilege(
             username, repo_base, dh_table_name, 'DELETE')
 
-        if not (res and res['tuples'][0][0]):
+        if not res:
             raise Exception('Access denied. Missing required privileges.')
 
         manager = DataHubManager(user=repo_base)

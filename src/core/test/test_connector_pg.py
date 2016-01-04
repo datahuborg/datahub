@@ -557,13 +557,16 @@ class SchemaListCreateDeleteShare(TestCase):
         table = 'table'
         privilege = 'CONNECT'
         params = (self.username, table, privilege)
-        self.backend.has_table_privilege(
+        self.mock_execute_sql.return_value = {'status': True, 'row_count': -1,
+                                              'tuples': [[True]], 'fields': []}
+        res = self.backend.has_table_privilege(
             login=self.username, table=table, privilege=privilege)
 
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_as_is.call_count, 0)
+        self.assertEqual(res, True)
 
     def test_has_column_privilege(self):
         query = 'SELECT has_column_privilege(%s, %s, %s, %s);'
@@ -571,8 +574,10 @@ class SchemaListCreateDeleteShare(TestCase):
         column = 'column'
         privilege = 'CONNECT'
         params = (self.username, table, column, privilege)
+        self.mock_execute_sql.return_value = {'status': True, 'row_count': -1,
+                                              'tuples': [[True]], 'fields': []}
 
-        self.backend.has_column_privilege(
+        res = self.backend.has_column_privilege(
             login=self.username, table=table,
             column=column, privilege=privilege)
 
@@ -580,6 +585,7 @@ class SchemaListCreateDeleteShare(TestCase):
             self.mock_execute_sql.call_args[0][0], query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_as_is.call_count, 0)
+        self.assertEqual(res, True)
 
     def test_export_table_with_header(self):
         query = 'COPY %s TO %s WITH %s %s DELIMITER %s;'
