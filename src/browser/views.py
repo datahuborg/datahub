@@ -342,6 +342,9 @@ def repo_delete(request, repo_base, repo):
 
 @login_required
 def repo_settings(request, repo_base, repo):
+    '''
+    returns the settings page for a repo.
+    '''
     username = request.user.get_username()
     res = DataHubManager.has_repo_privilege(
         username, repo_base, repo, 'CREATE')
@@ -368,45 +371,47 @@ def repo_settings(request, repo_base, repo):
 
 @login_required
 def repo_collaborators_add(request, repo_base, repo):
-    try:
-        username = request.user.get_username()
-        res = DataHubManager.has_repo_privilege(
-            username, repo_base, repo, 'CREATE')
+    '''
+    adds a user as a collaborator in a repo
+    '''
 
-        if not res:
-            raise Exception('Access denied. Missing required privileges.')
+    username = request.user.get_username()
+    res = DataHubManager.has_repo_privilege(
+        username, repo_base, repo, 'CREATE')
 
-        collaborator_username = request.POST['collaborator_username']
-        manager = DataHubManager(user=repo_base)
-        manager.add_collaborator(
-            repo, collaborator_username,
-            privileges=['SELECT', 'INSERT', 'UPDATE'])
-        return HttpResponseRedirect('/settings/%s/%s' % (repo_base, repo))
-    except Exception as e:
-        return HttpResponse(
-            json.dumps(
-                {'error': str(e)}),
-            content_type="application/json")
+    if not res:
+        error_message = 'Access denied. Missing required privileges.'
+        return HttpResponseForbidden(error_message)
+
+    collaborator_username = request.POST['collaborator_username']
+    manager = DataHubManager(user=username, repo_base=repo_base)
+
+    manager.add_collaborator(
+        repo, collaborator_username,
+        privileges=['SELECT', 'INSERT', 'UPDATE'])
+
+    return HttpResponseRedirect(
+            reverse('browser-repo_settings', args=(repo_base, repo,)))
 
 
 @login_required
 def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
-    try:
-        username = request.user.get_username()
-        res = DataHubManager.has_repo_privilege(
-            username, repo_base, repo, 'CREATE')
+    '''
+    removes a user from a repo
+    '''
+    username = request.user.get_username()
+    res = DataHubManager.has_repo_privilege(
+        username, repo_base, repo, 'CREATE')
 
-        if not res:
-            raise Exception('Access denied. Missing required privileges.')
+    if not res:
+        error_message = 'Access denied. Missing required privileges.'
+        return HttpResponseForbidden(error_message)
 
-        manager = DataHubManager(user=repo_base)
-        manager.delete_collaborator(repo, collaborator_username)
-        return HttpResponseRedirect('/settings/%s/%s' % (repo_base, repo))
-    except Exception as e:
-        return HttpResponse(
-            json.dumps(
-                {'error': str(e)}),
-            content_type="application/json")
+    manager = DataHubManager(user=username, repo_base=repo_base)
+    manager.delete_collaborator(repo, collaborator_username)
+
+    return HttpResponseRedirect(
+            reverse('browser-repo_settings', args=(repo_base, repo,)))
 
 
 '''
