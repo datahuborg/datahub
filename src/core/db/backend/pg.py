@@ -319,15 +319,24 @@ class PGBackend:
         return collaborators
 
     def has_base_privilege(self, login, privilege):
+        '''
+        returns True or False for whether the user has privileges for the 
+        repo_base (database)
+        '''
         query = 'SELECT has_database_privilege(%s, %s);'
         params = (login, privilege)
         res = self.execute_sql(query, params)
         return res['tuples'][0][0]
 
     def has_repo_privilege(self, login, repo, privilege):
+        '''
+        returns True or False for whether the use has privileges for the
+        repo (schema)
+        '''
         query = 'SELECT has_schema_privilege(%s, %s, %s);'
         params = (login, repo, privilege)
-        return self.execute_sql(query, params)
+        res = self.execute_sql(query, params)
+        return res['tuples'][0][0]
 
     def has_table_privilege(self, login, table, privilege):
         query = 'SELECT has_table_privilege(%s, %s, %s);'

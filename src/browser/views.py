@@ -205,6 +205,9 @@ def repo(request, repo_base, repo):
 
 @login_required
 def repo_tables(request, repo_base, repo):
+    '''
+    shows the tables under a repo.
+    '''
     username = request.user.get_username()
 
     # get the base tables and views of the user's repo
@@ -234,7 +237,7 @@ def repo_files(request, repo_base, repo):
 
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'USAGE')
-        if not (res and res['tuples'][0][0]):
+        if not res:
             raise Exception('Access denied. Missing required privileges.')
 
         repo_dir = '/user_data/%s/%s' % (repo_base, repo)
@@ -265,7 +268,7 @@ def repo_cards(request, repo_base, repo):
 
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'USAGE')
-        if not (res and res['tuples'][0][0]):
+        if not res:
             raise Exception('Access denied. Missing required privileges.')
 
         cards = Card.objects.all().filter(
@@ -344,7 +347,7 @@ def repo_settings(request, repo_base, repo):
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
 
-        if not (res and res['tuples'][0][0]):
+        if not res:
             raise Exception('Access denied. Missing required privileges.')
 
         manager = DataHubManager(user=username)
@@ -373,7 +376,7 @@ def repo_collaborators_add(request, repo_base, repo):
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
 
-        if not (res and res['tuples'][0][0]):
+        if not res:
             raise Exception('Access denied. Missing required privileges.')
 
         collaborator_username = request.POST['collaborator_username']
@@ -396,7 +399,7 @@ def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
 
-        if not (res and res['tuples'][0][0]):
+        if not res:
             raise Exception('Access denied. Missing required privileges.')
 
         manager = DataHubManager(user=repo_base)
@@ -500,7 +503,7 @@ def table_export(request, repo_base, repo, table_name):
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
 
-        if not (res and res['tuples'][0][0]):
+        if not res:
             raise Exception('Access denied. Missing required privileges.')
 
         repo_dir = '/user_data/%s/%s' % (repo_base, repo)
@@ -580,7 +583,7 @@ def file_import(request, repo_base, repo, file_name):
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
 
-        if not (res and res['tuples'][0][0]):
+        if not res:
             raise Exception('Access denied. Missing required privileges.')
 
         delimiter = str(request.GET['delimiter'])
@@ -642,7 +645,7 @@ def file_delete(request, repo_base, repo, file_name):
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
 
-        if not (res and res['tuples'][0][0]):
+        if not res:
             raise Exception('Access denied. Missing required privileges.')
 
         repo_dir = '/user_data/%s/%s' % (repo_base, repo)
@@ -663,7 +666,7 @@ def file_download(request, repo_base, repo, file_name):
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'USAGE')
 
-        if not (res and res['tuples'][0][0]):
+        if not res:
             raise Exception('Access denied. Missing required privileges.')
 
         repo_dir = '/user_data/%s/%s' % (repo_base, repo)
@@ -917,7 +920,7 @@ def card_export(request, repo_base, repo, card_name):
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
 
-        if not (res and res['tuples'][0][0]):
+        if not res:
             raise Exception('Access denied. Missing required privileges.')
 
         repo_dir = '/user_data/%s/%s' % (repo_base, repo)
@@ -943,7 +946,7 @@ def card_delete(request, repo_base, repo, card_name):
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
 
-        if not (res and res['tuples'][0][0]):
+        if not res:
             raise Exception('Access denied. Missing required privileges.')
 
         card = Card.objects.get(repo_base=repo_base,
