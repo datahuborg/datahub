@@ -342,31 +342,28 @@ def repo_delete(request, repo_base, repo):
 
 @login_required
 def repo_settings(request, repo_base, repo):
-    try:
-        username = request.user.get_username()
-        res = DataHubManager.has_repo_privilege(
-            username, repo_base, repo, 'CREATE')
+    username = request.user.get_username()
+    res = DataHubManager.has_repo_privilege(
+        username, repo_base, repo, 'CREATE')
 
-        if not res:
-            raise Exception('Access denied. Missing required privileges.')
+    if not res:
+        error_message = 'Access denied. Missing required privileges.'
+        return HttpResponseForbidden(error_message)
 
-        manager = DataHubManager(user=username)
-        collaborators = manager.list_collaborators(repo_base, repo)
+    manager = DataHubManager(user=username, repo_base=repo_base)
+    collaborators = manager.list_collaborators(repo_base, repo)
 
-        collaborators = filter(lambda x: x != '' and x !=
-                               repo_base, collaborators)
+    collaborators = filter(lambda x: x != '' and x !=
+                           username, collaborators)
 
-        res = {
-            'login': username,
-            'repo_base': repo_base,
-            'repo': repo,
-            'collaborators': collaborators}
-        res.update(csrf(request))
-        return render_to_response("repo-settings.html", res)
-    except Exception as e:
-        return HttpResponse(json.dumps(
-            {'error': str(e)}),
-            content_type="application/json")
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'collaborators': collaborators}
+    res.update(csrf(request))
+
+    return render_to_response("repo-settings.html", res)
 
 
 @login_required
