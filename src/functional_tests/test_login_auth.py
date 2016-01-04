@@ -41,7 +41,7 @@ class LoginTest(FunctionalTest):
         self.assertRegexpMatches(justin_url, self.username)
 
         # DataHub deletes his user and database, somewhat vindictively
-        self.delete_user(self.username)
+        # self.delete_user(self.username)
 
         # Justin doesn't like DataHub
         # Justin goes to the settings page

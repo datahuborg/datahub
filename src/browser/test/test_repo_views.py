@@ -30,7 +30,7 @@ class CreateAndDeleteRepo(TestCase):
             'core.db.manager.DataHubManager.list_repos')
         self.mock_list_repos.return_value = {'tuples': [[self.repo_name]]}
 
-        # mock out that they have tables and views, and repo priviledges
+        # mock out that they have tables and views, and repo privileges
         self.mock_DataHubManager = self.create_patch(
             'browser.views.DataHubManager')
         self.mock_DataHubManager.return_value.create_repo.return_value = {
@@ -117,7 +117,7 @@ class RepoTableCardViews(TestCase):
             'core.db.manager.DataHubManager.list_repos')
         self.mock_list_repos.return_value = {'tuples': [[self.repo_name]]}
 
-        # mock out that they have tables and views, and repo priviledges
+        # mock out that they have tables and views, and repo privileges
         self.mock_DataHubManager = self.create_patch(
             'browser.views.DataHubManager')
         self.mock_DataHubManager.return_value.list_tables.return_value = {
@@ -166,7 +166,7 @@ class RepoTableCardViews(TestCase):
             self.username, self.username, self.repo_name, 'USAGE')
 
     def test_table_view_rejects_wrong_user(self):
-        # set up has_repo_priviledge to raise an exception
+        # set up has_repo_privilege to raise an exception
         self.mock_DataHubManager.has_repo_privilege.return_value = False
 
         self.client.get(
@@ -223,7 +223,7 @@ class RepoFilesTab(TestCase):
             'core.db.manager.DataHubManager.list_repos')
         self.mock_list_repos.return_value = {'tuples': [[self.repo_name]]}
 
-        # mock out that they have priviledges
+        # mock out that they have privileges
         self.mock_has_repo_privilege = self.create_patch(
             'core.db.manager.DataHubManager.has_repo_privilege')
         self.mock_has_repo_privilege.return_value = {'tuples': [[[True]]]}
@@ -311,14 +311,6 @@ class RepoMainPage(TestCase):
         response = self.client.get('/browse/' + self.username)
         self.assertTemplateUsed(response, 'user-browse.html')
 
-    def test_repo_main_view_checks_for_repo_priviledge(self):
-        self.mock_DataHubManager.has_base_privilege.return_value = False
-        response = self.client.get('/browse/' + self.username)
-
-        self.mock_DataHubManager.has_base_privilege.assert_called_once_with(
-            self.username, self.username, 'CONNECT')
-        self.assertTemplateNotUsed(response, 'user-browse.html')
-
 
 class RepoSettingsPage(TestCase):
 
@@ -366,7 +358,7 @@ class RepoSettingsPage(TestCase):
             '/settings/' + self.username + '/' + self.repo_name)
         self.assertTemplateUsed(response, 'repo-settings.html')
 
-    def test_repo_settings_checks_for_repo_priviledge(self):
+    def test_repo_settings_checks_for_repo_privilege(self):
         self.mock_DataHubManager.has_repo_privilege.return_value = False
         response = self.client.get(
             '/settings/' + self.username + '/' + self.repo_name)
@@ -393,7 +385,7 @@ class RepoSettingsPage(TestCase):
         self.mock_DataHubManager.return_value.add_collaborator.assert_called_once_with(
             self.repo_name, 'test_collaborator', privileges=['SELECT', 'INSERT', 'UPDATE'])
 
-    def test_add_collaborators_checks_priviledges_before_adding(self):
+    def test_add_collaborators_checks_privileges_before_adding(self):
         self.mock_DataHubManager.return_value.add_collaborator
         self.mock_DataHubManager.has_repo_privilege.return_value = False
 
