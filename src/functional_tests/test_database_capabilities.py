@@ -34,7 +34,7 @@ class LoginTest(FunctionalTest):
 
             # the page says error
             page_source = self.browser.page_source
-            self.assertTrue('error' in page_source)
+            self.assertTrue('Error' in page_source)
 
             # he goes to the main page
             self.browser.get(self.server_url + '/browse/' + self.username)

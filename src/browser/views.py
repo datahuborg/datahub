@@ -12,7 +12,8 @@ from django.contrib.auth.models import User
 from django.core.context_processors import csrf
 from django.core.urlresolvers import reverse
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import (
+    HttpResponse, HttpResponseRedirect, HttpResponseForbidden)
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 
@@ -289,31 +290,29 @@ def repo_cards(request, repo_base, repo):
 
 @login_required
 def repo_create(request, repo_base):
-    try:
-        username = request.user.get_username()
-        if request.method == "POST":
-            if username != repo_base:
-                raise Exception(
-                    'Permission denied. '
-                    '%s can\'t create new repository in %s.'
-                    % (username, repo_base)
-                    )
+    '''
+    creates a repo (POST), or returns a page for creating repos (GET)
+    '''
 
-            repo = request.POST['repo']
-            manager = DataHubManager(user=repo_base)
-            manager.create_repo(repo)
+    username = request.user.get_username()
+    if username != repo_base:
+        message = (
+            'Error: Permission Denied. '
+            '%s cannot create new repositories in %s.'
+            % (username, repo_base)
+            )
+        return HttpResponseForbidden(message)
 
-            return HttpResponseRedirect('/browse/%s' % (repo_base))
+    elif request.method == 'POST':
+        repo = request.POST['repo']
+        manager = DataHubManager(user=username, repo_base=repo_base)
+        manager.create_repo(repo)
+        return HttpResponseRedirect(reverse('browser-user', args=(username,)))
 
-        else:
-            res = {'repo_base': repo_base, 'login': username}
-            res.update(csrf(request))
-            return render_to_response("repo-create.html", res)
-
-    except Exception as e:
-        return HttpResponse(json.dumps(
-            {'error': str(e)}),
-            content_type="application/json")
+    elif request.method == 'GET':
+        res = {'repo_base': repo_base, 'login': username}
+        res.update(csrf(request))
+        return render_to_response("repo-create.html", res)
 
 
 @login_required
