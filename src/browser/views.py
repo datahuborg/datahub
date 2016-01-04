@@ -317,24 +317,24 @@ def repo_create(request, repo_base):
 
 @login_required
 def repo_delete(request, repo_base, repo):
-    try:
-        username = request.user.get_username()
+    '''
+    deletes a repo in the current database (repo_base)
+    '''
 
-        if username != repo_base:
-            raise Exception(
-                'Permission denied. '
-                '%s can\'t delete repository %s in %s.'
-                % (username, repo, repo_base)
-                )
+    username = request.user.get_username()
 
-        manager = DataHubManager(user=repo_base)
+    if username != repo_base:
+        message = (
+            'Error: Permission Denied. '
+            '%s cannot delete repository %s in %s.'
+            % (username, repo, repo_base)
+            )
+        return HttpResponseForbidden(message)
+
+    else:
+        manager = DataHubManager(user=username)
         manager.delete_repo(repo=repo, force=True)
-        return HttpResponseRedirect('/browse/%s' % (repo_base))
-    except Exception as e:
-        return HttpResponse(
-            json.dumps(
-                {'error': str(e)}),
-            content_type="application/json")
+        return HttpResponseRedirect(reverse('browser-user-default'))
 
 
 @login_required
