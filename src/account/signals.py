@@ -4,6 +4,8 @@ from django.db.models.signals import pre_save
 from psycopg2 import OperationalError
 from django.db.utils import IntegrityError
 from core.db.manager import DataHubManager
+import os
+import errno
 
 # Note that these may fire multiple times and for users that already exist.
 
@@ -67,3 +69,23 @@ def create_user_db_if_needed(sender, instance, **kwargs):
     else:
         raise Exception("Failed to create user. That name is already"
                         " in use by either a role or database.")
+
+
+@receiver(pre_save, sender=User,
+          dispatch_uid="dh_user_pre_save_create_user_data_folder")
+def create_user_data_folder_if_needed(sender, instance, **kwargs):
+    """
+    Creates a user's data folder if one does not exist.
+
+    Typically located at /user_data/username.
+    """
+    username = instance.username
+    user_data_dir = os.path.join(os.path.abspath('/user_data'), username)
+    # Try to create the dir without checking first. Fail silently if it
+    # already exists. Makes sure there are no race conditions and won't fail
+    # silently if no permission to write to /user_data.
+    try:
+        os.makedirs(user_data_dir)
+    except OSError as e:
+        if e.errno is not errno.EEXIST:
+            raise
