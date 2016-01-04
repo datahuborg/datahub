@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.core.context_processors import csrf
 from django.core.urlresolvers import reverse
 
-from django.http import *
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 
@@ -163,32 +163,32 @@ Repository Base
 
 @login_required
 def user(request, repo_base=None):
-        username = request.user.get_username()
+    username = request.user.get_username()
 
-        if not repo_base:
-            repo_base = username
+    if not repo_base:
+        repo_base = username
 
-        manager = DataHubManager(user=username, repo_base=repo_base)
-        repos = manager.list_repos()
+    manager = DataHubManager(user=username, repo_base=repo_base)
+    repos = manager.list_repos()
 
-        visible_repos = []
+    visible_repos = []
 
-        for repo in repos:
-            collaborators = manager.list_collaborators(repo_base, repo)
-            collaborators = filter(
-                lambda x: x != '' and x != repo_base, collaborators)
+    for repo in repos:
+        collaborators = manager.list_collaborators(repo_base, repo)
+        collaborators = filter(
+            lambda x: x != '' and x != repo_base, collaborators)
 
-            visible_repos.append({
-                'name': repo,
-                'owner': repo_base,
-                'public': True if 'PUBLIC' in collaborators else False,
-                'collaborators': collaborators,
-            })
+        visible_repos.append({
+            'name': repo,
+            'owner': repo_base,
+            'public': True if 'PUBLIC' in collaborators else False,
+            'collaborators': collaborators,
+        })
 
-        return render_to_response("user-browse.html", {
-            'login': username,
-            'repo_base': repo_base,
-            'repos': visible_repos})
+    return render_to_response("user-browse.html", {
+        'login': username,
+        'repo_base': repo_base,
+        'repos': visible_repos})
 
 
 '''
@@ -198,7 +198,8 @@ Repository
 
 @login_required
 def repo(request, repo_base, repo):
-    return HttpResponseRedirect('/browse/%s/%s/tables' % (repo_base, repo))
+    return HttpResponseRedirect(
+        reverse('browser-repo_tables', args=(repo_base, repo)))
 
 
 @login_required
@@ -961,6 +962,7 @@ def card_delete(request, repo_base, repo, card_name):
 '''
 Developer Apps
 '''
+
 
 # Foreign keys, migration of old users to new
 @login_required
