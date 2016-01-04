@@ -329,8 +329,7 @@ class RepoSettingsPage(TestCase):
         # Mock the DataHubManager
         self.mock_DataHubManager = self.create_patch(
             'browser.views.DataHubManager')
-        self.mock_DataHubManager.has_base_privilege.return_value = {
-            'tuples': [True]}
+        self.mock_DataHubManager.has_base_privilege.return_value = True
         self.mock_DataHubManager.has_repo_privilege.return_value = {
             'tuples': [[True]]}
         # self.mock_DataHubManager.return_value.list_repos.return_value = {

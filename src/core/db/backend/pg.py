@@ -321,7 +321,8 @@ class PGBackend:
     def has_base_privilege(self, login, privilege):
         query = 'SELECT has_database_privilege(%s, %s);'
         params = (login, privilege)
-        return self.execute_sql(query, params)
+        res = self.execute_sql(query, params)
+        return res['tuples'][0][0]
 
     def has_repo_privilege(self, login, repo, privilege):
         query = 'SELECT has_schema_privilege(%s, %s, %s);'

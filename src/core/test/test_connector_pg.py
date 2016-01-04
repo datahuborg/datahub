@@ -524,13 +524,17 @@ class SchemaListCreateDeleteShare(TestCase):
         query = 'SELECT has_database_privilege(%s, %s);'
         privilege = 'CONNECT'
         params = (self.username, privilege)
-        self.backend.has_base_privilege(
+        self.mock_execute_sql.return_value = {'status': True, 'row_count': -1,
+                                              'tuples': [[True]], 'fields': []}
+
+        res = self.backend.has_base_privilege(
             login=self.username, privilege=privilege)
 
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_as_is.call_count, 0)
+        self.assertEqual(res, True)
 
     def test_has_repo_privilege(self):
         query = 'SELECT has_schema_privilege(%s, %s, %s);'
