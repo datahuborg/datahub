@@ -261,35 +261,32 @@ def repo_files(request, repo_base, repo):
     return render_to_response("repo-browse-files.html", res)
 
 
-
 @login_required
 def repo_cards(request, repo_base, repo):
-    try:
-        username = request.user.get_username()
+    '''
+    shows the cards in a repo
+    '''
+    username = request.user.get_username()
 
-        res = DataHubManager.has_repo_privilege(
-            username, repo_base, repo, 'USAGE')
-        if not res:
-            raise Exception('Access denied. Missing required privileges.')
+    res = DataHubManager.has_repo_privilege(
+        username, repo_base, repo, 'USAGE')
 
-        cards = Card.objects.all().filter(
-            repo_base=repo_base, repo_name=repo)
+    if not res:
+        raise Exception('Access denied. Missing required privileges.')
 
-        cards = [c.card_name for c in cards]
+    cards = Card.objects.all().filter(
+        repo_base=repo_base, repo_name=repo)
 
-        res = {
-            'login': username,
-            'repo_base': repo_base,
-            'repo': repo,
-            'cards': cards}
+    cards = [c.card_name for c in cards]
 
-        res.update(csrf(request))
-        return render_to_response("repo-browse-cards.html", res)
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'cards': cards}
 
-    except Exception as e:
-        return HttpResponse(json.dumps(
-            {'error': str(e)}),
-            content_type="application/json")
+    res.update(csrf(request))
+    return render_to_response("repo-browse-cards.html", res)
 
 
 @login_required
