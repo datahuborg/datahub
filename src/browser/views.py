@@ -21,7 +21,7 @@ from thrift.protocol import TBinaryProtocol
 from thrift.protocol import TJSONProtocol
 from thrift.transport.TTransport import TMemoryBuffer
 
-from inventory.models import App, Card
+from inventory.models import App, Card, Annotation
 from account.utils import grant_app_permission
 from core.db.manager import DataHubManager
 from datahub import DataHub
@@ -237,19 +237,8 @@ def repo_files(request, repo_base, repo):
     '''
 
     username = request.user.get_username()
-
-    res = DataHubManager.has_repo_privilege(
-        username, repo_base, repo, 'USAGE')
-    if not res:
-        error_message = 'Access denied. Missing required privileges.'
-        return HttpResponseForbidden(error_message)
-
-    # make a directory for files, if it doesn't already exist
-    repo_dir = '/user_data/%s/%s' % (repo_base, repo)
-    if not os.path.exists(repo_dir):
-        os.makedirs(repo_dir)
-
-    uploaded_files = [f for f in os.listdir(repo_dir)]
+    manager = DataHubManager(user=username, repo_base=repo_base)
+    uploaded_files = manager.list_repo_files(repo)
 
     res = {
         'login': username,
@@ -267,17 +256,8 @@ def repo_cards(request, repo_base, repo):
     shows the cards in a repo
     '''
     username = request.user.get_username()
-
-    res = DataHubManager.has_repo_privilege(
-        username, repo_base, repo, 'USAGE')
-
-    if not res:
-        raise Exception('Access denied. Missing required privileges.')
-
-    cards = Card.objects.all().filter(
-        repo_base=repo_base, repo_name=repo)
-
-    cards = [c.card_name for c in cards]
+    manager = DataHubManager(user=username, repo_base=repo_base)
+    cards = manager.list_repo_cards(repo)
 
     res = {
         'login': username,
@@ -304,7 +284,7 @@ def repo_create(request, repo_base):
             )
         return HttpResponseForbidden(message)
 
-    elif request.method == 'POST':
+    if request.method == 'POST':
         repo = request.POST['repo']
         manager = DataHubManager(user=username, repo_base=repo_base)
         manager.create_repo(repo)
@@ -323,19 +303,9 @@ def repo_delete(request, repo_base, repo):
     '''
 
     username = request.user.get_username()
-
-    if username != repo_base:
-        message = (
-            'Error: Permission Denied. '
-            '%s cannot delete repository %s in %s.'
-            % (username, repo, repo_base)
-            )
-        return HttpResponseForbidden(message)
-
-    else:
-        manager = DataHubManager(user=username)
-        manager.delete_repo(repo=repo, force=True)
-        return HttpResponseRedirect(reverse('browser-user-default'))
+    manager = DataHubManager(user=username)
+    manager.delete_repo(repo=repo, force=True)
+    return HttpResponseRedirect(reverse('browser-user-default'))
 
 
 @login_required
@@ -344,16 +314,10 @@ def repo_settings(request, repo_base, repo):
     returns the settings page for a repo.
     '''
     username = request.user.get_username()
-    res = DataHubManager.has_repo_privilege(
-        username, repo_base, repo, 'CREATE')
-
-    if not res:
-        error_message = 'Access denied. Missing required privileges.'
-        return HttpResponseForbidden(error_message)
-
     manager = DataHubManager(user=username, repo_base=repo_base)
     collaborators = manager.list_collaborators(repo_base, repo)
 
+    # remove the current user from the collaborator list
     collaborators = filter(lambda x: x != '' and x !=
                            username, collaborators)
 
@@ -374,14 +338,8 @@ def repo_collaborators_add(request, repo_base, repo):
     '''
 
     username = request.user.get_username()
-    res = DataHubManager.has_repo_privilege(
-        username, repo_base, repo, 'CREATE')
-
-    if not res:
-        error_message = 'Access denied. Missing required privileges.'
-        return HttpResponseForbidden(error_message)
-
     collaborator_username = request.POST['collaborator_username']
+
     manager = DataHubManager(user=username, repo_base=repo_base)
 
     manager.add_collaborator(
@@ -398,13 +356,6 @@ def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
     removes a user from a repo
     '''
     username = request.user.get_username()
-    res = DataHubManager.has_repo_privilege(
-        username, repo_base, repo, 'CREATE')
-
-    if not res:
-        error_message = 'Access denied. Missing required privileges.'
-        return HttpResponseForbidden(error_message)
-
     manager = DataHubManager(user=username, repo_base=repo_base)
     manager.delete_collaborator(repo, collaborator_username)
 
@@ -419,81 +370,76 @@ Tables
 
 @login_required
 def table(request, repo_base, repo, table):
-    try:
-        username = request.user.get_username()
-        dh_table_name = '%s.%s.%s' % (repo_base, repo, table)
+    '''
+    return a page indicating how many
+    '''
 
-        res = DataHubManager.has_table_privilege(
-            username, repo_base, dh_table_name, 'SELECT')
+    username = request.user.get_username()
+    dh_table_name = '%s.%s.%s' % (repo_base, repo, table)
+    manager = DataHubManager(user=username, repo_base=repo_base)
 
-        if not res:
-            raise Exception('Access denied. Missing required privileges.')
+    # explain the query, and get number of rows
+    query = 'SELECT * FROM %s' % (dh_table_name)
+    res = manager.explain_query(query)
+    num_rows = res.get('num_rows')
 
-        manager = DataHubManager(user=repo_base)
-        res = manager.execute_sql(
-            query='EXPLAIN SELECT * FROM %s' % (dh_table_name))
+    # determine number of pages
+    limit = 50
+    total_pages = 1 + (num_rows / limit)
 
-        limit = 50
+    # select the page given
+    current_page = 1
+    if request.POST.get('page'):
+        current_page = request.POST.get('page')
 
-        num_rows = re.match(r'.*rows=(\d+).*', res['tuples'][0][0]).group(1)
-        count = int(num_rows)
+    # set the page at the beginning of the navigation bar
+    start_page = current_page - 5
+    if start_page < 1:
+        start_page = 1
 
-        total_pages = 1 + (int(count) / limit)
+    # set the page at the end of the nav bar
+    end_page = start_page + 10
+    if end_page > total_pages:
+        end_page = total_pages
 
-        current_page = 1
-        try:
-            current_page = int(request.POST['page'])
-        except:
-            pass
+    # select all rows from the table
+    res = manager.execute_sql(
+        query='SELECT * from %s LIMIT %s OFFSET %s'
+        % (dh_table_name, limit, (current_page - 1) * limit))
 
-        if current_page < 1:
-            current_page = 1
+    # get the column namges
+    column_names = [field['name'] for field in res['fields']]
+    tuples = res['tuples']
 
-        start_page = current_page - 5
-        if start_page < 1:
-            start_page = 1
+    annotation_text = None
+    url_path = '/browse/%s/%s/table/%s' % (repo_base, repo, table)
 
-        end_page = start_page + 10
+    # There's no way to create annotatations, so this isn't particularly useful
+    annotation = Annotation.objects.get(url_path=url_path)
+    if annotation:
+        annotation_text = annotation.annotation_text
 
-        if end_page > total_pages:
-            end_page = total_pages
+    data = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'table': table,
+        'column_names': column_names,
+        'tuples': tuples,
+        'annotation': annotation_text,
+        'current_page': current_page,
+        'next_page': current_page + 1,
+        'prev_page': current_page - 1,
+        'url_path': url_path,
+        'total_pages': total_pages,
+        'pages': range(start_page, end_page + 1)}
 
-        res = manager.execute_sql(
-            query='SELECT * from %s LIMIT %s OFFSET %s'
-            % (dh_table_name, limit, (current_page - 1) * limit))
+    data.update(csrf(request))
 
-        column_names = [field['name'] for field in res['fields']]
-        tuples = res['tuples']
-
-        annotation_text = None
-        url_path = '/browse/%s/%s/table/%s' % (repo_base, repo, table)
-        try:
-            annotation = Annotation.objects.get(url_path=url_path)
-            annotation_text = annotation.annotation_text
-        except:
-            pass
-
-        data = {
-            'login': username,
-            'repo_base': repo_base,
-            'repo': repo,
-            'table': table,
-            'column_names': column_names,
-            'tuples': tuples,
-            'annotation': annotation_text,
-            'current_page': current_page,
-            'next_page': current_page + 1,
-            'prev_page': current_page - 1,
-            'url_path': url_path,
-            'total_pages': total_pages,
-            'pages': range(start_page, end_page + 1)}
-
-        data.update(csrf(request))
-        return render_to_response("table-browse.html", data)
-    except Exception as e:
-        return HttpResponse(json.dumps(
-            {'error': str(e)}),
-            content_type="application/json")
+    # and then, after everything, hand this off to table-browse. It turns out
+    # that this is all using DataTables anyhow, so the template doesn't really
+    # use all of the data we prepared. ARc 2016-01-04
+    return render_to_response("table-browse.html", data)
 
 
 @login_required

@@ -38,6 +38,9 @@ class DataHubConnection:
     def delete_collaborator(self, repo, username):
         return self.backend.delete_collaborator(repo=repo, username=username)
 
+    def list_collaborators(self, repo):
+        return self.backend.list_collaborators(repo)
+
     def list_tables(self, repo):
         return self.backend.list_tables(repo=repo)
 
@@ -46,6 +49,9 @@ class DataHubConnection:
 
     def get_schema(self, repo, table):
         return self.backend.get_schema(repo=repo, table=table)
+
+    def explain_query(self, query):
+        return self.backend.explain_query(query=query)
 
     def execute_sql(self, query, params=None):
         return self.backend.execute_sql(query, params)
@@ -118,5 +124,3 @@ class DataHubConnection:
             file_format=file_format,
             delimiter=delimiter)
 
-    def list_collaborators(self, repo):
-        return self.backend.list_collaborators(repo)

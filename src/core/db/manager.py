@@ -1,6 +1,6 @@
 from config import settings
 from core.db.connection import DataHubConnection
-from inventory.models import *
+from inventory.models import App, Card
 from django.contrib.auth.models import User
 
 import hashlib
@@ -22,6 +22,9 @@ class DataHubManager:
             user = User.objects.get(username=user)
             username = user.username
             password = user.password
+
+        self.username = username
+        self.repo_base = repo_base
 
         self.user_con = DataHubConnection(
             user=username,
@@ -54,6 +57,9 @@ class DataHubManager:
     def get_schema(self, repo, table):
         return self.user_con.get_schema(repo=repo, table=table)
 
+    def explain_query(self, query):
+        return self.user_con.explain_query(query)
+
     def execute_sql(self, query, params=None):
         return self.user_con.execute_sql(query=query, params=params)
 
@@ -66,6 +72,43 @@ class DataHubManager:
 
     def delete_collaborator(self, repo, username):
         return self.user_con.delete_collaborator(repo=repo, username=username)
+
+    def list_repo_files(self, repo):
+        # check for permissions
+        res = DataHubManager.has_repo_privilege(
+            self.username, self.repo_base, repo, 'USAGE')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges')
+
+        # make a directory for files, if it doesn't already exist
+        repo_dir = '/user_data/%s/%s' % (self.repo_base, repo)
+        if not os.path.exists(repo_dir):
+            os.makedirs(repo_dir)
+
+        uploaded_files = [f for f in os.listdir(repo_dir)]
+        return uploaded_files
+
+    def list_repo_cards(self, repo):
+        # check for permission
+        res = DataHubManager.has_repo_privilege(
+            self.username, self.repo_base, repo, 'USAGE')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges')
+
+        # get the relevant cards
+        cards = Card.objects.all().filter(
+            repo_base=self.repo_base, repo_name=repo)
+        cards = [c.card_name for c in cards]
+        return cards
+
+    def list_collaborators(self, repo_base, repo):
+        superuser_con = DataHubConnection(
+            user=settings.DATABASES['default']['USER'],
+            password=settings.DATABASES['default']['USER'],
+            repo_base=repo_base)
+        return superuser_con.list_collaborators(repo=repo)
 
     '''
     The following methods run in superuser mode only
@@ -212,10 +255,7 @@ class DataHubManager:
                                                   column=column,
                                                   privilege=privilege)
 
-    @staticmethod
-    def list_collaborators(repo_base, repo):
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'],
-            repo_base=repo_base)
-        return superuser_con.list_collaborators(repo=repo)
+
+class PermissionDenied(Exception):
+    def __init__(self, *args, **kwargs):
+        Exception.__init__(self, *args, **kwargs)

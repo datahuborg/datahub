@@ -191,6 +191,30 @@ class PGBackend:
         # return will look like [('id', 'integer'), ('words', 'text')]
         return res['tuples']
 
+    def explain_query(self, query):
+        '''
+        returns the number of rows, the cost (in time) to execute,
+        and the width (bytes) of rows outputted
+        '''
+        query = 'EXPLAIN %s' % (query)
+        res = self.execute_sql(query)
+
+        num_rows = re.match(r'.*rows=(\d+).*', res['tuples'][0][0]).group(1)
+        byte_width = re.match(r'.*width=(\d+).*', res['tuples'][0][0]).group(1)
+
+        time_cost_re = re.match(
+            r'.*cost=(\d+.\d+)..(\d+.\d+)*', res['tuples'][0][0])
+        time_cost = (float(time_cost_re.group(1)),
+                     float(time_cost_re.group(2))
+                    )
+
+        response = {'num_rows': int(num_rows),
+                    'time_cost': time_cost,
+                    'byte_width': int(byte_width)
+                    }
+
+        return response
+
     def execute_sql(self, query, params=None):
         result = {
             'status': False,
