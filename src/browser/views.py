@@ -232,33 +232,34 @@ def repo_tables(request, repo_base, repo):
 
 @login_required
 def repo_files(request, repo_base, repo):
-    try:
-        username = request.user.get_username()
+    '''
+    shows thee files in a repo
+    '''
 
-        res = DataHubManager.has_repo_privilege(
-            username, repo_base, repo, 'USAGE')
-        if not res:
-            raise Exception('Access denied. Missing required privileges.')
+    username = request.user.get_username()
 
-        repo_dir = '/user_data/%s/%s' % (repo_base, repo)
-        if not os.path.exists(repo_dir):
-            os.makedirs(repo_dir)
+    res = DataHubManager.has_repo_privilege(
+        username, repo_base, repo, 'USAGE')
+    if not res:
+        error_message = 'Access denied. Missing required privileges.'
+        return HttpResponseForbidden(error_message)
 
-        uploaded_files = [f for f in os.listdir(repo_dir)]
+    # make a directory for files, if it doesn't already exist
+    repo_dir = '/user_data/%s/%s' % (repo_base, repo)
+    if not os.path.exists(repo_dir):
+        os.makedirs(repo_dir)
 
-        res = {
-            'login': username,
-            'repo_base': repo_base,
-            'repo': repo,
-            'files': uploaded_files}
+    uploaded_files = [f for f in os.listdir(repo_dir)]
 
-        res.update(csrf(request))
-        return render_to_response("repo-browse-files.html", res)
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'files': uploaded_files}
 
-    except Exception as e:
-        return HttpResponse(json.dumps(
-            {'error': str(e)}),
-            content_type="application/json")
+    res.update(csrf(request))
+    return render_to_response("repo-browse-files.html", res)
+
 
 
 @login_required
