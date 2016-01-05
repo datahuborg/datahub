@@ -638,25 +638,12 @@ Annotations
 
 @login_required
 def create_annotation(request):
-    try:
-        url = request.POST['url']
-        annotation_text = request.POST['annotation']
+    url = request.POST['url']
 
-        try:
-            annotation = Annotation.objects.get(url_path=url)
-            annotation.annotation_text = annotation_text
-            annotation.save()
-        except Annotation.DoesNotExist:
-            annotation = Annotation(
-                url_path=url, annotation_text=annotation_text)
-            annotation.save()
-
-        return HttpResponseRedirect(url)
-    except Exception as e:
-        return HttpResponse(
-            json.dumps(
-                {'error': str(e)}),
-            content_type="application/json")
+    annotation, created = Annotation.objects.get_or_create(url_path=url)
+    annotation.annotation_text = request.POST['annotation']
+    annotation.save()
+    return HttpResponseRedirect(url)
 
 
 '''
