@@ -744,31 +744,12 @@ def card_create(request, repo_base, repo):
 
 @login_required
 def card_export(request, repo_base, repo, card_name):
-    try:
-        username = request.user.get_username()
-        card = Card.objects.get(repo_base=repo_base,
-                                repo_name=repo, card_name=card_name)
-        query = card.query
-        res = DataHubManager.has_repo_privilege(
-            username, repo_base, repo, 'CREATE')
+    username = request.user.get_username()
+    manager = DataHubManager(username, repo_base)
+    manager.export_card(repo_base, repo, card_name)
 
-        if not res:
-            raise Exception('Access denied. Missing required privileges.')
-
-        repo_dir = '/user_data/%s/%s' % (repo_base, repo)
-
-        if not os.path.exists(repo_dir):
-            os.makedirs(repo_dir)
-
-        file_path = '%s/%s.csv' % (repo_dir, card_name)
-        DataHubManager.export_query(
-            repo_base=repo_base, query=query, file_path=file_path)
-        return HttpResponseRedirect('/browse/%s/%s/files' % (repo_base, repo))
-    except Exception as e:
-        return HttpResponse(
-            json.dumps(
-                {'error': str(e)}),
-            content_type="application/json")
+    return HttpResponseRedirect(
+        reverse('browser-repo_files', args=(repo_base, repo)))
 
 
 @login_required

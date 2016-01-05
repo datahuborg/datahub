@@ -154,21 +154,52 @@ class DataHubManager:
         return file
 
     def create_card(self, repo_base, repo, query, card_name):
-        res = DataHubManager.has_repo_privilege(
-            self.username, repo_base, repo, 'USAGE')
-
-        if not res:
+        # to create a card, the user must be able to successfully execute
+        # the query from their own database user.
+        try:
+            self.execute_sql(query)
+        except Exception:
             raise PermissionDenied(
-                'Access denied. Missing required privileges.')
+                'Either missing required privileges or bad query')
 
         card = Card(repo_base=repo_base, repo_name=repo,
                     card_name=card_name, query=query)
         return card.save()
 
+    def export_card(self, repo_base, repo, card_name, file_format='CSV'):
+        card = Card.objects.get(repo_base=repo_base,
+                                repo_name=repo, card_name=card_name)
+        query = card.query
+
+        # to export a card, the user must be able to successfully execute
+        # the query from their own database user.
+        try:
+            self.execute_sql(query)
+        except Exception:
+            raise PermissionDenied(
+                'Either missing required privileges or bad query')
+
+        # check that they really do have permissions on the repo base.
+        # This is a bit paranoid, but only because I don't like giving users
+        # superuser privileges
+        res = DataHubManager.has_repo_privilege(
+            self.username, repo_base, repo, 'USAGE')
+        if not res:
+            raise Exception('Access denied. Missing required privileges.')
+
+        # create the repo if it doesn't already exist
+        repo_dir = '/user_data/%s/%s' % (repo_base, repo)
+        if not os.path.exists(repo_dir):
+            os.makedirs(repo_dir)
+
+        file_path = '%s/%s.%s' % (repo_dir, card_name, file_format)
+        DataHubManager.export_query(repo_base=repo_base, query=query,
+                                    file_path=file_path,
+                                    file_format=file_format)
+
     def delete_card(self, repo_base, repo, card_name):
         res = DataHubManager.has_repo_privilege(
             self.username, repo_base, repo, 'USAGE')
-
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
