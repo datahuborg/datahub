@@ -5,6 +5,9 @@ from django.contrib.auth.models import User
 
 import hashlib
 import os
+import re
+import codecs
+import csv
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 
@@ -110,6 +113,23 @@ class DataHubManager:
             repo_base=repo_base)
         return superuser_con.list_collaborators(repo=repo)
 
+    def save_file(self, repo_base, repo, data_file):
+        res = DataHubManager.has_repo_privilege(
+            self.username, self.repo_base, repo, 'USAGE')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges')
+
+        repo_dir = '/user_data/%s/%s' % (repo_base, repo)
+        if not os.path.exists(repo_dir):
+            os.makedirs(repo_dir)
+
+        file_name = '%s/%s' % (repo_dir, data_file.name)
+        with open(file_name, 'wb+') as destination:
+            for chunk in data_file.chunks():
+                destination.write(chunk)
+
+
     '''
     The following methods run in superuser mode only
     '''
@@ -171,15 +191,50 @@ class DataHubManager:
     ''' Import/Export Files '''
 
     @staticmethod
-    def import_file(repo_base, table_name, file_path, file_format='CSV',
-                    delimiter=',', header=True, encoding='ISO-8859-1',
-                    quote_character='"'):
+    def import_file(username, repo_base, repo, table, file_name,
+                    file_format='CSV', delimiter=',', header=True,
+                    encoding='ISO-8859-1', quote_character='"'):
+        # check for permissions
+        delimiter = delimiter.decode('string_escape')
+
+        res = DataHubManager.has_repo_privilege(
+            username, repo_base, repo, 'CREATE')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges.')
+
+        # prepare some variables
+        file_path = '/user_data/%s/%s/%s' % (repo_base, repo, file_name)
+        table_name, _ = os.path.splitext(file_name)
+        table_name = clean_str(table_name, 'table')
+        dh_table_name = '%s.%s.%s' % (repo_base, repo, table_name)
+
+        # open the file
+        f = codecs.open(file_path, 'r', 'ISO-8859-1')
+        data = csv.reader(f, delimiter=delimiter)
+
+        # create a table for the data
+        cells = data.next()
+        columns = [clean_str(str(i), 'col') for i in range(0, len(cells))]
+        if header:
+            columns = map(lambda x: clean_str(x, 'col'), cells)
+        columns = rename_duplicates(columns)
+
+        query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
+        for column in columns[1:len(columns)]:
+            query += ', %s %s' % (column, 'text')
+        query += ')'
+
+        manager = DataHubManager(user=username, repo_base=repo_base)
+        manager.execute_sql(query=query)
+
+        # populate the newly created table with data from the csv
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
             repo_base=repo_base)
         return superuser_con.import_file(
-            table_name=table_name,
+            table_name=dh_table_name,
             file_path=file_path,
             file_format=file_format,
             delimiter=delimiter,
@@ -284,3 +339,37 @@ class DataHubManager:
 class PermissionDenied(Exception):
     def __init__(self, *args, **kwargs):
         Exception.__init__(self, *args, **kwargs)
+
+
+def clean_str(text, prefix):
+    string = text.strip().lower()
+
+    # replace whitespace with '_'
+    string = re.sub(' ', '_', string)
+
+    # remove invalid characters
+    string = re.sub('[^0-9a-zA-Z_]', '', string)
+
+    # remove leading characters until a letter or underscore
+    string = re.sub('^[^a-zA-Z_]+', '', string)
+
+    if string == '':
+        return clean_str(prefix + text, '')
+
+    return string
+
+
+def rename_duplicates(columns):
+    columns = [c.lower() for c in columns]
+    new_columns = []
+    col_idx = {c: 1 for c in columns}
+
+    for c in columns:
+        if columns.count(c) == 1:
+            new_columns.append(c)
+        else:
+            # add a suffix
+            new_columns.append(c + str(col_idx[c]))
+            col_idx[c] += 1
+
+    return new_columns

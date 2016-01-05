@@ -1,5 +1,3 @@
-import codecs
-import csv
 import json
 import os
 import re
@@ -27,7 +25,7 @@ from core.db.manager import DataHubManager
 from datahub import DataHub
 from datahub.account import AccountService
 from service.handler import DataHubHandler
-from utils import *
+from utils import (get_or_post)
 
 '''
 @author: Anant Bhardwaj
@@ -434,6 +432,8 @@ def table(request, repo_base, repo, table):
         'total_pages': total_pages,
         'pages': range(start_page, end_page + 1)}
 
+    print data
+
     data.update(csrf(request))
 
     # and then, after everything, hand this off to table-browse. It turns out
@@ -469,90 +469,43 @@ Files
 '''
 
 
-def file_save(repo_base, repo, data_file):
-    repo_dir = '/user_data/%s/%s' % (repo_base, repo)
-    if not os.path.exists(repo_dir):
-        os.makedirs(repo_dir)
-
-    file_name = '%s/%s' % (repo_dir, data_file.name)
-    with open(file_name, 'wb+') as destination:
-        for chunk in data_file.chunks():
-            destination.write(chunk)
-
-
 @login_required
 def file_upload(request, repo_base, repo):
-    try:
-        data_file = request.FILES['data_file']
-        file_save(repo_base, repo, data_file)
-        return HttpResponseRedirect('/browse/%s/%s/files' % (repo_base, repo))
-    except Exception as e:
-        return HttpResponse(
-            json.dumps(
-                {'error': str(e)}),
-            content_type="application/json")
+    username = request.user.get_username()
+    data_file = request.FILES['data_file']
+
+    manager = DataHubManager(username, repo_base)
+    manager.save_file(repo_base, repo, data_file)
+    return HttpResponseRedirect(
+        reverse('browser-repo_files', args=(repo_base, repo)))
 
 
 @login_required
 def file_import(request, repo_base, repo, file_name):
-    try:
-        username = request.user.get_username()
-        res = DataHubManager.has_repo_privilege(
-            username, repo_base, repo, 'CREATE')
+    username = request.user.get_username()
+    delimiter = str(request.GET['delimiter'])
 
-        if not res:
-            raise Exception('Access denied. Missing required privileges.')
+    if delimiter == '':
+        delimiter = str(request.GET['other_delimiter'])
 
-        delimiter = str(request.GET['delimiter'])
-        if delimiter == '':
-            delimiter = str(request.GET['other_delimiter'])
+    header = False
+    if request.GET['has_header'] == 'true':
+        header = True
 
-        header = True if request.GET['has_header'] == "true" else False
+    quote_character = request.GET['quote_character']
+    if quote_character == '':
+        quote_character = request.GET['other_quote_character']
 
-        quote_character = request.GET['quote_character']
-        if quote_character == '':
-            quote_character = request.GET['other_quote_character']
-
-        delimiter = delimiter.decode('string_escape')
-
-        repo_dir = '/user_data/%s/%s' % (repo_base, repo)
-        file_path = '%s/%s' % (repo_dir, file_name)
-        table_name, _ = os.path.splitext(file_name)
-        table_name = clean_str(table_name, 'table')
-        dh_table_name = '%s.%s.%s' % (repo_base, repo, table_name)
-
-        f = codecs.open(file_path, 'r', 'ISO-8859-1')
-
-        data = csv.reader(f, delimiter=delimiter)
-        cells = data.next()
-
-        columns = [clean_str(str(i), 'col') for i in range(0, len(cells))]
-        if header:
-            columns = map(lambda x: clean_str(x, 'col'), cells)
-
-        columns = rename_duplicates(columns)
-
-        query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
-
-        for i in range(1, len(columns)):
-            query += ', %s %s' % (columns[i], 'text')
-        query += ')'
-
-        manager = DataHubManager(user=repo_base)
-        manager.execute_sql(query=query)
-        manager.import_file(
-            repo_base=repo_base,
-            table_name=dh_table_name,
-            file_path=file_path,
-            delimiter=delimiter,
-            header=header,
-            quote_character=quote_character)
-        return HttpResponseRedirect('/browse/%s/%s' % (repo_base, repo))
-    except Exception as e:
-        return HttpResponse(
-            json.dumps(
-                {'error': str(e)}),
-            content_type="application/json")
+    DataHubManager.import_file(
+        username=username,
+        repo_base=repo_base,
+        repo=repo,
+        table=table,
+        file_name=file_name,
+        delimiter=delimiter,
+        header=header,
+        quote_character=quote_character)
+    return HttpResponseRedirect('/browse/%s/%s' % (repo_base, repo))
 
 
 @login_required
