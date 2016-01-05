@@ -38,9 +38,6 @@ class DataHubConnection:
     def delete_collaborator(self, repo, username):
         return self.backend.delete_collaborator(repo=repo, username=username)
 
-    def list_collaborators(self, repo):
-        return self.backend.list_collaborators(repo)
-
     def list_tables(self, repo):
         return self.backend.list_tables(repo=repo)
 
@@ -124,3 +121,5 @@ class DataHubConnection:
             file_format=file_format,
             delimiter=delimiter)
 
+    def list_collaborators(self, repo):
+        return self.backend.list_collaborators(repo)

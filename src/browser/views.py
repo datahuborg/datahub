@@ -415,9 +415,9 @@ def table(request, repo_base, repo, table):
     url_path = '/browse/%s/%s/table/%s' % (repo_base, repo, table)
 
     # There's no way to create annotatations, so this isn't particularly useful
-    annotation = Annotation.objects.get(url_path=url_path)
-    if annotation:
-        annotation_text = annotation.annotation_text
+    # annotation = Annotation.objects.(url_path=url_path)
+    # if annotation:
+    #     annotation_text = annotation.annotation_text
 
     data = {
         'login': username,
@@ -444,54 +444,25 @@ def table(request, repo_base, repo, table):
 
 @login_required
 def table_export(request, repo_base, repo, table_name):
-    try:
-        username = request.user.get_username()
-        res = DataHubManager.has_repo_privilege(
-            username, repo_base, repo, 'CREATE')
+    username = request.user.get_username()
+    DataHubManager.export_table(
+        username=username, repo_base=repo_base, repo=repo, table=table_name,
+        file_format='CSV', delimiter=',', header=True)
 
-        if not res:
-            raise Exception('Access denied. Missing required privileges.')
-
-        repo_dir = '/user_data/%s/%s' % (repo_base, repo)
-
-        if not os.path.exists(repo_dir):
-            os.makedirs(repo_dir)
-
-        file_path = '%s/%s.csv' % (repo_dir, table_name)
-        dh_table_name = '%s.%s.%s' % (repo_base, repo, table_name)
-        DataHubManager.export_table(
-            repo_base=repo_base, table_name=dh_table_name, file_path=file_path)
-        return HttpResponseRedirect('/browse/%s/%s/files' % (repo_base, repo))
-    except Exception as e:
-        return HttpResponse(
-            json.dumps(
-                {'error': str(e)}),
-            content_type="application/json")
+    return HttpResponseRedirect(
+        reverse('browser-repo_files', args=(repo_base, repo)))
 
 
 @login_required
 def table_delete(request, repo_base, repo, table_name):
-    try:
-        username = request.user.get_username()
-        dh_table_name = '%s.%s.%s' % (repo_base, repo, table_name)
+    username = request.user.get_username()
+    dh_table_name = '%s.%s.%s' % (repo_base, repo, table_name)
+    manager = DataHubManager(user=username, repo_base=repo_base)
+    query = '''DROP TABLE %s''' % (dh_table_name)
 
-        res = DataHubManager.has_table_privilege(
-            username, repo_base, dh_table_name, 'DELETE')
-
-        if not res:
-            raise Exception('Access denied. Missing required privileges.')
-
-        manager = DataHubManager(user=repo_base)
-
-        query = '''DROP TABLE %s''' % (dh_table_name)
-        manager.execute_sql(query=query)
-        return HttpResponseRedirect('/browse/%s/%s' % (repo_base, repo))
-    except Exception as e:
-        return HttpResponse(
-            json.dumps(
-                {'error': str(e)}),
-            content_type="application/json")
-
+    manager.execute_sql(query=query)
+    return HttpResponseRedirect(
+        reverse('browser-repo_tables', args=(repo_base, repo)))
 
 '''
 Files

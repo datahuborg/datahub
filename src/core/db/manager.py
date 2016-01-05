@@ -188,14 +188,39 @@ class DataHubManager:
             quote_character=quote_character)
 
     @staticmethod
-    def export_table(repo_base, table_name, file_path, file_format='CSV',
+    def export_table(username, repo_base, repo, table, file_format='CSV',
                      delimiter=',', header=True):
+        '''
+        export a table to a csv file in the same repo.
+        Only superusers can execute the copy command, so this function
+        passes the username, and verifies user's permissions.
+        '''
+
+        # check for permissions
+        res = DataHubManager.has_repo_privilege(
+            username, repo_base, repo, 'CREATE')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges.')
+
+        # make the base_repo and repo's folder, if they don't already exist
+        repo_dir = '/user_data/%s/%s' % (repo_base, repo)
+        if not os.path.exists(repo_dir):
+            os.makedirs(repo_dir)
+
+        # define the file path for the new table
+        file_path = '%s/%s.%s' % (repo_dir, table, file_format)
+
+        # format the full table name
+        long_table_name = '%s.%s.%s' % (repo_base, repo, table)
+
+        # pass arguments to the connector
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
             repo_base=repo_base)
         return superuser_con.export_table(
-            table_name=table_name,
+            table_name=long_table_name,
             file_path=file_path,
             file_format=file_format,
             delimiter=delimiter,
