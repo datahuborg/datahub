@@ -153,6 +153,30 @@ class DataHubManager:
         file = open(file_path).read()
         return file
 
+    def create_card(self, repo_base, repo, query, card_name):
+        res = DataHubManager.has_repo_privilege(
+            self.username, repo_base, repo, 'USAGE')
+
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges.')
+
+        card = Card(repo_base=repo_base, repo_name=repo,
+                    card_name=card_name, query=query)
+        return card.save()
+
+    def delete_card(self, repo_base, repo, card_name):
+        res = DataHubManager.has_repo_privilege(
+            self.username, repo_base, repo, 'USAGE')
+
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges.')
+
+        card = Card.objects.get(repo_base=repo_base,
+                                repo_name=repo, card_name=card_name)
+        return card.delete()
+
 
     '''
     The following methods run in superuser mode only

@@ -518,7 +518,8 @@ def file_delete(request, repo_base, repo, file_name):
     username = request.user.get_username()
     manager = DataHubManager(username, repo_base)
     manager.delete_file(repo_base, repo, file_name)
-    return HttpResponseRedirect('/browse/%s/%s/files' % (repo_base, repo))
+    return HttpResponseRedirect(
+        reverse('browser-repo_files') % (repo_base, repo))
 
 
 @login_required
@@ -730,21 +731,15 @@ def card(request, repo_base, repo, card_name):
 # Test if this cares who calls it
 @login_required
 def card_create(request, repo_base, repo):
-    try:
-        card_name = request.POST['card-name']
-        query = request.POST['query']
-        url = '/browse/%s/%s/card/%s' % (repo_base, repo, card_name)
+    username = request.user.get_username()
+    card_name = request.POST['card-name']
+    query = request.POST['query']
+    url = '/browse/%s/%s/card/%s' % (repo_base, repo, card_name)
 
-        card = Card(
-            repo_base=repo_base, repo_name=repo,
-            card_name=card_name, query=query)
-        card.save()
-        return HttpResponseRedirect(url)
-    except Exception as e:
-        return HttpResponse(
-            json.dumps(
-                {'error': str(e)}),
-            content_type="application/json")
+    manager = DataHubManager(username, repo_base)
+    manager.create_card(repo_base, repo, query, card_name)
+
+    return HttpResponseRedirect(url)
 
 
 @login_required
@@ -778,24 +773,12 @@ def card_export(request, repo_base, repo, card_name):
 
 @login_required
 def card_delete(request, repo_base, repo, card_name):
-    try:
-        username = request.user.get_username()
-        res = DataHubManager.has_repo_privilege(
-            username, repo_base, repo, 'CREATE')
+    username = request.user.get_username()
+    manager = DataHubManager(username, repo_base)
+    manager.delete_card(repo_base, repo, card_name)
 
-        if not res:
-            raise Exception('Access denied. Missing required privileges.')
-
-        card = Card.objects.get(repo_base=repo_base,
-                                repo_name=repo, card_name=card_name)
-        card.delete()
-
-        return HttpResponseRedirect('/browse/%s/%s/cards' % (repo_base, repo))
-    except Exception as e:
-        return HttpResponse(
-            json.dumps(
-                {'error': str(e)}),
-            content_type="application/json")
+    return HttpResponseRedirect(
+        reverse('browser-repo_cards', args=(repo_base, repo)))
 
 
 '''
