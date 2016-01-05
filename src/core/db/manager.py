@@ -129,6 +129,30 @@ class DataHubManager:
             for chunk in data_file.chunks():
                 destination.write(chunk)
 
+    def delete_file(self, repo_base, repo, file_name):
+        res = DataHubManager.has_repo_privilege(
+            self.username, repo_base, repo, 'USAGE')
+
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges.')
+
+        repo_dir = '/user_data/%s/%s' % (repo_base, repo)
+        file_path = '%s/%s' % (repo_dir, file_name)
+        os.remove(file_path)
+
+    def get_file(self, repo_base, repo, file_name):
+        res = DataHubManager.has_repo_privilege(
+            self.username, repo_base, repo, 'USAGE')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges.')
+
+        repo_dir = '/user_data/%s/%s' % (repo_base, repo)
+        file_path = '%s/%s' % (repo_dir, file_name)
+        file = open(file_path).read()
+        return file
+
 
     '''
     The following methods run in superuser mode only
