@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.template.context import RequestContext
 from account.forms import UsernameForm, RegistrationForm, LoginForm
 from account.utils import (provider_details, datahub_authenticate,
-                           datahub_delete_user)
+                           delete_user)
 from django.http import HttpResponse
 
 
@@ -175,5 +175,5 @@ def delete(request):
     Data from deleted databases is not saved.
     """
     username = request.user.get_username()
-    datahub_delete_user(username=username, remove_db=True)
+    delete_user(username=username, remove_db=True)
     return HttpResponse(reverse('browser-home'))
