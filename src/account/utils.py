@@ -170,3 +170,8 @@ def grant_app_permission(username, repo_name, app_id, app_token):
             privileges=['SELECT', 'INSERT', 'UPDATE', 'DELETE'])
     except Exception as e:
         raise e
+
+
+def delete_user(username, remove_db=True):
+    User.objects.get(username=username).delete()
+    DataHubManager.remove_user(username, remove_db=True)

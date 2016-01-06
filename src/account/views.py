@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, redirect, render
 from django.contrib.auth import logout as django_logout, \
                                 login as django_login
@@ -5,7 +6,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.template.context import RequestContext
 from account.forms import UsernameForm, RegistrationForm, LoginForm
-from account.utils import provider_details, datahub_authenticate
+from account.utils import (provider_details, datahub_authenticate,
+                           datahub_delete_user)
 from django.http import HttpResponse
 
 
@@ -163,3 +165,15 @@ def verify_email(request):
     Receives email verification link from new user email.
     """
     return HttpResponse('Not implemented yet.')
+
+
+@login_required()
+def delete(request):
+    """
+    Deletes a django user, database user, and any databases they own.
+
+    Data from deleted databases is not saved.
+    """
+    username = request.user.get_username()
+    datahub_delete_user(username=username, remove_db=True)
+    return HttpResponse(reverse('browser-home'))
