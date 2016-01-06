@@ -37,8 +37,7 @@ class CreateAndDeleteRepo(TestCase):
             'tuples': [self.repo_name]}
         self.mock_DataHubManager.return_value.delete_repo.return_value = {
             'tuples': [self.repo_name]}
-        self.mock_DataHubManager.has_repo_privilege.return_value = {
-            'tuples': [[True]]}
+        self.mock_DataHubManager.has_repo_privilege.return_value = True
 
         # log the user in
         self.client.login(username=self.username, password=self.password)
@@ -124,8 +123,7 @@ class RepoTableCardViews(TestCase):
             'tuples': ['table_1']}
         self.mock_DataHubManager.return_value.list_views.return_value = {
             'tuples': ['view_1']}
-        self.mock_DataHubManager.has_repo_privilege.return_value = {
-            'tuples': [[True]]}
+        self.mock_DataHubManager.has_repo_privilege.return_value = True
 
         # log the user in
         self.client.login(username=self.username, password=self.password)
@@ -226,7 +224,7 @@ class RepoFilesTab(TestCase):
         # mock out that they have privileges
         self.mock_has_repo_privilege = self.create_patch(
             'core.db.manager.DataHubManager.has_repo_privilege')
-        self.mock_has_repo_privilege.return_value = {'tuples': [[[True]]]}
+        self.mock_has_repo_privilege.return_value = True
 
         # make their files folder
         repo_dir = '/user_data/%s/%s' % (self.username, self.repo_name)
@@ -329,8 +327,7 @@ class RepoSettingsPage(TestCase):
         # Mock the DataHubManager
         self.mock_DataHubManager = self.create_patch(
             'browser.views.DataHubManager')
-        self.mock_DataHubManager.has_base_privilege.return_value = {
-            'tuples': [True]}
+        self.mock_DataHubManager.has_base_privilege.return_value = True
         self.mock_DataHubManager.has_repo_privilege.return_value = {
             'tuples': [[True]]}
         # self.mock_DataHubManager.return_value.list_repos.return_value = {

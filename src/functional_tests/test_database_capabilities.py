@@ -34,7 +34,7 @@ class LoginTest(FunctionalTest):
 
             # the page says error
             page_source = self.browser.page_source
-            self.assertTrue('error' in page_source)
+            self.assertTrue('Error' in page_source)
 
             # he goes to the main page
             self.browser.get(self.server_url + '/browse/' + self.username)
@@ -130,8 +130,10 @@ class LoginTest(FunctionalTest):
         self.browser.get(sneaky_url)
 
         # the page says error.
+        # YOU ARE HERE. The page doesn't error out in the same way anymore.
         page_source = self.browser.page_source
-        self.assertTrue('error' in page_source)
+        search_string = 'No table'
+        self.assertTrue(search_string in page_source)
 
         # Snoop gives up. He goes to the homepage, logs out
         # and takes a smoke break.
@@ -165,6 +167,7 @@ class LoginTest(FunctionalTest):
 
         # the page says error.
         page_source = self.browser.page_source
-        self.assertTrue('error' in page_source)
+        search_string = 'No table'
+        self.assertTrue(search_string in page_source)
 
         # Snoop and Dre aren't friends anymore.

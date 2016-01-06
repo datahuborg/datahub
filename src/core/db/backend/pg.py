@@ -191,6 +191,30 @@ class PGBackend:
         # return will look like [('id', 'integer'), ('words', 'text')]
         return res['tuples']
 
+    def explain_query(self, query):
+        '''
+        returns the number of rows, the cost (in time) to execute,
+        and the width (bytes) of rows outputted
+        '''
+        query = 'EXPLAIN %s' % (query)
+        res = self.execute_sql(query)
+
+        num_rows = re.match(r'.*rows=(\d+).*', res['tuples'][0][0]).group(1)
+        byte_width = re.match(r'.*width=(\d+).*', res['tuples'][0][0]).group(1)
+
+        time_cost_re = re.match(
+            r'.*cost=(\d+.\d+)..(\d+.\d+)*', res['tuples'][0][0])
+        time_cost = (float(time_cost_re.group(1)),
+                     float(time_cost_re.group(2))
+                    )
+
+        response = {'num_rows': int(num_rows),
+                    'time_cost': time_cost,
+                    'byte_width': int(byte_width)
+                    }
+
+        return response
+
     def execute_sql(self, query, params=None):
         result = {
             'status': False,
@@ -319,24 +343,36 @@ class PGBackend:
         return collaborators
 
     def has_base_privilege(self, login, privilege):
+        '''
+        returns True or False for whether the user has privileges for the
+        repo_base (database)
+        '''
         query = 'SELECT has_database_privilege(%s, %s);'
         params = (login, privilege)
-        return self.execute_sql(query, params)
+        res = self.execute_sql(query, params)
+        return res['tuples'][0][0]
 
     def has_repo_privilege(self, login, repo, privilege):
+        '''
+        returns True or False for whether the use has privileges for the
+        repo (schema)
+        '''
         query = 'SELECT has_schema_privilege(%s, %s, %s);'
         params = (login, repo, privilege)
-        return self.execute_sql(query, params)
+        res = self.execute_sql(query, params)
+        return res['tuples'][0][0]
 
     def has_table_privilege(self, login, table, privilege):
         query = 'SELECT has_table_privilege(%s, %s, %s);'
         params = (login, table, privilege)
-        return self.execute_sql(query, params)
+        res = self.execute_sql(query, params)
+        return res['tuples'][0][0]
 
     def has_column_privilege(self, login, table, column, privilege):
         query = 'SELECT has_column_privilege(%s, %s, %s, %s);'
         params = (login, table, column, privilege)
-        return self.execute_sql(query, params)
+        res = self.execute_sql(query, params)
+        return res['tuples'][0][0]
 
     def export_table(self, table_name, file_path, file_format='CSV',
                      delimiter=',', header=True):
