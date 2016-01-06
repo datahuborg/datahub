@@ -139,8 +139,7 @@ def get_user_details(request):
         'social': social
         })
 
-    return render(request, "username_form.html",
-                  context)
+    return render(request, "username_form.html", context)
 
 
 def logout(request):
@@ -151,6 +150,30 @@ def logout(request):
     """
     django_logout(request)
     return redirect('/')
+
+
+@login_required()
+def settings(request):
+    """
+    DataHub account settings page.
+
+    Shows the current user's username, email, and social logins, and gives
+    links to change the email address, add or remove social logins, set a
+    password for the account, and delete the account.
+    """
+    # Python Social Auth sets a `backends` context variable, which includes
+    # which social backends are and are not associated with the current user.
+    context = RequestContext(request)
+    return render(request, 'account-settings.html', context)
+
+
+@login_required()
+def add_extra_login(request):
+    """Enables logged in users to add more social logins to their account."""
+    context = RequestContext(request, {
+        'providers': provider_details(),
+        })
+    return render(request, 'add-login.html', context)
 
 
 # Password resets are handled by the default Django account tools in

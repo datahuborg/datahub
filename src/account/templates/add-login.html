@@ -1,30 +1,25 @@
 {% extends "minimal-layout.html" %}
+
+{% load crispy_forms_tags %}
+
 {% block content %}
-<div class="container">
-<form class="form-signin" autocomplete="off">
-  <h3>Add External Login</h3>
-  <div id="error">
-    {% for error in errors %}
-      <span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
-    {% endfor %}
+<div class="container-fluid" style="max-width:740px;">
+<form class="col-xs-12 col-sm-6 col-sm-offset-3" role="form" method="POST" action="{% url 'login' %}">
+  {% csrf_token %}
+  <input type="hidden" name="redirect_url" value="{{ redirect_url }}" />
+  <h3>Add External Logins</h3>
+  <br />
+  <br />
+  <p>Currently logged in as {{ user.username }} ({{ user.email }}).</p>
+  <p>Add another way to log in from the list below.</p>
+  <br>
+  <label for="login_id">Choose an identity provider</label>
+  <div class="list-group">
+  {% for provider in providers %}
+    <a class="list-group-item" href="{% url 'social:begin' provider.backend %}?next={% url 'settings' %}"><i class="fa {{ provider.icon }} fa-lg fa-fw"></i>&nbsp; {{ provider.name }}</a>
+  {% endfor %}
   </div>
   <br />
-  {% if values.issuer and values.subject %}
-  This account is already linked to an external login. DataHub does not yet support multiple logins per account.
-  {% else %}
-  <div class="oidc-buttons">
-    <a href="/oidc/login?provider=mit&amp;redirect_url=%2Faccount%2Fconfirm_add_login" class="btn btn-default oidc-mit">MIT</a>
-    <a href="/oidc/login?provider=google&amp;redirect_url=%2Faccount%2Fconfirm_add_login" class="btn btn-default oidc-google">Google</a>
-  </div>
-  <br />
-  {% endif %}
-  <a href="#debug" role="button" data-toggle="collapse" data-target="#debug" aria-expanded="false" aria-controls="debug">Toggle Debug</a>
-  <div class="debug-block small collapse" id="debug">
-    {% for key, value in values.items %}
-      {{key}}: <pre>{{value}}</pre><br />
-    {% endfor %}
-    <a href="/oidc/logout">Clear Session</a><br />
-  </div>
 </form>
 </div>
 {% endblock %}

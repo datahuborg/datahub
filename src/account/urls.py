@@ -8,6 +8,8 @@ urlpatterns = patterns(
     url(r'^register/?$', 'account.views.register', name='register'),
     url(r'^logout/?$', 'account.views.logout', name='logout'),
     url(r'^choose_username/?$', 'account.views.get_user_details'),
+    url(r'^settings/?$', 'account.views.settings', name='settings'),
+    url(r'^add_login/?$', 'account.views.add_extra_login', name='add_extra_login'),
     url(r'^delete/?$', 'account.views.delete', name='delete'),
     # Use Django's built-in password reset tools.
     url(r'^forgot/?$', 'django.contrib.auth.views.password_reset',

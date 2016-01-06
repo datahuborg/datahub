@@ -25,67 +25,67 @@ def provider_details(backend=None):
         {
             'backend': 'google-oauth2',
             'name': 'Google',
-            'icon': 'google',
+            'icon': 'fa-google',
             'priority': -90,
         },
         {
             'backend': 'twitter',
             'name': 'Twitter',
-            'icon': 'twitter',
+            'icon': 'fa-twitter',
             'priority': 0,
         },
         {
             'backend': 'reddit',
             'name': 'Reddit',
-            'icon': 'reddit',
+            'icon': 'fa-reddit',
             'priority': 0,
         },
         {
             'backend': 'steam',
             'name': 'Steam',
-            'icon': 'steam-square',
+            'icon': 'fa-steam-square',
             'priority': 0,
         },
         {
             'backend': 'facebook',
             'name': 'Facebook',
-            'icon': 'facebook-official',
+            'icon': 'fa-facebook-official',
             'priority': -80,
         },
         {
             'backend': 'flickr',
             'name': 'Flickr',
-            'icon': 'flickr',
+            'icon': 'fa-flickr',
             'priority': 0,
         },
         {
             'backend': 'github',
             'name': 'GitHub',
-            'icon': 'github',
+            'icon': 'fa-github',
             'priority': 0,
         },
         {
             'backend': 'twitch',
             'name': 'Twitch',
-            'icon': 'twitch',
+            'icon': 'fa-twitch',
             'priority': 0,
         },
         {
             'backend': 'mit-oidc',
             'name': 'MIT OpenID Connect',
             'org_name': 'MIT',
-            'icon': 'mit',
+            'icon': 'icon-mit',
             'priority': -1000,
         },
     ]
+
+    if backend is not None:
+        return next((p for p in providers if p['backend'] == backend), None)
 
     enabled_backends = load_backends(settings.AUTHENTICATION_BACKENDS)
 
     providers = [p for p in providers if p['backend'] in enabled_backends]
     providers = sorted(providers, key=itemgetter('priority', 'name'))
-
-    if backend is not None:
-        return next((p for p in providers if p['backend'] == backend), None)
 
     return providers
 
