@@ -1,9 +1,6 @@
 from backend.pg import PGBackend
 
 '''
-@author: anant bhardwaj
-@date: Oct 3, 2013
-
 DataHub DB wrapper for backends (only postgres implemented)
 Any new backend must implement the DataHubConnection interface
 '''

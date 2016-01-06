@@ -511,6 +511,7 @@ def query(request, repo_base, repo):
     query = get_or_post(request, key='q', fallback=None)
     username = request.user.get_username()
 
+    # if the user is just requesting the query page
     if not query:
         data = {
             'login': username,
@@ -520,6 +521,7 @@ def query(request, repo_base, repo):
             'query': None}
         return render_to_response("query.html", data)
 
+    # if the user is actually executing a query
     current_page = 1
     if request.POST.get('page'):
         current_page = request.POST.get('page')
@@ -538,7 +540,6 @@ def query(request, repo_base, repo):
         'login': username,
         'repo_base': repo_base,
         'repo': repo,
-        'table': table,
         'annotation': annotation_text,
         'current_page': current_page,
         'next_page': current_page + 1,  # the template should relaly do this
@@ -580,81 +581,53 @@ Cards
 
 @login_required
 def card(request, repo_base, repo, card_name):
-    try:
-        username = request.user.get_username()
-        card = Card.objects.get(repo_base=repo_base,
-                                repo_name=repo, card_name=card_name)
-        query = card.query
-        manager = DataHubManager(user=repo_base)
-        res = manager.execute_sql(
-            query='EXPLAIN %s' % (query))
+    username = request.user.get_username()
+    card = Card.objects.get(repo_base=repo_base,
+                            repo_name=repo, card_name=card_name)
+    query = card.query
 
-        limit = 50
+    manager = DataHubManager(user=repo_base)
+    res = manager.execute_sql(
+        query='EXPLAIN %s' % (query))
 
-        num_rows = re.match(r'.*rows=(\d+).*', res['tuples'][0][0]).group(1)
-        count = int(num_rows)
-        total_pages = 1 + (int(count) / limit)
+    # if the user is actually executing a query
+    current_page = 1
+    if request.POST.get('page'):
+        current_page = request.POST.get('page')
 
-        current_page = get_or_post(request, key='page', fallback=1)
+    url_path = reverse('browser-query', args=(repo_base, repo))
 
-        if current_page < 1:
-            current_page = 1
+    manager = DataHubManager(user=username, repo_base=repo_base)
+    res = manager.paginate_query(
+        query=query, current_page=current_page, rows_per_page=50)
 
-        start_page = current_page - 5
-        if start_page < 1:
-            start_page = 1
+    # get annotation to the table:
+    annotation, created = Annotation.objects.get_or_create(url_path=url_path)
+    annotation_text = annotation.annotation_text
 
-        end_page = start_page + 10
+    data = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'annotation': annotation_text,
+        'current_page': current_page,
+        'next_page': current_page + 1,  # the template should relaly do this
+        'prev_page': current_page - 1,  # the template should relaly do this
+        'url_path': url_path,
+        'query': query,
+        'select_query': res['select_query'],
+        'column_names': res['column_names'],
+        'tuples': res['rows'],
+        'total_pages': res['total_pages'],
+        'pages': range(res['start_page'], res['end_page'] + 1),  # template
+        'num_rows': res['num_rows'],
+        'time_cost': res['time_cost']
+    }
 
-        if end_page > total_pages:
-            end_page = total_pages
-
-        # wrap query in another select statement, to allow the
-        # user's LIMIT statements to still work
-        db_query = 'select * from (' + query + \
-            ') as BXCQWVPEMWVKFBEBNKZSRPYBSB'
-        db_query = '%s LIMIT %s OFFSET %s' % (
-            db_query, limit, (current_page - 1) * limit)
-
-        res = manager.execute_sql(query=db_query)
-
-        column_names = [field['name'] for field in res['fields']]
-        tuples = res['tuples']
-
-        annotation_text = None
-        url_path = '/browse/%s/%s/card/%s' % (repo_base, repo, card_name)
-        try:
-            annotation = Annotation.objects.get(url_path=url_path)
-            annotation_text = annotation.annotation_text
-        except:
-            pass
-
-        data = {
-            'login': username,
-            'repo_base': repo_base,
-            'repo': repo,
-            'card_name': card_name,
-            'annotation': annotation_text,
-            'query': query,
-            'column_names': column_names,
-            'tuples': tuples,
-            'url_path': url_path,
-            'current_page': current_page,
-            'next_page': current_page + 1,
-            'prev_page': current_page - 1,
-            'total_pages': total_pages,
-            'pages': range(start_page, end_page + 1)}
-
-        data.update(csrf(request))
-        return render_to_response("card-browse.html", data)
-    except Exception as e:
-        return HttpResponse(
-            json.dumps(
-                {'error': str(e)}),
-            content_type="application/json")
+    data.update(csrf(request))
+    return render_to_response("card-browse.html", data)
 
 
-# Test if this cares who calls it
 @login_required
 def card_create(request, repo_base, repo):
     username = request.user.get_username()
