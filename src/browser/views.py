@@ -633,7 +633,7 @@ def card_create(request, repo_base, repo):
     username = request.user.get_username()
     card_name = request.POST['card-name']
     query = request.POST['query']
-    url = '/browse/%s/%s/card/%s' % (repo_base, repo, card_name)
+    url = reverse('browser-card', args=(repo_base, repo, card_name))
 
     manager = DataHubManager(username, repo_base)
     manager.create_card(repo_base, repo, query, card_name)

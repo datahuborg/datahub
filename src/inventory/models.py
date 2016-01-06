@@ -30,10 +30,12 @@ class Card(models.Model):
     query = models.TextField()
 
     def __unicode__(self):
-        return self.id
+        return 'card: %s.%s %s' % (self.repo_base,
+                                   self.repo_name, self.card_name)
 
     class Meta:
         db_table = "cards"
+        unique_together = ('repo_base', 'repo_name', 'card_name')
 
 
 class Annotation(models.Model):
