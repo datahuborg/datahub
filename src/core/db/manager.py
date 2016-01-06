@@ -158,9 +158,11 @@ class DataHubManager:
             raise PermissionDenied(
                 'Either missing required privileges or bad query')
 
-        card = Card(repo_base=repo_base, repo_name=repo,
-                    card_name=card_name, query=query)
-        return card.save()
+        card, created = Card.objects.get_or_create(
+            repo_base=repo_base, repo_name=repo,
+            card_name=card_name, query=query)
+
+        return card
 
     def export_card(self, repo_base, repo, card_name, file_format='CSV'):
         card = Card.objects.get(repo_base=repo_base,
