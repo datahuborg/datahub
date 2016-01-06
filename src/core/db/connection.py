@@ -50,6 +50,14 @@ class DataHubConnection:
     def explain_query(self, query):
         return self.backend.explain_query(query=query)
 
+    def limit_and_offset_select_query(self, query, limit, offset):
+        return self.backend.limit_and_offset_select_query(
+            query=query, limit=limit, offset=offset)
+
+    def select_table_query(self, repo_base, repo, table):
+        return self.backend.select_table_query(
+            repo_base=repo_base, repo=repo, table=table)
+
     def execute_sql(self, query, params=None):
         return self.backend.execute_sql(query, params)
 

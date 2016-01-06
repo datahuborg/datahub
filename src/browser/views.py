@@ -1,5 +1,4 @@
 import json
-import os
 import re
 import urllib
 import uuid
@@ -371,77 +370,45 @@ def table(request, repo_base, repo, table):
     '''
     return a page indicating how many
     '''
-
-    username = request.user.get_username()
-    dh_table_name = '%s.%s.%s' % (repo_base, repo, table)
-    manager = DataHubManager(user=username, repo_base=repo_base)
-
-    # explain the query, and get number of rows
-    query = 'SELECT * FROM %s' % (dh_table_name)
-    res = manager.explain_query(query)
-    num_rows = res.get('num_rows')
-
-    # determine number of pages
-    limit = 50
-    total_pages = 1 + (num_rows / limit)
-
-    # select the page given
     current_page = 1
     if request.POST.get('page'):
         current_page = request.POST.get('page')
 
-    # set the page at the beginning of the navigation bar
-    start_page = current_page - 5
-    if start_page < 1:
-        start_page = 1
+    username = request.user.get_username()
+    url_path = reverse('browser-table', args=(repo_base, repo, table))
 
-    # set the page at the end of the nav bar
-    end_page = start_page + 10
-    if end_page > total_pages:
-        end_page = total_pages
-
-    # select all rows from the table
-    res = manager.execute_sql(
-        query='SELECT * from %s LIMIT %s OFFSET %s'
-        % (dh_table_name, limit, (current_page - 1) * limit))
-
-    # get the column namges
-    column_names = [field['name'] for field in res['fields']]
-    tuples = res['tuples']
-
-    url_path = '/browse/%s/%s/table/%s' % (repo_base, repo, table)
+    manager = DataHubManager(user=username, repo_base=repo_base)
+    query = manager.select_table_query(repo_base, repo, table)
+    res = manager.paginate_query(
+        query=query, current_page=current_page, rows_per_page=50)
 
     # get annotation to the table:
-    annotation_text = None
-    try:
-        annotation = Annotation.objects.get(url_path=url_path)
-        if annotation:
-            annotation_text = annotation.annotation_text
-    except:
-        pass
+    annotation, created = Annotation.objects.get_or_create(url_path=url_path)
+    annotation_text = annotation.annotation_text
 
     data = {
         'login': username,
         'repo_base': repo_base,
         'repo': repo,
         'table': table,
-        'column_names': column_names,
-        'tuples': tuples,
         'annotation': annotation_text,
         'current_page': current_page,
-        'next_page': current_page + 1,
-        'prev_page': current_page - 1,
+        'next_page': current_page + 1,  # the template should relaly do this
+        'prev_page': current_page - 1,  # the template should relaly do this
         'url_path': url_path,
-        'total_pages': total_pages,
-        'pages': range(start_page, end_page + 1)}
-
-    print data
+        'column_names': res['column_names'],
+        'tuples': res['rows'],
+        'total_pages': res['total_pages'],
+        'pages': range(res['start_page'], res['end_page'] + 1),  # template
+        'num_rows': res['num_rows'],
+        'time_cost': res['time_cost']
+    }
 
     data.update(csrf(request))
 
     # and then, after everything, hand this off to table-browse. It turns out
     # that this is all using DataTables anyhow, so the template doesn't really
-    # use all of the data we prepared. ARc 2016-01-04
+    # use all of the data we prepared. ARC 2016-01-04
     return render_to_response("table-browse.html", data)
 
 

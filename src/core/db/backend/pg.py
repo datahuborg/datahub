@@ -215,6 +215,28 @@ class PGBackend:
 
         return response
 
+    def limit_and_offset_select_query(self, query, limit, offset):
+        query = query.strip().rstrip(';')
+
+        # is it a select query?
+        select_query = False
+        if (query.split()[0]).lower() == 'select':
+            select_query = True
+
+        # return select query
+        if select_query:
+            query = ('select * from ( %s ) '
+                     'as BXCQWVPEMWVKFBEBNKZSRPYBSB '
+                     'LIMIT %s OFFSET %s;'
+                     % (query, limit, offset))
+
+        return {'select_query': select_query, 'query': query}
+
+    def select_table_query(self, repo_base, repo, table):
+        dh_table_name = '%s.%s.%s' % (repo_base, repo, table)
+        query = 'SELECT * FROM %s;' % (dh_table_name)
+        return query
+
     def execute_sql(self, query, params=None):
         result = {
             'status': False,

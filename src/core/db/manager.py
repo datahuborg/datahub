@@ -208,6 +208,79 @@ class DataHubManager:
                                 repo_name=repo, card_name=card_name)
         return card.delete()
 
+    def limit_and_offset_select_query(self, query, limit, offset):
+        '''
+        modifies select queries, adding limits and offsets.
+        Used primarily for pagination
+        '''
+        return self.user_con.limit_and_offset_select_query(
+            query=query, limit=limit, offset=offset)
+
+    def paginate_query(self, query, current_page, rows_per_page):
+        '''
+        set variables for query pagination, limiting query statement
+        to just the section of the table that will be displayed
+        '''
+        explanation = self.explain_query(query)
+
+        num_rows = explanation['num_rows']
+        time_cost = explanation['time_cost']
+        byte_width = explanation['byte_width']
+        total_pages = 1 + (num_rows / rows_per_page)
+
+        # set first page that a user can navigate to
+        start_page = current_page - 5
+        if start_page < 1:
+            start_page = 1
+
+        # set the last page that a user can navigate to
+        end_page = start_page + 10
+        if end_page > total_pages:
+            end_page = total_pages
+
+        # set the offset
+        offset = (current_page - 1) * rows_per_page
+
+        # add limit and offset for select queries
+        res = self.limit_and_offset_select_query(
+            query=query, limit=rows_per_page, offset=offset)
+        select_query = res['select_query']
+        query = res['query']
+
+        # actually make the query
+        column_names = None  # top columns
+        rows = None  # in tuple form
+
+        res = self.execute_sql(query)
+
+        # determine the column_names and rows
+        if select_query or res['row_count'] > 0:  # normal case
+            column_names = [field['name'] for field in res['fields']]
+            rows = res['tuples']
+        else:  # query just returned a bool
+            column_names = ['status']
+            rows = [['success' if res['status'] else res['error']]]
+
+        result = {
+                'num_rows': num_rows,
+                'time_cost': time_cost,
+                'byte_width': byte_width,
+                'total_pages': total_pages,
+                'start_page': start_page,
+                'end_page': end_page,
+                'column_names': column_names,
+                'rows': rows,
+        }
+
+        return result
+
+    def select_table_query(self, repo_base, repo, table):
+        '''
+        return a database query for selecting the table.
+        necessary for keeping sq/nosql queries out of views
+        '''
+        return self.user_con.select_table_query(
+            repo_base=repo_base, repo=repo, table=table)
 
     '''
     The following methods run in superuser mode only
