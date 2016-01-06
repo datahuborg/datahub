@@ -196,6 +196,14 @@ class PGBackend:
         returns the number of rows, the cost (in time) to execute,
         and the width (bytes) of rows outputted
         '''
+
+        # if it's a select query, return a different set of defaults
+        select_query = bool((query.split()[0]).lower() == 'select')
+
+        if not select_query:
+            response = {'num_rows': 1, 'time_cost': 0, 'byte_width': 0}
+            return response
+
         query = 'EXPLAIN %s' % (query)
         res = self.execute_sql(query)
 
@@ -205,8 +213,7 @@ class PGBackend:
         time_cost_re = re.match(
             r'.*cost=(\d+.\d+)..(\d+.\d+)*', res['tuples'][0][0])
         time_cost = (float(time_cost_re.group(1)),
-                     float(time_cost_re.group(2))
-                    )
+                     float(time_cost_re.group(2)))
 
         response = {'num_rows': int(num_rows),
                     'time_cost': time_cost,
