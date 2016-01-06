@@ -270,6 +270,7 @@ class DataHubManager:
                 'end_page': end_page,
                 'column_names': column_names,
                 'rows': rows,
+                'select_query': select_query
         }
 
         return result
