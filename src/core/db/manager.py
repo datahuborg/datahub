@@ -85,9 +85,7 @@ class DataHubManager:
                 'Access denied. Missing required privileges')
 
         # make a directory for files, if it doesn't already exist
-        repo_dir = '/user_data/%s/%s' % (self.repo_base, repo)
-        if not os.path.exists(repo_dir):
-            os.makedirs(repo_dir)
+        repo_dir = DataHubManager.make_user_data_folder(self.repo_base, repo)
 
         uploaded_files = [f for f in os.listdir(repo_dir)]
         return uploaded_files
@@ -120,9 +118,7 @@ class DataHubManager:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
 
-        repo_dir = '/user_data/%s/%s' % (repo_base, repo)
-        if not os.path.exists(repo_dir):
-            os.makedirs(repo_dir)
+        repo_dir = DataHubManager.make_user_data_folder(repo_base, repo)
 
         file_name = '%s/%s' % (repo_dir, data_file.name)
         with open(file_name, 'wb+') as destination:
@@ -188,9 +184,7 @@ class DataHubManager:
             raise Exception('Access denied. Missing required privileges.')
 
         # create the repo if it doesn't already exist
-        repo_dir = '/user_data/%s/%s' % (repo_base, repo)
-        if not os.path.exists(repo_dir):
-            os.makedirs(repo_dir)
+        repo_dir = DataHubManager.make_user_data_folder(repo_base, repo)
 
         file_path = '%s/%s.%s' % (repo_dir, card_name, file_format)
         DataHubManager.export_query(repo_base=repo_base, query=query,
@@ -282,6 +276,22 @@ class DataHubManager:
         '''
         return self.user_con.select_table_query(
             repo_base=repo_base, repo=repo, table=table)
+
+    '''
+    Static methods that don't require permissions
+    '''
+
+    @staticmethod
+    def make_user_data_folder(repo_base, repo):
+        '''
+        makes an appropriate directory in user_data, if it wasn't already
+        there. returns the file path
+        '''
+        repo_dir = '/user_data/%s/%s' % (repo_base, repo)
+        if not os.path.exists(repo_dir):
+            os.makedirs(repo_dir)
+
+        return repo_dir
 
     '''
     The following methods run in superuser mode only
@@ -412,9 +422,7 @@ class DataHubManager:
                 'Access denied. Missing required privileges.')
 
         # make the base_repo and repo's folder, if they don't already exist
-        repo_dir = '/user_data/%s/%s' % (repo_base, repo)
-        if not os.path.exists(repo_dir):
-            os.makedirs(repo_dir)
+        repo_dir = DataHubManager.make_user_data_folder(repo_base, repo)
 
         # define the file path for the new table
         file_path = '%s/%s.%s' % (repo_dir, table, file_format)
