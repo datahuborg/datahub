@@ -3,6 +3,7 @@ from core.db.connection import DataHubConnection
 from inventory.models import App, Card
 from django.contrib.auth.models import User
 
+import shutil
 import hashlib
 import os
 import re
@@ -88,7 +89,7 @@ class DataHubManager:
                 'Access denied. Missing required privileges')
 
         # make a directory for files, if it doesn't already exist
-        repo_dir = DataHubManager.make_user_data_folder(self.repo_base, repo)
+        repo_dir = DataHubManager.make_repo_data_folder(self.repo_base, repo)
 
         uploaded_files = [f for f in os.listdir(repo_dir)]
         return uploaded_files
@@ -121,7 +122,7 @@ class DataHubManager:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
 
-        repo_dir = DataHubManager.make_user_data_folder(repo_base, repo)
+        repo_dir = DataHubManager.make_repo_data_folder(repo_base, repo)
 
         file_name = '%s/%s' % (repo_dir, data_file.name)
         with open(file_name, 'wb+') as destination:
@@ -189,7 +190,7 @@ class DataHubManager:
             raise Exception('Access denied. Missing required privileges.')
 
         # create the repo if it doesn't already exist
-        repo_dir = DataHubManager.make_user_data_folder(repo_base, repo)
+        repo_dir = DataHubManager.make_repo_data_folder(repo_base, repo)
 
         file_path = '%s/%s.%s' % (repo_dir, card_name, file_format)
         DataHubManager.export_query(repo_base=repo_base, query=query,
@@ -287,7 +288,7 @@ class DataHubManager:
     '''
 
     @staticmethod
-    def make_user_data_folder(repo_base, repo):
+    def make_repo_data_folder(repo_base, repo):
         '''
         makes an appropriate directory in user_data, if it wasn't already
         there. returns the file path
@@ -297,6 +298,15 @@ class DataHubManager:
             os.makedirs(repo_dir)
 
         return repo_dir
+
+    @staticmethod
+    def remove_repo_base_data_folder(repo_base):
+        '''
+        removes the directory in user_data
+        '''
+        repo_dir = '/user_data/%s' % (repo_base)
+        if os.path.exists(repo_dir):
+            shutil.rmtree(repo_dir)
 
     '''
     The following methods run in superuser mode only
@@ -328,6 +338,8 @@ class DataHubManager:
 
     @staticmethod
     def remove_user(username, remove_db=True):
+        if remove_db:
+            DataHubManager.remove_database(username)
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
@@ -342,11 +354,12 @@ class DataHubManager:
         return superuser_con.list_all_users()
 
     @staticmethod
-    def remove_database(username, revoke_collaborators=True):
+    def remove_database(repo_name, revoke_collaborators=True):
+        DataHubManager.remove_repo_base_data_folder(repo_name)
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
-        return superuser_con.remove_database(username, revoke_collaborators)
+        return superuser_con.remove_database(repo_name, revoke_collaborators)
 
     @staticmethod
     def change_password(username, password):
@@ -427,7 +440,7 @@ class DataHubManager:
                 'Access denied. Missing required privileges.')
 
         # make the base_repo and repo's folder, if they don't already exist
-        repo_dir = DataHubManager.make_user_data_folder(repo_base, repo)
+        repo_dir = DataHubManager.make_repo_data_folder(repo_base, repo)
 
         # define the file path for the new table
         file_path = '%s/%s.%s' % (repo_dir, table, file_format)

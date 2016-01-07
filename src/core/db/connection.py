@@ -96,8 +96,8 @@ class DataHubConnection:
     def list_all_users(self):
         return self.backend.list_all_users()
 
-    def remove_database(self, username, revoke_collaborators=True):
-        return self.backend.remove_database(username, revoke_collaborators)
+    def remove_database(self, repo_base, revoke_collaborators=True):
+        return self.backend.remove_database(repo_base, revoke_collaborators)
 
     def change_password(self, username, password):
         return self.backend.change_password(username, password)
