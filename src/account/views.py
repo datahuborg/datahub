@@ -1,4 +1,3 @@
-from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, redirect, render
 from django.contrib.auth import logout as django_logout, \
                                 login as django_login
@@ -204,9 +203,12 @@ def delete(request):
     """
     if request.method == 'POST':
         username = request.user.get_username()
+        context = RequestContext(request, {
+            'username': username
+            })
         try:
             delete_user(username=username, remove_db=True)
-            return redirect(reverse('browser-home'))
+            return render(request, 'delete-done.html', context)
         except User.DoesNotExist:
-            return HttpResponseNotFound('User not found.')
+            return HttpResponseNotFound('User {0} not found.'.format(username))
     return HttpResponseNotAllowed(['POST'])

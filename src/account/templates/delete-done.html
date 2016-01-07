@@ -1,0 +1,16 @@
+{% extends "minimal-layout.html" %}
+
+{% block headlink-right %}
+<a href="{% url 'login' %}" title="Sign In" id="id_sign_in" class="btn navbar-btn btn-primary">Sign In</a>
+<a href="{% url 'register' %}" title="Sign Up" id="id_sign_up" class="btn navbar-btn btn-success">Sign Up</a>
+{% endblock %}
+{% block content %}
+<div class="container">
+<div class="col-xs-12 col-sm-6 col-sm-offset-3">
+  <h3>Account Deleted</h3>
+  <br />
+  <p>The account {{ username }} and its associated data have been deleted.</p>
+  <p>Return to <a href="{% url 'browser-home' %}">DataHub's home page</a>.</p>
+</div>
+</div>
+{% endblock %}
