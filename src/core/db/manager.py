@@ -57,6 +57,9 @@ class DataHubManager:
     def list_views(self, repo):
         return self.user_con.list_views(repo=repo)
 
+    def delete_table(self, repo, table, force=False):
+        return self.user_con.delete_table(repo=repo, table=table, force=force)
+
     def get_schema(self, repo, table):
         return self.user_con.get_schema(repo=repo, table=table)
 

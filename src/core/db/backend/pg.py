@@ -172,6 +172,21 @@ class PGBackend:
 
         return [t[0] for t in res['tuples']]
 
+    def delete_table(self, repo, table, force=False):
+        self._check_for_injections(repo)
+        self._check_for_injections(table)
+
+        force_param = 'RESTRICT'
+        if force:
+            force_param = 'CASCADE'
+
+        query = ('DROP TABLE %s.%s.%s %s')
+        params = (AsIs(self.repo_base), AsIs(repo), AsIs(table),
+                  AsIs(force_param))
+
+        res = self.execute_sql(query, params)
+        return res['status']
+
     def get_schema(self, repo, table):
         self._check_for_injections(repo)
         self._check_for_injections(table)

@@ -424,12 +424,15 @@ def table_export(request, repo_base, repo, table_name):
 
 @login_required
 def table_delete(request, repo_base, repo, table_name):
+    '''
+    deletes tables. Does not currently allow the user the option to cascade
+    in the case of dependencies, though the delete_table method does allow
+    cascade (force) to be passed.
+    '''
     username = request.user.get_username()
-    dh_table_name = '%s.%s.%s' % (repo_base, repo, table_name)
     manager = DataHubManager(user=username, repo_base=repo_base)
-    query = '''DROP TABLE %s''' % (dh_table_name)
+    manager.delete_table(repo, table_name)
 
-    manager.execute_sql(query=query)
     return HttpResponseRedirect(
         reverse('browser-repo_tables', args=(repo_base, repo)))
 
