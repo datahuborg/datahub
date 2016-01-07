@@ -173,5 +173,11 @@ def grant_app_permission(username, repo_name, app_id, app_token):
 
 
 def delete_user(username, remove_db=True):
+    """
+    Deletes the given user.
+
+    By default, deletes user in Django as well as their role and database in
+    Postgres.
+    """
     User.objects.get(username=username).delete()
     DataHubManager.remove_user(username, remove_db=True)

@@ -5,10 +5,15 @@ from django.contrib.auth import logout as django_logout, \
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.template.context import RequestContext
-from account.forms import UsernameForm, RegistrationForm, LoginForm
-from account.utils import (provider_details, datahub_authenticate,
-                           delete_user)
-from django.http import HttpResponse
+from account.forms import UsernameForm, \
+                          RegistrationForm, \
+                          LoginForm
+from account.utils import provider_details, \
+                          datahub_authenticate, \
+                          delete_user
+from django.http import HttpResponse, \
+                        HttpResponseNotFound, \
+                        HttpResponseNotAllowed
 
 
 def login(request):
@@ -197,6 +202,11 @@ def delete(request):
 
     Data from deleted databases is not saved.
     """
-    username = request.user.get_username()
-    delete_user(username=username, remove_db=True)
-    return HttpResponse(reverse('browser-home'))
+    if request.method == 'POST':
+        username = request.user.get_username()
+        try:
+            delete_user(username=username, remove_db=True)
+            return redirect(reverse('browser-home'))
+        except User.DoesNotExist:
+            return HttpResponseNotFound('User not found.')
+    return HttpResponseNotAllowed(['POST'])
