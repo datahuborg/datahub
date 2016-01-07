@@ -130,7 +130,6 @@ class LoginTest(FunctionalTest):
         self.browser.get(sneaky_url)
 
         # the page says error.
-        # YOU ARE HERE. The page doesn't error out in the same way anymore.
         page_source = self.browser.page_source
         search_string = 'No table'
         self.assertTrue(search_string in page_source)
