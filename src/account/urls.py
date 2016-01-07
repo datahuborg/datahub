@@ -13,7 +13,13 @@ urlpatterns = patterns(
         'account.views.add_extra_login',
         name='add_extra_login'),
     url(r'^delete/?$', 'account.views.delete', name='delete_user'),
-    # Use Django's built-in password reset tools.
+    # Use Django's built-in password changing and resetting tools.
+    url(r'^change_password/?$', 'django.contrib.auth.views.password_change',
+        {
+            'template_name': 'password_change.html',
+            'post_change_redirect': 'settings',
+        },
+        name='password_change'),
     url(r'^forgot/?$', 'django.contrib.auth.views.password_reset',
         {
             'template_name': 'password_reset.html',
