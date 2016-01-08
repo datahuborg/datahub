@@ -39,7 +39,8 @@ class PGBackend:
         self.connection.set_isolation_level(
             psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
-    def reset_connection(self, repo_base):
+    def change_repo_base(self, repo_base):
+        self.close_connection()
         self.repo_base = repo_base
         self.__open_connection__()
 
@@ -318,7 +319,7 @@ class PGBackend:
         params = (AsIs(username), AsIs(username))
         return self.execute_sql(query, params)
 
-    def remove_user(self, username, remove_db=True):
+    def remove_user(self, username):
         self._check_for_injections(username)
         query = 'DROP ROLE %s;'
         params = (AsIs(username),)
