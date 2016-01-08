@@ -594,8 +594,7 @@ def card(request, repo_base, repo, card_name):
     url_path = reverse('browser-query', args=(repo_base, repo))
 
     manager = DataHubManager(user=username, repo_base=repo_base)
-    card = manager.get_card(
-        repo_base=repo_base, repo=repo, card_name=card_name)
+    card = manager.get_card(repo=repo, card_name=card_name)
     res = manager.paginate_query(
         query=card.query, current_page=current_page, rows_per_page=50)
 

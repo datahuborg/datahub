@@ -160,19 +160,19 @@ class DataHubManager:
         file = open(file_path).read()
         return file
 
-    def get_card(self, repo_base, repo, card_name):
+    def get_card(self, repo, card_name):
         '''
         used to get cards. This goes through manage.py because, it requires
         a check that the user actually has repo access.
         '''
         res = DataHubManager.has_repo_privilege(
-            self.username, repo_base, repo, 'USAGE')
+            self.username, self.repo_base, repo, 'USAGE')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
 
         card = Card.objects.get(
-            repo_base=repo_base, repo_name=repo, card_name=card_name)
+            repo_base=self.repo_base, repo_name=repo, card_name=card_name)
 
         return card
 
