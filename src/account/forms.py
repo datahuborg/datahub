@@ -6,6 +6,50 @@ from core.db.manager import DataHubManager
 from django.core.validators import RegexValidator
 
 
+def validate_unique_username(value):
+    """
+    Validates that a proposed username is not already in use.
+
+    Checks User and App models, databases, database roles, and user data
+    folders.
+    """
+    username = value.lower()
+
+    try:
+        existing_user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        existing_user = None
+
+    try:
+        existing_app = App.objects.get(app_id=username)
+    except App.DoesNotExist:
+        existing_app = None
+
+    db_exists = DataHubManager.database_exists(username)
+    user_exists = DataHubManager.user_exists(username)
+    user_data_folder_exists = DataHubManager.user_data_folder_exists(username)
+
+    if (existing_user or existing_app or
+            db_exists or user_exists or
+            user_data_folder_exists):
+        raise forms.ValidationError(
+            ('The username %(value)s is not available.'),
+            params={'value': value},
+        )
+    return True
+
+
+def validate_unique_email(value):
+    try:
+        User.objects.get(email=value.lower())
+        raise forms.ValidationError(
+            ("The email address %(value)s is in use by another account."),
+            params={'value': value},
+        )
+    except User.DoesNotExist:
+        return True
+
+
 class UsernameForm(forms.Form):
 
     """
@@ -14,38 +58,6 @@ class UsernameForm(forms.Form):
     Used by social auth flows, which authenticate new users before they've had
     a chance to provide that info.
     """
-
-    def validate_unique_username(value):
-        username = value.lower()
-
-        try:
-            existing_user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            existing_user = None
-
-        try:
-            existing_app = App.objects.get(app_id=username)
-        except App.DoesNotExist:
-            existing_app = None
-
-        db_exists = DataHubManager.database_exists(username)
-        user_exists = DataHubManager.user_exists(username)
-        if existing_user or existing_app or db_exists or user_exists:
-            raise forms.ValidationError(
-                ('The username %(value)s is not available.'),
-                params={'value': value},
-            )
-        return True
-
-    def validate_unique_email(value):
-        try:
-            User.objects.get(email=value.lower())
-            raise forms.ValidationError(
-                ("The email address %(value)s is in use by another account."),
-                params={'value': value},
-            )
-        except User.DoesNotExist:
-            return True
 
     invalid_username_msg = (
         "Usernames may only contain alphanumeric characters, hyphens, and "
@@ -93,6 +105,39 @@ class LoginForm(forms.Form):
     username = forms.CharField(label="Username or email address")
     password = forms.CharField(label=("Password"),
                                widget=forms.PasswordInput)
+
+
+class EmailUniqueOrSameValidator(object):
+    def __init__(self, old_email):
+        self.old_email = old_email
+
+    def __call__(self, value):
+        if value == self.old_email:
+            return True
+        else:
+            return validate_unique_email(value)
+
+
+class ChangeEmailForm(forms.Form):
+
+    """
+    A form that asks for an email address.
+
+    Used to change a logged in user's email address. The address must be a
+    valid email address and either unique across users or the same as the
+    current user's address. Forms can't tell who's logged in, so that must be
+    checked in the view using this form.
+    """
+
+    def __init__(self, *args, **kwargs):
+        old_email = kwargs.pop('old_email')
+        super(ChangeEmailForm, self).__init__(*args, **kwargs)
+        self.fields['email'] = forms.EmailField(
+            label="Email address",
+            max_length=255,
+            required=True,
+            validators=[EmailUniqueOrSameValidator(old_email)]
+        )
 
 
 class ForgotPasswordForm(PasswordResetForm):

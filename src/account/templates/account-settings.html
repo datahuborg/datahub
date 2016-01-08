@@ -1,5 +1,6 @@
 {% extends "minimal-layout.html" %}
 
+{% load crispy_forms_tags %}
 {% load backend_details %}
 {% load string_utils %}
 
@@ -30,17 +31,17 @@ $(document).ready(function() {
   <h3>Settings</h3>
   <br />
 
-  <form role="form" method="POST" action="">
+  <form role="form" method="POST" action="{% url 'settings' %}">
     <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Profile</h3>
       </div>
       <div class="panel-body">
         {% csrf_token %}
+        <input type="hidden" name="change_email" />
         <label for="username">Username</label><br />
         <input type="text" class="form-control" name="username" id="username" placeholder="Pick a username" disabled value="{{user.username}}"/><br />
-        <label for="email">Email Address</label><br />
-        <input type="text" class="form-control" name="email" id="email" placeholder="Your email address" value="{{user.email}}"/><br />
+        {{ email_form|crispy }}
         <button class="btn btn-primary">Update</button>
       </div>
     </div>
@@ -50,31 +51,24 @@ $(document).ready(function() {
     <div class="panel-heading">
       <h3 class="panel-title">Password</h3>
     </div>
-    {% csrf_token %}
     <ul class="list-group">
-      {% if user.has_usable_password %}
-        <li class="list-group-item">
-        <p><a href="#">Change Password</a></p>
-        </li>
-        {% if backends.associated.count > 0 %}
-          <li class="list-group-item">
-          <p><a href="#" role="button" data-toggle="modal" data-target="#confirmModal" data-modal-title="Remove Password" data-modal-body="<p>Are you sure you want to remove name and password as a login method for DataHub user {{ user.username }}?</p><p>You will still be able to log in with {{ backends.associated|mapattr:"provider"|provider_names|joinand }}.</p>">Remove Password</a></p>
-          <p>Remove your password to limit access to the external logins below.</p>
-          </li>
-        {% endif %}
-      {% else %}
-        <li class="list-group-item">
-          <p>No password set. The external logins below are the only way to log into this account.</p>
-          <a href="#">Add Password</a><br />
-        </li>
-      {% endif %}
+    {% if user.has_usable_password %}
+    <li class="list-group-item">
+      <p>Password set.</p>
+      <a href="{% url 'password_change' %}">Change Password</a>
+    </li>
+      {% if backends.associated.count > 0 %}
+      <li class="list-group-item">
+      <p>Remove your password to limit access to the external logins below.</p>
+      <a href="#" role="button" data-toggle="modal" data-target="#confirmModal" data-modal-title="Remove Password" data-modal-body="<p>Are you sure you want to remove name and password as a login method for DataHub user {{ user.username }}?</p><p>You will still be able to log in with {{ backends.associated|mapattr:"provider"|provider_names|joinand }}.</p>">Remove Password</a>
       </li>
-      <div class="hidden">
-        <label for="password">Password</label><br />
-        <input type="password" class="form-control" name="password" id="password" placeholder="No password set"/><br />
-        <label for="confirm_password">Confirm Password</label><br />
-        <input type="password" class="form-control" name="confirm_password" id="confirm_password" /><br />
-      </div>
+      {% endif %}
+    {% else %}
+      <li class="list-group-item">
+        <p>No password set. The external logins below are the only way to log into this account.</p>
+        <a href="#">Add Password</a>
+      </li>
+    {% endif %}
     </ul>
   </div>
 

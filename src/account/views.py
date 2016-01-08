@@ -1,4 +1,3 @@
-from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, redirect, render
 from django.contrib.auth import logout as django_logout, \
                                 login as django_login
@@ -7,7 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.template.context import RequestContext
 from account.forms import UsernameForm, \
                           RegistrationForm, \
-                          LoginForm
+                          LoginForm, \
+                          ChangeEmailForm
 from account.utils import provider_details, \
                           datahub_authenticate, \
                           delete_user
@@ -166,9 +166,22 @@ def settings(request):
     links to change the email address, add or remove social logins, set a
     password for the account, and delete the account.
     """
+    # Include email and password changing in settings handler so form
+    # validation errors appear on settings page.
+    old_email = request.user.email
+    if request.method == 'POST' and 'change_email' in request.POST:
+        email_form = ChangeEmailForm(request.POST, old_email=old_email)
+        if email_form.is_valid():
+            request.user.email = email_form.cleaned_data['email']
+            request.user.save()
+    else:
+        email_form = ChangeEmailForm({'email': old_email}, old_email=old_email)
+
+    context = RequestContext(request, {
+        'email_form': email_form,
+        })
     # Python Social Auth sets a `backends` context variable, which includes
     # which social backends are and are not associated with the current user.
-    context = RequestContext(request)
     return render(request, 'account-settings.html', context)
 
 
@@ -202,11 +215,15 @@ def delete(request):
 
     Data from deleted databases is not saved.
     """
-    if request.method == 'POST':
-        username = request.user.get_username()
-        try:
-            delete_user(username=username, remove_db=True)
-            return redirect(reverse('browser-home'))
-        except User.DoesNotExist:
-            return HttpResponseNotFound('User not found.')
-    return HttpResponseNotAllowed(['POST'])
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    username = request.user.get_username()
+    context = RequestContext(request, {
+        'username': username
+        })
+    try:
+        delete_user(username=username, remove_db=True)
+        django_logout(request)
+        return render(request, 'delete-done.html', context)
+    except User.DoesNotExist:
+        return HttpResponseNotFound('User {0} not found.'.format(username))

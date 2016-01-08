@@ -4,8 +4,6 @@ from django.db.models.signals import pre_save
 from psycopg2 import OperationalError
 from django.db.utils import IntegrityError
 from core.db.manager import DataHubManager
-import os
-import errno
 
 # Note that these may fire multiple times and for users that already exist.
 
@@ -35,12 +33,13 @@ def enforce_email_uniqueness(sender, instance, **kwargs):
 
 
 @receiver(pre_save, sender=User,
-          dispatch_uid="dh_user_pre_save_create_user_database")
-def create_user_db_if_needed(sender, instance, **kwargs):
+          dispatch_uid="dh_user_pre_save_create_user_db_and_data_folder")
+def create_user_db_and_data_folder_if_needed(sender, instance, **kwargs):
     """
-    Creates a Postgres role and database to go with the new Django user.
+    Creates a Postgres role and db and data folder to go with new Django users.
 
-    Fails if the role or database exist before this user.
+    Raises an exception if the role, database, or user data folder exists
+    before this user.
     """
     username = instance.username
     hashed_password = instance.password
@@ -50,7 +49,8 @@ def create_user_db_if_needed(sender, instance, **kwargs):
     # superuser and check for any existing db role or database.
     db_exists = DataHubManager.database_exists(username)
     user_exists = DataHubManager.user_exists(username)
-    if db_exists and user_exists:
+    user_data_folder_exists = DataHubManager.user_data_folder_exists(username)
+    if db_exists and user_exists and user_data_folder_exists:
         # Make sure new users don't inherit orphaned roles or databases that
         # are missing a matching Django user.
         try:
@@ -58,34 +58,13 @@ def create_user_db_if_needed(sender, instance, **kwargs):
         except User.DoesNotExist:
             raise IntegrityError("Failed to create user. That name is already"
                                  " in use by an orphaned user.")
-    elif not db_exists and not user_exists:
+    elif not db_exists and not user_exists and not user_data_folder_exists:
         try:
             DataHubManager.create_user(
                 username=username,
                 password=hashed_password)
-        except OperationalError as e:
-            "operational error"
-            raise e
+        except OperationalError:
+            raise
     else:
         raise Exception("Failed to create user. That name is already"
-                        " in use by either a role or database.")
-
-
-@receiver(pre_save, sender=User,
-          dispatch_uid="dh_user_pre_save_create_user_data_folder")
-def create_user_data_folder_if_needed(sender, instance, **kwargs):
-    """
-    Creates a user's data folder if one does not exist.
-
-    Typically located at /user_data/username.
-    """
-    username = instance.username
-    user_data_dir = os.path.join(os.path.abspath('/user_data'), username)
-    # Try to create the dir without checking first. Fail silently if it
-    # already exists. Makes sure there are no race conditions and won't fail
-    # silently if no permission to write to /user_data.
-    try:
-        os.makedirs(user_data_dir)
-    except OSError as e:
-        if e.errno is not errno.EEXIST:
-            raise
+                        " in use by either a role, database, or data folder.")

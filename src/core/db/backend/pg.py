@@ -1,5 +1,3 @@
-import os
-import shutil
 import re
 import psycopg2
 from psycopg2.extensions import AsIs
@@ -88,11 +86,6 @@ class PGBackend:
         ''' deletes a repo and the folder the user's repo files are in. '''
         self._check_for_injections(repo)
 
-        # delete the folder that repo files are in
-        repo_dir = '/user_data/%s/%s' % (self.user, repo)
-        if os.path.exists(repo_dir):
-            shutil.rmtree(repo_dir)
-
         # drop the schema
         query = 'DROP SCHEMA %s %s'
         params = (AsIs(repo), AsIs('CASCADE') if force else None)
@@ -171,6 +164,21 @@ class PGBackend:
         res = self.execute_sql(query, params)
 
         return [t[0] for t in res['tuples']]
+
+    def delete_table(self, repo, table, force=False):
+        self._check_for_injections(repo)
+        self._check_for_injections(table)
+
+        force_param = 'RESTRICT'
+        if force:
+            force_param = 'CASCADE'
+
+        query = ('DROP TABLE %s.%s.%s %s')
+        params = (AsIs(self.repo_base), AsIs(repo), AsIs(table),
+                  AsIs(force_param))
+
+        res = self.execute_sql(query, params)
+        return res['status']
 
     def get_schema(self, repo, table):
         self._check_for_injections(repo)
@@ -311,14 +319,6 @@ class PGBackend:
         return self.execute_sql(query, params)
 
     def remove_user(self, username, remove_db=True):
-        if remove_db:
-            try:
-                self.remove_database(username)
-            except psycopg2.ProgrammingError as e:
-                print e
-                print('this probably happened because the postgres role'
-                      'exists, but a database of the same name does not.')
-
         self._check_for_injections(username)
         query = 'DROP ROLE %s;'
         params = (AsIs(username),)
@@ -336,8 +336,8 @@ class PGBackend:
 
         return all_users_list
 
-    def remove_database(self, username, revoke_collaborators=True):
-        self._check_for_injections(username)
+    def remove_database(self, database, revoke_collaborators=True):
+        self._check_for_injections(database)
 
         # remove collaborator access to the database
         if revoke_collaborators:
@@ -345,13 +345,19 @@ class PGBackend:
 
             for user in all_users:
                 query = "REVOKE ALL ON DATABASE %s FROM %s;"
-                params = (AsIs(username), AsIs(user))
+                params = (AsIs(database), AsIs(user))
                 self.execute_sql(query, params)
 
         # drop database
         query = 'DROP DATABASE %s;'
-        params = (AsIs(username),)
-        return self.execute_sql(query, params)
+        params = (AsIs(database),)
+        try:
+            return self.execute_sql(query, params)
+        except psycopg2.ProgrammingError as e:
+                print e
+                print('this probably happened because the postgres role'
+                      'exists, but a database of the same name does not.')
+
 
     def change_password(self, username, password):
         self._check_for_injections(username)
