@@ -1,5 +1,3 @@
-import os
-import shutil
 import re
 import psycopg2
 from psycopg2.extensions import AsIs
@@ -87,11 +85,6 @@ class PGBackend:
     def delete_repo(self, repo, force=False):
         ''' deletes a repo and the folder the user's repo files are in. '''
         self._check_for_injections(repo)
-
-        # delete the folder that repo files are in
-        repo_dir = '/user_data/%s/%s' % (self.user, repo)
-        if os.path.exists(repo_dir):
-            shutil.rmtree(repo_dir)
 
         # drop the schema
         query = 'DROP SCHEMA %s %s'
@@ -373,7 +366,6 @@ class PGBackend:
         return self.execute_sql(query, params)
 
     def list_collaborators(self, repo):
-        import pdb; pdb.set_trace()
         query = 'SELECT unnest(nspacl) FROM pg_namespace WHERE nspname=%s;'
         params = (repo, )
         res = self.execute_sql(query, params)

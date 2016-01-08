@@ -7,6 +7,12 @@ from django.core.validators import RegexValidator
 
 
 def validate_unique_username(value):
+    """
+    Validates that a proposed username is not already in use.
+
+    Checks User and App models, databases, database roles, and user data
+    folders.
+    """
     username = value.lower()
 
     try:
@@ -21,7 +27,11 @@ def validate_unique_username(value):
 
     db_exists = DataHubManager.database_exists(username)
     user_exists = DataHubManager.user_exists(username)
-    if existing_user or existing_app or db_exists or user_exists:
+    user_data_folder_exists = DataHubManager.user_data_folder_exists(username)
+
+    if (existing_user or existing_app or
+            db_exists or user_exists or
+            user_data_folder_exists):
         raise forms.ValidationError(
             ('The username %(value)s is not available.'),
             params={'value': value},

@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate as django_authenticate
-from django.db.models import Q
 import hashlib
 from inventory.models import DataHubLegacyUser, App
 from core.db.manager import DataHubManager
@@ -179,7 +178,6 @@ def delete_user(username, remove_db=True):
     By default, deletes user in Django as well as their role and database in
     Postgres.
     """
-
     # get the user associated with the username, and delete their apps
     try:
         user = User.objects.get(username=username)

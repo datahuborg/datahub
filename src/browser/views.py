@@ -300,7 +300,7 @@ def repo_delete(request, repo_base, repo):
     '''
 
     username = request.user.get_username()
-    manager = DataHubManager(user=username)
+    manager = DataHubManager(user=username, repo_base=repo_base)
     manager.delete_repo(repo=repo, force=True)
     return HttpResponseRedirect(reverse('browser-user-default'))
 
