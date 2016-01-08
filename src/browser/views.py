@@ -589,10 +589,6 @@ def card(request, repo_base, repo, card_name):
                             repo_name=repo, card_name=card_name)
     query = card.query
 
-    manager = DataHubManager(user=repo_base)
-    res = manager.execute_sql(
-        query='EXPLAIN %s' % (query))
-
     # if the user is actually executing a query
     current_page = 1
     if request.POST.get('page'):
