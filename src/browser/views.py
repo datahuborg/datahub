@@ -585,9 +585,6 @@ Cards
 @login_required
 def card(request, repo_base, repo, card_name):
     username = request.user.get_username()
-    card = Card.objects.get(repo_base=repo_base,
-                            repo_name=repo, card_name=card_name)
-    query = card.query
 
     # if the user is actually executing a query
     current_page = 1
@@ -597,8 +594,10 @@ def card(request, repo_base, repo, card_name):
     url_path = reverse('browser-query', args=(repo_base, repo))
 
     manager = DataHubManager(user=username, repo_base=repo_base)
+    card = manager.get_card(
+        repo_base=repo_base, repo=repo, card_name=card_name)
     res = manager.paginate_query(
-        query=query, current_page=current_page, rows_per_page=50)
+        query=card.query, current_page=current_page, rows_per_page=50)
 
     # get annotation to the table:
     annotation, created = Annotation.objects.get_or_create(url_path=url_path)
@@ -613,7 +612,7 @@ def card(request, repo_base, repo, card_name):
         'next_page': current_page + 1,  # the template should relaly do this
         'prev_page': current_page - 1,  # the template should relaly do this
         'url_path': url_path,
-        'query': query,
+        'query': card.query,
         'select_query': res['select_query'],
         'column_names': res['column_names'],
         'tuples': res['rows'],
