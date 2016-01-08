@@ -223,6 +223,7 @@ def delete(request):
         })
     try:
         delete_user(username=username, remove_db=True)
+        django_logout(request)
         return render(request, 'delete-done.html', context)
     except User.DoesNotExist:
         return HttpResponseNotFound('User {0} not found.'.format(username))
