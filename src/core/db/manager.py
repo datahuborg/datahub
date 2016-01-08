@@ -1,6 +1,6 @@
 from config import settings
 from core.db.connection import DataHubConnection
-from inventory.models import App, Card
+from inventory.models import App, Card, Collaborator
 from django.contrib.auth.models import User
 
 import hashlib
@@ -78,14 +78,40 @@ class DataHubManager:
         return self.user_con.execute_sql(query=query, params=params)
 
     def add_collaborator(self, repo, username, privileges):
+        res = DataHubManager.has_repo_privilege(
+            self.username, self.repo_base, repo, 'USAGE')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges')
+
+        user = User.objects.get(username=username)
+        Collaborator.objects.create(user=user, repo_name=repo, repo_owner=self.repo_base, permission="ALL")
+
         return self.user_con.add_collaborator(
             repo=repo,
             username=username,
             privileges=privileges
         )
 
-    def delete_collaborator(self, repo, username):
-        return self.user_con.delete_collaborator(repo=repo, username=username)
+
+
+    def delete_collaborator(self, repo_base, repo, user, collaborator):
+        superuser_con = DataHubConnection(
+            user=settings.DATABASES['default']['USER'],
+            password=settings.DATABASES['default']['USER'],
+            repo_base=repo_base)
+        repo_collaborators = superuser_con.list_collaborators(repo=repo)
+
+        if collaborator not in repo_collaborators:
+            raise Exception('Failed to delete collaborator. %s is not a collaborator in the specified repository.' % collaborator)
+        if user != collaborator and user != repo_base:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges')
+
+        collab = User.objects.get(username=collaborator)
+        Collaborator.objects.get(user=collab, repo_name=repo, repo_owner=repo_base).delete()
+        superuser_con.delete_collaborator(repo=repo, username=collaborator)
+        
 
     def list_repo_files(self, repo):
         # check for permissions
@@ -121,6 +147,7 @@ class DataHubManager:
             password=settings.DATABASES['default']['USER'],
             repo_base=repo_base)
         return superuser_con.list_collaborators(repo=repo)
+
 
     def save_file(self, repo_base, repo, data_file):
         res = DataHubManager.has_repo_privilege(

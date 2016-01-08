@@ -314,16 +314,9 @@ def repo_delete_collaborator(request, repo_base, repo_owner, repo_name):
   '''
   removes self as a collaborator from the specified repo (repo_name)
   '''
-  
   username = request.user.get_username()
   manager = DataHubManager(user=username)
-  # TODO: Add in logic for this method in manager.py (currently, repo_delete_collaborator only removes
-  #       the collaborator from the Django Collaborators table)
-  # manager.repo_delete_collaborator(username, repo_name, repo_owner)
-  
-  user = User.objects.get(username=username)
-  Collaborator.objects.get(user=user, repo_name=repo_name, repo_owner=repo_owner).delete()
-
+  manager.delete_collaborator(repo_base=repo_owner, repo=repo_name, user=username, collaborator=username)
   return HttpResponseRedirect(reverse('browser-user-default'))
 
 @login_required
@@ -364,9 +357,6 @@ def repo_collaborators_add(request, repo_base, repo):
         repo, collaborator_username,
         privileges=['SELECT', 'INSERT', 'UPDATE'])
 
-    user = User.objects.get(username=collaborator_username)
-    Collaborator.objects.create(user=user, repo_name=repo, repo_owner=repo_base, permission="ALL")
-
     return HttpResponseRedirect(
             reverse('browser-repo_settings', args=(repo_base, repo,)))
 
@@ -378,11 +368,8 @@ def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
     '''
     username = request.user.get_username()
     manager = DataHubManager(user=username, repo_base=repo_base)
-    manager.delete_collaborator(repo, collaborator_username)
-
-    user = User.objects.get(username=collaborator_username)
-    Collaborator.objects.get(user=user, repo_name=repo, repo_owner=repo_base).delete()
-
+    # Need to replace repo_base with repo_owner
+    manager.delete_collaborator(repo_base=repo_base, repo=repo, user=username, collaborator=collaborator_username)
     return HttpResponseRedirect(
             reverse('browser-repo_settings', args=(repo_base, repo,)))
 
