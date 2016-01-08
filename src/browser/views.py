@@ -491,7 +491,7 @@ def file_delete(request, repo_base, repo, file_name):
     manager = DataHubManager(username, repo_base)
     manager.delete_file(repo, file_name)
     return HttpResponseRedirect(
-        reverse('browser-repo_files') % (repo_base, repo))
+        reverse('browser-repo_files', args=(repo_base, repo)))
 
 
 @login_required
