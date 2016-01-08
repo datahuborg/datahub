@@ -17,7 +17,7 @@ from thrift.protocol import TBinaryProtocol
 from thrift.protocol import TJSONProtocol
 from thrift.transport.TTransport import TMemoryBuffer
 
-from inventory.models import App, Card, Annotation
+from inventory.models import App, Card, Annotation, Collaborator
 from account.utils import grant_app_permission
 from core.db.manager import DataHubManager
 from datahub import DataHub
@@ -182,10 +182,14 @@ def user(request, repo_base=None):
             'collaborators': collaborators,
         })
 
+    user = User.objects.get(username=repo_base)
+    collaborator_repos = Collaborator.objects.filter(user=user)
+
     return render_to_response("user-browse.html", {
         'login': username,
         'repo_base': repo_base,
-        'repos': visible_repos})
+        'repos': visible_repos,
+        'collaborator_repos': collaborator_repos})
 
 
 '''
@@ -305,6 +309,23 @@ def repo_delete(request, repo_base, repo):
 
 
 @login_required
+def repo_delete_collaborator(request, repo_base, repo_owner, repo_name):
+  '''
+  removes self as a collaborator from the specified repo (repo_name)
+  '''
+  
+  username = request.user.get_username()
+  manager = DataHubManager(user=username)
+  # TODO: Add in logic for this method in manager.py (currently, repo_delete_collaborator only removes
+  #       the collaborator from the Django Collaborators table)
+  # manager.repo_delete_collaborator(username, repo_name, repo_owner)
+  
+  user = User.objects.get(username=username)
+  Collaborator.objects.get(user=user, repo_name=repo_name, repo_owner=repo_owner).delete()
+
+  return HttpResponseRedirect(reverse('browser-user-default'))
+
+@login_required
 def repo_settings(request, repo_base, repo):
     '''
     returns the settings page for a repo.
@@ -342,6 +363,9 @@ def repo_collaborators_add(request, repo_base, repo):
         repo, collaborator_username,
         privileges=['SELECT', 'INSERT', 'UPDATE'])
 
+    user = User.objects.get(username=collaborator_username)
+    Collaborator.objects.create(user=user, repo_name=repo, repo_owner=repo_base, permission="ALL")
+
     return HttpResponseRedirect(
             reverse('browser-repo_settings', args=(repo_base, repo,)))
 
@@ -354,6 +378,9 @@ def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
     username = request.user.get_username()
     manager = DataHubManager(user=username, repo_base=repo_base)
     manager.delete_collaborator(repo, collaborator_username)
+
+    user = User.objects.get(username=collaborator_username)
+    Collaborator.objects.get(user=user, repo_name=repo, repo_owner=repo_base).delete()
 
     return HttpResponseRedirect(
             reverse('browser-repo_settings', args=(repo_base, repo,)))
