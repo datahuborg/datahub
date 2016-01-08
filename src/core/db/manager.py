@@ -3,6 +3,7 @@ from core.db.connection import DataHubConnection
 from inventory.models import App, Card
 from django.contrib.auth.models import User
 
+import six
 import hashlib
 import os
 import errno
@@ -133,10 +134,11 @@ class DataHubManager:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
 
-        repo_dir = DataHubManager.create_user_data_folder(self.repo_base, repo)
+        DataHubManager.create_user_data_folder(self.repo_base, repo)
 
-        file_name = '%s/%s' % (repo_dir, data_file.name)
-        with open(file_name, 'wb+') as destination:
+        file_name = clean_file_name(data_file.name)
+        file_path = user_data_path(self.repo_base, repo, file_name)
+        with open(file_path, 'wb+') as destination:
             for chunk in data_file.chunks():
                 destination.write(chunk)
 
@@ -148,8 +150,7 @@ class DataHubManager:
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
 
-        repo_dir = '/user_data/%s/%s' % (self.repo_base, repo)
-        file_path = '%s/%s' % (repo_dir, file_name)
+        file_path = user_data_path(self.repo_base, repo, file_name)
         os.remove(file_path)
 
     def get_file(self, repo, file_name):
@@ -159,8 +160,7 @@ class DataHubManager:
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
 
-        repo_dir = '/user_data/%s/%s' % (self.repo_base, repo)
-        file_path = '%s/%s' % (repo_dir, file_name)
+        file_path = user_data_path(self.repo_base, repo, file_name)
         file = open(file_path).read()
         return file
 
@@ -180,7 +180,7 @@ class DataHubManager:
 
         return card
 
-    def create_card(self, repo_base, repo, query, card_name):
+    def create_card(self, repo, query, card_name):
         # to create a card, the user must be able to successfully execute
         # the query from their own database user.
         try:
@@ -218,9 +218,11 @@ class DataHubManager:
                 'Access denied. Missing required privileges.')
 
         # create the repo if it doesn't already exist
-        repo_dir = DataHubManager.create_user_data_folder(self.repo_base, repo)
+        DataHubManager.create_user_data_folder(self.repo_base, repo)
 
-        file_path = '%s/%s.%s' % (repo_dir, card_name, file_format)
+        file_name = clean_file_name(card_name)
+        file_path = user_data_path(
+            self.repo_base, repo, file_name, file_format)
         DataHubManager.export_query(repo_base=self.repo_base, query=query,
                                     file_path=file_path,
                                     file_format=file_format)
@@ -440,7 +442,7 @@ class DataHubManager:
                 'Access denied. Missing required privileges.')
 
         # prepare some variables
-        file_path = '/user_data/%s/%s/%s' % (repo_base, repo, file_name)
+        file_path = user_data_path(repo_base, repo, file_name)
         table_name, _ = os.path.splitext(file_name)
         table_name = clean_str(table_name, 'table')
         dh_table_name = '%s.%s.%s' % (repo_base, repo, table_name)
@@ -495,10 +497,11 @@ class DataHubManager:
                 'Access denied. Missing required privileges.')
 
         # make the base_repo and repo's folder, if they don't already exist
-        repo_dir = DataHubManager.create_user_data_folder(repo_base, repo)
+        DataHubManager.create_user_data_folder(repo_base, repo)
 
         # define the file path for the new table
-        file_path = '%s/%s.%s' % (repo_dir, table, file_format)
+        file_name = clean_file_name(table)
+        file_path = user_data_path(repo_base, repo, file_name, file_format)
 
         # format the full table name
         long_table_name = '%s.%s.%s' % (repo_base, repo, table)
@@ -575,21 +578,36 @@ class PermissionDenied(Exception):
         Exception.__init__(self, *args, **kwargs)
 
 
-def user_data_path(repo_base, repo='', file_name=''):
+def user_data_path(repo_base, repo=None, file_name=None, file_format=None):
     """
-    Returns an absolute path to a file or repo in the user data folder.
+    Returns an absolute path to a file or repo in a user's data folder.
 
     user_data_path('foo') => '/user_data/foo'
     user_data_path('foo', repo='bar') => '/user_data/foo/bar'
     user_data_path('foo', repo='bar', file_name='baz')
         => '/user_data/foo/bar/baz'
     """
-    if repo_base == '':
-        raise ValueError('repo_base cannot be blank.')
-    if file_name != '' and repo == '':
-        raise ValueError('repo cannot be blank when file_name is defined.')
-    return os.path.abspath(os.path.join(
-        os.sep, 'user_data', repo_base, repo, file_name))
+    if file_name and not repo:
+        raise ValueError('Must pass in repo when providing file_name.')
+    parts = [repo_base, repo, file_name]
+    for p in parts:
+        if (isinstance(p, six.string_types) and
+                (len(p) == 0 or p.startswith('.'))):
+            raise ValueError('Invalid path component.')
+    parts = [repo_base, repo or '', file_name or '']
+    path = os.path.abspath(os.path.join(os.sep, 'user_data', *parts))
+
+    if file_format:
+        if re.match('[^0-9a-zA-Z_-]', file_format):
+            raise ValueError('Invalid file format specified.')
+        path = '%s.%s' % (path, file_format)
+
+    return path
+
+
+def clean_file_name(text):
+    # remove leading periods
+    return re.sub('^\.+', '', text)
 
 
 def clean_str(text, prefix):
