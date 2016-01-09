@@ -678,7 +678,6 @@ def apps(request):
              'app_name': app.app_name,
              'app_token': app.app_token,
              'date_created': app.timestamp})
-    print apps
     c = {
         'login': username,
         'apps': apps}

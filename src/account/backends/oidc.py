@@ -236,7 +236,7 @@ class DataHubFixedOpenIdConnect(OpenIdConnectAuth):
         try:
             # Decode the JWT and raise an error if the sig is invalid.
             # Make sure to specify the expected algorithm to prevent attacks
-            # that used an RSA public key as an HMAC secret key.
+            # that use an RSA public key as an HMAC secret key.
             user_info = JWS().verify_compact(
                 jws.encode('utf-8'),
                 keys=self.get_jwks_keys(),
