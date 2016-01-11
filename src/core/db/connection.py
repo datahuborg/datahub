@@ -11,8 +11,8 @@ class DataHubConnection:
     def __init__(self, user, password, repo_base=None):
         self.backend = PGBackend(user, password, repo_base=repo_base)
 
-    def reset_connection(self, repo_base):
-        self.backend.reset_connection(repo_base=repo_base)
+    def change_repo_base(self, repo_base):
+        self.backend.change_repo_base(repo_base=repo_base)
 
     def close_connection(self):
         self.backend.close_connection()

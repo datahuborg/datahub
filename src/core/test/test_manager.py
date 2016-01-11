@@ -41,9 +41,9 @@ class Initialization(TestCase):
         self.assertTrue(
             self.mock_connection.call_args[1]['password'] is not None)
 
-        # repo defaults to null
-        self.assertTrue(
-            self.mock_connection.call_args[1]['repo_base'] is None)
+        # repo defaults to username
+        self.assertEqual(
+            self.mock_connection.call_args[1]['repo_base'], self.username)
 
 
 class BasicOperations(TestCase):
@@ -96,6 +96,8 @@ class BasicOperations(TestCase):
 
     def test_delete_repo(self):
         con_delete_repo = self.mock_connection.return_value.delete_repo
+        self.manager = DataHubManager(
+            user=self.username, repo_base=self.username)
         self.manager.delete_repo('repo')
 
         self.assertTrue(con_delete_repo.called)

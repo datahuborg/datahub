@@ -172,7 +172,7 @@ def user(request, repo_base=None):
     visible_repos = []
 
     for repo in repos:
-        collaborators = manager.list_collaborators(repo_base, repo)
+        collaborators = manager.list_collaborators(repo)
         collaborators = filter(
             lambda x: x != '' and x != repo_base, collaborators)
 
@@ -312,7 +312,7 @@ def repo_settings(request, repo_base, repo):
     '''
     username = request.user.get_username()
     manager = DataHubManager(user=username, repo_base=repo_base)
-    collaborators = manager.list_collaborators(repo_base, repo)
+    collaborators = manager.list_collaborators(repo)
 
     # remove the current user from the collaborator list
     collaborators = filter(lambda x: x != '' and x !=
@@ -378,7 +378,7 @@ def table(request, repo_base, repo, table):
     url_path = reverse('browser-table', args=(repo_base, repo, table))
 
     manager = DataHubManager(user=username, repo_base=repo_base)
-    query = manager.select_table_query(repo_base, repo, table)
+    query = manager.select_table_query(repo, table)
     res = manager.paginate_query(
         query=query, current_page=current_page, rows_per_page=50)
 
@@ -425,11 +425,13 @@ def table_export(request, repo_base, repo, table_name):
 
 @login_required
 def table_delete(request, repo_base, repo, table_name):
-    '''
-    deletes tables. Does not currently allow the user the option to cascade
-    in the case of dependencies, though the delete_table method does allow
-    cascade (force) to be passed.
-    '''
+    """
+    Deletes the given table.
+
+    Does not currently allow the user the option to cascade in the case of
+    dependencies, though the delete_table method does allow cascade (force) to
+    be passed.
+    """
     username = request.user.get_username()
     manager = DataHubManager(user=username, repo_base=repo_base)
     manager.delete_table(repo, table_name)
@@ -448,7 +450,7 @@ def file_upload(request, repo_base, repo):
     data_file = request.FILES['data_file']
 
     manager = DataHubManager(username, repo_base)
-    manager.save_file(repo_base, repo, data_file)
+    manager.save_file(repo, data_file)
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))
 
@@ -487,16 +489,16 @@ def file_import(request, repo_base, repo, file_name):
 def file_delete(request, repo_base, repo, file_name):
     username = request.user.get_username()
     manager = DataHubManager(username, repo_base)
-    manager.delete_file(repo_base, repo, file_name)
+    manager.delete_file(repo, file_name)
     return HttpResponseRedirect(
-        reverse('browser-repo_files') % (repo_base, repo))
+        reverse('browser-repo_files', args=(repo_base, repo)))
 
 
 @login_required
 def file_download(request, repo_base, repo, file_name):
     username = request.user.get_username()
     manager = DataHubManager(username, repo_base)
-    file_to_download = manager.get_file(repo_base, repo, file_name)
+    file_to_download = manager.get_file(repo, file_name)
 
     response = HttpResponse(file_to_download,
                             content_type='application/force-download')
@@ -633,7 +635,7 @@ def card_create(request, repo_base, repo):
     url = reverse('browser-card', args=(repo_base, repo, card_name))
 
     manager = DataHubManager(username, repo_base)
-    manager.create_card(repo_base, repo, query, card_name)
+    manager.create_card(repo, query, card_name)
 
     return HttpResponseRedirect(url)
 
@@ -642,7 +644,7 @@ def card_create(request, repo_base, repo):
 def card_export(request, repo_base, repo, card_name):
     username = request.user.get_username()
     manager = DataHubManager(username, repo_base)
-    manager.export_card(repo_base, repo, card_name)
+    manager.export_card(repo, card_name)
 
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))
@@ -652,7 +654,7 @@ def card_export(request, repo_base, repo, card_name):
 def card_delete(request, repo_base, repo, card_name):
     username = request.user.get_username()
     manager = DataHubManager(username, repo_base)
-    manager.delete_card(repo_base, repo, card_name)
+    manager.delete_card(repo, card_name)
 
     return HttpResponseRedirect(
         reverse('browser-repo_cards', args=(repo_base, repo)))
@@ -676,7 +678,6 @@ def apps(request):
              'app_name': app.app_name,
              'app_token': app.app_token,
              'date_created': app.timestamp})
-    print apps
     c = {
         'login': username,
         'apps': apps}

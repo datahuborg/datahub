@@ -39,7 +39,8 @@ class PGBackend:
         self.connection.set_isolation_level(
             psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
-    def reset_connection(self, repo_base):
+    def change_repo_base(self, repo_base):
+        self.close_connection()
         self.repo_base = repo_base
         self.__open_connection__()
 

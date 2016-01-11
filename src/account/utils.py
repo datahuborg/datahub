@@ -209,4 +209,5 @@ def delete_user(username, remove_db=True):
     if legacy_user:
         legacy_user.delete()
 
+    # delete the db users, and their user_data directory
     DataHubManager.remove_user(username=username, remove_db=True)
