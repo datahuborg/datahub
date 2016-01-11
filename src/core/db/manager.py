@@ -390,12 +390,23 @@ class DataHubManager:
     def remove_user(username, remove_db=True):
         if remove_db:
             DataHubManager.remove_database(username)
+
+        all_db_list = DataHubManager.list_all_databases()
+        for db in all_db_list:
+            DataHubManager.drop_owned_by(username=username, repo_base=db)
+
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
-        res = superuser_con.remove_user(username=username,
-                                        remove_db=remove_db)
-        return res
+        return superuser_con.remove_user(username=username)
+
+    @staticmethod
+    def drop_owned_by(username, repo_base):
+        superuser_con = DataHubConnection(
+            user=settings.DATABASES['default']['USER'],
+            password=settings.DATABASES['default']['USER'],
+            repo_base=repo_base)
+        return superuser_con.drop_owned_by(username)
 
     @staticmethod
     def list_all_users():
@@ -403,6 +414,17 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
         return superuser_con.list_all_users()
+
+    @staticmethod
+    def list_all_databases():
+        '''
+        lists all user databases. Does not list some,
+        like postgres, templates0, templates1, or datahub
+        '''
+        superuser_con = DataHubConnection(
+            user=settings.DATABASES['default']['USER'],
+            password=settings.DATABASES['default']['USER'])
+        return superuser_con.list_all_databases()
 
     @staticmethod
     def remove_database(repo_name, revoke_collaborators=True):
