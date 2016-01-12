@@ -119,7 +119,7 @@ class DataHubManager:
 
         collab = User.objects.get(username=collaborator)
         Collaborator.objects.get(user=collab, repo_name=repo, repo_owner=self.repo_base).delete()
-        superuser_con.delete_collaborator(repo=repo, username=collaborator)
+        return superuser_con.delete_collaborator(repo=repo, username=collaborator)
         
 
     def list_repo_files(self, repo):
