@@ -67,13 +67,13 @@ class LoginTest(FunctionalTest):
                 repo_name, table_name, view_name)
 
     def test_add_remove_collaborator(self):
-        snoop = 'delete_me_snoop'
+        eazyE = 'delete_me_eazyE'
         dre = 'delete_me_dre'
-        repos = ['ginnjuice', 'beautiful']
-        tables = ['kush', 'bush']
+        repos = ['efil4zaggin', 'tSoSN', 'sukka']
+        tables = ['dopeman', 'thapolice']
 
-        # make snoop
-        self.sign_up_manually(username=snoop, password=None)
+        # make eazyE
+        self.sign_up_manually(username=eazyE, password=None)
         self.sign_out_manually()
 
         # make dre
@@ -86,36 +86,36 @@ class LoginTest(FunctionalTest):
             for table in tables:
                 self.create_table_programmatically(repo, table, dre)
 
-        # dre adds snoop as a collabortor to one repo
-        self.add_collaborator(repos[0], snoop)
+        # dre adds eazyE as a collabortor to one repo
+        self.add_collaborator(repos[0], eazyE)
 
         # dre logs out
         self.sign_out_manually()
 
-        # snoop logs in
-        self.sign_in_manually(snoop)
+        # eazyE logs in
+        self.sign_in_manually(eazyE)
 
-        # Snoop goes to the dre url
+        # eazyE goes to the dre url
         self.browser.get(self.server_url + '/browse/' + dre)
 
-        # Snoop does not see repo[1], which is not shared
+        # eazyE does not see repo[1], which is not shared
         try:
             self.browser.find_element_by_link_text(repos[1])
             self.fail()
         except:
             pass
 
-        # Snoop sees ginjuice, which is shared, and clicks on it
+        # eazyE sees ginjuice, which is shared, and clicks on it
         self.browser.find_element_by_link_text(repos[0]).click()
 
-        # Snoop sees that the tables are shared
+        # eazyE sees that the tables are shared
         table_0 = self.browser.find_element_by_link_text(tables[0])
         table_1 = self.browser.find_element_by_link_text(tables[1])
 
         self.assertNotEqual(table_0, None)
         self.assertNotEqual(table_1, None)
 
-        # Snoop clicks on a table
+        # eazyE clicks on a table
         table_0.click()
 
         # the url matches
@@ -123,8 +123,9 @@ class LoginTest(FunctionalTest):
                  .format(user=dre, repo=repos[0], table=tables[0]))
         self.assertRegexpMatches(self.browser.current_url, regex)
 
-        # snoop is a sneaky mother
+        # eazyE is a sneaky mother
         # he tries to get early access to dre's "beautiful" repo
+        # jerry put him up to
         sneaky_url = ('{base}/browse/{user}/{repo}/tables'
                       .format(base=self.server_url, user=dre, repo=repos[1]))
         self.browser.get(sneaky_url)
@@ -134,30 +135,36 @@ class LoginTest(FunctionalTest):
         search_string = 'No table'
         self.assertTrue(search_string in page_source)
 
-        # Snoop gives up. He goes to the homepage, logs out
+        # eazyE gives up. He goes to the homepage, logs out
         # and takes a smoke break.
-        self.browser.get(self.server_url + '/browse/' + snoop)
+        self.browser.get(self.server_url + '/browse/' + eazyE)
         self.sign_out_manually()
 
         # Dre gets word of what's happening. He signs back in
         self.sign_in_manually(dre)
 
-        # And Dre removes Snoop's access
-        self.remove_collaborator(repo=repos[0], collaborator=snoop)
+        # And Dre removes eazyE's access
+        self.remove_collaborator(repo=repos[0], collaborator=eazyE)
 
-        # Dre heads out to work on some headphones.
+        # Dre then adds eazyE to the repo, sukka
+        self.add_collaborator(repos[2], eazyE)
+
+        # Dre heads out. He's got some work to do
         self.sign_out_manually()
 
-        # Snoop logs in and goes to the dre url
-        self.sign_in_manually(snoop)
+        # eazyE logs in and goes to the dre url
+        self.sign_in_manually(eazyE)
         self.browser.get(self.server_url + '/browse/' + dre)
 
-        # Snoop doesn't see repos[0], which dre removed his rights to
+        # eazyE doesn't see repos[0], which dre removed his rights to
         try:
             self.browser.find_element_by_link_text(repos[0])
             self.fail()
         except:
             pass
+
+        # eaxyE does see 'sukka' (repo[2])
+        self.browser.find_element_by_link_text(repos[2])
 
         # He tries to sneak into repos[0], but can't get in either.
         sneaky_url = ('{base}/browse/{user}/{repo}/tables'
@@ -169,4 +176,4 @@ class LoginTest(FunctionalTest):
         search_string = 'No table'
         self.assertTrue(search_string in page_source)
 
-        # Snoop and Dre aren't friends anymore.
+        # eazyE and Dre aren't friends anymore.
