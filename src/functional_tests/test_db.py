@@ -51,7 +51,7 @@ class LoginTest(FunctionalTest):
         self.create_repo(repo_name)
 
         for table_name in good_table_names:
-            self.create_table_programmatically(repo_name, table_name)
+            self.create_table(repo_name, table_name)
 
     def test_create_some_views(self):
         good_view_names = ['nospace', 'alph4numeric', 'middle_underscore']
@@ -60,35 +60,39 @@ class LoginTest(FunctionalTest):
 
         self.sign_up_manually()
         self.create_repo(repo_name)
-        self.create_table_programmatically(repo_name, table_name)
+        self.create_table(repo_name, table_name)
 
         for view_name in good_view_names:
-            self.create_view_programmatically(
+            self.create_view(
                 repo_name, table_name, view_name)
 
     def test_add_remove_collaborator(self):
         # must be lowercase
         eazyE = 'delete_me_eazye'
         dre = 'delete_me_dre'
+        snoop = 'delete_me_snoop'
 
         # can be uppercase
         repos = ['efil4zaggin', 'tSoSN', 'sukka']
         tables = ['dopeman', 'thapolice']
 
-        print('make eazyE')
+        print('eazyE joins datahub')
         self.sign_up_manually(username=eazyE, password=None)
         self.sign_out_manually()
 
-        print('make dre')
+        print('snoop joins datahub')
+        self.sign_up_manually(username=snoop, password=None)
+        self.sign_out_manually()
+
+        print('dre joins datahub')
         self.sign_up_manually(username=dre, password=None)
 
         print('dre creates repos and puts tables in them')
-
         for repo in repos:
             self.create_repo(repo, dre)
 
             for table in tables:
-                self.create_table_programmatically(repo, table, dre)
+                self.create_table(repo, table, dre)
 
         print('dre adds eazyE as a collabortor to one repo')
         self.add_collaborator(repos[0], eazyE)
@@ -180,5 +184,36 @@ class LoginTest(FunctionalTest):
         page_source = self.browser.page_source
         search_string = 'No table'
         self.assertTrue(search_string in page_source)
+
+        print('eazyE sends a diss to snoop')
+        self.create_repo('its_on_repo', eazyE)
+        self.create_table(
+            repo_name='its_on_repo', table_name='its_on_table', username=eazyE)
+        self.add_collaborator('its_on_repo', 'delete_me_snoop')
+
+        print('eazyE is all alone. No one loves him anymore.')
+        print('he is sad, but doesn\'t show it')
+        print('eazyE logs out')
+        self.sign_out_manually()
+
+        print('snoop signs in')
+        self.sign_in_manually(snoop)
+
+        print('snoop creates a repo, and puts a table in it')
+        snoop_repo = 'hazy_ideas'
+        snoop_table = 'rhymes'
+        self.create_repo(snoop_repo, snoop)
+        self.create_table(
+            repo_name=snoop_repo, table_name=snoop_table, username=snoop)
+
+        print('snoop shares the repo with dre')
+        self.add_collaborator(snoop_repo, dre)
+
+        print('snoop and dre are ready for the next episode.')
+
+        self.delete_account()
+
+
+
 
         # eazyE and Dre aren't friends anymore.

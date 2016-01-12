@@ -236,8 +236,7 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         self.assertEqual(text_found, None)
 
-    def create_table_programmatically(self, repo_name, table_name,
-                                      username=None):
+    def create_table(self, repo_name, table_name, username=None):
         repo_name = repo_name.lower()
         table_name = table_name.lower()
         if username is None:
@@ -272,8 +271,7 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         self.assertRegexpMatches(table_url, regex)
 
-    def create_view_programmatically(self, repo_name, table_name, view_name,
-                                     username=None):
+    def create_view(self, repo_name, table_name, view_name, username=None):
         if username is None:
             username = self.username
 
@@ -336,3 +334,13 @@ class FunctionalTest(StaticLiveServerTestCase):
         # check to make sure that the username isn't still on the page
         page_source = self.browser.page_source
         self.assertFalse(collaborator in page_source)
+
+    def delete_account(self):
+        # This requires the browser not to be in mobile mode.
+        self.browser.find_element_by_id('id_user_menu').click()
+        self.browser.find_element_by_id('id_settings').click()
+        self.browser.find_element_by_id('id_delete_acct_button').click()
+        self.browser.find_element_by_id('id_delete_confirm_button').click()
+
+        page_source = self.browser.page_source
+        self.assertFalse('Account Deleted' in page_source)
