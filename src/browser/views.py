@@ -185,8 +185,6 @@ def user(request, repo_base=None):
 
     collaborator_repos = manager.list_collaborator_repos()
     
-
-
     return render_to_response("user-browse.html", {
         'login': username,
         'repo_base': repo_base,
@@ -369,7 +367,6 @@ def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
     '''
     username = request.user.get_username()
     manager = DataHubManager(user=username, repo_base=repo_base)
-    # Need to replace repo_base with repo_owner
     manager.delete_collaborator(repo=repo, collaborator=collaborator_username)
     return HttpResponseRedirect(
             reverse('browser-repo_settings', args=(repo_base, repo,)))
