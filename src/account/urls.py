@@ -9,8 +9,9 @@ urlpatterns = patterns(
     url(r'^logout/?$', 'account.views.logout', name='logout'),
     url(r'^choose_username/?$', 'account.views.get_user_details'),
     url(r'^settings/?$', 'account.views.settings', name='settings'),
-    url(r'^add_login/?$',
-        'account.views.add_extra_login',
+    url(r'^remove_password/?$', 'account.views.remove_password',
+        name='remove_password'),
+    url(r'^add_login/?$', 'account.views.add_extra_login',
         name='add_extra_login'),
     url(r'^delete/?$', 'account.views.delete', name='delete_user'),
     # Use Django's built-in password changing and resetting tools.

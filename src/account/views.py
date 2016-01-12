@@ -1,4 +1,5 @@
 from django.shortcuts import render_to_response, redirect, render
+from django.core.urlresolvers import reverse
 from django.contrib.auth import logout as django_logout, \
                                 login as django_login
 from django.contrib.auth.models import User
@@ -10,7 +11,8 @@ from account.forms import UsernameForm, \
                           ChangeEmailForm
 from account.utils import provider_details, \
                           datahub_authenticate, \
-                          delete_user
+                          delete_user, \
+                          set_unusable_password
 from django.http import HttpResponse, \
                         HttpResponseNotFound, \
                         HttpResponseNotAllowed
@@ -183,6 +185,15 @@ def settings(request):
     # Python Social Auth sets a `backends` context variable, which includes
     # which social backends are and are not associated with the current user.
     return render(request, 'account-settings.html', context)
+
+
+@login_required()
+def remove_password(request):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    username = request.user.get_username()
+    set_unusable_password(username)
+    return redirect(reverse('settings'))
 
 
 @login_required()
