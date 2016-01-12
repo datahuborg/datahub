@@ -1,6 +1,6 @@
 from config import settings
 from core.db.connection import DataHubConnection
-from inventory.models import App, Card
+from inventory.models import App, Card, Collaborator
 from django.contrib.auth.models import User
 
 import six
@@ -55,6 +55,10 @@ class DataHubManager:
     def list_repos(self):
         return self.user_con.list_repos()
 
+    def list_collaborator_repos(self):
+        user = User.objects.get(username=self.username)
+        return Collaborator.objects.filter(user=user)
+
     def delete_repo(self, repo, force=False):
         # Only a repo owner can delete repos.
         if self.repo_base != self.username:
@@ -83,14 +87,40 @@ class DataHubManager:
         return self.user_con.execute_sql(query=query, params=params)
 
     def add_collaborator(self, repo, username, privileges):
+        res = DataHubManager.has_repo_privilege(
+            self.username, self.repo_base, repo, 'USAGE')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges')
+
+        user = User.objects.get(username=username)
+        Collaborator.objects.create(user=user, repo_name=repo, repo_owner=self.repo_base, permission="ALL")
+
         return self.user_con.add_collaborator(
             repo=repo,
             username=username,
             privileges=privileges
         )
 
-    def delete_collaborator(self, repo, username):
-        return self.user_con.delete_collaborator(repo=repo, username=username)
+    def delete_collaborator(self, repo, collaborator):
+        superuser_con = DataHubConnection(
+            user=settings.DATABASES['default']['USER'],
+            password=settings.DATABASES['default']['USER'],
+            repo_base=self.repo_base)
+        repo_collaborators = superuser_con.list_collaborators(repo=repo)
+
+        # The reason we're enforcing permission checks this way is to deal with the edge case 
+        # where a user removes himself as a collaborator from another user's repo. 
+        if collaborator not in repo_collaborators:
+            raise Exception('Failed to delete collaborator. %s is not a collaborator in the specified repository.' % collaborator)
+        if self.username != collaborator and self.username != self.repo_base:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges')
+
+        collab = User.objects.get(username=collaborator)
+        Collaborator.objects.get(user=collab, repo_name=repo, repo_owner=self.repo_base).delete()
+        return superuser_con.delete_collaborator(repo=repo, username=collaborator)
+        
 
     def list_repo_files(self, repo):
         # check for permissions

@@ -16,7 +16,7 @@
     </span>
   </div>
   
-  {% if repos|length > 0 %}
+  {% if repos|length > 0 or collaborator_repos|length > 0%}
     <div class="table-responsive">
       <table id="repos" class="table">           
         {% for repo in repos %}
@@ -49,6 +49,31 @@
             </td>            
           </tr>
         {% endfor %}
+
+        {% for repo in collaborator_repos %}
+          <tr>
+            <td><a class="link" href=/browse/{{repo.repo_owner}}/{{repo.repo_name}}>{{repo.repo_name}}</a></td>
+            
+       
+            <td>Private</td>
+            
+            <td class="text-right" style="width: 25em; max-width: 30em;">
+
+              <span class="modal-confirm-dialog"
+                  target-modal="#confirm-modal"
+                  target-modal-title="Confirm Delete"
+                  target-modal-body="This will permanently remove you as a collaborator from the repository <label>{{repo.repo_owner}}/{{repo.repo_name}}</label>. The operation can't be undone. Are you sure?"
+                  target-modal-operation="Delete"
+                  target-url="/delete/collaborator/{{repo_base}}/{{repo.repo_owner}}/{{repo.repo_name}}"
+                  title="Delete">
+                <a href="#"><span class="glyphicon glyphicon-trash"></span></a>
+              </span>
+              &nbsp;&nbsp;
+             
+            </td>            
+          </tr>
+        {% endfor %}
+
 
       </table>
     </div>
