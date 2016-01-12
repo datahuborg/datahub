@@ -50,6 +50,10 @@ class DataHubManager:
     def list_repos(self):
         return self.user_con.list_repos()
 
+    def list_collaborator_repos(self):
+        user = User.objects.get(username=self.username)
+        return Collaborator.objects.filter(user=user)
+
     def delete_repo(self, repo, force=False):
         # Only a repo owner can delete repos.
         if not self.username == self.repo_base:
@@ -93,23 +97,23 @@ class DataHubManager:
             privileges=privileges
         )
 
-
-
-    def delete_collaborator(self, repo_base, repo, user, collaborator):
+    def delete_collaborator(self, repo, collaborator):
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
-            repo_base=repo_base)
+            repo_base=self.repo_base)
         repo_collaborators = superuser_con.list_collaborators(repo=repo)
 
+        # The reason we're enforcing permission checks this way is to deal with the edge case 
+        # where a user removes himself as a collaborator from another user's repo. 
         if collaborator not in repo_collaborators:
             raise Exception('Failed to delete collaborator. %s is not a collaborator in the specified repository.' % collaborator)
-        if user != collaborator and user != repo_base:
+        if self.username != collaborator and self.username != self.repo_base:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
 
         collab = User.objects.get(username=collaborator)
-        Collaborator.objects.get(user=collab, repo_name=repo, repo_owner=repo_base).delete()
+        Collaborator.objects.get(user=collab, repo_name=repo, repo_owner=self.repo_base).delete()
         superuser_con.delete_collaborator(repo=repo, username=collaborator)
         
 

@@ -18,7 +18,7 @@ from thrift.protocol import TBinaryProtocol
 from thrift.protocol import TJSONProtocol
 from thrift.transport.TTransport import TMemoryBuffer
 
-from inventory.models import App, Card, Annotation, Collaborator
+from inventory.models import App, Card, Annotation
 from account.utils import grant_app_permission
 from core.db.manager import DataHubManager
 from datahub import DataHub
@@ -183,8 +183,9 @@ def user(request, repo_base=None):
             'collaborators': collaborators,
         })
 
-    user = User.objects.get(username=repo_base)
-    collaborator_repos = Collaborator.objects.filter(user=user)
+    collaborator_repos = manager.list_collaborator_repos()
+    
+
 
     return render_to_response("user-browse.html", {
         'login': username,
@@ -315,8 +316,8 @@ def repo_delete_collaborator(request, repo_base, repo_owner, repo_name):
   removes self as a collaborator from the specified repo (repo_name)
   '''
   username = request.user.get_username()
-  manager = DataHubManager(user=username)
-  manager.delete_collaborator(repo_base=repo_owner, repo=repo_name, user=username, collaborator=username)
+  manager = DataHubManager(user=username, repo_base=repo_owner)
+  manager.delete_collaborator(repo=repo_name, collaborator=username)
   return HttpResponseRedirect(reverse('browser-user-default'))
 
 @login_required
@@ -369,7 +370,7 @@ def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
     username = request.user.get_username()
     manager = DataHubManager(user=username, repo_base=repo_base)
     # Need to replace repo_base with repo_owner
-    manager.delete_collaborator(repo_base=repo_base, repo=repo, user=username, collaborator=collaborator_username)
+    manager.delete_collaborator(repo=repo, collaborator=collaborator_username)
     return HttpResponseRedirect(
             reverse('browser-repo_settings', args=(repo_base, repo,)))
 
