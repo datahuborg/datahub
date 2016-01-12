@@ -166,6 +166,8 @@ You can run the functional tests with:
     $ cd src
     $ python manage.py test functional_tests
 
+Browser screenshots are saved in ``src/functional_tests/screenshots`` on teardown
+
 You can exit the testing container with control-d or via the command ``exit``.
 
 ----------

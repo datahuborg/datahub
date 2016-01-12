@@ -66,11 +66,17 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.password = 'cdefghi'
 
     def tearDown(self):
+        # create a screenshots directory, if necessary
+        if not os.path.isdir('functional_tests/screenshots'):
+            os.mkdir('functional_tests/screenshots')
+
+        # save a screenshot of the browser
         self.browser.get_screenshot_as_file(
             'functional_tests/screenshots/' +
             str(datetime.datetime.now()) + '.png'
             )
 
+        # delete those users
         self.delete_all_test_users()
         self.browser.quit()
 

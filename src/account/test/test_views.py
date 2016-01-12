@@ -11,8 +11,8 @@ from account.views import login, register, logout
 class LoginPageTest(TestCase):
     @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
-        self.username = "test_username"
-        self.password = "test_password"
+        self.username = "delete_me_username"
+        self.password = "delete_me_password"
         self.email = "test_email@csail.mit.edu"
         self.user = User.objects.create_user(
             self.username, self.email, self.password)
@@ -43,8 +43,8 @@ class LogoutPageTest(TestCase):
 
     @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
-        self.username = "test_username"
-        self.password = "test_password"
+        self.username = "delete_me_username"
+        self.password = "delete_me_password"
         self.email = "test_email@csail.mit.edu"
         self.user = User.objects.create_user(
             self.username, self.email, self.password)
