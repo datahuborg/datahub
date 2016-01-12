@@ -51,7 +51,6 @@ def validate_unique_email(value):
 
 
 class UsernameForm(forms.Form):
-
     """
     A form that asks for a username and email address.
 
@@ -79,7 +78,6 @@ class UsernameForm(forms.Form):
 
 
 class RegistrationForm(UsernameForm):
-
     """
     A form that asks for a username, email address, and password.
 
@@ -93,7 +91,6 @@ class RegistrationForm(UsernameForm):
 
 
 class LoginForm(forms.Form):
-
     """
     A form that asks for either a username or email address plus a password.
 
@@ -119,7 +116,6 @@ class EmailUniqueOrSameValidator(object):
 
 
 class ChangeEmailForm(forms.Form):
-
     """
     A form that asks for an email address.
 
@@ -140,8 +136,23 @@ class ChangeEmailForm(forms.Form):
         )
 
 
-class ForgotPasswordForm(PasswordResetForm):
+class AddPasswordForm(forms.Form):
 
+    password = forms.CharField(label=("Password"),
+                               widget=forms.PasswordInput)
+    password_confirm = forms.CharField(label=("Confirm Password"),
+                                       widget=forms.PasswordInput)
+
+    def clean_password_confirm(self):
+        password = self.cleaned_data.get('password')
+        password_confirm = self.cleaned_data.get('password_confirm')
+        if password and password_confirm and password != password_confirm:
+            raise forms.ValidationError(
+                "The two password fields didn't match.")
+        return password_confirm
+
+
+class ForgotPasswordForm(PasswordResetForm):
     """
     A form that asks for an email address to send a password reset link to.
 

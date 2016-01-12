@@ -177,6 +177,7 @@ INSTALLED_APPS = (
 # django.contrib.auth settings
 LOGIN_URL = '/account/login'
 LOGIN_REDIRECT_URL = '/'
+DISCONNECT_REDIRECT_URL = '/account/settings'
 
 # crispy_forms settings
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
@@ -205,6 +206,14 @@ SOCIAL_AUTH_PIPELINE = (
     # Uncomment to keeps things like the user's real name and email address up
     # to date. DataHub doesn't need to know someone's real name.
     # 'social.pipeline.user.user_details',
+)
+
+SOCIAL_AUTH_DISCONNECT_PIPELINE = (
+    'account.pipeline.set_password_if_needed',
+    'social.pipeline.disconnect.allowed_to_disconnect',
+    'social.pipeline.disconnect.get_entries',
+    'social.pipeline.disconnect.revoke_tokens',
+    'social.pipeline.disconnect.disconnect'
 )
 
 SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['preferred_username']

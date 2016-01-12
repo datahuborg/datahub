@@ -1,4 +1,5 @@
 from django.shortcuts import render_to_response, redirect, render
+from django.core.urlresolvers import reverse
 from django.contrib.auth import logout as django_logout, \
                                 login as django_login
 from django.contrib.auth.models import User
@@ -7,10 +8,13 @@ from django.template.context import RequestContext
 from account.forms import UsernameForm, \
                           RegistrationForm, \
                           LoginForm, \
-                          ChangeEmailForm
+                          ChangeEmailForm, \
+                          AddPasswordForm
 from account.utils import provider_details, \
                           datahub_authenticate, \
-                          delete_user
+                          delete_user, \
+                          set_unusable_password, \
+                          set_password
 from django.http import HttpResponse, \
                         HttpResponseNotFound, \
                         HttpResponseNotAllowed
@@ -183,6 +187,50 @@ def settings(request):
     # Python Social Auth sets a `backends` context variable, which includes
     # which social backends are and are not associated with the current user.
     return render(request, 'account-settings.html', context)
+
+
+@login_required()
+def add_password(request, is_disconnect=False):
+    """
+    Presents a form asking the current user to set a password on their account.
+
+    Used by both the settings page and disconnect pipeline.
+    """
+    # 'password' is only present if the form has been submitted once. Checking
+    # here prevents the disconnect pipeline from showing form validation
+    # errors on first viewing.
+    if request.method == 'POST' and 'password' in request.POST:
+        form = AddPasswordForm(request.POST)
+        if form.is_valid():
+            username = request.user.get_username()
+            password = form.cleaned_data['password']
+            set_password(username, password)
+            if is_disconnect:
+                # Make sure the disconnect pipeline sees the user has a usable
+                # password now.
+                request.user.refresh_from_db()
+                # Return None to tell the pipeline to continue onto the next
+                # step.
+                return None
+            else:
+                return redirect(reverse('settings'))
+    else:
+        form = AddPasswordForm()
+
+    context = RequestContext(request, {
+        'form': form,
+        'is_disconnect': is_disconnect,
+        })
+    return render(request, "password_add.html", context)
+
+
+@login_required()
+def remove_password(request):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    username = request.user.get_username()
+    set_unusable_password(username)
+    return redirect(reverse('settings'))
 
 
 @login_required()
