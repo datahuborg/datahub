@@ -11,8 +11,8 @@ class DataHubConnection:
     def __init__(self, user, password, repo_base=None):
         self.backend = PGBackend(user, password, repo_base=repo_base)
 
-    def reset_connection(self, repo_base):
-        self.backend.reset_connection(repo_base=repo_base)
+    def change_repo_base(self, repo_base):
+        self.backend.change_repo_base(repo_base=repo_base)
 
     def close_connection(self):
         self.backend.close_connection()
@@ -90,11 +90,17 @@ class DataHubConnection:
     def create_user(self, username, password, create_db):
         return self.backend.create_user(username, password, create_db)
 
-    def remove_user(self, username, remove_db):
-        return self.backend.remove_user(username, remove_db)
+    def remove_user(self, username):
+        return self.backend.remove_user(username)
+
+    def drop_owned_by(self, username):
+        return self.backend.drop_owned_by(username)
 
     def list_all_users(self):
         return self.backend.list_all_users()
+
+    def list_all_databases(self):
+        return self.backend.list_all_databases()
 
     def remove_database(self, repo_base, revoke_collaborators=True):
         return self.backend.remove_database(repo_base, revoke_collaborators)

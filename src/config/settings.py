@@ -97,7 +97,9 @@ try:
     from secret_key import *
 except ImportError as e:
     SECRET_KEY = 'k+)#kqr2pgvqm_6y8hq+tj#p12&amp;p%dz#_exvw2x4@##dyz!or*'
-    print("Warning: Could not find src/config/secret_key.py. Using the default SECRET_KEY for now. Run `src/scripts/generate_secret_key.py` to create a new key.",
+    print("Warning: Could not find src/config/secret_key.py. "
+          "Using the default SECRET_KEY for now. Run "
+          "`src/scripts/generate_secret_key.py` to create a new key.",
           file=sys.stderr)
 
 TEMPLATES = [
@@ -175,6 +177,7 @@ INSTALLED_APPS = (
 # django.contrib.auth settings
 LOGIN_URL = '/account/login'
 LOGIN_REDIRECT_URL = '/'
+DISCONNECT_REDIRECT_URL = '/account/settings'
 
 # crispy_forms settings
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
@@ -191,6 +194,10 @@ SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_user',
     'social.pipeline.user.get_username',
     'account.pipeline.get_user_details',
+
+    # Uncomment to associate new log ins with existing accounts using the same
+    # email address. A security vulnerability if identity providers who don't
+    # verify email addresses are allowed.
     # 'social.pipeline.social_auth.associate_by_email',
     'social.pipeline.user.create_user',
     'social.pipeline.social_auth.associate_user',
@@ -199,6 +206,14 @@ SOCIAL_AUTH_PIPELINE = (
     # Uncomment to keeps things like the user's real name and email address up
     # to date. DataHub doesn't need to know someone's real name.
     # 'social.pipeline.user.user_details',
+)
+
+SOCIAL_AUTH_DISCONNECT_PIPELINE = (
+    'account.pipeline.set_password_if_needed',
+    'social.pipeline.disconnect.allowed_to_disconnect',
+    'social.pipeline.disconnect.get_entries',
+    'social.pipeline.disconnect.revoke_tokens',
+    'social.pipeline.disconnect.disconnect'
 )
 
 SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['preferred_username']

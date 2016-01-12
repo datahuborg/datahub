@@ -171,6 +171,38 @@ def grant_app_permission(username, repo_name, app_id, app_token):
         raise e
 
 
+def set_unusable_password(username):
+    """
+    Sets an unusable password for the logged in user.
+
+    Raises an exception if the user does not have at least one social login
+    associated with their account.
+    """
+    user = User.objects.get(username=username)
+    if user.social_auth.count() == 0:
+        raise Exception(
+            "User must have at least one alternate login method "
+            "in order to remove their password.")
+    user.set_unusable_password()
+    user.save()
+
+
+def set_password(username, password):
+    """
+    Sets a password for the user matching the given username.
+
+    Raises an exception if the user already has a usable password set. To
+    change an existing password, users should go through the password_change
+    view.
+    """
+    user = User.objects.get(username=username)
+    if user.has_usable_password():
+        raise Exception(
+            "User already has a password set.")
+    user.set_password(password)
+    user.save()
+
+
 def delete_user(username, remove_db=True):
     """
     Deletes the given user.
@@ -209,4 +241,5 @@ def delete_user(username, remove_db=True):
     if legacy_user:
         legacy_user.delete()
 
+    # delete the db users, and their user_data directory
     DataHubManager.remove_user(username=username, remove_db=True)

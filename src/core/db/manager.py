@@ -3,6 +3,7 @@ from core.db.connection import DataHubConnection
 from inventory.models import App, Card, Collaborator
 from django.contrib.auth.models import User
 
+import six
 import hashlib
 import os
 import errno
@@ -28,6 +29,9 @@ class DataHubManager:
             username = user.username
             password = user.password
 
+        if not repo_base:
+            repo_base = username
+
         self.username = username
         self.repo_base = repo_base
 
@@ -38,8 +42,9 @@ class DataHubManager:
 
     ''' Basic Operations. '''
 
-    def reset_connection(self, repo_base):
-        self.user_con.reset_connection(repo_base=repo_base)
+    def change_repo_base(self, repo_base):
+        """Changes the repo base and resets the DB connection."""
+        self.user_con.change_repo_base(repo_base=repo_base)
 
     def close_connection(self):
         self.user_con.close()
@@ -56,7 +61,7 @@ class DataHubManager:
 
     def delete_repo(self, repo, force=False):
         # Only a repo owner can delete repos.
-        if not self.username == self.repo_base:
+        if self.repo_base != self.username:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
         res = self.user_con.delete_repo(repo=repo, force=force)
@@ -145,53 +150,67 @@ class DataHubManager:
         cards = [c.card_name for c in cards]
         return cards
 
-    def list_collaborators(self, repo_base, repo):
+    def list_collaborators(self, repo):
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
-            repo_base=repo_base)
+            repo_base=self.repo_base)
         return superuser_con.list_collaborators(repo=repo)
 
-
-    def save_file(self, repo_base, repo, data_file):
+    def save_file(self, repo, data_file):
         res = DataHubManager.has_repo_privilege(
             self.username, self.repo_base, repo, 'USAGE')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
 
-        repo_dir = DataHubManager.create_user_data_folder(repo_base, repo)
+        DataHubManager.create_user_data_folder(self.repo_base, repo)
 
-        file_name = '%s/%s' % (repo_dir, data_file.name)
-        with open(file_name, 'wb+') as destination:
+        file_name = clean_file_name(data_file.name)
+        file_path = user_data_path(self.repo_base, repo, file_name)
+        with open(file_path, 'wb+') as destination:
             for chunk in data_file.chunks():
                 destination.write(chunk)
 
-    def delete_file(self, repo_base, repo, file_name):
+    def delete_file(self, repo, file_name):
         res = DataHubManager.has_repo_privilege(
-            self.username, repo_base, repo, 'USAGE')
+            self.username, self.repo_base, repo, 'USAGE')
 
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
 
-        repo_dir = '/user_data/%s/%s' % (repo_base, repo)
-        file_path = '%s/%s' % (repo_dir, file_name)
+        file_path = user_data_path(self.repo_base, repo, file_name)
         os.remove(file_path)
 
-    def get_file(self, repo_base, repo, file_name):
+    def get_file(self, repo, file_name):
         res = DataHubManager.has_repo_privilege(
-            self.username, repo_base, repo, 'USAGE')
+            self.username, self.repo_base, repo, 'USAGE')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
 
-        repo_dir = '/user_data/%s/%s' % (repo_base, repo)
-        file_path = '%s/%s' % (repo_dir, file_name)
+        file_path = user_data_path(self.repo_base, repo, file_name)
         file = open(file_path).read()
         return file
 
-    def create_card(self, repo_base, repo, query, card_name):
+    def get_card(self, repo, card_name):
+        '''
+        used to get cards. This goes through manage.py because, it requires
+        a check that the user actually has repo access.
+        '''
+        res = DataHubManager.has_repo_privilege(
+            self.username, self.repo_base, repo, 'USAGE')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges.')
+
+        card = Card.objects.get(
+            repo_base=self.repo_base, repo_name=repo, card_name=card_name)
+
+        return card
+
+    def create_card(self, repo, query, card_name):
         # to create a card, the user must be able to successfully execute
         # the query from their own database user.
         try:
@@ -201,13 +220,13 @@ class DataHubManager:
                 'Either missing required privileges or bad query')
 
         card, created = Card.objects.get_or_create(
-            repo_base=repo_base, repo_name=repo,
+            repo_base=self.repo_base, repo_name=repo,
             card_name=card_name, query=query)
 
         return card
 
-    def export_card(self, repo_base, repo, card_name, file_format='CSV'):
-        card = Card.objects.get(repo_base=repo_base,
+    def export_card(self, repo, card_name, file_format='CSV'):
+        card = Card.objects.get(repo_base=self.repo_base,
                                 repo_name=repo, card_name=card_name)
         query = card.query
 
@@ -223,42 +242,46 @@ class DataHubManager:
         # This is a bit paranoid, but only because I don't like giving users
         # superuser privileges
         res = DataHubManager.has_repo_privilege(
-            self.username, repo_base, repo, 'USAGE')
-        if not res:
-            raise Exception('Access denied. Missing required privileges.')
-
-        # create the repo if it doesn't already exist
-        repo_dir = DataHubManager.create_user_data_folder(repo_base, repo)
-
-        file_path = '%s/%s.%s' % (repo_dir, card_name, file_format)
-        DataHubManager.export_query(repo_base=repo_base, query=query,
-                                    file_path=file_path,
-                                    file_format=file_format)
-
-    def delete_card(self, repo_base, repo, card_name):
-        res = DataHubManager.has_repo_privilege(
-            self.username, repo_base, repo, 'USAGE')
+            self.username, self.repo_base, repo, 'USAGE')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
 
-        card = Card.objects.get(repo_base=repo_base,
+        # create the repo if it doesn't already exist
+        DataHubManager.create_user_data_folder(self.repo_base, repo)
+
+        file_name = clean_file_name(card_name)
+        file_path = user_data_path(
+            self.repo_base, repo, file_name, file_format)
+        DataHubManager.export_query(repo_base=self.repo_base, query=query,
+                                    file_path=file_path,
+                                    file_format=file_format)
+
+    def delete_card(self, repo, card_name):
+        res = DataHubManager.has_repo_privilege(
+            self.username, self.repo_base, repo, 'USAGE')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges.')
+
+        card = Card.objects.get(repo_base=self.repo_base,
                                 repo_name=repo, card_name=card_name)
         return card.delete()
 
     def limit_and_offset_select_query(self, query, limit, offset):
-        '''
-        modifies select queries, adding limits and offsets.
+        """
+        Modifies select queries, adding limits and offsets.
+
         Used primarily for pagination
-        '''
+        """
         return self.user_con.limit_and_offset_select_query(
             query=query, limit=limit, offset=offset)
 
     def paginate_query(self, query, current_page, rows_per_page):
-        '''
-        set variables for query pagination, limiting query statement
+        """
+        Set variables for query pagination, limiting query statement
         to just the section of the table that will be displayed
-        '''
+        """
         explanation = self.explain_query(query)
 
         num_rows = explanation['num_rows']
@@ -313,13 +336,14 @@ class DataHubManager:
 
         return result
 
-    def select_table_query(self, repo_base, repo, table):
-        '''
-        return a database query for selecting the table.
-        necessary for keeping sq/nosql queries out of views
-        '''
+    def select_table_query(self, repo, table):
+        """
+        Return a database query for selecting the table.
+
+        Necessary for keeping sq/nosql queries out of views.
+        """
         return self.user_con.select_table_query(
-            repo_base=repo_base, repo=repo, table=table)
+            repo_base=self.repo_base, repo=repo, table=table)
 
     '''
     Static methods that don't require permissions
@@ -403,12 +427,23 @@ class DataHubManager:
     def remove_user(username, remove_db=True):
         if remove_db:
             DataHubManager.remove_database(username)
+
+        all_db_list = DataHubManager.list_all_databases()
+        for db in all_db_list:
+            DataHubManager.drop_owned_by(username=username, repo_base=db)
+
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
-        res = superuser_con.remove_user(username=username,
-                                        remove_db=remove_db)
-        return res
+        return superuser_con.remove_user(username=username)
+
+    @staticmethod
+    def drop_owned_by(username, repo_base):
+        superuser_con = DataHubConnection(
+            user=settings.DATABASES['default']['USER'],
+            password=settings.DATABASES['default']['USER'],
+            repo_base=repo_base)
+        return superuser_con.drop_owned_by(username)
 
     @staticmethod
     def list_all_users():
@@ -416,6 +451,17 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
         return superuser_con.list_all_users()
+
+    @staticmethod
+    def list_all_databases():
+        '''
+        lists all user databases. Does not list some,
+        like postgres, templates0, templates1, or datahub
+        '''
+        superuser_con = DataHubConnection(
+            user=settings.DATABASES['default']['USER'],
+            password=settings.DATABASES['default']['USER'])
+        return superuser_con.list_all_databases()
 
     @staticmethod
     def remove_database(repo_name, revoke_collaborators=True):
@@ -449,7 +495,7 @@ class DataHubManager:
                 'Access denied. Missing required privileges.')
 
         # prepare some variables
-        file_path = '/user_data/%s/%s/%s' % (repo_base, repo, file_name)
+        file_path = user_data_path(repo_base, repo, file_name)
         table_name, _ = os.path.splitext(file_name)
         table_name = clean_str(table_name, 'table')
         dh_table_name = '%s.%s.%s' % (repo_base, repo, table_name)
@@ -490,12 +536,12 @@ class DataHubManager:
     @staticmethod
     def export_table(username, repo_base, repo, table, file_format='CSV',
                      delimiter=',', header=True):
-        '''
-        export a table to a csv file in the same repo.
+        """
+        Export a table to a CSV file in the same repo.
+
         Only superusers can execute the copy command, so this function
         passes the username, and verifies user's permissions.
-        '''
-
+        """
         # check for permissions
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
@@ -504,10 +550,11 @@ class DataHubManager:
                 'Access denied. Missing required privileges.')
 
         # make the base_repo and repo's folder, if they don't already exist
-        repo_dir = DataHubManager.create_user_data_folder(repo_base, repo)
+        DataHubManager.create_user_data_folder(repo_base, repo)
 
         # define the file path for the new table
-        file_path = '%s/%s.%s' % (repo_dir, table, file_format)
+        file_name = clean_file_name(table)
+        file_path = user_data_path(repo_base, repo, file_name, file_format)
 
         # format the full table name
         long_table_name = '%s.%s.%s' % (repo_base, repo, table)
@@ -584,21 +631,36 @@ class PermissionDenied(Exception):
         Exception.__init__(self, *args, **kwargs)
 
 
-def user_data_path(repo_base, repo='', file_name=''):
+def user_data_path(repo_base, repo=None, file_name=None, file_format=None):
     """
-    Returns an absolute path to a file or repo in the user data folder.
+    Returns an absolute path to a file or repo in a user's data folder.
 
     user_data_path('foo') => '/user_data/foo'
     user_data_path('foo', repo='bar') => '/user_data/foo/bar'
     user_data_path('foo', repo='bar', file_name='baz')
         => '/user_data/foo/bar/baz'
     """
-    if repo_base == '':
-        raise ValueError('repo_base cannot be blank.')
-    if file_name != '' and repo == '':
-        raise ValueError('repo cannot be blank when file_name is defined.')
-    return os.path.abspath(os.path.join(
-        os.sep, 'user_data', repo_base, repo, file_name))
+    if file_name and not repo:
+        raise ValueError('Must pass in repo when providing file_name.')
+    parts = [repo_base, repo, file_name]
+    for p in parts:
+        if (isinstance(p, six.string_types) and
+                (len(p) == 0 or p.startswith('.'))):
+            raise ValueError('Invalid path component.')
+    parts = [repo_base, repo or '', file_name or '']
+    path = os.path.abspath(os.path.join(os.sep, 'user_data', *parts))
+
+    if file_format:
+        if re.match('[^0-9a-zA-Z_-]', file_format):
+            raise ValueError('Invalid file format specified.')
+        path = '%s.%s' % (path, file_format)
+
+    return path
+
+
+def clean_file_name(text):
+    # remove leading periods
+    return re.sub('^\.+', '', text)
 
 
 def clean_str(text, prefix):

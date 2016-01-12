@@ -39,7 +39,8 @@ class PGBackend:
         self.connection.set_isolation_level(
             psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
-    def reset_connection(self, repo_base):
+    def change_repo_base(self, repo_base):
+        self.close_connection()
         self.repo_base = repo_base
         self.__open_connection__()
 
@@ -318,10 +319,17 @@ class PGBackend:
         params = (AsIs(username), AsIs(username))
         return self.execute_sql(query, params)
 
-    def remove_user(self, username, remove_db=True):
+    def remove_user(self, username):
         self._check_for_injections(username)
+
         query = 'DROP ROLE %s;'
         params = (AsIs(username),)
+        return self.execute_sql(query, params)
+
+    def drop_owned_by(self, username):
+        self._check_for_injections(username)
+        query = 'DROP OWNED BY %s CASCADE;' % (username)
+        params = (AsIs(username), )
         return self.execute_sql(query, params)
 
     def list_all_users(self):
@@ -335,6 +343,21 @@ class PGBackend:
             all_users_list.append(user_tuple[0])
 
         return all_users_list
+
+    def list_all_databases(self):
+        query = ('SELECT datname FROM pg_database where datname NOT IN '
+                 ' (%s, \'template1\', \'template0\', '
+                 ' \'datahub\', \'postgres\');'
+                 )
+        params = (self.user, )
+        res = self.execute_sql(query, params)
+        db_tuples = res['tuples']
+
+        all_db_list = []
+        for db_tuple in db_tuples:
+            all_db_list.append(db_tuple[0])
+
+        return all_db_list
 
     def remove_database(self, database, revoke_collaborators=True):
         self._check_for_injections(database)

@@ -412,27 +412,17 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_as_is.call_count, len(params_1 + params_2))
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
 
-    def test_remove_user_no_remove_db(self):
+    def test_remove_user(self):
         query = 'DROP ROLE %s;'
         username = "username"
         params = (username,)
-        mock_remove_db = self.create_patch(
-            'core.db.backend.pg.PGBackend.remove_database')
-        self.backend.remove_user(username, remove_db=None)
+        self.backend.remove_user(username)
 
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_as_is.call_count, len(params))
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
-        self.assertFalse(mock_remove_db.called)
-
-    def test_remove_user_calls_remove_db(self):
-        username = "username"
-        mock_remove_db = self.create_patch(
-            'core.db.backend.pg.PGBackend.remove_database')
-        self.backend.remove_user(username, remove_db=True)
-        self.assertTrue(mock_remove_db.called)
 
     def test_remove_database(self):
         # mock out list_all_users
