@@ -222,7 +222,7 @@ def delete(request):
         'username': username
         })
     try:
-        delete_user(username=username, remove_db=True)
+        delete_user(username=username)
         django_logout(request)
         return render(request, 'delete-done.html', context)
     except User.DoesNotExist:

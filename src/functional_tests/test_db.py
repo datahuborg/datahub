@@ -67,111 +67,116 @@ class LoginTest(FunctionalTest):
                 repo_name, table_name, view_name)
 
     def test_add_remove_collaborator(self):
-        eazyE = 'delete_me_eazyE'
+        # must be lowercase
+        eazyE = 'delete_me_eazye'
         dre = 'delete_me_dre'
+
+        # can be uppercase
         repos = ['efil4zaggin', 'tSoSN', 'sukka']
         tables = ['dopeman', 'thapolice']
 
-        # make eazyE
+        print('make eazyE')
         self.sign_up_manually(username=eazyE, password=None)
         self.sign_out_manually()
 
-        # make dre
+        print('make dre')
         self.sign_up_manually(username=dre, password=None)
 
-        # dre creates repos and puts tables in them
+        print('dre creates repos and puts tables in them')
+
         for repo in repos:
             self.create_repo(repo, dre)
 
             for table in tables:
                 self.create_table_programmatically(repo, table, dre)
 
-        # dre adds eazyE as a collabortor to one repo
+        print('dre adds eazyE as a collabortor to one repo')
         self.add_collaborator(repos[0], eazyE)
 
-        # dre logs out
+        print('dre logs out')
         self.sign_out_manually()
 
-        # eazyE logs in
+        print('eazyE logs in')
         self.sign_in_manually(eazyE)
 
-        # eazyE goes to the dre url
+        print('eazyE goes to the dre url')
         self.browser.get(self.server_url + '/browse/' + dre)
 
-        # eazyE does not see repo[1], which is not shared
+        print('eazyE does not see repo[1], which is not shared')
         try:
             self.browser.find_element_by_link_text(repos[1])
             self.fail()
         except:
             pass
 
-        # eazyE sees ginjuice, which is shared, and clicks on it
+        print('eazyE sees ginjuice, which is shared, and clicks on it')
         self.browser.find_element_by_link_text(repos[0]).click()
 
-        # eazyE sees that the tables are shared
+        print('eazyE sees that the tables are shared')
         table_0 = self.browser.find_element_by_link_text(tables[0])
         table_1 = self.browser.find_element_by_link_text(tables[1])
 
         self.assertNotEqual(table_0, None)
         self.assertNotEqual(table_1, None)
 
-        # eazyE clicks on a table
+        print('eazyE clicks on a table')
         table_0.click()
 
-        # the url matches
+        print('the url matches')
         regex = (r'/browse/{user}/{repo}/table/{table}'
                  .format(user=dre, repo=repos[0], table=tables[0]))
         self.assertRegexpMatches(self.browser.current_url, regex)
 
-        # eazyE is a sneaky mother
-        # he tries to get early access to dre's "beautiful" repo
-        # jerry put him up to
+        print('eazyE is a sneaky mother'
+              'he tries to get early access to dre\'s "beautiful" repo'
+              'jerry put him up to')
         sneaky_url = ('{base}/browse/{user}/{repo}/tables'
                       .format(base=self.server_url, user=dre, repo=repos[1]))
         self.browser.get(sneaky_url)
 
-        # the page says error.
+        print('the page says error.')
         page_source = self.browser.page_source
         search_string = 'No table'
         self.assertTrue(search_string in page_source)
 
-        # eazyE gives up. He goes to the homepage, logs out
-        # and takes a smoke break.
+        print('eazyE gives up. He goes to the homepage, logs out'
+              'and takes a smoke break.')
         self.browser.get(self.server_url + '/browse/' + eazyE)
         self.sign_out_manually()
 
-        # Dre gets word of what's happening. He signs back in
+        print('Dre gets word of what\'s happening. He signs back in')
         self.sign_in_manually(dre)
 
-        # And Dre removes eazyE's access
+        print('And Dre removes eazyE\'s access')
         self.remove_collaborator(repo=repos[0], collaborator=eazyE)
 
-        # Dre then adds eazyE to the repo, sukka
+        print('Dre then adds eazyE to the repo, sukka')
         self.add_collaborator(repos[2], eazyE)
 
-        # Dre heads out. He's got some work to do
+        print('Dre heads out. He\'s got some work to do')
         self.sign_out_manually()
 
-        # eazyE logs in and goes to the dre url
+        print('eazyE logs in and goes to the dre url')
         self.sign_in_manually(eazyE)
         self.browser.get(self.server_url + '/browse/' + dre)
 
-        # eazyE doesn't see repos[0], which dre removed his rights to
+        print('eazyE doesn\'t see repos[0], which dre removed his rights to')
         try:
             self.browser.find_element_by_link_text(repos[0])
             self.fail()
         except:
             pass
 
-        # eaxyE does see 'sukka' (repo[2])
+        print('eaxyE does see \'sukka\' (repo[2])')
         self.browser.find_element_by_link_text(repos[2])
 
-        # He tries to sneak into repos[0], but can't get in either.
+        print('He tries to sneak into tSoSN (repos[0]), '
+              'but can\'t get in either.')
         sneaky_url = ('{base}/browse/{user}/{repo}/tables'
                       .format(base=self.server_url, user=dre, repo=repos[0]))
         self.browser.get(sneaky_url)
 
-        # the page says error.
+        print('the page says no table')
         page_source = self.browser.page_source
         search_string = 'No table'
         self.assertTrue(search_string in page_source)

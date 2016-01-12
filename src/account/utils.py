@@ -171,7 +171,7 @@ def grant_app_permission(username, repo_name, app_id, app_token):
         raise e
 
 
-def delete_user(username, remove_db=True):
+def delete_user(username):
     """
     Deletes the given user.
 

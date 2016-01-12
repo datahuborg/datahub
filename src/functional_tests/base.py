@@ -3,13 +3,16 @@ import os
 import re
 import datetime
 import requests
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from selenium import webdriver
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import warnings
 
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.contrib.auth.models import User
+
+from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+
 from core.db.manager import DataHubManager
+from account.utils import delete_user
 
 
 class FunctionalTest(StaticLiveServerTestCase):
@@ -77,13 +80,12 @@ class FunctionalTest(StaticLiveServerTestCase):
         all_users = User.objects.all()
         test_users = all_users.filter(username__startswith='delete_me_')
         for user in test_users:
-            user.delete()
+            delete_user(user.username)
 
         # When building tests, it's possible to delete some combination of the
         # django user/postgres user/postgres user database
         # This tries to catch the edge cases.
         all_users = DataHubManager.list_all_users()
-        # import pdb; pdb.set_trace()
         test_users = filter(lambda x: x.startswith('delete_me_'), all_users)
         for user in test_users:
             try:
@@ -177,8 +179,11 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.find_element_by_id('id_sign_out').click()
 
     def create_repo(self, repo_name, username=None):
+        repo_name = repo_name.lower()
         if username is None:
             username = self.username
+
+        print('creating repo: %s for username %s' % (repo_name, username))
 
         # Justin goes to the main/repos page
         self.browser.get(self.server_url + '/browse/' + username)
@@ -227,6 +232,8 @@ class FunctionalTest(StaticLiveServerTestCase):
 
     def create_table_programmatically(self, repo_name, table_name,
                                       username=None):
+        repo_name = repo_name.lower()
+        table_name = table_name.lower()
         if username is None:
             username = self.username
 
