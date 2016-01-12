@@ -66,7 +66,7 @@ $(document).ready(function() {
     {% else %}
       <li class="list-group-item">
         <p>No password set. The external logins below are the only way to log into this account.</p>
-        <a href="#">Add Password</a>
+        <a href="{% url 'add_password' %}">Add Password</a>
       </li>
     {% endif %}
     </ul>
@@ -81,9 +81,9 @@ $(document).ready(function() {
       <li class="list-group-item">
         <button class="btn btn-link pull-right" data-toggle="modal" data-target="#confirmModal" data-modal-title="Remove Login" data-modal-body="<p>Are you sure you want to remove {{ assoc.provider|provider_name }} identity {{ assoc.uid }} as a login method for DataHub user {{ user.username }}?</p>" data-form-action="{% url 'social:disconnect_individual' assoc.provider assoc.id %}">Remove</button>
         <div>
-        <i class="fa {{ assoc.provider|provider_icon }} fa-lg fa-fw"></i>&nbsp; {{ assoc.provider|provider_name }}
-        <br />
-        {{ assoc.uid }}
+          <i class="fa {{ assoc.provider|provider_icon }} fa-lg fa-fw"></i>&nbsp; {{ assoc.provider|provider_name }}
+          <br />
+          {{ assoc.uid }}
         </div>
       </li>
     {% empty %}

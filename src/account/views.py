@@ -8,11 +8,13 @@ from django.template.context import RequestContext
 from account.forms import UsernameForm, \
                           RegistrationForm, \
                           LoginForm, \
-                          ChangeEmailForm
+                          ChangeEmailForm, \
+                          AddPasswordForm
 from account.utils import provider_details, \
                           datahub_authenticate, \
                           delete_user, \
-                          set_unusable_password
+                          set_unusable_password, \
+                          set_password
 from django.http import HttpResponse, \
                         HttpResponseNotFound, \
                         HttpResponseNotAllowed
@@ -185,6 +187,24 @@ def settings(request):
     # Python Social Auth sets a `backends` context variable, which includes
     # which social backends are and are not associated with the current user.
     return render(request, 'account-settings.html', context)
+
+
+@login_required()
+def add_password(request):
+    if request.method == 'POST':
+        form = AddPasswordForm(request.POST)
+        if form.is_valid():
+            username = request.user.get_username()
+            password = form.cleaned_data['password']
+            set_password(username, password)
+            return redirect(reverse('settings'))
+    else:
+        form = AddPasswordForm()
+
+    context = RequestContext(request, {
+        'form': form,
+        })
+    return render(request, "password_add.html", context)
 
 
 @login_required()

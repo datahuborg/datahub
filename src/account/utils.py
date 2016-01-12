@@ -187,6 +187,22 @@ def set_unusable_password(username):
     user.save()
 
 
+def set_password(username, password):
+    """
+    Sets a password for the user matching the given username.
+
+    Raises an exception if the user already has a usable password set. To
+    change an existing password, users should go through the password_change
+    view.
+    """
+    user = User.objects.get(username=username)
+    if user.has_usable_password():
+        raise Exception(
+            "User already has a password set.")
+    user.set_password(password)
+    user.save()
+
+
 def delete_user(username, remove_db=True):
     """
     Deletes the given user.
