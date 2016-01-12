@@ -32,6 +32,66 @@ Once ``vagrant up`` finishes, you can see your environment running at `<http://d
 
 .. note:: Vagrant keeps your working copy and the VM in sync, so edits you make to DataHub's code will be reflected on datahub-local.mit.edu. Changes to static files like CSS, JS, and documentation must be collected before the server will notice them. For more information, see management commands below.
 
+------------------------
+Using non-standard ports
+------------------------
+
+If your host environment does not allow use of ports 80 and 443, it is possible to use DataHub on forwarded ports but some extra configuration is required.
+
+1. Edit the Vagrantfile to expose ports 80 and/or 443 on usable ports.   
+    .. code-block:: ruby
+    
+        Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+          ...
+          config.vm.network "forwarded_port", guest: 80, host: 18080
+          config.vm.network "forwarded_port", guest: 443, host: 18081
+          ...
+
+2. Edit the nginx configuration file at provisions/nginx/default.conf to make the reverse proxy aware of what the new ports are.
+    .. code-block:: nginx
+    
+        # Uncomment and customize:
+        map $scheme $port_to_forward {
+            default 18080;
+            https   18081;
+        }
+        ...
+        location / {
+            ...
+            # Uncomment:
+            proxy_set_header X-Forwarded-Host $host:$port_to_forward;
+            proxy_set_header X-Forwarded-Server $server_name;
+            proxy_set_header X-Forwarded-Port $port_to_forward;
+            ...
+        }
+
+3. Edit the Django settings file at src/config/settings.py to make Django look for those headers.
+    .. code-block:: python
+    
+        # Uncomment:
+        USE_X_FORWARDED_HOST = True 
+
+4. From the host, run ``vagrant reload`` to bring up the VM with your custom ports forwarded.
+   
+   If you don't mind losing all of your existing DataHub data, running ``vagrant destroy -f && vagrant up`` instead will rebuild the entire site using your new custom config. If you want to keep your existing VM's data, follow step 5 below.
+
+5. Inside the VM, run:
+    .. code-block:: bash
+    
+        $ cd /vagrant
+        $ sudo sh provisions/docker/build-images.sh
+        $ sudo docker rm -f web
+        $ sudo docker create --name web \
+               --volumes-from logs \
+               --volumes-from app \
+               -v /ssl/:/etc/nginx/ssl/ \
+               --link app:app \
+               -p 80:80 -p 443:443 \
+               datahuborg/nginx
+        $ sudo docker start web
+
+At the end of these steps, DataHub should be reachable at http://localhost:18080 and https://localhost:18081.
+
 
 ===================
 Manual Installation
