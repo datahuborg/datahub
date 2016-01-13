@@ -96,3 +96,4 @@ class Collaborator (models.Model):
 
     class Meta:
         db_table = "collaborators"
+        unique_together = ('repo_name', 'repo_owner', 'user')
