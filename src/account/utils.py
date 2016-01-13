@@ -211,35 +211,5 @@ def delete_user(username):
     Postgres.
     """
     # get the user associated with the username, and delete their apps
-    try:
-        user = User.objects.get(username=username)
-    except:
-        user = None
 
-    apps = App.objects.filter(user=user)
-    for app in apps:
-        app_id = app.app_id
-        DataHubManager.remove_user(username=app_id, remove_db=False)
-        app.delete()
-
-    # get the legacy_user associated with the username; delete their apps
-    try:
-        legacy_user = DataHubLegacyUser.objects.get(username=username)
-    except:
-        legacy_user = None
-
-    apps = App.objects.filter(user=user)
-    for app in apps:
-        app_id = app.app_id
-        DataHubManager.remove_user(username=app_id, remove_db=False)
-        app.delete()
-
-    # delete the user(s)
-    if user:
-        user.delete()
-
-    if legacy_user:
-        legacy_user.delete()
-
-    # delete the db users, and their user_data directory
     DataHubManager.remove_user(username=username, remove_db=True)

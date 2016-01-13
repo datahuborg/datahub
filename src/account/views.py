@@ -18,6 +18,7 @@ from account.utils import provider_details, \
 from django.http import HttpResponse, \
                         HttpResponseNotFound, \
                         HttpResponseNotAllowed
+from core.db.manager import DataHubManager
 
 
 def login(request):
@@ -270,7 +271,9 @@ def delete(request):
         'username': username
         })
     try:
-        delete_user(username=username)
+        # DataHubManager.remove_user(username=username, remove_db=True)
+        # delete_user(username=username)
+        DataHubManager.remove_user(username=username, remove_db=True)
         django_logout(request)
         return render(request, 'delete-done.html', context)
     except User.DoesNotExist:

@@ -186,10 +186,11 @@ class LoginTest(FunctionalTest):
         self.assertTrue(search_string in page_source)
 
         print('eazyE sends a diss to snoop')
-        self.create_repo('its_on_repo', eazyE)
+        eazyE_repo = 'its_on_repo'
+        self.create_repo(eazyE_repo, eazyE)
         self.create_table(
-            repo_name='its_on_repo', table_name='its_on_table', username=eazyE)
-        self.add_collaborator('its_on_repo', 'delete_me_snoop')
+            repo_name=eazyE_repo, table_name='its_on_table', username=eazyE)
+        self.add_collaborator(eazyE_repo, 'delete_me_snoop')
 
         print('eazyE is all alone. No one loves him anymore.')
         print('he is sad, but doesn\'t show it')
@@ -209,11 +210,27 @@ class LoginTest(FunctionalTest):
         print('snoop shares the repo with dre')
         self.add_collaborator(snoop_repo, dre)
 
-        print('snoop and dre are ready for the next episode.')
-
+        print('snoop and dre are ready for the next episode.'
+              'snoop deletes his acount')
         self.delete_account()
 
+        print('eazye signs in')
+        self.sign_in_manually(username=eazyE)
 
+        print('eazye clicks on his dis repo collaborators. '
+              'He sees that it isn\'t shared with snoop anymore.')
+        xpath = ('(//table/tbody/tr[td/a/text()="{repo}"]/td/a[text()['
+                 'contains(.,"collaborators")]])[1]').format(repo=eazyE_repo)
+        self.browser.find_element_by_xpath(xpath).click()
+        page_source = self.browser.page_source
+        self.assertFalse(snoop in page_source)
+
+        print('eazye is done. He deletes his account')
+        self.delete_account()
+
+        print('dre logs in, and deletes his account too. Fuckem.')
+        self.sign_in_manually(username=dre)
+        self.delete_account()
 
 
         # eazyE and Dre aren't friends anymore.

@@ -12,7 +12,6 @@ from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from core.db.manager import DataHubManager
-from account.utils import delete_user
 
 
 class FunctionalTest(StaticLiveServerTestCase):
@@ -82,12 +81,6 @@ class FunctionalTest(StaticLiveServerTestCase):
 
     def delete_all_test_users(self):
 
-        # Delete all django users whose name starts with 'delete_me_'.
-        all_users = User.objects.all()
-        test_users = all_users.filter(username__startswith='delete_me_')
-        for user in test_users:
-            delete_user(user.username)
-
         # When building tests, it's possible to delete some combination of the
         # django user/postgres user/postgres user database
         # This tries to catch the edge cases.
@@ -98,6 +91,12 @@ class FunctionalTest(StaticLiveServerTestCase):
                 DataHubManager.remove_user(user, remove_db=True)
             except:
                 print('UNABLE TO DELETE USER ' + user)
+
+        # Delete all django users whose name starts with 'delete_me_'.
+        all_users = User.objects.all()
+        test_users = all_users.filter(username__startswith='delete_me_')
+        for user in test_users:
+            user.delete()
 
     def check_external_links(self):
         # supress warnings for testing external links
@@ -189,7 +188,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         if username is None:
             username = self.username
 
-        print('creating repo: %s for username %s' % (repo_name, username))
+        print('creating repo: %s for username: %s' % (repo_name, username))
 
         # Justin goes to the main/repos page
         self.browser.get(self.server_url + '/browse/' + username)
@@ -343,4 +342,4 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.find_element_by_id('id_delete_confirm_button').click()
 
         page_source = self.browser.page_source
-        self.assertFalse('Account Deleted' in page_source)
+        self.assertTrue('Account Deleted' in page_source)

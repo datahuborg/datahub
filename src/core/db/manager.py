@@ -1,6 +1,6 @@
 from config import settings
 from core.db.connection import DataHubConnection
-from inventory.models import App, Card, Collaborator
+from inventory.models import App, Card, Collaborator, DataHubLegacyUser
 from django.contrib.auth.models import User
 
 import six
@@ -432,17 +432,59 @@ class DataHubManager:
 
     @staticmethod
     def remove_user(username, remove_db=True):
+        # get the user associated with the username, and delete their apps
+        try:
+            user = User.objects.get(username=username)
+        except:
+            user = None
+        apps = App.objects.filter(user=user)
+        for app in apps:
+            app_id = app.app_id
+            DataHubManager.remove_app(app_id=app_id)
+
+        # do the same thing for legacy users
+        try:
+            legacy_user = DataHubLegacyUser.objects.get(username=username)
+        except:
+            legacy_user = None
+        apps = App.objects.filter(legacy_user=legacy_user)
+        for app in apps:
+            app_id = app.app_id
+            DataHubManager.remove_app(app_id=app_id)
+
+        # delete the users
+        if user:
+            user.delete()
+
+        if legacy_user:
+            legacy_user.delete()
+
+        # delete the user's db
         if remove_db:
             DataHubManager.remove_database(username)
 
-        all_db_list = DataHubManager.list_all_databases()
-        for db in all_db_list:
-            DataHubManager.drop_owned_by(username=username, repo_base=db)
+        # make a connection, and delete the user's database account
+        superuser_con = DataHubConnection(
+            user=settings.DATABASES['default']['USER'],
+            password=settings.DATABASES['default']['USER'])
+        try:
+            return superuser_con.remove_user(username=username)
+        except:
+
+            all_db_list = DataHubManager.list_all_databases()
+            for db in all_db_list:
+                DataHubManager.drop_owned_by(username=username, repo_base=db)
+            return superuser_con.remove_user(username=username)
+
+    @staticmethod
+    def remove_app(app_id):
+        app = App.objects.get(app_id=app_id)
+        app.delete()
 
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
-        return superuser_con.remove_user(username=username)
+        superuser_con.remove_user(username=app_id)
 
     @staticmethod
     def drop_owned_by(username, repo_base):
