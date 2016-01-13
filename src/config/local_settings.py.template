@@ -1,5 +1,10 @@
 DATAHUB_DOMAIN = 'datahub-local.mit.edu'
 
+# Set `USE_X_FORWARDED_HOST = True` to use the host and ports passed along by
+# a proxy like nginx when using forwarded web ports.
+#
+# USE_X_FORWARDED_HOST = True
+
 # python-social-auth settings
 # Copy to local_settings.py and fill in settings below to enable social logins.
 
