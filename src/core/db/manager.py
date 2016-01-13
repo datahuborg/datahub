@@ -435,22 +435,26 @@ class DataHubManager:
         # get the user associated with the username, and delete their apps
         try:
             user = User.objects.get(username=username)
+            apps = App.objects.filter(user=user)
+            for app in apps:
+                app_id = app.app_id
+                DataHubManager.remove_app(app_id=app_id)
+
+            collaborators = Collaborator.objects.filter(user=user)
+            for collaborator in collaborators:
+                collaborator.delete()
         except:
             user = None
-        apps = App.objects.filter(user=user)
-        for app in apps:
-            app_id = app.app_id
-            DataHubManager.remove_app(app_id=app_id)
 
         # do the same thing for legacy users
         try:
             legacy_user = DataHubLegacyUser.objects.get(username=username)
+            apps = App.objects.filter(legacy_user=legacy_user)
+            for app in apps:
+                app_id = app.app_id
+                DataHubManager.remove_app(app_id=app_id)
         except:
             legacy_user = None
-        apps = App.objects.filter(legacy_user=legacy_user)
-        for app in apps:
-            app_id = app.app_id
-            DataHubManager.remove_app(app_id=app_id)
 
         # delete the users
         if user:
