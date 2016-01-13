@@ -518,6 +518,10 @@ class DataHubManager:
 
     @staticmethod
     def remove_database(repo_name, revoke_collaborators=True):
+        collaborators = Collaborator.objects.filter(repo_name=repo_name)
+        for collaborator in collaborators:
+            collaborator.delete()
+
         DataHubManager.delete_user_data_folder(repo_name)
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
