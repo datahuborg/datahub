@@ -12,7 +12,6 @@ from account.forms import UsernameForm, \
                           AddPasswordForm
 from account.utils import provider_details, \
                           datahub_authenticate, \
-                          delete_user, \
                           set_unusable_password, \
                           set_password
 from django.http import HttpResponse, \
@@ -271,8 +270,6 @@ def delete(request):
         'username': username
         })
     try:
-        # DataHubManager.remove_user(username=username, remove_db=True)
-        # delete_user(username=username)
         DataHubManager.remove_user(username=username, remove_db=True)
         django_logout(request)
         return render(request, 'delete-done.html', context)

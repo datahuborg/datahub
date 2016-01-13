@@ -201,15 +201,3 @@ def set_password(username, password):
             "User already has a password set.")
     user.set_password(password)
     user.save()
-
-
-def delete_user(username):
-    """
-    Deletes the given user.
-
-    By default, deletes user in Django as well as their role and database in
-    Postgres.
-    """
-    # get the user associated with the username, and delete their apps
-
-    DataHubManager.remove_user(username=username, remove_db=True)
