@@ -105,6 +105,10 @@ class BasicOperations(TestCase):
 
     def test_add_collaborator(self):
         con_add_collab = self.mock_connection.return_value.add_collaborator
+        self.mock_User = self.create_patch('core.db.manager.User')
+        self.mock_Collaborator = self.create_patch(
+            'core.db.manager.Collaborator')
+
         self.manager.add_collaborator('reponame', 'new_collaborator', 'select')
 
         self.assertTrue(con_add_collab.called)
@@ -114,7 +118,14 @@ class BasicOperations(TestCase):
         self.assertEqual(con_add_collab.call_args[1]['privileges'], 'select')
 
     def test_delete_collaborator(self):
-        con_delete_collab = self.mock_connection.return_value.delete_collaborator
+        self.mock_connection.return_value.list_collaborators.return_value = [
+            'old_collaborator']
+        self.mock_User = self.create_patch('core.db.manager.User')
+        self.mock_Collaborator = self.create_patch(
+            'core.db.manager.Collaborator')
+
+        con_delete_collab = (self.mock_connection
+                             .return_value.delete_collaborator)
         self.manager.delete_collaborator('reponame', 'old_collaborator')
 
         self.assertTrue(con_delete_collab.called)
