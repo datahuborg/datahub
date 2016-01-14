@@ -7,12 +7,13 @@ if ! `docker inspect -f {{.State.Running}} phantomjs`; then
 else
     echo "phantomjs already running. Skipping."
 fi
-echo "Removing dev app container..."
-(set -x; docker rm -f app)
+echo "Stopping app container..."
+(set -x; docker stop app)
 echo "Spinning up test app container..."
 echo "*** Run unit tests with 'sh /datahub/provisions/docker/run-unit-tests.sh'."
 echo "*** Run functional tests with 'sh /datahub/provisions/docker/run-functional-tests.sh'."
 echo "*** Run specific tests with commands like 'python manage.py test core'."
+echo "*** Run a debuggable server with 'python manage.py runserver 0.0.0.0:8000'."
 (set -x; docker run -ti --rm \
     -e "DATAHUB_DOCKER_TESTING=true" \
     -e "DJANGO_LIVE_TEST_SERVER_ADDRESS=0.0.0.0:8000" \
@@ -22,12 +23,5 @@ echo "*** Run specific tests with commands like 'python manage.py test core'."
     -v /vagrant:/datahub \
     -w /datahub/src \
     datahuborg/datahub /bin/bash)
-echo "Bringing back dev app container..."
-(set -x; docker create --name app \
-    --env 'USER=vagrant' \
-    --volumes-from logs \
-    --volumes-from data \
-    --net=datahub_dev \
-    -v /vagrant:/datahub \
-    datahuborg/datahub gunicorn --config=provisions/gunicorn/config_dev.py browser.wsgi)
+echo "Bringing back app container..."
 (set -x; docker start app)
