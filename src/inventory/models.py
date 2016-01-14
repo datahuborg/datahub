@@ -45,7 +45,7 @@ class Annotation(models.Model):
     annotation_text = models.TextField()
 
     def __unicode__(self):
-        return self.id
+        return self.url_path
 
     class Meta:
         db_table = "annotations"
@@ -76,7 +76,7 @@ class Permission(models.Model):
     access = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return self.id
+        return str(self.id)
 
     class Meta:
         db_table = "permissions"
@@ -87,13 +87,13 @@ class Collaborator (models.Model):
     timestamp = models.DateTimeField(auto_now=True)
     legacy_user = models.ForeignKey('DataHubLegacyUser', null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
-    repo_name = models.CharField(max_length=50)
-    repo_owner = models.CharField(max_length=50)
-    permission = models.CharField(max_length=50)
+    repo_name = models.TextField()
+    repo_base = models.TextField()
+    permission = models.TextField()
 
     def __unicode__(self):
-        return self.id
+        return (self.id)
 
     class Meta:
         db_table = "collaborators"
-        unique_together = ('repo_name', 'repo_owner', 'user')
+        unique_together = ('repo_name', 'repo_base', 'user')

@@ -67,8 +67,6 @@ urlpatterns = patterns(
         name='browser-card_delete'),
     url(r'^delete/(\w+)/(\w+)/file/([ -~]+)/?$', 'browser.views.file_delete',
         name='browser-file_delete'),
-    url(r'^delete/collaborator/(\w+)/(\w+)/(\w+)/?$', 'browser.views.repo_delete_collaborator',
-        name="repo-collaborator_delete"),
 
 
     # Export

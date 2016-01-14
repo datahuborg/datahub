@@ -93,10 +93,15 @@ class DataHubManager:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
 
+        # you can't add yourself as a collaborator
+        if self.username == username:
+            return False
+
         user = User.objects.get(username=username)
-        Collaborator.objects.create(user=user, repo_name=repo,
-                                    repo_owner=self.repo_base,
-                                    permission="ALL")
+        collaborator, created = Collaborator.objects.get_or_create(
+            user=user, repo_name=repo, repo_base=self.repo_base)
+        collaborator.permission = 'ALL'
+        collaborator.save()
 
         return self.user_con.add_collaborator(
             repo=repo,
@@ -124,7 +129,7 @@ class DataHubManager:
 
         collab = User.objects.get(username=collaborator)
         Collaborator.objects.get(
-            user=collab, repo_name=repo, repo_owner=self.repo_base).delete()
+            user=collab, repo_name=repo, repo_base=self.repo_base).delete()
 
         return superuser_con.delete_collaborator(
             repo=repo, username=collaborator)

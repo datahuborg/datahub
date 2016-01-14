@@ -184,7 +184,7 @@ def user(request, repo_base=None):
         })
 
     collaborator_repos = manager.list_collaborator_repos()
-    
+
     return render_to_response("user-browse.html", {
         'login': username,
         'repo_base': repo_base,
@@ -307,16 +307,6 @@ def repo_delete(request, repo_base, repo):
     manager.delete_repo(repo=repo, force=True)
     return HttpResponseRedirect(reverse('browser-user-default'))
 
-
-@login_required
-def repo_delete_collaborator(request, repo_base, repo_owner, repo_name):
-  '''
-  removes self as a collaborator from the specified repo (repo_name)
-  '''
-  username = request.user.get_username()
-  manager = DataHubManager(user=username, repo_base=repo_owner)
-  manager.delete_collaborator(repo=repo_name, collaborator=username)
-  return HttpResponseRedirect(reverse('browser-user-default'))
 
 @login_required
 def repo_settings(request, repo_base, repo):

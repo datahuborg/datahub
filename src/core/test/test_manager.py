@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 import factory
-from mock import patch
+from mock import patch, MagicMock
 
 
 class Initialization(TestCase):
@@ -105,11 +105,14 @@ class BasicOperations(TestCase):
 
     def test_add_collaborator(self):
         con_add_collab = self.mock_connection.return_value.add_collaborator
-        self.mock_User = self.create_patch('core.db.manager.User')
-        self.mock_Collaborator = self.create_patch(
+        mock_User = self.create_patch('core.db.manager.User')
+        mock_Collaborator = self.create_patch(
             'core.db.manager.Collaborator')
+        mock_Collaborator.objects.get_or_create.return_value = (
+            MagicMock(), True)
 
-        self.manager.add_collaborator('reponame', 'new_collaborator', 'select')
+        self.manager.add_collaborator(
+            repo='reponame', username='new_collaborator', privileges='select')
 
         self.assertTrue(con_add_collab.called)
         self.assertEqual(con_add_collab.call_args[1]['repo'], 'reponame')
