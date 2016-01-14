@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('inventory', '0010_auto_20160106_1529'),
+        ('inventory', '0009_make_card_names_unique'),
     ]
 
     operations = [
