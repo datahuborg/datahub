@@ -64,6 +64,11 @@ class DataHubManager:
         if self.repo_base != self.username:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
+
+        # remove related collaborator objects
+        Collaborator.objects.filter(repo_name=repo).delete()
+
+        # finally, delete the actual schema
         res = self.user_con.delete_repo(repo=repo, force=force)
         DataHubManager.delete_user_data_folder(self.repo_base, repo)
         return res
