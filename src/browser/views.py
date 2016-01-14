@@ -358,8 +358,14 @@ def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
     username = request.user.get_username()
     manager = DataHubManager(user=username, repo_base=repo_base)
     manager.delete_collaborator(repo=repo, collaborator=collaborator_username)
-    return HttpResponseRedirect(
-            reverse('browser-repo_settings', args=(repo_base, repo,)))
+
+    # if the user is removing someone else, return the repo-settings page.
+    # otherwise, return the browse page
+    if username == collaborator_username:
+        return HttpResponseRedirect(
+                reverse('browser-repo_settings', args=(repo_base, repo,)))
+    else:
+        return HttpResponseRedirect(reverse('browser-user-default'))
 
 
 '''

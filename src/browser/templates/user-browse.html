@@ -51,13 +51,13 @@
         {% endfor %}
 
           
-        {% for repo in collaborator_repos %}
           <tr>
             <th class="lead" style="background-color:#f5f5f5;">Collaborator's Repositories &nbsp; <i class="fa fa-exchange"></i></th>
             <th style="background-color:#f5f5f5;"></th>
             <th style="background-color:#f5f5f5;"></th>
             <th style="background-color:#f5f5f5;"></th>
           </tr>
+        {% for repo in collaborator_repos %}
           <tr>
             <td><a class="link" href=/browse/{{repo.repo_owner}}/{{repo.repo_name}}>{{repo.repo_name}}</a></td>
             
@@ -77,7 +77,7 @@
                   target-modal-title="Confirm Delete"
                   target-modal-body="This will permanently remove you as a collaborator from the repository <label>{{repo.repo_owner}}/{{repo.repo_name}}</label>. The operation can't be undone. Are you sure?"
                   target-modal-operation="Delete"
-                  target-url="/delete/collaborator/{{repo_base}}/{{repo.repo_owner}}/{{repo.repo_name}}"
+                  target-url="/collaborator/repo/{{repo.repo_base}}/{{repo.repo_name}}/remove/{{login}}"
                   title="Delete">
                 <a href="#"><span class="glyphicon glyphicon-trash"></span></a>
               </span>
