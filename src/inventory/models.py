@@ -1,9 +1,9 @@
 from django.conf import settings
 from django.db import models
+from django.db.utils import IntegrityError
 
 
 class DataHubLegacyUser(models.Model):
-
     """DataHub's old User model. Replaced by the Django User model."""
 
     id = models.AutoField(primary_key=True)
@@ -82,18 +82,32 @@ class Permission(models.Model):
         db_table = "permissions"
 
 
-class Collaborator (models.Model):
+class Collaborator(models.Model):
     id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField(auto_now=True)
-    legacy_user = models.ForeignKey('DataHubLegacyUser', null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
+    app = models.ForeignKey('App', null=True)
     repo_name = models.TextField()
     repo_base = models.TextField()
     permission = models.TextField()
 
     def __unicode__(self):
-        return (self.id)
+        if self.user:
+            c = self.user
+        elif self.app:
+            c = self.app
+        else:
+            c = ''
+        return "{base}.{repo}/{collaborator}".format(
+            base=self.repo_base, repo=self.repo_name, collaborator=c)
+
+    def save(self, *args, **kwargs):
+        if bool(self.user) == bool(self.app):
+            raise IntegrityError(
+                "Collaborator objects must have an associated user or app, "
+                "not both or neither.")
+        super(Collaborator, self).save(*args, **kwargs)
 
     class Meta:
         db_table = "collaborators"
-        unique_together = ('repo_name', 'repo_base', 'user')
+        unique_together = ('repo_name', 'repo_base', 'user', 'app')

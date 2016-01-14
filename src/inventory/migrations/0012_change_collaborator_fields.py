@@ -21,11 +21,11 @@ class Migration(migrations.Migration):
             name='repo_name',
             field=models.TextField(),
         ),
-        # migrations.AlterField(
-        #     model_name='collaborator',
-        #     name='repo_base',
-        #     field=models.TextField(),
-        # ),
+        migrations.AlterField(
+            model_name='collaborator',
+            name='repo_base',
+            field=models.TextField(),
+        ),
         migrations.AlterField(
             model_name='collaborator',
             name='permission',
