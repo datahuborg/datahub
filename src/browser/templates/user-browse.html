@@ -51,12 +51,14 @@
         {% endfor %}
 
           
+        {% if collaborator_repos|length > 0%}
           <tr>
             <th class="lead" style="background-color:#f5f5f5;">Collaborator's Repositories &nbsp; <i class="fa fa-exchange"></i></th>
             <th style="background-color:#f5f5f5;"></th>
             <th style="background-color:#f5f5f5;"></th>
             <th style="background-color:#f5f5f5;"></th>
           </tr>
+        {% endif %}
         {% for repo in collaborator_repos %}
           <tr>
             <td><a class="link" href=/browse/{{repo.repo_owner}}/{{repo.repo_name}}>{{repo.repo_name}}</a></td>

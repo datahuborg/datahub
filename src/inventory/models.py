@@ -67,21 +67,6 @@ class App(models.Model):
         db_table = "apps"
 
 
-class Permission(models.Model):
-    id = models.AutoField(primary_key=True)
-    timestamp = models.DateTimeField(auto_now=True)
-    legacy_user = models.ForeignKey('DataHubLegacyUser', null=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
-    app = models.ForeignKey('App')
-    access = models.BooleanField(default=False)
-
-    def __unicode__(self):
-        return str(self.id)
-
-    class Meta:
-        db_table = "permissions"
-
-
 class Collaborator(models.Model):
     id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField(auto_now=True)

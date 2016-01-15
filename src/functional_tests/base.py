@@ -308,7 +308,7 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         # click the collaborators button
         xpath = ('(//table/tbody/tr[td/a/text()="{repo}"]/td/a[text()['
-                 'contains(.,"collaborators")]])[1]').format(repo=repo)
+                 'contains(.,"collaborator(s)")]])[1]').format(repo=repo)
         self.browser.find_element_by_xpath(xpath).click()
 
         # write the new collaborator name
@@ -322,7 +322,7 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         # click the collaborators button
         xpath = ('(//table/tbody/tr[td/a/text()="{repo}"]/td/a[text()['
-                 'contains(.,"collaborators")]])[1]').format(repo=repo)
+                 'contains(.,"collaborator(s)")]])[1]').format(repo=repo)
         self.browser.find_element_by_xpath(xpath).click()
 
         # click the remove link next to the user's name

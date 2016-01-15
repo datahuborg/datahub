@@ -220,7 +220,7 @@ class LoginTest(FunctionalTest):
         print('eazye clicks on his dis repo collaborators. '
               'He sees that it isn\'t shared with snoop anymore.')
         xpath = ('(//table/tbody/tr[td/a/text()="{repo}"]/td/a[text()['
-                 'contains(.,"collaborators")]])[1]').format(repo=eazyE_repo)
+                 'contains(.,"collaborator(s)")]])[1]').format(repo=eazyE_repo)
         self.browser.find_element_by_xpath(xpath).click()
         page_source = self.browser.page_source
         self.assertFalse(snoop in page_source)
