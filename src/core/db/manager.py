@@ -112,15 +112,15 @@ class DataHubManager:
 
         try:
             app = App.objects.get(app_id=collaborator)
-            collaborator, _ = Collaborator.objects.get_or_create(
+            collaborator_obj, _ = Collaborator.objects.get_or_create(
                 app=app, repo_name=repo, repo_base=self.repo_base)
         except App.DoesNotExist:
             user = User.objects.get(username=collaborator)
-            collaborator, _ = Collaborator.objects.get_or_create(
+            collaborator_obj, _ = Collaborator.objects.get_or_create(
                 user=user, repo_name=repo, repo_base=self.repo_base)
 
-        collaborator.permission = 'ALL'
-        collaborator.save()
+        collaborator_obj.permission = 'ALL'
+        collaborator_obj.save()
 
         return self.user_con.add_collaborator(
             repo=repo,
