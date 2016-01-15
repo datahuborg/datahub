@@ -26,14 +26,16 @@ class DataHubConnection:
     def delete_repo(self, repo, force=False):
         return self.backend.delete_repo(repo=repo, force=force)
 
-    def add_collaborator(self, repo, username, privileges):
+    def add_collaborator(self, repo, collaborator, privileges):
         return self.backend.add_collaborator(
             repo=repo,
-            username=username,
+            collaborator=collaborator,
             privileges=privileges)
 
-    def delete_collaborator(self, repo, username):
-        return self.backend.delete_collaborator(repo=repo, username=username)
+    def delete_collaborator(self, repo, collaborator):
+        return self.backend.delete_collaborator(
+            repo=repo,
+            collaborator=collaborator)
 
     def list_tables(self, repo):
         return self.backend.list_tables(repo=repo)

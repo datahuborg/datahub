@@ -93,11 +93,11 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['status']
 
-    def add_collaborator(self, repo, username, privileges=[]):
+    def add_collaborator(self, repo, collaborator, privileges=[]):
         # check that all repo names, usernames, and privileges passed aren't
         # sql injections
         self._check_for_injections(repo)
-        self._check_for_injections(username)
+        self._check_for_injections(collaborator)
         for privilege in privileges:
             self._check_for_injections(privilege)
 
@@ -110,15 +110,15 @@ class PGBackend:
                  )
 
         privileges_str = ', '.join(privileges)
-        params = [repo, username, privileges_str, repo,
-                  username, repo, privileges_str, username]
+        params = [repo, collaborator, privileges_str, repo,
+                  collaborator, repo, privileges_str, collaborator]
         params = tuple(map(lambda x: AsIs(x), params))
         res = self.execute_sql(query, params)
         return res['status']
 
-    def delete_collaborator(self, repo, username):
+    def delete_collaborator(self, repo, collaborator):
         self._check_for_injections(repo)
-        self._check_for_injections(username)
+        self._check_for_injections(collaborator)
 
         query = ('BEGIN;'
                  'REVOKE ALL ON ALL TABLES IN SCHEMA %s FROM %s CASCADE;'
@@ -127,7 +127,7 @@ class PGBackend:
                  'REVOKE ALL ON TABLES FROM %s;'
                  'COMMIT;'
                  )
-        params = [repo, username, repo, username, repo, username]
+        params = [repo, collaborator, repo, collaborator, repo, collaborator]
         params = tuple(map(lambda x: AsIs(x), params))
 
         res = self.execute_sql(query, params)
@@ -380,7 +380,6 @@ class PGBackend:
                 print e
                 print('this probably happened because the postgres role'
                       'exists, but a database of the same name does not.')
-
 
     def change_password(self, username, password):
         self._check_for_injections(username)

@@ -91,7 +91,14 @@ class DataHubManager:
     def execute_sql(self, query, params=None):
         return self.user_con.execute_sql(query=query, params=params)
 
-    def add_collaborator(self, repo, username, privileges):
+    def add_collaborator(self, repo, collaborator, privileges):
+        """
+        Grants a user or app privileges on a repo.
+
+        - collaborator must match an existing User's username or an existing
+        App's app_id.
+        - privileges must be an array of SQL privileges as strings.
+        """
         res = DataHubManager.has_repo_privilege(
             self.username, self.repo_base, repo, 'USAGE')
         if not res:
@@ -99,18 +106,25 @@ class DataHubManager:
                 'Access denied. Missing required privileges')
 
         # you can't add yourself as a collaborator
-        if self.username == username:
-            return False
+        if self.username == collaborator:
+            raise Exception(
+                "Can't add a repository's owner as a collaborator.")
 
-        user = User.objects.get(username=username)
-        collaborator, created = Collaborator.objects.get_or_create(
-            user=user, repo_name=repo, repo_base=self.repo_base)
+        try:
+            app = App.objects.get(app_id=collaborator)
+            collaborator, _ = Collaborator.objects.get_or_create(
+                app=app, repo_name=repo, repo_base=self.repo_base)
+        except App.DoesNotExist:
+            user = User.objects.get(username=collaborator)
+            collaborator, _ = Collaborator.objects.get_or_create(
+                user=user, repo_name=repo, repo_base=self.repo_base)
+
         collaborator.permission = 'ALL'
         collaborator.save()
 
         return self.user_con.add_collaborator(
             repo=repo,
-            username=username,
+            collaborator=collaborator,
             privileges=privileges
         )
 
@@ -137,7 +151,7 @@ class DataHubManager:
             user=collab, repo_name=repo, repo_base=self.repo_base).delete()
 
         return superuser_con.delete_collaborator(
-            repo=repo, username=collaborator)
+            repo=repo, collaborator=collaborator)
 
     def list_repo_files(self, repo):
         # check for permissions

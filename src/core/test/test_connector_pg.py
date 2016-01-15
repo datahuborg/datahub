@@ -233,7 +233,7 @@ class SchemaListCreateDeleteShare(TestCase):
                       repo, privilege, receiver)
 
             res = self.backend.add_collaborator(
-                repo=repo, username=receiver, privileges=[privilege])
+                repo=repo, collaborator=receiver, privileges=[privilege])
 
             self.assertEqual(
                 self.mock_execute_sql.call_args[0][0], add_collab_query)
@@ -253,7 +253,7 @@ class SchemaListCreateDeleteShare(TestCase):
                                               'tuples': [], 'fields': []}
 
         self.backend.add_collaborator(repo=repo,
-                                      username=receiver, privileges=privileges)
+                                      collaborator=receiver, privileges=privileges)
 
         # make sure that the privileges are passed as a string in params
         self.assertTrue(
