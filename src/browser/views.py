@@ -361,7 +361,7 @@ def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
 
     # if the user is removing someone else, return the repo-settings page.
     # otherwise, return the browse page
-    if username == collaborator_username:
+    if username == repo_base:
         return HttpResponseRedirect(
                 reverse('browser-repo_settings', args=(repo_base, repo,)))
     else:
