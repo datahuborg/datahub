@@ -1,20 +1,15 @@
 {% extends "minimal-layout.html" %}
 {% block headlink-right %}
-<a href="/account/login" title="Sign In" class="btn btn-default navbar-btn">Sign In</a>
+<a href="{% url 'login' %}" title="Sign In" class="btn btn-default navbar-btn">Sign In</a>
 {% endblock %}
 {% block content %}
 <div class="container">
-<form class="form-signin" method="POST" action="/account/reset/{{encrypted_email}}">
+<form class="col-xs-12 col-sm-6 col-sm-offset-3" method="POST" action="/account/reset/{{ encrypted_email }}">
   {% csrf_token %}
-  <input type="hidden" class="form-control" name="redirect_url" value="{{redirect_url}}" />
+  <input type="hidden" class="form-control" name="redirect_url" value="{{ redirect_url }}" />
   <h3>DataHub Reset Password</h3>
-  <div id="error">
-    {% for error in errors %}
-      <span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
-    {% endfor %}
-  </div>
   <br />
-  <input type="hidden" class="form-control" name="user_email" id="user_email" value="{{user_email}}" />
+  <input type="hidden" class="form-control" name="user_email" id="user_email" value="{{ user_email }}" />
   <label for="new_password">New Password</label><br />
   <input type="password" class="form-control" name="new_password" id="new_password" placeholder="New password"/><br /><br />
   <label for="new_password2">Confirm New Password</label><br />

@@ -16,5 +16,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vm.name = "datahub-local"
     vm.memory = 2048
     #vm.cpus = 2
+    # Set the timesync threshold to 1 minute, instead of the default 20 minutes.
+    vm.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 60000]
   end
 end

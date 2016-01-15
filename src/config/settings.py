@@ -1,6 +1,8 @@
 from __future__ import print_function
 import sys
 import os
+
+from django.db.utils import OperationalError
 # DataHub Settings.
 
 DEBUG = True
@@ -35,10 +37,12 @@ DATABASES = {
 }
 
 
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'America/New_York'
 
 # Language code for this installation.
 LANGUAGE_CODE = 'en-us'
+
+DATAHUB_DOMAIN = 'datahub-local.mit.edu'
 
 SITE_ID = 1
 
@@ -84,23 +88,46 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # SECRET_KEY should be unique to each site. Sites should be discouraged
 # from using this default key.
 try:
     from secret_key import *
-except ImportError, e:
+except ImportError as e:
     SECRET_KEY = 'k+)#kqr2pgvqm_6y8hq+tj#p12&amp;p%dz#_exvw2x4@##dyz!or*'
-    print("Warning: Could not find src/config/secret_key.py. Using the default SECRET_KEY for now. Run `src/scripts/generate_secret_key.py` to create a new key.",
+    print("Warning: Could not find src/config/secret_key.py. "
+          "Using the default SECRET_KEY for now. Run "
+          "`src/scripts/generate_secret_key.py` to create a new key.",
           file=sys.stderr)
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': (
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'social.apps.django_app.context_processors.backends',
+                'social.apps.django_app.context_processors.login_redirect',
+            )
+        }
+    }
+]
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-    #     'django.template.loaders.eggs.Loader',
+    # 'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -109,9 +136,11 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+
     # Uncomment the next line and set SECURE_SSL_REDIRECT = True below to
     # redirect all non-HTTPS requests to HTTPS.
-    # 'django.middleware.security.SecurityMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+
     'browser.middleware.XForwardedPort',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -123,20 +152,25 @@ ROOT_URLCONF = 'browser.urls'
 WSGI_APPLICATION = 'browser.wsgi.application'
 
 TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Put strings here, like "/home/html/django_templates" or
+    # "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
 )
 
 INSTALLED_APPS = (
+    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
+    'social.apps.django_app.default',
     'account',
     'console',
     'browser',
+    'core',
     'dataq',
     'sentiment',
     'datatables',
@@ -146,6 +180,52 @@ INSTALLED_APPS = (
     'viz2',
     'www'
 )
+
+# django.contrib.auth settings
+LOGIN_URL = '/account/login'
+LOGIN_REDIRECT_URL = '/'
+DISCONNECT_REDIRECT_URL = '/account/settings'
+
+# crispy_forms settings
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+
+# Make sure OAuth redirects use HTTPS, e.g. https://localhost/complete/twitter
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
+
+SOCIAL_AUTH_PIPELINE = (
+    'social.pipeline.social_auth.social_details',
+    'social.pipeline.social_auth.social_uid',
+    'social.pipeline.social_auth.auth_allowed',
+    'social.pipeline.social_auth.social_user',
+    'social.pipeline.user.get_username',
+    'account.pipeline.get_user_details',
+
+    # Uncomment to associate new log ins with existing accounts using the same
+    # email address. A security vulnerability if identity providers who don't
+    # verify email addresses are allowed.
+    # 'social.pipeline.social_auth.associate_by_email',
+    'social.pipeline.user.create_user',
+    'social.pipeline.social_auth.associate_user',
+    'social.pipeline.social_auth.load_extra_data',
+
+    # Uncomment to keeps things like the user's real name and email address up
+    # to date. DataHub doesn't need to know someone's real name.
+    # 'social.pipeline.user.user_details',
+)
+
+SOCIAL_AUTH_DISCONNECT_PIPELINE = (
+    'account.pipeline.set_password_if_needed',
+    'social.pipeline.disconnect.allowed_to_disconnect',
+    'social.pipeline.disconnect.get_entries',
+    'social.pipeline.disconnect.revoke_tokens',
+    'social.pipeline.disconnect.disconnect'
+)
+
+SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['preferred_username']
+
+SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['username', 'email']
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -176,21 +256,24 @@ LOGGING = {
     }
 }
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
 # Set `SECURE_SSL_REDIRECT = True` and enable
 # django.middleware.security.SecurityMiddleware above to redirect all non-
 # HTTPS requests to HTTPS.
-#
-# SECURE_SSL_REDIRECT = True
 
-# Set `USE_X_FORWARDED_HOST = True` to use the host and ports passed along by
-# a proxy like nginx when using forwarded web ports.
-#
-# USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = True
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Instances should create a local_settings.py to define custom settings.
 try:
     from local_settings import *
+    # Only set the Site model if local_settings exists. Otherwise assume this
+    # is a Travis CI build and that the domain doesn't matter.
+    from site_utils import set_site_info
+    set_site_info(domain=DATAHUB_DOMAIN)
 except ImportError:
+    from default_settings import *
+except OperationalError:
+    # DB access fails during docker build. Ignore that here so the
+    # collectstatic call will succeed.
     pass

@@ -1,0 +1,33 @@
+{% extends "minimal-layout.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block headlink-right %}
+<a href="{% url 'login' %}" title="Sign In" id="id_sign_in" class="btn navbar-btn btn-primary">Sign In</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid" style="max-width: 768px;">
+
+<form class="col-xs-12 col-sm-6 col-sm-offset-3" role="form" method="POST" action="{{ action }}">
+{% csrf_token %}
+
+{% if user.is_authenticated %}
+<p>You already have a username.</p>
+{% else %}
+<h3>Create a new account</h3>
+<br/>
+{% endif %}
+
+<p>Authenticated as {% if social.org_name %}{{ social.org_name }}{% else %}{{ social.name }}{% endif %} user {{ social.username }}.</p>
+
+{{ form|crispy }}
+
+<button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
+<input type="hidden" name="next" value="{{ next }}" />
+
+</form>
+
+</div>
+{% endblock %}

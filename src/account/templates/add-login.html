@@ -1,0 +1,25 @@
+{% extends "minimal-layout.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container-fluid" style="max-width:740px;">
+<form class="col-xs-12 col-sm-6 col-sm-offset-3" role="form" method="POST" action="{% url 'login' %}">
+  {% csrf_token %}
+  <input type="hidden" name="redirect_url" value="{{ redirect_url }}" />
+  <h3>Add External Logins</h3>
+  <br />
+  <br />
+  <p>Currently logged in as {{ user.username }} ({{ user.email }}).</p>
+  <p>Add another way to log in from the list below.</p>
+  <br>
+  <label for="login_id">Choose an identity provider</label>
+  <div class="list-group">
+  {% for provider in providers %}
+    <a class="list-group-item" href="{% url 'social:begin' provider.backend %}?next={% url 'settings' %}"><i class="fa {{ provider.icon }} fa-lg fa-fw"></i>&nbsp; {{ provider.name }}</a>
+  {% endfor %}
+  </div>
+  <br />
+</form>
+</div>
+{% endblock %}

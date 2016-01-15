@@ -1,0 +1,22 @@
+{% extends "minimal-layout.html" %}
+{% block content %}
+<div class="container">
+<form class="col-xs-6 col-xs-offset-3" role="form" method="POST" action="/account/confirm_add_login">
+  {% csrf_token %}
+  <input type="hidden" name="redirect_url" value="{{redirect_url}}" />
+  <h3>Add External Login</h3>
+  <br />
+  <div id="error">
+    {% for error in errors %}
+      <span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
+    {% endfor %}
+  </div>
+  <p>Are you sure you want to enable the identity "{{values.email}}" to log into the DataHub account "{{values.username}}"?'</p>
+  <br />
+  <div class="pull-right">
+    <a href="/account/settings" class="btn btn-lg btn-default">Cancel</a>
+    <button class="btn btn-lg btn-primary" type="submit">Add Login</button>
+  </div>
+</form>
+</div>
+{% endblock %}

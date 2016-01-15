@@ -1,25 +1,21 @@
-import hashlib
+import factory
 
+from django.db.models import signals
 from django.test import TestCase
-from django.test import Client
 from django.core.urlresolvers import resolve
 
-from inventory.models import User
-from account.auth import login, register, logout, forgot
+from django.contrib.auth.models import User
+from account.views import login, register, logout
 
 
 class LoginPageTest(TestCase):
-
+    @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
-        self.client = Client(enforce_csrf_checks=False)
-        self.password = "password"
-        self.hashed_password = hashlib.sha1("password").hexdigest()
-        self.user, created = User.objects.get_or_create(
-            id=10, username="user",
-            password=self.hashed_password,
-            email="noreply.csail.mit.edu",
-            f_name="f_name",
-            l_name="l_name", active=True)
+        self.username = "delete_me_username"
+        self.password = "delete_me_password"
+        self.email = "test_email@csail.mit.edu"
+        self.user = User.objects.create_user(
+            self.username, self.email, self.password)
 
     def test_login_url_resolves_to_login_page_view(self):
         found = resolve('/account/login')
@@ -30,20 +26,8 @@ class LoginPageTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'login.html')
 
-    def test_login_page_allows_user_to_login(self):
-        login_credentials = {'login_id': self.user.username,
-                             'login_password': self.password}
-        response = self.client.post('/account/login', login_credentials)
-
-        # should redirect to the authenticated user page
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue("/?auth_user=user" in response.url)
-
 
 class RegisterPageTest(TestCase):
-
-    def setUp(self):
-        self.client = Client(enforce_csrf_checks=False)
 
     def test_register_url_resolves_to_register_page_view(self):
         found = resolve('/account/register')
@@ -54,27 +38,16 @@ class RegisterPageTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'register.html')
 
-    def test_register_page_allows_new_user_registration(self):
-        pass
-        # functional test
-
-    def test_registered_user_actually_exists(self):
-        pass
-        # functional test
-
 
 class LogoutPageTest(TestCase):
 
+    @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
-        self.client = Client(enforce_csrf_checks=False)
-        self.password = "password"
-        self.hashed_password = hashlib.sha1("password").hexdigest()
-        self.user, created = User.objects.get_or_create(
-            id=10, username="user",
-            password=self.hashed_password,
-            email="noreply.csail.mit.edu",
-            f_name="f_name",
-            l_name="l_name", active=True)
+        self.username = "delete_me_username"
+        self.password = "delete_me_password"
+        self.email = "test_email@csail.mit.edu"
+        self.user = User.objects.create_user(
+            self.username, self.email, self.password)
 
     def test_logout_url_resolves_to_logout_page_view(self):
         found = resolve('/account/logout')
@@ -82,110 +55,29 @@ class LogoutPageTest(TestCase):
 
     def test_logout_page_returns_correct_template(self):
         # log the user in
-        login_credentials = {'login_id': self.user.username,
-                             'login_password': self.password}
-        response = self.client.post('/account/login', login_credentials)
+        self.client.login(username=self.username, password=self.password)
 
-        # user should redirect to the authenticated user page
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue("/?auth_user=user" in response.url)
-
-        # logout should return the confirmation page
-        response = self.client.get('/account/logout')
+        # logout should return the home page
+        response = self.client.get('/account/logout', follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'confirmation.html')
+        self.assertTemplateUsed(response, 'index.html')
 
     def test_logout_page_actually_logs_users_out(self):
+        # This isn't really the best test, but it seems dastardly difficult
+        # to actually such a simple things properly.
+        # I can only seem to verify whether a user is logged in or out
+        # via the request object
+        # The SO answers about is_authenticated aren't helpful, since
+        # it returns true for all users who exist (but aren't logged in)
 
         # log the user in
-        login_credentials = {'login_id': self.user.username,
-                             'login_password': self.password}
-        response = self.client.post('/account/login', login_credentials)
+        self.client.login(username=self.username, password=self.password)
 
-        # user should redirect to the authenticated user page
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue("/?auth_user=user" in response.url)
+        # make sure the user's actually logged in
+        self.assertTrue(self.client.session.get('_auth_user_id'))
 
         # log the user out
-        response = self.client.get("/account/logout")
+        self.client.get("/account/logout", follow=True)
 
-        # check to make sure the login page redirects to login.html
-        # and not a different authenticated page
-        response = self.client.get("/account/login")
-        self.assertTemplateUsed(response, 'login.html')
-
-
-class ForgotPasswordPageTest(TestCase):
-
-    def setUp(self):
-        self.client = Client(enforce_csrf_checks=False)
-        # create a new user
-
-    def test_forgot_password_page_resolves_to_forgot_page_view(self):
-        found = resolve('/account/forgot')
-        self.assertEqual(found.func, forgot)
-
-    def test_forgot_password_page_returns_correct_template(self):
-        response = self.client.get('/account/forgot', follow=True)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'forgot.html')
-
-    def test_forgot_post_with_valid_email(self):
-        # test is incomplete. requires a user in the database
-        # functional test
-        pass
-
-    def test_forgot_post_bad_email(self):
-        # functional test
-        pass
-
-
-class JdbcPasswordTest(TestCase):
-
-    def setUp(self):
-        # create a new user
-        self.client = Client(enforce_csrf_checks=False)
-        self.password = "password"
-        self.hashed_password = hashlib.sha1("password").hexdigest()
-        self.user, created = User.objects.get_or_create(
-            id=10, username="user",
-            password=self.hashed_password,
-            email="noreply.csail.mit.edu",
-            f_name="f_name",
-            l_name="l_name", active=True)
-
-    def test_jdbc_password_unauthenticated(self):
-        # test that this redirects unauthentiated users to the login page
-        response = self.client.get('/account/jdbc_password', follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'login.html')
-
-    def test_jdbc_password_authenticated(self):
-        # login
-        login_credentials = {'login_id': self.user.username,
-                             'login_password': self.password}
-        response = self.client.post('/account/login', login_credentials)
-
-        # get the jdbc password
-        response = self.client.get('/account/jdbc_password', follow=True)
-
-        # this is not safe. Will be fixed using OIDC connect - ARC 2015-07-06
-        self.assertContains(response, self.hashed_password,
-                            count=None, status_code=200,
-                            msg_prefix='', html=False)
-
-
-class ResetPasswordTest(TestCase):
-
-    def setUp(self):
-        self.client = Client(enforce_csrf_checks=False)
-        # create a new user
-
-    def test_reset_password(self):
-        # response = self.client.post('/account/reset',
-        #     {'user_email': '', 'new_password': 'smith'})
-        # self.assertEqual(response.status_code, 200)
-        # self.assertTemplateUsed(response, 'login.html')
-        # functional test
-        pass
+        # make sure the user is actually logged out
+        self.assertEqual(self.client.session.get('_auth_user_id'), None)

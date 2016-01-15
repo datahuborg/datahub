@@ -1,24 +1,43 @@
 {% extends "minimal-layout.html" %}
+
+{% load crispy_forms_tags %}
+
 {% block headlink-right %}
-  <a href="/account/register" title="Sign In" id="id_sign_up" class="btn btn-success navbar-btn">Sign Up</a>
+  <a href="{% url 'register' %}" title="Sign Up" id="id_sign_up" class="btn btn-success navbar-btn">Sign Up</a>
 {% endblock %}
 {% block content %}
-<div class="container">
-<form class="form-signin" role="form" method="POST" action="/account/login">
+<div class="container-fluid" style="max-width:740px;">
+<form class="col-xs-12 col-sm-6 col-sm-offset-3" role="form" method="POST" action="{% url 'login' %}">
   {% csrf_token %}
-  <input type="hidden" name="redirect_url" value="{{redirect_url}}" />
+  <input type="hidden" name="redirect_url" value="{{ redirect_url }}" />
   <h3>Returning User -- Sign in</h3>
-  <div id="error">
-    {% for error in errors %}
-      <span class="error">{% autoescape off %}{{error}}{% endautoescape %}</span><br />
-    {% endfor %}
+  <br />
+  <br />
+  {% if user and not user.is_anonymous %}
+  <p>Already logged in.</p>
+  <p>username: {{ user.username }}</p>
+  <p>email: {{ user.email }}</p>
+  <br>
+  <a href="{% url 'logout' %}">Logout</a>
+  {% else %}
+  <label for="login_id">Choose an identity provider</label>
+  <div class="list-group">
+  {% for provider in providers %}
+    <a class="list-group-item" href="{% url 'social:begin' provider.backend %}?next=/"><i class="fa {{ provider.icon }} fa-lg fa-fw"></i>&nbsp; {{ provider.name }}</a>
+  {% endfor %}
   </div>
   <br />
-  <label for="login_id">Username or Email</label><br />
-  <input type="text" class="form-control" name="login_id" id="id_username" placeholder="Your email address" {% if values.login_id %}value="{{values.login_id}}"{% endif %}/><br />
-  <label for="password">Password</label><br />
-  <input type="password" class="form-control" name="login_password" id="id_password" placeholder="Your password" {% if values.login_password %}value="{{values.login_password}}"{% endif %}/><br />
+  <div class="row signup-or">
+    <div class="col-xs-5"><hr></div>
+    <div class="col-xs-2 or-text">or</div>
+    <div class="col-xs-5"><hr></div>
+  </div>
+  <br />
+  {{ form|crispy }}
+  <a href="{% url 'password_reset' %}">Forgot password?</a>
+  <br /><br />
   <button class="btn btn-lg btn-primary btn-block" id="id_sign_in_action" type="submit">Sign In</button>
+  {% endif %}
 </form>
 </div>
 {% endblock %}

@@ -1,0 +1,86 @@
+<!--
+@author: Anant Bhardwaj
+@date: Feb 12, 2012
+
+Confer Login/Register Template Layout
+-->
+
+<html>
+
+<head>
+<title>DataHub</title>
+<meta charset="utf-8">
+
+<meta name="HandheldFriendly" content="true" />
+<meta name="viewport" content="initial-scale=1.0 user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="Description" content="DataHub is a (GitHub-Like) Data Ecosystem for Individuals, Teams and People. It provides an efficient platform and easy to use tools/interfaces for publishing of your own data (hosting, sharing, collaboration), using other’s data (querying, linking), and making sense of data (analysis, visualization)" />
+
+
+<link rel="stylesheet" type="text/css" href="/static/css/datahub.css"/>
+<link href="https://code.jquery.com/ui/1.8.16/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.7.2.min.js"></script>	
+<script type="text/javascript" src="https://code.jquery.com/ui/1.8.16/jquery-ui.min.js"></script>
+<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+</head>
+
+<header class="navbar navbar-default navbar-fixed-top" role="banner">
+  <div class="container">
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" id="logo" href="/">DataHub</a>
+  </div>
+  
+  <div class="navbar-collapse collapse">
+    <div class="navbar-right">
+      {% block headlink-right %}
+      {% endblock %}
+    </div>
+  </div>
+  </div>
+</header>
+
+<body>
+
+<div class="push"></div>
+
+{% block content %}
+{% endblock %}
+{% load staticfiles %}
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55860060-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+<div class="push"></div>
+<div class="container">
+  <div class="navbar navbar-default navbar-static-bottom text-center">
+  <div class="navbar-footer">
+    <a href="/www/" class="btn navbar-btn">About</a> &nbsp; &nbsp;
+    <a href="{% static 'docs/html/index.html' %}" class="btn navbar-btn">API Docs</a> &nbsp; &nbsp;
+    <a href="https://github.com/abhardwaj/datahub" class="btn navbar-btn">GitHub Repo</a> &nbsp; &nbsp;
+    <a href="https://github.com/abhardwaj/datahub/tree/master/src/examples" class="btn navbar-btn">Sample Code</a>
+  </div>
+  </div>
+</div>
+
+</body>
+</html>

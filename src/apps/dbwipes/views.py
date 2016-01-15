@@ -103,9 +103,9 @@ def has_scorpion():
 
 @returns_json
 def dbs(request):
-  username = get_login(request)
+  username = request.user.get_username()
   manager = DataHubManager(user=username)
-  dbnames = pick(manager.list_repos()['tuples'], 0)
+  dbnames = manager.list_repos()
   #q = "SELECT datname FROM pg_database where datistemplate = false;"
   #dbnames = [str(row[0]) for row in manager.execute_sql(query=q)['tuples']]
   return {'databases': dbnames}
@@ -114,18 +114,17 @@ def dbs(request):
 
 @returns_json
 def tables(request):
-  username = get_login(request)
+  username = request.user.get_username()
   manager = DataHubManager(user=username)
   repo = request.GET.get('repo')
-  tables = [str(row[0]) for row in manager.list_tables(repo)['tuples']]
+  tables = manager.list_tables(repo)
   return {'tables': tables}
 
 
 
 def get_schema(repo, table, username):
-  full_tablename = "%s.%s" % (repo, table)
   manager = DataHubManager(user=username)
-  pairs = manager.get_schema(full_tablename)['tuples']
+  pairs = manager.get_schema(repo, table)
   schema = {}
   for col, typ in pairs:
     if typ == 'text':

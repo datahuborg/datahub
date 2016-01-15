@@ -5,7 +5,8 @@ RUN apt-get update && apt-get install -y \
         python-pip \
         python-dev \
         libpq-dev \
-        libpq5 && \
+        libpq5 \
+        libffi-dev && \
         apt-get clean
 RUN mkdir /datahub
 WORKDIR /datahub

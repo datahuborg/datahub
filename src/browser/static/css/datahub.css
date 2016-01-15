@@ -56,17 +56,43 @@ body {
 .form-signin .form-control:focus {
   z-index: 2;
 }
-.form-signin input[type="email"] {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
-.form-signin input[type="password"] {
-  margin-bottom: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+
+.form-signin button[type="submit"] {
+  margin-top: 10px;
 }
 
+.oidc-buttons .btn {
+  width: 148px;
+}
+
+.btn.oidc-mit, .btn.oidc-mit:hover {
+  border-color: #8a8b8c;
+  background: #8a8b8c;
+  color: white;
+}
+
+.btn.oidc-google, .btn.oidc-google:hover {
+  border-color: #dc4e41;
+  background: #dc4e41;
+  color: white;
+}
+
+.signup-or hr {
+  margin-top: 0px;
+  margin-bottom: 10px;
+  border-color: #ddd;
+}
+
+.signup-or .or-text {
+  margin-top: -10px;
+  text-align:center;
+  line-height: 16px;
+  color:#aaa;
+}
+
+.debug-block {
+  color:#aaa;
+}
 
 /* GLOBAL */
 

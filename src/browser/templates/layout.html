@@ -20,13 +20,12 @@ DataHub Template Layout
 
 
 <link rel="stylesheet" type="text/css" href="/static/css/datahub.css" />
-<link rel="stylesheet" type="text/css" href="/static/lib/jquery-ui/css/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.8.16/themes/smoothness/jquery-ui.css"/>
 <link rel="stylesheet" type="text/css" href="/static/lib/jquery-terminal/css/jquery.terminal.css" />
 
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/css/bootstrap.css">
 <link rel="stylesheet" type="text/css" href="/static/lib/bootstrap/css/docs.min.css" />
-<link rel="stylesheet" type="text/css" href="/static/lib/font-awesome/css/font-awesome.min.css" />
-<link rel="stylesheet" type="text/css" href="/static/lib/octicons/octicons.css" /> 
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.1/skins/square/green.css">
 <link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.bootstrap.css" />
 <link rel="stylesheet" type="text/css" href="/static/datatables/css/dataTables.bootstrap.extra.css" />
@@ -37,7 +36,6 @@ DataHub Template Layout
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
 <script type="text/javascript" src="/static/lib/jquery-terminal/jquery.terminal-0.8.8.min.js"></script>
-<script type="text/javascript" src="/static/lib/bootstrap/js/docs.min.js"></script>
 
 <script type="text/javascript" src="/static/lib/thrift/thrift.js"></script>
 <script type="text/javascript" src="/static/lib/datahub/datahub_types.js"></script>
@@ -103,11 +101,11 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
             </a>
             
             <ul class="dropdown-menu" role="menu">
-              <li><a href="/apps/console" title="SQL Console">Launch Terminal</a></li>
-              <li><a href="/developer/apps" title="Create App">Create App</a></li>
+              <li><a href="/apps/console" id="id_launch_terminal" title="SQL Console">Launch Terminal</a></li>
+              <li><a href="/developer/apps" id="id_create_app" title="Create App">Create App</a></li>
               <li class="divider"></li>
-              <li><a href="/account/settings" title="Sign Out">Settings</a></li>  
-              <li><a href="/account/logout" id="id_sign_out" title="Sign Out">Sign Out</a></li>  
+              <li><a href="/account/settings" id="id_settings" title="Sign Out">Settings</a></li>
+              <li><a href="/account/logout" id="id_sign_out" title="Sign Out">Sign Out</a></li>
             </ul>
           </li>     
         </ul>

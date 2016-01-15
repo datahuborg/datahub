@@ -11,12 +11,12 @@
   <div class="panel panel-default">
   <div class="panel-heading">
     <span class="lead">
-      Repositories &nbsp;
+      Your Repositories &nbsp;
       <a class="btn btn-default btn-sm" href="/create/{{repo_base}}/repo" title="Create a New Repository"><span class="glyphicon glyphicon-plus"></span></a>
     </span>
   </div>
   
-  {% if repos|length > 0 %}
+  {% if repos|length > 0 or collaborator_repos|length > 0 %}
     <div class="table-responsive">
       <table id="repos" class="table">           
         {% for repo in repos %}
@@ -28,14 +28,14 @@
             {% else %}
               <td>Private</td>
             {% endif %}
-            
-            <td class="text-right" style="width: 25em; max-width: 30em;">
-              <a href="/settings/{{repo.owner}}/{{repo.name}}" title="Shared with {{repo.collaborators_str}}">{{repo.num_collaborators}} collaborators</a>
+            <td class="text-right">
+              <a href="/settings/{{repo.owner}}/{{repo.name}}" title="Shared with {{repo.collaborators|join:', '}}">{{repo.collaborators|length}} collaborator(s)</a>
               &nbsp;&nbsp;
+            </td>
 
+            <td class="text-right" style="width: 5em; max-width: 30em;">
               <a href="/settings/{{repo.owner}}/{{repo.name}}" title="Manage collaborators"><span class="glyphicon glyphicon-cog"></span></a>
               &nbsp;&nbsp;
-
               <span class="modal-confirm-dialog"
                   target-modal="#confirm-modal"
                   target-modal-title="Confirm Delete"
@@ -50,10 +50,52 @@
           </tr>
         {% endfor %}
 
+          
+        {% if collaborator_repos|length > 0%}
+          <tr>
+            <th class="lead" style="background-color:#f5f5f5;">Collaborator's Repositories &nbsp; <i class="fa fa-exchange"></i></th>
+            <th style="background-color:#f5f5f5;"></th>
+            <th style="background-color:#f5f5f5;"></th>
+            <th style="background-color:#f5f5f5;"></th>
+          </tr>
+        {% endif %}
+        {% for repo in collaborator_repos %}
+          <tr>
+            <td><a class="link" href=/browse/{{repo.repo_base}}/{{repo.repo_name}}>{{repo.repo_name}}</a></td>
+            
+       
+            <td>Private</td>
+
+            <td class="text-right">
+              {{ repo.repo_base }} (owner)
+            </td>
+            
+            <td class="text-right" style="width: 5em; max-width: 30em;">
+              
+              &nbsp;&nbsp;&nbsp;&nbsp;
+
+              <span class="modal-confirm-dialog"
+                  target-modal="#confirm-modal"
+                  target-modal-title="Confirm Delete"
+                  target-modal-body="This will permanently remove you as a collaborator from the repository <label>{{repo.repo_owner}}/{{repo.repo_name}}</label>. The operation can't be undone. Are you sure?"
+                  target-modal-operation="Delete"
+                  target-url="/collaborator/repo/{{repo.repo_base}}/{{repo.repo_name}}/remove/{{login}}"
+                  title="Delete">
+                <a href="#"><span class="glyphicon glyphicon-trash"></span></a>
+              </span>
+              &nbsp;&nbsp;
+             
+            </td>            
+          </tr>
+        {% endfor %}
+
+
       </table>
     </div>
+  {% elif repo_base != login %}
+    <p class="bg-warning"><strong>{{repo_base}}</strong> has not made any repositories avaialble to you.</p>
   {% else %}
-    <p class="bg-warning">No repository in <strong>{{repo_base}}</strong></p>
+    <p class="bg-warning">No repositories in <strong>{{repo_base}}</strong></p>
   {% endif %} 
   </div>
 </div>

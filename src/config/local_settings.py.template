@@ -1,0 +1,55 @@
+DATAHUB_DOMAIN = 'datahub-local.mit.edu'
+
+# Set `USE_X_FORWARDED_HOST = True` to use the host and ports passed along by
+# a proxy like nginx when using forwarded web ports.
+#
+# USE_X_FORWARDED_HOST = True
+
+# python-social-auth settings
+# Copy to local_settings.py and fill in settings below to enable social logins.
+
+AUTHENTICATION_BACKENDS = (
+    'social.backends.google.GoogleOAuth2',
+    'social.backends.facebook.FacebookOAuth2',
+    'social.backends.twitter.TwitterOAuth',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+# Check docs at:
+#   https://docs.djangoproject.com/en/1.8/topics/email/
+#   https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-EMAIL_HOST
+EMAIL_HOST = ''
+EMAIL_PORT = 587
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_TIMEOUT = 300
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
+# Check docs at:
+#   http://psa.matiasaguirre.net/docs/backends/google.html#google-oauth2
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
+
+# Check docs at:
+#   http://psa.matiasaguirre.net/docs/backends/facebook.html#oauth2
+SOCIAL_AUTH_FACEBOOK_KEY = ''
+SOCIAL_AUTH_FACEBOOK_SECRET = ''
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+  'locale': 'en_US',
+  'fields': 'id, name, email'
+}
+
+# Check docs at:
+#   http://psa.matiasaguirre.net/docs/backends/twitter.html
+SOCIAL_AUTH_TWITTER_KEY = ''
+SOCIAL_AUTH_TWITTER_SECRET = ''
+
+# Register your own instance with MIT's identity provider at:
+#   https://oidc.mit.edu/manage/dev/dynreg/new
+SOCIAL_AUTH_MIT_OIDC_KEY = ''
+SOCIAL_AUTH_MIT_OIDC_SECRET = ''
+SOCIAL_AUTH_MIT_OIDC_ID_TOKEN_DECRYPTION_KEY = SOCIAL_AUTH_MIT_OIDC_SECRET
+SOCIAL_AUTH_MIT_OIDC_TOKEN_SIGNING_ALGORITHM = 'RS256'
+SOCIAL_AUTH_MIT_OIDC_USERINFO_SIGNING_ALGORITHM = 'RS256'

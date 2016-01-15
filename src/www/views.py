@@ -1,7 +1,6 @@
 from django.shortcuts import render_to_response
-
-from account.auth import *
-
+from django.http import HttpResponse
+import json
 
 '''
 @author: Anant Bhardwaj
@@ -10,12 +9,12 @@ from account.auth import *
 Datahub Console
 '''
 
-def index(request):
-  try:
-    c = {'login': get_login(request)} 
-    return render_to_response("index.html", c)
-  except Exception, e:
-    return HttpResponse(
-        json.dumps({'error': str(e)}),
-        content_type="application/json")
 
+def index(request):
+    try:
+        c = {'login': request.user.get_username()}
+        return render_to_response("index.html", c)
+    except Exception as e:
+        return HttpResponse(
+            json.dumps({'error': str(e)}),
+            content_type="application/json")

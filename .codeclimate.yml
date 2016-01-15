@@ -3,6 +3,8 @@ engines:
     enabled: true
   radon:
     enabled: true
+    config:
+      threshold: 'C'
   fixme:
     enabled: true
     checks:
