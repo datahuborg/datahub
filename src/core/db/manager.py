@@ -450,9 +450,7 @@ class DataHubManager:
                 app_id = app.app_id
                 DataHubManager.remove_app(app_id=app_id)
 
-            collaborators = Collaborator.objects.filter(user=user)
-            for collaborator in collaborators:
-                collaborator.delete()
+            Collaborator.objects.filter(user=user).delete()
         except:
             user = None
 
