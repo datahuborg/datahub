@@ -1,5 +1,13 @@
 #!/bin/bash
 
+if (( EUID != 0 )); then
+   echo "Script must be run as root."
+   exit 126
+fi
+
+# Default use case is to run DataHub in a Vagrant VM. Nonstandard setups should run this script from the DataHub working directory.
+cd /vagrant &> /dev/null
+
 # Build the project's Docker images if you don't want to pull the prebuilt ones from Docker Hub
 echo "Building Docker images..."
 echo "Building datahuborg/postgres (1/4)"

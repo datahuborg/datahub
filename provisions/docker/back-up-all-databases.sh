@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if (( EUID != 0 )); then
+   echo "Script must be run as root."
+   exit 126
+fi
+
 FILE="/tmp/backup.gz"
 echo "Backing up all databases from db container into $FILE on host machine..."
 if [ ! -f $FILE ]; then
