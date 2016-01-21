@@ -20,6 +20,11 @@
 # data path is declared in the base postgres image, so having one requires the
 # other.
 
+if (( EUID != 0 )); then
+   echo "Script must be run as root."
+   exit 126
+fi
+
 echo "Creating Docker containers..."
 echo "(1/5) Creating \"logs\" - Data container for all server logs"
 docker create --name logs \

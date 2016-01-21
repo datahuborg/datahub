@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if (( EUID != 0 )); then
+   echo "Script must be run as root."
+   exit 126
+fi
+
 echo "Starting containers..."
 docker start db
 echo "Waiting 5 seconds for db to spin up..."

@@ -20,9 +20,14 @@ openssl req \
     -keyout /ssl/nginx.key \
     -out /ssl/nginx.crt 2> /dev/null
 
-cd /vagrant
-sh provisions/docker/build-images.sh
-sh provisions/docker/create-dev-containers.sh
+# Make Docker scripts available in shell as dh-* commands.
+for f in /vagrant/provisions/docker/*.sh; do
+    ln -s $f /usr/local/sbin/dh-$(basename $f .sh);
+done
+
+source ~/.profile
+dh-build-images
+dh-create-dev-containers
 
 if [ ! -f src/config/secret_key.py ]; then
     echo "No Django SECRET_KEY found, generating a new one..."
