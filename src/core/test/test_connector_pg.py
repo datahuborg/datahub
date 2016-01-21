@@ -275,7 +275,7 @@ class SchemaListCreateDeleteShare(TestCase):
         username = 'delete_me_user_name'
 
         params = (repo, username, repo, username, repo, username)
-        res = self.backend.delete_collaborator(repo=repo, username=username)
+        res = self.backend.delete_collaborator(repo=repo, collaborator=username)
 
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], delete_collab_sql)
