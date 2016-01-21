@@ -137,9 +137,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 
-    # Uncomment the next line and set SECURE_SSL_REDIRECT = True below to
-    # redirect all non-HTTPS requests to HTTPS.
-    'django.middleware.security.SecurityMiddleware',
+    # Uncomment the next line and set SECURE_SSL_REDIRECT = True in your
+    # local_settings.py to redirect all non-HTTPS requests to HTTPS.
+    # 'django.middleware.security.SecurityMiddleware',
 
     'browser.middleware.XForwardedPort',
     # Uncomment the next line for simple clickjacking protection:
@@ -255,12 +255,6 @@ LOGGING = {
         },
     }
 }
-
-# Set `SECURE_SSL_REDIRECT = True` and enable
-# django.middleware.security.SecurityMiddleware above to redirect all non-
-# HTTPS requests to HTTPS.
-
-SECURE_SSL_REDIRECT = True
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 

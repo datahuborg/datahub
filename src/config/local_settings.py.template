@@ -1,9 +1,15 @@
 DATAHUB_DOMAIN = 'datahub-local.mit.edu'
 
+# Set `SECURE_SSL_REDIRECT = True` and enable
+# django.middleware.security.SecurityMiddleware in settings.py to redirect all
+# non-HTTPS requests to HTTPS.
+#
+# SECURE_SSL_REDIRECT = False
+
 # Set `USE_X_FORWARDED_HOST = True` to use the host and ports passed along by
 # a proxy like nginx when using forwarded web ports.
 #
-# USE_X_FORWARDED_HOST = True
+# USE_X_FORWARDED_HOST = False
 
 # python-social-auth settings
 # Copy to local_settings.py and fill in settings below to enable social logins.

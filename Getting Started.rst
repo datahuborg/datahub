@@ -68,8 +68,8 @@ If your host environment does not allow use of ports 80 and 443, it is possible 
 3. Edit the Django settings file at src/config/settings.py to make Django look for those headers.
     .. code-block:: python
     
-        # Uncomment:
-        USE_X_FORWARDED_HOST = True 
+        # Uncomment and set to True:
+        USE_X_FORWARDED_HOST = True
 
 4. From the host, run ``vagrant reload`` to bring up the VM with your custom ports forwarded.
    
