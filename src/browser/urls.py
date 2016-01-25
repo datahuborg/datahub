@@ -19,6 +19,8 @@ urlpatterns = patterns(
     url('', include('social.apps.django_app.urls', namespace='social')),
     url(r'^account/', include('account.urls')),
 
+    # API Pages
+    url(r'^api/', include('api.urls', namespace='api')),
 
     # Thrift Services
     url(r'^service$', 'browser.views.service_core_binary',
