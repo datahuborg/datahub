@@ -9,7 +9,7 @@ from .serializer import UserSerializer
 
 @api_view(['GET'])
 @login_required
-def user(request):
+def user(request, format=None):
     username = request.user.get_username()
     user = User.objects.get(username=username)
 
