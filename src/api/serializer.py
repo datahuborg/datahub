@@ -11,26 +11,28 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class DataHubSerializer(serializers.BaseSerializer):
-    # def __init__(self, username, repo_base=None, many=False):
-    #     serializers.BaseSerializer.__init__(self)
 
-        # self.username = username
-        # self.user = User.objects.get(username=self.username)
-        # if not repo_base:
-        #     self.repo_base = username
+    def __init__(self, *args, **kwargs):
+        self.username = kwargs['username']
+        self.repo_base = kwargs['repo_base']
+
+        kwargs.pop('username')
+        kwargs.pop('repo_base')
+
+        super(DataHubSerializer, self).__init__(*args, **kwargs)
+
+        # fill in self.instance, because the BaseSerializer class is
+        # tighly coupled with django models. By just adding in a variable,
+        # checks for None pass
+        self.instance = 'dummy_instance'
+
+    def is_valid(self, raise_exception=False):
+        super(DataHubManager, self).is_valid(raise_exception=False)
 
     def to_representation(self, obj):
-        # import pdb; pdb.set_trace()
-
-        username = obj
-        repo_base = username
-
-        manager = DataHubManager(user=username, repo_base=repo_base)
+        manager = DataHubManager(user=self.username, repo_base=self.repo_base)
         repos = manager.list_repos()
         return {'repos': repos}
-
-
-
 
 
 # class UserRepoSerializer(DataHubSerializer):
