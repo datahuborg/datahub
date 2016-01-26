@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from .serializer import UserSerializer, DataHubSerializer
+from .serializer import UserSerializer, UserRepoSerializer
 
 
 @api_view(['GET'])
@@ -20,8 +20,8 @@ def user(request, format=None):
 @login_required
 def user_repos(request, format=None):
     username = request.user.get_username()
-    user = User.objects.get(username=username)
+    repo_base = username
 
-    serializer = DataHubSerializer(user, many=False)
-
+    serializer = UserRepoSerializer(username=username, repo_base=repo_base)
     return Response(serializer.data)
+

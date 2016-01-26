@@ -30,18 +30,15 @@ class DataHubSerializer(serializers.BaseSerializer):
         super(DataHubManager, self).is_valid(raise_exception=False)
 
     def to_representation(self, obj):
+        message = ('DataHubSerializer is meant to be abstract')
+        raise NotImplementedError(message)
+
+
+class UserRepoSerializer(DataHubSerializer):
+    def __init__(self, *args, **kwargs):
+        super(UserRepoSerializer, self).__init__(*args, **kwargs)
+
+    def to_representation(self, obj):
         manager = DataHubManager(user=self.username, repo_base=self.repo_base)
         repos = manager.list_repos()
         return {'repos': repos}
-
-
-# class UserRepoSerializer(DataHubSerializer):
-#     def __init__(self, username, repo_base=None):
-#         self = DataHubSerializer.__init__(self, username=username, repo_base=repo_base)
-#         import pdb; pdb.set_trace()
-#         print(self)
-
-
-#     import pdb; pdb.set_trace()
-#     # data = self.manager.list_repos()
-#     data = 'foo'
