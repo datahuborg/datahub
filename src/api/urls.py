@@ -5,9 +5,12 @@ from . import views
 urlpatterns = [
 
     # v1 api
-    url(r'^v1/user/$', views.user),
-    url(r'^v1/user/repos/$', views.user_repos),
-    url(r'^v1/repos/$', views.user_repos),
+    url(r'^v1/user/$', views.user, name='user'),
+    url(r'^v1/user/repos/$', views.own_repos, name='user_repos'),
+    url(r'^v1/repos/$', views.all_repos, name='repos_convenience'),
+
+    url(r'^v1/repos/$', views.own_repos, name='own_repos'),
+    url(r'^v1/repos/(\w+)/?', views.collaborator_repos, name='collaborator_repos'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

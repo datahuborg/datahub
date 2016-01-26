@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
+from inventory.models import Collaborator
 from core.db.manager import DataHubManager
 
 
@@ -41,4 +42,14 @@ class UserRepoSerializer(DataHubSerializer):
     def to_representation(self, obj):
         manager = DataHubManager(user=self.username, repo_base=self.repo_base)
         repos = manager.list_repos()
-        return {'repos': repos}
+        repos.sort()
+        return repos
+
+
+class CollaboratorRepoSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        super(CollaboratorRepoSerializer, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = Collaborator
+        fields = ('repo_name', 'permission', 'user')
