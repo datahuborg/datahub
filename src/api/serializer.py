@@ -20,18 +20,20 @@ class DataHubSerializer(serializers.BaseSerializer):
         kwargs.pop('username')
         kwargs.pop('repo_base')
 
-        super(DataHubSerializer, self).__init__(*args, **kwargs)
-
         # fill in self.instance, because the BaseSerializer class is
         # tighly coupled with django models. By just adding in a variable,
         # checks for None pass
-        self.instance = 'dummy_instance'
+        if args == ():
+            args = ('dummy_instance',)
+
+        super(DataHubSerializer, self).__init__(*args, **kwargs)
 
     def is_valid(self, raise_exception=False):
         super(DataHubManager, self).is_valid(raise_exception=False)
 
     def to_representation(self, obj):
-        message = ('DataHubSerializer is meant to be abstract')
+        message = ('DataHubSerializer is meant to be abstract. '
+                   'You must implement the to_representation() method.')
         raise NotImplementedError(message)
 
 
@@ -43,13 +45,42 @@ class UserRepoSerializer(DataHubSerializer):
         manager = DataHubManager(user=self.username, repo_base=self.repo_base)
         repos = manager.list_repos()
         repos.sort()
+
+        repo_obj_list = []
+        for repo in repos:
+            collaborators = manager.list_collaborators(repo)
+
+            repo_obj_list.append({
+                'repo_name': repo,
+                'permissions': 'ALL',
+                'collaborators': collaborators,
+                'owner': self.username
+                })
+
+        repos = {'repos': repo_obj_list}
         return repos
 
 
-class CollaboratorRepoSerializer(serializers.ModelSerializer):
+class CollaboratorRepoSerializer(DataHubSerializer):
     def __init__(self, *args, **kwargs):
         super(CollaboratorRepoSerializer, self).__init__(*args, **kwargs)
 
-    class Meta:
-        model = Collaborator
-        fields = ('repo_name', 'permission', 'user')
+    def to_representation(self, obj):
+        manager = DataHubManager(user=self.username, repo_base=self.repo_base)
+
+        # get the collaborators
+        user = User.objects.get(username=self.username)
+        collab_repos = Collaborator.objects.filter(user=user)
+
+        repo_obj_list = []
+        for repo in collab_repos:
+            collaborators = manager.list_collaborators(repo.repo_name)
+
+            repo_obj_list.append({
+                'repo_name': repo.repo_name,
+                'permission': repo.permission,
+                'owner': repo.repo_base,
+                'collaborators': collaborators
+                })
+
+        return {'repos': repo_obj_list}

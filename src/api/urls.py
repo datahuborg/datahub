@@ -10,7 +10,8 @@ urlpatterns = [
     url(r'^v1/repos/$', views.all_repos, name='repos_convenience'),
 
     url(r'^v1/repos/$', views.own_repos, name='own_repos'),
-    url(r'^v1/repos/(\w+)/?', views.collaborator_repos, name='collaborator_repos'),
+    url(r'^v1/repos/(\w+)/?', views.collaborator_repos,
+        name='collaborator_repos'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
