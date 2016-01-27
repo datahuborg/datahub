@@ -37,12 +37,21 @@ class DataHubSerializer(serializers.BaseSerializer):
         raise NotImplementedError(message)
 
 
-class UserRepoSerializer(DataHubSerializer):
+class RepoSerializer(DataHubSerializer):
     def __init__(self, *args, **kwargs):
-        super(UserRepoSerializer, self).__init__(*args, **kwargs)
 
-    def to_representation(self, obj):
-        manager = DataHubManager(user=self.username, repo_base=self.repo_base)
+        self.include_own = kwargs.get('include_own')
+        self.include_all_collabs = kwargs.get('include_all_collabs')
+        self.include_specific_collab = kwargs.get('include_specific_collab')
+
+        kwargs.pop('include_own', None)
+        kwargs.pop('include_all_collabs', None)
+        kwargs.pop('include_specific_collab', None)
+
+        super(RepoSerializer, self).__init__(*args, **kwargs)
+
+    def get_own_repos(self):
+        manager = DataHubManager(user=self.username, repo_base=self.username)
         repos = manager.list_repos()
         repos.sort()
 
@@ -57,15 +66,9 @@ class UserRepoSerializer(DataHubSerializer):
                 'owner': self.username
                 })
 
-        repos = {'repos': repo_obj_list}
-        return repos
+        return repo_obj_list
 
-
-class CollaboratorRepoSerializer(DataHubSerializer):
-    def __init__(self, *args, **kwargs):
-        super(CollaboratorRepoSerializer, self).__init__(*args, **kwargs)
-
-    def to_representation(self, obj):
+    def get_specific_collab_repos(self):
         manager = DataHubManager(user=self.username, repo_base=self.repo_base)
 
         # get the collaborators
@@ -83,4 +86,37 @@ class CollaboratorRepoSerializer(DataHubSerializer):
                 'collaborators': collaborators
                 })
 
-        return {'repos': repo_obj_list}
+        return repo_obj_list
+
+    def get_all_collab_repos(self):
+        manager = DataHubManager(user=self.username, repo_base=self.username)
+        collab_repos = manager.list_collaborator_repos()
+
+        repo_obj_list = []
+        for repo in collab_repos:
+            collaborators = manager.list_collaborators(repo.repo_name)
+
+            repo_obj_list.append({
+                'repo_name': repo.repo_name,
+                'permission': repo.permission,
+                'owner': repo.repo_base,
+                'collaborators': collaborators
+                })
+
+        return repo_obj_list
+
+    def to_representation(self, obj):
+        own_repos = self.get_own_repos()
+        all_collab_repos = self.get_all_collab_repos()
+        specific_collab_repos = self.get_specific_collab_repos()
+
+        combined_repos = []
+
+        if self.include_own:
+            combined_repos += own_repos
+
+        if self.include_all_collabs:
+            combined_repos += all_collab_repos
+        elif self.include_specific_collab:
+            combined_repos += specific_collab_repos
+        return {'repos': combined_repos}

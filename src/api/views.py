@@ -3,8 +3,7 @@ from django.contrib.auth.decorators import login_required
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from .serializer import (UserSerializer, UserRepoSerializer,
-                         CollaboratorRepoSerializer)
+from .serializer import (UserSerializer, RepoSerializer)
 
 
 @api_view(['GET'])
@@ -23,34 +22,44 @@ def own_repos(request, format=None):
     username = request.user.get_username()
     repo_base = username
 
-    serializer = UserRepoSerializer(username=username, repo_base=repo_base)
+    serializer = RepoSerializer(username=username, repo_base=repo_base,
+                                include_own=True)
     return Response(serializer.data)
 
 
+# WORKS!
 @api_view(['GET'])
 @login_required
 def all_repos(request, format=None):
     username = request.user.get_username()
     repo_base = username
-    own_serializer = UserRepoSerializer(username=username, repo_base=repo_base)
-    collab_serializer = CollaboratorRepoSerializer(
-        username=username, repo_base=repo_base)
+    serializer = RepoSerializer(username=username, repo_base=repo_base,
+                                include_own=True,
+                                include_all_collabs=True)
 
-    combined_data = {
-        'repos': own_serializer.data['repos'] + collab_serializer.data['repos']
-        }
-
-    return Response(combined_data)
+    return Response(serializer.data)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @login_required
 def collaborator_repos(request, repo_base, format=None):
+    # GET
     username = request.user.get_username()
 
+    include_specific_collab, include_own = True, False
+    # if the user is actually just requesting their own repos
     if username == repo_base:
-        return own_repos(request)
+        include_specific_collab, include_own = False, True
 
-    serializer = CollaboratorRepoSerializer(
-        username=username, repo_base=repo_base)
+    serializer = RepoSerializer(username=username, repo_base=repo_base,
+                                include_own=include_own,
+                                include_all_collabs=include_specific_collab)
+
+
     return Response(serializer.data)
+
+    # # POST
+    # if request.method == 'POST':
+    #     repo = request.POST['repo']
+    #     manager = DataHubManager(user=username, repo_base=repo_base)
+    #     manager.create_repo(repo)
