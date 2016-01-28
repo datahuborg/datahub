@@ -14,14 +14,20 @@ class Command(BaseCommand):
         for user in users:
             username = user.username
             if not DataHubManager.user_data_folder_exists(username):
-                DataHubManager.create_user_data_folder(repo_base = username)
+                DataHubManager.create_user_data_folder(repo_base=username)
+                self.stdout.write(
+                    'created user data folder for %s.\n' % (username))
 
         legacy_users = DataHubLegacyUser.objects.all()
         for user in legacy_users:
             username = user.username
             if not DataHubManager.user_data_folder_exists(username):
-                DataHubManager.create_user_data_folder(repo_base = username)
+                DataHubManager.create_user_data_folder(repo_base=username)
+                self.stdout.write(
+                    'created user data folder for %s.\n' % (username))
 
-        success_message = ('I came. I saw. I conquered.\n'
+        success_message = ('I hate to advocate drugs, alcohol, violence, or '
+                           'insanity to anyone, but they\'ve always worked '
+                           'for me.\n'
                            '/user_data directory creation is complete.')
         self.stdout.write(self.style.MIGRATE_SUCCESS(success_message))
