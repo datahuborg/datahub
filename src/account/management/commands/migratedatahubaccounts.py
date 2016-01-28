@@ -52,7 +52,8 @@ class Command(BaseCommand):
                         email=old_user.email
                         )
                     new_users.append(new_user)
-                DataHubManager.create_user_data_folder(repo_base=username)
+                DataHubManager.create_user_data_folder(
+                    repo_base=old_user.username)
 
             for app in apps:
                 username = app.legacy_user.username
