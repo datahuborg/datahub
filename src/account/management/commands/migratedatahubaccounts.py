@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
+from core.db.manager import DataHubManager
 from inventory.models import *
 import factory
 from django.db.models import signals
@@ -51,6 +52,7 @@ class Command(BaseCommand):
                         email=old_user.email
                         )
                     new_users.append(new_user)
+                DataHubManager.create_user_data_folder(repo_base=username)
 
             for app in apps:
                 username = app.legacy_user.username
