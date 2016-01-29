@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
@@ -18,48 +20,43 @@ def user(request, format=None):
 
 @api_view(['GET'])
 @login_required
-def own_repos(request, format=None):
+def user_repos(request, format=None):
     username = request.user.get_username()
     repo_base = username
 
-    serializer = RepoSerializer(username=username, repo_base=repo_base,
-                                include_own=True)
-    return Response(serializer.data)
+    serializer = RepoSerializer(username=username, repo_base=repo_base)
+    return Response(serializer.user_owned_repos)
 
 
-# WORKS!
 @api_view(['GET'])
 @login_required
-def all_repos(request, format=None):
+def user_accessible_repos(request, format=None):
     username = request.user.get_username()
     repo_base = username
-    serializer = RepoSerializer(username=username, repo_base=repo_base,
-                                include_own=True,
-                                include_all_collabs=True)
+    serializer = RepoSerializer(username=username, repo_base=repo_base)
 
-    return Response(serializer.data)
+    return Response(serializer.user_accessible_repos())
 
 
 @api_view(['GET', 'POST'])
 @login_required
 def collaborator_repos(request, repo_base, format=None):
-    # GET
     username = request.user.get_username()
+    # username = 'al_carter'
+    serializer = RepoSerializer(username=username, repo_base=repo_base)
 
-    include_specific_collab, include_own = True, False
-    # if the user is actually just requesting their own repos
-    if username == repo_base:
-        include_specific_collab, include_own = False, True
+    if request.method == 'GET':
+        if username == repo_base:
+            return Response(serializer.user_owned_repos())
+        else:
+            return Response(serializer.specific_collab_repos(repo_base))
 
-    serializer = RepoSerializer(username=username, repo_base=repo_base,
-                                include_own=include_own,
-                                include_all_collabs=include_specific_collab)
-
-
-    return Response(serializer.data)
-
-    # # POST
-    # if request.method == 'POST':
-    #     repo = request.POST['repo']
-    #     manager = DataHubManager(user=username, repo_base=repo_base)
-    #     manager.create_repo(repo)
+    if request.method == 'POST':
+        repo_name = request.body['repo']
+        try:
+            serializer.create_repo(repo_name)
+            return Response(
+                serializer.specific_collab_repos(repo_base), status=status.HTTP_201_created)
+        except:
+            return Response(
+                serializer.specific_collab_repos(repo_base), status=status.HTTP_400_BAD_REQUEST)
