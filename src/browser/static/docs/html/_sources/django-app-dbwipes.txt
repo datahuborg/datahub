@@ -16,7 +16,7 @@ How to use
 ==========
 * Run DataHub
 
-* Navigate to `apps\/dbwipes\/page\/USERNAME\/REPONAME\/TABLENAME <http://localhost:8000/apps/dbwipes/page/USERNAME/REPONAME/TABLENAME>`_
+* Navigate to `apps\/dbwipes\/page\/USERNAME\/REPONAME\/TABLENAME <apps/dbwipes/page/USERNAME/REPONAME/TABLENAME>`_
 
 The interface is not intuitive at first. You may want to go through 
 `Eugene's excellent tutorial <http://scorpion.csail.mit.edu:8888/study>`__

@@ -13,7 +13,7 @@ It's a database terminal for datahub.
 How to use
 ==========
 * Run DataHub
-* Navigate to `apps\/console <http://localhost:8000/apps/console>`_
+* Navigate to `apps\/console <apps/console>`_
 * Type SQL
 
 -------------------
