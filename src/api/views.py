@@ -53,10 +53,10 @@ def collaborator_repos(request, repo_base, format=None):
 
     if request.method == 'POST':
         repo_name = request.body['repo']
-        try:
-            serializer.create_repo(repo_name)
+        success = serializer.create_repo(repo_name)
+        if success:
             return Response(
                 serializer.specific_collab_repos(repo_base), status=status.HTTP_201_created)
-        except:
+        else:
             return Response(
                 serializer.specific_collab_repos(repo_base), status=status.HTTP_400_BAD_REQUEST)

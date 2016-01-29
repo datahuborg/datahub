@@ -22,7 +22,15 @@ class DataHubSerializer(object):
 
 class RepoSerializer(DataHubSerializer):
 
-    # def create_repo(self, repo_name):
+    def create_repo(self, repo_name):
+        success = False
+        try:
+            self.manager.create_repo(repo_name)
+            success = True
+        except:
+            pass
+
+        return(success)
 
     def user_owned_repos(self):
         repos = self.manager.list_repos()
