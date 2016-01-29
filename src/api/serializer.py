@@ -20,6 +20,9 @@ class DataHubSerializer(serializers.BaseSerializer):
         kwargs.pop('username')
         kwargs.pop('repo_base')
 
+        self.manager = DataHubManager(
+            user=self.username, repo_base=self.repo_base)
+
         # fill in self.instance, because the BaseSerializer class is
         # tighly coupled with django models. By just adding in a variable,
         # checks for None pass
@@ -50,7 +53,8 @@ class RepoSerializer(DataHubSerializer):
 
         super(RepoSerializer, self).__init__(*args, **kwargs)
 
-    def get_own_repos(self):
+    @property
+    def _own_repos(self):
         manager = DataHubManager(user=self.username, repo_base=self.username)
         repos = manager.list_repos()
         repos.sort()
@@ -68,7 +72,8 @@ class RepoSerializer(DataHubSerializer):
 
         return repo_obj_list
 
-    def get_specific_collab_repos(self):
+    @property
+    def _specific_collab_repos(self):
         manager = DataHubManager(user=self.username, repo_base=self.repo_base)
 
         # get the collaborators
@@ -88,7 +93,8 @@ class RepoSerializer(DataHubSerializer):
 
         return repo_obj_list
 
-    def get_all_collab_repos(self):
+    @property
+    def _all_collab_repos(self):
         manager = DataHubManager(user=self.username, repo_base=self.username)
         collab_repos = manager.list_collaborator_repos()
 
@@ -105,18 +111,19 @@ class RepoSerializer(DataHubSerializer):
 
         return repo_obj_list
 
-    def to_representation(self, obj):
-        own_repos = self.get_own_repos()
-        all_collab_repos = self.get_all_collab_repos()
-        specific_collab_repos = self.get_specific_collab_repos()
+    def create(self, validated_data):
+        import pdb; pdb.set_trace()
+        self.manager.create_repo(validated_data)
+        # create a repo for the user
 
+    def to_representation(self, obj):
         combined_repos = []
 
         if self.include_own:
-            combined_repos += own_repos
+            combined_repos += self._own_repos
 
         if self.include_all_collabs:
-            combined_repos += all_collab_repos
+            combined_repos += self._all_collab_repos
         elif self.include_specific_collab:
-            combined_repos += specific_collab_repos
+            combined_repos += self._specific_collab_repos
         return {'repos': combined_repos}
