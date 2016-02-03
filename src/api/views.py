@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
@@ -42,7 +44,6 @@ def user_accessible_repos(request, format=None):
 @login_required
 def collaborator_repos(request, repo_base, format=None):
     username = request.user.get_username()
-    # username = 'al_carter'
     serializer = RepoSerializer(username=username, repo_base=repo_base)
 
     if request.method == 'GET':
@@ -52,11 +53,14 @@ def collaborator_repos(request, repo_base, format=None):
             return Response(serializer.specific_collab_repos(repo_base))
 
     if request.method == 'POST':
-        repo_name = request.body['repo']
+        body = json.loads(request.body)
+        repo_name = body['repo']
         success = serializer.create_repo(repo_name)
         if success:
             return Response(
-                serializer.specific_collab_repos(repo_base), status=status.HTTP_201_created)
+                serializer.user_accessible_repos(),
+                status=status.HTTP_201_CREATED)
         else:
             return Response(
-                serializer.specific_collab_repos(repo_base), status=status.HTTP_400_BAD_REQUEST)
+                serializer.user_accessible_repos(),
+                status=status.HTTP_400_BAD_REQUEST)

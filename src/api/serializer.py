@@ -55,7 +55,6 @@ class RepoSerializer(DataHubSerializer):
         return {'repos': user_owned_list + all_collab_list}
 
     def specific_collab_repos(self, collab_username):
-
         # get the collaborators
         user = User.objects.get(username=self.username)
         collab_repos = Collaborator.objects.filter(user=user)
