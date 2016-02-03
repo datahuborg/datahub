@@ -53,8 +53,8 @@ def collaborator_repos(request, repo_base, format=None):
             return Response(serializer.specific_collab_repos(repo_base))
 
     if request.method == 'POST':
-        body = json.loads(request.body)
-        repo_name = body['repo']
+        # body = json.loads(request.body)
+        repo_name = request.data['repo']
         success = serializer.create_repo(repo_name)
         if success:
             return Response(
@@ -64,3 +64,19 @@ def collaborator_repos(request, repo_base, format=None):
             return Response(
                 serializer.user_accessible_repos(),
                 status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@login_required
+def delete_repo(request, repo_base, repo_name):
+    username = request.user.get_username()
+    serializer = RepoSerializer(username=username, repo_base=repo_base)
+    success = serializer.delete_repo(repo_name=repo_name, force=True)
+    if success:
+        return Response(
+            serializer.user_accessible_repos(),
+            status=status.HTTP_200_OK)
+    else:
+        return Response(
+            serializer.user_accessible_repos(),
+            status=status.HTTP_400_BAD_REQUEST)

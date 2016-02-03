@@ -32,6 +32,16 @@ class RepoSerializer(DataHubSerializer):
 
         return(success)
 
+    def delete_repo(self, repo_name, force=True):
+        success = False
+        try:
+            self.manager.delete_repo(repo=repo_name, force=force)
+            success = True
+        except:
+            pass
+
+        return(success)
+
     def user_owned_repos(self):
         repos = self.manager.list_repos()
         repos.sort()
