@@ -55,6 +55,22 @@ class DataHubManager:
     def list_repos(self):
         return self.user_con.list_repos()
 
+    def rename_repo(self, repo, new_name):
+        # only a repo owner can rename a repo:
+        if self.repo_base != self.username:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges')
+
+        # rename in user_con
+        success = self.user_con.rename_repo(repo=repo, new_name=new_name)
+        if success:
+            # update collaborator(s), if there are any
+            Collaborator.objects.filter(
+                repo_name=repo, repo_base=self.repo_base).update(
+                    repo_name=new_name)
+
+        return success
+
     def list_collaborator_repos(self):
         user = User.objects.get(username=self.username)
         return Collaborator.objects.filter(user=user)
@@ -66,7 +82,9 @@ class DataHubManager:
                 'Access denied. Missing required privileges')
 
         # remove related collaborator objects
-        Collaborator.objects.filter(repo_name=repo).delete()
+        user = User.objects.get(username=self.username)
+        Collaborator.objects.filter(repo_name=repo, repo_base=self.repo_base,
+                                    user=user).delete()
 
         # finally, delete the actual schema
         res = self.user_con.delete_repo(repo=repo, force=force)

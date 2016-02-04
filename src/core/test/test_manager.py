@@ -88,6 +88,18 @@ class BasicOperations(TestCase):
 
         self.assertTrue(con_list_repos.called)
 
+    def test_rename_repo(self):
+        con_rename_repo = self.mock_connection.return_value.rename_repo
+        # self.mock_Collaborator = self.create_patch(
+        #     'inventory.models.Collaborator')
+
+        self.manager = DataHubManager(
+            user=self.username, repo_base=self.username)
+        self.manager.Collaborator = MagicMock
+
+        self.manager.rename_repo('old_name', 'new_name')
+        self.assertTrue(con_rename_repo.called)
+
     def test_create_repo(self):
         con_create_repo = self.mock_connection.return_value.create_repo
         self.manager.create_repo('repo')
@@ -105,7 +117,7 @@ class BasicOperations(TestCase):
 
     def test_add_collaborator(self):
         con_add_collab = self.mock_connection.return_value.add_collaborator
-        mock_User = self.create_patch('core.db.manager.User')
+        self.create_patch('core.db.manager.User')
         mock_Collaborator = self.create_patch(
             'core.db.manager.Collaborator')
         mock_Collaborator.objects.get_or_create.return_value = (
@@ -123,7 +135,7 @@ class BasicOperations(TestCase):
     def test_delete_collaborator(self):
         self.mock_connection.return_value.list_collaborators.return_value = [
             'old_collaborator']
-        self.mock_User = self.create_patch('core.db.manager.User')
+        self.create_patch('core.db.manager.User')
         self.mock_Collaborator = self.create_patch(
             'core.db.manager.Collaborator')
 
