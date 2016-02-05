@@ -11,8 +11,8 @@ urlpatterns = [
         name='user_accessible_repos'),
 
     # delete, get, post
-    url(r'^v1/repos/(\w+)/(\w+)/?', views.delete_repo,
-        name='delete_repo'),
+    url(r'^v1/repos/(\w+)/(\w+)/?', views.delete_rename_repo,
+        name='delete_rename_repo'),
     url(r'^v1/repos/(\w+)/?', views.collaborator_repos,
         name='collaborator_repos'),
 ]

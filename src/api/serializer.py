@@ -42,6 +42,15 @@ class RepoSerializer(DataHubSerializer):
 
         return(success)
 
+    def rename_repo(self, repo, new_name):
+        success = False
+        try:
+            self.manager.rename_repo(repo=repo, new_name=new_name)
+            success = True
+        except:
+            pass
+        return(success)
+
     def user_owned_repos(self):
         repos = self.manager.list_repos()
         repos.sort()

@@ -82,9 +82,8 @@ class DataHubManager:
                 'Access denied. Missing required privileges')
 
         # remove related collaborator objects
-        user = User.objects.get(username=self.username)
-        Collaborator.objects.filter(repo_name=repo, repo_base=self.repo_base,
-                                    user=user).delete()
+        Collaborator.objects.filter(
+            repo_name=repo, repo_base=self.repo_base).delete()
 
         # finally, delete the actual schema
         res = self.user_con.delete_repo(repo=repo, force=force)

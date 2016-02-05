@@ -66,17 +66,33 @@ def collaborator_repos(request, repo_base, format=None):
                 status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['DELETE'])
+@api_view(['DELETE', 'PATCH'])
 @login_required
-def delete_repo(request, repo_base, repo_name):
+def delete_rename_repo(request, repo_base, repo_name):
     username = request.user.get_username()
     serializer = RepoSerializer(username=username, repo_base=repo_base)
-    success = serializer.delete_repo(repo_name=repo_name, force=True)
-    if success:
-        return Response(
-            serializer.user_accessible_repos(),
-            status=status.HTTP_200_OK)
-    else:
-        return Response(
-            serializer.user_accessible_repos(),
-            status=status.HTTP_400_BAD_REQUEST)
+
+    if request.method == 'DELETE':
+        success = serializer.delete_repo(repo_name=repo_name, force=True)
+        if success:
+            return Response(
+                serializer.user_accessible_repos(),
+                status=status.HTTP_200_OK)
+        else:
+            return Response(
+                serializer.user_accessible_repos(),
+                status=status.HTTP_400_BAD_REQUEST)
+
+    if request.method == 'PATCH':
+        new_repo_name = request.data['new_name']
+        success = serializer.rename_repo(
+            repo=repo_name, new_name=new_repo_name)
+
+        if success:
+            return Response(
+                serializer.user_accessible_repos(),
+                status=status.HTTP_200_OK)
+        else:
+            return Response(
+                serializer.user_accessible_repos(),
+                status=status.HTTP_400_BAD_REQUEST)
