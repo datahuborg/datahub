@@ -2,6 +2,7 @@ from mock import patch, MagicMock
 
 from django.test import TestCase
 
+from psycopg2 import ProgrammingError
 from ..serializer import RepoSerializer
 
 
@@ -25,5 +26,23 @@ class RepoSerializerTests(TestCase):
         self.addCleanup(patcher.stop)
         return thing
 
-    # def test_create_repo(self):
-    #     self.serializer.create_repo('new_repo_name')
+    def test_create_repo_happy_path(self):
+        mock_manager_create_repo = self.mock_manager.return_value.create_repo
+
+        success = self.serializer.create_repo('new_repo_name')
+
+        self.assertTrue(mock_manager_create_repo.called)
+        self.assertTrue(success)
+
+    def test_create_repo_sad_path(self):
+        mock_manager_create_repo = self.mock_manager.return_value.create_repo
+        mock_manager_create_repo.side_effect = ProgrammingError
+
+        success = self.serializer.create_repo('new_repo_name')
+
+        self.assertTrue(mock_manager_create_repo.called)
+        self.assertFalse(success)
+
+# self.manager = 139930597827152
+# self.mock_manager = 139930608555664
+# self.mock_manager.create_repo = 139930596321168
