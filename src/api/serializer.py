@@ -84,7 +84,7 @@ class RepoSerializer(DataHubSerializer):
 
             repo_obj_list.append({
                 'repo_name': repo.repo_name,
-                'permission': repo.permission,
+                'permissions': repo.permission,
                 'owner': repo.repo_base,
                 'collaborators': collaborators
                 })
@@ -100,7 +100,7 @@ class RepoSerializer(DataHubSerializer):
 
             repo_obj_list.append({
                 'repo_name': repo.repo_name,
-                'permission': repo.permission,
+                'permissions': repo.permission,
                 'owner': repo.repo_base,
                 'collaborators': collaborators
                 })
