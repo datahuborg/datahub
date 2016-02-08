@@ -168,6 +168,7 @@ INSTALLED_APPS = (
     'crispy_forms',
     'social.apps.django_app.default',
     'rest_framework',
+    'oauth2_provider',
     'account',
     'api',
     'console',
@@ -195,6 +196,9 @@ SOCIAL_AUTH_URL_NAMESPACE = 'social'
 
 # Make sure OAuth redirects use HTTPS, e.g. https://localhost/complete/twitter
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
+
+# Only redirect logins to URLs on this domain.
+SOCIAL_AUTH_SANITIZE_REDIRECTS = True
 
 SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_details',
@@ -228,6 +232,22 @@ SOCIAL_AUTH_DISCONNECT_PIPELINE = (
 SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['preferred_username']
 
 SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['username', 'email']
+
+OAUTH2_PROVIDER = {
+    'SCOPES': {
+        'read': "Read something",
+        'write': "Sure, why not",
+    },
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

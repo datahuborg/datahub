@@ -1,11 +1,8 @@
 import hashlib
 import re
-import smtplib
 
 from Crypto.Cipher import AES
 from Crypto import Random
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 
 
 kKey = 'datahub'
@@ -62,7 +59,7 @@ def rename_duplicates(columns):
     return new_columns
 
 
-def get_or_post(request, key, fallback=None):
+def post_or_get(request, key, fallback=None):
     """
     Returns request param from GET and POST if available, fallback otherwise.
 
