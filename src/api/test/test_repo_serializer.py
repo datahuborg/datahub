@@ -117,7 +117,7 @@ class RepoSerializerTests(TestCase):
         mock_list_collabs = self.mock_manager.return_value.list_collaborators
         mock_list_collabs.return_value = ['collabs']
 
-        repos = self.serializer.specific_collab_repos('narf')
+        repos = self.serializer.specific_collab_repos('foo')
 
         expected_response = {
             'repos': [
@@ -152,7 +152,31 @@ class RepoSerializerTests(TestCase):
 
         self.assertEqual(response, expected_response)
 
+    def test_all_collab_repos(self):
+        repo_obj_mock = MagicMock
+        repo_obj_mock.repo_name = 'repo_name'
+        repo_obj_mock.permission = 'repo_permission'
+        repo_obj_mock.repo_base = 'repo_base'
 
-# self.manager = 139930597827152
-# self.mock_manager = 139930608555664
-# self.mock_manager.create_repo = 139930596321168
+        mock_collab_repos = self.mock_manager.return_value.list_collaborator_repos
+        mock_collab_repos.return_value = [repo_obj_mock, repo_obj_mock]
+
+        mock_list_collabs = self.mock_manager.return_value.list_collaborators
+        mock_list_collabs.return_value = ['collabs']
+
+        response = self.serializer.all_collab_repos()
+
+        expected_response = {
+            'repos': [
+                {'repo_name': 'repo_name',
+                 'permissions': 'repo_permission',
+                 'collaborators': ['collabs'],
+                 'owner': 'repo_base'},
+                {'repo_name': 'repo_name',
+                 'permissions': 'repo_permission',
+                 'collaborators': ['collabs'],
+                 'owner': 'repo_base'},
+            ]
+        }
+
+        self.assertEqual(response, expected_response)
