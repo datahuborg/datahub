@@ -1,4 +1,4 @@
-from mock import patch, MagicMock
+from mock import patch
 
 from django.test import TestCase
 

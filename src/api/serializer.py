@@ -106,3 +106,12 @@ class RepoSerializer(DataHubSerializer):
                 })
 
         return {'repos': repo_obj_list}
+
+
+class CollaboratorSerializer(DataHubSerializer):
+    def list_collaborators(self, repo_name):
+        
+        collaborators = self.manager.list_collaborators(repo_name)
+        return collaborators
+
+

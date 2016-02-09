@@ -7,7 +7,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from .serializer import (UserSerializer, RepoSerializer)
+from .serializer import (
+    UserSerializer, RepoSerializer, CollaboratorSerializer)
 
 
 @api_view(['GET'])
@@ -96,3 +97,12 @@ def delete_rename_repo(request, repo_base, repo_name):
             return Response(
                 serializer.user_accessible_repos(),
                 status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@login_required
+def list_collaborators(request, repo_base, repo):
+    username = request.user.get_username()
+    serializer = CollaboratorSerializer(username=username, repo_base=repo_base)
+    collaborators = serializer.list_collaborators(repo)
+
+    return Response(collaborators, status=status.HTTP_200_OK)

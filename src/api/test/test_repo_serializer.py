@@ -1,4 +1,3 @@
-import factory
 from mock import patch, MagicMock
 
 from django.test import TestCase
