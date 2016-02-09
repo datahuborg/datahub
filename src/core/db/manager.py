@@ -119,7 +119,10 @@ class DataHubManager:
             collaborator_obj, _ = Collaborator.objects.get_or_create(
                 user=user, repo_name=repo, repo_base=self.repo_base)
 
-        collaborator_obj.permission = 'ALL'
+        # convert privileges list to string
+        privilege_str = ', '.join(privileges)
+        collaborator_obj.permission = privilege_str
+
         collaborator_obj.save()
 
         return self.user_con.add_collaborator(
