@@ -173,6 +173,7 @@ def user(request, repo_base=None):
 
     for repo in repos:
         collaborators = manager.list_collaborators(repo)
+        collaborators = [c.get('username') for c in collaborators]
         collaborators = filter(
             lambda x: x != '' and x != repo_base, collaborators)
 
@@ -318,6 +319,7 @@ def repo_settings(request, repo_base, repo):
     collaborators = manager.list_collaborators(repo)
 
     # remove the current user from the collaborator list
+    collaborators = [c.get('username') for c in collaborators]
     collaborators = filter(lambda x: x != '' and x !=
                            username, collaborators)
 

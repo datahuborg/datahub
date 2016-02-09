@@ -249,7 +249,7 @@ class RepoMainPage(TestCase):
         self.mock_DataHubManager.return_value.list_repos.return_value = {
             'tuples': ['repo_1']}
         self.mock_DataHubManager.return_value.list_collaborators.return_value = [
-            'collaborator_1']
+            {'username': 'collaborator_1', 'permissions': 'UC'}]
 
     def create_patch(self, name):
         # helper method for creating patches
@@ -291,7 +291,7 @@ class RepoSettingsPage(TestCase):
         # self.mock_DataHubManager.return_value.list_repos.return_value = {
         #     'tuples': ['repo_1']}
         self.mock_DataHubManager.return_value.list_collaborators.return_value = [
-        'collaborator_1']
+            {'username': 'collaborator_1', 'permissions': 'UC'}]
 
         self.repo_name = "repo_name"
 
@@ -309,8 +309,7 @@ class RepoSettingsPage(TestCase):
         self.assertEqual(found.func, browser.views.repo_settings)
 
     def test_repo_settings_returns_correct_page(self):
-        response = self.client.get(
-            '/settings/' + self.username + '/' + self.repo_name)
+        response = self.client.get( '/settings/' + self.username + '/' + self.repo_name)
         self.assertTemplateUsed(response, 'repo-settings.html')
 
     # *** Add Collaborators ***
