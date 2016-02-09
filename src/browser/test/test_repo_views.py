@@ -309,7 +309,8 @@ class RepoSettingsPage(TestCase):
         self.assertEqual(found.func, browser.views.repo_settings)
 
     def test_repo_settings_returns_correct_page(self):
-        response = self.client.get( '/settings/' + self.username + '/' + self.repo_name)
+        response = self.client.get(
+            '/settings/' + self.username + '/' + self.repo_name)
         self.assertTemplateUsed(response, 'repo-settings.html')
 
     # *** Add Collaborators ***
