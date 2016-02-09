@@ -122,7 +122,9 @@ class BasicOperations(TestCase):
 
     def test_delete_collaborator(self):
         self.mock_connection.return_value.list_collaborators.return_value = [
-            'old_collaborator']
+            {'username': 'old_collaborator', 'permissions': 'U'},
+            {'username': self.username, 'permissions': 'UC'}
+            ]
         self.mock_User = self.create_patch('core.db.manager.User')
         self.mock_Collaborator = self.create_patch(
             'core.db.manager.Collaborator')

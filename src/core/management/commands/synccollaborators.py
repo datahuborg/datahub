@@ -14,6 +14,7 @@ class Command(BaseCommand):
 
     def _sync_repo_collaborators(self, manager, base, repo):
         all_names = manager.list_collaborators(repo)
+        all_names = [c.get('username') for c in all_names]
         collaborator_names = [c for c in all_names if c != base]
         collaborator_users = User.objects.filter(
             username__in=collaborator_names)

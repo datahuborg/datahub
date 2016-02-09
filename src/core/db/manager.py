@@ -137,6 +137,7 @@ class DataHubManager:
             password=settings.DATABASES['default']['USER'],
             repo_base=self.repo_base)
         repo_collaborators = superuser_con.list_collaborators(repo=repo)
+        repo_collaborators = [c.get('username') for c in repo_collaborators]
 
         # The reason we're enforcing permission checks this way is to deal
         # with the edge case where a user removes himself as a collaborator
