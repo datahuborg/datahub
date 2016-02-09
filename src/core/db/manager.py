@@ -185,6 +185,15 @@ class DataHubManager:
         return cards
 
     def list_collaborators(self, repo):
+        '''
+        returns a list of objects with keys 'username' and 'permissions'.
+        'permissions' are tied to the database being queried, and left to the
+        user to be interpreted. For postgres, see
+        http://www.postgresql.org/docs/9.4/static/sql-grant.html
+        An example response:
+        # [{'username': 'foo_user', 'permissions': 'UC'},
+           {'username': 'bar_user', 'permissions': 'U'}]
+        '''
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
