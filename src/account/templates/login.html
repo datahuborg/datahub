@@ -9,7 +9,7 @@
 <div class="container-fluid" style="max-width:740px;">
 <form class="col-xs-12 col-sm-6 col-sm-offset-3" role="form" method="POST" action="{% url 'login' %}">
   {% csrf_token %}
-  <input type="hidden" name="redirect_url" value="{{ redirect_url }}" />
+  <input type="hidden" name="next" value="{{ next }}" />
   <h3>Returning User -- Sign in</h3>
   <br />
   <br />
@@ -23,7 +23,7 @@
   <label for="login_id">Choose an identity provider</label>
   <div class="list-group">
   {% for provider in providers %}
-    <a class="list-group-item" href="{% url 'social:begin' provider.backend %}?next=/"><i class="fa {{ provider.icon }} fa-lg fa-fw"></i>&nbsp; {{ provider.name }}</a>
+    <a class="list-group-item" href="{% url 'social:begin' provider.backend %}?next={{ next|urlencode }}"><i class="fa {{ provider.icon }} fa-lg fa-fw"></i>&nbsp; {{ provider.name }}</a>
   {% endfor %}
   </div>
   <br />
