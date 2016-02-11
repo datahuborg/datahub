@@ -53,7 +53,7 @@ def collaborator_repos(request, repo_base, format=None):
         else:
             return Response(serializer.specific_collab_repos(repo_base))
 
-    if request.method == 'POST':
+    elif request.method == 'POST':
         # body = json.loads(request.body)
         repo_name = request.data['repo']
         success = serializer.create_repo(repo_name)
@@ -84,7 +84,7 @@ def delete_rename_repo(request, repo_base, repo_name):
                 serializer.user_accessible_repos(),
                 status=status.HTTP_400_BAD_REQUEST)
 
-    if request.method == 'PATCH':
+    elif request.method == 'PATCH':
         new_repo_name = request.data['new_name']
         success = serializer.rename_repo(
             repo=repo_name, new_name=new_repo_name)
@@ -98,6 +98,7 @@ def delete_rename_repo(request, repo_base, repo_name):
                 serializer.user_accessible_repos(),
                 status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['GET'])
 @login_required
 def list_collaborators(request, repo_base, repo):
@@ -106,3 +107,30 @@ def list_collaborators(request, repo_base, repo):
     collaborators = serializer.list_collaborators(repo)
 
     return Response(collaborators, status=status.HTTP_200_OK)
+
+
+@api_view(['PUT', 'DELETE'])
+@login_required
+def add_or_remove_collaborator(request, repo_base, repo, collaborator):
+    username = request.user.get_username()
+    serializer = CollaboratorSerializer(username=username, repo_base=repo_base)
+    if request.method == 'PUT':
+        # it's unclear why we have to use request.body here, instead
+        # of using request.data (from rest_framework.request) or request.POST
+        # it seems like rest_framework isn't correctly parsing json.
+        # {"privileges": ["UPDATE"]}
+        privileges = json.loads(request.body)['privileges']
+        success = serializer.add_collaborator(repo, collaborator, privileges)
+        collaborators = serializer.list_collaborators(repo)
+        if success:
+            return Response(collaborators, status=status.HTTP_200_OK)
+        else:
+            return Response(collaborators, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        success = serializer.remove_collaborator(repo, collaborator)
+        collaborators = serializer.list_collaborators(repo)
+        if success:
+            return Response(collaborators, status=status.HTTP_200_OK)
+        else:
+            return Response(collaborators, status=status.HTTP_400_BAD_REQUEST)

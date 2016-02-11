@@ -100,7 +100,7 @@ class RepoSerializer(DataHubSerializer):
 
             repo_obj_list.append({
                 'repo_name': repo.repo_name,
-                'permissions': repo.permission,
+                'privileges': repo.permission,
                 'owner': repo.repo_base,
                 'collaborators': collaborators
                 })
@@ -110,8 +110,25 @@ class RepoSerializer(DataHubSerializer):
 
 class CollaboratorSerializer(DataHubSerializer):
     def list_collaborators(self, repo_name):
-        
+
         collaborators = self.manager.list_collaborators(repo_name)
-        return collaborators
+        return {'collaborators': collaborators}
 
+    def add_collaborator(self, repo, collaborator, privileges):
+        success = False
+        try:
+            success = self.manager.add_collaborator(
+                repo, collaborator, privileges)
+        except:
+            pass
 
+        return success
+
+    def remove_collaborator(self, repo, collaborator):
+        success = False
+        try:
+            success = self.manager.delete_collaborator(
+                repo, collaborator)
+        except:
+            pass
+        return success

@@ -11,6 +11,8 @@ urlpatterns = [
         name='user_accessible_repos'),
 
     # collaborators
+    url(r'^v1/repos/(\w+)/(\w+)/collaborators/(\w+)/?',
+        views.add_or_remove_collaborator, name='add_or_remove_collaborator'),
     url(r'^v1/repos/(\w+)/(\w+)/collaborators/?', views.list_collaborators,
         name='list_collaborators'),
 
