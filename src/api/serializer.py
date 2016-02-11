@@ -117,8 +117,9 @@ class CollaboratorSerializer(DataHubSerializer):
     def add_collaborator(self, repo, collaborator, privileges):
         success = False
         try:
-            success = self.manager.add_collaborator(
+            self.manager.add_collaborator(
                 repo, collaborator, privileges)
+            success = True
         except:
             pass
 
@@ -127,8 +128,9 @@ class CollaboratorSerializer(DataHubSerializer):
     def remove_collaborator(self, repo, collaborator):
         success = False
         try:
-            success = self.manager.delete_collaborator(
+            self.manager.delete_collaborator(
                 repo, collaborator)
+            success = True
         except:
             pass
         return success

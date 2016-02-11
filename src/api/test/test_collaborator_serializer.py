@@ -3,6 +3,7 @@ from mock import patch, MagicMock
 from django.test import TestCase
 
 from psycopg2 import ProgrammingError
+from core.db.manager import PermissionDenied
 from ..serializer import CollaboratorSerializer
 
 
@@ -38,3 +39,17 @@ class CollaboratorSerializerTests(TestCase):
 
         res = self.serializer.list_collaborators('repo_name')
         self.assertEqual(expected_result, res)
+
+    def test_add_collaborator_happy_path(self):
+        mock_add_collab = self.mock_manager.return_value.add_collaborator
+        mock_add_collab.return_value = True
+
+        res = self.serializer.add_collaborator('repo_name', 'collab', [])
+        self.assertEqual(True, res)
+
+    def test_add_collaborator_sad_path(self):
+        mock_add_collab = self.mock_manager.return_value.add_collaborator
+        mock_add_collab.side_effect = PermissionDenied
+
+        res = self.serializer.add_collaborator('repo_name', 'collab', [])
+        self.assertEqual(False, res)
