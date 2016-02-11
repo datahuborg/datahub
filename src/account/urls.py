@@ -9,7 +9,7 @@ urlpatterns = patterns(
     url(r'^logout/?$', 'account.views.logout', name='logout'),
     url(r'^choose_username/?$', 'account.views.get_user_details',
         name='get_user_details'),
-    url(r'^settings/?$', 'account.views.settings', name='settings'),
+    url(r'^settings/?$', 'account.views.account_settings', name='settings'),
     url(r'^add_password/?$', 'account.views.add_password',
         name='add_password'),
     url(r'^remove_password/?$', 'account.views.remove_password',

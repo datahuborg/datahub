@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render_to_response, redirect, render
 from django.core.urlresolvers import reverse
 from django.contrib.auth import logout as django_logout, \
@@ -15,9 +16,12 @@ from account.utils import provider_details, \
                           set_unusable_password, \
                           set_password
 from django.http import HttpResponse, \
+                        HttpResponseRedirect, \
                         HttpResponseNotFound, \
                         HttpResponseNotAllowed
 from core.db.manager import DataHubManager
+from browser.utils import get_or_post, \
+                          add_query_params_to_url
 
 
 def login(request):
@@ -29,6 +33,16 @@ def login(request):
     Other links from the page lead to Python Social Auth options (Google,
     Facebook, Twitter, etc).
     """
+    # Redirect succesful logins to `next` if set.
+    # Failing that `redirect_url`.
+    # Failing that, LOGIN_REDIRECT_URL from settings.py.
+    redirect_uri = get_or_post(
+        request, 'next', fallback=get_or_post(
+            request, 'redirect_url', fallback=settings.LOGIN_REDIRECT_URL))
+    redirect_absolute_uri = add_query_params_to_url(
+        request.build_absolute_uri(redirect_uri),
+        {'auth_user': request.user.get_username()})
+
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -37,7 +51,12 @@ def login(request):
             user = datahub_authenticate(username, password)
             if user is not None and user.is_active:
                 django_login(request, user)
-                return redirect('/')
+                # Append auth_user to redirect_uri so apps like Kibitz can
+                # pull the username out of the redirect. This should be
+                # removed when Thrift is removed from DataHub.
+                redirect_uri = add_query_params_to_url(
+                    redirect_uri, {'auth_user': request.user.get_username()})
+                return HttpResponseRedirect(redirect_uri)
             else:
                 form.add_error(None, "Username and password do not match.")
         else:
@@ -52,7 +71,10 @@ def login(request):
         'request': request,
         'user': request.user,
         'form': form,
-        'providers': providers})
+        'providers': providers,
+        'next': redirect_uri,
+        'absolute_next': redirect_absolute_uri,
+        })
     return render_to_response('login.html', context_instance=context)
 
 
@@ -65,6 +87,16 @@ def register(request):
     Other links from the page lead to Python Social Auth options (Google,
     Facebook, Twitter, etc).
     """
+    # Redirect succesful logins to `next` if set.
+    # Failing that `redirect_url`.
+    # Failing that, LOGIN_REDIRECT_URL from settings.py.
+    redirect_uri = get_or_post(
+        request, 'next', fallback=get_or_post(
+            request, 'redirect_url', fallback=settings.LOGIN_REDIRECT_URL))
+    redirect_absolute_uri = add_query_params_to_url(
+        request.build_absolute_uri(redirect_uri),
+        {'auth_user': request.user.get_username()})
+
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -83,7 +115,12 @@ def register(request):
             user = datahub_authenticate(username, password)
             if user is not None and user.is_active:
                 django_login(request, user)
-                return redirect('/')
+                # Append auth_user to redirect_uri so apps like Kibitz can
+                # pull the username out of the redirect. This should be
+                # removed when Thrift is removed from DataHub.
+                redirect_uri = add_query_params_to_url(
+                    redirect_uri, {'auth_user': request.user.get_username()})
+                return HttpResponseRedirect(redirect_uri)
         else:
             # Form isn't valid. Fall through and return it to the user with
             # errors.
@@ -96,7 +133,10 @@ def register(request):
         'request': request,
         'user': request.user,
         'form': form,
-        'providers': providers})
+        'providers': providers,
+        'next': redirect_uri,
+        'absolute_next': redirect_absolute_uri,
+        })
     return render_to_response('register.html', context_instance=context)
 
 
@@ -158,11 +198,11 @@ def logout(request):
     Doesn't throw any errors if the user isn't logged in.
     """
     django_logout(request)
-    return redirect('/')
+    return HttpResponseRedirect('/')
 
 
 @login_required()
-def settings(request):
+def account_settings(request):
     """
     DataHub account settings page.
 
