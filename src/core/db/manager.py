@@ -90,6 +90,11 @@ class DataHubManager:
         DataHubManager.delete_user_data_folder(self.repo_base, repo)
         return res
 
+    def create_table(self, repo, table, params):
+        ''' creates a table with the current user/repo_base'''
+        return self.user_con.create_table(
+            repo=repo, table=table, params=params)
+
     def list_tables(self, repo):
         return self.user_con.list_tables(repo=repo)
 

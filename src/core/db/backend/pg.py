@@ -142,6 +142,31 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['status']
 
+    def create_table(self, repo, table, params):
+        # check for injections
+        self._check_for_injections(repo)
+        self._check_for_injections(table)
+        param_values = []
+        for obj in params:
+            param_values += obj.values()
+        for value in param_values:
+            self._check_for_injections(value)
+
+        query = ('CREATE TABLE %s.%s (%s)')
+
+        table_params = ''
+        for obj in params:
+            table_params += obj['column_name']
+            table_params += ' '
+            table_params += obj['data_type']
+            table_params += ', '
+
+        table_params = table_params[:-2]
+
+        params = (AsIs(repo), AsIs(table), AsIs(table_params))
+        self.execute_sql(query, params)
+
+
     def list_tables(self, repo):
         self._check_for_injections(repo)
 

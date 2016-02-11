@@ -304,6 +304,33 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_check_for_injections.call_count, 2)
         self.assertEqual(res, True)
 
+    def test_create_table(self):
+        repo = 'repo'
+        table = 'table'
+        params = [
+            {'column_name': 'id', 'data_type': 'integer'},
+            {'column_name': 'words', 'data_type': 'text'}
+            ]
+        expected_params = ('repo', 'table', 'id integer, words text')
+
+        create_table_query = ('CREATE TABLE %s.%s (%s)')
+
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': -1, 'tuples': [], 'fields': []}
+
+        self.backend.create_table(repo, table, params)
+
+        # checks repo, table, and all param values for injections
+        self.assertEqual(self.mock_check_for_injections.call_count, 6)
+
+        final_query = self.mock_execute_sql.call_args[0][0]
+        final_params = self.mock_execute_sql.call_args[0][1]
+        self.assertEqual(final_query, create_table_query)
+        self.assertEqual(final_params, expected_params)
+
+        # create table test_repo.test_table (id integer, words text)
+
+
     def test_list_tables(self):
         repo = 'repo'
         list_tables_query = ('SELECT table_name FROM '

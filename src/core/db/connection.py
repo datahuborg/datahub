@@ -40,6 +40,9 @@ class DataHubConnection:
             repo=repo,
             collaborator=collaborator)
 
+    def create_table(self, repo, table, params):
+        return self.backend.create_table(repo=repo, table=table, params=params)
+
     def list_tables(self, repo):
         return self.backend.list_tables(repo=repo)
 
