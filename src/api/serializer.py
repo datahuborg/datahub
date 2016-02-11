@@ -112,7 +112,7 @@ class CollaboratorSerializer(DataHubSerializer):
     def list_collaborators(self, repo_name):
 
         collaborators = self.manager.list_collaborators(repo_name)
-        return {'collaborators': collaborators}
+        return collaborators
 
     def add_collaborator(self, repo, collaborator, privileges):
         success = False

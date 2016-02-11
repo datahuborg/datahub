@@ -168,11 +168,11 @@ class RepoSerializerTests(TestCase):
         expected_response = {
             'repos': [
                 {'repo_name': 'repo_name',
-                 'permissions': 'repo_permission',
+                 'privileges': 'repo_permission',
                  'collaborators': ['collabs'],
                  'owner': 'repo_base'},
                 {'repo_name': 'repo_name',
-                 'permissions': 'repo_permission',
+                 'privileges': 'repo_permission',
                  'collaborators': ['collabs'],
                  'owner': 'repo_base'},
             ]
