@@ -318,7 +318,7 @@ class SchemaListCreateDeleteShare(TestCase):
         self.mock_execute_sql.return_value = {
             'status': True, 'row_count': -1, 'tuples': [], 'fields': []}
 
-        self.backend.create_table(repo, table, params)
+        res = self.backend.create_table(repo, table, params)
 
         # checks repo, table, and all param values for injections
         self.assertEqual(self.mock_check_for_injections.call_count, 6)
@@ -327,6 +327,7 @@ class SchemaListCreateDeleteShare(TestCase):
         final_params = self.mock_execute_sql.call_args[0][1]
         self.assertEqual(final_query, create_table_query)
         self.assertEqual(final_params, expected_params)
+        self.assertEqual(res, True)
 
         # create table test_repo.test_table (id integer, words text)
 
