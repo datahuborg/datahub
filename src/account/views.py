@@ -20,7 +20,8 @@ from django.http import HttpResponse, \
                         HttpResponseNotFound, \
                         HttpResponseNotAllowed
 from core.db.manager import DataHubManager
-from browser.utils import get_or_post
+from browser.utils import get_or_post, \
+                          add_query_params_to_url
 
 
 def login(request):
@@ -38,6 +39,9 @@ def login(request):
     redirect_uri = get_or_post(
         request, 'next', fallback=get_or_post(
             request, 'redirect_url', fallback=settings.LOGIN_REDIRECT_URL))
+    redirect_absolute_uri = add_query_params_to_url(
+        request.build_absolute_uri(redirect_uri),
+        {'auth_user': request.user.get_username()})
 
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -47,6 +51,11 @@ def login(request):
             user = datahub_authenticate(username, password)
             if user is not None and user.is_active:
                 django_login(request, user)
+                # Append auth_user to redirect_uri so apps like Kibitz can
+                # pull the username out of the redirect. This should be
+                # removed when Thrift is removed from DataHub.
+                redirect_uri = add_query_params_to_url(
+                    redirect_uri, {'auth_user': request.user.get_username()})
                 return HttpResponseRedirect(redirect_uri)
             else:
                 form.add_error(None, "Username and password do not match.")
@@ -64,6 +73,7 @@ def login(request):
         'form': form,
         'providers': providers,
         'next': redirect_uri,
+        'absolute_next': redirect_absolute_uri,
         })
     return render_to_response('login.html', context_instance=context)
 
@@ -83,6 +93,9 @@ def register(request):
     redirect_uri = get_or_post(
         request, 'next', fallback=get_or_post(
             request, 'redirect_url', fallback=settings.LOGIN_REDIRECT_URL))
+    redirect_absolute_uri = add_query_params_to_url(
+        request.build_absolute_uri(redirect_uri),
+        {'auth_user': request.user.get_username()})
 
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -102,6 +115,11 @@ def register(request):
             user = datahub_authenticate(username, password)
             if user is not None and user.is_active:
                 django_login(request, user)
+                # Append auth_user to redirect_uri so apps like Kibitz can
+                # pull the username out of the redirect. This should be
+                # removed when Thrift is removed from DataHub.
+                redirect_uri = add_query_params_to_url(
+                    redirect_uri, {'auth_user': request.user.get_username()})
                 return HttpResponseRedirect(redirect_uri)
         else:
             # Form isn't valid. Fall through and return it to the user with
@@ -117,6 +135,7 @@ def register(request):
         'form': form,
         'providers': providers,
         'next': redirect_uri,
+        'absolute_next': redirect_absolute_uri,
         })
     return render_to_response('register.html', context_instance=context)
 

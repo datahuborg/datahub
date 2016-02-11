@@ -14,27 +14,32 @@
   <br />
   <br />
   {% if user and not user.is_anonymous %}
-  <p>Already logged in.</p>
-  <p>username: {{ user.username }}</p>
-  <p>email: {{ user.email }}</p>
-  <br>
-  <a href="{% url 'logout' %}">Logout</a>
+    <p>Already logged in.</p>
+    <p>username: {{ user.username }}</p>
+    <p>email: {{ user.email }}</p>
+    {% if next %}
+      <br>
+      Continue to <a href="{{ absolute_next }}">{{ absolute_next }}</a>
+      <br>    
+    {% endif %}
+    <br>
+    <a href="{% url 'logout' %}">Logout</a>
   {% else %}
-  <label for="login_id">Choose an identity provider</label>
-  <div class="list-group">
-  {% for provider in providers %}
-    <a class="list-group-item" href="{% url 'social:begin' provider.backend %}?next={{ next|urlencode }}"><i class="fa {{ provider.icon }} fa-lg fa-fw"></i>&nbsp; {{ provider.name }}</a>
-  {% endfor %}
-  </div>
-  <br />
-  <div class="row signup-or">
-    <div class="col-xs-5"><hr></div>
-    <div class="col-xs-2 or-text">or</div>
-    <div class="col-xs-5"><hr></div>
-  </div>
-  <br />
-  {{ form|crispy }}
-  <button class="btn btn-lg btn-success btn-block" id="id_sign_up_action" type="submit">Sign Up</button>
+    <label for="login_id">Choose an identity provider</label>
+    <div class="list-group">
+    {% for provider in providers %}
+      <a class="list-group-item" href="{% url 'social:begin' provider.backend %}?next={{ next|urlencode }}"><i class="fa {{ provider.icon }} fa-lg fa-fw"></i>&nbsp; {{ provider.name }}</a>
+    {% endfor %}
+    </div>
+    <br />
+    <div class="row signup-or">
+      <div class="col-xs-5"><hr></div>
+      <div class="col-xs-2 or-text">or</div>
+      <div class="col-xs-5"><hr></div>
+    </div>
+    <br />
+    {{ form|crispy }}
+    <button class="btn btn-lg btn-success btn-block" id="id_sign_up_action" type="submit">Sign Up</button>
   {% endif %}
 </form>
 </div>
