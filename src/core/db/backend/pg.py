@@ -166,7 +166,6 @@ class PGBackend:
         params = (AsIs(repo), AsIs(table), AsIs(table_params))
         self.execute_sql(query, params)
 
-
     def list_tables(self, repo):
         self._check_for_injections(repo)
 

@@ -330,7 +330,6 @@ class SchemaListCreateDeleteShare(TestCase):
 
         # create table test_repo.test_table (id integer, words text)
 
-
     def test_list_tables(self):
         repo = 'repo'
         list_tables_query = ('SELECT table_name FROM '
