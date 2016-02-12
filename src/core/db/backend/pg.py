@@ -193,7 +193,7 @@ class PGBackend:
         if detail:
             params = (AsIs('*'), repo, table)
         else:
-            params = (repo, table)
+            params = (AsIs('column_name, data_type'), repo, table)
 
         res = self.execute_sql(query, params)
 

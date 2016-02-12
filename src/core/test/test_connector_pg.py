@@ -366,7 +366,7 @@ class SchemaListCreateDeleteShare(TestCase):
         query = ("SELECT %s "
                  "FROM information_schema.columns "
                  "WHERE table_schema = %s and table_name = %s;")
-        params = (repo, table)
+        params = ('column_name, data_type', repo, table)
 
         self.mock_execute_sql.return_value = {
             'status': True, 'row_count': 2,
