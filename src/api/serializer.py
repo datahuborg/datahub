@@ -134,3 +134,20 @@ class CollaboratorSerializer(DataHubSerializer):
         except:
             pass
         return success
+
+
+class TableSerializer(DataHubSerializer):
+
+    def create_table(self, repo, table, params):
+        success = False
+        try:
+            self.manager.create_table(repo, table, params)
+            success = True
+        except:
+            pass
+
+        return success
+
+    def list_tables(self, repo):
+        tables = self.manager.list_tables(repo)
+        return tables
