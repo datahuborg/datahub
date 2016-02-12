@@ -249,7 +249,7 @@ class RepoMainPage(TestCase):
         self.mock_DataHubManager.return_value.list_repos.return_value = {
             'tuples': ['repo_1']}
         self.mock_DataHubManager.return_value.list_collaborators.return_value = [
-            'collaborator_1']
+            {'username': 'collaborator_1', 'permissions': 'UC'}]
 
     def create_patch(self, name):
         # helper method for creating patches
@@ -291,7 +291,7 @@ class RepoSettingsPage(TestCase):
         # self.mock_DataHubManager.return_value.list_repos.return_value = {
         #     'tuples': ['repo_1']}
         self.mock_DataHubManager.return_value.list_collaborators.return_value = [
-        'collaborator_1']
+            {'username': 'collaborator_1', 'permissions': 'UC'}]
 
         self.repo_name = "repo_name"
 
