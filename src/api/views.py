@@ -149,7 +149,6 @@ def create_or_list_tables(request, repo_base, repo):
         return Response(tables, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
-        import pdb; pdb.set_trace()
         params = request.data['params']
         table_name = request.data['table_name']
         success = serializer.create_table(repo, table_name, params)
@@ -159,3 +158,17 @@ def create_or_list_tables(request, repo_base, repo):
             return Response(tables, status=status.HTTP_200_OK)
         else:
             return Response(tables, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@login_required
+def view_table_info(request, repo_base, repo, table):
+    username = request.user.get_username()
+    serializer = TableSerializer(
+        username=username, repo_base=repo_base)
+
+    table_info = serializer.describe_table(repo, table, detail=False)
+    if table_info:
+        return Response(table_info, status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)

@@ -1,8 +1,7 @@
-from mock import patch, MagicMock
+from mock import patch
 
 from django.test import TestCase
 
-from psycopg2 import ProgrammingError
 from core.db.manager import PermissionDenied
 from ..serializer import CollaboratorSerializer
 

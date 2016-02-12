@@ -17,6 +17,8 @@ urlpatterns = [
         name='list_collaborators'),
 
     # tables
+    url(r'^v1/repos/(\w+)/(\w+)/tables/(\w+)/?',
+        views.view_table_info, name='view_table_info'),
     url(r'^v1/repos/(\w+)/(\w+)/tables/?',
         views.create_or_list_tables, name='create_or_list_tables'),
 

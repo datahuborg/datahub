@@ -151,3 +151,19 @@ class TableSerializer(DataHubSerializer):
     def list_tables(self, repo):
         tables = self.manager.list_tables(repo)
         return tables
+
+    def describe_table(self, repo, table, detail=False):
+        try:
+            res = self.manager.describe_table(
+                repo=repo, table=table, detail=False)
+
+            response = []
+            for column in res:
+                response_obj = {}
+                response_obj['column_name'] = column[0]
+                response_obj['data_type'] = column[1]
+                response.append(response_obj)
+            return response
+
+        except:
+            return False
