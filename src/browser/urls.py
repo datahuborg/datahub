@@ -20,6 +20,13 @@ urlpatterns = patterns(
     url(r'^account/', include('account.urls')),
 
 
+    # OAuth Provider
+    url(r'^oauth2/', include('oauth2_provider.urls',
+        namespace='oauth2_provider')),
+
+    # API Pages
+    url(r'^api/', include('api.urls', namespace='api')),
+
     # Thrift Services
     url(r'^service$', 'browser.views.service_core_binary',
         name='browser-thrift_service_binary'),

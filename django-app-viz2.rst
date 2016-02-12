@@ -13,7 +13,7 @@ How to use
 ==========
 * Run DataHub
 
-* Navigate to `apps/viz <http://localhost:8000/apps/viz2>`_
+* Navigate to `apps/viz <apps/viz2>`_
 
 * Enter a query
 

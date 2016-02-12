@@ -172,6 +172,26 @@ class SchemaListCreateDeleteShare(TestCase):
 
         self.assertEqual(res, ['test_table'])
 
+    def test_rename_repo(self):
+        alter_repo_sql = 'ALTER SCHEMA %s RENAME TO %s'
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 1, 'tuples': [
+                ('test_table',)],
+            'fields': [{'type': 1043, 'name': 'table_name'}]}
+
+        params = ('old_name', 'new_name')
+
+        self.backend.rename_repo('old_name', 'new_name')
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], alter_repo_sql)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][1], params)
+
+        self.assertTrue(self.mock_execute_sql.called)
+        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+
+
     def test_delete_repo_happy_path_cascade(self):
         drop_schema_sql = 'DROP SCHEMA %s %s'
         repo_name = 'repo_name'

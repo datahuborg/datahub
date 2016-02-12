@@ -83,6 +83,15 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return [t[0] for t in res['tuples']]
 
+    def rename_repo(self, repo, new_name):
+        self._check_for_injections(repo)
+        self._check_for_injections(new_name)
+
+        query = 'ALTER SCHEMA %s RENAME TO %s'
+        params = (AsIs(repo), AsIs(new_name))
+        res = self.execute_sql(query, params)
+        return [t[0] for t in res['tuples']]
+
     def delete_repo(self, repo, force=False):
         ''' deletes a repo and the folder the user's repo files are in. '''
         self._check_for_injections(repo)

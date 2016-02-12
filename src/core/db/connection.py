@@ -23,6 +23,9 @@ class DataHubConnection:
     def list_repos(self):
         return self.backend.list_repos()
 
+    def rename_repo(self, repo, new_name):
+        return self.backend.rename_repo(repo, new_name)
+
     def delete_repo(self, repo, force=False):
         return self.backend.delete_repo(repo=repo, force=force)
 
