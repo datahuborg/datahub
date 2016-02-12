@@ -19,6 +19,11 @@ urlpatterns = patterns(
     url('', include('social.apps.django_app.urls', namespace='social')),
     url(r'^account/', include('account.urls')),
 
+
+    # OAuth Provider
+    url(r'^oauth2/', include('oauth2_provider.urls',
+        namespace='oauth2_provider')),
+
     # API Pages
     url(r'^api/', include('api.urls', namespace='api')),
 

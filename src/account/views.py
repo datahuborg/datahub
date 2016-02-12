@@ -1,9 +1,11 @@
+from django.conf import settings
 from django.shortcuts import render_to_response, redirect, render
 from django.core.urlresolvers import reverse
 from django.contrib.auth import logout as django_logout, \
                                 login as django_login
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.template.context import RequestContext
 from account.forms import UsernameForm, \
                           RegistrationForm, \
@@ -15,9 +17,11 @@ from account.utils import provider_details, \
                           set_unusable_password, \
                           set_password
 from django.http import HttpResponse, \
+                        HttpResponseRedirect, \
                         HttpResponseNotFound, \
                         HttpResponseNotAllowed
 from core.db.manager import DataHubManager
+from browser.utils import post_or_get
 
 
 def login(request):
@@ -29,6 +33,9 @@ def login(request):
     Other links from the page lead to Python Social Auth options (Google,
     Facebook, Twitter, etc).
     """
+    redirect_uri = post_or_get(
+        request, 'next', fallback=settings.LOGIN_REDIRECT_URL)
+
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -37,7 +44,7 @@ def login(request):
             user = datahub_authenticate(username, password)
             if user is not None and user.is_active:
                 django_login(request, user)
-                return redirect('/')
+                return HttpResponseRedirect(redirect_uri)
             else:
                 form.add_error(None, "Username and password do not match.")
         else:
@@ -52,7 +59,9 @@ def login(request):
         'request': request,
         'user': request.user,
         'form': form,
-        'providers': providers})
+        'providers': providers,
+        'next': redirect_uri,
+        })
     return render_to_response('login.html', context_instance=context)
 
 
@@ -65,6 +74,9 @@ def register(request):
     Other links from the page lead to Python Social Auth options (Google,
     Facebook, Twitter, etc).
     """
+    redirect_uri = post_or_get(
+        request, 'next', fallback=settings.LOGIN_REDIRECT_URL)
+
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -83,7 +95,7 @@ def register(request):
             user = datahub_authenticate(username, password)
             if user is not None and user.is_active:
                 django_login(request, user)
-                return redirect('/')
+                return HttpResponseRedirect(redirect_uri)
         else:
             # Form isn't valid. Fall through and return it to the user with
             # errors.
@@ -96,7 +108,9 @@ def register(request):
         'request': request,
         'user': request.user,
         'form': form,
-        'providers': providers})
+        'providers': providers,
+        'next': redirect_uri,
+        })
     return render_to_response('register.html', context_instance=context)
 
 
@@ -158,11 +172,11 @@ def logout(request):
     Doesn't throw any errors if the user isn't logged in.
     """
     django_logout(request)
-    return redirect('/')
+    return HttpResponseRedirect('/')
 
 
 @login_required()
-def settings(request):
+def account_settings(request):
     """
     DataHub account settings page.
 
