@@ -16,6 +16,9 @@ urlpatterns = [
     url(r'^v1/repos/(\w+)/(\w+)/collaborators/?', views.list_collaborators,
         name='list_collaborators'),
 
+    # tables
+    url(r'^v1/repos/(\w+)/(\w+)/tables/(\w+)/?',
+        views.create_or_list_tables, name='create_or_list_tables'),
 
     # repos
     url(r'^v1/repos/(\w+)/(\w+)/?', views.delete_rename_repo,

@@ -134,3 +134,28 @@ def add_or_remove_collaborator(request, repo_base, repo, collaborator):
             return Response(collaborators, status=status.HTTP_200_OK)
         else:
             return Response(collaborators, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'POST'])
+@login_required
+def create_or_list_tables(request, repo_base, repo):
+    pass
+    # username = request.user.get_username()
+    # serializer = TableSerializer(
+    #     username=username, repo_base=repo_base)
+
+    # if request.method == 'GET':
+    #     # list all tables
+    #     tables = serializer.list_tables(repo)
+    #     return Response(tables, status=status.HTTP_200_OK)
+
+    # elif request.method == 'POST':
+    #     params = json.loads(request.body)['params']
+    #     table_name = json.loads(request.body)['table_name']
+    #     success = serializer.create_table(repo, table_name, params)
+
+    #     tables = serializer.list_tables(repo)
+    #     if success:
+    #         return Response(tables, status=status.HTTP_200_OK)
+    #     else:
+    #         return Response(tables, status=status.HTTP_400_BAD_REQUEST)
