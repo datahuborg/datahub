@@ -191,7 +191,6 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertTrue(self.mock_execute_sql.called)
         self.assertEqual(self.mock_check_for_injections.call_count, 2)
 
-
     def test_delete_repo_happy_path_cascade(self):
         drop_schema_sql = 'DROP SCHEMA %s %s'
         repo_name = 'repo_name'
@@ -273,7 +272,8 @@ class SchemaListCreateDeleteShare(TestCase):
                                               'tuples': [], 'fields': []}
 
         self.backend.add_collaborator(repo=repo,
-                                      collaborator=receiver, privileges=privileges)
+                                      collaborator=receiver,
+                                      privileges=privileges)
 
         # make sure that the privileges are passed as a string in params
         self.assertTrue(
@@ -295,7 +295,8 @@ class SchemaListCreateDeleteShare(TestCase):
         username = 'delete_me_user_name'
 
         params = (repo, username, repo, username, repo, username)
-        res = self.backend.delete_collaborator(repo=repo, collaborator=username)
+        res = self.backend.delete_collaborator(
+            repo=repo, collaborator=username)
 
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], delete_collab_sql)
@@ -356,6 +357,60 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
         self.assertEqual(res, ['test_table'])
+
+    def test_describe_table_without_detail(self):
+        repo = 'repo'
+        table = 'table'
+        detail = False
+
+        query = ("SELECT %s "
+                 "FROM information_schema.columns "
+                 "WHERE table_schema = %s and table_name = %s;")
+        params = (repo, table)
+
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 2,
+            'tuples': [(u'id', u'integer'), (u'words', u'text')],
+            'fields': [
+                {'type': 1043, 'name': 'column_name'},
+                {'type': 1043, 'name': 'data_type'}
+                ]
+            }
+
+        res = self.backend.describe_table(repo, table, detail)
+
+        self.assertEqual(self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(res,  [(u'id', u'integer'), (u'words', u'text')])
+
+    def test_describe_table_query_in_detail(self):
+        repo = 'repo'
+        table = 'table'
+        detail = True
+
+        query = ("SELECT %s "
+                 "FROM information_schema.columns "
+                 "WHERE table_schema = %s and table_name = %s;")
+        params = ('*', repo, table)
+
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 2,
+            'tuples': [
+                (u'id', u'integer'), (u'words', u'text'), ('foo', 'bar')
+                ],
+            'fields': [
+                {'type': 1043, 'name': 'column_name'},
+                {'type': 1043, 'name': 'data_type'}
+                ]
+            }
+
+        res = self.backend.describe_table(repo, table, detail)
+
+        self.assertEqual(self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(
+            res,  [(u'id', u'integer'), (u'words', u'text'), ('foo', 'bar')])
+
 
     def test_list_views(self):
         repo = 'repo'

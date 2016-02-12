@@ -98,6 +98,9 @@ class DataHubManager:
     def list_tables(self, repo):
         return self.user_con.list_tables(repo=repo)
 
+    def describe_table(self, repo, table, detail=False):
+        return self.user_con.describe_table(repo, table, detail)
+
     def list_views(self, repo):
         return self.user_con.list_views(repo=repo)
 

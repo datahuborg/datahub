@@ -46,6 +46,9 @@ class DataHubConnection:
     def list_tables(self, repo):
         return self.backend.list_tables(repo=repo)
 
+    def describe_table(self, repo, table, detail=False):
+        return self.backend.describe_table(repo=repo, table=table, detail=detail)
+
     def list_views(self, repo):
         return self.backend.list_views(repo=repo)
 

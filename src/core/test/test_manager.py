@@ -70,12 +70,6 @@ class BasicOperations(TestCase):
         self.addCleanup(patcher.stop)
         return thing
 
-    def test_list_tables(self):
-        con_list_tables = self.mock_connection.return_value.list_tables
-        self.manager.list_tables('repo')
-
-        self.assertTrue(con_list_tables.called)
-
     def test_create_table(self):
         con_create_table = self.mock_connection.return_value.create_table
         repo = 'repo'
@@ -83,6 +77,18 @@ class BasicOperations(TestCase):
         params = {'id': 'integer', 'words': 'text'}
         self.manager.create_table(repo, table, params)
         self.assertTrue(con_create_table.called)
+
+    def test_list_tables(self):
+        con_list_tables = self.mock_connection.return_value.list_tables
+        self.manager.list_tables('repo')
+
+        self.assertTrue(con_list_tables.called)
+
+    def test_describe_table(self):
+        con_describe_table = self.mock_connection.return_value.describe_table
+        self.manager.describe_table(repo='repo', table='table', detail=False)
+
+        self.assertTrue(con_describe_table.called)
 
     def test_list_views(self):
         con_list_views = self.mock_connection.return_value.list_views

@@ -184,6 +184,21 @@ class PGBackend:
 
         return [t[0] for t in res['tuples']]
 
+    def describe_table(self, repo, table, detail=False):
+        query = ("SELECT %s "
+                 "FROM information_schema.columns "
+                 "WHERE table_schema = %s and table_name = %s;")
+
+        params = None
+        if detail:
+            params = (AsIs('*'), repo, table)
+        else:
+            params = (repo, table)
+
+        res = self.execute_sql(query, params)
+
+        return res['tuples']
+
     def list_views(self, repo):
         self._check_for_injections(repo)
 
