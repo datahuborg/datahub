@@ -3,7 +3,7 @@ from mock import patch, MagicMock
 from django.test import TestCase
 
 from psycopg2 import ProgrammingError
-from ..serializer import CollaboratorSerializer
+from ..serializer import TableSerializer
 
 
 class TableSerializerTests(TestCase):
@@ -16,7 +16,7 @@ class TableSerializerTests(TestCase):
 
         self.mock_manager = self.create_patch(
             'api.serializer.DataHubManager')
-        self.serializer = CollaboratorSerializer(
+        self.serializer = TableSerializer(
             username=self.username, repo_base=self.repo_base)
 
     def create_patch(self, name):

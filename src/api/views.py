@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from .serializer import (
-    UserSerializer, RepoSerializer, CollaboratorSerializer)
+    UserSerializer, RepoSerializer, CollaboratorSerializer, TableSerializer)
 
 
 @api_view(['GET'])
@@ -139,23 +139,23 @@ def add_or_remove_collaborator(request, repo_base, repo, collaborator):
 @api_view(['GET', 'POST'])
 @login_required
 def create_or_list_tables(request, repo_base, repo):
-    pass
-    # username = request.user.get_username()
-    # serializer = TableSerializer(
-    #     username=username, repo_base=repo_base)
+    username = request.user.get_username()
+    serializer = TableSerializer(
+        username=username, repo_base=repo_base)
 
-    # if request.method == 'GET':
-    #     # list all tables
-    #     tables = serializer.list_tables(repo)
-    #     return Response(tables, status=status.HTTP_200_OK)
+    if request.method == 'GET':
+        # list all tables
+        tables = serializer.list_tables(repo)
+        return Response(tables, status=status.HTTP_200_OK)
 
-    # elif request.method == 'POST':
-    #     params = json.loads(request.body)['params']
-    #     table_name = json.loads(request.body)['table_name']
-    #     success = serializer.create_table(repo, table_name, params)
+    elif request.method == 'POST':
+        import pdb; pdb.set_trace()
+        params = request.data['params']
+        table_name = request.data['table_name']
+        success = serializer.create_table(repo, table_name, params)
 
-    #     tables = serializer.list_tables(repo)
-    #     if success:
-    #         return Response(tables, status=status.HTTP_200_OK)
-    #     else:
-    #         return Response(tables, status=status.HTTP_400_BAD_REQUEST)
+        tables = serializer.list_tables(repo)
+        if success:
+            return Response(tables, status=status.HTTP_200_OK)
+        else:
+            return Response(tables, status=status.HTTP_400_BAD_REQUEST)
