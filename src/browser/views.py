@@ -544,6 +544,8 @@ def query(request, repo_base, repo):
     url_path = reverse('browser-query', args=(repo_base, repo))
 
     manager = DataHubManager(user=username, repo_base=repo_base)
+    if repo:
+        manager.set_search_paths([repo])
     res = manager.paginate_query(
         query=query, current_page=current_page, rows_per_page=50)
 
