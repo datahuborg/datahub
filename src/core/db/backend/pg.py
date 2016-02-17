@@ -442,10 +442,36 @@ class PGBackend:
         params = (repo, )
         res = self.execute_sql(query, params)
 
+        # postgres privileges
+        # r -- SELECT ("read")
+        # w -- UPDATE ("write")
+        # a -- INSERT ("append")
+        # d -- DELETE
+        # D -- TRUNCATE
+        # x -- REFERENCES
+        # t -- TRIGGER
+        # X -- EXECUTE
+        # U -- USAGE
+        # C -- CREATE
+        # c -- CONNECT
+        # T -- TEMPORARY
+        # arwdDxt -- ALL PRIVILEGES (for tables, varies for other objects)
+        # * -- grant option for preceding privilege
+        # /yyyy -- role that granted this privilege
+
         collaborators = []
-        for c in res['tuples']:
-            c = c[0].split('=')[0].strip()
-            collaborators.append(c)
+        for row in res['tuples']:
+            # for reference, rows look like this:
+            # ('username=UC/repo_base',)
+
+            collab_obj = {}
+            username = row[0].split('=')[0].strip()
+            permissions = row[0].split('=')[1].split('/')[0]
+
+            collab_obj['username'] = username
+            collab_obj['permissions'] = permissions
+
+            collaborators.append(collab_obj)
 
         return collaborators
 

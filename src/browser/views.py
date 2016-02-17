@@ -24,7 +24,7 @@ from core.db.manager import DataHubManager
 from datahub import DataHub
 from datahub.account import AccountService
 from service.handler import DataHubHandler
-from utils import (get_or_post)
+from utils import post_or_get
 
 '''
 @author: Anant Bhardwaj
@@ -173,6 +173,7 @@ def user(request, repo_base=None):
 
     for repo in repos:
         collaborators = manager.list_collaborators(repo)
+        collaborators = [c.get('username') for c in collaborators]
         collaborators = filter(
             lambda x: x != '' and x != repo_base, collaborators)
 
@@ -318,6 +319,7 @@ def repo_settings(request, repo_base, repo):
     collaborators = manager.list_collaborators(repo)
 
     # remove the current user from the collaborator list
+    collaborators = [c.get('username') for c in collaborators]
     collaborators = filter(lambda x: x != '' and x !=
                            username, collaborators)
 
@@ -521,7 +523,7 @@ Query
 
 @login_required
 def query(request, repo_base, repo):
-    query = get_or_post(request, key='q', fallback=None)
+    query = post_or_get(request, key='q', fallback=None)
     username = request.user.get_username()
 
     # if the user is just requesting the query page
@@ -757,7 +759,7 @@ def app_allow_access(request, app_id, repo_name):
 
         app = App.objects.get(app_id=app_id)
 
-        redirect_url = get_or_post(request, key='redirect_url', fallback=None)
+        redirect_url = post_or_get(request, key='redirect_url', fallback=None)
 
         if request.method == "POST":
 

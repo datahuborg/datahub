@@ -584,6 +584,11 @@ class SchemaListCreateDeleteShare(TestCase):
             ],
             'fields': [{'type': 1033, 'name': 'unnest'}]}
 
+        expected_result = [
+            {'username': 'al_carter', 'permissions': 'UC'},
+            {'username': 'foo_bar', 'permissions': 'U'}
+            ]
+
         res = self.backend.list_collaborators(repo)
 
         self.assertEqual(
@@ -591,7 +596,7 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(
             self.mock_execute_sql.call_args[0][1], params)
         self.assertFalse(self.mock_as_is.called)
-        self.assertEqual(res, ['al_carter', 'foo_bar'])
+        self.assertEqual(res, expected_result)
 
     def test_list_all_users(self):
         query = 'SELECT usename FROM pg_catalog.pg_user WHERE usename != %s'
