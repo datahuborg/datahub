@@ -73,7 +73,7 @@ class BasicOperations(TestCase):
     def test_set_search_paths(self):
         con_set_search_paths = self.mock_connection.return_value.set_search_paths
         search_paths = ['reponame', 'username']
-        self.manager.set_search_path(search_paths)
+        self.manager.set_search_paths(search_paths)
         self.assertTrue(con_set_search_paths.called)
 
     def test_create_table(self):
