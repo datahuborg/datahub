@@ -27,6 +27,12 @@ urlpatterns = [
         name='delete_rename_repo'),
     url(r'^v1/repos/(\w+)/?', views.collaborator_repos,
         name='collaborator_repos'),
+
+    # query
+    url(r'^v1/query/(\w+)/(\w+)/?', views.execute_sql,
+        name='execute_sql_repo'),
+    url(r'^v1/query/(\w+)/?', views.execute_sql,
+        name='execute_sql'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

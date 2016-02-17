@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from .serializer import (
-    UserSerializer, RepoSerializer, CollaboratorSerializer, TableSerializer)
+    UserSerializer, RepoSerializer, CollaboratorSerializer,
+    TableSerializer, QuerySerializer)
 
 
 @login_required()
@@ -170,3 +171,17 @@ def view_table_info(request, repo_base, repo, table):
         return Response(table_info, status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@login_required
+def execute_sql(request, repo_base, repo=None):
+    username = request.user.get_username()
+    query = request.GET.get('sql')
+    serializer = QuerySerializer(username=username, repo_base=repo_base)
+    success, result = serializer.execute_sql(query=query, repo=repo)
+
+    if success:
+        return Response(result, status=status.HTTP_200_OK)
+    else:
+        return Response(result, status=status.H)

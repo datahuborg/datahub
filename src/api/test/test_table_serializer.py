@@ -66,3 +66,16 @@ class TableSerializerTests(TestCase):
 
         self.assertTrue(mock_manager_list_tables.called)
         self.assertEqual(tables, ['table1', 'table2'])
+
+    def test_describe_table_no_detail(self):
+        mock_mngr_desc_table = self.mock_manager.return_value.describe_table
+        mock_mngr_desc_table.return_value = [(u'id', u'integer'),
+                                             (u'words', u'text')]
+        repo = 'repo_name'
+        table = 'table_name'
+        expected_description = [{"data_type": "integer", "column_name": "id"},
+                                {"data_type": "text", "column_name": "words"}]
+        description = self.serializer.describe_table(repo, table)
+
+        self.assertTrue(mock_mngr_desc_table.called)
+        self.assertEqual(description, expected_description)
