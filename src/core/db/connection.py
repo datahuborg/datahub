@@ -14,6 +14,9 @@ class DataHubConnection:
     def change_repo_base(self, repo_base):
         self.backend.change_repo_base(repo_base=repo_base)
 
+    def set_search_paths(self, search_paths=[]):
+        return self.backend.set_search_paths(search_paths)
+
     def close_connection(self):
         self.backend.close_connection()
 
@@ -47,7 +50,8 @@ class DataHubConnection:
         return self.backend.list_tables(repo=repo)
 
     def describe_table(self, repo, table, detail=False):
-        return self.backend.describe_table(repo=repo, table=table, detail=detail)
+        return self.backend.describe_table(
+            repo=repo, table=table, detail=detail)
 
     def list_views(self, repo):
         return self.backend.list_views(repo=repo)
