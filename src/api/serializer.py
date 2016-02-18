@@ -8,7 +8,7 @@ from core.db.manager import DataHubManager
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'last_login', 'first_name', 'last_name', 'email')
+        fields = ('username', 'last_login', 'email')
 
 
 class DataHubSerializer(object):
