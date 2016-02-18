@@ -5,33 +5,35 @@ from . import views
 urlpatterns = [
 
     # user
-    url(r'^v1/user/$', views.user, name='user'),
-    url(r'^v1/user/repos/$', views.user_repos, name='user_repos'),
-    url(r'^v1/repos/$', views.user_accessible_repos,
+    url(r'^v1/user/$', views.CurrentUser.as_view(), name='user'),
+    url(r'^v1/user/repos/$', views.CurrentUserRepos.as_view(),
+        name='user_repos'),
+    url(r'^v1/repos/$', views.Repos.as_view(),
         name='user_accessible_repos'),
+
+    # repos
+    url(r'^v1/repos/(\w+)/(\w+)/$', views.Repo.as_view(),
+        name='delete_rename_repo'),
+    url(r'^v1/repos/(\w+)/$', views.ReposForUser.as_view(),
+        name='collaborator_repos'),
 
     # collaborators
     url(r'^v1/repos/(\w+)/(\w+)/collaborators/(\w+)/?',
-        views.add_or_remove_collaborator, name='add_or_remove_collaborator'),
-    url(r'^v1/repos/(\w+)/(\w+)/collaborators/?', views.list_collaborators,
+        views.Collaborator.as_view(), name='add_or_remove_collaborator'),
+    url(r'^v1/repos/(\w+)/(\w+)/collaborators/?',
+        views.Collaborators.as_view(),
         name='list_collaborators'),
 
     # tables
     url(r'^v1/repos/(\w+)/(\w+)/tables/(\w+)/?',
-        views.view_table_info, name='view_table_info'),
+        views.Table.as_view(), name='view_table_info'),
     url(r'^v1/repos/(\w+)/(\w+)/tables/?',
-        views.create_or_list_tables, name='create_or_list_tables'),
-
-    # repos
-    url(r'^v1/repos/(\w+)/(\w+)/?', views.delete_rename_repo,
-        name='delete_rename_repo'),
-    url(r'^v1/repos/(\w+)/?', views.collaborator_repos,
-        name='collaborator_repos'),
+        views.Tables.as_view(), name='create_or_list_tables'),
 
     # query
-    url(r'^v1/query/(\w+)/(\w+)/?', views.execute_sql,
+    url(r'^v1/query/(\w+)/(\w+)/?', views.Query.as_view(),
         name='execute_sql_repo'),
-    url(r'^v1/query/(\w+)/?', views.execute_sql,
+    url(r'^v1/query/(\w+)/?', views.Query.as_view(),
         name='execute_sql'),
 ]
 
