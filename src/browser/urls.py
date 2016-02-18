@@ -26,6 +26,8 @@ urlpatterns = patterns(
 
     # API Pages
     url(r'^api/', include('api.urls', namespace='api')),
+    url(r'^api-auth/', include('rest_framework.urls',
+        namespace='rest_framework')),
 
     # Thrift Services
     url(r'^service$', 'browser.views.service_core_binary',
@@ -130,5 +132,6 @@ urlpatterns = patterns(
     url(r'^apps/viz/', include('viz2.urls', namespace='viz2')),
     url(r'^apps/sentiment/', include('sentiment.urls', namespace='sentiment')),
     url(r'^apps/dataq/', include('dataq.urls', namespace='dataq')),
-    url(r'^apps/datatables/', include('datatables.urls', namespace='datatables')),
+    url(r'^apps/datatables/', include('datatables.urls',
+        namespace='datatables')),
 )
