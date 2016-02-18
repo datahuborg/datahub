@@ -8,7 +8,6 @@ from core.db.backend.pg import PGBackend
 
 
 class HelperMethods(TestCase):
-
     """Tests connections, validation and execution methods in PGBackend."""
 
     def setUp(self):
@@ -74,7 +73,6 @@ class HelperMethods(TestCase):
 
 
 class SchemaListCreateDeleteShare(TestCase):
-
     """
     Tests that items reach the execute_sql method in pg.py.
 
@@ -420,7 +418,6 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(
             res,  [(u'id', u'integer'), (u'words', u'text'), ('foo', 'bar')])
-
 
     def test_list_views(self):
         repo = 'repo'
