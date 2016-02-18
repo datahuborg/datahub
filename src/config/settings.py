@@ -257,7 +257,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
         'api.permissions.WeakTokenHasReadWriteScope',
     ),
+    'EXCEPTION_HANDLER': 'api.views.custom_exception_handler'
 }
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

@@ -26,21 +26,19 @@ class QuerySerializerTests(TestCase):
         self.addCleanup(patcher.stop)
         return thing
 
-    def test_query_with_no_repo_happy_path(self):
+    def test_query_with_no_repo(self):
         mock_manager_execute_sql = self.mock_manager.return_value.execute_sql
 
         query = "select * from foo.bar"
-        success, response = self.serializer.execute_sql(query)
+        response = self.serializer.execute_sql(query)
         self.assertTrue(mock_manager_execute_sql.called)
-        self.assertTrue(success)
 
-    def test_query_with_no_repo_sad_path(self):
-        mock_manager_execute_sql = self.mock_manager.return_value.execute_sql
-        mock_manager_execute_sql.side_effect = ProgrammingError
+    def test_query_with_repo(self):
+        # mock_manager_execute_sql = self.mock_manager.return_value.execute_sql
+        mm_set_search_paths = self.mock_manager.return_value.set_search_paths
 
         query = "select * from foo.bar"
-        success, response = self.serializer.execute_sql(query)
+        self.serializer.execute_sql(query, repo='foo')
 
-        self.assertTrue(mock_manager_execute_sql.called)
+        self.assertTrue(mm_set_search_paths.called)
 
-        self.assertFalse(success)

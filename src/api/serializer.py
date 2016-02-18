@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+
 from django.contrib.auth.models import User
 
 from inventory.models import Collaborator
@@ -172,24 +174,13 @@ class TableSerializer(DataHubSerializer):
 class QuerySerializer(DataHubSerializer):
 
     def execute_sql(self, query, repo=None):
-
         if repo:
             self.manager.set_search_paths([repo])
-            # search_path = 'set search_path to %s; ' % (repo)
-            # query = search_path + query
 
-        success = False
-        try:
-            result = self.manager.execute_sql(query)
-            success = True
-        except:
-            # this should really return the error message, but I haven't
-            # worked that out yet.
-            result = {}
-            pass
+        result = self.manager.execute_sql(query)
 
         # rename the tuples key to rows
         result['rows'] = result.pop('tuples', None)
         result['columns'] = result.pop('fields', None)
 
-        return (success, result)
+        return result

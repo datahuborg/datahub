@@ -1,8 +1,12 @@
 from django.contrib.auth.models import User
 
+from psycopg2 import Error
+
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.views import exception_handler
 from rest_framework.response import Response
+
 
 from .serializer import (
     UserSerializer, RepoSerializer, CollaboratorSerializer,
@@ -241,9 +245,26 @@ class Query(APIView):
         data = request.data
         query = data['sql']
         serializer = QuerySerializer(username=username, repo_base=repo_base)
-        success, result = serializer.execute_sql(query=query, repo=repo)
 
-        if success:
-            return Response(result, status=status.HTTP_200_OK)
-        else:
-            return Response(result, status=status.HTTP_400_BAD_REQUEST)
+        result = serializer.execute_sql(query=query, repo=repo)
+        return Response(result, status=status.HTTP_200_OK)
+
+
+def custom_exception_handler(exc, context):
+    result = {}
+
+    # Now add the HTTP status code to the response.
+    # Call REST framework's default exception handler first,
+    # to get the standard error response.
+    response = exception_handler(exc, context)
+    if response is not None:
+        response.data['status_code'] = response.status_code
+    elif issubclass(type(exc), Error):
+        result['error_type'] = type(exc).__name__
+        result['message'] = exc.message
+        result['pgcode'] = exc.pgcode
+        result['severity'] = exc.diag.severity
+    else:
+        result = exc
+
+    return Response(result, status=status.HTTP_400_BAD_REQUEST)
