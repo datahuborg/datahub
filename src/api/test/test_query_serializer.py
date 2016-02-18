@@ -30,7 +30,7 @@ class QuerySerializerTests(TestCase):
         mock_manager_execute_sql = self.mock_manager.return_value.execute_sql
 
         query = "select * from foo.bar"
-        response = self.serializer.execute_sql(query)
+        self.serializer.execute_sql(query)
         self.assertTrue(mock_manager_execute_sql.called)
 
     def test_query_with_repo(self):
@@ -41,4 +41,3 @@ class QuerySerializerTests(TestCase):
         self.serializer.execute_sql(query, repo='foo')
 
         self.assertTrue(mm_set_search_paths.called)
-
