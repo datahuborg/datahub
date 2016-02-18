@@ -239,10 +239,13 @@ SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['username', 'email']
 
 OAUTH2_PROVIDER = {
     'SCOPES': {
-        'read': "Read something",
-        'write': "Sure, why not",
+        'read': "Read your data.",
+        'write': "Modify and delete your data.",
     },
+    'READ_SCOPE': 'read',
+    'WRITE_SCOPE': 'write',
     'ALLOWED_REDIRECT_URI_SCHEMES': ['http', 'https', 'oauthexplorer'],
+    'REQUEST_APPROVAL_PROMPT': 'auto',
 }
 
 REST_FRAMEWORK = {
@@ -252,6 +255,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
+        'api.permissions.WeakTokenHasReadWriteScope',
     ),
 }
 
