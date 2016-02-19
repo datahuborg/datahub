@@ -6,11 +6,11 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.views import exception_handler
 from rest_framework.response import Response
-
+from rest_framework.parsers import FileUploadParser, FormParser
 
 from .serializer import (
     UserSerializer, RepoSerializer, CollaboratorSerializer,
-    TableSerializer, ViewSerializer, QuerySerializer)
+    TableSerializer, ViewSerializer, FileSerializer, QuerySerializer)
 
 
 class CurrentUser(APIView):
@@ -241,13 +241,39 @@ class Table(APIView):
         serializer.delete_table(repo, table, False)
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
+
 class Files(APIView):
+    parser_classes = (FileUploadParser, FormParser)
     """
-    List or upload a file
+    List or upload a files
+
+    GET to list files
+    Accepts: None
+    ---
+    POST to upload a file
+    Accepts: file['data_file']
     """
 
     def get(self, request, repo_base, repo):
+        username = request.user.get_username()
+        serializer = FileSerializer(
+                username=username, repo_base=repo_base)
+        files = serializer.list_files(repo)
+        return Response(files, status=status.HTTP_200_OK)
+
+    def post(self, request, repo_base, repo):
         pass
+        # import pdb; pdb.set_trace()
+
+        # username = request.user.get_username()
+        # file = request.data['file']
+
+        # serializer = FileSerializer(
+        #         username=username, repo_base=repo_base)
+        # serializer.upload_file(repo, file)
+        # files = serializer.list_files(repo)
+
+        # return Response(files, status=status.HTTP_200_OK)
 
 
 class Export(APIView):

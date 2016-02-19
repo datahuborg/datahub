@@ -31,6 +31,8 @@ urlpatterns = [
         views.Tables.as_view(), name='create_or_list_tables'),
 
     #files
+    url(r'^v1/repos/(\w+)/(\w+)/files$',
+        views.Files.as_view(), name='list_or_upload_file'),
     url(r'^v1/repos/(\w+)/(\w+)/files/?',
         views.Export.as_view(), name='export_table_or_view'),
 

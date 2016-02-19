@@ -174,7 +174,10 @@ class ViewSerializer(DataHubSerializer):
 class FileSerializer(DataHubSerializer):
 
     def list_files(self, repo):
-        self.manager.list_repo_files(repo)
+        return self.manager.list_repo_files(repo)
+
+    def upload_file(self, repo, file):
+        return self.manager.save_file(repo, file)
 
 
 class QuerySerializer(DataHubSerializer):
