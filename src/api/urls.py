@@ -32,7 +32,7 @@ urlpatterns = [
 
     #files
     url(r'^v1/repos/(\w+)/(\w+)/files/?',
-        views.Files.as_view(), name='view_table_info'),
+        views.Export.as_view(), name='export_table_or_view'),
 
     # query
     url(r'^v1/query/(\w+)/(\w+)/?', views.Query.as_view(),

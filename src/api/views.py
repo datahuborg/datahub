@@ -241,10 +241,22 @@ class Table(APIView):
         serializer.delete_table(repo, table, False)
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
-
 class Files(APIView):
     """
+    List or upload a file
+    """
+
+    def get(self, request, repo_base, repo):
+        pass
+
+
+class Export(APIView):
+    """
     create files from tables or views
+
+    POST to create a file
+    Accepts: { 'from_table' | 'from_view' }
+    e.g. /repos/:user/:repo/files?from_view=:view_name
     """
 
     def post(self, request, repo_base, repo):
@@ -267,6 +279,8 @@ class Files(APIView):
                 username=username, repo_base=repo_base)
             serializer.export_view(repo, view, file_format, delimiter,
                                    header)
+        else:
+            raise(KeyError)
 
         # should really return list_files, but it's not yet built
         return Response('surprise!', status=status.HTTP_200_OK)

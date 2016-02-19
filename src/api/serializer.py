@@ -171,6 +171,12 @@ class ViewSerializer(DataHubSerializer):
         return success
 
 
+class FileSerializer(DataHubSerializer):
+
+    def list_files(self, repo):
+        self.manager.list_repo_files(repo)
+
+
 class QuerySerializer(DataHubSerializer):
 
     def execute_sql(self, query, repo=None):
