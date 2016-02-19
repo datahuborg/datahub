@@ -142,6 +142,14 @@ class DataHubConnection:
             file_format=file_format,
             delimiter=delimiter)
 
+    def export_view(self, view_name, file_path, file_format='CSV',
+                    delimiter=',', header=True):
+        return self.backend.export_view(
+            view_name=view_name,
+            file_path=file_path,
+            file_format=file_format,
+            delimiter=delimiter)
+
     def export_query(self, query, file_path, file_format='CSV',
                      delimiter=',', header=True):
         return self.backend.export_query(

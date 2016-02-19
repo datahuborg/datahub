@@ -535,6 +535,22 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['status']
 
+    def export_view(self, view_name, file_path, file_format='CSV',
+                    delimiter=',', header=True):
+        header_option = 'HEADER' if header else ''
+
+        for word in view_name.split('.'):
+            self._check_for_injections(word)
+
+        self._check_for_injections(file_format)
+
+        query = 'COPY(SELECT * FROM %s) TO %s WITH %s %s DELIMITER %s;'
+        params = (AsIs(view_name), file_path,
+                  AsIs(file_format), AsIs(header_option), delimiter)
+
+        res = self.execute_sql(query, params)
+        return res['status']
+
     def export_query(self, query, file_path, file_format='CSV',
                      delimiter=',', header=True):
         # warning: this method is inherently unsafe, since there's no way to

@@ -725,6 +725,25 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(
             self.mock_execute_sql.call_args[0][1], params)
 
+    def test_export_view(self):
+        self.mock_execute_sql.return_value = {'status': True}
+        query = 'COPY(SELECT * FROM %s) TO %s WITH %s %s DELIMITER %s;'
+        view_name = 'user_name.repo_name.view_name'
+        file_path = 'file_path'
+        file_format = 'file_format'
+        delimiter = ','
+        header = True
+
+        params = (view_name, file_path, file_format, 'HEADER', delimiter)
+        self.backend.export_view(view_name, file_path,
+                                 file_format, delimiter, header)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, 3)
+        self.assertEqual(self.mock_check_for_injections.call_count, 4)
+
     def test_export_query_with_header(self):
         query = 'COPY (%s) TO %s WITH %s %s DELIMITER %s;'
 

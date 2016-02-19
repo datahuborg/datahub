@@ -665,6 +665,11 @@ class DataHubManager:
         Only superusers can execute the copy command, so this function
         passes the username, and verifies user's permissions.
         """
+        # clean up names:
+        repo_base = clean_str(repo_base, '')
+        repo = clean_str(repo, '')
+        table = clean_str(table, '')
+
         # check for permissions
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
@@ -689,6 +694,49 @@ class DataHubManager:
             repo_base=repo_base)
         return superuser_con.export_table(
             table_name=long_table_name,
+            file_path=file_path,
+            file_format=file_format,
+            delimiter=delimiter,
+            header=header)
+
+    @staticmethod
+    def export_view(username, repo_base, repo, view, file_format='CSV',
+                    delimiter=',', header=True):
+        """
+        Export a view to a CSV file in the same repo.
+
+        Only superusers can execute the copy command, so this function
+        passes the username, and verifies user's permissions.
+        """
+        # clean up names:
+        repo_base = clean_str(repo_base, '')
+        repo = clean_str(repo, '')
+        view = clean_str(view, '')
+
+        # check for permissions
+        res = DataHubManager.has_repo_privilege(
+            username, repo_base, repo, 'CREATE')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges.')
+
+        # make the base_repo and repo's folder, if they don't already exist
+        DataHubManager.create_user_data_folder(repo_base, repo)
+
+        # define the file path for the new view
+        file_name = clean_file_name(view)
+        file_path = user_data_path(repo_base, repo, file_name, file_format)
+
+        # format the full view name
+        long_view_name = '%s.%s.%s' % (repo_base, repo, view)
+
+        # pass arguments to the connector
+        superuser_con = DataHubConnection(
+            user=settings.DATABASES['default']['USER'],
+            password=settings.DATABASES['default']['USER'],
+            repo_base=repo_base)
+        return superuser_con.export_view(
+            view_name=long_view_name,
             file_path=file_path,
             file_format=file_format,
             delimiter=delimiter,
