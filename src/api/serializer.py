@@ -135,6 +135,18 @@ class TableSerializer(DataHubSerializer):
         success = self.manager.delete_table(repo, table, force)
         return success
 
+    def export_table(self, repo, table, file_format='CSV', delimiter=',',
+                     header=True):
+        import pdb; pdb.set_trace()
+
+        success = DataHubManager.export_table(
+            username=self.username, repo_base=self.repo_base,
+            repo=repo, table=table, file_format=file_format,
+            delimiter=delimiter, header=header)
+
+        import pdb; pdb.set_trace()
+        return success
+
 
 class QuerySerializer(DataHubSerializer):
 

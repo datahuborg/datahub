@@ -242,6 +242,27 @@ class Table(APIView):
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
+class Files(APIView):
+    """
+    create files
+    """
+
+    def post(self, request, repo_base, repo):
+        username = request.user.get_username()
+        data = request.data
+        table = request.GET.get('from_table', None)
+
+        file_format = data.get('file_format', 'CSV')
+        delimiter = data.get('delimiter', ',')
+        header = data.get('header', True)
+
+        serializer = TableSerializer(
+            username=username, repo_base=repo_base)
+
+        serializer.export_table(repo, table, file_format, delimiter, header)
+        return Response('surprise!', status=status.HTTP_200_OK)
+
+
 class Query(APIView):
     """
     Manage SQL queries.

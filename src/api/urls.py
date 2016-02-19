@@ -30,6 +30,10 @@ urlpatterns = [
     url(r'^v1/repos/(\w+)/(\w+)/tables/?',
         views.Tables.as_view(), name='create_or_list_tables'),
 
+    #files
+    url(r'^v1/repos/(\w+)/(\w+)/files/?',
+        views.Files.as_view(), name='view_table_info'),
+
     # query
     url(r'^v1/query/(\w+)/(\w+)/?', views.Query.as_view(),
         name='execute_sql_repo'),
