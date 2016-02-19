@@ -14,7 +14,12 @@ from .serializer import (
 
 
 class CurrentUser(APIView):
-    """The current user."""
+    """
+    The current user.
+
+    GET details on current user.
+    Accepts: None
+    """
 
     def get(self, request, format=None):
         username = request.user.get_username()
@@ -25,7 +30,12 @@ class CurrentUser(APIView):
 
 
 class CurrentUserRepos(APIView):
-    """The repos owned by the current user."""
+    """
+    The current user's owned repos.
+
+    GET the repos owned by the current user.
+    Accepts: None
+    """
 
     def get(self, request, format=None):
         username = request.user.get_username()
@@ -36,7 +46,12 @@ class CurrentUserRepos(APIView):
 
 
 class Repos(APIView):
-    """The repos visible to the current user."""
+    """
+    The current user's visible repos.
+
+    GET the repos visible to the current user.
+    Accepts: None
+    """
 
     def get(self, request, format=None):
         username = request.user.get_username()
@@ -48,10 +63,14 @@ class Repos(APIView):
 
 class ReposForUser(APIView):
     """
-    The repos of a specific user.
+    Repos of the specified user.
 
-    POST to create a repo under the specified user. Fails if the specified
-    user isn't the current user.
+    GET the repos of a specific user.
+    Accepts: None
+    ---
+    POST to create a repo under the specified user.
+    Fails if the specified user has not authorized this.
+    Accepts: { "repo": str }
     """
 
     def get(self, request, repo_base, format=None):
@@ -79,16 +98,17 @@ class Repo(APIView):
     A specific repo of a specific user.
 
     DELETE to delete the repo.
+    Accepts: None
+    ---
     PATCH to rename the repo.
+    Accepts: { "new_name": }
     """
 
     def delete(self, request, repo_base, repo_name, format=None):
         username = request.user.get_username()
         serializer = RepoSerializer(username=username, repo_base=repo_base)
         serializer.delete_repo(repo_name=repo_name, force=True)
-
-        return Response(serializer.user_accessible_repos(),
-                        status=status.HTTP_200_OK)
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
     def patch(self, request, repo_base, repo_name, format=None):
         username = request.user.get_username()
@@ -105,7 +125,10 @@ class Collaborators(APIView):
     List and create collaborators.
 
     GET to list the collaborators.
+    Accepts: None
+    ---
     POST to add a collaborator.
+    Accepts: { "user":, "privileges": }
     """
 
     def get(self, request, repo_base, repo, format=None):
@@ -134,7 +157,10 @@ class Collaborator(APIView):
     Modify and delete existing collaborators.
 
     DELETE to remove the specified collaborator from the repo.
+    Accepts: None
+    ---
     PUT to modify the privileges of an existing collaborator.
+    Accepts: { "privileges": }
     """
 
     def delete(self, request, repo_base, repo, collaborator, format=None):
@@ -142,9 +168,7 @@ class Collaborator(APIView):
         serializer = CollaboratorSerializer(username=username,
                                             repo_base=repo_base)
         serializer.remove_collaborator(repo, collaborator)
-        collaborators = serializer.list_collaborators(repo)
-
-        return Response(collaborators, status=status.HTTP_200_OK)
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
     def put(self, request, repo_base, repo, collaborator, format=None):
         username = request.user.get_username()
@@ -163,7 +187,10 @@ class Tables(APIView):
     List and create tables.
 
     GET to list existing tables.
+    Accepts: None
+    ---
     POST to create a new table.
+    Accepts: { "table_name":, "params": []}
     """
 
     def get(self, request, repo_base, repo, format=None):
@@ -189,9 +216,13 @@ class Tables(APIView):
 
 class Table(APIView):
     """
-    View a single table.
+    View or delete a single table.
 
     GET to view info about a table.
+    Accepts: None
+    ---
+    DELETE to delete a table.
+    Accepts: None
     """
 
     def get(self, request, repo_base, repo, table):
@@ -202,12 +233,21 @@ class Table(APIView):
         table_info = serializer.describe_table(repo, table, detail=False)
         return Response(table_info, status=status.HTTP_200_OK)
 
+    def delete(self, request, repo_base, repo, table):
+        username = request.user.get_username()
+        serializer = TableSerializer(
+            username=username, repo_base=repo_base)
+
+        serializer.delete_table(repo, table, False)
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
+
 
 class Query(APIView):
     """
     Manage SQL queries.
 
     POST execute a SQL statement and receive the result.
+    Accepts: { "sql": }
     """
 
     def post(self, request, repo_base, repo=None, format=None):

@@ -131,6 +131,10 @@ class TableSerializer(DataHubSerializer):
             response.append(response_obj)
         return response
 
+    def delete_table(self, repo, table, force=False):
+        success = self.manager.delete_table(repo, table, force)
+        return success
+
 
 class QuerySerializer(DataHubSerializer):
 

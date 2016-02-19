@@ -63,3 +63,14 @@ class TableSerializerTests(TestCase):
 
         self.assertTrue(mock_mngr_desc_table.called)
         self.assertEqual(description, expected_description)
+
+    def test_delete_table(self):
+        mock_manager_delete_table = self.mock_manager.return_value.delete_table
+        mock_manager_delete_table.return_value = True
+
+        repo = 'repo_name'
+        table = 'table_name'
+        success = self.serializer.delete_table(repo, table, False)
+
+        self.assertTrue(mock_manager_delete_table.called)
+        self.assertEqual(success, True)
