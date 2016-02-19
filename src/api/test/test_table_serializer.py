@@ -27,6 +27,7 @@ class TableSerializerTests(TestCase):
 
     def test_create_table(self):
         mock_manager_create_table = self.mock_manager.return_value.create_table
+        mock_manager_create_table.return_value = True
 
         table = 'table_name'
         repo = 'repo_name'
@@ -74,3 +75,7 @@ class TableSerializerTests(TestCase):
 
         self.assertTrue(mock_manager_delete_table.called)
         self.assertEqual(success, True)
+
+    def test_export_table(self):
+        self.serializer.export_table('repo', 'table')
+        self.assertTrue(self.mock_manager.export_table.called)

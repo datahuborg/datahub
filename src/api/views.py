@@ -10,7 +10,7 @@ from rest_framework.response import Response
 
 from .serializer import (
     UserSerializer, RepoSerializer, CollaboratorSerializer,
-    TableSerializer, QuerySerializer)
+    TableSerializer, ViewSerializer, QuerySerializer)
 
 
 class CurrentUser(APIView):
@@ -244,22 +244,31 @@ class Table(APIView):
 
 class Files(APIView):
     """
-    create files
+    create files from tables or views
     """
 
     def post(self, request, repo_base, repo):
         username = request.user.get_username()
         data = request.data
-        table = request.GET.get('from_table', None)
-
         file_format = data.get('file_format', 'CSV')
         delimiter = data.get('delimiter', ',')
         header = data.get('header', True)
 
-        serializer = TableSerializer(
-            username=username, repo_base=repo_base)
+        table = request.GET.get('from_table', None)
+        view = request.GET.get('from_view', None)
 
-        serializer.export_table(repo, table, file_format, delimiter, header)
+        if table:
+            serializer = TableSerializer(
+                username=username, repo_base=repo_base)
+            serializer.export_table(repo, table, file_format, delimiter,
+                                    header)
+        elif view:
+            serializer = ViewSerializer(
+                username=username, repo_base=repo_base)
+            serializer.export_view(repo, view, file_format, delimiter,
+                                   header)
+
+        # should really return list_files, but it's not yet built
         return Response('surprise!', status=status.HTTP_200_OK)
 
 

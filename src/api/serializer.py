@@ -137,14 +137,37 @@ class TableSerializer(DataHubSerializer):
 
     def export_table(self, repo, table, file_format='CSV', delimiter=',',
                      header=True):
-        import pdb; pdb.set_trace()
 
         success = DataHubManager.export_table(
             username=self.username, repo_base=self.repo_base,
             repo=repo, table=table, file_format=file_format,
             delimiter=delimiter, header=header)
 
-        import pdb; pdb.set_trace()
+        return success
+
+
+class ViewSerializer(DataHubSerializer):
+
+    def create_view(self, repo):
+        pass
+
+    def list_views(self, repo):
+        pass
+
+    def describe_view(self, repo, view, detail=False):
+        pass
+
+    def delete_view(self, repo, view, force=False):
+        pass
+
+    def export_view(self, repo, view, file_format='CSV', delimiter=',',
+                    header=True):
+
+        success = DataHubManager.export_view(
+            username=self.username, repo_base=self.repo_base,
+            repo=repo, view=view, file_format=file_format,
+            delimiter=delimiter, header=header)
+
         return success
 
 
