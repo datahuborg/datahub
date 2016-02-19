@@ -68,15 +68,10 @@ class ReposForUser(APIView):
         serializer = RepoSerializer(username=username, repo_base=repo_base)
 
         repo_name = request.data['repo']
-        success = serializer.create_repo(repo_name)
-        if success:
-            return Response(
-                serializer.user_accessible_repos(),
-                status=status.HTTP_201_CREATED)
-        else:
-            return Response(
-                serializer.user_accessible_repos(),
-                status=status.HTTP_400_BAD_REQUEST)
+        serializer.create_repo(repo_name)
+
+        return Response(serializer.user_accessible_repos(),
+                        status=status.HTTP_201_CREATED)
 
 
 class Repo(APIView):
@@ -90,32 +85,19 @@ class Repo(APIView):
     def delete(self, request, repo_base, repo_name, format=None):
         username = request.user.get_username()
         serializer = RepoSerializer(username=username, repo_base=repo_base)
-        success = serializer.delete_repo(repo_name=repo_name, force=True)
+        serializer.delete_repo(repo_name=repo_name, force=True)
 
-        if success:
-            return Response(
-                serializer.user_accessible_repos(),
-                status=status.HTTP_200_OK)
-        else:
-            return Response(
-                serializer.user_accessible_repos(),
-                status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.user_accessible_repos(),
+                        status=status.HTTP_200_OK)
 
     def patch(self, request, repo_base, repo_name, format=None):
         username = request.user.get_username()
         serializer = RepoSerializer(username=username, repo_base=repo_base)
         new_repo_name = request.data['new_name']
-        success = serializer.rename_repo(
-            repo=repo_name, new_name=new_repo_name)
+        serializer.rename_repo(repo=repo_name, new_name=new_repo_name)
 
-        if success:
-            return Response(
-                serializer.user_accessible_repos(),
-                status=status.HTTP_200_OK)
-        else:
-            return Response(
-                serializer.user_accessible_repos(),
-                status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.user_accessible_repos(),
+                        status=status.HTTP_200_OK)
 
 
 class Collaborators(APIView):
@@ -141,12 +123,10 @@ class Collaborators(APIView):
         data = request.data
         collaborator = data['user']
         privileges = data['privileges']
-        success = serializer.add_collaborator(repo, collaborator, privileges)
+        serializer.add_collaborator(repo, collaborator, privileges)
         collaborators = serializer.list_collaborators(repo)
-        if success:
-            return Response(collaborators, status=status.HTTP_200_OK)
-        else:
-            return Response(collaborators, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(collaborators, status=status.HTTP_200_OK)
 
 
 class Collaborator(APIView):
@@ -161,12 +141,10 @@ class Collaborator(APIView):
         username = request.user.get_username()
         serializer = CollaboratorSerializer(username=username,
                                             repo_base=repo_base)
-        success = serializer.remove_collaborator(repo, collaborator)
+        serializer.remove_collaborator(repo, collaborator)
         collaborators = serializer.list_collaborators(repo)
-        if success:
-            return Response(collaborators, status=status.HTTP_200_OK)
-        else:
-            return Response(collaborators, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(collaborators, status=status.HTTP_200_OK)
 
     def put(self, request, repo_base, repo, collaborator, format=None):
         username = request.user.get_username()
@@ -174,12 +152,10 @@ class Collaborator(APIView):
                                             repo_base=repo_base)
         data = request.data
         privileges = data['privileges']
-        success = serializer.add_collaborator(repo, collaborator, privileges)
+        serializer.add_collaborator(repo, collaborator, privileges)
         collaborators = serializer.list_collaborators(repo)
-        if success:
-            return Response(collaborators, status=status.HTTP_200_OK)
-        else:
-            return Response(collaborators, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(collaborators, status=status.HTTP_200_OK)
 
 
 class Tables(APIView):
@@ -205,13 +181,10 @@ class Tables(APIView):
 
         params = request.data['params']
         table_name = request.data['table_name']
-        success = serializer.create_table(repo, table_name, params)
+        serializer.create_table(repo, table_name, params)
 
         tables = serializer.list_tables(repo)
-        if success:
-            return Response(tables, status=status.HTTP_200_OK)
-        else:
-            return Response(tables, status=status.HTTP_400_BAD_REQUEST)
+        return Response(tables, status=status.HTTP_200_OK)
 
 
 class Table(APIView):
@@ -227,10 +200,7 @@ class Table(APIView):
             username=username, repo_base=repo_base)
 
         table_info = serializer.describe_table(repo, table, detail=False)
-        if table_info:
-            return Response(table_info, status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(table_info, status=status.HTTP_200_OK)
 
 
 class Query(APIView):

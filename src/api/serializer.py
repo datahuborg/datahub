@@ -25,33 +25,16 @@ class DataHubSerializer(object):
 class RepoSerializer(DataHubSerializer):
 
     def create_repo(self, repo_name):
-        success = False
-        try:
-            self.manager.create_repo(repo_name)
-            success = True
-        except:
-            pass
-
-        return(success)
+        success = self.manager.create_repo(repo_name)
+        return success
 
     def delete_repo(self, repo_name, force=True):
-        success = False
-        try:
-            self.manager.delete_repo(repo=repo_name, force=force)
-            success = True
-        except:
-            pass
-
-        return(success)
+        success = self.manager.delete_repo(repo=repo_name, force=force)
+        return success
 
     def rename_repo(self, repo, new_name):
-        success = False
-        try:
-            self.manager.rename_repo(repo=repo, new_name=new_name)
-            success = True
-        except:
-            pass
-        return(success)
+        success = self.manager.rename_repo(repo=repo, new_name=new_name)
+        return success
 
     def user_owned_repos(self):
         repos = self.manager.list_repos()
@@ -112,42 +95,24 @@ class RepoSerializer(DataHubSerializer):
 
 class CollaboratorSerializer(DataHubSerializer):
     def list_collaborators(self, repo_name):
-
         collaborators = self.manager.list_collaborators(repo_name)
         return collaborators
 
     def add_collaborator(self, repo, collaborator, privileges):
-        success = False
-        try:
-            self.manager.add_collaborator(
-                repo, collaborator, privileges)
-            success = True
-        except:
-            pass
-
+        success = self.manager.add_collaborator(
+            repo, collaborator, privileges)
         return success
 
     def remove_collaborator(self, repo, collaborator):
-        success = False
-        try:
-            self.manager.delete_collaborator(
-                repo, collaborator)
-            success = True
-        except:
-            pass
+        success = self.manager.delete_collaborator(
+            repo, collaborator)
         return success
 
 
 class TableSerializer(DataHubSerializer):
 
     def create_table(self, repo, table, params):
-        success = False
-        try:
-            self.manager.create_table(repo, table, params)
-            success = True
-        except:
-            pass
-
+        success = self.manager.create_table(repo, table, params)
         return success
 
     def list_tables(self, repo):
@@ -155,20 +120,16 @@ class TableSerializer(DataHubSerializer):
         return tables
 
     def describe_table(self, repo, table, detail=False):
-        try:
-            res = self.manager.describe_table(
-                repo=repo, table=table, detail=False)
+        res = self.manager.describe_table(
+            repo=repo, table=table, detail=False)
 
-            response = []
-            for column in res:
-                response_obj = {}
-                response_obj['column_name'] = column[0]
-                response_obj['data_type'] = column[1]
-                response.append(response_obj)
-            return response
-
-        except:
-            return False
+        response = []
+        for column in res:
+            response_obj = {}
+            response_obj['column_name'] = column[0]
+            response_obj['data_type'] = column[1]
+            response.append(response_obj)
+        return response
 
 
 class QuerySerializer(DataHubSerializer):

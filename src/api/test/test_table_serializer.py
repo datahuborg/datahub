@@ -1,8 +1,7 @@
-from mock import patch, MagicMock
+from mock import patch
 
 from django.test import TestCase
 
-from psycopg2 import ProgrammingError
 from ..serializer import TableSerializer
 
 
@@ -26,7 +25,7 @@ class TableSerializerTests(TestCase):
         self.addCleanup(patcher.stop)
         return thing
 
-    def test_create_table_happy_path(self):
+    def test_create_table(self):
         mock_manager_create_table = self.mock_manager.return_value.create_table
 
         table = 'table_name'
@@ -39,22 +38,7 @@ class TableSerializerTests(TestCase):
         success = self.serializer.create_table(repo, table, params)
 
         self.assertTrue(mock_manager_create_table.called)
-        self.assertTrue(success)
-
-    def test_create_table_sad_path(self):
-        mock_manager_create_table = self.mock_manager.return_value.create_table
-        mock_manager_create_table.side_effect = ProgrammingError
-
-        table = 'table_name'
-        repo = 'repo_name'
-        params = [
-            {'column_name': 'id', 'data_type': 'integer'},
-            {'column_name': 'words', 'data_type': 'text'}
-            ]
-        success = self.serializer.create_table(repo, table, params)
-
-        self.assertTrue(mock_manager_create_table.called)
-        self.assertFalse(success)
+        self.assertEqual(success, True)
 
     def test_list_tables(self):
         mock_manager_list_tables = self.mock_manager.return_value.list_tables

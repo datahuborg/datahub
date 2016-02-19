@@ -2,7 +2,6 @@ from mock import patch
 
 from django.test import TestCase
 
-from core.db.manager import PermissionDenied
 from ..serializer import CollaboratorSerializer
 
 
@@ -39,16 +38,18 @@ class CollaboratorSerializerTests(TestCase):
         res = self.serializer.list_collaborators('repo_name')
         self.assertEqual(expected_result, res)
 
-    def test_add_collaborator_happy_path(self):
+    def test_add_collaborator(self):
         mock_add_collab = self.mock_manager.return_value.add_collaborator
         mock_add_collab.return_value = True
 
         res = self.serializer.add_collaborator('repo_name', 'collab', [])
+        self.assertTrue(mock_add_collab.called)
         self.assertEqual(True, res)
 
-    def test_add_collaborator_sad_path(self):
-        mock_add_collab = self.mock_manager.return_value.add_collaborator
-        mock_add_collab.side_effect = PermissionDenied
+    def test_remove_collaborator(self):
+        mock_remove_collab = self.mock_manager.return_value.delete_collaborator
+        mock_remove_collab.return_value = True
 
-        res = self.serializer.add_collaborator('repo_name', 'collab', [])
-        self.assertEqual(False, res)
+        res = self.serializer.remove_collaborator('repo_name', 'collab')
+        self.assertTrue(mock_remove_collab.called)
+        self.assertEqual(True, res)
