@@ -532,7 +532,8 @@ class PGBackend:
         params = (AsIs(table_name), file_path,
                   AsIs(file_format), AsIs(header_option), delimiter)
 
-        return self.execute_sql(query, params)
+        res = self.execute_sql(query, params)
+        return res['status']
 
     def export_query(self, query, file_path, file_format='CSV',
                      delimiter=',', header=True):

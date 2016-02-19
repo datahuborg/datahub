@@ -692,6 +692,7 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(res, True)
 
     def test_export_table_with_header(self):
+        self.mock_execute_sql.return_value = {'status': True}
         query = 'COPY %s TO %s WITH %s %s DELIMITER %s;'
         table_name = 'user_name.repo_name.table_name'
         file_path = 'file_path'
@@ -710,6 +711,7 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_check_for_injections.call_count, 4)
 
     def test_export_table_with_no_header(self):
+        self.mock_execute_sql.return_value = {'status': True}
         table_name = 'table_name'
         file_path = 'file_path'
         file_format = 'file_format'
