@@ -254,7 +254,8 @@ class Files(APIView):
     Accepts: {'file': FILENAME.FOO }
     e.g. $ curl --form file=@FILENAME.CSV \
             datahub-local.mit.edu/api/v1/repos/REPO_BASE/REPO_NAME/files
-
+    (Sorry - the browsable API isn't allowing us to upload through the
+    interface yet)
     """
 
     def get(self, request, repo_base, repo):
@@ -274,6 +275,31 @@ class Files(APIView):
         files = serializer.list_files(repo)
 
         return Response(files, status=status.HTTP_200_OK)
+
+
+class File(APIView):
+    """
+    Download or delete a file
+
+    GET to download
+    Accepts: None
+    ---
+    DELETE to delete
+    Accepts: None
+    """
+    def get(self, request, repo_base, repo, file_name):
+        username = request.user.get_username()
+        serializer = FileSerializer(
+                username=username, repo_base=repo_base)
+        files = serializer.get_file(repo, file_name)
+        return Response(files, status=status.HTTP_200_OK)
+
+    def delete(self, request, repo_base, repo, file_name):
+        username = request.user.get_username()
+        serializer = FileSerializer(
+                username=username, repo_base=repo_base)
+        serializer.delete_file(repo, file_name)
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
 class Export(APIView):

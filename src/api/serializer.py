@@ -179,6 +179,12 @@ class FileSerializer(DataHubSerializer):
     def upload_file(self, repo, file):
         return self.manager.save_file(repo, file)
 
+    def delete_file(self, repo, file_name):
+        return self.manager.delete_file(repo, file_name)
+
+    def get_file(self, repo, file_name):
+        return self.manager.get_file(repo, file_name)
+
 
 class QuerySerializer(DataHubSerializer):
 
