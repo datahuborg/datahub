@@ -30,6 +30,12 @@ urlpatterns = [
     url(r'^v1/repos/(\w+)/(\w+)/tables/?',
         views.Tables.as_view(), name='create_or_list_tables'),
 
+    # views
+    url(r'^v1/repos/(\w+)/(\w+)/views/(\w+)/?',
+        views.View.as_view(), name='view_view_info'),
+    url(r'^v1/repos/(\w+)/(\w+)/views/?',
+        views.Views.as_view(), name='create_or_list_views'),
+
     # files
     url(r'^v1/repos/(\w+)/(\w+)/files/(\w+\.+\w+)',
         views.File.as_view(), name='download_or_delete_file'),

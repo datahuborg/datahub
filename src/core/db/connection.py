@@ -53,8 +53,18 @@ class DataHubConnection:
         return self.backend.describe_table(
             repo=repo, table=table, detail=detail)
 
+    def create_view(self, repo, view, sql):
+        return self.backend.create_view(repo=repo, view=view, sql=sql)
+
     def list_views(self, repo):
         return self.backend.list_views(repo=repo)
+
+    def describe_view(self, repo, view, detail=False):
+        return self.backend.describe_view(
+            repo=repo, view=view, detail=detail)
+
+    def delete_view(self, repo, view, force=False):
+        return self.backend.delete_view(repo=repo, view=view, force=force)
 
     def delete_table(self, repo, table, force=False):
         return self.backend.delete_table(repo=repo, table=table, force=force)

@@ -302,6 +302,66 @@ class File(APIView):
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
+class Views(APIView):
+    """
+    List and create views.
+
+    GET to list existing views.
+    Accepts: None
+    ---
+    POST to create a new view.
+    Accepts: { "view_name":, "sql":}?
+    """
+
+    def get(self, request, repo_base, repo, format=None):
+        username = request.user.get_username()
+        serializer = ViewSerializer(
+            username=username, repo_base=repo_base)
+
+        views = serializer.list_views(repo)
+        return Response(views, status=status.HTTP_200_OK)
+
+    def post(self, request, repo_base, repo, format=None):
+        username = request.user.get_username()
+        serializer = ViewSerializer(
+            username=username, repo_base=repo_base)
+
+        view_name = request.data['view_name']
+        sql = request.data['sql']
+        serializer.create_view(repo, view_name, sql)
+
+        views = serializer.list_views(repo)
+        return Response(views, status=status.HTTP_200_OK)
+
+
+class View(APIView):
+    """
+    View or delete a single view.
+
+    GET to view info about a view.
+    Accepts: None
+    ---
+    DELETE to delete a view.
+    Accepts: None
+    """
+
+    def get(self, request, repo_base, repo, view):
+        username = request.user.get_username()
+        serializer = ViewSerializer(
+            username=username, repo_base=repo_base)
+
+        view_info = serializer.describe_view(repo, view, detail=False)
+        return Response(view_info, status=status.HTTP_200_OK)
+
+    def delete(self, request, repo_base, repo, view):
+        username = request.user.get_username()
+        serializer = ViewSerializer(
+            username=username, repo_base=repo_base)
+
+        serializer.delete_view(repo, view, False)
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+
 class Export(APIView):
     """
     create files from tables or views
