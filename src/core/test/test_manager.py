@@ -96,11 +96,36 @@ class BasicOperations(TestCase):
 
         self.assertTrue(con_describe_table.called)
 
+    def test_delete_table(self):
+        con_delete_table = self.mock_connection.return_value.delete_table
+        self.manager.delete_table(repo='repo', table='table', force=False)
+        self.assertTrue(con_delete_table.called)
+
     def test_list_views(self):
         con_list_views = self.mock_connection.return_value.list_views
         self.manager.list_views('repo')
 
         self.assertTrue(con_list_views.called)
+
+    def test_create_view(self):
+        con_create_view = self.mock_connection.return_value.create_view
+        repo = 'repo_name'
+        view = 'view_name'
+        sql = 'SELECT * FROM table_name'
+        self.manager.create_view(repo, view, sql)
+        self.assertTrue(con_create_view.called)
+
+    def test_describe_view(self):
+        con_describe_view = self.mock_connection.return_value.describe_view
+        self.manager.describe_view(
+            repo='repo_name', view='_name', detail=False)
+        self.assertTrue(con_describe_view.called)
+
+    def test_delete_view(self):
+        con_delete_view = self.mock_connection.return_value.delete_view
+        self.manager.delete_view(
+            repo='repo_name', view='view_name', force=False)
+        self.assertTrue(con_delete_view.called)
 
     def test_list_repos(self):
         con_list_repos = self.mock_connection.return_value.list_repos

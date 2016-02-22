@@ -112,6 +112,7 @@ class CollaboratorSerializer(DataHubSerializer):
 class TableSerializer(DataHubSerializer):
 
     def create_table(self, repo, table, params):
+        self.manager.set_search_paths([repo])
         success = self.manager.create_table(repo, table, params)
         return success
 
@@ -148,17 +149,30 @@ class TableSerializer(DataHubSerializer):
 
 class ViewSerializer(DataHubSerializer):
 
-    def create_view(self, repo):
-        pass
+    def create_view(self, repo, view, sql):
+        self.manager.set_search_paths([repo])
+        success = self.manager.create_view(repo, view, sql)
+        return success
 
     def list_views(self, repo):
-        pass
+        views = self.manager.list_views(repo)
+        return views
 
     def describe_view(self, repo, view, detail=False):
-        pass
+        res = self.manager.describe_view(
+            repo=repo, view=view, detail=False)
+
+        response = []
+        for column in res:
+            response_obj = {}
+            response_obj['column_name'] = column[0]
+            response_obj['data_type'] = column[1]
+            response.append(response_obj)
+        return response
 
     def delete_view(self, repo, view, force=False):
-        pass
+        success = self.manager.delete_view(repo, view, force)
+        return success
 
     def export_view(self, repo, view, file_format='CSV', delimiter=',',
                     header=True):

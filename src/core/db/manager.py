@@ -107,8 +107,18 @@ class DataHubManager:
     def describe_table(self, repo, table, detail=False):
         return self.user_con.describe_table(repo, table, detail)
 
+    def create_view(self, repo, view, sql):
+        return self.user_con.create_view(
+            repo=repo, view=view, sql=sql)
+
     def list_views(self, repo):
         return self.user_con.list_views(repo=repo)
+
+    def describe_view(self, repo, view, detail=False):
+        return self.user_con.describe_view(repo, view, detail)
+
+    def delete_view(self, repo, view, force=False):
+        return self.user_con.delete_view(repo=repo, view=view, force=force)
 
     def delete_table(self, repo, table, force=False):
         return self.user_con.delete_table(repo=repo, table=table, force=force)

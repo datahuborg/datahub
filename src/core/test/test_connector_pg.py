@@ -419,6 +419,25 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(
             res,  [(u'id', u'integer'), (u'words', u'text'), ('foo', 'bar')])
 
+    def test_delete_table(self):
+        repo = 'repo_name'
+        table = 'table_name'
+        force = False
+
+        expected_query = ('DROP TABLE %s.%s.%s %s')
+        expected_params = ('username', 'repo_name', 'table_name', 'RESTRICT')
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': -1, 'tuples': [], 'fields': []}
+        res = self.backend.delete_table(repo, table, force)
+
+        final_query = self.mock_execute_sql.call_args[0][0]
+        final_params = self.mock_execute_sql.call_args[0][1]
+
+        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+        self.assertEqual(final_query, expected_query)
+        self.assertEqual(final_params, expected_params)
+        self.assertEqual(res, True)
+
     def test_list_views(self):
         repo = 'repo'
         list_views_query = ('SELECT table_name FROM information_schema.tables '
@@ -443,6 +462,70 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
         self.assertEqual(res, ['test_view'])
+
+    def test_delete_view(self):
+        repo = 'repo_name'
+        view = 'view_name'
+        force = False
+
+        expected_query = ('DROP VIEW %s.%s.%s %s')
+        expected_params = ('username', 'repo_name', 'view_name', 'RESTRICT')
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': -1, 'tuples': [], 'fields': []}
+        res = self.backend.delete_view(repo, view, force)
+
+        final_query = self.mock_execute_sql.call_args[0][0]
+        final_params = self.mock_execute_sql.call_args[0][1]
+
+        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+        self.assertEqual(final_query, expected_query)
+        self.assertEqual(final_params, expected_params)
+        self.assertEqual(res, True)
+
+    def test_create_view(self):
+        repo = 'repo_name'
+        view = 'view_name'
+        sql = 'SELECT * FROM table'
+
+        expected_params = ('repo_name', 'view_name', 'SELECT * FROM table')
+        create_view_query = ('CREATE VIEW %s.%s AS (%s)')
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': -1, 'tuples': [], 'fields': []}
+        res = self.backend.create_view(repo, view, sql)
+
+        # checks repo and view for injections
+        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+
+        final_query = self.mock_execute_sql.call_args[0][0]
+        final_params = self.mock_execute_sql.call_args[0][1]
+        self.assertEqual(final_query, create_view_query)
+        self.assertEqual(final_params, expected_params)
+        self.assertEqual(res, True)
+
+    def test_describe_view_without_detail(self):
+        repo = 'repo_name'
+        view = 'view_name'
+        detail = False
+
+        query = ("SELECT %s "
+                 "FROM information_schema.columns "
+                 "WHERE table_schema = %s and table_name = %s;")
+        params = ('column_name, data_type', repo, view)
+
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 2,
+            'tuples': [(u'id', u'integer'), (u'words', u'text')],
+            'fields': [
+                {'type': 1043, 'name': 'column_name'},
+                {'type': 1043, 'name': 'data_type'}
+                ]
+            }
+
+        res = self.backend.describe_view(repo, view, detail)
+
+        self.assertEqual(self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(res,  [(u'id', u'integer'), (u'words', u'text')])
 
     def test_get_schema(self):
 

@@ -211,6 +211,16 @@ class PGBackend:
 
         return res['tuples']
 
+    def create_view(self, repo, view, sql):
+        self._check_for_injections(repo)
+        self._check_for_injections(view)
+        query = ('CREATE VIEW %s.%s AS (%s)')
+
+        params = (AsIs(repo), AsIs(view), AsIs(sql))
+        res = self.execute_sql(query, params)
+
+        return res['status']
+
     def list_views(self, repo):
         self._check_for_injections(repo)
 
@@ -227,6 +237,36 @@ class PGBackend:
         res = self.execute_sql(query, params)
 
         return [t[0] for t in res['tuples']]
+
+    def delete_view(self, repo, view, force=False):
+        self._check_for_injections(repo)
+        self._check_for_injections(view)
+
+        force_param = 'RESTRICT'
+        if force:
+            force_param = 'CASCADE'
+
+        query = ('DROP VIEW %s.%s.%s %s')
+        params = (AsIs(self.repo_base), AsIs(repo), AsIs(view),
+                  AsIs(force_param))
+
+        res = self.execute_sql(query, params)
+        return res['status']
+
+    def describe_view(self, repo, view, detail=False):
+        query = ("SELECT %s "
+                 "FROM information_schema.columns "
+                 "WHERE table_schema = %s and table_name = %s;")
+
+        params = None
+        if detail:
+            params = (AsIs('*'), repo, view)
+        else:
+            params = (AsIs('column_name, data_type'), repo, view)
+
+        res = self.execute_sql(query, params)
+
+        return res['tuples']
 
     def delete_table(self, repo, table, force=False):
         self._check_for_injections(repo)

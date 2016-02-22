@@ -30,7 +30,13 @@ urlpatterns = [
     url(r'^v1/repos/(\w+)/(\w+)/tables/?',
         views.Tables.as_view(), name='create_or_list_tables'),
 
-    #files
+    # views
+    url(r'^v1/repos/(\w+)/(\w+)/views/(\w+)/?',
+        views.View.as_view(), name='view_view_info'),
+    url(r'^v1/repos/(\w+)/(\w+)/views/?',
+        views.Views.as_view(), name='create_or_list_views'),
+
+    # files
     url(r'^v1/repos/(\w+)/(\w+)/files$',
         views.Files.as_view(), name='list_or_upload_file'),
     url(r'^v1/repos/(\w+)/(\w+)/files/?',
