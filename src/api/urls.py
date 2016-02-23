@@ -36,6 +36,12 @@ urlpatterns = [
     url(r'^v1/repos/(\w+)/(\w+)/views/?',
         views.Views.as_view(), name='create_or_list_views'),
 
+    # cards
+    url(r'^v1/repos/(\w+)/(\w+)/cards/(\w+)/?$',
+        views.Card.as_view(), name='view_card_info'),
+    url(r'^v1/repos/(\w+)/(\w+)/cards/?$',
+        views.Cards.as_view(), name='create_or_list_cards'),
+
     # files
     url(r'^v1/repos/(\w+)/(\w+)/files/(\w+\.+\w+)',
         views.File.as_view(), name='download_or_delete_file'),

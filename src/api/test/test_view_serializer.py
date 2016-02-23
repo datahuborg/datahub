@@ -32,9 +32,9 @@ class ViewSerializerTests(TestCase):
 
         repo = 'repo_name'
         view = 'view_name'
-        sql = 'SELECT * FROM table_name'
+        query = 'SELECT * FROM table_name'
 
-        success = self.serializer.create_view(repo, view, sql)
+        success = self.serializer.create_view(repo, view, query)
 
         self.assertTrue(mm_set_search_paths.called)
         self.assertTrue(mock_manager_create_view.called)
@@ -54,7 +54,7 @@ class ViewSerializerTests(TestCase):
     def test_describe_view_no_detail(self):
         mock_mngr_desc_view = self.mock_manager.return_value.describe_view
         mock_mngr_desc_view.return_value = [(u'id', u'integer'),
-                                             (u'words', u'text')]
+                                            (u'words', u'text')]
         repo = 'repo_name'
         view = 'view_name'
         expected_description = [{"data_type": "integer", "column_name": "id"},

@@ -149,9 +149,9 @@ class TableSerializer(DataHubSerializer):
 
 class ViewSerializer(DataHubSerializer):
 
-    def create_view(self, repo, view, sql):
+    def create_view(self, repo, view, query):
         self.manager.set_search_paths([repo])
-        success = self.manager.create_view(repo, view, sql)
+        success = self.manager.create_view(repo, view, query)
         return success
 
     def list_views(self, repo):
@@ -185,6 +185,30 @@ class ViewSerializer(DataHubSerializer):
         return success
 
 
+class CardSerializer(DataHubSerializer):
+
+    def list_cards(self, repo):
+        return self.manager.list_repo_cards(repo)
+
+    def describe_card(self, repo, card_name):
+        card = self.manager.get_card(repo, card_name)
+        res = {}
+        res['timestamp'] = card.timestamp
+        res['query'] = card.query
+        return res
+
+    def create_card(self, repo, query, card_name):
+        self.manager.set_search_paths([repo])
+        return self.manager.create_card(repo, query, card_name)
+
+    def delete_card(self, repo, card_name):
+        return self.manager.delete_card(repo, card_name)
+
+    def export_card(self, repo, card_name, file_format='CSV'):
+        self.manager.set_search_paths([repo])
+        return self.manager.export_card(repo, card_name, file_format)
+
+
 class FileSerializer(DataHubSerializer):
 
     def list_files(self, repo):
@@ -202,7 +226,7 @@ class FileSerializer(DataHubSerializer):
 
 class QuerySerializer(DataHubSerializer):
 
-    def execute_sql(self, query, repo=None):
+    def execute_query(self, query, repo=None):
         if repo:
             self.manager.set_search_paths([repo])
 

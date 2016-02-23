@@ -6,11 +6,12 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.views import exception_handler
 from rest_framework.response import Response
-from rest_framework.parsers import FileUploadParser, FormParser, MultiPartParser
+# from rest_framework.parsers import FileUploadParser, FormParser, MultiPartParser
 
 from .serializer import (
     UserSerializer, RepoSerializer, CollaboratorSerializer,
-    TableSerializer, ViewSerializer, FileSerializer, QuerySerializer)
+    TableSerializer, ViewSerializer, FileSerializer, QuerySerializer,
+    CardSerializer)
 
 
 class CurrentUser(APIView):
@@ -149,7 +150,7 @@ class Collaborators(APIView):
         serializer.add_collaborator(repo, collaborator, privileges)
         collaborators = serializer.list_collaborators(repo)
 
-        return Response(collaborators, status=status.HTTP_200_OK)
+        return Response(collaborators, status=status.HTTP_201_CREATED)
 
 
 class Collaborator(APIView):
@@ -211,7 +212,7 @@ class Tables(APIView):
         serializer.create_table(repo, table_name, params)
 
         tables = serializer.list_tables(repo)
-        return Response(tables, status=status.HTTP_200_OK)
+        return Response(tables, status=status.HTTP_201_CREATED)
 
 
 class Table(APIView):
@@ -274,7 +275,7 @@ class Files(APIView):
         serializer.upload_file(repo, file)
         files = serializer.list_files(repo)
 
-        return Response(files, status=status.HTTP_200_OK)
+        return Response(files, status=status.HTTP_201_CREATED)
 
 
 class File(APIView):
@@ -310,7 +311,7 @@ class Views(APIView):
     Accepts: None
     ---
     POST to create a new view.
-    Accepts: { "view_name":, "sql":}?
+    Accepts: { "view_name":, "query":}
     """
 
     def get(self, request, repo_base, repo, format=None):
@@ -327,11 +328,11 @@ class Views(APIView):
             username=username, repo_base=repo_base)
 
         view_name = request.data['view_name']
-        sql = request.data['sql']
-        serializer.create_view(repo, view_name, sql)
+        query = request.data['query']
+        serializer.create_view(repo, view_name, query)
 
         views = serializer.list_views(repo)
-        return Response(views, status=status.HTTP_200_OK)
+        return Response(views, status=status.HTTP_201_CREATED)
 
 
 class View(APIView):
@@ -362,12 +363,65 @@ class View(APIView):
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
+class Cards(APIView):
+    """
+    List and create cards.
+
+    GET to list existing cards.
+    Accepts: None
+    ---
+    POST to create a new card.
+    Accepts: { "card_name":, "query":}
+    """
+    def get(self, request, repo_base, repo):
+        username = request.user.get_username()
+        serializer = CardSerializer(
+            username=username, repo_base=repo_base)
+        cards = serializer.list_cards(repo)
+        return Response(cards, status=status.HTTP_200_OK)
+
+    def post(self, request, repo_base, repo):
+        username = request.user.get_username()
+        serializer = CardSerializer(
+            username=username, repo_base=repo_base)
+        card_name = request.data['card_name']
+        query = request.data['query']
+        serializer.create_card(repo, query, card_name)
+        cards = serializer.list_cards(repo)
+        return Response(cards, status=status.HTTP_201_CREATED)
+
+
+class Card(APIView):
+    """
+    View or delete a single card.
+
+    GET to view info about a card.
+    Accepts: None
+    ---
+    DELETE to delete a card.
+    Accepts: None
+    """
+    def get(self, request, repo_base, repo, card_name):
+        username = request.user.get_username()
+        serializer = CardSerializer(
+            username=username, repo_base=repo_base)
+        res = serializer.describe_card(repo, card_name)
+        return Response(res, status=status.HTTP_200_OK)
+
+    def delete(self, request, repo_base, repo, card_name):
+        username = request.user.get_username()
+        serializer = CardSerializer(
+            username=username, repo_base=repo_base)
+        serializer.delete_card(repo, card_name)
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+
 class Export(APIView):
     """
     create files from tables or views
 
     POST to create a file
-    Accepts: { 'from_table' | 'from_view' }
+    Accepts: { 'from_table' | 'from_view' | 'from_card' }
     e.g. /repos/:user/:repo/files?from_view=:view_name
     """
 
@@ -378,8 +432,9 @@ class Export(APIView):
         delimiter = data.get('delimiter', ',')
         header = data.get('header', True)
 
-        table = request.GET.get('from_table', None)
-        view = request.GET.get('from_view', None)
+        table = data.get('from_table', None)
+        view = data.get('from_view', None)
+        card = data.get('from_card', None)
 
         if table:
             serializer = TableSerializer(
@@ -391,28 +446,34 @@ class Export(APIView):
                 username=username, repo_base=repo_base)
             serializer.export_view(repo, view, file_format, delimiter,
                                    header)
+        elif card:
+            serializer = CardSerializer(
+                username=username, repo_base=repo_base)
+            serializer.export_card(repo, card, file_format)
         else:
             raise(KeyError)
 
+        serializer = FileSerializer(username, repo_base)
+        files = serializer.list_files(repo)
         # should really return list_files, but it's not yet built
-        return Response('surprise!', status=status.HTTP_200_OK)
+        return Response(files, status=status.HTTP_201_CREATED)
 
 
 class Query(APIView):
     """
-    Manage SQL queries.
+    Manage queries.
 
-    POST execute a SQL statement and receive the result.
-    Accepts: { "sql": }
+    POST execute a query statement and receive the result.
+    Accepts: { "query": }
     """
 
     def post(self, request, repo_base, repo=None, format=None):
         username = request.user.get_username()
         data = request.data
-        query = data['sql']
+        query = data['query']
         serializer = QuerySerializer(username=username, repo_base=repo_base)
 
-        result = serializer.execute_sql(query=query, repo=repo)
+        result = serializer.execute_query(query=query, repo=repo)
         return Response(result, status=status.HTTP_200_OK)
 
 
