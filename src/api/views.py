@@ -257,6 +257,10 @@ class Files(APIView):
             datahub-local.mit.edu/api/v1/repos/REPO_BASE/REPO_NAME/files
     (Sorry - the browsable API isn't allowing us to upload through the
     interface yet)
+    ---
+    POST to create a file
+    Accepts: { "from_table" | "from_view" | "from_card" }
+    e.g. /repos/:user/:repo/files?from_view=:view_name
     """
 
     def get(self, request, repo_base, repo):
@@ -268,13 +272,42 @@ class Files(APIView):
 
     def post(self, request, repo_base, repo):
         username = request.user.get_username()
-        file = request.FILES['file']
-        serializer = FileSerializer(
+        file = request.FILES.get('file', None)
+
+        data = request.data
+        file_format = data.get('file_format', 'CSV')
+        delimiter = data.get('delimiter', ',')
+        header = data.get('header', True)
+
+        table = data.get('from_table', None)
+        view = data.get('from_view', None)
+        card = data.get('from_card', None)
+
+        if file:
+            serializer = FileSerializer(
+                    username=username, repo_base=repo_base)
+
+            serializer.upload_file(repo, file)
+            files = serializer.list_files(repo)
+        elif table:
+            serializer = TableSerializer(
                 username=username, repo_base=repo_base)
+            serializer.export_table(repo, table, file_format, delimiter,
+                                    header)
+        elif view:
+            serializer = ViewSerializer(
+                username=username, repo_base=repo_base)
+            serializer.export_view(repo, view, file_format, delimiter,
+                                   header)
+        elif card:
+            serializer = CardSerializer(
+                username=username, repo_base=repo_base)
+            serializer.export_card(repo, card, file_format)
+        else:
+            raise(KeyError)
 
-        serializer.upload_file(repo, file)
+        serializer = FileSerializer(username, repo_base)
         files = serializer.list_files(repo)
-
         return Response(files, status=status.HTTP_201_CREATED)
 
 
@@ -414,49 +447,6 @@ class Card(APIView):
             username=username, repo_base=repo_base)
         serializer.delete_card(repo, card_name)
         return Response(None, status=status.HTTP_204_NO_CONTENT)
-
-
-class Export(APIView):
-    """
-    create files from tables or views
-
-    POST to create a file
-    Accepts: { 'from_table' | 'from_view' | 'from_card' }
-    e.g. /repos/:user/:repo/files?from_view=:view_name
-    """
-
-    def post(self, request, repo_base, repo):
-        username = request.user.get_username()
-        data = request.data
-        file_format = data.get('file_format', 'CSV')
-        delimiter = data.get('delimiter', ',')
-        header = data.get('header', True)
-
-        table = data.get('from_table', None)
-        view = data.get('from_view', None)
-        card = data.get('from_card', None)
-
-        if table:
-            serializer = TableSerializer(
-                username=username, repo_base=repo_base)
-            serializer.export_table(repo, table, file_format, delimiter,
-                                    header)
-        elif view:
-            serializer = ViewSerializer(
-                username=username, repo_base=repo_base)
-            serializer.export_view(repo, view, file_format, delimiter,
-                                   header)
-        elif card:
-            serializer = CardSerializer(
-                username=username, repo_base=repo_base)
-            serializer.export_card(repo, card, file_format)
-        else:
-            raise(KeyError)
-
-        serializer = FileSerializer(username, repo_base)
-        files = serializer.list_files(repo)
-        # should really return list_files, but it's not yet built
-        return Response(files, status=status.HTTP_201_CREATED)
 
 
 class Query(APIView):
