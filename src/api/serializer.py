@@ -83,7 +83,6 @@ class RepoSerializer(DataHubSerializer):
     def user_owned_repos(self):
         repos = self.manager.list_repos()
         repos.sort()
-        # import pdb; pdb.set_trace()
         repo_obj_list = []
         for repo in repos:
             relative_uri = reverse('api:repo', args=(
