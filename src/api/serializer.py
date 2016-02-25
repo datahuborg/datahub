@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 from inventory.models import Collaborator
 from core.db.manager import DataHubManager
@@ -15,11 +16,16 @@ class UserSerializer(serializers.ModelSerializer):
 
 class DataHubSerializer(object):
 
-    def __init__(self, username, repo_base):
+    def __init__(self, username, repo_base, request=None):
         self.username = username
         self.repo_base = repo_base
+        self.request = request
         self.manager = DataHubManager(
             user=self.username, repo_base=self.repo_base)
+
+        self.base_uri = ''
+        if request:
+            self.base_uri = request.build_absolute_uri('/')[:-1]
 
 
 class RepoSerializer(DataHubSerializer):
@@ -32,6 +38,44 @@ class RepoSerializer(DataHubSerializer):
         success = self.manager.delete_repo(repo=repo_name, force=force)
         return success
 
+    def describe_repo(self, repo_name):
+
+        description = {}
+
+        # add owner to description
+        owner = {'username': self.repo_base}
+        description["owner"] = owner
+
+        # get collaborators
+        collaborator_serializer = CollaboratorSerializer(
+            username=self.username, repo_base=self.repo_base,
+            request=self.request)
+        collaborators = collaborator_serializer.list_collaborators(repo_name)
+        description["collaborators"] = collaborators["collaborators"]
+
+        # get tables
+        table_serializer = TableSerializer(
+            username=self.username, repo_base=self.repo_base,
+            request=self.request)
+        tables = table_serializer.list_tables(repo_name)
+        description["tables"] = tables["tables"]
+
+        # get views
+        view_serializer = ViewSerializer(
+            username=self.username, repo_base=self.repo_base,
+            request=self.request)
+        views = view_serializer.list_views(repo_name)
+        description["views"] = views["views"]
+
+        # get files
+        file_serializer = FileSerializer(
+            username=self.username, repo_base=self.repo_base,
+            request=self.request)
+        files = file_serializer.list_files(repo_name)
+        description["files"] = files["files"]
+
+        return description
+
     def rename_repo(self, repo, new_name):
         success = self.manager.rename_repo(repo=repo, new_name=new_name)
         return success
@@ -39,16 +83,17 @@ class RepoSerializer(DataHubSerializer):
     def user_owned_repos(self):
         repos = self.manager.list_repos()
         repos.sort()
-
+        # import pdb; pdb.set_trace()
         repo_obj_list = []
         for repo in repos:
-            collaborators = self.manager.list_collaborators(repo)
+            relative_uri = reverse('api:repo', args=(
+                self.repo_base, repo))
+            absolute_uri = self.base_uri + relative_uri
 
             repo_obj_list.append({
                 'repo_name': repo,
-                'permissions': 'ALL',
-                'collaborators': collaborators,
-                'owner': self.username
+                'href': absolute_uri,
+                'owner': self.repo_base
                 })
 
         return {'repos': repo_obj_list}
@@ -65,13 +110,14 @@ class RepoSerializer(DataHubSerializer):
 
         repo_obj_list = []
         for repo in collab_repos:
-            collaborators = self.manager.list_collaborators(repo.repo_name)
+            relative_uri = reverse('api:repo', args=(
+                self.repo_base, repo.repo_name))
+            absolute_uri = self.base_uri + relative_uri
 
             repo_obj_list.append({
                 'repo_name': repo.repo_name,
-                'permissions': repo.permission,
+                'href': absolute_uri,
                 'owner': repo.repo_base,
-                'collaborators': collaborators
                 })
 
         return {'repos': repo_obj_list}
@@ -81,13 +127,14 @@ class RepoSerializer(DataHubSerializer):
 
         repo_obj_list = []
         for repo in collab_repos:
-            collaborators = self.manager.list_collaborators(repo.repo_name)
+            relative_uri = reverse('api:repo', args=(
+                repo.repo_base, repo.repo_name))
+            absolute_uri = self.base_uri + relative_uri
 
             repo_obj_list.append({
                 'repo_name': repo.repo_name,
-                'privileges': repo.permission,
+                'href': absolute_uri,
                 'owner': repo.repo_base,
-                'collaborators': collaborators
                 })
 
         return {'repos': repo_obj_list}
@@ -96,11 +143,29 @@ class RepoSerializer(DataHubSerializer):
 class CollaboratorSerializer(DataHubSerializer):
     def list_collaborators(self, repo_name):
         collaborators = self.manager.list_collaborators(repo_name)
+
+        collab_list = []
+        for obj in collaborators:
+            relative_uri = reverse('api:collaborator', args=(
+                self.repo_base, repo_name, obj['username']))
+            absolute_uri = self.base_uri + relative_uri
+
+            collab_obj = {'username': obj['username'],
+                          'href': absolute_uri}
+            collab_list.append(collab_obj)
+
+        return {'collaborators': collab_list}
+
+    def describe_collaborator(self, repo, collaborator_username):
+        collaborators = self.manager.list_collaborators(repo)
+        for collaborator in collaborators:
+            if collaborator['username'] == collaborator_username:
+                return collaborator
         return collaborators
 
-    def add_collaborator(self, repo, collaborator, privileges):
+    def add_collaborator(self, repo, collaborator, permissions):
         success = self.manager.add_collaborator(
-            repo, collaborator, privileges)
+            repo, collaborator, permissions)
         return success
 
     def remove_collaborator(self, repo, collaborator):
@@ -118,7 +183,17 @@ class TableSerializer(DataHubSerializer):
 
     def list_tables(self, repo):
         tables = self.manager.list_tables(repo)
-        return tables
+        table_list = []
+        for table in tables:
+            relative_uri = reverse('api:table', args=(
+                self.repo_base, repo, table))
+            absolute_uri = self.base_uri + relative_uri
+
+            table_obj = {'table_name': table,
+                         'href': absolute_uri}
+            table_list.append(table_obj)
+
+        return {'tables': table_list}
 
     def describe_table(self, repo, table, detail=False):
         res = self.manager.describe_table(
@@ -130,7 +205,7 @@ class TableSerializer(DataHubSerializer):
             response_obj['column_name'] = column[0]
             response_obj['data_type'] = column[1]
             response.append(response_obj)
-        return response
+        return {'columns': response}
 
     def delete_table(self, repo, table, force=False):
         success = self.manager.delete_table(repo, table, force)
@@ -156,7 +231,17 @@ class ViewSerializer(DataHubSerializer):
 
     def list_views(self, repo):
         views = self.manager.list_views(repo)
-        return views
+
+        view_list = []
+        for view in views:
+            relative_uri = reverse('api:view', args=(
+                self.repo_base, repo, view))
+            absolute_uri = self.base_uri + relative_uri
+
+            view_obj = {'view_name': view, 'href': absolute_uri}
+            view_list.append(view_obj)
+
+        return {'views': view_list}
 
     def describe_view(self, repo, view, detail=False):
         res = self.manager.describe_view(
@@ -168,7 +253,7 @@ class ViewSerializer(DataHubSerializer):
             response_obj['column_name'] = column[0]
             response_obj['data_type'] = column[1]
             response.append(response_obj)
-        return response
+        return {'columns': response}
 
     def delete_view(self, repo, view, force=False):
         success = self.manager.delete_view(repo, view, force)
@@ -188,13 +273,29 @@ class ViewSerializer(DataHubSerializer):
 class CardSerializer(DataHubSerializer):
 
     def list_cards(self, repo):
-        return self.manager.list_repo_cards(repo)
+        cards = self.manager.list_repo_cards(repo)
+
+        card_list = []
+        for card in cards:
+            relative_uri = reverse('api:card', args=(
+                self.repo_base, repo, card))
+            absolute_uri = self.base_uri + relative_uri
+
+            card_obj = {'card_name': card, 'href': absolute_uri}
+            card_list.append(card_obj)
+
+        return {'cards': card_list}
 
     def describe_card(self, repo, card_name):
         card = self.manager.get_card(repo, card_name)
+        # relative_uri = reverse('api:query_with_repo', args=(
+        #     self.repo_base, repo))
+        # absolute_uri = self.base_uri + relative_uri
+
         res = {}
         res['timestamp'] = card.timestamp
         res['query'] = card.query
+        # res['query_href'] = absolute_uri
         return res
 
     def create_card(self, repo, query, card_name):
@@ -212,7 +313,17 @@ class CardSerializer(DataHubSerializer):
 class FileSerializer(DataHubSerializer):
 
     def list_files(self, repo):
-        return self.manager.list_repo_files(repo)
+        files = self.manager.list_repo_files(repo)
+        file_list = []
+        for file in files:
+            relative_uri = reverse('api:file', args=(
+                self.repo_base, repo, file))
+            absolute_uri = self.base_uri + relative_uri
+
+            file_obj = {'file_name': file, 'href': absolute_uri}
+            file_list.append(file_obj)
+
+        return {'files': file_list}
 
     def upload_file(self, repo, file):
         return self.manager.save_file(repo, file)

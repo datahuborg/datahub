@@ -1,13 +1,15 @@
-from django.contrib.auth.models import User
-
 from psycopg2 import Error
+
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.views import exception_handler
 from rest_framework.response import Response
-# from rest_framework.parsers import FileUploadParser, FormParser, MultiPartParser
 
+from core.db.manager import PermissionDenied
 from .serializer import (
     UserSerializer, RepoSerializer, CollaboratorSerializer,
     TableSerializer, ViewSerializer, FileSerializer, QuerySerializer,
@@ -39,11 +41,10 @@ class CurrentUserRepos(APIView):
     """
 
     def get(self, request, format=None):
-        username = request.user.get_username()
-        repo_base = username
-
-        serializer = RepoSerializer(username=username, repo_base=repo_base)
-        return Response(serializer.user_owned_repos())
+        # redirect to another url
+        repo_base = request.user.get_username()
+        return HttpResponseRedirect(
+            reverse('api:repos_specific', args=(repo_base,)))
 
 
 class Repos(APIView):
@@ -58,8 +59,43 @@ class Repos(APIView):
         username = request.user.get_username()
         repo_base = username
 
-        serializer = RepoSerializer(username=username, repo_base=repo_base)
+        serializer = RepoSerializer(username, repo_base, request)
         return Response(serializer.user_accessible_repos())
+
+
+class Repo(APIView):
+    """
+    A specific repo of a specific user.
+
+    GET to view repo details.
+    Accepts: None
+    ---
+    DELETE to delete the repo.
+    Accepts: None
+    ---
+    PATCH to rename the repo.
+    Accepts: { "new_name": }
+    """
+    def get(self, request, repo_base, repo_name, format=None):
+        username = request.user.get_username()
+        serializer = RepoSerializer(username, repo_base, request)
+        return Response(serializer.describe_repo(repo_name),
+                        status=status.HTTP_200_OK)
+
+    def delete(self, request, repo_base, repo_name, format=None):
+        username = request.user.get_username()
+        serializer = RepoSerializer(username, repo_base, request)
+        serializer.delete_repo(repo_name=repo_name, force=True)
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+    def patch(self, request, repo_base, repo_name, format=None):
+        username = request.user.get_username()
+        serializer = RepoSerializer(username, repo_base, request)
+        new_repo_name = request.data['new_name']
+        serializer.rename_repo(repo=repo_name, new_name=new_repo_name)
+
+        return Response(serializer.describe_repo(new_repo_name),
+                        status=status.HTTP_200_OK)
 
 
 class ReposForUser(APIView):
@@ -76,7 +112,7 @@ class ReposForUser(APIView):
 
     def get(self, request, repo_base, format=None):
         username = request.user.get_username()
-        serializer = RepoSerializer(username=username, repo_base=repo_base)
+        serializer = RepoSerializer(username, repo_base, request)
 
         if username == repo_base:
             return Response(serializer.user_owned_repos())
@@ -85,7 +121,7 @@ class ReposForUser(APIView):
 
     def post(self, request, repo_base, format=None):
         username = request.user.get_username()
-        serializer = RepoSerializer(username=username, repo_base=repo_base)
+        serializer = RepoSerializer(username, repo_base, request)
 
         repo_name = request.data['repo']
         serializer.create_repo(repo_name)
@@ -93,32 +129,6 @@ class ReposForUser(APIView):
         return Response(serializer.user_accessible_repos(),
                         status=status.HTTP_201_CREATED)
 
-
-class Repo(APIView):
-    """
-    A specific repo of a specific user.
-
-    DELETE to delete the repo.
-    Accepts: None
-    ---
-    PATCH to rename the repo.
-    Accepts: { "new_name": }
-    """
-
-    def delete(self, request, repo_base, repo_name, format=None):
-        username = request.user.get_username()
-        serializer = RepoSerializer(username=username, repo_base=repo_base)
-        serializer.delete_repo(repo_name=repo_name, force=True)
-        return Response(None, status=status.HTTP_204_NO_CONTENT)
-
-    def patch(self, request, repo_base, repo_name, format=None):
-        username = request.user.get_username()
-        serializer = RepoSerializer(username=username, repo_base=repo_base)
-        new_repo_name = request.data['new_name']
-        serializer.rename_repo(repo=repo_name, new_name=new_repo_name)
-
-        return Response(serializer.user_accessible_repos(),
-                        status=status.HTTP_200_OK)
 
 
 class Collaborators(APIView):
@@ -129,13 +139,15 @@ class Collaborators(APIView):
     Accepts: None
     ---
     POST to add a collaborator.
-    Accepts: { "user":, "privileges": }
+    Accepts: { "user":, "permissions": []}
+    e.g. {"user":"foo_user", "permissions": ['SELECT', 'INSERT', 'UPDATE']}
     """
 
     def get(self, request, repo_base, repo, format=None):
         username = request.user.get_username()
         serializer = CollaboratorSerializer(username=username,
-                                            repo_base=repo_base)
+                                            repo_base=repo_base,
+                                            request=request)
         collaborators = serializer.list_collaborators(repo)
 
         return Response(collaborators, status=status.HTTP_200_OK)
@@ -146,23 +158,34 @@ class Collaborators(APIView):
                                             repo_base=repo_base)
         data = request.data
         collaborator = data['user']
-        privileges = data['privileges']
-        serializer.add_collaborator(repo, collaborator, privileges)
-        collaborators = serializer.list_collaborators(repo)
+        permissions = data['permissions']
+        serializer.add_collaborator(repo, collaborator, permissions)
+        collaborator = serializer.describe_collaborator(repo, collaborator)
 
-        return Response(collaborators, status=status.HTTP_201_CREATED)
+        return Response(collaborator, status=status.HTTP_201_CREATED)
 
 
 class Collaborator(APIView):
     """
-    Modify and delete existing collaborators.
+    View, Modify and delete existing collaborators.
 
+    GET to see collaborator details
+    accepts: None
+    ---
     DELETE to remove the specified collaborator from the repo.
     Accepts: None
     ---
-    PUT to modify the privileges of an existing collaborator.
-    Accepts: { "privileges": }
+    POST to add a collaborator to a repo.
+    Accepts: { "permissions": [] }
     """
+
+    def get(self, request, repo_base, repo, collaborator, format=None):
+        username = request.user.get_username()
+        serializer = CollaboratorSerializer(username=username,
+                                            repo_base=repo_base,
+                                            request=request)
+        collaborators = serializer.describe_collaborator(repo, collaborator)
+        return Response(collaborators, status=status.HTTP_200_OK)
 
     def delete(self, request, repo_base, repo, collaborator, format=None):
         username = request.user.get_username()
@@ -170,17 +193,6 @@ class Collaborator(APIView):
                                             repo_base=repo_base)
         serializer.remove_collaborator(repo, collaborator)
         return Response(None, status=status.HTTP_204_NO_CONTENT)
-
-    def put(self, request, repo_base, repo, collaborator, format=None):
-        username = request.user.get_username()
-        serializer = CollaboratorSerializer(username=username,
-                                            repo_base=repo_base)
-        data = request.data
-        privileges = data['privileges']
-        serializer.add_collaborator(repo, collaborator, privileges)
-        collaborators = serializer.list_collaborators(repo)
-
-        return Response(collaborators, status=status.HTTP_200_OK)
 
 
 class Tables(APIView):
@@ -191,13 +203,15 @@ class Tables(APIView):
     Accepts: None
     ---
     POST to create a new table.
-    Accepts: { "table_name":, "params": []}
+    Accepts: { "table_name":, "params": [{"column_name", "data_type"}]}
+    e.g. { "table_name": "mytablename",
+           "params": [{"column_name":"foo", "data_type":"integer" }]}
     """
 
     def get(self, request, repo_base, repo, format=None):
         username = request.user.get_username()
         serializer = TableSerializer(
-            username=username, repo_base=repo_base)
+            username=username, repo_base=repo_base, request=request)
 
         tables = serializer.list_tables(repo)
         return Response(tables, status=status.HTTP_200_OK)
@@ -211,8 +225,8 @@ class Tables(APIView):
         table_name = request.data['table_name']
         serializer.create_table(repo, table_name, params)
 
-        tables = serializer.list_tables(repo)
-        return Response(tables, status=status.HTTP_201_CREATED)
+        table = serializer.describe_table(repo, table_name, False)
+        return Response(table, status=status.HTTP_201_CREATED)
 
 
 class Table(APIView):
@@ -221,9 +235,12 @@ class Table(APIView):
 
     GET to view info about a table.
     Accepts: None
+    note: This endpoint does not throw an error if the table does not exist.
     ---
     DELETE to delete a table.
     Accepts: None
+    Delete will fail is the table in question has a dependencey.
+    In this case, you must first delete the dependency.
     """
 
     def get(self, request, repo_base, repo, table):
@@ -238,8 +255,9 @@ class Table(APIView):
         username = request.user.get_username()
         serializer = TableSerializer(
             username=username, repo_base=repo_base)
+        force = request.data.get('force')
 
-        serializer.delete_table(repo, table, False)
+        serializer.delete_table(repo, table, force)
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
@@ -266,7 +284,7 @@ class Files(APIView):
     def get(self, request, repo_base, repo):
         username = request.user.get_username()
         serializer = FileSerializer(
-                username=username, repo_base=repo_base)
+                username=username, repo_base=repo_base, request=request)
         files = serializer.list_files(repo)
         return Response(files, status=status.HTTP_200_OK)
 
@@ -284,31 +302,45 @@ class Files(APIView):
         card = data.get('from_card', None)
 
         if file:
-            serializer = FileSerializer(
-                    username=username, repo_base=repo_base)
-
+            serializer = FileSerializer(username, repo_base, request)
             serializer.upload_file(repo, file)
             files = serializer.list_files(repo)
+            return Response(files, status=status.HTTP_201_CREATED)
+
         elif table:
-            serializer = TableSerializer(
-                username=username, repo_base=repo_base)
+            serializer = TableSerializer(username, repo_base, request)
             serializer.export_table(repo, table, file_format, delimiter,
                                     header)
+
+            filename = table + "." + file_format
+            serializer = FileSerializer(username, repo_base, request)
+            file = serializer.get_file(repo, filename)
+            return Response(file, status=status.HTTP_201_CREATED)
+
         elif view:
-            serializer = ViewSerializer(
-                username=username, repo_base=repo_base)
+            serializer = ViewSerializer(username, repo_base, request)
             serializer.export_view(repo, view, file_format, delimiter,
                                    header)
+            filename = view + "." + file_format
+            serializer = FileSerializer(username, repo_base, request)
+            file = serializer.get_file(repo, filename)
+            return Response(file, status=status.HTTP_201_CREATED)
+
         elif card:
-            serializer = CardSerializer(
-                username=username, repo_base=repo_base)
+            serializer = CardSerializer(username, repo_base, request)
             serializer.export_card(repo, card, file_format)
+
+            filename = card + "." + file_format
+            serializer = FileSerializer(username, repo_base, request)
+            file = serializer.get_file(repo, filename)
+            return Response(file, status=status.HTTP_201_CREATED)
+
         else:
             raise(KeyError)
 
-        serializer = FileSerializer(username, repo_base)
-        files = serializer.list_files(repo)
-        return Response(files, status=status.HTTP_201_CREATED)
+        return Response(
+            'specify a {file | [from_table, from_view, from_card ]',
+            status=status.HTTP_400_BAD_REQUEST)
 
 
 class File(APIView):
@@ -344,13 +376,14 @@ class Views(APIView):
     Accepts: None
     ---
     POST to create a new view.
-    Accepts: { "view_name":, "query":}
+    Accepts: { "view_name", "query" }
+    e.g. { "view_name": "foo_view", "query": "select * from mytable"}
     """
 
     def get(self, request, repo_base, repo, format=None):
         username = request.user.get_username()
         serializer = ViewSerializer(
-            username=username, repo_base=repo_base)
+            username=username, repo_base=repo_base, request=request)
 
         views = serializer.list_views(repo)
         return Response(views, status=status.HTTP_200_OK)
@@ -364,8 +397,8 @@ class Views(APIView):
         query = request.data['query']
         serializer.create_view(repo, view_name, query)
 
-        views = serializer.list_views(repo)
-        return Response(views, status=status.HTTP_201_CREATED)
+        view = serializer.describe_view(repo, view_name)
+        return Response(view, status=status.HTTP_201_CREATED)
 
 
 class View(APIView):
@@ -374,6 +407,7 @@ class View(APIView):
 
     GET to view info about a view.
     Accepts: None
+    note: This endpoint does not throw an error if the table does not exist.
     ---
     DELETE to delete a view.
     Accepts: None
@@ -404,24 +438,22 @@ class Cards(APIView):
     Accepts: None
     ---
     POST to create a new card.
-    Accepts: { "card_name":, "query":}
+    Accepts: { "card_name", "query"}
     """
     def get(self, request, repo_base, repo):
         username = request.user.get_username()
-        serializer = CardSerializer(
-            username=username, repo_base=repo_base)
+        serializer = CardSerializer(username, repo_base, request)
         cards = serializer.list_cards(repo)
         return Response(cards, status=status.HTTP_200_OK)
 
     def post(self, request, repo_base, repo):
         username = request.user.get_username()
-        serializer = CardSerializer(
-            username=username, repo_base=repo_base)
+        serializer = CardSerializer(username, repo_base, request)
         card_name = request.data['card_name']
         query = request.data['query']
         serializer.create_card(repo, query, card_name)
-        cards = serializer.list_cards(repo)
-        return Response(cards, status=status.HTTP_201_CREATED)
+        card = serializer.describe_card(repo, card_name)
+        return Response(card, status=status.HTTP_201_CREATED)
 
 
 class Card(APIView):
@@ -436,8 +468,7 @@ class Card(APIView):
     """
     def get(self, request, repo_base, repo, card_name):
         username = request.user.get_username()
-        serializer = CardSerializer(
-            username=username, repo_base=repo_base)
+        serializer = CardSerializer(username, repo_base, request)
         res = serializer.describe_card(repo, card_name)
         return Response(res, status=status.HTTP_200_OK)
 
@@ -481,6 +512,9 @@ def custom_exception_handler(exc, context):
         result['message'] = exc.message
         result['pgcode'] = exc.pgcode
         result['severity'] = exc.diag.severity
+    elif type(exc) == PermissionDenied:
+        result['error_type'] = type(exc).__name__
+        result['message'] = exc.message
     else:
         result = exc
 
