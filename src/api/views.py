@@ -485,16 +485,25 @@ class Query(APIView):
     Manage queries.
 
     POST execute a query statement and receive the result.
-    Accepts: { "query": }
+    Accepts: { "query", {"current_page", "rows_per_page"}}
+    rows_per_page and current_page are optional
+    e.g. {"query": "select * from repo.table"}
+
+    e.g. {"query": "select * from repo.table",
+          "current_page": 1, "rows_per_page": 20}
     """
 
     def post(self, request, repo_base, repo=None, format=None):
         username = request.user.get_username()
         data = request.data
         query = data['query']
-        serializer = QuerySerializer(username=username, repo_base=repo_base)
+        current_page = data.get('current_page', None)
+        rows_per_page = data.get('rows_per_page', None)
+        serializer = QuerySerializer(username, repo_base, request)
 
-        result = serializer.execute_query(query=query, repo=repo)
+        result = serializer.execute_query(
+            query=query, repo=repo, current_page=current_page,
+            rows_per_page=rows_per_page)
         return Response(result, status=status.HTTP_200_OK)
 
 
@@ -516,6 +525,6 @@ def custom_exception_handler(exc, context):
         result['error_type'] = type(exc).__name__
         result['message'] = exc.message
     else:
-        result = exc
+        result['error_type'] = type(exc).__name__
 
     return Response(result, status=status.HTTP_400_BAD_REQUEST)

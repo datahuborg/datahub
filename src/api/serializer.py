@@ -336,11 +336,17 @@ class FileSerializer(DataHubSerializer):
 
 class QuerySerializer(DataHubSerializer):
 
-    def execute_query(self, query, repo=None):
+    def execute_query(self, query, current_page=None,
+                      rows_per_page=None, repo=None):
         if repo:
             self.manager.set_search_paths([repo])
 
-        result = self.manager.execute_sql(query)
+        result = None
+        if current_page and rows_per_page:
+            result = self.manager.paginate_query(
+                query, current_page, rows_per_page)
+        else:
+            result = self.manager.execute_sql(query)
 
         # rename the tuples key to rows
         result['rows'] = result.pop('tuples', None)
