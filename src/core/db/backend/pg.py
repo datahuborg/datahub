@@ -60,17 +60,19 @@ class PGBackend:
         self.connection.close()
 
     def _check_for_injections(self, noun):
-        ''' throws exceptions unless the noun contains only alphanumeric
-            chars, hyphens, and underscores, and must not begin or end with
-            a hyphen or underscore
-        '''
+        """
+        Raises ValueError if the proposed noun is invalid.
+
+        Valid nouns contain only alphanumeric characters and underscores, and
+        must not begin or end with an underscore.
+        """
         invalid_noun_msg = (
             "Usernames, repo names, and table names may only contain "
-            "alphanumeric characters, hyphens, and underscores, and must not "
-            "begin or end with an a hyphen or underscore."
+            "alphanumeric characters and underscores, and must not "
+            "begin or end with an underscore."
         )
 
-        regex = r'^(?![\-\_])[\w\-\_]+(?<![\-\_])$'
+        regex = r'^(?![\_])[\w\_]+(?<![\_])$'
         valid_pattern = re.compile(regex)
         matches = valid_pattern.match(noun)
 
