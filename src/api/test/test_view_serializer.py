@@ -15,6 +15,10 @@ class ViewSerializerTests(TestCase):
 
         self.mock_manager = self.create_patch(
             'api.serializer.DataHubManager')
+        self.mock_manager.base_url = 'base_uri'
+        self.mock_reverse = self.create_patch(
+            'api.serializer.reverse')
+        self.mock_reverse.return_value = ('mock_url')
         self.serializer = ViewSerializer(
             username=self.username, repo_base=self.repo_base)
 
@@ -45,11 +49,17 @@ class ViewSerializerTests(TestCase):
         mock_manager_list_views.return_value = ['view1', 'view2']
 
         repo = 'repo_name'
+        expected_return = {'views': [
+                {'view_name': 'view1',
+                 'href': 'mock_url'},
+                {'view_name': 'view2',
+                 'href': 'mock_url'}
+            ]}
 
         views = self.serializer.list_views(repo)
 
         self.assertTrue(mock_manager_list_views.called)
-        self.assertEqual(views, ['view1', 'view2'])
+        self.assertEqual(views, expected_return)
 
     def test_describe_view_no_detail(self):
         mock_mngr_desc_view = self.mock_manager.return_value.describe_view
@@ -57,8 +67,10 @@ class ViewSerializerTests(TestCase):
                                             (u'words', u'text')]
         repo = 'repo_name'
         view = 'view_name'
-        expected_description = [{"data_type": "integer", "column_name": "id"},
-                                {"data_type": "text", "column_name": "words"}]
+        expected_description = {'columns': [
+                {"data_type": "integer", "column_name": "id"},
+                {"data_type": "text", "column_name": "words"}]
+            }
         description = self.serializer.describe_view(repo, view)
 
         self.assertTrue(mock_mngr_desc_view.called)

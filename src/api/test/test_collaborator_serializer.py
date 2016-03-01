@@ -26,11 +26,9 @@ class CollaboratorSerializerTests(TestCase):
         return thing
 
     def test_list_collaborators(self):
-        expected_result = {
-            'collaborators':
-                [{'username': 'collab1', 'privileges': 'UC'},
-                 {'username': 'collab2', 'privileges': 'U'}]
-            }
+        expected_result = [
+                {'username': 'collab1', 'privileges': 'UC'},
+                {'username': 'collab2', 'privileges': 'U'}]
 
         mock_list_collabs = self.mock_manager.return_value.list_collaborators
         mock_list_collabs.return_value = expected_result

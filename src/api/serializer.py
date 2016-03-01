@@ -350,10 +350,9 @@ class QuerySerializer(DataHubSerializer):
         select_query = result.get('select_query', None)
 
         return_dict = {}
-        return_dict['num_rows'] = result.get('num_rows', None)
-        return_dict['time_cost'] = result.get('time_cost', None)
-        return_dict['byte_width'] = result.get('byte_width', None)
-        return_dict['total_pages'] = result.get('total_pages', None)
+        return_dict['est_time_cost'] = result.get('time_cost', None)
+        return_dict['est_byte_width'] = result.get('byte_width', None)
+        return_dict['est_total_pages'] = result.get('total_pages', None)
 
         if select_query:
             new_rows = []
