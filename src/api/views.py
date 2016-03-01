@@ -1,5 +1,3 @@
-from psycopg2 import Error
-
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -9,7 +7,11 @@ from rest_framework.views import APIView
 from rest_framework.views import exception_handler
 from rest_framework.response import Response
 
+from psycopg2 import Error as PGError
 from core.db.manager import PermissionDenied
+from django.core.exceptions import ValidationError, \
+                                   ObjectDoesNotExist
+
 from .serializer import (
     UserSerializer, RepoSerializer, CollaboratorSerializer,
     TableSerializer, ViewSerializer, FileSerializer, QuerySerializer,
@@ -76,6 +78,7 @@ class Repo(APIView):
     PATCH to rename the repo.
     Accepts: { "new_name": }
     """
+
     def get(self, request, repo_base, repo_name, format=None):
         username = request.user.get_username()
         serializer = RepoSerializer(username, repo_base, request)
@@ -128,7 +131,6 @@ class ReposForUser(APIView):
 
         return Response(serializer.user_accessible_repos(),
                         status=status.HTTP_201_CREATED)
-
 
 
 class Collaborators(APIView):
@@ -264,7 +266,7 @@ class Table(APIView):
 class Files(APIView):
     # parser_classes = (FileUploadParser,)
     """
-    List or upload a files
+    List or upload a files.
 
     GET to list files
     Accepts: None
@@ -345,7 +347,7 @@ class Files(APIView):
 
 class File(APIView):
     """
-    Download or delete a file
+    Download or delete a file.
 
     GET to download
     Accepts: None
@@ -353,6 +355,7 @@ class File(APIView):
     DELETE to delete
     Accepts: None
     """
+
     def get(self, request, repo_base, repo, file_name):
         username = request.user.get_username()
         serializer = FileSerializer(
@@ -440,6 +443,7 @@ class Cards(APIView):
     POST to create a new card.
     Accepts: { "card_name", "query"}
     """
+
     def get(self, request, repo_base, repo):
         username = request.user.get_username()
         serializer = CardSerializer(username, repo_base, request)
@@ -466,6 +470,7 @@ class Card(APIView):
     DELETE to delete a card.
     Accepts: None
     """
+
     def get(self, request, repo_base, repo, card_name):
         username = request.user.get_username()
         serializer = CardSerializer(username, repo_base, request)
@@ -510,21 +515,41 @@ class Query(APIView):
 def custom_exception_handler(exc, context):
     result = {}
 
-    # Now add the HTTP status code to the response.
-    # Call REST framework's default exception handler first,
-    # to get the standard error response.
+    # Call REST framework's default exception handler first, to let it handle
+    # errors it knows about.
     response = exception_handler(exc, context)
     if response is not None:
-        response.data['status_code'] = response.status_code
-    elif issubclass(type(exc), Error):
-        result['error_type'] = type(exc).__name__
-        result['message'] = exc.message
+        return response
+
+    # Default to a 500 error. If we can't explain what happened, blame
+    # ourselves.
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+
+    # Use an appropriate status code for each exception type.
+    exceptions_by_status = {
+        status.HTTP_400_BAD_REQUEST: [
+            ValueError,
+            ValidationError,
+            PGError,
+        ],
+        status.HTTP_403_FORBIDDEN: [
+            PermissionDenied
+        ],
+        status.HTTP_404_NOT_FOUND: [
+            ObjectDoesNotExist
+        ],
+    }
+    for drf_status, exceptions in exceptions_by_status.iteritems():
+        if next(e for e in exceptions if issubclass(type(exc), e)):
+            status_code = drf_status
+            break
+
+    result['error_type'] = type(exc).__name__
+    result['detail'] = exc.message
+
+    # Add extra info for psycopg errors
+    if issubclass(type(exc), PGError):
         result['pgcode'] = exc.pgcode
         result['severity'] = exc.diag.severity
-    elif type(exc) == PermissionDenied:
-        result['error_type'] = type(exc).__name__
-        result['message'] = exc.message
-    else:
-        result['error_type'] = type(exc).__name__
 
-    return Response(result, status=status.HTTP_400_BAD_REQUEST)
+    return Response(result, status=status_code)
