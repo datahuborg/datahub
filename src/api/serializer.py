@@ -336,20 +336,35 @@ class FileSerializer(DataHubSerializer):
 
 class QuerySerializer(DataHubSerializer):
 
-    def execute_query(self, query, current_page=None,
-                      rows_per_page=None, repo=None):
+    def execute_query(self, query, current_page=1,
+                      rows_per_page=1000, repo=None):
         if repo:
             self.manager.set_search_paths([repo])
 
         result = None
-        if current_page and rows_per_page:
-            result = self.manager.paginate_query(
-                query, current_page, rows_per_page)
-        else:
-            result = self.manager.execute_sql(query)
+        result = self.manager.paginate_query(
+            query, current_page, rows_per_page)
 
-        # rename the tuples key to rows
-        result['rows'] = result.pop('tuples', None)
-        result['columns'] = result.pop('fields', None)
+        rows = result.get('rows', None)
+        columns = result.get('column_names', None)
+        select_query = result.get('select_query', None)
 
-        return result
+        return_dict = {}
+        return_dict['num_rows'] = result.get('num_rows', None)
+        return_dict['time_cost'] = result.get('time_cost', None)
+        return_dict['byte_width'] = result.get('byte_width', None)
+        return_dict['total_pages'] = result.get('total_pages', None)
+
+        if select_query:
+            new_rows = []
+            for row in rows:
+                obj = {}
+                for i in range(len(columns)):
+                    column = columns[i]
+                    obj[column] = row[i]
+                print obj
+                new_rows.append(obj)
+
+            return_dict['rows'] = new_rows
+
+        return return_dict

@@ -497,8 +497,8 @@ class Query(APIView):
         username = request.user.get_username()
         data = request.data
         query = data['query']
-        current_page = data.get('current_page', None)
-        rows_per_page = data.get('rows_per_page', None)
+        current_page = data.get('current_page', 1)
+        rows_per_page = data.get('rows_per_page', 1000)
         serializer = QuerySerializer(username, repo_base, request)
 
         result = serializer.execute_query(
