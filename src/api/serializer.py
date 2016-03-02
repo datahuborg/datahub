@@ -361,9 +361,24 @@ class QuerySerializer(DataHubSerializer):
                 for i in range(len(columns)):
                     column = columns[i]
                     obj[column] = row[i]
-                print obj
                 new_rows.append(obj)
 
             return_dict['rows'] = new_rows
+
+        # add appropriate link to previous and next:
+        # next
+        if rows_per_page <= len(rows):
+            next_params = {
+                "query": query,
+                "current_page": current_page + 1,
+                "rows_per_page": rows_per_page}
+            return_dict['next_results_params'] = next_params
+
+        if current_page > 1:
+            previous_params = {
+                "query": query,
+                "current_page": current_page - 1,
+                "rows_per_page": rows_per_page}
+            return_dict['previous_results_params'] = previous_params
 
         return return_dict
