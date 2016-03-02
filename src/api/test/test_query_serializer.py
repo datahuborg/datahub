@@ -1,8 +1,7 @@
-from mock import patch, MagicMock
+from mock import patch
 
 from django.test import TestCase
 
-from psycopg2 import ProgrammingError
 from ..serializer import QuerySerializer
 
 
@@ -27,11 +26,11 @@ class QuerySerializerTests(TestCase):
         return thing
 
     def test_query_with_no_repo(self):
-        mock_manager_execute_sql = self.mock_manager.return_value.execute_sql
+        mock_paginate_query = self.mock_manager.return_value.paginate_query
 
         query = "select * from foo.bar"
         self.serializer.execute_query(query)
-        self.assertTrue(mock_manager_execute_sql.called)
+        self.assertTrue(mock_paginate_query.called)
 
     def test_query_with_repo(self):
         mm_set_search_paths = self.mock_manager.return_value.set_search_paths

@@ -15,6 +15,9 @@ class TableSerializerTests(TestCase):
 
         self.mock_manager = self.create_patch(
             'api.serializer.DataHubManager')
+        self.mock_reverse = self.create_patch(
+            'api.serializer.reverse')
+        self.mock_reverse.return_value = ('mock_url')
         self.serializer = TableSerializer(
             username=self.username, repo_base=self.repo_base)
 
@@ -35,7 +38,7 @@ class TableSerializerTests(TestCase):
         params = [
             {'column_name': 'id', 'data_type': 'integer'},
             {'column_name': 'words', 'data_type': 'text'}
-            ]
+        ]
 
         success = self.serializer.create_table(repo, table, params)
 
@@ -50,9 +53,14 @@ class TableSerializerTests(TestCase):
         repo = 'repo_name'
 
         tables = self.serializer.list_tables(repo)
+        expected_result = {
+            'tables':
+            [{'href': 'mock_url', 'table_name': 'table1'},
+                {'href': 'mock_url', 'table_name': 'table2'}]
+        }
 
         self.assertTrue(mock_manager_list_tables.called)
-        self.assertEqual(tables, ['table1', 'table2'])
+        self.assertEqual(tables, expected_result)
 
     def test_describe_table_no_detail(self):
         mock_mngr_desc_table = self.mock_manager.return_value.describe_table
@@ -65,7 +73,7 @@ class TableSerializerTests(TestCase):
         description = self.serializer.describe_table(repo, table)
 
         self.assertTrue(mock_mngr_desc_table.called)
-        self.assertEqual(description, expected_description)
+        self.assertEqual(description, {'columns': expected_description})
 
     def test_delete_table(self):
         mock_manager_delete_table = self.mock_manager.return_value.delete_table

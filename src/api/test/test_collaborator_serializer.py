@@ -15,6 +15,9 @@ class CollaboratorSerializerTests(TestCase):
 
         self.mock_manager = self.create_patch(
             'api.serializer.DataHubManager')
+        self.mock_reverse = self.create_patch(
+            'api.serializer.reverse')
+        self.mock_reverse.return_value = ('mock_url')
         self.serializer = CollaboratorSerializer(
             username=self.username, repo_base=self.repo_base)
 
@@ -26,12 +29,16 @@ class CollaboratorSerializerTests(TestCase):
         return thing
 
     def test_list_collaborators(self):
-        expected_result = [
+        list_collab_result = [
                 {'username': 'collab1', 'privileges': 'UC'},
                 {'username': 'collab2', 'privileges': 'U'}]
 
         mock_list_collabs = self.mock_manager.return_value.list_collaborators
-        mock_list_collabs.return_value = expected_result
+        mock_list_collabs.return_value = list_collab_result
+
+        expected_result = {'collaborators': [
+                        {'username': 'collab1', 'href': 'mock_url'},
+                        {'username': 'collab2', 'href': 'mock_url'}]}
 
         res = self.serializer.list_collaborators('repo_name')
         self.assertEqual(expected_result, res)
