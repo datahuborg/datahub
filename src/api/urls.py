@@ -55,6 +55,7 @@ urlpatterns = [
         name='query_with_repo'),
     url(r'^v1/query/(\w+)/?$', views.Query.as_view(),
         name='query'),
+
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

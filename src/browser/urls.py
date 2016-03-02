@@ -28,6 +28,7 @@ urlpatterns = patterns(
     url(r'^api/', include('api.urls', namespace='api')),
     url(r'^api-auth/', include('rest_framework.urls',
         namespace='rest_framework')),
+    url(r'^api-docs/', include('rest_framework_swagger.urls')),
 
     # Thrift Services
     url(r'^service$', 'browser.views.service_core_binary',

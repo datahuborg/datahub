@@ -19,6 +19,7 @@ pyjwkest==1.0.1
 django-crispy-forms==1.5.2
 factory_boy
 djangorestframework
+django-rest-swagger
 django-oauth-toolkit
 django-cors-headers
 django-rest-framework-social-oauth2
