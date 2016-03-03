@@ -95,6 +95,17 @@ $(document).ready(function() {
     </div>
   </div>
 
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Authorized Apps</h3>
+    </div>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <a href="{% url 'oauth2_provider:authorized-token-list' %}">Manage active tokens</a>
+      </li>
+    </ul>
+  </div>
+
   <div class="panel panel-danger">
     <div class="panel-heading">
       <h3 class="panel-title">Delete Account</h3>

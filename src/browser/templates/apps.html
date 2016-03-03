@@ -52,6 +52,9 @@
   {% else %}
     <p class="bg-warning">You don't have any registered app yet.</strong></p>
   {% endif %} 
+  <div class="panel-footer">
+    <a href="{% url 'oauth2_provider:list' %}">Create and manage OAuth 2 apps</a>
+  </div>
   </div>
 </div>
 {% endblock %}
