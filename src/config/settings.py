@@ -246,6 +246,7 @@ OAUTH2_PROVIDER = {
     'WRITE_SCOPE': 'write',
     'ALLOWED_REDIRECT_URI_SCHEMES': ['http', 'https', 'oauthexplorer'],
     'REQUEST_APPROVAL_PROMPT': 'auto',
+    'OAUTH2_BACKEND_CLASS': 'api.oauth2_backends.ContentNegotiatingOAuthLibCore',
 }
 
 REST_FRAMEWORK = {
