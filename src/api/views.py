@@ -540,7 +540,7 @@ def custom_exception_handler(exc, context):
         ],
     }
     for drf_status, exceptions in exceptions_by_status.iteritems():
-        if next(e for e in exceptions if issubclass(type(exc), e)):
+        if next((e for e in exceptions if issubclass(type(exc), e)), None):
             status_code = drf_status
             break
 
