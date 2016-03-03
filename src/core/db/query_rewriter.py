@@ -5,14 +5,12 @@ from core.db.rlsmanager import RowLevelSecurityManager
 class SQLQueryRewriter:
 
 
-    def __init__(self, table, repo, repo_base, user):
-        self.table = table
-        self.repo = repo
+    def __init__(self, repo_base, user):
         self.repo_base = repo_base
         self.user = user
 
-    @staticmethod
-    def contain_subquery(token):
+
+    def contain_subquery(self, token):
         '''
         Takes in a sqlparse token and checks whether it contains a subquery
         '''
@@ -23,35 +21,32 @@ class SQLQueryRewriter:
         return True
 
 
-    @staticmethod
-    def apply_row_level_security(query):
+    def apply_row_level_security(self, query):
         '''
         Takes in a SQL query and applies row level security to it. First, all the subqueries are adjusted to include
         security policies. Afterwards, all the join query components will have table names replaced by RLS subqueries.
         '''
-        subquery_with_rls = SQLQueryRewriter.process_subqueries(query)
-        result = SQLQueryRewriter.process_join_query(subquery_with_rls).rstrip()
+        subquery_with_rls = self.process_subqueries(query)
+        result = self.process_join_query(subquery_with_rls).rstrip()
         if result[-1] != ";":
             result += ";"
         return result
 
 
-    @staticmethod
-    def process_subquery(token):
+    def process_subquery(self, token):
         '''
         Takes in 
         a subquery token and turns it into a SQL string with row level security applied to the subquery.
         '''
         result = ''
-        parsed_subquery = SQLQueryRewriter.extract_subquery(token)
+        parsed_subquery = self.extract_subquery(token)
         result += parsed_subquery[0]
-        result += SQLQueryRewriter.process_subqueries(parsed_subquery[1])
+        result += self.process_subqueries(parsed_subquery[1])
         result += parsed_subquery[2].replace(";", "")
         return result
 
 
-    @staticmethod
-    def found_join(join_found, token):
+    def found_join(self, join_found, token):
         '''
         Checks whether the token is a join token (this is diffrent from a subquery that contains a join).
         '''
@@ -61,8 +56,8 @@ class SQLQueryRewriter:
         return join_found
 
 
-    @staticmethod
-    def extract_table_information(table, token):
+
+    def extract_table_information(self, table, token):
         '''
         Pulls out the table information from the token if it exists, or returns the original table information.
         '''
@@ -74,8 +69,7 @@ class SQLQueryRewriter:
         return table
  
 
-    @staticmethod
-    def need_apply_row_level_security(join_present, table_information, token=None, row_level_security_applied=None):
+    def need_apply_row_level_security(self, join_present, table_information, token=None, row_level_security_applied=None):
         '''
         Checks whether row level security need to be applied.
         '''
@@ -88,14 +82,13 @@ class SQLQueryRewriter:
         return False
 
 
-    @staticmethod
-    def get_security_policy_string(table_information, where_found=False):
+    def get_security_policy_string(self, table_information, where_found=False):
         '''
         Extracts out all security policies related to the table information specified, and turns the policies into
         a singular SQL string to append to the original query. 
         '''
         result = ''
-        policies = SQLQueryRewriter.find_security_policy(table_information[0], table_information[1], "test")
+        policies = self.find_security_policy(table_information[0], table_information[1], "ALL")
         if policies is None:
             return result
         if where_found:
@@ -107,19 +100,17 @@ class SQLQueryRewriter:
         return result[:-5]
 
 
-    @staticmethod
-    def contains_join_subquery(token):
+    def contains_join_subquery(self, token):
         '''
         Checks if the token contains a subquery. If the word "join" is in the token, but it is not the only word,
         then this must be a join subquery
         '''
-        if not SQLQueryRewriter.contains_join(token) and "join" in token.to_unicode().lower():
+        if not self.contains_join(token) and "join" in token.to_unicode().lower():
             return True
         return False
 
 
-    @staticmethod
-    def process_subqueries(query):
+    def process_subqueries(self, query):
         '''
         Method for processing a query filled with subqueries. Will apply row level security to all the subqueries to append
         security policies to the queries. 
@@ -132,53 +123,52 @@ class SQLQueryRewriter:
         join_present = False
 
         for token in tokens:
-            if SQLQueryRewriter.contain_subquery(token):
-                result += SQLQueryRewriter.process_subquery(token)
+            if self.contain_subquery(token):
+                result += self.process_subquery(token)
             else:
                 result += token.to_unicode()
 
-            table_information = SQLQueryRewriter.extract_table_information(table_information, token)
-            join_present = SQLQueryRewriter.found_join(join_present, token)
+            table_information = self.extract_table_information(table_information, token)
+            join_present = self.found_join(join_present, token)
 
-            if SQLQueryRewriter.need_apply_row_level_security(join_present, table_information, token=token):
-                result += SQLQueryRewriter.get_security_policy_string(table_information, True)
+            if self.need_apply_row_level_security(join_present, table_information, token=token):
+                result += self.get_security_policy_string(table_information, True)
                 rls_applied = True
 
-        if SQLQueryRewriter.need_apply_row_level_security(join_present, table_information, row_level_security_applied=rls_applied):
-            result += SQLQueryRewriter.get_security_policy_string(table_information, False)
+        if self.need_apply_row_level_security(join_present, table_information, row_level_security_applied=rls_applied):
+            result += self.get_security_policy_string(table_information, False)
         return result
 
 
 
-    @staticmethod
-    def process_join_subquery(token):
+    def process_join_subquery(self, token):
         '''
         Method for processing subqueries with joins. Turning tokens with a join subquery into 
         a singular query string.
         '''
         result = ''
-        parsed_subquery = SQLQueryRewriter.extract_subquery(token)
+        parsed_subquery = self.extract_subquery(token)
         result += parsed_subquery[0]
-        result += SQLQueryRewriter.process_join_query(parsed_subquery[1])
+        result += self.process_join_query(parsed_subquery[1])
         result += parsed_subquery[2].replace(";", "")
         return result
 
 
-    @staticmethod
-    def convert_join_token_to_query(token):
+
+    def convert_join_token_to_query(self, token):
         result = ''
         #check if token is a subquery or a table. Transform it if it is a table
-        if SQLQueryRewriter.extract_repo_table_from_token(token):
+        if self.extract_repo_table_from_token(token):
             # If the token is simply a table name, then apply RLS
-            result += '%s ' % SQLQueryRewriter.transform_table_to_rls_subquery(token)
+            result += '%s ' % self.transform_table_to_rls_subquery(token)
         else:
             # Otherwise, token is already a subquery, so append it to the original query
             result += '%s ' % token.to_unicode()
         return result
    
     
-    @staticmethod
-    def process_join_query(query):
+
+    def process_join_query(self, query):
         '''
         Method for processing queries filled with joins. Converts all table names before and after joins into 
         a subquery with row level security applied.
@@ -190,9 +180,9 @@ class SQLQueryRewriter:
         final_query = ''
         
         for token in tokens:
-            if SQLQueryRewriter.contains_join_subquery(token):
+            if self.contains_join_subquery(token):
                 final_query += '%s ' % prev_token.to_unicode()
-                final_query += SQLQueryRewriter.process_join_subquery(token)
+                final_query += self.process_join_subquery(token)
                 prev_token = None
                 continue
 
@@ -201,14 +191,14 @@ class SQLQueryRewriter:
                 if token.value == " ":
                      final_query += token.to_unicode()
                 else:
-                    final_query += SQLQueryRewriter.convert_join_token_to_query(token)
+                    final_query += self.convert_join_token_to_query(token)
                     prev_token = None
                     join_found = False
                 continue
  
             # If current token is a join, then need to convert prev_token to subquery and append that first
-            if SQLQueryRewriter.contains_join(token):
-                final_query += SQLQueryRewriter.convert_join_token_to_query(prev_token)
+            if self.contains_join(token):
+                final_query += self.convert_join_token_to_query(prev_token)
                 final_query += '%s ' % token.to_unicode()
                 join_found = True
 
@@ -224,7 +214,7 @@ class SQLQueryRewriter:
             if prev_token.value == " ":
                 final_query += prev_token.to_unicode();
             else:
-                final_query += SQLQueryRewriter.convert_join_token_to_query(prev_token)
+                final_query += self.convert_join_token_to_query(prev_token)
         else:
             if prev_token != None and prev_token.value != ";":
                 final_query += '%s ' % prev_token.to_unicode()
@@ -232,13 +222,13 @@ class SQLQueryRewriter:
         return final_query
 
 
-    @staticmethod
-    def transform_table_to_rls_subquery(token):
+
+    def transform_table_to_rls_subquery(self, token):
         '''
         Takes in information about a table and turns it into a subquery with row level security applied.
         '''
-        table_information = SQLQueryRewriter.extract_repo_table_from_token(token)
-        security_policies = SQLQueryRewriter.find_security_policy(table_information[0], table_information[1], "USER")
+        table_information = self.extract_repo_table_from_token(token)
+        security_policies = self.find_security_policy(table_information[0], table_information[1], "ALL")
         query_result = "(SELECT * FROM %s.%s" % (table_information[0], table_information[1])
         if security_policies:
             query_result += (" WHERE %s" %  security_policies[0])
@@ -248,9 +238,7 @@ class SQLQueryRewriter:
         return query_result
 
     
-
-    @staticmethod
-    def contains_join(token):
+    def contains_join(self, token):
         '''
         Checks whether the token is a join token.
         '''
@@ -261,8 +249,7 @@ class SQLQueryRewriter:
 
     
 
-    @staticmethod
-    def extract_subquery(token):
+    def extract_subquery(self, token):
         '''
         Takes in a sqlparse token that contains a subquery and returns the subquery as a SQL stirng. Subquery will be nested in between
         parentheses, so just return the phrase in between. 
@@ -272,23 +259,26 @@ class SQLQueryRewriter:
         return (token.to_unicode()[:subquery_start_index+1], token.to_unicode()[subquery_start_index+1:subquery_end_index], token.to_unicode()[subquery_end_index:])  
  
 
-    @staticmethod
-    def find_security_policy(table, repo, repo_base, policytype):
+
+    def find_security_policy(self, table, repo, policytype):
         '''
         Looks up policies associated with the table and repo and returns a list of all the policies defined.
         Dummy method right now, need to create the policies table and insert all of this inside. 
         '''
         row_level_security_manager = RowLevelSecurityManager(
-            user=user,
+            user=self.user,
             table=table,
             repo=repo, 
-            repo_base=repo_base)
-        security_policies = row_level_security_manager.find_security_policy(policy_type=policy_type)
+            repo_base=self.repo_base)
+        security_policies = row_level_security_manager.find_security_policy(policy_type=policytype, grantee=self.user)
         print security_policies
+        #return security_policies
+
+        #return [('a=b')]
+        return []
 
 
-    @staticmethod
-    def extract_repo_table_from_token(token):
+    def extract_repo_table_from_token(self, token):
         '''
         Takes in a token and extracts out the table information from the token (repo, tablename) if it exists, otherwise return None
         '''
