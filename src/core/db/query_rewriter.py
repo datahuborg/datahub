@@ -1,14 +1,15 @@
 import sqlparse
 import re
+from core.db.rlsmanager import RowLevelSecurityManager
 
 class SQLQueryRewriter:
 
 
-    def __init__(self, repo_base, table, user):
-        self.repo_base = repo_base
+    def __init__(self, table, repo, repo_base, user):
         self.table = table
+        self.repo = repo
+        self.repo_base = repo_base
         self.user = user
-
 
     @staticmethod
     def contain_subquery(token):
@@ -35,11 +36,11 @@ class SQLQueryRewriter:
         return result
 
 
-
     @staticmethod
     def process_subquery(token):
         '''
-        Takes in a subquery token and turns it into a SQL string with row level security applied to the subquery.
+        Takes in 
+        a subquery token and turns it into a SQL string with row level security applied to the subquery.
         '''
         result = ''
         parsed_subquery = SQLQueryRewriter.extract_subquery(token)
@@ -47,8 +48,6 @@ class SQLQueryRewriter:
         result += SQLQueryRewriter.process_subqueries(parsed_subquery[1])
         result += parsed_subquery[2].replace(";", "")
         return result
-
-
 
 
     @staticmethod
@@ -191,7 +190,6 @@ class SQLQueryRewriter:
         final_query = ''
         
         for token in tokens:
-
             if SQLQueryRewriter.contains_join_subquery(token):
                 final_query += '%s ' % prev_token.to_unicode()
                 final_query += SQLQueryRewriter.process_join_subquery(token)
@@ -220,6 +218,7 @@ class SQLQueryRewriter:
                     final_query += '%s ' % prev_token.to_unicode()
                 prev_token = token
             
+
         # Need to process the last token (it was skipped in the previous loop because it's the last one)
         if join_found:
             if prev_token.value == " ":
@@ -227,7 +226,7 @@ class SQLQueryRewriter:
             else:
                 final_query += SQLQueryRewriter.convert_join_token_to_query(prev_token)
         else:
-            if prev_token != None:
+            if prev_token != None and prev_token.value != ";":
                 final_query += '%s ' % prev_token.to_unicode()
 
         return final_query
@@ -274,12 +273,18 @@ class SQLQueryRewriter:
  
 
     @staticmethod
-    def find_security_policy(table, repo, policytype):
+    def find_security_policy(table, repo, repo_base, policytype):
         '''
         Looks up policies associated with the table and repo and returns a list of all the policies defined.
         Dummy method right now, need to create the policies table and insert all of this inside. 
         '''
-        return ["%s=%s" % (table, repo)]
+        row_level_security_manager = RowLevelSecurityManager(
+            user=user,
+            table=table,
+            repo=repo, 
+            repo_base=repo_base)
+        security_policies = row_level_security_manager.find_security_policy(policy_type=policy_type)
+        print security_policies
 
 
     @staticmethod
@@ -294,8 +299,3 @@ class SQLQueryRewriter:
             return None
         return None
  
-
-
-
-
-

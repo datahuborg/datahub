@@ -1,5 +1,6 @@
 import re
 import psycopg2
+import inspect
 from psycopg2.extensions import AsIs
 
 from config import settings
@@ -512,3 +513,96 @@ class PGBackend:
 
         return import_datafiles([file_path], create_new, table_name, errfile,
                                 PGMethods, **dbsettings)
+
+    def create_security_policy(self, policy, policy_type, grantee, grantor,
+            table, repo, repo_base):
+        '''
+        Creates a new security policy 
+        '''
+
+        params = [policy, policy_type, grantee, grantor, table, repo, repo_base]
+        for param in params[2:]:
+            self._check_for_injections(param)
+
+        security_policy = self.find_security_policy(table, repo, repo_base, policy=policy, grantee=grantee, grantor=grantor)
+        if security_policy != []:
+            raise Exception('Security policy already exists in table.')
+
+        query = ('INSERT INTO policy (policy, policy_type, grantee, grantor,'
+            'table_name, repo, repo_base) values (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\')')
+        params = tuple(map(lambda x: AsIs(x), params))
+
+        res = self.execute_sql(query, params)
+        return res['status']
+
+    def list_security_policies(self, table, repo, repo_base):
+        params = [table, repo, repo_base]
+        for param in params:
+            self._check_for_injections(param)
+        query = ('SELECT policy_id, policy, policy_type, grantee, grantor ' 
+                 'FROM policy '
+                 'WHERE table_name = \'%s\' AND repo = \'%s\' AND repo_base = \'%s\'')
+        params = tuple(map(lambda x: AsIs(x), params))
+
+        res = self.execute_sql(query, params)
+        return res['tuples']
+
+    def find_security_policy(self, table_name, repo, repo_base, policy_id = None, policy=None, policy_type=None, grantee=None, grantor=None):
+        params = locals()
+        del params["self"]
+
+        query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
+                 'FROM policy WHERE ')
+        
+        first_conditional_added = False
+        for key, value in params.items():
+            if value == None:
+                del params[key]
+                continue
+            if key != 'policy':
+                self._check_for_injections(str(value))
+
+            if not first_conditional_added:
+                query += '%s = \'%s\'' % (key, value)
+                first_conditional_added = True
+            else:
+                query += ' AND %s = \'%s\'' % (key, value)
+
+        res = self.execute_sql(query)
+        return res['tuples']
+
+    def find_security_policy_by_id(self, policy_id):
+        self._check_for_injections(str(policy_id))
+        query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
+                 'FROM policy WHERE policy_id = %s' % policy_id)
+        res = self.execute_sql(query)
+        return res['tuples']
+
+    def update_security_policy(self, policy_id, new_policy, new_policy_type, new_grantee, new_grantor):
+        params = [new_policy, new_policy_type, new_grantee, new_grantor, policy_id]
+        for param in params[1:]:
+            self._check_for_injections(str(param))
+
+        security_policy = self.find_security_policy_by_id(policy_id)
+        if security_policy == []:
+            raise LookupError('Policy_ID %s does not exist for table %s and repo %s.' % (policy_id, table, repo))
+        
+        query = ('UPDATE \"policy\"'
+                 'SET policy = \'%s\', policy_type = \'%s\', grantee = \'%s\', grantor = \'%s\''
+                 'WHERE policy_id = %s')
+        
+        params = tuple(map(lambda x: AsIs(x), params))
+        
+        res = self.execute_sql(query, params)
+        return res['status']
+
+    def remove_security_policy(self, policy_id):
+        self._check_for_injections(str(policy_id))
+        security_policy = self.find_security_policy_by_id(policy_id)
+        if security_policy == []:
+            raise LookupError('Policy_ID %s does not exist.' % (policy_id))
+
+        query = ('DELETE FROM policy WHERE policy_id = %s' % policy_id)
+        res = self.execute_sql(query)
+        return res['status']
+        
