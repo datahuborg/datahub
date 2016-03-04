@@ -203,7 +203,8 @@ class Collaborators(APIView):
                                             repo_base=repo_base)
         data = request.data
         collaborator = data['user']
-        permissions = ast.literal_eval(data['permissions'])
+        permissions = str(data['permissions'])
+        permissions = ast.literal_eval(permissions)
         serializer.add_collaborator(repo_name, collaborator, permissions)
         collaborator = serializer.describe_collaborator(
           repo_name, collaborator)
@@ -240,19 +241,12 @@ class Collaborator(APIView):
 
 
 class Tables(APIView):
-    """
-    List and create tables.
-
-    GET to list existing tables.
-    Accepts: None
-    ---
-    POST to create a new table.
-    Accepts: { "table_name":, "params": [{"column_name", "data_type"}]}
-    e.g. { "table_name": "mytablename",
-           "params": [{"column_name":"foo", "data_type":"integer" }]}
-    """
 
     def get(self, request, repo_base, repo_name, format=None):
+        """
+        Tables in a repo
+        """
+
         username = request.user.get_username()
         serializer = TableSerializer(
             username=username, repo_base=repo_base, request=request)
@@ -261,12 +255,41 @@ class Tables(APIView):
         return Response(tables, status=status.HTTP_200_OK)
 
     def post(self, request, repo_base, repo_name, format=None):
+        """
+        Create a table in a repo
+
+        note: Using execute_query to create tables gives more control over
+        table creation
+        e.g. { "table_name": "mytablename",
+           "params": [{"column_name":"foo", "data_type":"integer" }]}
+        ---
+        omit_serializer: true
+
+        parameters:
+          - name: table_name
+            in: body
+            dataType: string
+            description: name of the table to be created
+            required: true
+          - name: params
+            in: body
+            description: column names and data types in those columns
+            type: array[object['column_name', 'data_type']]
+            # [{'column_name':'', 'data_type': ''}]
+            required: true
+
+        """
         username = request.user.get_username()
         serializer = TableSerializer(
             username=username, repo_base=repo_base)
 
-        params = request.data['params']
         table_name = request.data['table_name']
+
+        # hack because swagger UI doesn't deal with arrays objects well
+        params = str(request.data['params'])
+        params = ast.literal_eval[params]
+
+
         serializer.create_table(repo_name, table_name, params)
 
         table = serializer.describe_table(repo_name, table_name, False)
@@ -274,20 +297,13 @@ class Tables(APIView):
 
 
 class Table(APIView):
-    """
-    View or delete a single table.
-
-    GET to view info about a table.
-    Accepts: None
-    note: This endpoint does not throw an error if the table does not exist.
-    ---
-    DELETE to delete a table.
-    Accepts: None
-    Delete will fail is the table in question has a dependencey.
-    In this case, you must first delete the dependency.
-    """
 
     def get(self, request, repo_base, repo_name, table):
+        """
+        See the schema of a single table
+
+        This endpoint does not throw an error if the table does not exist.
+        """
         username = request.user.get_username()
         serializer = TableSerializer(
             username=username, repo_base=repo_base)
@@ -296,6 +312,12 @@ class Table(APIView):
         return Response(table_info, status=status.HTTP_200_OK)
 
     def delete(self, request, repo_base, repo_name, table):
+        """
+        Delete a single table
+
+        Delete will fail is the table in question has a dependencey.
+        In this case, you must first delete the dependency.
+        """
         username = request.user.get_username()
         serializer = TableSerializer(
             username=username, repo_base=repo_base)
@@ -326,6 +348,9 @@ class Files(APIView):
     """
 
     def get(self, request, repo_base, repo_name):
+        """
+        Files in a repo
+        """
         username = request.user.get_username()
         serializer = FileSerializer(
                 username=username, repo_base=repo_base, request=request)
@@ -333,6 +358,46 @@ class Files(APIView):
         return Response(files, status=status.HTTP_200_OK)
 
     def post(self, request, repo_base, repo_name):
+        """
+        Create a file
+        ---
+        omit_serializer: true
+
+        parameters:
+          - name: file_format
+            in: body
+            dataType: string
+            description: format of the file to be created e.g. CSV
+            required: true
+          - name: file
+            dataType: file
+            paramType: formData,
+            description: file to be uploaded (if any).
+              The Swagger UI for this isn't right.
+            required: false
+          - name: header
+            in: body
+            dataType: string
+            required: false
+          - name: delimiter
+            in: body
+            dataType: string
+            required: false
+          - name: from_table
+            in: docstring
+            dataType: string
+            required: false
+          - name: from_view
+            in: docstring
+            dataType: string
+            required: false
+          - name: from_card
+            in: docstring
+            dataType: string
+            required: false
+
+
+        """
         username = request.user.get_username()
         file = request.FILES.get('file', None)
 
@@ -388,17 +453,11 @@ class Files(APIView):
 
 
 class File(APIView):
-    """
-    Download or delete a file.
-
-    GET to download
-    Accepts: None
-    ---
-    DELETE to delete
-    Accepts: None
-    """
 
     def get(self, request, repo_base, repo_name, file_name):
+        """
+        See/Download a file
+        """
         username = request.user.get_username()
         serializer = FileSerializer(
                 username=username, repo_base=repo_base)
@@ -406,6 +465,9 @@ class File(APIView):
         return Response(files, status=status.HTTP_200_OK)
 
     def delete(self, request, repo_base, repo_name, file_name):
+        """
+        Delete a file
+        """
         username = request.user.get_username()
         serializer = FileSerializer(
                 username=username, repo_base=repo_base)
@@ -414,18 +476,11 @@ class File(APIView):
 
 
 class Views(APIView):
-    """
-    List and create views.
-
-    GET to list existing views.
-    Accepts: None
-    ---
-    POST to create a new view.
-    Accepts: { "view_name", "query" }
-    e.g. { "view_name": "foo_view", "query": "select * from mytable"}
-    """
 
     def get(self, request, repo_base, repo_name, format=None):
+        """
+        Views in a repo
+        """
         username = request.user.get_username()
         serializer = ViewSerializer(
             username=username, repo_base=repo_base, request=request)
@@ -434,6 +489,24 @@ class Views(APIView):
         return Response(views, status=status.HTTP_200_OK)
 
     def post(self, request, repo_base, repo_name, format=None):
+        """
+        Create a view in a repo
+        ---
+        omit_serializer: true
+
+        parameters:
+          - name: view_name
+            in: body
+            dataType: string
+            description: name of the the view to be created
+            required: true
+          - name: query
+            in: body
+            dataType: string
+            description: select query to create the view from
+            required: true
+
+        """
         username = request.user.get_username()
         serializer = ViewSerializer(
             username=username, repo_base=repo_base)
@@ -447,18 +520,13 @@ class Views(APIView):
 
 
 class View(APIView):
-    """
-    View or delete a single view.
-
-    GET to view info about a view.
-    Accepts: None
-    note: This endpoint does not throw an error if the table does not exist.
-    ---
-    DELETE to delete a view.
-    Accepts: None
-    """
 
     def get(self, request, repo_base, repo_name, view):
+        """
+        See the schema of a single view
+
+        This endpoint does not throw an error if the table does not exist.
+        """
         username = request.user.get_username()
         serializer = ViewSerializer(
             username=username, repo_base=repo_base)
@@ -467,6 +535,9 @@ class View(APIView):
         return Response(view_info, status=status.HTTP_200_OK)
 
     def delete(self, request, repo_base, repo_name, view):
+        """
+        Delete a single view
+        """
         username = request.user.get_username()
         serializer = ViewSerializer(
             username=username, repo_base=repo_base)
@@ -476,23 +547,35 @@ class View(APIView):
 
 
 class Cards(APIView):
-    """
-    List and create cards.
-
-    GET to list existing cards.
-    Accepts: None
-    ---
-    POST to create a new card.
-    Accepts: { "card_name", "query"}
-    """
 
     def get(self, request, repo_base, repo_name):
+        """
+        Cards in a repo
+        """
         username = request.user.get_username()
         serializer = CardSerializer(username, repo_base, request)
         cards = serializer.list_cards(repo_name)
         return Response(cards, status=status.HTTP_200_OK)
 
     def post(self, request, repo_base, repo_name):
+        """
+        Create a card in a repo
+        ---
+        omit_serializer: true
+
+        parameters:
+          - name: card_name
+            in: body
+            dataType: string
+            description: name of the card to be created
+            required: true
+          - name: query
+            in: body
+            description: query to be executed
+            dataType: string
+            required: true
+
+        """
         username = request.user.get_username()
         serializer = CardSerializer(username, repo_base, request)
         card_name = request.data['card_name']
@@ -503,23 +586,20 @@ class Cards(APIView):
 
 
 class Card(APIView):
-    """
-    View or delete a single card.
-
-    GET to view info about a card.
-    Accepts: None
-    ---
-    DELETE to delete a card.
-    Accepts: None
-    """
 
     def get(self, request, repo_base, repo_name, card_name):
+        """
+        See the query in a single card
+        """
         username = request.user.get_username()
         serializer = CardSerializer(username, repo_base, request)
         res = serializer.describe_card(repo_name, card_name)
         return Response(res, status=status.HTTP_200_OK)
 
     def delete(self, request, repo_base, repo_name, card_name):
+        """
+        Delete a single card
+        """
         username = request.user.get_username()
         serializer = CardSerializer(
             username=username, repo_base=repo_base)
