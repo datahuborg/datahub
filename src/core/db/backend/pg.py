@@ -104,7 +104,7 @@ class PGBackend:
         query = 'ALTER SCHEMA %s RENAME TO %s'
         params = (AsIs(repo), AsIs(new_name))
         res = self.execute_sql(query, params)
-        return [t[0] for t in res['tuples']]
+        return res['status']
 
     def delete_repo(self, repo, force=False):
         ''' deletes a repo and the folder the user's repo files are in. '''
