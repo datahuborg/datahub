@@ -38,7 +38,7 @@ urlpatterns = [
     # cards
     url(r'^v1/repos/(?P<repo_base>\w+)/(?P<repo_name>\w+)/cards/(?P<card_name>\w+)/?$',
         views.Card.as_view(), name='card'),
-    url(r'^v1/repos/(?P<repo_base>\w+)/(?P<repo_name>\w+)cards/?$',
+    url(r'^v1/repos/(?P<repo_base>\w+)/(?P<repo_name>\w+)/cards/?$',
         views.Cards.as_view(), name='cards'),
 
     # files
