@@ -1,3 +1,5 @@
+import ast
+
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -51,10 +53,7 @@ class CurrentUserRepos(APIView):
 
 class Repos(APIView):
     """
-    The current user's visible repos.
-
-    GET the repos visible to the current user.
-    Accepts: None
+    Repos visible to the logged in user.
     """
 
     def get(self, request, format=None):
@@ -67,25 +66,22 @@ class Repos(APIView):
 
 class Repo(APIView):
     """
-    A specific repo of a specific user.
-
-    GET to view repo details.
-    Accepts: None
-    ---
-    DELETE to delete the repo.
-    Accepts: None
-    ---
-    PATCH to rename the repo.
-    Accepts: { "new_name": }
+    A specific repo of a specific user
     """
 
     def get(self, request, repo_base, repo_name, format=None):
+        """
+        Views, tables, collaborators, and files in a repo
+        """
         username = request.user.get_username()
         serializer = RepoSerializer(username, repo_base, request)
         return Response(serializer.describe_repo(repo_name),
                         status=status.HTTP_200_OK)
 
     def delete(self, request, repo_base, repo_name, format=None):
+        """
+        Delete a repo
+        """
         username = request.user.get_username()
         serializer = RepoSerializer(username, repo_base, request)
         serializer.delete_repo(repo_name=repo_name, force=True)
@@ -93,6 +89,7 @@ class Repo(APIView):
 
     def patch(self, request, repo_base, repo_name, format=None):
         """
+        Rename a repo
         ---
         parameters:
           - name: new_name
@@ -120,16 +117,12 @@ class Repo(APIView):
 class ReposForUser(APIView):
     """
     Repos of the specified user.
-
-    GET the repos of a specific user.
-    Accepts: None
-    ---
-    POST to create a repo under the specified user.
-    Fails if the specified user has not authorized this.
-    Accepts: { "repo": str }
     """
 
     def get(self, request, repo_base, format=None):
+        """
+        Repos of the specified user that are visible to the logged in user
+        """
         username = request.user.get_username()
         serializer = RepoSerializer(username, repo_base, request)
 
@@ -139,10 +132,22 @@ class ReposForUser(APIView):
             return Response(serializer.specific_collab_repos(repo_base))
 
     def post(self, request, repo_base, format=None):
+        """
+        Create a repo for the specified user.
+        ---
+        omit_serializer: true
+        parameters:
+          - name: repo_name
+            in: body
+            dataType: string
+            description: name of the repo to be created
+            required: true
+
+        """
         username = request.user.get_username()
         serializer = RepoSerializer(username, repo_base, request)
 
-        repo_name = request.data['repo']
+        repo_name = request.data['repo_name']
         serializer.create_repo(repo_name)
 
         return Response(serializer.user_accessible_repos(),
@@ -162,6 +167,9 @@ class Collaborators(APIView):
     """
 
     def get(self, request, repo_base, repo_name, format=None):
+        """
+        Collaborators in a repo
+        """
         username = request.user.get_username()
         serializer = CollaboratorSerializer(username=username,
                                             repo_base=repo_base,
@@ -172,13 +180,30 @@ class Collaborators(APIView):
 
     def post(self, request, repo_base, repo_name, format=None):
         """
+        Add a collaborator to a repo
+        ---
+        omit_serializer: true
+
+        parameters:
+          - name: user
+            in: body
+            dataType: string
+            description: user to be added as a collaborator
+            required: true
+          - name: permissions
+            in: body
+            type: array
+            items: {
+              type: string
+            }
+            required: true
         """
         username = request.user.get_username()
         serializer = CollaboratorSerializer(username=username,
                                             repo_base=repo_base)
         data = request.data
         collaborator = data['user']
-        permissions = data['permissions']
+        permissions = ast.literal_eval(data['permissions'])
         serializer.add_collaborator(repo_name, collaborator, permissions)
         collaborator = serializer.describe_collaborator(
           repo_name, collaborator)
@@ -189,18 +214,12 @@ class Collaborators(APIView):
 class Collaborator(APIView):
     """
     View, Modify and delete existing collaborators.
-
-    GET to see collaborator details
-    accepts: None
-    ---
-    DELETE to remove the specified collaborator from the repo.
-    Accepts: None
-    ---
-    POST to add a collaborator to a repo.
-    Accepts: { "permissions": [] }
     """
 
     def get(self, request, repo_base, repo_name, collaborator, format=None):
+        """
+        View collaborator permissions on a given repo
+        """
         username = request.user.get_username()
         serializer = CollaboratorSerializer(username=username,
                                             repo_base=repo_base,
@@ -210,6 +229,9 @@ class Collaborator(APIView):
         return Response(collaborators, status=status.HTTP_200_OK)
 
     def delete(self, request, repo_base, repo_name, collaborator, format=None):
+        """
+        Remove a collaborator from a given repo
+        """
         username = request.user.get_username()
         serializer = CollaboratorSerializer(username=username,
                                             repo_base=repo_base)
@@ -554,7 +576,7 @@ class Query(APIView):
         serializer = QuerySerializer(username, repo_base, request)
 
         result = serializer.execute_query(
-            query=query, repo=repo, current_page=current_page,
+            query=query, repo=repo_name, current_page=current_page,
             rows_per_page=rows_per_page)
         return Response(result, status=status.HTTP_200_OK)
 
