@@ -1,0 +1,57 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container-fluid">
+    <div id="dh-console-container">
+        <div id="dh-console">
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+$(document).ready(function($) {
+    
+    var kCmdList = [
+        '** Any SQL Query **',
+        'connect &lt;repo-base&gt; \t -- connect to a datahub user',
+        'mkrepo &lt;repo-name&gt; \t -- to create a new repository',
+        'rm &lt;repo-name [-f]&gt; \t -- to remove a repository',
+        'ls \t\t\t\t\t -- to list repositories',
+        'ls &lt;repo-name&gt; \t\t -- to list tables in a repository',
+        'schema &lt;table-name&gt; \t\t -- to print schema info of a table',
+        '&lt;other dml&gt; \t\t -- execute arbitrary dml on a repo.tablename in your currently connected repo-base'
+    ]
+
+   $('#dh-console').css({'height':'auto','display':'table'});
+
+    $('#dh-console').terminal(
+        function(cmd, term) {
+            if (cmd == "help") {
+           		term.echo("available commands are bash")
+        	} else if (cmd == "bash") {
+        		term.push( function(cmd, term) {
+        			var result = eval(cmd, term);
+                	if (result !== undefined) {
+                   		term.echo(new String(result));
+               		}
+        		}, {
+        			prompt: "bash> ",
+        			name: "bash"
+        		});
+        	}
+        }, {
+            greetings: 'Welcome to DataHub!',
+            height: window.innerHeight*.7,
+            outputLimit: 0
+        }
+    );
+
+});
+
+function eval(cmd, term) {
+	var args = cmd.split(' ', 2)
+	if (term.name() == "bash") {
+		return "BASH";
+	}
+}
+
+</script>
+{% endblock %}

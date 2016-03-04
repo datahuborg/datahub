@@ -26,6 +26,7 @@ if (typeof String.prototype.startsWith != 'function') {
     };
 }
 
+
 function print_result(res, term) {
     if (res.num_tuples >= 0) {
         var col_names = []
@@ -67,7 +68,78 @@ function set_console_height() {
     return;
 }
 
+var base_url = "https://datahub-local.mit.edu";
+var client_id = "09E2h1ikVvDQBrja3EWJIEjKM4xkzx2mIiXp3ZE5";
+var redirect_uri = "https://datahub-local.mit.edu/apps/console/";
+
+// Convenience function to build DataHub URL strings
+// Expects a path starting with a slash. If a params object is present,
+// it encodes and appends that as query parameters.
+function buildURL(path, params) {
+    query = "";
+    if (params !== undefined && Object.keys(params).length > 0) {
+        query = "?" + $.param(params)
+    }
+    return base_url + path + query;
+}
+
+// Convenience function to convert a query string into an associative
+// array.
+function paramsFromQuery(query) {
+    params = {};
+    parts = query.split("&");
+    for (var i = parts.length - 1; i >= 0; i--) {
+        pieces = parts[i].split("=");
+        params[decodeURIComponent(pieces[0])] = decodeURIComponent(pieces[1].replace(/\+/g, " "));
+    }
+    return params;
+}
+
+// Convenience function to copy a value to localStorage if it exists in
+// an associate array.
+function saveIfSet(assocArray, key) {
+    if (assocArray[key]) {
+        console.log("Saving " + key + ": " + assocArray[key]);
+        localStorage.setItem(key, assocArray[key]);
+    };
+}
+
+
 $(document).ready(function($) {
+    
+
+    // Pull the access token from the URL hash if it's available.
+    // Overwrite whatever's currently in storage.
+    if (window.location.hash.length > 1) {
+        params = paramsFromQuery(window.location.hash.substring(1));
+        if (params['access_token']) {
+            keys = ['access_token', 'scope'];
+            for (var i = keys.length - 1; i >= 0; i--) {
+                console.log("Trying " + keys[i]);
+                saveIfSet(params, keys[i]);
+            }
+            // Clear the hash after handling the access_token.
+            // Just setting window.location.hash = "" leaves a dangling #.
+            // history.replaceState("", document.title, window.location.pathname + window.location.search);
+        }
+        console.log(params);
+    }
+
+    // Request authorization button
+    if (!localStorage.getItem('access_token')) {
+        var params = {
+            "response_type": "token",
+            "scope": "read write",
+            "client_id": client_id,
+            "redirect_uri": redirect_uri
+        };
+        var authorization_url = buildURL("/oauth2/authorize/", params);
+        window.location.href = authorization_url;
+    };
+
+    $.ajaxSetup({
+        beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('access_token'));}
+    });
 
     set_console_height();
 
@@ -90,6 +162,11 @@ $(document).ready(function($) {
         'user': login,
         'repo_base': login
     });
+
+    var connection = {
+        'user': login,
+        'repo_base': login
+    };
 
     $('#dh-console').terminal(
         function(command, term) {
@@ -117,20 +194,58 @@ $(document).ready(function($) {
                 } else if (cmd.startsWith('mkrepo')) {
                     var args = cmd.split(' ', 2)
                     if (args.length > 1) {
-                        res = client.create_repo(con, args[1])
-                        print_result(res, term)
+                        // myData = { "repo": args[1]};
+                        // url = "https://datahub-local.mit.edu/api/v1/repos/gyuan";
+                        // $.post( url, myData, function( data ) {
+                        //     console.log("foo"); // John
+                        // }, "json");
+
+                        $.ajax({
+                            url: buildURL("/api/v1/repos/" + "gyuan" + "/"),
+                            type: 'POST',
+                            // beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('access_token'));},
+                            dataType: 'json',
+                            data: {'repo': args[1]},
+                            success: function () {
+                                term.echo("success");
+                            }
+                        })
+                        .fail(function(xhr, status, error) {
+                            console.log("failed");
+                        })
+                        .done(function(data, status, xhr) {
+                            refreshRepos();
+                        });
+
+                        // $.ajax({
+                        //     type: "POST",
+                        //     url: "http://datahub-local.mit.edu/api/v1/repos/"+connection.repo_base,
+                        //     data: {"repo": args[1]}
+                            // success: function () {
+                            //     term.echo("success");
+                            // },
+                            // dataType: 'json'
+                        // });
+                        //res = client.create_repo(con, args[1])
+                        //print_result(res, term)
                     } else {
                         term.error('HELP: mkrepo &lt;repo-name&gt;')
                     }
                 } else if (cmd.startsWith('rm')) {
                     var args = cmd.split(' ', 3)
                     if (args.length > 1) {
-                        force = false
-                        if (args.length == 3 && args[2] == '-f') {
-                            force = true
-                        }
-                        res = client.delete_repo(con, args[1], force)
-                        print_result(res, term)
+                        $.ajax({
+                            url: "/api/v1/repos/" + connection.repo_base + "/" + args[1] + "/",
+                            type: 'DELETE',
+                            // beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('access_token'));},
+                            dataType: 'json',
+                        })
+                        // force = false
+                        // if (args.length == 3 && args[2] == '-f') {
+                        //     force = true
+                        // }
+                        // res = client.delete_repo(con, args[1], force)
+                        // print_result(res, term)
                     } else {
                         term.error('HELP: rm &lt;repo-name&gt; [-f]')
                     }
@@ -149,6 +264,16 @@ $(document).ready(function($) {
                         res = client.list_tables(con, args[1])
                     } else {
                         res = client.list_repos(con)
+                        // $.ajax({
+                        //   url: '/api/v1/repos/'+connection.repo_base,
+                        //   success: function (data) {
+                            
+                        //         $( "body" )
+                        //             .append( "Name: " + data[0].owner ) // John
+                        //             .append( "Time: " + data[0].permissions ); //  2pm
+                        //   },
+                        //   dataType: "json"
+                        // });
                     }
                     print_result(res, term)
                 } else if (cmd.startsWith('help')) {

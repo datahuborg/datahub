@@ -1,5 +1,5 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, url
 
-urlpatterns = patterns('',    
+urlpatterns = patterns('',
     url(r'^$', 'console.views.index'),
-)
+    url(r'^console2/?$', 'console.views.index2'))
