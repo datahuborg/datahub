@@ -92,6 +92,22 @@ class Repo(APIView):
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
     def patch(self, request, repo_base, repo_name, format=None):
+        """
+        ---
+        parameters:
+          - name: new_name
+            in: body
+            dataType: string
+            description: new name for the repo
+            required: true
+
+        consumes:
+          - application/json
+        produces:
+          - application/json
+
+
+        """
         username = request.user.get_username()
         serializer = RepoSerializer(username, repo_base, request)
         new_repo_name = request.data['new_name']
@@ -155,6 +171,8 @@ class Collaborators(APIView):
         return Response(collaborators, status=status.HTTP_200_OK)
 
     def post(self, request, repo_base, repo_name, format=None):
+        """
+        """
         username = request.user.get_username()
         serializer = CollaboratorSerializer(username=username,
                                             repo_base=repo_base)
