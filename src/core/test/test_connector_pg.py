@@ -12,7 +12,7 @@ class HelperMethods(TestCase):
 
     def setUp(self):
         # some words to test out
-        self.good_nouns = ['good', 'good_noun', 'good-noun']
+        self.good_nouns = ['good', 'good_noun', 'goodNoun']
 
         # some words that shoudl throw validation errors
         self.bad_nouns = ['_foo', 'foo_', '-foo', 'foo-', 'foo bar',
@@ -189,8 +189,8 @@ class SchemaListCreateDeleteShare(TestCase):
 
         params = ('old_name', 'new_name')
 
-        self.backend.rename_repo('old_name', 'new_name')
-
+        res = self.backend.rename_repo('old_name', 'new_name')
+        self.assertEqual(res, True)
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], alter_repo_sql)
         self.assertEqual(

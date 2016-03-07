@@ -173,6 +173,7 @@ INSTALLED_APPS = (
     'social.apps.django_app.default',
     'rest_framework',
     'oauth2_provider',
+    'rest_framework_swagger',
     'account',
     'api',
     'console',

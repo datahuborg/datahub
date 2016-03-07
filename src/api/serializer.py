@@ -67,6 +67,13 @@ class RepoSerializer(DataHubSerializer):
         views = view_serializer.list_views(repo_name)
         description["views"] = views["views"]
 
+        # get cards
+        card_serializer = CardSerializer(
+            username=self.username, repo_base=self.repo_base,
+            request=self.request)
+        cards = card_serializer.list_cards(repo_name)
+        description["cards"] = cards["cards"]
+
         # get files
         file_serializer = FileSerializer(
             username=self.username, repo_base=self.repo_base,
