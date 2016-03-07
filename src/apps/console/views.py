@@ -13,9 +13,3 @@ Datahub Console
 def index(request):
     res = {'login': request.user.get_username()}
     return render_to_response("console.html", res)
-
-
-@login_required
-def index2(request):
-    return render_to_response("console2.html", {
-        'login': request.user.get_username()})
