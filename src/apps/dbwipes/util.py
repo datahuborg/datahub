@@ -153,6 +153,7 @@ def create_sql_obj(db, qjson):
     agg = SelectAgg(y['alias'], d['func'], d['cols'], y['expr'], d['cols'][0])
     select.append(agg)
 
+  import pdb; pdb.set_trace()
   parsed = Query(
     db, 
     select, 
