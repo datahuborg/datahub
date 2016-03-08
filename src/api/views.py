@@ -8,6 +8,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.views import exception_handler
 from rest_framework.response import Response
+from rest_framework_csv.renderers import CSVRenderer
+from rest_framework.settings import api_settings
 
 from psycopg2 import Error as PGError
 from core.db.manager import PermissionDenied
@@ -612,6 +614,8 @@ class Query(APIView):
     manage queries
     """
 
+    renderer_classes = [CSVRenderer] + api_settings.DEFAULT_RENDERER_CLASSES
+
     def post(self, request, repo_base, repo_name=None, format=None):
         """
         ---
@@ -646,6 +650,7 @@ class Query(APIView):
             - application/json
         produces:
             - application/json
+            - text/csv
 
         """
         username = request.user.get_username()
@@ -657,7 +662,8 @@ class Query(APIView):
 
         result = serializer.execute_query(
             query=query, repo=repo_name, current_page=current_page,
-            rows_per_page=rows_per_page)
+            rows_per_page=rows_per_page,
+            rows_only=(request.accepted_media_type == 'text/csv'))
         return Response(result, status=status.HTTP_200_OK)
 
 
