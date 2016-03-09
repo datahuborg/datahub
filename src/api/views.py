@@ -96,7 +96,7 @@ class Repo(APIView):
         parameters:
           - name: new_name
             in: body
-            dataType: string
+            type: string
             description: new name for the repo
             required: true
 
@@ -141,7 +141,7 @@ class ReposForUser(APIView):
         parameters:
           - name: repo_name
             in: body
-            dataType: string
+            type: string
             description: name of the repo to be created
             required: true
 
@@ -189,7 +189,7 @@ class Collaborators(APIView):
         parameters:
           - name: user
             in: body
-            dataType: string
+            type: string
             description: user to be added as a collaborator
             required: true
           - name: permissions
@@ -270,14 +270,14 @@ class Tables(APIView):
         parameters:
           - name: table_name
             in: body
-            dataType: string
+            type: string
             description: name of the table to be created
             required: true
           - name: params
             in: body
+            schema:
             description: column names and data types in those columns
-            type: array[object['column_name', 'data_type']]
-            # [{'column_name':'', 'data_type': ''}]
+            type: array[{'column_name': '', 'data_type': ''} ...]
             required: true
 
         """
@@ -289,8 +289,7 @@ class Tables(APIView):
 
         # hack because swagger UI doesn't deal with arrays objects well
         params = str(request.data['params'])
-        params = ast.literal_eval[params]
-
+        params = ast.literal_eval(params)
 
         serializer.create_table(repo_name, table_name, params)
 
@@ -331,23 +330,6 @@ class Table(APIView):
 
 class Files(APIView):
     # parser_classes = (FileUploadParser,)
-    """
-    List or upload a files.
-
-    GET to list files
-    Accepts: None
-    ---
-    POST to upload a file
-    Accepts: {'file': FILENAME.FOO }
-    e.g. $ curl --form file=@FILENAME.CSV \
-            datahub-local.mit.edu/api/v1/repos/REPO_BASE/REPO_NAME/files
-    (Sorry - the browsable API isn't allowing us to upload through the
-    interface yet)
-    ---
-    POST to create a file
-    Accepts: { "from_table" | "from_view" | "from_card" }
-    e.g. /repos/:user/:repo/files?from_view=:view_name
-    """
 
     def get(self, request, repo_base, repo_name):
         """
@@ -362,42 +344,37 @@ class Files(APIView):
     def post(self, request, repo_base, repo_name):
         """
         Create a file
+
+        e.g. $ curl --form file=@FILENAME.CSV
+        datahub-local.mit.edu/api/v1/repos/REPO_BASE/REPO_NAME/files
         ---
         omit_serializer: true
 
         parameters:
           - name: file_format
             in: body
-            dataType: string
+            type: string
             description: format of the file to be created e.g. CSV
-            required: true
           - name: file
-            dataType: file
+            type: file
             paramType: formData,
-            description: file to be uploaded (if any).
-              The Swagger UI for this isn't right.
-            required: false
+            description: file to be uploaded
           - name: header
             in: body
-            dataType: string
-            required: false
+            type: string
           - name: delimiter
             in: body
-            dataType: string
-            required: false
+            type: string
           - name: from_table
             in: docstring
-            dataType: string
-            required: false
+            type: string
           - name: from_view
             in: docstring
-            dataType: string
+            type: string
             required: false
           - name: from_card
             in: docstring
-            dataType: string
-            required: false
-
+            type: string
 
         """
         username = request.user.get_username()
@@ -499,12 +476,12 @@ class Views(APIView):
         parameters:
           - name: view_name
             in: body
-            dataType: string
+            type: string
             description: name of the the view to be created
             required: true
           - name: query
             in: body
-            dataType: string
+            type: string
             description: select query to create the view from
             required: true
 
@@ -568,13 +545,13 @@ class Cards(APIView):
         parameters:
           - name: card_name
             in: body
-            dataType: string
+            type: string
             description: name of the card to be created
             required: true
           - name: query
             in: body
             description: query to be executed
-            dataType: string
+            type: string
             required: true
 
         """
@@ -624,7 +601,7 @@ class Query(APIView):
         parameters:
           - name: query
             in: body
-            dataType: string
+            type: string
             description: query to be executed
             required: true
           - name: rows_per_page
