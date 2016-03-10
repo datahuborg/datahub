@@ -591,8 +591,6 @@ Query
 def query(request, repo_base, repo):
     query = post_or_get(request, key='q', fallback=None)
     username = request.user.get_username()
-    if repo_base.lower() == 'user':
-        repo_base = username
 
     # if the user is just requesting the query page
     if not query:
