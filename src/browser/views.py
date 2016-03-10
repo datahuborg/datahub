@@ -35,6 +35,8 @@ from datahub.account import AccountService
 from service.handler import DataHubHandler
 from utils import post_or_get
 
+from .forms import QueryForm
+
 '''
 @author: Anant Bhardwaj
 @date: Mar 21, 2013
@@ -592,6 +594,19 @@ def query(request, repo_base, repo):
     query = post_or_get(request, key='q', fallback=None)
     username = request.user.get_username()
 
+    # if this is a shared link, redirect them to the table view
+    # with the SQL to be executed pre-populated
+    if repo_base.lower() == 'user':
+        repo_base = username
+        data = {
+            'login': username,
+            'repo_base': repo_base,
+            'repo': 'repo',
+            'select_query': False, # hides the "save as card" button
+            'query': query}
+
+        return render_to_response("query-preview-statement.html", data)
+
     # if the user is just requesting the query page
     if not query:
         data = {
@@ -599,8 +614,8 @@ def query(request, repo_base, repo):
             'repo_base': repo_base,
             'repo': repo,
             'select_query': False,
-            'query': None}
-        return render_to_response("query.html", data)
+            'query': query}
+        return render_to_response("query-browse-results.html", data)
 
     # if the user is actually executing a query
     current_page = 1
