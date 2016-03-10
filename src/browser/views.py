@@ -239,6 +239,8 @@ def repo_tables(request, repo_base, repo):
     shows the tables under a repo.
     '''
     username = request.user.get_username()
+    if repo_base.lower() == 'user':
+        repo_base = username
 
     # get the base tables and views of the user's repo
     with DataHubManager(user=username, repo_base=repo_base) as manager:
@@ -261,6 +263,9 @@ def repo_files(request, repo_base, repo):
     shows thee files in a repo
     '''
     username = request.user.get_username()
+    if repo_base.lower() == 'user':
+        repo_base = username
+
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         uploaded_files = manager.list_repo_files(repo)
 
@@ -279,6 +284,9 @@ def repo_cards(request, repo_base, repo):
     shows the cards in a repo
     '''
     username = request.user.get_username()
+    if repo_base.lower() == 'user':
+        repo_base = username
+
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         cards = manager.list_repo_cards(repo)
 
@@ -418,6 +426,9 @@ def table(request, repo_base, repo, table):
         current_page = request.POST.get('page')
 
     username = request.user.get_username()
+    if repo_base.lower() == 'user':
+        repo_base = username
+
     url_path = reverse('browser-table', args=(repo_base, repo, table))
 
     with DataHubManager(user=username, repo_base=repo_base) as manager:
@@ -580,6 +591,8 @@ Query
 def query(request, repo_base, repo):
     query = post_or_get(request, key='q', fallback=None)
     username = request.user.get_username()
+    if repo_base.lower() == 'user':
+        repo_base = username
 
     # if the user is just requesting the query page
     if not query:
@@ -653,6 +666,10 @@ Cards
 
 def card(request, repo_base, repo, card_name):
     username = request.user.get_username()
+
+    if repo_base.lower() == 'user':
+        repo_base = username
+
     # if the user is actually executing a query
     current_page = 1
     if request.POST.get('page'):
