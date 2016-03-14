@@ -19,7 +19,8 @@ Contents:
 
    Getting Started
    Managing and Testing
-   Client API
+   REST Client API
+   Thrift Client API (deprecated)
    Core Apps
    Core URLs
 
