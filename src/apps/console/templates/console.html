@@ -24,15 +24,14 @@ var base_url = 'https://datahub-local.mit.edu';
 var client_id = '09E2h1ikVvDQBrja3EWJIEjKM4xkzx2mIiXp3ZE5';
 var redirect_uri = 'https://datahub-local.mit.edu/apps/console/';
 var kCmdList = [
-    '** Any SQL Query **',
-    'connect &lt;repo-base&gt; \t -- connect to a datahub user',
-    'mkrepo &lt;repo-name&gt; \t -- to create a new repository',
-    'rm &lt;repo-name [-f]&gt; \t -- to remove a repository',
-    'ls \t\t\t\t\t -- to list repositories',
-    'ls &lt;repo-name&gt; \t\t -- to list tables in a repository',
-    'schema &lt;repo-name.table-name [-l]&gt; \t\t -- to print schema info of a table',
-    '&lt;other dml&gt; \t\t -- execute arbitrary dml on a repo.tablename in your currently connected repo-base'
-]
+    'connect &lt;repo-base&gt; \t\t\t  -- connect to a datahub user',
+    'mkrepo &lt;repo-name&gt; \t\t\t   -- create a new repository',
+    'rm &lt;repo-name [-f]&gt; \t\t\t  -- remove a repository',
+    'ls \t\t\t\t\t\t\t   -- list repositories',
+    'ls &lt;repo-name&gt; \t\t\t\t   -- list tables/views in a repository',
+    'desc &lt;repo-name.table-name [-l]&gt;  -- print schema info of a table [with data type]',
+    '&lt;other dml&gt; \t\t\t\t\t  -- execute arbitrary dml on a repo.tablename in your currently connected repo-base (not implemented)'
+];
 var term;
 var connection;
 
@@ -113,29 +112,6 @@ function authorize_user() {
     });
 }
 
-function connect(args) {
-    var username = args[1];
-
-    if (args.length != 2) {
-        term.error('HELP: connect &lt;repo-base&gt;');
-        return;
-    }
-
-    $.ajax({
-            url: buildURL('/api/v1/repos/' + username + '/'),
-            dataType: 'json'
-        })
-        .fail(function(xhr, status, error) {
-            term.error('failed: no access or repo-base does not exist');
-        })
-        .done(function(data, status, xhr) {
-            connection.repo_base = username;
-            term.set_prompt(connection.user + '@' + connection.repo_base + '> ');
-            // have to authorize with other user if making repos
-            term.echo('Connected to: ' + username);
-        });
-}
-
 function make_repo(args) {
     var repo_name = args[1];
 
@@ -149,11 +125,12 @@ function make_repo(args) {
             type: 'POST',
             dataType: 'json',
             data: {
-                'repo': repo_name
+                'repo_name': repo_name
             }
         })
         .fail(function(xhr, status, error) {
-            // duplicate repos?
+            // does not error when duplicating existing repo
+            console.log(error);
             term.error('failed: no access or other failure?');
         })
         .done(function(data, status, xhr) {
@@ -207,7 +184,6 @@ function describe_table(args) {
         .done(function(data, status, xhr) {
             term.echo('table_schema');
 
-            // format tables better
             if (detail) {
                 term.echo('COLUMN_NAME: DATA_TYPE');
                 term.echo('----------------------');
@@ -228,9 +204,6 @@ function describe_table(args) {
             term.echo('');
             term.echo(columns.length + ' columns returned.');
         });
-
-    // res = client.get_schema(con, table_name)
-    // print_result(res, term)
 }
 
 function list_repos() {
@@ -280,6 +253,30 @@ function list_tables(args) {
             }
             term.echo('');
             term.echo(tables.length + ' rows returned.');
+            term.echo('');
+
+            term.echo('view_name');
+            term.echo('----------');
+            var views = data.views;
+            for (j = 0; j < views.length; j++) {
+                term.echo(views[j].view_name);
+            }
+            term.echo('');
+            term.echo(views.length + ' rows returned.');
+        });
+}
+
+function execute_query(cmd) { // this may not work
+    $.ajax({
+            url: buildURL('/api/v1/query/' + connection.repo_base + '/'),
+            data: {'sql': cmd},
+            dataType: 'json'
+        })
+        .fail(function(xhr, status, error) {
+            term.error('failed: try \'help\'');
+        })
+        .done(function(data, status, xhr) {
+            term.echo('Success: executed query.');
         });
 }
 
@@ -303,7 +300,9 @@ $(document).ready(function($) {
         var cmd = args[0];
         term = terminal;
 
-        if (cmd == 'connect') {
+        if (cmd == 'whereami') {
+            term.echo(connection.user + '.' + connection.repo_base);
+        } else if (cmd == 'connect') {
             connect(args);
         } else if (cmd == 'mkrepo') {
             make_repo(args);
@@ -320,23 +319,53 @@ $(document).ready(function($) {
         } else if (cmd == 'help') {
             help();
         } else {
-            term.echo('help');
-            // or execute sql
+            execute_query(cmd);
         }
-
-        //term.resize(term.width, window.innerHeight * .8);
     }
 
+
+    function connect(args) {
+        var username = args[1];
+
+        if (args.length != 2) {
+            term.error('HELP: connect &lt;repo-base&gt;');
+            return;
+        }
+
+        $.ajax({
+                url: buildURL('/api/v1/repos/' + username + '/'),
+                dataType: 'json'
+            })
+            .fail(function(xhr, status, error) {
+                term.error('failed: no access or repo-base does not exist');
+            })
+            .done(function(data, status, xhr) {
+                // have to authorize with other user maybe
+                term.push(function(command, terminal) {
+                    try {
+                        connection.repo_base = terminal.name();
+                        evaluate(command, terminal);
+                    } catch (error) {
+                        terminal.error(error.message);
+                    }
+                }, {
+                    name: username,
+                    prompt: connection.user + '@' + username + '> '
+                });
+            });
+    }
 
 
     $('#dh-console').terminal(
         function(command, terminal) {
-            try { // where to put try catch
+            try {
+                connection.repo_base = terminal.name();
                 evaluate(command, terminal);
             } catch (error) {
                 terminal.error(error.message);
             }
         }, {
+            name: connection.user,
             prompt: connection.user + '@' + connection.repo_base + '> ',
             greetings: 'Welcome to DataHub!\nConnected to: ' + connection.user
         }

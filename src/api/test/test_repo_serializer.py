@@ -15,6 +15,9 @@ class RepoSerializerTests(TestCase):
 
         self.mock_manager = self.create_patch(
             'api.serializer.DataHubManager')
+        self.mock_reverse = self.create_patch(
+            'api.serializer.reverse')
+        self.mock_reverse.return_value = ('mock_url')
         self.serializer = RepoSerializer(
             username=self.username, repo_base=self.repo_base)
 
@@ -59,14 +62,12 @@ class RepoSerializerTests(TestCase):
         repos = self.serializer.user_owned_repos()
         expected_response = {
             'repos': [
-                {'repo_name': 'repo_1',
-                 'permissions': 'ALL',
-                 'collaborators': ['collabs'],
-                 'owner': self.username},
-                {'repo_name': 'repo_2',
-                 'permissions': 'ALL',
-                 'collaborators': ['collabs'],
-                 'owner': self.username},
+                {'owner': 'delete_me_repo_base',
+                 'href': 'mock_url',
+                 'repo_name': 'repo_1'},
+                {'owner': 'delete_me_repo_base',
+                 'href': 'mock_url',
+                 'repo_name': 'repo_2'}
             ]
         }
 
@@ -99,16 +100,13 @@ class RepoSerializerTests(TestCase):
 
         expected_response = {
             'repos': [
-                {'repo_name': 'repo_name',
-                 'permissions': 'repo_permission',
-                 'collaborators': ['collabs'],
-                 'owner': 'repo_base'},
-                {'repo_name': 'repo_name',
-                 'permissions': 'repo_permission',
-                 'collaborators': ['collabs'],
-                 'owner': 'repo_base'},
-            ]
-        }
+                {'owner': 'repo_base',
+                 'href': 'mock_url',
+                 'repo_name': 'repo_name'},
+                {'owner': 'repo_base',
+                 'href': 'mock_url',
+                 'repo_name': 'repo_name'}
+            ]}
 
         self.assertEqual(repos, expected_response)
 
@@ -126,7 +124,7 @@ class RepoSerializerTests(TestCase):
         response = self.serializer.user_accessible_repos()
         expected_response = {
             'repos': ['user_owned_repos', 'all_collab_repos']
-            }
+        }
 
         self.assertEqual(response, expected_response)
 
@@ -145,16 +143,10 @@ class RepoSerializerTests(TestCase):
         response = self.serializer.all_collab_repos()
 
         expected_response = {
-            'repos': [
-                {'repo_name': 'repo_name',
-                 'privileges': 'repo_permission',
-                 'collaborators': ['collabs'],
-                 'owner': 'repo_base'},
-                {'repo_name': 'repo_name',
-                 'privileges': 'repo_permission',
-                 'collaborators': ['collabs'],
-                 'owner': 'repo_base'},
-            ]
-        }
+            'repos':
+            [{'owner': 'repo_base', 'href': 'mock_url',
+              'repo_name': 'repo_name'}, {
+                'owner': 'repo_base', 'href': 'mock_url',
+                'repo_name': 'repo_name'}]}
 
         self.assertEqual(response, expected_response)

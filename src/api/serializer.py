@@ -67,6 +67,13 @@ class RepoSerializer(DataHubSerializer):
         views = view_serializer.list_views(repo_name)
         description["views"] = views["views"]
 
+        # get cards
+        card_serializer = CardSerializer(
+            username=self.username, repo_base=self.repo_base,
+            request=self.request)
+        cards = card_serializer.list_cards(repo_name)
+        description["cards"] = cards["cards"]
+
         # get files
         file_serializer = FileSerializer(
             username=self.username, repo_base=self.repo_base,
@@ -336,20 +343,49 @@ class FileSerializer(DataHubSerializer):
 
 class QuerySerializer(DataHubSerializer):
 
-    def execute_query(self, query, current_page=None,
-                      rows_per_page=None, repo=None):
+    def execute_query(self, query, current_page=1,
+                      rows_per_page=1000, repo=None):
         if repo:
             self.manager.set_search_paths([repo])
 
         result = None
-        if current_page and rows_per_page:
-            result = self.manager.paginate_query(
-                query, current_page, rows_per_page)
-        else:
-            result = self.manager.execute_sql(query)
+        result = self.manager.paginate_query(
+            query, current_page, rows_per_page)
 
-        # rename the tuples key to rows
-        result['rows'] = result.pop('tuples', None)
-        result['columns'] = result.pop('fields', None)
+        rows = result.get('rows', None)
+        columns = result.get('column_names', None)
+        select_query = result.get('select_query', None)
 
-        return result
+        return_dict = {}
+        return_dict['est_time_cost'] = result.get('time_cost', None)
+        return_dict['est_byte_width'] = result.get('byte_width', None)
+        return_dict['est_total_pages'] = result.get('total_pages', None)
+
+        if select_query:
+            new_rows = []
+            for row in rows:
+                obj = {}
+                for i in range(len(columns)):
+                    column = columns[i]
+                    obj[column] = row[i]
+                new_rows.append(obj)
+
+            return_dict['rows'] = new_rows
+
+        # add appropriate link to previous and next:
+        # next
+        if rows_per_page <= len(rows):
+            next_params = {
+                "query": query,
+                "current_page": current_page + 1,
+                "rows_per_page": rows_per_page}
+            return_dict['next_results_params'] = next_params
+
+        if current_page > 1:
+            previous_params = {
+                "query": query,
+                "current_page": current_page - 1,
+                "rows_per_page": rows_per_page}
+            return_dict['previous_results_params'] = previous_params
+
+        return return_dict
