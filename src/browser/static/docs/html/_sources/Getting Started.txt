@@ -30,6 +30,8 @@ This last step might take several minutes depending on your connection and compu
 
 Once ``vagrant up`` finishes, you can see your environment running at `<http://datahub-local.mit.edu>`_.
 
+If you see a ``Datahub module not found`` error, this is due to an unresolved issue with thrift code not compiling only after the first ``vagrant up``. Please see this thread for a resolution: `<https://github.com/datahuborg/datahub/issues/119>`_.
+
 .. note:: Vagrant keeps your working copy and the VM in sync, so edits you make to DataHub's code will be reflected on datahub-local.mit.edu. Changes to static files like CSS, JS, and documentation must be collected before the server will notice them. For more information, see management commands below.
 
 ------------------------
@@ -98,6 +100,7 @@ Manual Installation
 ===================
 
 Follow these steps if you would prefer to forgo Vagrant and install DataHub locally.
+Please note that other sections of the documentation assume that you are using the Vagrant (quickstart) setup.
 
 --------------
 Clone the repo
@@ -194,8 +197,8 @@ Using the default Vagrant setup:
 .. code-block:: bash
 
     $ vagrant ssh
-    $ cd /vagrant
-    $ sudo sh /provisions/docker/rebuild-and-collect-static-files.sh
+    $ sudo su
+    $ dh-rebuild-and-collect-static-files
 
 Using a local installation of Sphinx (Sphinx is included in ``requirements.txt``):
 
@@ -205,174 +208,3 @@ Using a local installation of Sphinx (Sphinx is included in ``requirements.txt``
     $ make html
 
 When submitting a pull request, you must include Sphinx documentation. You can achieve this by adding ``*.rst`` and linking them from other ``*.rst`` files. See `the Sphinx tutorial <http://sphinx-doc.org/tutorial.html>`__ for more information.
-
-===============
-Testing DataHub
-===============
-
-----------------
-Functional Tests
-----------------
-
-DataHub uses Selenium and PhantomJS to test functionality from an end user's perspective. Both are installed as part of DataHub's Vagrant setup.
-
-You can run the functional tests with:
-
-.. code-block:: bash
-
-    $ vagrant ssh
-    $ cd /vagrant
-    $ sudo sh provisions/docker/run-tests.sh
-    $ cd src
-    $ python manage.py test functional_tests
-
-Browser screenshots are saved in ``src/functional_tests/screenshots`` on teardown
-
-You can exit the testing container with control-d or via the command ``exit``.
-
-----------
-Unit Tests
-----------
-
-Unit tests are used to test DataHub's models and views.
-
-Run them from the ``/src`` directory:
-
-.. code-block:: bash
-
-    $ vagrant ssh
-    $ cd /vagrant
-    $ sudo sh provisions/docker/run-tests.sh
-    $ cd src
-    $ python manage.py test
-
-.. code-block:: bash
-
-    $ vagrant ssh
-    $ cd /vagrant
-    $ sudo sh provisions/docker/run-tests.sh
-    $ cd src
-    $ python manage.py test inventory  # tests models
-    $ python manage.py test www        # tests home page
-    $ python manage.py test account    # tests account management views
-    $ python manage.py test core       # tests datahub core database access
-    $ python manage.py test browser    # tests datahub core views
-
-You can exit the testing container with control-d or via the command ``exit``.
-
-================
-Managing DataHub
-================
-
-----------------------
-Basic Vagrant Commands
-----------------------
-
-.. code-block:: bash
-
-    $ cd /path/to/datahub
-
-    # Start the VM, creating one if it doesn't exist
-    $ vagrant up
-    
-    # Stop the VM
-    $ vagrant halt
-    
-    # Delete the VM completely
-    $ vagrant destroy
-    
-    # Get a shell in the VM
-    $ vagrant ssh
-
----------------------
-Basic Docker Commands
----------------------
-
-The above Vagrant commands are sufficient for running DataHub, but if you need to troubleshoot or develop with DataHub, you will want to learn about Docker. Docker isolates processes and their dependencies by containerizing parts of a system into lightweight VMs. 
-
-Docker can be a little odd to work with at first. Below are some common Docker commands. For Docker tutorials and documentation, see `<https://docs.docker.com/engine/userguide/>`_.
-
-DataHub is composed of 3 process containers and 2 data containers.
-
-- ``web`` runs nginx, a reverse proxy. It listens on ports 80 and 443, serves static content, and proxies dynamic requests to the app container.
-- ``app`` runs gunicorn, a wsgi Python server. It listens on port 8000, but only to requests from other containers. app is where DataHub's code lives.
-- ``db`` runs a Postgres server. It listens on port 5432, but only to connections from other containers.
-- ``data`` holds user uploads and the Postgres data.
-- ``logs`` holds log files for the web, app, and db containers.
-
-After sshing into Vagrant:
-
-.. code-block:: bash
-
-    # List all Docker containers and their statuses
-    $ sudo docker ps -a
-    CONTAINER ID        IMAGE                 COMMAND                  CREATED             STATUS              PORTS                                      NAMES
-    886051b04caf        datahuborg/nginx      "nginx -g 'daemon off"   22 seconds ago      Up 3 seconds        0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   web
-    fcff60382ffd        datahuborg/datahub    "gunicorn --config=pr"   22 seconds ago      Up 3 seconds        8000/tcp                                   app
-    03f076daa71e        datahuborg/postgres   "/docker-entrypoint.s"   22 seconds ago      Up 14 seconds       5432/tcp                                   db
-    78d6af962797        datahuborg/postgres   "/bin/true"              22 seconds ago      Created                                                        data
-    e41f0f5135db        datahuborg/postgres   "/bin/true"              22 seconds ago      Created                                                        logs
-    
-    # Container lifecycle
-    $ sudo docker start app
-    $ sudo docker stop app
-    $ sudo docker restart app
-
-    # Diagnosing a container
-    $ sudo docker logs app
-
-Because the server is containerized, most server commands must be run in a container. Docker commands can be complicated, so several common tasks have been made into scripts under ``provisions/docker``:
-
-.. code-block:: bash
-
-    $ cd /vagrant
-    $ sudo sh provisions/docker/back-up-database.sh
-    $ sudo sh provisions/docker/create-dev-containers.sh
-    $ sudo sh provisions/docker/rebuild-and-collect-static-files.sh
-    $ sudo sh provisions/docker/restore-database.sh
-    $ sudo sh provisions/docker/run-test-container.sh
-    $ sudo sh provisions/docker/start-containers.sh
-    $ sudo sh provisions/docker/stop-containers.sh
-
-Example Docker commands:
-
-.. code-block:: bash
-
-    # View nginx's access logs
-    $ sudo docker run --rm \
-      --volumes-from logs \
-      datahuborg/postgres \
-      cat /var/log/nginx/access.log
-    
-    # Run Django migrations
-    $ sudo docker run --rm \
-      --link db:db \
-      datahuborg/datahub \
-      python src/manage.py migrate --noinput
-    
-    # Collect changes to Django's static files so the web container
-    # can see them.
-    $ sudo docker run --rm \
-      --volumes-from app \
-      datahuborg/datahub \
-      python src/manage.py collectstatic --noinput
-
-    # Pip install -r requirements.txt
-    $ sudo docker exec app pip install -r requirements.txt
-    
-    # Note that `--rm` means it creates an ephemeral container. A new
-    # lightweight VM is created just for that command, and is then
-    # deleted as soon as it exits. That is useful for a number of
-    # reasons, but it also means exiting the container may take a few
-    # seconds as Docker deletes the container.
-    
-    # It is possible to execute commands inside of running containers
-    # instead of creating ephemeral containers which share volumes,
-    # but it is not recommended as you can change the expected state
-    # of a container.
-    #
-    # Get a shell in an active container:
-    $ sudo docker exec -ti app /bin/bash
-    
-    # See Docker's builtin help
-    $ docker help

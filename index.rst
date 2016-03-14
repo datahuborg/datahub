@@ -18,6 +18,7 @@ Contents:
    :maxdepth: 2
 
    Getting Started
+   Managing and Testing
    Client API
    Core Apps
    Core URLs
