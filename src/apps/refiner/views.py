@@ -1,7 +1,9 @@
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
+from django.contrib.staticfiles.finders import find
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+
 import json
 
 from distill import inference
@@ -17,8 +19,24 @@ Datahub Refiner
 
 @login_required
 def index(request):
+
+    # load data from static files and pass it to the view
+    crime_training_input = file(find('crime/input.txt')).read()
+    crime_training_output = file(find('crime/output.txt')).read()
+    crime_test = file(find('crime/test.txt')).read()
+
+    hadoop_training_input = file(find('hadoop/input.txt')).read()
+    hadoop_training_output = file(find('hadoop/output.txt')).read()
+    hadoop_test = file(find('hadoop/test.txt')).read()
+
     return render_to_response("refiner.html", {
-        'login': request.user.get_username()
+        'login': request.user.get_username(),
+        'crime_training_input': crime_training_input,
+        'crime_training_output': crime_training_output,
+        'crime_test': crime_test,
+        'hadoop_training_input': hadoop_training_input,
+        'hadoop_training_output': hadoop_training_output,
+        'hadoop_test': hadoop_test,
     })
 
 

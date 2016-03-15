@@ -1,4 +1,3 @@
-import re
 import json
 import parser
 import difflib

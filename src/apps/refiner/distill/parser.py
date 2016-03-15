@@ -10,8 +10,8 @@ parse a given text and return lexical tokens
 
 
 def parse(text):
-    token_generator = tokenize.generate_tokens(
-        iter([text]).next)   # tokenize the string
+    # tokenize the string
+    token_generator = tokenize.generate_tokens(iter([text]).next)
     chunks = [(token.tok_name[t[0]], t[1], t[2][1], t[3][1])
               for t in token_generator]
     return chunks

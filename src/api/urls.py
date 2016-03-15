@@ -20,8 +20,7 @@ urlpatterns = [
         views.ReposForUser.as_view(),
         name='repos_specific'),
     url(r'^v1/repos/(?P<repo_base>\w+)/(?P<repo_name>\w+)/?$',
-        views.Repo.as_view(),
-        name='repo'),
+        views.Repo.as_view(), name='repo'),
 
     # collaborators
     url(r'^v1/repos/(?P<repo_base>\w+)/(?P<repo_name>\w+)'
