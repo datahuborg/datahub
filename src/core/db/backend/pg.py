@@ -24,9 +24,11 @@ def _pool_key_for_credentials(user, password, repo_base):
     return "{0}-{1}-{2}".format(user, password, repo_base)
 
 
-def _pool_for_credentials(user, password, repo_base):
+def _pool_for_credentials(user, password, repo_base, create_if_missing=True):
     pool_key = _pool_key_for_credentials(user, password, repo_base)
     if pool_key not in connection_pools:
+        if not create_if_missing:
+            return None
         print("Creating a pool for {0}".format(pool_key))
         # Maintains at least 1 connection.
         # Throws "PoolError: connection pool exausted" if a thread tries
@@ -56,6 +58,7 @@ class PGBackend:
         self.host = host
         self.port = port
         self.repo_base = repo_base
+        self.connection = None
 
         self.__open_connection__()
 
@@ -91,8 +94,9 @@ class PGBackend:
     def close_connection(self):
         # print("Putting away a connection to " + _pool_key_for_credentials(
         #     self.user, self.password, self.repo_base))
-        pool = _pool_for_credentials(self.user, self.password, self.repo_base)
-        if self.connection and not pool.closed:
+        pool = _pool_for_credentials(self.user, self.password, self.repo_base,
+                                     create_if_missing=False)
+        if self.connection and pool and not pool.closed:
             pool.putconn(self.connection)
             self.connection = None
         else:

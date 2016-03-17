@@ -1,4 +1,4 @@
-from mock import patch
+from mock import patch, MagicMock
 import itertools
 
 from django.test import TestCase
@@ -26,6 +26,7 @@ class HelperMethods(TestCase):
         # or else it will try to create a real db connection
         self.mock_psychopg = self.create_patch('core.db.backend.pg.psycopg2')
 
+        self.mock_pool = self.create_patch('core.db.backend.pg.ThreadedConnectionPool')
         # open mocked connection
         self.backend = PGBackend(self.username,
                                  self.password,
@@ -56,7 +57,9 @@ class HelperMethods(TestCase):
     def test_execute_sql_strips_queries(self):
         query = ' This query needs stripping; '
         params = ('param1', 'param2')
-        mock_cursor = self.mock_psychopg.connect.return_value.cursor
+
+        mock_connection = self.backend.connection = MagicMock()
+        mock_cursor = mock_connection.cursor
         mock_execute = mock_cursor.return_value.execute
         mock_cursor.return_value.fetchall.return_value = 'sometuples'
         mock_cursor.return_value.rowcount = 1000
