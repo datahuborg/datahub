@@ -7,7 +7,7 @@ from django.test import TestCase
 from core.db.backend.pg import PGBackend
 
 
-class HelperMethods(TestCase):
+class PGBackendHelperMethods(TestCase):
     """Tests connections, validation and execution methods in PGBackend."""
 
     def setUp(self):
@@ -26,7 +26,8 @@ class HelperMethods(TestCase):
         # or else it will try to create a real db connection
         self.mock_psychopg = self.create_patch('core.db.backend.pg.psycopg2')
 
-        self.mock_pool = self.create_patch('core.db.backend.pg.ThreadedConnectionPool')
+        self.mock_pool = self.create_patch(
+            'core.db.backend.pg.ThreadedConnectionPool')
         # open mocked connection
         self.backend = PGBackend(self.username,
                                  self.password,
@@ -52,7 +53,20 @@ class HelperMethods(TestCase):
                 self.fail('check_for_injections failed to verify a good name')
 
     def test_check_open_connections(self):
-        self.assertTrue(self.mock_psychopg.connect.called)
+        pool_for_cred_mock = self.create_patch(
+            'core.db.backend.pg._pool_for_credentials')
+        mock_get_conn = pool_for_cred_mock.return_value.getconn
+        mock_set_isol_level = mock_get_conn.return_value.set_isolation_level
+
+        # recreate backend, because the one created in setUp assumed
+        # that all functions to be mocked out were within the class
+        self.backend = PGBackend(self.username,
+                                self.password,
+                                repo_base=self.username)
+
+        self.assertTrue(pool_for_cred_mock.called)
+        self.assertTrue(mock_get_conn.called)
+        self.assertTrue(mock_set_isol_level.called)
 
     def test_execute_sql_strips_queries(self):
         query = ' This query needs stripping; '
