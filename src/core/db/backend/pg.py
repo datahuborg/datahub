@@ -1,6 +1,7 @@
 import re
 import psycopg2
 from psycopg2.extensions import AsIs
+from psycopg2.pool import ThreadedConnectionPool
 
 from config import settings
 
@@ -16,6 +17,36 @@ if settings.DATABASES['default']['PORT'] != '':
     except:
         pass
 
+connection_pools = {}
+
+
+def _pool_key_for_credentials(user, password, repo_base):
+    return "{0}-{1}-{2}".format(user, password, repo_base)
+
+
+def _pool_for_credentials(user, password, repo_base):
+    pool_key = _pool_key_for_credentials(user, password, repo_base)
+    if pool_key not in connection_pools:
+        print("Creating a pool for {0}".format(pool_key))
+        # Maintains at least 1 connection.
+        # Throws "PoolError: connection pool exausted" if a thread tries
+        # holding onto than 10 connections to a single database.
+        connection_pools[pool_key] = ThreadedConnectionPool(
+            1,
+            10,
+            user=user,
+            password=password,
+            host=HOST,
+            port=PORT,
+            database=repo_base)
+    return connection_pools[pool_key]
+
+
+def _close_all_connections(repo_base):
+    pools_iter = connection_pools.iteritems()
+    for pool in (v for k, v in pools_iter if repo_base in k and not v.closed):
+        pool.closeall()
+
 
 class PGBackend:
 
@@ -28,13 +59,14 @@ class PGBackend:
 
         self.__open_connection__()
 
+    def __del__(self):
+        self.close_connection()
+
     def __open_connection__(self):
-        self.connection = psycopg2.connect(
-            user=self.user,
-            password=self.password,
-            host=self.host,
-            port=self.port,
-            database=self.repo_base)
+        print("Getting a connection to " + _pool_key_for_credentials(
+            self.user, self.password, self.repo_base))
+        pool = _pool_for_credentials(self.user, self.password, self.repo_base)
+        self.connection = pool.getconn()
 
         self.connection.set_isolation_level(
             psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -57,7 +89,15 @@ class PGBackend:
         return res
 
     def close_connection(self):
-        self.connection.close()
+        # print("Putting away a connection to " + _pool_key_for_credentials(
+        #     self.user, self.password, self.repo_base))
+        pool = _pool_for_credentials(self.user, self.password, self.repo_base)
+        if self.connection and not pool.closed:
+            pool.putconn(self.connection)
+            self.connection = None
+        else:
+            print("Was already put away: " + _pool_key_for_credentials(
+                self.user, self.password, self.repo_base))
 
     def _check_for_injections(self, noun):
         """

@@ -47,13 +47,13 @@ class DataHubManager:
         self.user_con.change_repo_base(repo_base=repo_base)
 
     def set_search_paths(self, search_paths=[]):
-        """ sets the search path, so that the user won't have to write
-            out schema names.
+        """Sets the search path, so that the user won't have to write
+           out schema names.
         """
         return self.user_con.set_search_paths(search_paths)
 
     def close_connection(self):
-        self.user_con.close()
+        self.user_con.close_connection()
 
     def create_repo(self, repo):
         return self.user_con.create_repo(repo=repo)
@@ -195,8 +195,10 @@ class DataHubManager:
         Collaborator.objects.get(
             user=collab, repo_name=repo, repo_base=self.repo_base).delete()
 
-        return superuser_con.delete_collaborator(
+        result = superuser_con.delete_collaborator(
             repo=repo, collaborator=collaborator)
+        superuser_con.close_connection()
+        return result
 
     def list_repo_files(self, repo):
         # check for permissions
@@ -240,7 +242,9 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
             repo_base=self.repo_base)
-        return superuser_con.list_collaborators(repo=repo)
+        result = superuser_con.list_collaborators(repo=repo)
+        superuser_con.close_connection()
+        return result
 
     def save_file(self, repo, data_file):
         res = DataHubManager.has_repo_privilege(
@@ -486,14 +490,18 @@ class DataHubManager:
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
-        return superuser_con.user_exists(username)
+        result = superuser_con.user_exists(username)
+        superuser_con.close_connection()
+        return result
 
     @staticmethod
     def database_exists(db_name):
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
-        return superuser_con.database_exists(db_name)
+        result = superuser_con.database_exists(db_name)
+        superuser_con.close_connection()
+        return result
 
     ''' User/Role Management '''
 
@@ -506,6 +514,7 @@ class DataHubManager:
         res = superuser_con.create_user(
             username=username, password=password, create_db=create_db)
         DataHubManager.create_user_data_folder(username)
+        superuser_con.close_connection()
         return res
 
     @staticmethod
@@ -548,13 +557,16 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
         try:
-            return superuser_con.remove_user(username=username)
+            result = superuser_con.remove_user(username=username)
         except:
 
             all_db_list = DataHubManager.list_all_databases()
             for db in all_db_list:
                 DataHubManager.drop_owned_by(username=username, repo_base=db)
-            return superuser_con.remove_user(username=username)
+            result = superuser_con.remove_user(username=username)
+        finally:
+            superuser_con.close_connection()
+            return result
 
     @staticmethod
     def remove_app(app_id):
@@ -565,6 +577,7 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
         superuser_con.remove_user(username=app_id)
+        superuser_con.close_connection()
 
     @staticmethod
     def drop_owned_by(username, repo_base):
@@ -572,14 +585,18 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
             repo_base=repo_base)
-        return superuser_con.drop_owned_by(username)
+        result = superuser_con.drop_owned_by(username)
+        superuser_con.close_connection()
+        return result
 
     @staticmethod
     def list_all_users():
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
-        return superuser_con.list_all_users()
+        result = superuser_con.list_all_users()
+        superuser_con.close_connection()
+        return result
 
     @staticmethod
     def list_all_databases():
@@ -590,7 +607,9 @@ class DataHubManager:
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
-        return superuser_con.list_all_databases()
+        result = superuser_con.list_all_databases()
+        superuser_con.close_connection()
+        return result
 
     @staticmethod
     def remove_database(repo_name, revoke_collaborators=True):
@@ -602,15 +621,19 @@ class DataHubManager:
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
-        return superuser_con.remove_database(repo_name, revoke_collaborators)
+        result = superuser_con.remove_database(repo_name, revoke_collaborators)
+        superuser_con.close_connection()
+        return result
 
     @staticmethod
     def change_password(username, password):
         superuser_con = DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'])
-        return superuser_con.change_password(username=username,
-                                             password=password)
+        result = superuser_con.change_password(username=username,
+                                               password=password)
+        superuser_con.close_connection()
+        return result
 
     ''' Import/Export Files '''
 
@@ -657,7 +680,7 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
             repo_base=repo_base)
-        return superuser_con.import_file(
+        result = superuser_con.import_file(
             table_name=dh_table_name,
             file_path=file_path,
             file_format=file_format,
@@ -665,6 +688,8 @@ class DataHubManager:
             header=header,
             encoding=encoding,
             quote_character=quote_character)
+        superuser_con.close_connection()
+        return result
 
     @staticmethod
     def export_table(username, repo_base, repo, table, file_format='CSV',
@@ -702,12 +727,14 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
             repo_base=repo_base)
-        return superuser_con.export_table(
+        result = superuser_con.export_table(
             table_name=long_table_name,
             file_path=file_path,
             file_format=file_format,
             delimiter=delimiter,
             header=header)
+        superuser_con.close_connection()
+        return result
 
     @staticmethod
     def export_view(username, repo_base, repo, view, file_format='CSV',
@@ -745,12 +772,14 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
             repo_base=repo_base)
-        return superuser_con.export_view(
+        result = superuser_con.export_view(
             view_name=long_view_name,
             file_path=file_path,
             file_format=file_format,
             delimiter=delimiter,
             header=header)
+        superuser_con.close_connection()
+        return result
 
     @staticmethod
     def export_query(repo_base, query, file_path, file_format='CSV',
@@ -759,12 +788,14 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
             repo_base=repo_base)
-        return superuser_con.export_query(
+        result = superuser_con.export_query(
             query=query,
             file_path=file_path,
             file_format=file_format,
             delimiter=delimiter,
             header=header)
+        superuser_con.close_connection()
+        return result
 
     ''' Access Privilege Checks '''
 
@@ -774,8 +805,10 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
             repo_base=repo_base)
-        return superuser_con.has_base_privilege(
+        result = superuser_con.has_base_privilege(
             login=login, privilege=privilege)
+        superuser_con.close_connection()
+        return result
 
     @staticmethod
     def has_repo_privilege(login, repo_base, repo, privilege):
@@ -783,8 +816,10 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
             repo_base=repo_base)
-        return superuser_con.has_repo_privilege(
+        result = superuser_con.has_repo_privilege(
             login=login, repo=repo, privilege=privilege)
+        superuser_con.close_connection()
+        return result
 
     @staticmethod
     def has_table_privilege(login, repo_base, table, privilege):
@@ -792,8 +827,10 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
             repo_base=repo_base)
-        return superuser_con.has_table_privilege(
+        result = superuser_con.has_table_privilege(
             login=login, table=table, privilege=privilege)
+        superuser_con.close_connection()
+        return result
 
     @staticmethod
     def has_column_privilege(login, repo_base, table, column, privilege):
@@ -801,10 +838,12 @@ class DataHubManager:
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
             repo_base=repo_base)
-        return superuser_con.has_column_privilege(login=login,
-                                                  table=table,
-                                                  column=column,
-                                                  privilege=privilege)
+        result = superuser_con.has_column_privilege(login=login,
+                                                    table=table,
+                                                    column=column,
+                                                    privilege=privilege)
+        superuser_con.close_connection()
+        return result
 
 
 class PermissionDenied(Exception):
