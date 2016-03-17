@@ -3,8 +3,48 @@ import itertools
 
 from django.test import TestCase
 
-
+from core.db.backend.pg import (
+    _pool_key_for_credentials, _pool_for_credentials, _close_all_connections)
 from core.db.backend.pg import PGBackend
+
+
+class PoolHelperFunctions(TestCase):
+    """tests helper functions in pg.py, but not in the PGBackend class."""
+
+    def setUp(self):
+        self.mock_ThreadedConnectionPool = self.create_patch(
+            'core.db.backend.pg.ThreadedConnectionPool')
+
+    def create_patch(self, name):
+        # helper method for creating patches
+        patcher = patch(name)
+        thing = patcher.start()
+        self.addCleanup(patcher.stop)
+        return thing
+
+    def test_pool_key_for_credentials(self):
+        res = _pool_key_for_credentials('user', 'password', 'repo_base')
+        self.assertEqual('user-password-repo_base', res)
+
+    def test_pool_for_credentials(self):
+        mock_pkfk = self.create_patch(
+            'core.db.backend.pg._pool_key_for_credentials')
+
+        _pool_for_credentials('user', 'password', 'repo_base', 'True')
+        self.assertTrue(mock_pkfk.called)
+
+    # def test_close_all_connections(self):
+    #     # I'm not sure what connection_pools. iteritems() should look like
+    #     # but here's how it can be mocked out
+    #     mock_pools = self.create_patch(
+    #         'core.db.backend.pg.connection_pools')
+    #     mock_to_be_closed = MagicMock()
+    #     mock_pools.iteritems.return_value = {
+    #         'foo': mock_to_be_closed, 'bar': 'bar'}
+
+    #     # _close_all_connections('repo_base')
+    #     # test to make sure that pool.closeAll was called
+    #     self.assertTrue(mock_to_be_closed.closeall.called)
 
 
 class PGBackendHelperMethods(TestCase):
@@ -61,8 +101,8 @@ class PGBackendHelperMethods(TestCase):
         # recreate backend, because the one created in setUp assumed
         # that all functions to be mocked out were within the class
         self.backend = PGBackend(self.username,
-                                self.password,
-                                repo_base=self.username)
+                                 self.password,
+                                 repo_base=self.username)
 
         self.assertTrue(pool_for_cred_mock.called)
         self.assertTrue(mock_get_conn.called)
