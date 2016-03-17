@@ -1,12 +1,18 @@
+import json
+import ast
+
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.contrib.staticfiles.finders import find
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
-import json
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.views import APIView
 
 from distill import inference
+from serializer import DistillationSerializer
 
 
 '''
@@ -40,11 +46,67 @@ def index(request):
     })
 
 
+class Refiner(APIView):
+    """
+    Structures semi-structured data
+    """
+
+    def post(self, request):
+        """
+        Generate a CSV from semi-strutured text
+        ---
+        parameters:
+        - name: training_input
+          in: body
+          type: string
+          description: example data that is in the file
+          required: true
+        - name: training_output
+          in: body
+          type: string
+          description:
+            what you would like the data to look like after processing
+          required: true
+        - name: test_data
+          in: body
+          type: string
+          description: the data to be processed
+          required: true
+        - name: record_separator
+          in: body
+          type: string
+          description:
+            separator of different records. \\n is used by default
+          required: false
+        # - name: file
+        #   type: file
+        #   description: text file containing data to be parsed
+        """
+        import pdb; pdb.set_trace()
+        data = request.data
+        training_input = data['training_input']
+        training_output = data['training_output']
+        record_separator = data.get('record_separator', '\n')
+        test_data = data['test_data']
+
+
+        # training_input = ast.literal_eval(data['training_input'])
+        # training_output = ast.literal_eval(data['training_output'])
+        # record_separator = data.get('record_separator', '\n')
+        # test_data = data['test_data']
+
+        distillation = inference.Distillation(
+            training_input, training_output, record_separator, test_data)
+        serializer = DistillationSerializer(distillation)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 @csrf_exempt
 def refine_data(request):
     res = {'error': None}
-    try:
-        if request.method == 'POST':
+
+    if request.method == 'POST':
+        try:
             training_input = request.POST['training_input']
             training_output = request.POST['training_output']
             test_data = request.POST['test_data']
@@ -52,6 +114,7 @@ def refine_data(request):
             if 'record_separator' in request.POST:
                 record_separator = request.POST['record_separator']
 
+            import pdb; pdb.set_trace()
             o_fields_structure, i_structure = inference.learn_mapping(
                 training_input, training_output)
             out = inference.extract(
@@ -63,9 +126,9 @@ def refine_data(request):
 
             csv_str = '\n'.join(csv_lines)
             res['output'] = csv_str
-        else:
-            res['error'] = 'Invalid HTTP Method'
-    except Exception, e:
-        res['error'] = str(e)
+        except Exception, e:
+            res['error'] = str(e)
+    else:
+        res['error'] = 'Invalid HTTP Method'
 
     return HttpResponse(json.dumps(res), content_type="application/json")

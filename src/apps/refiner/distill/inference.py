@@ -11,6 +11,20 @@ the goal is to infer a mapping function from a given list
 of <un-structured text, structured fields> pairs
 '''
 
+class Distillation(object):
+
+    def __init__(self, training_input, training_output, record_separator, test_data):
+        self.training_input = training_input
+        self.training_output = training_output
+        self.record_separator = record_separator
+        self.test_data = test_data
+
+        import pdb; pdb.set_trace()
+        self.o_fields_structure, self.i_structure = learn_mapping(
+            self.training_input, self.training_output)
+        self.output = extract(
+            self.test_data, self.o_fields_structure, sep=self.record_separator)
+
 
 def learn_mapping(training_input, training_output):
     i_data = json.loads(training_input)

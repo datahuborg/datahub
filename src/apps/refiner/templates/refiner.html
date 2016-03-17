@@ -1,35 +1,12 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container">
-    <div id="crime_training_input" style="display:none">
-        {{ crime_training_input }}
-    </div>
-    <div id="crime_training_output" style="display:none">
-        {{ crime_training_output }}
-    </div>
-    <div id="crime_test" style="display:none">
-        {{ crime_test }}
-    </div>
-    <div id="hadoop_training_input" style="display:none">
-        {{ hadoop_training_input }}
-    </div>
-    <div id="hadoop_training_output" style="display:none">
-        {{ hadoop_training_output }}
-    </div>
-    <div id="hadoop_test" style="display:none">
-        {{ hadoop_test }}
-    </div>
+    <div id="crime_training_input" style="display:none">{{ crime_training_input }}</div>
+    <div id="crime_training_output" style="display:none">{{ crime_training_output }} </div>
+    <div id="crime_test" style="display:none">{{ crime_test }}</div>
+    <div id="hadoop_training_input" style="display:none">{{ hadoop_training_input }}</div>
+    <div id="hadoop_training_output" style="display:none">{{ hadoop_training_output }}</div>
+    <div id="hadoop_test" style="display:none">{{ hadoop_test }}</div>
     <div id="content">
-        <h3 class="inline-block">
-    <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
-    <a class="link" href=/browse/{{repo_base}}>/</a>
-    <a class="link" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a>
-    <a class="link" href=/browse/{{repo_base}}/{{repo}}>/</a>
-  </h3>
-        <div class="pull-right">
-            <a class="btn btn-primary btn-sm" type="button" href="/console">Create Table with SQL</a>
-            <a class="btn btn-primary btn-sm" type="button" href="/browse/{{repo_base}}/{{repo}}#files">Upload Files</a>
-        </div>
-        <hr />
         <h3>Paste data below (or, select an example data)</h3>
         <div style="padding-top:1em; padding-bottom:1em;">
             <h4> Example Data: </h4>
