@@ -85,31 +85,27 @@ class Refiner(APIView):
           in: body
           type: string
           description: the data to be processed
-          required: true
+          required: false
         - name: record_separator
           in: body
           type: string
           description:
             separator of different records. \\n is used by default
           required: false
-        # - name: file
-        #   type: file
-        #   description: text file containing data to be parsed
+        - name: test_data_file
+          type: file
+          description: text file containing data to be parsed
         """
+
         data = request.data
         training_input = data['training_input']
         training_output = data['training_output']
         record_separator = data.get('record_separator', '\n')
-        test_data = data['test_data']
 
 
-        training_input = data['training_input']
-        training_output = data['training_output']
-        record_separator = data.get('record_separator', '\n')
-        test_data = data['test_data']
 
         distillation = inference.Distillation(
-            training_input, training_output, record_separator, test_data)
+            training_input, training_output, record_separator, test_data, test_data_file)
         serializer = DistillationSerializer(distillation)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

@@ -11,9 +11,11 @@ the goal is to infer a mapping function from a given list
 of <un-structured text, structured fields> pairs
 '''
 
+
 class Distillation(object):
 
     def __init__(self, training_input, training_output, record_separator, test_data):
+    def __init__(self, training_input, training_output, record_separator, test_data, test_data_file):
         self.training_input = training_input
         self.training_output = training_output
         self.record_separator = record_separator
