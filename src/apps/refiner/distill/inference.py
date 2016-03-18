@@ -21,7 +21,6 @@ class Distillation(object):
 
         self.o_fields_structure, self.i_structure = learn_mapping(
             self.training_input, self.training_output)
-        import pdb; pdb.set_trace()
         self.output = extract(
             self.test_data, self.o_fields_structure, sep=self.record_separator)
 

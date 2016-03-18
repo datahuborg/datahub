@@ -22,6 +22,20 @@ from serializer import DistillationSerializer
 Datahub Refiner
 '''
 
+# working JSON when input through django-rest-api
+# https://datahub-local.mit.edu/apps/refiner/api/v1/refiner
+# {
+# "training_input": ["2012-01-04 00:01:23,180 INFO org.apache.hadoop.hdfs.server.datanode.DataNode: Receiving block blk_-2281137920769708011_1116 src: /127.0.0.1:32981 dest: /127.0.0.1:50010",
+# "2012-01-04 00:01:23,185 INFO org.apache.hadoop.hdfs.server.datanode.DataNode: PacketResponder 0 for block blk_-2281137920769708011_1116 terminating"]
+# ,
+# "training_output": [
+# ["2012-01-04", "00:01:23", "127.0.0.1:32981", "127.0.0.1:50010"],
+# ["2012-01-04", "00:01:23", "", ""]
+# ]
+# ,
+# "test_data": "2012-01-04 00:01:23,180 INFO org.apache.hadoop.hdfs.server.datanode.DataNode: Receiving block blk_-2281137920769708011_1116 src: \/127.0.0.1:32981 dest: \/127.0.0.1:50010\r\n2012-01-04 00:01:23,184 INFO org.apache.hadoop.hdfs.server.datanode.DataNode.clienttrace: src: \/127.0.0.1:32981, dest: \/127.0.0.1:50010, bytes: 3758, op: HDFS_WRITE, cliID: DFSClient_-603743753, offset: 0, srvID: DS-292194659-127.0.1.1-50010-1324763300176, blockid: blk_-2281137920769708011_1116, duration: 2016056\r\n"
+# }
+
 
 @login_required
 def index(request):
