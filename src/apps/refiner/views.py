@@ -82,7 +82,6 @@ class Refiner(APIView):
         #   type: file
         #   description: text file containing data to be parsed
         """
-        import pdb; pdb.set_trace()
         data = request.data
         training_input = data['training_input']
         training_output = data['training_output']
@@ -90,10 +89,10 @@ class Refiner(APIView):
         test_data = data['test_data']
 
 
-        # training_input = ast.literal_eval(data['training_input'])
-        # training_output = ast.literal_eval(data['training_output'])
-        # record_separator = data.get('record_separator', '\n')
-        # test_data = data['test_data']
+        training_input = data['training_input']
+        training_output = data['training_output']
+        record_separator = data.get('record_separator', '\n')
+        test_data = data['test_data']
 
         distillation = inference.Distillation(
             training_input, training_output, record_separator, test_data)
@@ -111,10 +110,10 @@ def refine_data(request):
             training_output = request.POST['training_output']
             test_data = request.POST['test_data']
             record_separator = '\n'
+
             if 'record_separator' in request.POST:
                 record_separator = request.POST['record_separator']
 
-            import pdb; pdb.set_trace()
             o_fields_structure, i_structure = inference.learn_mapping(
                 training_input, training_output)
             out = inference.extract(

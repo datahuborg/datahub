@@ -19,16 +19,20 @@ class Distillation(object):
         self.record_separator = record_separator
         self.test_data = test_data
 
-        import pdb; pdb.set_trace()
         self.o_fields_structure, self.i_structure = learn_mapping(
             self.training_input, self.training_output)
+        import pdb; pdb.set_trace()
         self.output = extract(
             self.test_data, self.o_fields_structure, sep=self.record_separator)
 
 
 def learn_mapping(training_input, training_output):
-    i_data = json.loads(training_input)
-    o_data = json.loads(training_output)
+    try:
+        i_data = json.loads(training_input)
+        o_data = json.loads(training_output)
+    except Exception:
+        i_data = training_input
+        o_data = training_output
     o_fields_structure, i_structure = learn_structure(i_data, o_data)
     return o_fields_structure, i_structure
 
