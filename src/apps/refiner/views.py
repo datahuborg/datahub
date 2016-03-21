@@ -102,6 +102,22 @@ class Refiner(APIView):
         training_output = data['training_output']
         record_separator = data.get('record_separator', '\n')
 
+        test_data = data.get('test_data', None)
+        test_data_file = request.FILES.get('test_data_file', None)
+        test_data = test_data_file.read()
+
+        print "\n### API CODE##\n"
+        print "\nTraining Input:\n"
+        print training_input
+
+        print "\nTraining Output:\n"
+        print training_output
+
+        print "\nTest Data:\n"
+        print test_data
+
+        print "\nRecord Separator\n"
+        print record_separator
 
 
         distillation = inference.Distillation(
@@ -123,6 +139,19 @@ def refine_data(request):
 
             if 'record_separator' in request.POST:
                 record_separator = request.POST['record_separator']
+
+            # print "\n### ANANT'S WORKING CODE##\n"
+            # print "\nTraining Input:\n"
+            # print training_input
+
+            # print "\nTraining Output:\n"
+            # print training_output
+
+            # print "\nTest Data:\n"
+            # print test_data
+
+            # print "\nRecord Separator\n"
+            # print record_separator
 
             o_fields_structure, i_structure = inference.learn_mapping(
                 training_input, training_output)
