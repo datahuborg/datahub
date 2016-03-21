@@ -1,53 +1,68 @@
-from mock import patch, MagicMock
+from mock import patch
 import itertools
 
 from django.test import TestCase
 
-from core.db.backend.pg import (
-    _pool_key_for_credentials, _pool_for_credentials, _close_all_connections)
+from core.db.backend.pg import connection_pools, \
+                               _pool_key_for_credentials, \
+                               _pool_for_credentials
 from core.db.backend.pg import PGBackend
 
 
-class PoolHelperFunctions(TestCase):
-    """tests helper functions in pg.py, but not in the PGBackend class."""
+class MockingMixin(object):
+    """A mixin for mock helper methods"""
+
+    def create_patch(self, name, **kwargs):
+        """
+        Returns a started patch which stops itself on test cleanup.
+
+        Any kwargs pass directly into patch().
+        """
+        patcher = patch(name, **kwargs)
+        thing = patcher.start()
+        self.addCleanup(patcher.stop)
+        return thing
+
+
+class PoolHelperFunctions(MockingMixin, TestCase):
+    """Tests helper functions in pg.py, but not in the PGBackend class."""
 
     def setUp(self):
         self.mock_ThreadedConnectionPool = self.create_patch(
             'core.db.backend.pg.ThreadedConnectionPool')
-
-    def create_patch(self, name):
-        # helper method for creating patches
-        patcher = patch(name)
-        thing = patcher.start()
-        self.addCleanup(patcher.stop)
-        return thing
 
     def test_pool_key_for_credentials(self):
         res = _pool_key_for_credentials('user', 'password', 'repo_base')
         self.assertEqual('user-password-repo_base', res)
 
     def test_pool_for_credentials(self):
-        mock_pkfk = self.create_patch(
-            'core.db.backend.pg._pool_key_for_credentials')
+        mock_pkfc = self.create_patch(
+            'core.db.backend.pg._pool_key_for_credentials',
+            wraps=_pool_key_for_credentials)
 
-        _pool_for_credentials('user', 'password', 'repo_base', 'True')
-        self.assertTrue(mock_pkfk.called)
+        self.assertEqual(connection_pools, {})
+        _pool_for_credentials('foo', 'password', 'repo_base')
+        self.assertTrue(mock_pkfc.called)
+        mock_pkfc.assert_called_with('foo', 'password', 'repo_base')
+        self.assertEqual(len(connection_pools), 1)
+        _pool_for_credentials('bar', 'password', 'repo_base',
+                              create_if_missing=True)
+        self.assertEqual(len(connection_pools), 2)
+        _pool_for_credentials('baz', 'password', 'repo_base',
+                              create_if_missing=False)
+        self.assertEqual(len(connection_pools), 2)
+        _pool_for_credentials('bar', 'wordpass', 'repo_base')
+        self.assertEqual(len(connection_pools), 3)
 
+    # psycopg2 doesn't expose any good way to test that close_all_connections
+    # works. You can't ask for the list of existing connections and check that
+    # they're closed.
     # def test_close_all_connections(self):
-    #     # I'm not sure what connection_pools. iteritems() should look like
-    #     # but here's how it can be mocked out
-    #     mock_pools = self.create_patch(
-    #         'core.db.backend.pg.connection_pools')
-    #     mock_to_be_closed = MagicMock()
-    #     mock_pools.iteritems.return_value = {
-    #         'foo': mock_to_be_closed, 'bar': 'bar'}
-
-    #     # _close_all_connections('repo_base')
-    #     # test to make sure that pool.closeAll was called
-    #     self.assertTrue(mock_to_be_closed.closeall.called)
 
 
-class PGBackendHelperMethods(TestCase):
+# @patch('core.db.backend.pg._pool_for_credentials')
+# @patch('core.db.backend.pg.psycopg2.connect')
+class PGBackendHelperMethods(MockingMixin, TestCase):
     """Tests connections, validation and execution methods in PGBackend."""
 
     def setUp(self):
@@ -62,23 +77,22 @@ class PGBackendHelperMethods(TestCase):
         self.username = "username"
         self.password = "password"
 
-        # mock open connection,
-        # or else it will try to create a real db connection
-        self.mock_psychopg = self.create_patch('core.db.backend.pg.psycopg2')
+        # mock connection pools so nothing gets a real db connection
+        self.mock_pool_for_cred = self.create_patch(
+            'core.db.backend.pg._pool_for_credentials')
 
-        self.mock_pool = self.create_patch(
-            'core.db.backend.pg.ThreadedConnectionPool')
+        # mock open connection, only to check if it ever gets called directly
+        self.mock_connect = self.create_patch(
+            'core.db.backend.pg.psycopg2.connect')
+
         # open mocked connection
         self.backend = PGBackend(self.username,
                                  self.password,
                                  repo_base=self.username)
 
-    def create_patch(self, name):
-        # helper method for creating patches
-        patcher = patch(name)
-        thing = patcher.start()
-        self.addCleanup(patcher.stop)
-        return thing
+    def tearDown(self):
+        # Make sure connections are only ever acquired via pools
+        self.assertFalse(self.mock_connect.called)
 
     def test_check_for_injections(self):
         """Tests validation against some sql injection attacks."""
@@ -93,18 +107,10 @@ class PGBackendHelperMethods(TestCase):
                 self.fail('check_for_injections failed to verify a good name')
 
     def test_check_open_connections(self):
-        pool_for_cred_mock = self.create_patch(
-            'core.db.backend.pg._pool_for_credentials')
-        mock_get_conn = pool_for_cred_mock.return_value.getconn
+        mock_get_conn = self.mock_pool_for_cred.return_value.getconn
         mock_set_isol_level = mock_get_conn.return_value.set_isolation_level
 
-        # recreate backend, because the one created in setUp assumed
-        # that all functions to be mocked out were within the class
-        self.backend = PGBackend(self.username,
-                                 self.password,
-                                 repo_base=self.username)
-
-        self.assertTrue(pool_for_cred_mock.called)
+        self.assertTrue(self.mock_pool_for_cred.called)
         self.assertTrue(mock_get_conn.called)
         self.assertTrue(mock_set_isol_level.called)
 
@@ -112,8 +118,7 @@ class PGBackendHelperMethods(TestCase):
         query = ' This query needs stripping; '
         params = ('param1', 'param2')
 
-        mock_connection = self.backend.connection = MagicMock()
-        mock_cursor = mock_connection.cursor
+        mock_cursor = self.backend.connection.cursor
         mock_execute = mock_cursor.return_value.execute
         mock_cursor.return_value.fetchall.return_value = 'sometuples'
         mock_cursor.return_value.rowcount = 1000
@@ -129,7 +134,7 @@ class PGBackendHelperMethods(TestCase):
         self.assertEqual(res['row_count'], 1000)
 
 
-class SchemaListCreateDeleteShare(TestCase):
+class SchemaListCreateDeleteShare(MockingMixin, TestCase):
     """
     Tests that items reach the execute_sql method in pg.py.
 
@@ -170,13 +175,6 @@ class SchemaListCreateDeleteShare(TestCase):
         self.backend = PGBackend(self.username,
                                  self.password,
                                  repo_base=self.username)
-
-    def create_patch(self, name):
-        # helper method for creating patches
-        patcher = patch(name)
-        thing = patcher.start()
-        self.addCleanup(patcher.stop)
-        return thing
 
     def reset_mocks(self):
         # clears the mock call arguments and sets their call counts to 0

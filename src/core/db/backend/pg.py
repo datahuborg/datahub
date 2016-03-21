@@ -5,9 +5,9 @@ from psycopg2.pool import ThreadedConnectionPool
 
 from config import settings
 
-'''
+"""
 DataHub internal APIs for postgres repo_base
-'''
+"""
 HOST = settings.DATABASES['default']['HOST']
 PORT = 5432
 
@@ -29,7 +29,6 @@ def _pool_for_credentials(user, password, repo_base, create_if_missing=True):
     if pool_key not in connection_pools:
         if not create_if_missing:
             return None
-        print("Creating a pool for {0}".format(pool_key))
         # Maintains at least 1 connection.
         # Throws "PoolError: connection pool exausted" if a thread tries
         # holding onto than 10 connections to a single database.
@@ -66,11 +65,8 @@ class PGBackend:
         self.close_connection()
 
     def __open_connection__(self):
-        print("Getting a connection to " + _pool_key_for_credentials(
-            self.user, self.password, self.repo_base))
         pool = _pool_for_credentials(self.user, self.password, self.repo_base)
         self.connection = pool.getconn()
-
         self.connection.set_isolation_level(
             psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
@@ -92,16 +88,11 @@ class PGBackend:
         return res
 
     def close_connection(self):
-        # print("Putting away a connection to " + _pool_key_for_credentials(
-        #     self.user, self.password, self.repo_base))
         pool = _pool_for_credentials(self.user, self.password, self.repo_base,
                                      create_if_missing=False)
         if self.connection and pool and not pool.closed:
             pool.putconn(self.connection)
             self.connection = None
-        else:
-            print("Was already put away: " + _pool_key_for_credentials(
-                self.user, self.password, self.repo_base))
 
     def _check_for_injections(self, noun):
         """
@@ -124,7 +115,7 @@ class PGBackend:
             raise ValueError(invalid_noun_msg)
 
     def create_repo(self, repo):
-        ''' creates a postgres schema for the user.'''
+        """Creates a postgres schema for the user."""
         self._check_for_injections(repo)
 
         query = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'
@@ -151,7 +142,7 @@ class PGBackend:
         return res['status']
 
     def delete_repo(self, repo, force=False):
-        ''' deletes a repo and the folder the user's repo files are in. '''
+        """Deletes a repo and the folder the user's repo files are in."""
         self._check_for_injections(repo)
 
         # drop the schema
@@ -349,11 +340,10 @@ class PGBackend:
         return res['tuples']
 
     def explain_query(self, query):
-        '''
+        """
         returns the number of rows, the cost (in time) to execute,
         and the width (bytes) of rows outputted
-        '''
-
+        """
         # if it's a select query, return a different set of defaults
         select_query = bool((query.split()[0]).lower() == 'select')
 
@@ -574,20 +564,20 @@ class PGBackend:
         return collaborators
 
     def has_base_privilege(self, login, privilege):
-        '''
+        """
         returns True or False for whether the user has privileges for the
         repo_base (database)
-        '''
+        """
         query = 'SELECT has_database_privilege(%s, %s);'
         params = (login, privilege)
         res = self.execute_sql(query, params)
         return res['tuples'][0][0]
 
     def has_repo_privilege(self, login, repo, privilege):
-        '''
+        """
         returns True or False for whether the use has privileges for the
         repo (schema)
-        '''
+        """
         query = 'SELECT has_schema_privilege(%s, %s, %s);'
         params = (login, repo, privilege)
         res = self.execute_sql(query, params)
