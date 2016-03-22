@@ -4,7 +4,6 @@ import itertools
 from django.test import TestCase
 
 from core.db.backend.pg import connection_pools, \
-                               _pool_key_for_credentials, \
                                _pool_for_credentials
 from core.db.backend.pg import PGBackend
 
@@ -31,28 +30,18 @@ class PoolHelperFunctions(MockingMixin, TestCase):
         self.mock_ThreadedConnectionPool = self.create_patch(
             'core.db.backend.pg.ThreadedConnectionPool')
 
-    def test_pool_key_for_credentials(self):
-        res = _pool_key_for_credentials('user', 'password', 'repo_base')
-        self.assertEqual('user-password-repo_base', res)
-
     def test_pool_for_credentials(self):
-        mock_pkfc = self.create_patch(
-            'core.db.backend.pg._pool_key_for_credentials',
-            wraps=_pool_key_for_credentials)
-
-        self.assertEqual(connection_pools, {})
+        n = len(connection_pools)
         _pool_for_credentials('foo', 'password', 'repo_base')
-        self.assertTrue(mock_pkfc.called)
-        mock_pkfc.assert_called_with('foo', 'password', 'repo_base')
-        self.assertEqual(len(connection_pools), 1)
+        self.assertEqual(len(connection_pools), n + 1)
         _pool_for_credentials('bar', 'password', 'repo_base',
                               create_if_missing=True)
-        self.assertEqual(len(connection_pools), 2)
+        self.assertEqual(len(connection_pools), n + 2)
         _pool_for_credentials('baz', 'password', 'repo_base',
                               create_if_missing=False)
-        self.assertEqual(len(connection_pools), 2)
+        self.assertEqual(len(connection_pools), n + 2)
         _pool_for_credentials('bar', 'wordpass', 'repo_base')
-        self.assertEqual(len(connection_pools), 3)
+        self.assertEqual(len(connection_pools), n + 3)
 
     # psycopg2 doesn't expose any good way to test that close_all_connections
     # works. You can't ask for the list of existing connections and check that
@@ -60,8 +49,6 @@ class PoolHelperFunctions(MockingMixin, TestCase):
     # def test_close_all_connections(self):
 
 
-# @patch('core.db.backend.pg._pool_for_credentials')
-# @patch('core.db.backend.pg.psycopg2.connect')
 class PGBackendHelperMethods(MockingMixin, TestCase):
     """Tests connections, validation and execution methods in PGBackend."""
 
