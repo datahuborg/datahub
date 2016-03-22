@@ -185,7 +185,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         if username is None:
             username = self.username
 
-        print('creating repo: %s for username: %s' % (repo_name, username))
+        # print('creating repo: %s for username: %s' % (repo_name, username))
 
         # Justin goes to the main/repos page
         self.browser.get(self.server_url + '/browse/' + username)
