@@ -1,4 +1,5 @@
 import re
+from collections import namedtuple
 import psycopg2
 from psycopg2.extensions import AsIs
 from psycopg2.pool import ThreadedConnectionPool
@@ -17,17 +18,19 @@ if settings.DATABASES['default']['PORT'] != '':
     except:
         pass
 
+# Maintain a separate db connection pool for each (user, password, database)
+# tuple.
 connection_pools = {}
-
-
-def _pool_key_for_credentials(user, password, repo_base):
-    return "{0}-{1}-{2}".format(user, password, repo_base)
+PoolKey = namedtuple('PoolKey', 'user, password, repo_base')
 
 
 def _pool_for_credentials(user, password, repo_base, create_if_missing=True):
-    pool_key = _pool_key_for_credentials(user, password, repo_base)
-    if pool_key not in connection_pools:
-        if not create_if_missing:
+    pool_key = PoolKey(user, password, repo_base)
+    # Create a new pool if one doesn't exist or if the existing one has been
+    # closed. Normally a pool should only be closed during testing, to force
+    # all hanging connections to a database to be closed.
+    if pool_key not in connection_pools or connection_pools[pool_key].closed:
+        if create_if_missing is False:
             return None
         # Maintains at least 1 connection.
         # Throws "PoolError: connection pool exausted" if a thread tries
@@ -44,9 +47,9 @@ def _pool_for_credentials(user, password, repo_base, create_if_missing=True):
 
 
 def _close_all_connections(repo_base):
-    pools_iter = connection_pools.iteritems()
-    for pool in (v for k, v in pools_iter if repo_base in k and not v.closed):
-        pool.closeall()
+    for key, pool in connection_pools.iteritems():
+        if repo_base == key.repo_base and not pool.closed:
+            pool.closeall()
 
 
 class PGBackend:
@@ -485,7 +488,7 @@ class PGBackend:
     def list_all_databases(self):
         query = ('SELECT datname FROM pg_database where datname NOT IN '
                  ' (%s, \'template1\', \'template0\', '
-                 ' \'datahub\', \'postgres\');'
+                 ' \'datahub\', \'test_datahub\', \'postgres\');'
                  )
         params = (self.user, )
         res = self.execute_sql(query, params)
@@ -508,6 +511,8 @@ class PGBackend:
                 query = "REVOKE ALL ON DATABASE %s FROM %s;"
                 params = (AsIs(database), AsIs(user))
                 self.execute_sql(query, params)
+
+        _close_all_connections(database)
 
         # drop database
         query = 'DROP DATABASE %s;'
