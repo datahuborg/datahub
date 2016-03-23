@@ -57,6 +57,12 @@ class DataHubManager:
             repo_base=repo_base,
             password=password)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close_connection()
+
     """ Basic Operations. """
 
     def change_repo_base(self, repo_base):

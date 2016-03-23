@@ -512,6 +512,8 @@ class PGBackend:
                 params = (AsIs(database), AsIs(user))
                 self.execute_sql(query, params)
 
+        # Make sure to close all extant connections to this database or the
+        # drop will fail.
         _close_all_connections(database)
 
         # drop database
