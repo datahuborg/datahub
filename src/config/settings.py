@@ -36,6 +36,9 @@ DATABASES = {
     }
 }
 
+# Database role that public repos grant access to
+# All datahub users are granted access to this role
+PUBLIC_ROLE = 'dh_public'
 
 TIME_ZONE = 'America/New_York'
 

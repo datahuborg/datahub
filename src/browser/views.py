@@ -1,4 +1,3 @@
-import ast
 import json
 import urllib
 import uuid
@@ -19,7 +18,8 @@ from thrift.protocol import TBinaryProtocol
 from thrift.protocol import TJSONProtocol
 from thrift.transport.TTransport import TMemoryBuffer
 
-from inventory.models import App, Card, Annotation
+from config import settings
+from inventory.models import App, Annotation
 from account.utils import grant_app_permission
 from core.db.manager import DataHubManager
 from datahub import DataHub
@@ -324,11 +324,14 @@ def repo_settings(request, repo_base, repo):
     collaborators = filter(lambda x: x != '' and x !=
                            username, collaborators)
 
+    public_role = settings.PUBLIC_ROLE
+
     res = {
         'login': username,
         'repo_base': repo_base,
         'repo': repo,
-        'collaborators': collaborators}
+        'collaborators': collaborators,
+        'public_role': public_role}
     res.update(csrf(request))
 
     return render_to_response("repo-settings.html", res)
