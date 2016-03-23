@@ -443,6 +443,12 @@ class PGBackend:
         params = (AsIs(username), password)
         self.execute_sql(query, params)
 
+        # Don't do this in the case of the public user.
+        if username != settings.PUBLIC_ROLE:
+            query = ('GRANT %s to %s')
+            params = (AsIs(settings.PUBLIC_ROLE), AsIs(username))
+            self.execute_sql(query, params)
+
         if create_db:
             return self.create_user_database(username)
 

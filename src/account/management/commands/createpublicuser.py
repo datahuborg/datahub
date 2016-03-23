@@ -22,12 +22,12 @@ class Command(BaseCommand):
         if len(users) < 1:
             try:
                 message = (
-                    'creating public user %s with email %s') % (
-                        username, email, password)
+                    'creating public user %s with email %s '
+                    'and password %s') % (username, email, password)
                 print message
                 User.objects.create_user(
                     username=username, email=email,
                     password=password)
             except Exception as e:
                 print 'failed to create public user.'
-                print e
+                print e.message
