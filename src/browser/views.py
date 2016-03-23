@@ -1,3 +1,4 @@
+import ast
 import json
 import urllib
 import uuid
@@ -341,12 +342,14 @@ def repo_collaborators_add(request, repo_base, repo):
 
     username = request.user.get_username()
     collaborator_username = request.POST['collaborator_username']
+    privileges = request.POST.getlist(
+        'privileges', ['SELECT', 'INSERT', 'UPDATE'])
 
     manager = DataHubManager(user=username, repo_base=repo_base)
 
     manager.add_collaborator(
         repo, collaborator_username,
-        privileges=['SELECT', 'INSERT', 'UPDATE'])
+        privileges=privileges)
 
     return HttpResponseRedirect(
             reverse('browser-repo_settings', args=(repo_base, repo,)))
