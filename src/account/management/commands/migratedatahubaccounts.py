@@ -1,10 +1,14 @@
+import factory
+
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from core.db.manager import DataHubManager
-from inventory.models import *
-import factory
 from django.db.models import signals
 from django.db import transaction
+
+from config import settings
+from core.db.backend.pg import PGBackend
+from inventory.models import *
 
 
 class Command(BaseCommand):
@@ -35,11 +39,6 @@ class Command(BaseCommand):
             len(old_users), len(users)))
         print("Apps: {0}".format(len(apps)))
 
-        if len(users) > 0 and not options['force']:
-            print("There are already some users using the new model. "
-                  "If this is expected, force migration with --force.")
-            return
-
         new_users = []
         # Throw out all of these changes if it fails somehow
         with transaction.atomic():
@@ -68,3 +67,20 @@ class Command(BaseCommand):
                 print("    user is {0}".format(app.user.username))
 
         print("Migrated Users: {0}".format(new_users))
+
+        # grant existing users access to the dh_public role,
+        # which is used to share select-only repos
+        superuser_username = settings.DATABASES['default']['USER']
+        superuser_password = settings.DATABASES['default']['PASSWORD']
+
+        users = User.objects.exclude(username=settings.PUBLIC_ROLE)
+        pg = PGBackend(superuser_username, superuser_password)
+
+        for user in users:
+            print 'granting %s to %s...' % (
+                settings.PUBLIC_ROLE, user.username)
+            query = 'GRANT %s to %s' % (settings.PUBLIC_ROLE, user.username)
+            pg.execute_sql(query)
+        pg.close_connection()
+
+        print 'grants complete'
