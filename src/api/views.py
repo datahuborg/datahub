@@ -248,7 +248,6 @@ class Tables(APIView):
         """
         Tables in a repo
         """
-
         username = request.user.get_username()
         serializer = TableSerializer(
             username=username, repo_base=repo_base, request=request)
@@ -668,7 +667,8 @@ def custom_exception_handler(exc, context):
             PermissionDenied
         ],
         status.HTTP_404_NOT_FOUND: [
-            ObjectDoesNotExist
+            ObjectDoesNotExist,
+            LookupError
         ],
     }
     for drf_status, exceptions in exceptions_by_status.iteritems():
