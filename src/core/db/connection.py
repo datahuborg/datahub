@@ -53,6 +53,10 @@ class DataHubConnection:
         return self.backend.describe_table(
             repo=repo, table=table, detail=detail)
 
+    def list_table_permissions(self, repo, table):
+        return self.backend.list_table_permissions(
+            repo=repo, table=table)
+
     def create_view(self, repo, view, sql):
         return self.backend.create_view(repo=repo, view=view, sql=sql)
 

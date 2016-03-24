@@ -205,13 +205,17 @@ class TableSerializer(DataHubSerializer):
         res = self.manager.describe_table(
             repo=repo, table=table, detail=False)
 
-        response = []
+        columns = []
         for column in res:
             response_obj = {}
             response_obj['column_name'] = column[0]
             response_obj['data_type'] = column[1]
-            response.append(response_obj)
-        return {'columns': response}
+            columns.append(response_obj)
+
+        res = self.manager.list_table_permissions(repo, table)
+        permissions = [permission for sublist in res for permission in sublist]
+
+        return {'columns': columns, 'permissions': permissions}
 
     def delete_table(self, repo, table, force=False):
         success = self.manager.delete_table(repo, table, force)

@@ -96,6 +96,12 @@ class BasicOperations(TestCase):
 
         self.assertTrue(con_describe_table.called)
 
+    def test_list_table_permissions(self):
+        con_tbl_perm = self.mock_connection.return_value.list_table_permissions
+        self.manager.list_table_permissions(repo='repo', table='table')
+
+        self.assertTrue(con_tbl_perm.called)
+
     def test_delete_table(self):
         con_delete_table = self.mock_connection.return_value.delete_table
         self.manager.delete_table(repo='repo', table='table', force=False)

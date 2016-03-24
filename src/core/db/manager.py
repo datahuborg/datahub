@@ -131,6 +131,9 @@ class DataHubManager:
     def describe_table(self, repo, table, detail=False):
         return self.user_con.describe_table(repo, table, detail)
 
+    def list_table_permissions(self, repo, table):
+        return self.user_con.list_table_permissions(repo, table)
+
     def create_view(self, repo, view, sql):
         return self.user_con.create_view(
             repo=repo, view=view, sql=sql)

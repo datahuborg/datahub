@@ -240,7 +240,6 @@ class PGBackend:
         query = ("SELECT %s "
                  "FROM information_schema.columns "
                  "WHERE table_schema = %s and table_name = %s;")
-
         params = None
         if detail:
             params = (AsIs('*'), repo, table)
@@ -248,7 +247,14 @@ class PGBackend:
             params = (AsIs('column_name, data_type'), repo, table)
 
         res = self.execute_sql(query, params)
+        return res['tuples']
 
+    def list_table_permissions(self, repo, table):
+        query = ("select privilege_type from "
+                 "information_schema.role_table_grants where table_schema=%s "
+                 "and table_name=%s and grantee=%s")
+        params = (repo, table, self.user)
+        res = self.execute_sql(query, params)
         return res['tuples']
 
     def create_view(self, repo, view, sql):
