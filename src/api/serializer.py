@@ -389,11 +389,12 @@ class QuerySerializer(DataHubSerializer):
                 "rows_per_page": rows_per_page}
             return_dict['previous_results_params'] = previous_params
 
-        if not rows_only:
-            return return_dict
-        # Some formats, like CSV, don't have a place for metadata.
-        # Only return raw tabular data in those cases.
-        if select_query:
-            return return_dict['rows']
-        else:
-            return {}
+        if rows_only:
+            # Some formats, like CSV, don't have a place for metadata.
+            # Only return raw tabular data in those cases.
+            if select_query:
+                return return_dict['rows']
+            else:
+                return {}
+        # By default, return the query result plus metadata.
+        return return_dict
