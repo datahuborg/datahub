@@ -40,7 +40,7 @@ class CurrentUserTests(APIEndpointTests):
             'username': self.username,
             'last_login': None,
             'email': self.email,
-            })
+        })
 
 
 class CurrentUserReposTests(APIEndpointTests):
@@ -204,97 +204,150 @@ class ReposForUserTests(APIEndpointTests):
             self.username, ['repo_one', 'repo_two']))
 
 
-Query = namedtuple('Query', ['sql', 'status_code', 'expect'])
+Query = namedtuple(
+    'Query', ['sql', 'status_code', 'expect_json', 'expect_csv'])
 
 
 class QueryTests(APIEndpointTests):
 
-    def test_query_with_repo(self):
+    def _queries(self, table):
+        return [
+            Query(sql="""
+                  CREATE TABLE """ + table + """ (
+                      name varchar (255) NOT NULL,
+                      deliciousness numeric,
+                      is_deep_fried boolean);
+                  """,
+                  status_code=status.HTTP_200_OK,
+                  expect_json=None,
+                  expect_csv=''),
+            Query(sql="SELECT * FROM " + table + ";",
+                  status_code=status.HTTP_200_OK,
+                  expect_json=[],
+                  expect_csv=''),
+            Query(sql="INSERT INTO " + table +
+                      " VALUES ('reuben', 25, FALSE);",
+                  status_code=status.HTTP_200_OK,
+                  expect_json=None,
+                  expect_csv=''),
+            Query(sql="SELECT * FROM " + table + ";",
+                  status_code=status.HTTP_200_OK,
+                  expect_json=[
+                      {'is_deep_fried': False,
+                       'deliciousness': 25,
+                       'name': 'reuben'}],
+                  expect_csv="deliciousness,is_deep_fried,name\r\n"
+                             "25,False,reuben"),
+            Query(sql="DROP TABLE " + table,
+                  status_code=status.HTTP_200_OK,
+                  expect_json=None,
+                  expect_csv=''),
+        ]
+
+    def test_post_query_with_repo(self):
         repo_name = 'repo_one'
         table_name = 'sandwiches'
         repo_table = repo_name + '.' + table_name
+        queries = self._queries(repo_table)
+
         with DataHubManager(self.username) as manager:
             manager.create_repo(repo_name)
 
         url = reverse('api:query_with_repo',
                       kwargs={'repo_base': self.username,
                               'repo_name': repo_name})
-        queries = [
-            Query(sql="""
-                  CREATE TABLE """ + table_name + """ (
-                      name varchar (255) NOT NULL,
-                      deliciousness numeric,
-                      is_deep_fried boolean);
-                  """,
-                  status_code=status.HTTP_200_OK,
-                  expect={}),
-            Query(sql="SELECT * FROM " + repo_table + ";",
-                  status_code=status.HTTP_200_OK,
-                  expect=[]),
-            Query(sql="INSERT INTO " + repo_table +
-                      " VALUES ('reuben', 25, FALSE);",
-                  status_code=status.HTTP_200_OK,
-                  expect={}),
-            Query(sql="SELECT * FROM " + repo_table + ";",
-                  status_code=status.HTTP_200_OK,
-                  expect=[
-                      {'is_deep_fried': False,
-                       'deliciousness': 25,
-                       'name': 'reuben'}]),
-            Query(sql="DROP TABLE " + repo_table,
-                  status_code=status.HTTP_200_OK,
-                  expect={}),
-        ]
 
         for q in queries:
             response = self.client.post(
                 url, {'query': q.sql}, follow=True, format='json')
-            print(response.data)
             self.assertEqual(response.status_code, q.status_code)
-            self.assertEqual(response.data, q.expect)
+            self.assertEqual(response.data.get('rows'), q.expect_json)
 
     def test_post_query(self):
         repo_name = 'repo_one'
         table_name = 'sandwiches'
+        queries = self._queries(table_name)
+
         with DataHubManager(self.username) as manager:
             manager.create_repo(repo_name)
         url = reverse('api:query',
                       kwargs={'repo_base': self.username})
 
-        queries = [
-            Query(sql="""
-                  CREATE TABLE """ + table_name + """ (
-                      name varchar (255) NOT NULL,
-                      deliciousness numeric,
-                      is_deep_fried boolean);
-                  """,
-                  status_code=status.HTTP_200_OK,
-                  expect={}),
-            Query(sql="SELECT * FROM " + table_name + ";",
-                  status_code=status.HTTP_200_OK,
-                  expect=[]),
-            Query(sql="INSERT INTO " + table_name +
-                      " VALUES ('reuben', 25, FALSE);",
-                  status_code=status.HTTP_200_OK,
-                  expect={}),
-            Query(sql="SELECT * FROM " + table_name + ";",
-                  status_code=status.HTTP_200_OK,
-                  expect=[
-                      {'is_deep_fried': False,
-                       'deliciousness': 25,
-                       'name': 'reuben'}]),
-            Query(sql="DROP TABLE " + table_name,
-                  status_code=status.HTTP_200_OK,
-                  expect={}),
-        ]
-
         for q in queries:
             response = self.client.post(
                 url, {'query': q.sql}, follow=True, format='json')
-            print(response.data)
             self.assertEqual(response.status_code, q.status_code)
-            self.assertEqual(response.data, q.expect)
+            self.assertEqual(response.data.get('rows'), q.expect_json)
 
-    # Test that Accept:text/csv works
+    def test_post_query_csv_accept_header(self):
+        repo_name = 'repo_one'
+        table_name = 'sandwiches'
+        queries = self._queries(table_name)
+
+        with DataHubManager(self.username) as manager:
+            manager.create_repo(repo_name)
+        url = reverse('api:query',
+                      kwargs={'repo_base': self.username})
+
+        for q in queries:
+            # import pdb; pdb.set_trace()
+            response = self.client.post(
+                url, {'query': q.sql}, follow=True, format='json',
+                **{'HTTP_ACCEPT': 'text/csv'})
+            self.assertEqual(response.status_code, q.status_code)
+            self.assertEqual(response.content.strip(), q.expect_csv)
+
+    def test_post_query_json_accept_header(self):
+        repo_name = 'repo_one'
+        table_name = 'sandwiches'
+        queries = self._queries(table_name)
+
+        with DataHubManager(self.username) as manager:
+            manager.create_repo(repo_name)
+        url = reverse('api:query',
+                      kwargs={'repo_base': self.username})
+
+        for q in queries:
+            # import pdb; pdb.set_trace()
+            response = self.client.post(
+                url, {'query': q.sql}, follow=True, format='json',
+                **{'HTTP_ACCEPT': 'application/json'})
+            self.assertEqual(response.status_code, q.status_code)
+            self.assertEqual(response.data.get('rows'), q.expect_json)
+
+    def test_post_query_csv_suffix(self):
+        repo_name = 'repo_one'
+        table_name = 'sandwiches'
+        queries = self._queries(table_name)
+
+        with DataHubManager(self.username) as manager:
+            manager.create_repo(repo_name)
+        url = reverse('api:query',
+                      kwargs={'repo_base': self.username}) + '.csv'
+
+        for q in queries:
+            # import pdb; pdb.set_trace()
+            response = self.client.post(
+                url, {'query': q.sql}, follow=True, format='json')
+            self.assertEqual(response.status_code, q.status_code)
+            self.assertEqual(response.content.strip(), q.expect_csv)
+
+    def test_post_query_json_suffix(self):
+        repo_name = 'repo_one'
+        table_name = 'sandwiches'
+        queries = self._queries(table_name)
+
+        with DataHubManager(self.username) as manager:
+            manager.create_repo(repo_name)
+        url = reverse('api:query',
+                      kwargs={'repo_base': self.username}) + '.json'
+
+        for q in queries:
+            # import pdb; pdb.set_trace()
+            response = self.client.post(
+                url, {'query': q.sql}, follow=True, format='json')
+            self.assertEqual(response.status_code, q.status_code)
+            self.assertEqual(response.data.get('rows'), q.expect_json)
+
     # Test that pagination works
     # Test that responses give metadata
