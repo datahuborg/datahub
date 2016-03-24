@@ -319,16 +319,17 @@ def repo_settings(request, repo_base, repo):
     manager = DataHubManager(user=username, repo_base=repo_base)
     collaborators = manager.list_collaborators(repo)
 
-    collaborators = [c.get('username') for c in collaborators]
-
     # if the public role is in collaborators, note that it's already added
     repo_is_public = False
-    if settings.PUBLIC_ROLE in collaborators:
-        repo_is_public = True
+    for collaborator in collaborators:
+        if collaborator['username'] == settings.PUBLIC_ROLE:
+            repo_is_public = True
 
     # remove the current user, public user from the collaborator list
-    collaborators = filter(lambda x: x != '' and x != username and
-                           x != settings.PUBLIC_ROLE, collaborators)
+    # collaborators = [c.get('username') for c in collaborators]
+    collaborators = filter(
+        lambda x: x['username'] != '' and x['username'] != username and
+        x['username'] != settings.PUBLIC_ROLE, collaborators)
 
     public_role = settings.PUBLIC_ROLE
 
@@ -352,8 +353,7 @@ def repo_collaborators_add(request, repo_base, repo):
 
     username = request.user.get_username()
     collaborator_username = request.POST['collaborator_username']
-    privileges = request.POST.getlist(
-        'privileges', ['SELECT', 'INSERT', 'UPDATE'])
+    privileges = request.POST.getlist('privileges')
 
     manager = DataHubManager(user=username, repo_base=repo_base)
 
