@@ -170,17 +170,13 @@ class RepoTableCardViews(TestCase):
         self.assertTemplateUsed(response, 'repo-browse-cards.html')
 
     def test_card_view_calls_correct_manager_methods(self):
-        mock_Card = self.create_patch(
-            'browser.views.Card')
         self.client.get(
             '/browse/%s/%s/card/cardname' % (self.username, self.repo_name))
 
         self.assertTrue(self.mock_DataHubManager.return_value.get_card.called)
         self.assertTrue(
             self.mock_DataHubManager.return_value.paginate_query.called)
-
         # We shouldn't need to call the class, that goes through manager.py
-        self.assertFalse(mock_Card.called and mock_Card.retrn_value.called)
 
 
 class RepoFilesTab(TestCase):
@@ -331,9 +327,7 @@ class RepoSettingsPage(TestCase):
 
         self.assertTemplateUsed(response, 'repo-settings.html')
         self.mock_DataHubManager.return_value.add_collaborator.assert_called_once_with(
-            self.repo_name, 'test_collaborator', privileges=['SELECT',
-                                                             'INSERT',
-                                                             'UPDATE'])
+            self.repo_name, 'test_collaborator', privileges=[])
 
 # # to do:
 # # mock out login_required
