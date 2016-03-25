@@ -42,9 +42,6 @@ class FunctionalTest(StaticLiveServerTestCase):
     def setUp(self):
 
         if os.environ.get('DATAHUB_DOCKER_TESTING') == 'true':
-            desired_capabilities = DesiredCapabilities.PHANTOMJS
-            desired_capabilities['acceptSslCerts'] = True
-
             self.browser = webdriver.Remote(
                 # phantomjs is the name of the phantomjs Docker container.
                 command_executor='http://phantomjs:8910',
@@ -188,7 +185,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         if username is None:
             username = self.username
 
-        print('creating repo: %s for username: %s' % (repo_name, username))
+        # print('creating repo: %s for username: %s' % (repo_name, username))
 
         # Justin goes to the main/repos page
         self.browser.get(self.server_url + '/browse/' + username)

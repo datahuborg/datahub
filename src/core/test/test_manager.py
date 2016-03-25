@@ -70,11 +70,36 @@ class BasicOperations(TestCase):
         self.addCleanup(patcher.stop)
         return thing
 
+    def test_set_search_paths(self):
+        con_set_spaths = self.mock_connection.return_value.set_search_paths
+        search_paths = ['reponame', 'username']
+        self.manager.set_search_paths(search_paths)
+        self.assertTrue(con_set_spaths.called)
+
+    def test_create_table(self):
+        con_create_table = self.mock_connection.return_value.create_table
+        repo = 'repo'
+        table = 'table'
+        params = {'id': 'integer', 'words': 'text'}
+        self.manager.create_table(repo, table, params)
+        self.assertTrue(con_create_table.called)
+
     def test_list_tables(self):
         con_list_tables = self.mock_connection.return_value.list_tables
         self.manager.list_tables('repo')
 
         self.assertTrue(con_list_tables.called)
+
+    def test_describe_table(self):
+        con_describe_table = self.mock_connection.return_value.describe_table
+        self.manager.describe_table(repo='repo', table='table', detail=False)
+
+        self.assertTrue(con_describe_table.called)
+
+    def test_delete_table(self):
+        con_delete_table = self.mock_connection.return_value.delete_table
+        self.manager.delete_table(repo='repo', table='table', force=False)
+        self.assertTrue(con_delete_table.called)
 
     def test_list_views(self):
         con_list_views = self.mock_connection.return_value.list_views
@@ -82,11 +107,43 @@ class BasicOperations(TestCase):
 
         self.assertTrue(con_list_views.called)
 
+    def test_create_view(self):
+        con_create_view = self.mock_connection.return_value.create_view
+        repo = 'repo_name'
+        view = 'view_name'
+        sql = 'SELECT * FROM table_name'
+        self.manager.create_view(repo, view, sql)
+        self.assertTrue(con_create_view.called)
+
+    def test_describe_view(self):
+        con_describe_view = self.mock_connection.return_value.describe_view
+        self.manager.describe_view(
+            repo='repo_name', view='_name', detail=False)
+        self.assertTrue(con_describe_view.called)
+
+    def test_delete_view(self):
+        con_delete_view = self.mock_connection.return_value.delete_view
+        self.manager.delete_view(
+            repo='repo_name', view='view_name', force=False)
+        self.assertTrue(con_delete_view.called)
+
     def test_list_repos(self):
         con_list_repos = self.mock_connection.return_value.list_repos
         self.manager.list_repos()
 
         self.assertTrue(con_list_repos.called)
+
+    def test_rename_repo(self):
+        con_rename_repo = self.mock_connection.return_value.rename_repo
+        # self.mock_Collaborator = self.create_patch(
+        #     'inventory.models.Collaborator')
+
+        self.manager = DataHubManager(
+            user=self.username, repo_base=self.username)
+        self.manager.Collaborator = MagicMock
+
+        self.manager.rename_repo('old_name', 'new_name')
+        self.assertTrue(con_rename_repo.called)
 
     def test_create_repo(self):
         con_create_repo = self.mock_connection.return_value.create_repo
@@ -105,7 +162,7 @@ class BasicOperations(TestCase):
 
     def test_add_collaborator(self):
         con_add_collab = self.mock_connection.return_value.add_collaborator
-        mock_User = self.create_patch('core.db.manager.User')
+        self.create_patch('core.db.manager.User')
         mock_Collaborator = self.create_patch(
             'core.db.manager.Collaborator')
         mock_Collaborator.objects.get_or_create.return_value = (
@@ -122,7 +179,9 @@ class BasicOperations(TestCase):
 
     def test_delete_collaborator(self):
         self.mock_connection.return_value.list_collaborators.return_value = [
-            'old_collaborator']
+            {'username': 'old_collaborator', 'permissions': 'U'},
+            {'username': self.username, 'permissions': 'UC'}
+            ]
         self.mock_User = self.create_patch('core.db.manager.User')
         self.mock_Collaborator = self.create_patch(
             'core.db.manager.Collaborator')

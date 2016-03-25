@@ -18,6 +18,6 @@ but automated table creation currently does not work**
 How to use
 ==========
 * Run DataHub
-* Navigate to `apps\/refiner <http://localhost:8000/apps/refiner>`_
+* Navigate to `apps\/refiner <apps/refiner>`_
 * Select one of the example datasets
 * Click Refine

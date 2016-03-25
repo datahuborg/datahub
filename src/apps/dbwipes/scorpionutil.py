@@ -53,7 +53,6 @@ def scorpion_run(db, requestdata, requestid):
     x = qjson['x']
     ys = qjson['ys']
 
-    pdb.set_trace()
     obj = SharedObj(db, dbname=dbname, parsed=parsed, params=params)
     obj.dbname = dbname
     obj.C = 0.2

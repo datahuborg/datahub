@@ -26,3 +26,5 @@ ADD provisions/docker/test_container_fake_history /root/.bash_history
 # those changes.
 VOLUME /var/log/gunicorn
 VOLUME /static
+
+CMD ["/datahub/src/scripts/start-app.sh"]

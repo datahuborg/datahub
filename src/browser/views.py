@@ -24,7 +24,7 @@ from core.db.manager import DataHubManager
 from datahub import DataHub
 from datahub.account import AccountService
 from service.handler import DataHubHandler
-from utils import (get_or_post)
+from utils import post_or_get
 
 '''
 @author: Anant Bhardwaj
@@ -173,6 +173,7 @@ def user(request, repo_base=None):
 
     for repo in repos:
         collaborators = manager.list_collaborators(repo)
+        collaborators = [c.get('username') for c in collaborators]
         collaborators = filter(
             lambda x: x != '' and x != repo_base, collaborators)
 
@@ -318,6 +319,7 @@ def repo_settings(request, repo_base, repo):
     collaborators = manager.list_collaborators(repo)
 
     # remove the current user from the collaborator list
+    collaborators = [c.get('username') for c in collaborators]
     collaborators = filter(lambda x: x != '' and x !=
                            username, collaborators)
 
@@ -369,7 +371,7 @@ def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
 
 
 '''
-Tables
+Tables & Views
 '''
 
 
@@ -443,6 +445,23 @@ def table_delete(request, repo_base, repo, table_name):
     username = request.user.get_username()
     manager = DataHubManager(user=username, repo_base=repo_base)
     manager.delete_table(repo, table_name)
+
+    return HttpResponseRedirect(
+        reverse('browser-repo_tables', args=(repo_base, repo)))
+
+
+@login_required
+def view_delete(request, repo_base, repo, view_name):
+    """
+    Deletes the given view.
+
+    Does not currently allow the user the option to cascade in the case of
+    dependencies, though the delete_table method does allow cascade (force) to
+    be passed.
+    """
+    username = request.user.get_username()
+    manager = DataHubManager(user=username, repo_base=repo_base)
+    manager.delete_view(repo, view_name)
 
     return HttpResponseRedirect(
         reverse('browser-repo_tables', args=(repo_base, repo)))
@@ -521,7 +540,7 @@ Query
 
 @login_required
 def query(request, repo_base, repo):
-    query = get_or_post(request, key='q', fallback=None)
+    query = post_or_get(request, key='q', fallback=None)
     username = request.user.get_username()
 
     # if the user is just requesting the query page
@@ -542,6 +561,8 @@ def query(request, repo_base, repo):
     url_path = reverse('browser-query', args=(repo_base, repo))
 
     manager = DataHubManager(user=username, repo_base=repo_base)
+    if repo:
+        manager.set_search_paths([repo])
     res = manager.paginate_query(
         query=query, current_page=current_page, rows_per_page=50)
 
@@ -757,7 +778,7 @@ def app_allow_access(request, app_id, repo_name):
 
         app = App.objects.get(app_id=app_id)
 
-        redirect_url = get_or_post(request, key='redirect_url', fallback=None)
+        redirect_url = post_or_get(request, key='redirect_url', fallback=None)
 
         if request.method == "POST":
 

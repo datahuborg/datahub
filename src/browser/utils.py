@@ -1,11 +1,11 @@
 import hashlib
 import re
-import smtplib
 
 from Crypto.Cipher import AES
 from Crypto import Random
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+
+import urllib
+import urlparse
 
 
 kKey = 'datahub'
@@ -62,10 +62,24 @@ def rename_duplicates(columns):
     return new_columns
 
 
-def get_or_post(request, key, fallback=None):
+def post_or_get(request, key, fallback=None):
     """
     Returns request param from GET and POST if available, fallback otherwise.
 
     Precedence is POST, GET, then fallback if not found.
     """
     return request.POST.get(key, request.GET.get(key, fallback))
+
+
+def add_query_params_to_url(url, params):
+    """
+    Returns the given URL with the dictionary of params encoded and appended.
+
+    Works for URLs with or without query parameters.
+    """
+    parts = list(urlparse.urlparse(url))
+    query = dict(urlparse.parse_qsl(parts[4]))
+    query.update(params)
+    parts[4] = urllib.urlencode(query)
+
+    return urlparse.urlunparse(parts)

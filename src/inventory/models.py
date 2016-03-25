@@ -70,6 +70,7 @@ class App(models.Model):
 class Collaborator(models.Model):
     id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField(auto_now=True)
+    # user is the person permission is being granted to.
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
     app = models.ForeignKey('App', null=True)
     repo_name = models.TextField()

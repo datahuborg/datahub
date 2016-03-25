@@ -20,6 +20,16 @@ urlpatterns = patterns(
     url(r'^account/', include('account.urls')),
 
 
+    # OAuth Provider
+    url(r'^oauth2/', include('oauth2_provider.urls',
+        namespace='oauth2_provider')),
+
+    # API Pages
+    url(r'^api/', include('api.urls', namespace='api')),
+    url(r'^api-auth/', include('rest_framework.urls',
+        namespace='rest_framework')),
+    url(r'^api-docs/', include('rest_framework_swagger.urls')),
+
     # Thrift Services
     url(r'^service$', 'browser.views.service_core_binary',
         name='browser-thrift_service_binary'),
@@ -63,6 +73,8 @@ urlpatterns = patterns(
         name='browser-repo_delete'),
     url(r'^delete/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table_delete',
         name='browser-table_delete'),
+    url(r'^delete/(\w+)/(\w+)/view/(\w+)/?$', 'browser.views.view_delete',
+        name='browser-view_delete'),
     url(r'^delete/(\w+)/(\w+)/card/(\w+)/?$', 'browser.views.card_delete',
         name='browser-card_delete'),
     url(r'^delete/(\w+)/(\w+)/file/([ -~]+)/?$', 'browser.views.file_delete',
@@ -123,5 +135,6 @@ urlpatterns = patterns(
     url(r'^apps/viz/', include('viz2.urls', namespace='viz2')),
     url(r'^apps/sentiment/', include('sentiment.urls', namespace='sentiment')),
     url(r'^apps/dataq/', include('dataq.urls', namespace='dataq')),
-    url(r'^apps/datatables/', include('datatables.urls', namespace='datatables')),
+    url(r'^apps/datatables/', include('datatables.urls',
+        namespace='datatables')),
 )
