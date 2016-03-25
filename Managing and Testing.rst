@@ -132,6 +132,7 @@ Testing DataHub
 To run tests or use the python debugger, you will need to connect to the test container.
 
 .. code-block:: bash
+
     $ vagrant ssh
     $ sudo dh-run-test-container
 
