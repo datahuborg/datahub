@@ -1,8 +1,7 @@
 import re
 import psycopg2
-import inspect
+import core.db.query_rewriter
 from psycopg2.extensions import AsIs
-
 from config import settings
 
 '''
@@ -26,6 +25,8 @@ class PGBackend:
         self.host = host
         self.port = port
         self.repo_base = repo_base
+        self.query_rewriter = core.db.query_rewriter.SQLQueryRewriter(
+            self.user, self.repo_base)
 
         self.__open_connection__()
 
@@ -254,7 +255,7 @@ class PGBackend:
         query = 'SELECT * FROM %s;' % (dh_table_name)
         return query
 
-    def execute_sql(self, query, params=None):
+    def execute_sql(self, query, params=None, row_level_security=True):
         result = {
             'status': False,
             'row_count': 0,
@@ -264,7 +265,13 @@ class PGBackend:
 
         query = query.strip()
         cur = self.connection.cursor()
-        cur.execute(query, params)
+
+        # Change query into a default query.
+        SQLQuery = cur.mogrify(query, params)
+        if row_level_security:
+            SQLQuery = self.query_rewriter.apply_row_level_security(SQLQuery)
+
+        cur.execute(SQLQuery)
 
         # if cur.execute() failed, this will print it.
         try:
@@ -514,51 +521,73 @@ class PGBackend:
         return import_datafiles([file_path], create_new, table_name, errfile,
                                 PGMethods, **dbsettings)
 
-    def create_security_policy(self, policy, policy_type, grantee, grantor,
-            table, repo, repo_base):
-        '''
-        Creates a new security policy 
-        '''
+    def escape_quotes(self, parameter):
+        return parameter.replace("'", "''")
 
-        params = [policy, policy_type, grantee, grantor, table, repo, repo_base]
+    def create_security_policy(self, policy, policy_type, grantee, grantor,
+                               table, repo, repo_base):
+        '''
+        Creates a new security policy in the policy table if the policy
+        does not yet exist.
+        '''
+        params = [policy, policy_type, grantee, grantor,
+                  table, repo, repo_base]
+        params = [self.escape_quotes(param) for param in params]
         for param in params[2:]:
             self._check_for_injections(param)
 
-        security_policy = self.find_security_policy(table, repo, repo_base, policy=policy, grantee=grantee, grantor=grantor)
+        # Raise an exception if the security policy already exists in the table
+        security_policy = self.find_security_policy(
+            table, repo, repo_base, policy=policy, grantee=grantee,
+            grantor=grantor)
         if security_policy != []:
             raise Exception('Security policy already exists in table.')
 
         query = ('INSERT INTO policy (policy, policy_type, grantee, grantor,'
-            'table_name, repo, repo_base) values (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\')')
+                 'table_name, repo, repo_base) values '
+                 '(\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\')')
         params = tuple(map(lambda x: AsIs(x), params))
 
-        res = self.execute_sql(query, params)
+        res = self.execute_sql(query, params, row_level_security=False)
         return res['status']
 
     def list_security_policies(self, table, repo, repo_base):
+        '''
+        Return a list of all the security policies defined for the
+        specified table.
+        '''
         params = [table, repo, repo_base]
+        params = [self.escape_quotes(param) for param in params]
         for param in params:
             self._check_for_injections(param)
-        query = ('SELECT policy_id, policy, policy_type, grantee, grantor ' 
-                 'FROM policy '
-                 'WHERE table_name = \'%s\' AND repo = \'%s\' AND repo_base = \'%s\'')
-        params = tuple(map(lambda x: AsIs(x), params))
-
-        res = self.execute_sql(query, params)
-        return res['tuples']
-
-    def find_security_policy(self, table_name, repo, repo_base, policy_id = None, policy=None, policy_type=None, grantee=None, grantor=None):
-        params = locals()
-        del params["self"]
 
         query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
+                 'FROM policy '
+                 'WHERE table_name = \'%s\' '
+                 'AND repo = \'%s\' AND repo_base = \'%s\'')
+        params = tuple(map(lambda x: AsIs(x), params))
+
+        res = self.execute_sql(query, params, row_level_security=False)
+        return res['tuples']
+
+    def find_security_policy(self, table_name, repo, repo_base,
+                             policy_id=None, policy=None, policy_type=None,
+                             grantee=None, grantor=None):
+        '''
+        Returns a list of all security polices that match the inputs specied
+        by the user.
+        '''
+        params = locals()
+        del params["self"]
+        query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
                  'FROM policy WHERE ')
-        
+
         first_conditional_added = False
         for key, value in params.items():
-            if value == None:
+            if value is None:
                 del params[key]
                 continue
+            value = self.escape_quotes(value)
             if key != 'policy':
                 self._check_for_injections(str(value))
 
@@ -568,41 +597,54 @@ class PGBackend:
             else:
                 query += ' AND %s = \'%s\'' % (key, value)
 
-        res = self.execute_sql(query)
+        res = self.execute_sql(query, row_level_security=False)
         return res['tuples']
 
     def find_security_policy_by_id(self, policy_id):
+        '''
+        Returns the security policy that has a policy_id matching the input
+        specified by the user.
+        '''
         self._check_for_injections(str(policy_id))
         query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
                  'FROM policy WHERE policy_id = %s' % policy_id)
         res = self.execute_sql(query)
         return res['tuples']
 
-    def update_security_policy(self, policy_id, new_policy, new_policy_type, new_grantee, new_grantor):
-        params = [new_policy, new_policy_type, new_grantee, new_grantor, policy_id]
+    def update_security_policy(self, policy_id, new_policy, new_policy_type,
+                               new_grantee, new_grantor):
+        '''
+        Updates an existing secutity policy based on the inputs specified
+        by the user.
+        '''
+        params = [new_policy, new_policy_type, new_grantee,
+                  new_grantor, policy_id]
         for param in params[1:]:
             self._check_for_injections(str(param))
 
         security_policy = self.find_security_policy_by_id(policy_id)
         if security_policy == []:
-            raise LookupError('Policy_ID %s does not exist for table %s and repo %s.' % (policy_id, table, repo))
-        
+            raise LookupError('Policy_ID %s does not exist.' % policy_id)
+
         query = ('UPDATE \"policy\"'
-                 'SET policy = \'%s\', policy_type = \'%s\', grantee = \'%s\', grantor = \'%s\''
+                 'SET policy = \'%s\', policy_type = \'%s\', '
+                 'grantee = \'%s\', grantor = \'%s\''
                  'WHERE policy_id = %s')
-        
+
         params = tuple(map(lambda x: AsIs(x), params))
-        
-        res = self.execute_sql(query, params)
+        res = self.execute_sql(query, params, row_level_security=False)
         return res['status']
 
     def remove_security_policy(self, policy_id):
+        '''
+        Removes the security policy from the policy table with a policy_id
+        matching the one specified by the user.
+        '''
         self._check_for_injections(str(policy_id))
         security_policy = self.find_security_policy_by_id(policy_id)
         if security_policy == []:
             raise LookupError('Policy_ID %s does not exist.' % (policy_id))
 
         query = ('DELETE FROM policy WHERE policy_id = %s' % policy_id)
-        res = self.execute_sql(query)
+        res = self.execute_sql(query, row_level_security=False)
         return res['status']
-        

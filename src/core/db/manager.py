@@ -89,6 +89,7 @@ class DataHubManager:
         return self.user_con.explain_query(query)
 
     def execute_sql(self, query, params=None):
+        print query
         return self.user_con.execute_sql(query=query, params=params)
 
     def add_collaborator(self, repo, collaborator, privileges):

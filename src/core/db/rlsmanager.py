@@ -1,7 +1,7 @@
 from config import settings
-from core.db.connection import DataHubConnection
 from django.contrib.auth.models import User
 import os
+import core.db.connection
 
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
@@ -16,59 +16,54 @@ class RowLevelSecurityManager:
         self.repo = repo
         self.table = table
 
-        self.user_con = DataHubConnection(
+        self.user_con = core.db.connection.DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
             repo_base='datahub')
 
-    '''
-    Policy Table Schema:
-        id
-        policy
-        policy_type
-        grantee
-        grantor
-        table_name
-        repo
-        repo_base
-    '''
-
     def add_security_policy(self, policy, policy_type, grantee):
         '''
-        creates a new security policy. check whether this policy exists in the
-        table. If so, return an error, otherwise, create the policy in the
-        policy table.
+        Creates a new security policy in the policy table. First, we check
+        whether this policy exists in the table. If so, return an error.
+        Otherwise, create the policy.
         '''
-        return self.user_con.create_security_policy(policy, policy_type, grantee, self.username,
-            self.table, self.repo, self.repo_base)
-    
+        return self.user_con.create_security_policy(
+            policy, policy_type, grantee, self.username, self.table,
+            self.repo, self.repo_base)
+
     def list_security_policies(self):
         '''
-        returns a list of all the security policies defined on the table
+        Returns a list of all the security policies defined on the table.
         '''
-        return self.user_con.list_security_policies(self.table, self.repo, self.repo_base)
+        return self.user_con.list_security_policies(
+            self.table, self.repo, self.repo_base)
 
-    def find_security_policy(self, policy_id=None, policy=None, policy_type=None, grantee=None, grantor=None):
+    def find_security_policy(self, policy_id=None, policy=None,
+                             policy_type=None, grantee=None, grantor=None):
         '''
-        Looks for security policies matching what the user specified. 
+        Looks for security policies matching what the user specified in
+        the input.
         '''
-        return self.user_con.find_security_policy(self.table, self.repo, self.repo_base, policy_id, policy, policy_type, grantee, grantor)
+        return self.user_con.find_security_policy(
+            self.table, self.repo, self.repo_base, policy_id, policy,
+            policy_type, grantee, grantor)
 
     def find_security_policy_by_id(self, policy_id):
         '''
-        Looks for a security policy matching the specified policy_id. 
+        Looks for a security policy matching the specified policy_id.
         '''
         return self.user_con.find_security_policy_by_id(policy_id)
 
-    def update_security_policy(self, policy_id, new_policy, new_policy_type, new_grantee):
+    def update_security_policy(self, policy_id, new_policy, new_policy_type,
+                               new_grantee):
         '''
-        update an existing security policy
+        Updates the existing security policy with the specified inputs.
         '''
-        return self.user_con.update_security_policy(policy_id, new_policy, new_policy_type, new_grantee, self.username)
+        return self.user_con.update_security_policy(
+            policy_id, new_policy, new_policy_type, new_grantee, self.username)
 
     def remove_security_policy(self, policy_id):
         '''
-        remove an existing security policy
+        Removes the security policy specified by the policy_id.
         '''
         return self.user_con.remove_security_policy(policy_id)
-   
