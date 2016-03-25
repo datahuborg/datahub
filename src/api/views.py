@@ -590,7 +590,8 @@ class Query(APIView):
     manage queries
     """
 
-    renderer_classes = list(api_settings.DEFAULT_RENDERER_CLASSES) + [CSVRenderer]
+    renderer_classes = (api_settings.DEFAULT_RENDERER_CLASSES +
+                        [CSVRenderer])
 
     def post(self, request, repo_base, repo_name=None, format=None):
         """

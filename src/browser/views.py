@@ -449,6 +449,7 @@ def table_delete(request, repo_base, repo, table_name):
     return HttpResponseRedirect(
         reverse('browser-repo_tables', args=(repo_base, repo)))
 
+
 @login_required
 def view_delete(request, repo_base, repo, view_name):
     """
