@@ -371,7 +371,7 @@ def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
 
 
 '''
-Tables
+Tables & Views
 '''
 
 
@@ -445,6 +445,23 @@ def table_delete(request, repo_base, repo, table_name):
     username = request.user.get_username()
     manager = DataHubManager(user=username, repo_base=repo_base)
     manager.delete_table(repo, table_name)
+
+    return HttpResponseRedirect(
+        reverse('browser-repo_tables', args=(repo_base, repo)))
+
+
+@login_required
+def view_delete(request, repo_base, repo, view_name):
+    """
+    Deletes the given view.
+
+    Does not currently allow the user the option to cascade in the case of
+    dependencies, though the delete_table method does allow cascade (force) to
+    be passed.
+    """
+    username = request.user.get_username()
+    manager = DataHubManager(user=username, repo_base=repo_base)
+    manager.delete_view(repo, view_name)
 
     return HttpResponseRedirect(
         reverse('browser-repo_tables', args=(repo_base, repo)))

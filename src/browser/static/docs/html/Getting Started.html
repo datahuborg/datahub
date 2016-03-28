@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="DH_Doc 0.1 documentation" href="index.html" />
-    <link rel="next" title="Client API" href="Client API.html" />
+    <link rel="next" title="Managing and Testing" href="Managing and Testing.html" />
     <link rel="prev" title="Welcome to DataHub’s documentation!" href="index.html" />
    
   
@@ -53,7 +53,7 @@
 </li>
 <li><dl class="first docutils">
 <dt>Clone DataHub:</dt>
-<dd><div class="first last highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>git clone https://github.com/datahuborg/datahub.git
+<dd><div class="first last highlight-bash"><div class="highlight"><pre><span></span>$ git clone https://github.com/datahuborg/datahub.git
 </pre></div>
 </div>
 </dd>
@@ -61,7 +61,7 @@
 </li>
 <li><dl class="first docutils">
 <dt>Add this line to your hosts file (/etc/hosts on most systems):</dt>
-<dd><div class="first last highlight-bash"><div class="highlight"><pre>192.168.50.4    datahub-local.mit.edu
+<dd><div class="first last highlight-bash"><div class="highlight"><pre><span></span>192.168.50.4    datahub-local.mit.edu
 </pre></div>
 </div>
 </dd>
@@ -69,7 +69,7 @@
 </li>
 <li><dl class="first docutils">
 <dt>From your clone, start the VM:</dt>
-<dd><div class="first last highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>vagrant up
+<dd><div class="first last highlight-bash"><div class="highlight"><pre><span></span>$ vagrant up
 </pre></div>
 </div>
 </dd>
@@ -78,6 +78,7 @@
 </ol>
 <p>This last step might take several minutes depending on your connection and computer.</p>
 <p>Once <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code> finishes, you can see your environment running at <a class="reference external" href="http://datahub-local.mit.edu">http://datahub-local.mit.edu</a>.</p>
+<p>If you see a <code class="docutils literal"><span class="pre">Datahub</span> <span class="pre">module</span> <span class="pre">not</span> <span class="pre">found</span></code> error, this is due to an unresolved issue with thrift code not compiling only after the first <code class="docutils literal"><span class="pre">vagrant</span> <span class="pre">up</span></code>. Please see this thread for a resolution: <a class="reference external" href="https://github.com/datahuborg/datahub/issues/119">https://github.com/datahuborg/datahub/issues/119</a>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Vagrant keeps your working copy and the VM in sync, so edits you make to DataHub&#8217;s code will be reflected on datahub-local.mit.edu. Changes to static files like CSS, JS, and documentation must be collected before the server will notice them. For more information, see management commands below.</p>
@@ -88,7 +89,7 @@
 <ol class="arabic">
 <li><dl class="first docutils">
 <dt>Edit the Vagrantfile to expose ports 80 and/or 443 on usable ports.</dt>
-<dd><div class="first last highlight-ruby"><div class="highlight"><pre><span class="no">Vagrant</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="no">VAGRANTFILE_API_VERSION</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
+<dd><div class="first last highlight-ruby"><div class="highlight"><pre><span></span><span class="no">Vagrant</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="no">VAGRANTFILE_API_VERSION</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
   <span class="o">...</span>
   <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">network</span> <span class="s2">&quot;forwarded_port&quot;</span><span class="p">,</span> <span class="ss">guest</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span> <span class="ss">host</span><span class="p">:</span> <span class="mi">18080</span>
   <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">network</span> <span class="s2">&quot;forwarded_port&quot;</span><span class="p">,</span> <span class="ss">guest</span><span class="p">:</span> <span class="mi">443</span><span class="p">,</span> <span class="ss">host</span><span class="p">:</span> <span class="mi">18081</span>
@@ -100,7 +101,7 @@
 </li>
 <li><dl class="first docutils">
 <dt>Edit the nginx configuration file at provisions/nginx/default.conf to make the reverse proxy aware of what the new ports are.</dt>
-<dd><div class="first last highlight-nginx"><div class="highlight"><pre># Uncomment and customize:
+<dd><div class="first last highlight-nginx"><div class="highlight"><pre><span></span># Uncomment and customize:
 map $scheme $port_to_forward {
     default 18080;
     https   18081;
@@ -121,7 +122,7 @@ location / {
 </li>
 <li><dl class="first docutils">
 <dt>Edit the Django settings file at src/config/settings.py to make Django look for those headers.</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="c"># Uncomment and set to True:</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Uncomment and set to True:</span>
 <span class="n">USE_X_FORWARDED_HOST</span> <span class="o">=</span> <span class="bp">True</span>
 </pre></div>
 </div>
@@ -133,17 +134,17 @@ location / {
 </li>
 <li><dl class="first docutils">
 <dt>Inside the VM, run:</dt>
-<dd><div class="first last highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd</span> /vagrant
-<span class="nv">$ </span>sudo sh provisions/docker/build-images.sh
-<span class="nv">$ </span>sudo docker rm -f web
-<span class="nv">$ </span>sudo docker create --name web <span class="se">\</span>
+<dd><div class="first last highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> /vagrant
+$ sudo sh provisions/docker/build-images.sh
+$ sudo docker rm -f web
+$ sudo docker create --name web <span class="se">\</span>
        --volumes-from logs <span class="se">\</span>
        --volumes-from app <span class="se">\</span>
        -v /ssl/:/etc/nginx/ssl/ <span class="se">\</span>
        --link app:app <span class="se">\</span>
        -p 80:80 -p 443:443 <span class="se">\</span>
        datahuborg/nginx
-<span class="nv">$ </span>sudo docker start web
+$ sudo docker start web
 </pre></div>
 </div>
 </dd>
@@ -155,7 +156,8 @@ location / {
 </div>
 <div class="section" id="manual-installation">
 <h2>Manual Installation<a class="headerlink" href="#manual-installation" title="Permalink to this headline">¶</a></h2>
-<p>Follow these steps if you would prefer to forgo Vagrant and install DataHub locally.</p>
+<p>Follow these steps if you would prefer to forgo Vagrant and install DataHub locally.
+Please note that other sections of the documentation assume that you are using the Vagrant (quickstart) setup.</p>
 <div class="section" id="clone-the-repo">
 <h3>Clone the repo<a class="headerlink" href="#clone-the-repo" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
@@ -238,163 +240,17 @@ to <code class="docutils literal"><span class="pre">source</span> <span class="p
 <h2>Building the Documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this headline">¶</a></h2>
 <p>DataHub uses <a class="reference external" href="http://sphinx-doc.org">Sphinx</a> to build its documentation.</p>
 <p>Using the default Vagrant setup:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>vagrant ssh
-<span class="nv">$ </span><span class="nb">cd</span> /vagrant
-<span class="nv">$ </span>sudo sh /provisions/docker/rebuild-and-collect-static-files.sh
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ vagrant ssh
+$ sudo su
+$ dh-rebuild-and-collect-static-files
 </pre></div>
 </div>
 <p>Using a local installation of Sphinx (Sphinx is included in <code class="docutils literal"><span class="pre">requirements.txt</span></code>):</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd</span> /path/to/datahub
-<span class="nv">$ </span>make html
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> /path/to/datahub
+$ make html
 </pre></div>
 </div>
 <p>When submitting a pull request, you must include Sphinx documentation. You can achieve this by adding <code class="docutils literal"><span class="pre">*.rst</span></code> and linking them from other <code class="docutils literal"><span class="pre">*.rst</span></code> files. See <a class="reference external" href="http://sphinx-doc.org/tutorial.html">the Sphinx tutorial</a> for more information.</p>
-</div>
-<div class="section" id="testing-datahub">
-<h2>Testing DataHub<a class="headerlink" href="#testing-datahub" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="functional-tests">
-<h3>Functional Tests<a class="headerlink" href="#functional-tests" title="Permalink to this headline">¶</a></h3>
-<p>DataHub uses Selenium and PhantomJS to test functionality from an end user&#8217;s perspective. Both are installed as part of DataHub&#8217;s Vagrant setup.</p>
-<p>You can run the functional tests with:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>vagrant ssh
-<span class="nv">$ </span><span class="nb">cd</span> /vagrant
-<span class="nv">$ </span>sudo sh provisions/docker/run-tests.sh
-<span class="nv">$ </span><span class="nb">cd </span>src
-<span class="nv">$ </span>python manage.py <span class="nb">test </span>functional_tests
-</pre></div>
-</div>
-<p>Browser screenshots are saved in <code class="docutils literal"><span class="pre">src/functional_tests/screenshots</span></code> on teardown</p>
-<p>You can exit the testing container with control-d or via the command <code class="docutils literal"><span class="pre">exit</span></code>.</p>
-</div>
-<div class="section" id="unit-tests">
-<h3>Unit Tests<a class="headerlink" href="#unit-tests" title="Permalink to this headline">¶</a></h3>
-<p>Unit tests are used to test DataHub&#8217;s models and views.</p>
-<p>Run them from the <code class="docutils literal"><span class="pre">/src</span></code> directory:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>vagrant ssh
-<span class="nv">$ </span><span class="nb">cd</span> /vagrant
-<span class="nv">$ </span>sudo sh provisions/docker/run-tests.sh
-<span class="nv">$ </span><span class="nb">cd </span>src
-<span class="nv">$ </span>python manage.py <span class="nb">test</span>
-</pre></div>
-</div>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>vagrant ssh
-<span class="nv">$ </span><span class="nb">cd</span> /vagrant
-<span class="nv">$ </span>sudo sh provisions/docker/run-tests.sh
-<span class="nv">$ </span><span class="nb">cd </span>src
-<span class="nv">$ </span>python manage.py <span class="nb">test </span>inventory  <span class="c"># tests models</span>
-<span class="nv">$ </span>python manage.py <span class="nb">test </span>www        <span class="c"># tests home page</span>
-<span class="nv">$ </span>python manage.py <span class="nb">test </span>account    <span class="c"># tests account management views</span>
-<span class="nv">$ </span>python manage.py <span class="nb">test </span>core       <span class="c"># tests datahub core database access</span>
-<span class="nv">$ </span>python manage.py <span class="nb">test </span>browser    <span class="c"># tests datahub core views</span>
-</pre></div>
-</div>
-<p>You can exit the testing container with control-d or via the command <code class="docutils literal"><span class="pre">exit</span></code>.</p>
-</div>
-</div>
-<div class="section" id="managing-datahub">
-<h2>Managing DataHub<a class="headerlink" href="#managing-datahub" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="basic-vagrant-commands">
-<h3>Basic Vagrant Commands<a class="headerlink" href="#basic-vagrant-commands" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd</span> /path/to/datahub
-
-<span class="c"># Start the VM, creating one if it doesn&#39;t exist</span>
-<span class="nv">$ </span>vagrant up
-
-<span class="c"># Stop the VM</span>
-<span class="nv">$ </span>vagrant halt
-
-<span class="c"># Delete the VM completely</span>
-<span class="nv">$ </span>vagrant destroy
-
-<span class="c"># Get a shell in the VM</span>
-<span class="nv">$ </span>vagrant ssh
-</pre></div>
-</div>
-</div>
-<div class="section" id="basic-docker-commands">
-<h3>Basic Docker Commands<a class="headerlink" href="#basic-docker-commands" title="Permalink to this headline">¶</a></h3>
-<p>The above Vagrant commands are sufficient for running DataHub, but if you need to troubleshoot or develop with DataHub, you will want to learn about Docker. Docker isolates processes and their dependencies by containerizing parts of a system into lightweight VMs.</p>
-<p>Docker can be a little odd to work with at first. Below are some common Docker commands. For Docker tutorials and documentation, see <a class="reference external" href="https://docs.docker.com/engine/userguide/">https://docs.docker.com/engine/userguide/</a>.</p>
-<p>DataHub is composed of 3 process containers and 2 data containers.</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">web</span></code> runs nginx, a reverse proxy. It listens on ports 80 and 443, serves static content, and proxies dynamic requests to the app container.</li>
-<li><code class="docutils literal"><span class="pre">app</span></code> runs gunicorn, a wsgi Python server. It listens on port 8000, but only to requests from other containers. app is where DataHub&#8217;s code lives.</li>
-<li><code class="docutils literal"><span class="pre">db</span></code> runs a Postgres server. It listens on port 5432, but only to connections from other containers.</li>
-<li><code class="docutils literal"><span class="pre">data</span></code> holds user uploads and the Postgres data.</li>
-<li><code class="docutils literal"><span class="pre">logs</span></code> holds log files for the web, app, and db containers.</li>
-</ul>
-<p>After sshing into Vagrant:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># List all Docker containers and their statuses</span>
-<span class="nv">$ </span>sudo docker ps -a
-CONTAINER ID        IMAGE                 COMMAND                  CREATED             STATUS              PORTS                                      NAMES
-886051b04caf        datahuborg/nginx      <span class="s2">&quot;nginx -g &#39;daemon off&quot;</span>   <span class="m">22</span> seconds ago      Up <span class="m">3</span> seconds        0.0.0.0:80-&gt;80/tcp, 0.0.0.0:443-&gt;443/tcp   web
-fcff60382ffd        datahuborg/datahub    <span class="s2">&quot;gunicorn --config=pr&quot;</span>   <span class="m">22</span> seconds ago      Up <span class="m">3</span> seconds        8000/tcp                                   app
-03f076daa71e        datahuborg/postgres   <span class="s2">&quot;/docker-entrypoint.s&quot;</span>   <span class="m">22</span> seconds ago      Up <span class="m">14</span> seconds       5432/tcp                                   db
-78d6af962797        datahuborg/postgres   <span class="s2">&quot;/bin/true&quot;</span>              <span class="m">22</span> seconds ago      Created                                                        data
-e41f0f5135db        datahuborg/postgres   <span class="s2">&quot;/bin/true&quot;</span>              <span class="m">22</span> seconds ago      Created                                                        logs
-
-<span class="c"># Container lifecycle</span>
-<span class="nv">$ </span>sudo docker start app
-<span class="nv">$ </span>sudo docker stop app
-<span class="nv">$ </span>sudo docker restart app
-
-<span class="c"># Diagnosing a container</span>
-<span class="nv">$ </span>sudo docker logs app
-</pre></div>
-</div>
-<p>Because the server is containerized, most server commands must be run in a container. Docker commands can be complicated, so several common tasks have been made into scripts under <code class="docutils literal"><span class="pre">provisions/docker</span></code>:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd</span> /vagrant
-<span class="nv">$ </span>sudo sh provisions/docker/back-up-database.sh
-<span class="nv">$ </span>sudo sh provisions/docker/create-dev-containers.sh
-<span class="nv">$ </span>sudo sh provisions/docker/rebuild-and-collect-static-files.sh
-<span class="nv">$ </span>sudo sh provisions/docker/restore-database.sh
-<span class="nv">$ </span>sudo sh provisions/docker/run-test-container.sh
-<span class="nv">$ </span>sudo sh provisions/docker/start-containers.sh
-<span class="nv">$ </span>sudo sh provisions/docker/stop-containers.sh
-</pre></div>
-</div>
-<p>Example Docker commands:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># View nginx&#39;s access logs</span>
-<span class="nv">$ </span>sudo docker run --rm <span class="se">\</span>
-  --volumes-from logs <span class="se">\</span>
-  datahuborg/postgres <span class="se">\</span>
-  cat /var/log/nginx/access.log
-
-<span class="c"># Run Django migrations</span>
-<span class="nv">$ </span>sudo docker run --rm <span class="se">\</span>
-  --link db:db <span class="se">\</span>
-  datahuborg/datahub <span class="se">\</span>
-  python src/manage.py migrate --noinput
-
-<span class="c"># Collect changes to Django&#39;s static files so the web container</span>
-<span class="c"># can see them.</span>
-<span class="nv">$ </span>sudo docker run --rm <span class="se">\</span>
-  --volumes-from app <span class="se">\</span>
-  datahuborg/datahub <span class="se">\</span>
-  python src/manage.py collectstatic --noinput
-
-<span class="c"># Pip install -r requirements.txt</span>
-<span class="nv">$ </span>sudo docker <span class="nb">exec </span>app pip install -r requirements.txt
-
-<span class="c"># Note that `--rm` means it creates an ephemeral container. A new</span>
-<span class="c"># lightweight VM is created just for that command, and is then</span>
-<span class="c"># deleted as soon as it exits. That is useful for a number of</span>
-<span class="c"># reasons, but it also means exiting the container may take a few</span>
-<span class="c"># seconds as Docker deletes the container.</span>
-
-<span class="c"># It is possible to execute commands inside of running containers</span>
-<span class="c"># instead of creating ephemeral containers which share volumes,</span>
-<span class="c"># but it is not recommended as you can change the expected state</span>
-<span class="c"># of a container.</span>
-<span class="c">#</span>
-<span class="c"># Get a shell in an active container:</span>
-<span class="nv">$ </span>sudo docker <span class="nb">exec</span> -ti app /bin/bash
-
-<span class="c"># See Docker&#39;s builtin help</span>
-<span class="nv">$ </span>docker <span class="nb">help</span>
-</pre></div>
-</div>
-</div>
 </div>
 </div>
 
@@ -423,16 +279,6 @@ e41f0f5135db        datahuborg/postgres   <span class="s2">&quot;/bin/true&quot;
 </ul>
 </li>
 <li><a class="reference internal" href="#building-the-documentation">Building the Documentation</a></li>
-<li><a class="reference internal" href="#testing-datahub">Testing DataHub</a><ul>
-<li><a class="reference internal" href="#functional-tests">Functional Tests</a></li>
-<li><a class="reference internal" href="#unit-tests">Unit Tests</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#managing-datahub">Managing DataHub</a><ul>
-<li><a class="reference internal" href="#basic-vagrant-commands">Basic Vagrant Commands</a></li>
-<li><a class="reference internal" href="#basic-docker-commands">Basic Docker Commands</a></li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
@@ -441,7 +287,7 @@ e41f0f5135db        datahuborg/postgres   <span class="s2">&quot;/bin/true&quot;
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="index.html" title="previous chapter">Welcome to DataHub&#8217;s documentation!</a></li>
-      <li>Next: <a href="Client API.html" title="next chapter">Client API</a></li>
+      <li>Next: <a href="Managing and Testing.html" title="next chapter">Managing and Testing</a></li>
   </ul></li>
 </ul>
 </div>

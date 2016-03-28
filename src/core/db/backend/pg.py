@@ -1,12 +1,14 @@
 import re
+from collections import namedtuple
 import psycopg2
 from psycopg2.extensions import AsIs
+from psycopg2.pool import ThreadedConnectionPool
 
 from config import settings
 
-'''
+"""
 DataHub internal APIs for postgres repo_base
-'''
+"""
 HOST = settings.DATABASES['default']['HOST']
 PORT = 5432
 
@@ -15,6 +17,39 @@ if settings.DATABASES['default']['PORT'] != '':
         PORT = int(settings.DATABASES['default']['PORT'])
     except:
         pass
+
+# Maintain a separate db connection pool for each (user, password, database)
+# tuple.
+connection_pools = {}
+PoolKey = namedtuple('PoolKey', 'user, password, repo_base')
+
+
+def _pool_for_credentials(user, password, repo_base, create_if_missing=True):
+    pool_key = PoolKey(user, password, repo_base)
+    # Create a new pool if one doesn't exist or if the existing one has been
+    # closed. Normally a pool should only be closed during testing, to force
+    # all hanging connections to a database to be closed.
+    if pool_key not in connection_pools or connection_pools[pool_key].closed:
+        if create_if_missing is False:
+            return None
+        # Maintains at least 1 connection.
+        # Throws "PoolError: connection pool exausted" if a thread tries
+        # holding onto than 10 connections to a single database.
+        connection_pools[pool_key] = ThreadedConnectionPool(
+            1,
+            10,
+            user=user,
+            password=password,
+            host=HOST,
+            port=PORT,
+            database=repo_base)
+    return connection_pools[pool_key]
+
+
+def _close_all_connections(repo_base):
+    for key, pool in connection_pools.iteritems():
+        if repo_base == key.repo_base and not pool.closed:
+            pool.closeall()
 
 
 class PGBackend:
@@ -25,17 +60,16 @@ class PGBackend:
         self.host = host
         self.port = port
         self.repo_base = repo_base
+        self.connection = None
 
         self.__open_connection__()
 
-    def __open_connection__(self):
-        self.connection = psycopg2.connect(
-            user=self.user,
-            password=self.password,
-            host=self.host,
-            port=self.port,
-            database=self.repo_base)
+    def __del__(self):
+        self.close_connection()
 
+    def __open_connection__(self):
+        pool = _pool_for_credentials(self.user, self.password, self.repo_base)
+        self.connection = pool.getconn()
         self.connection.set_isolation_level(
             psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
@@ -57,7 +91,11 @@ class PGBackend:
         return res
 
     def close_connection(self):
-        self.connection.close()
+        pool = _pool_for_credentials(self.user, self.password, self.repo_base,
+                                     create_if_missing=False)
+        if self.connection and pool and not pool.closed:
+            pool.putconn(self.connection)
+            self.connection = None
 
     def _check_for_injections(self, noun):
         """
@@ -80,7 +118,7 @@ class PGBackend:
             raise ValueError(invalid_noun_msg)
 
     def create_repo(self, repo):
-        ''' creates a postgres schema for the user.'''
+        """Creates a postgres schema for the user."""
         self._check_for_injections(repo)
 
         query = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'
@@ -107,7 +145,7 @@ class PGBackend:
         return res['status']
 
     def delete_repo(self, repo, force=False):
-        ''' deletes a repo and the folder the user's repo files are in. '''
+        """Deletes a repo and the folder the user's repo files are in."""
         self._check_for_injections(repo)
 
         # drop the schema
@@ -305,11 +343,10 @@ class PGBackend:
         return res['tuples']
 
     def explain_query(self, query):
-        '''
+        """
         returns the number of rows, the cost (in time) to execute,
         and the width (bytes) of rows outputted
-        '''
-
+        """
         # if it's a select query, return a different set of defaults
         select_query = bool((query.split()[0]).lower() == 'select')
 
@@ -451,7 +488,7 @@ class PGBackend:
     def list_all_databases(self):
         query = ('SELECT datname FROM pg_database where datname NOT IN '
                  ' (%s, \'template1\', \'template0\', '
-                 ' \'datahub\', \'postgres\');'
+                 ' \'datahub\', \'test_datahub\', \'postgres\');'
                  )
         params = (self.user, )
         res = self.execute_sql(query, params)
@@ -474,6 +511,10 @@ class PGBackend:
                 query = "REVOKE ALL ON DATABASE %s FROM %s;"
                 params = (AsIs(database), AsIs(user))
                 self.execute_sql(query, params)
+
+        # Make sure to close all extant connections to this database or the
+        # drop will fail.
+        _close_all_connections(database)
 
         # drop database
         query = 'DROP DATABASE %s;'
@@ -530,20 +571,20 @@ class PGBackend:
         return collaborators
 
     def has_base_privilege(self, login, privilege):
-        '''
+        """
         returns True or False for whether the user has privileges for the
         repo_base (database)
-        '''
+        """
         query = 'SELECT has_database_privilege(%s, %s);'
         params = (login, privilege)
         res = self.execute_sql(query, params)
         return res['tuples'][0][0]
 
     def has_repo_privilege(self, login, repo, privilege):
-        '''
+        """
         returns True or False for whether the use has privileges for the
         repo (schema)
-        '''
+        """
         query = 'SELECT has_schema_privilege(%s, %s, %s);'
         params = (login, repo, privilege)
         res = self.execute_sql(query, params)

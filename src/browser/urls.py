@@ -73,6 +73,8 @@ urlpatterns = patterns(
         name='browser-repo_delete'),
     url(r'^delete/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table_delete',
         name='browser-table_delete'),
+    url(r'^delete/(\w+)/(\w+)/view/(\w+)/?$', 'browser.views.view_delete',
+        name='browser-view_delete'),
     url(r'^delete/(\w+)/(\w+)/card/(\w+)/?$', 'browser.views.card_delete',
         name='browser-card_delete'),
     url(r'^delete/(\w+)/(\w+)/file/([ -~]+)/?$', 'browser.views.file_delete',
