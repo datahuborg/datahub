@@ -18,7 +18,9 @@ Contents:
    :maxdepth: 2
 
    Getting Started
-   Client API
+   Managing and Testing
+   REST Client API
+   Thrift Client API (deprecated)
    Core Apps
    Core URLs
 

@@ -1,39 +1,39 @@
 sudo: true
+# thrift-compiler is only available for trusty, not precise
+# Once Travis containers run trusty, or we no longer need thrift-compiler, we can drop sudo: true.
+dist: trusty
 language: python
 python: "2.7"
 
+addons:
+  postgresql: "9.4"
+  apt:
+    packages:
+      - thrift-compiler
+
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install libboost-dev libboost-test-dev libboost-program-options-dev libboost-system-dev libboost-filesystem-dev libevent-dev automake libtool flex bison pkg-config g++ libssl-dev ant default-jdk
-  - travis_retry wget http://people.apache.org/~jfarrell/thrift/0.9.2/contrib/ubuntu/thrift-compiler_0.9.2_amd64.deb -O thrift-compiler.deb
-  - sudo dpkg -i thrift-compiler.deb
   - sudo mkdir /user_data
   - sudo chmod -R 777 /user_data/
-  - whoami
 
 install:
-  - thrift --version
   - source src/setup.sh
   - pip install -r requirements.txt
   - python src/scripts/generate_secret_key.py
   - cd src
 
-addons:
-  postgresql: "9.4"
-
-services:
-  - postgresql
 
 before_script:
   - psql -c "create database datahub;" -U postgres
 
 script: 
-  - python manage.py test inventory  # tests models
-  - python manage.py test www        # tests home page
-  - python manage.py test account    # tests account management views
-  - python manage.py test browser    # tests datahub core views
-  - python manage.py test core       # tests datahub core database access
-  - python manage.py test api        # test datahub api methods
+  - python manage.py test inventory www account browser core api
+  # tests models
+  # tests home page
+  # tests account management views
+  # tests datahub core views
+  # tests datahub core database access
+  # test datahub api methods
+
   # a DB problem requires the Functional Tests to be run seperately
   # - python manage.py test functional_tests.test_login_auth
   # - python manage.py test functional_tests.test_layout_and_styling

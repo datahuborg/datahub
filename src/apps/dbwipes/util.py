@@ -7,7 +7,6 @@ import time
 import json
 import decimal
 import md5
-import pdb
 import psycopg2
 import traceback
 
@@ -153,7 +152,6 @@ def create_sql_obj(db, qjson):
     agg = SelectAgg(y['alias'], d['func'], d['cols'], y['expr'], d['cols'][0])
     select.append(agg)
 
-  import pdb; pdb.set_trace()
   parsed = Query(
     db, 
     select, 

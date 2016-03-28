@@ -1,5 +1,5 @@
-Client API
-**********
+Thrift Client API (deprecated)
+******************************
 
 DataHub allows developers to connect client devices to datahub, create and 
 delete accounts, and manipulate data on a user's behalf.
@@ -16,9 +16,9 @@ DataHub API applications allow...
 
 For example, a user, ``grad_student`` has a datahub account. In this case, they want to authorize the ``living_lab`` app to view and edit data in their ``genome_data`` repository.
 
-**Navigate to** `developer/apps <http://localhost:8000/developer/apps>`__ **in your DataHub installation to create a new app.**
+**Navigate to** `developer/apps </developer/apps>`__ **in your DataHub installation to create a new app.**
 
-**End users must authorize your application by visiting**  `permissions/apps/allow_access/APP_ID/REPO_NAME <https://datahub.csail.mit.edu/permissions/apps/allow_access/APP_ID/REPO_NAME>`__ **in their browser**
+**End users must authorize your application by visiting**  `permissions/apps/allow_access/APP_ID/REPO_NAME </permissions/apps/allow_access/APP_ID/REPO_NAME>`__ **in their browser**
 
 *Note: Make sure not to commit the App Name or App ID in any public repositories!*
 

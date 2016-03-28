@@ -344,7 +344,8 @@ class FileSerializer(DataHubSerializer):
 class QuerySerializer(DataHubSerializer):
 
     def execute_query(self, query, current_page=1,
-                      rows_per_page=1000, repo=None):
+                      rows_per_page=1000, repo=None,
+                      rows_only=False):
         if repo:
             self.manager.set_search_paths([repo])
 
@@ -388,4 +389,12 @@ class QuerySerializer(DataHubSerializer):
                 "rows_per_page": rows_per_page}
             return_dict['previous_results_params'] = previous_params
 
+        if rows_only:
+            # Some formats, like CSV, don't have a place for metadata.
+            # Only return raw tabular data in those cases.
+            if select_query:
+                return return_dict['rows']
+            else:
+                return {}
+        # By default, return the query result plus metadata.
         return return_dict

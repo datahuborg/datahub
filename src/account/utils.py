@@ -167,6 +167,7 @@ def grant_app_permission(username, repo_name, app_id, app_token):
             repo_name,
             app_id,
             privileges=['SELECT', 'INSERT', 'UPDATE', 'DELETE'])
+        manager.close_connection()
     except Exception as e:
         raise e
 
