@@ -804,7 +804,7 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         self.assertEqual(self.mock_as_is.call_count, 0)
         self.assertEqual(res, True)
 
-    def test_has_repo_privilege(self):
+    def test_has_repo_db_privilege(self):
         query = 'SELECT has_schema_privilege(%s, %s, %s);'
         repo = 'repo'
         privilege = 'CONNECT'
@@ -812,7 +812,7 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         self.mock_execute_sql.return_value = {'status': True, 'row_count': -1,
                                               'tuples': [[True]], 'fields': []}
 
-        res = self.backend.has_repo_privilege(
+        res = self.backend.has_repo_db_privilege(
             login=self.username, repo=repo, privilege=privilege)
 
         self.assertEqual(

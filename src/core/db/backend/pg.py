@@ -592,7 +592,7 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['tuples'][0][0]
 
-    def has_repo_privilege(self, login, repo, privilege):
+    def has_repo_db_privilege(self, login, repo, privilege):
         """
         returns True or False for whether the use has privileges for the
         repo (schema)

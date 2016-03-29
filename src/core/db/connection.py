@@ -94,8 +94,8 @@ class DataHubConnection:
         return self.backend.has_base_privilege(
             login=login, privilege=privilege)
 
-    def has_repo_privilege(self, login, repo, privilege):
-        return self.backend.has_repo_privilege(
+    def has_repo_db_privilege(self, login, repo, privilege):
+        return self.backend.has_repo_db_privilege(
             login=login, repo=repo, privilege=privilege)
 
     def has_table_privilege(self, login, table, privilege):

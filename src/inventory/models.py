@@ -75,8 +75,8 @@ class Collaborator(models.Model):
     app = models.ForeignKey('App', null=True)
     repo_name = models.TextField()
     repo_base = models.TextField()
-    permission = models.TextField()
-    file_permission = models.TextField()
+    permission = models.TextField() # e.g. 'SELECT, UPDATE, INSERT'
+    file_permission = models.TextField() # e.g. 'read, write'
 
     def __unicode__(self):
         if self.user:

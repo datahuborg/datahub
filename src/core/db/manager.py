@@ -104,8 +104,22 @@ class DataHubManager:
 
         return success
 
-    def list_collaborator_repos(self):
-        user = User.objects.get(username=self.username)
+    def list_collaborator_repos(self, override_user=None):
+        """
+        Lists repositories that the current user has been granted permission
+        to access. If override_user is passed, logged in user is replaced with
+        override_user.
+
+        Note that this method relies on the Collaborators django model. If a
+        user bypasses DataHub's api, and grants permissions via the database,
+        collaborator repos will not show.
+        """
+        user = None
+        if override_user:
+            user = User.objects.get(username=override_user)
+        else:
+            user = User.objects.get(username=self.username)
+
         return Collaborator.objects.filter(user=user)
 
     def delete_repo(self, repo, force=False):
@@ -174,7 +188,7 @@ class DataHubManager:
         - db_privileges must be an array of file privileges.
           e.g. ['read', 'write']
         """
-        res = DataHubManager.has_repo_privilege(
+        res = DataHubManager.has_repo_db_privilege(
             self.username, self.repo_base, repo, 'USAGE')
         if not res:
             raise PermissionDenied(
@@ -236,7 +250,7 @@ class DataHubManager:
 
     def list_repo_files(self, repo):
         # check for permissions
-        res = DataHubManager.has_repo_privilege(
+        res = DataHubManager.has_repo_db_privilege(
             self.username, self.repo_base, repo, 'USAGE')
         if not res:
             raise PermissionDenied(
@@ -250,7 +264,7 @@ class DataHubManager:
 
     def list_repo_cards(self, repo):
         # check for permission
-        res = DataHubManager.has_repo_privilege(
+        res = DataHubManager.has_repo_db_privilege(
             self.username, self.repo_base, repo, 'USAGE')
         if not res:
             raise PermissionDenied(
@@ -277,7 +291,7 @@ class DataHubManager:
         return result
 
     def save_file(self, repo, data_file):
-        res = DataHubManager.has_repo_privilege(
+        res = DataHubManager.has_repo_db_privilege(
             self.username, self.repo_base, repo, 'USAGE')
         if not res:
             raise PermissionDenied(
@@ -292,7 +306,7 @@ class DataHubManager:
                 destination.write(chunk)
 
     def delete_file(self, repo, file_name):
-        res = DataHubManager.has_repo_privilege(
+        res = DataHubManager.has_repo_db_privilege(
             self.username, self.repo_base, repo, 'USAGE')
 
         if not res:
@@ -303,7 +317,7 @@ class DataHubManager:
         os.remove(file_path)
 
     def get_file(self, repo, file_name):
-        res = DataHubManager.has_repo_privilege(
+        res = DataHubManager.has_repo_db_privilege(
             self.username, self.repo_base, repo, 'USAGE')
         if not res:
             raise PermissionDenied(
@@ -318,7 +332,7 @@ class DataHubManager:
         used to get cards. This goes through manage.py because, it requires
         a check that the user actually has repo access.
         """
-        res = DataHubManager.has_repo_privilege(
+        res = DataHubManager.has_repo_db_privilege(
             self.username, self.repo_base, repo, 'USAGE')
         if not res:
             raise PermissionDenied(
@@ -360,7 +374,7 @@ class DataHubManager:
         # check that they really do have permissions on the repo base.
         # This is a bit paranoid, but only because I don't like giving users
         # superuser privileges
-        res = DataHubManager.has_repo_privilege(
+        res = DataHubManager.has_repo_db_privilege(
             self.username, self.repo_base, repo, 'USAGE')
         if not res:
             raise PermissionDenied(
@@ -377,7 +391,7 @@ class DataHubManager:
                                     file_format=file_format)
 
     def delete_card(self, repo, card_name):
-        res = DataHubManager.has_repo_privilege(
+        res = DataHubManager.has_repo_db_privilege(
             self.username, self.repo_base, repo, 'USAGE')
         if not res:
             raise PermissionDenied(
@@ -642,7 +656,7 @@ class DataHubManager:
         # check for permissions
         delimiter = delimiter.decode('string_escape')
 
-        res = DataHubManager.has_repo_privilege(
+        res = DataHubManager.has_repo_db_privilege(
             username, repo_base, repo, 'CREATE')
         if not res:
             raise PermissionDenied(
@@ -700,7 +714,7 @@ class DataHubManager:
         table = clean_str(table, '')
 
         # check for permissions
-        res = DataHubManager.has_repo_privilege(
+        res = DataHubManager.has_repo_db_privilege(
             username, repo_base, repo, 'CREATE')
         if not res:
             raise PermissionDenied(
@@ -741,7 +755,7 @@ class DataHubManager:
         view = clean_str(view, '')
 
         # check for permissions
-        res = DataHubManager.has_repo_privilege(
+        res = DataHubManager.has_repo_db_privilege(
             username, repo_base, repo, 'CREATE')
         if not res:
             raise PermissionDenied(
@@ -789,11 +803,27 @@ class DataHubManager:
         return result
 
     @staticmethod
-    def has_repo_privilege(login, repo_base, repo, privilege):
+    def has_repo_db_privilege(login, repo_base, repo, privilege):
+        """
+        Returns a bool describing whether the bool user has the DATABASE
+        privilege passed in the argument. (i.e. Select)
+        """
         with _superuser_connection(repo_base) as conn:
-            result = conn.has_repo_privilege(
+            result = conn.has_repo_db_privilege(
                 login=login, repo=repo, privilege=privilege)
         return result
+
+    @staticmethod
+    def has_repo_file_privilege(login, repo_base, repo, privilege):
+        """
+        Returns a bool describing whether or not a user has the FILE privilege
+        passed in the argument. (i.e. read)
+        """
+        user = User.objects.get(username=login)
+        collaborator = Collaborator.objects.get(user, repo_base, repo)
+        file_permissions = collaborator.file_permissions.split(', ')
+
+        return bool(privilege in file_permissions)
 
     @staticmethod
     def has_table_privilege(login, repo_base, table, privilege):

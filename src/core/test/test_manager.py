@@ -210,3 +210,48 @@ class BasicOperations(TestCase):
         self.assertTrue(con_get_schema.called)
         self.assertEqual(con_get_schema.call_args[1]['repo'], 'reponame')
         self.assertEqual(con_get_schema.call_args[1]['table'], 'tablename')
+
+
+class PrivilegeChecks(TestCase):
+    """Test privilege checking methods"""
+    @factory.django.mute_signals(signals.pre_save)
+    def setUp(self):
+        self.username = "test_username"
+        self.password = "_test diff1;cul t passw0rd-"
+        self.email = "test_email@csail.mit.edu"
+        self.user = User.objects.create_user(
+            self.username, self.email, self.password)
+
+        self.mock_connection = self.create_patch(
+            'core.db.manager.DataHubConnection')
+
+    def create_patch(self, name):
+        # helper method for creating patches
+        patcher = patch(name)
+        thing = patcher.start()
+        self.addCleanup(patcher.stop)
+        return thing
+
+    def test_has_repo_db_privilege(self):
+        self.mock_connection.return_value.has_repo_db_privilege.return_value = True
+        res = DataHubManager.has_repo_db_privilege(
+            self.username, 'repo_base', 'repo', 'privilege')
+        self.assertEqual(True, res)
+
+    def test_has_repo_file_privilege_happy_path(self):
+        Collaborator = self.create_patch('core.db.manager.Collaborator')
+        collab = MagicMock()
+        collab.file_permissions = 'read, write'
+        Collaborator.objects.get.return_value = collab
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, 'repo_base', 'repo', 'read')
+        self.assertEqual(res, True)
+
+    def test_has_repo_file_privilege_sad_path(self):
+        Collaborator = self.create_patch('core.db.manager.Collaborator')
+        collab = MagicMock()
+        collab.file_permissions = ''
+        Collaborator.objects.get.return_value = collab
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, 'repo_base', 'repo', 'read')
+        self.assertEqual(res, False)
