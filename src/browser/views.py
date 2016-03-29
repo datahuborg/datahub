@@ -187,6 +187,13 @@ def user(request, repo_base=None):
 
     collaborator_repos = manager.list_collaborator_repos()
 
+    # if the repo_base is dh_public, override the current user and list
+    # dh_public's accessible repos
+    if (repo_base == settings.PUBLIC_ROLE or
+            repo_base == settings.ANONOMOUS_ROLE):
+        collaborator_repos = manager.list_collaborator_repos(
+            override_user='dh_public')
+
     return render_to_response("user-browse.html", {
         'login': username,
         'repo_base': repo_base,

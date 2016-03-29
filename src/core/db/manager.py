@@ -824,18 +824,36 @@ class DataHubManager:
     def has_repo_file_privilege(login, repo_base, repo, privilege):
         """
         Returns a bool describing whether or not a user has the FILE privilege
-        passed in the argument. (i.e. read)
+        passed in the argument. (i.e. 'read')
+
         """
         # users always have privileges for their own files
         if login == repo_base:
             return True
 
-        user = User.objects.get(username=login)
-        collaborator = Collaborator.objects.get(
-            user=user, repo_base=repo_base, repo_name=repo)
-        file_permissions = collaborator.file_permissions.split(', ')
+        # get the collaborator objets for that repo and repo base
+        collaborators = Collaborator.objects.filter(
+            repo_base=repo_base, repo_name=repo)
 
-        return bool(privilege in file_permissions)
+        # assign the public and default users
+        public_user = User.objects.get(username=settings.PUBLIC_ROLE)
+        default_user = User.objects.get(username=login)
+
+        # iterate through the collaboratr objects. If the public/default user
+        # have the privileges passed, return true
+        for collaborator in collaborators:
+            collab_permissions = collaborator.file_permission
+            collab_user = collaborator.user
+
+            if (collab_user == public_user and
+                    privilege in collab_permissions):
+                return True
+            if (collab_user == default_user and
+                    privilege in collab_permissions):
+                return True
+
+        # default to returning false
+        return False
 
     @staticmethod
     def has_table_privilege(login, repo_base, table, privilege):

@@ -41,6 +41,9 @@ DATABASES = {
 PUBLIC_ROLE = 'dh_public'
 PUBLIC_ROLE_EMAIL = 'noreply@datahub.csail.mit.edu'
 
+ANONOMOUS_ROLE = 'dh_anonomous'
+# ANONOMOUS_ROLE_EMAIL = 'noreply@datahub.csail.mit.edu'
+
 TIME_ZONE = 'America/New_York'
 
 # Language code for this installation.
