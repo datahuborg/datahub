@@ -135,6 +135,7 @@ e41f0f5135db        datahuborg/postgres   <span class="s2">&quot;/bin/true&quot;
 <span class="c"># Run Django migrations</span>
 <span class="nv">$ </span>sudo docker run --rm <span class="se">\</span>
   --net<span class="o">=</span>datahub_dev <span class="se">\</span>
+  --volumes-from app <span class="se">\</span>
   datahuborg/datahub <span class="se">\</span>
   python src/manage.py migrate --noinput
 

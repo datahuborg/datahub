@@ -94,6 +94,7 @@ Example Docker commands:
     # Run Django migrations
     $ sudo docker run --rm \
       --net=datahub_dev \
+      --volumes-from app \
       datahuborg/datahub \
       python src/manage.py migrate --noinput
     
