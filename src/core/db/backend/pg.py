@@ -154,12 +154,12 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['status']
 
-    def add_collaborator(self, repo, collaborator, privileges=[]):
+    def add_collaborator(self, repo, collaborator, db_privileges=[]):
         # check that all repo names, usernames, and privileges passed aren't
         # sql injections
         self._check_for_injections(repo)
         self._check_for_injections(collaborator)
-        for privilege in privileges:
+        for privilege in db_privileges:
             self._check_for_injections(privilege)
 
         query = ('BEGIN;'
@@ -170,7 +170,7 @@ class PGBackend:
                  'COMMIT;'
                  )
 
-        privileges_str = ', '.join(privileges)
+        privileges_str = ', '.join(db_privileges)
         params = [repo, collaborator, privileges_str, repo,
                   collaborator, repo, privileges_str, collaborator]
         params = tuple(map(lambda x: AsIs(x), params))

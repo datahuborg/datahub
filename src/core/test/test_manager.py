@@ -175,13 +175,15 @@ class BasicOperations(TestCase):
             MagicMock(), True)
 
         self.manager.add_collaborator(
-            repo='reponame', collaborator='new_collaborator', privileges='select')
+            repo='reponame', collaborator='new_collaborator',
+            db_privileges=['select'], file_privileges=['read', 'write'])
 
         self.assertTrue(con_add_collab.called)
         self.assertEqual(con_add_collab.call_args[1]['repo'], 'reponame')
         self.assertEqual(
             con_add_collab.call_args[1]['collaborator'], 'new_collaborator')
-        self.assertEqual(con_add_collab.call_args[1]['privileges'], 'select')
+        self.assertEqual(
+            con_add_collab.call_args[1]['db_privileges'], ['select'])
 
     def test_delete_collaborator(self):
         self.mock_connection.return_value.list_collaborators.return_value = [

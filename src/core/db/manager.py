@@ -1,8 +1,4 @@
-from config import settings
-from core.db.connection import DataHubConnection
-from inventory.models import App, Card, Collaborator, DataHubLegacyUser
-from django.contrib.auth.models import User
-
+import collections
 import six
 import hashlib
 import os
@@ -11,6 +7,13 @@ import re
 import codecs
 import csv
 from shutil import rmtree
+
+from django.contrib.auth.models import User
+
+from config import settings
+from core.db.connection import DataHubConnection
+from inventory.models import App, Card, Collaborator, DataHubLegacyUser
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 
@@ -159,13 +162,17 @@ class DataHubManager:
     def execute_sql(self, query, params=None):
         return self.user_con.execute_sql(query=query, params=params)
 
-    def add_collaborator(self, repo, collaborator, privileges):
+    def add_collaborator(
+        self, repo, collaborator, db_privileges, file_privileges):
         """
         Grants a user or app privileges on a repo.
 
         - collaborator must match an existing User's username or an existing
         App's app_id.
-        - privileges must be an array of SQL privileges as strings.
+        - file_privileges must be an array of SQL privileges as strings.
+          e.g. ['SELECT', 'UPDATE', 'INSERT']
+        - db_privileges must be an array of file privileges.
+          e.g. ['read', 'write']
         """
         res = DataHubManager.has_repo_privilege(
             self.username, self.repo_base, repo, 'USAGE')
@@ -187,16 +194,19 @@ class DataHubManager:
             collaborator_obj, _ = Collaborator.objects.get_or_create(
                 user=user, repo_name=repo, repo_base=self.repo_base)
 
-        # convert privileges list to string
-        privilege_str = ', '.join(privileges)
-        collaborator_obj.permission = privilege_str
+        # convert privileges list to string and save the object
+        db_privilege_str = ', '.join(db_privileges)
+        file_privilege_str = ', '.join(file_privileges).lower()
+
+        collaborator_obj.permission = db_privilege_str
+        collaborator_obj.file_permission = file_privilege_str
 
         collaborator_obj.save()
 
         return self.user_con.add_collaborator(
             repo=repo,
             collaborator=collaborator,
-            privileges=privileges
+            db_privileges=db_privileges
         )
 
     def delete_collaborator(self, repo, collaborator):

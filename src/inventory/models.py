@@ -76,6 +76,7 @@ class Collaborator(models.Model):
     repo_name = models.TextField()
     repo_base = models.TextField()
     permission = models.TextField()
+    file_permission = models.TextField()
 
     def __unicode__(self):
         if self.user:

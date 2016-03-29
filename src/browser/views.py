@@ -353,13 +353,16 @@ def repo_collaborators_add(request, repo_base, repo):
 
     username = request.user.get_username()
     collaborator_username = request.POST['collaborator_username']
-    privileges = request.POST.getlist('privileges')
+    db_privileges = request.POST.getlist('db_privileges')
+    file_privileges = request.POST.getlist('file_privileges')
 
     manager = DataHubManager(user=username, repo_base=repo_base)
 
     manager.add_collaborator(
         repo, collaborator_username,
-        privileges=privileges)
+        db_privileges=db_privileges,
+        file_privileges=file_privileges
+        )
 
     return HttpResponseRedirect(
             reverse('browser-repo_settings', args=(repo_base, repo,)))

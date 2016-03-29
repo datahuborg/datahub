@@ -326,8 +326,10 @@ class RepoSettingsPage(TestCase):
             follow=True)
 
         self.assertTemplateUsed(response, 'repo-settings.html')
-        self.mock_DataHubManager.return_value.add_collaborator.assert_called_once_with(
-            self.repo_name, 'test_collaborator', privileges=[])
+        m_add_collab = self.mock_DataHubManager.return_value.add_collaborator
+        m_add_collab.assert_called_once_with(
+            self.repo_name, 'test_collaborator', db_privileges=[],
+            file_privileges=[])
 
 # # to do:
 # # mock out login_required

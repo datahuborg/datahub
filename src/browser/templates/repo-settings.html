@@ -45,22 +45,54 @@
                         <div class="form-group">
                             <input type="text" class="form-control" name="collaborator_username" id="collaborator_username" placeholder="Username" />
                         </div>
-                        <p class="help-block">Permissions for tables in the repo:</p>
+                        <p class="help-block">Permissions for repo database tables:</p>
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" name="privileges" value="SELECT" checked/> select
+                                <input type="checkbox" name="db_privileges" value="SELECT" checked/> select
                             </label>
                         </div>
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" name="privileges" value="UPDATE" checked/> update
+                                <input type="checkbox" name="db_privileges" value="UPDATE" checked/> update
                             </label>
                         </div>
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" name="privileges" value="INSERT" checked/> insert
+                                <input type="checkbox" name="db_privileges" value="INSERT" checked/> insert
                             </label>
                         </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="db_privileges" value="DELETE" checked/> delete
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="db_privileges" value="TRUNCATE" checked/> truncate
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="db_privileges" value="REFERENCES" checked/> references
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="db_privileges" value="TRIGGER" checked/> trigger
+                            </label>
+                        </div>
+                        <p class="help-block">Permissions for repo files:</p>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="file_privileges" value="read" checked/> read
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="file_privileges" value="WRITE" checked/> write
+                            </label>
+                        </div>
+
                         <button class="btn btn-primary btn-xsm" id="add_collaborator" type="submit">Add</button>
                     </form>
                 </div>
@@ -93,7 +125,8 @@
                     <div class="form-group">
                         {% csrf_token %}
                         <input type="hidden" class="form-control" name="collaborator_username" id="collaborator_username" value="{{ public_role }}" />
-                        <input type="hidden" class="form-control" name="privileges" value="SELECT" />
+                        <input type="hidden" class="form-control" name="db_privileges" value="SELECT" />
+                        <input type="hidden" class="form-control" name="file_privileges" value="read"/>
                     </div>
                     <button class="btn btn-danger btn-lg btn-block" id="add_collaborator" title="This will make the repo viewable by anyone, including people whom have not logged into datahub.">Make Repo Public</button>
                 </form>

@@ -32,11 +32,11 @@ class DataHubConnection:
     def delete_repo(self, repo, force=False):
         return self.backend.delete_repo(repo=repo, force=force)
 
-    def add_collaborator(self, repo, collaborator, privileges):
+    def add_collaborator(self, repo, collaborator, db_privileges):
         return self.backend.add_collaborator(
             repo=repo,
             collaborator=collaborator,
-            privileges=privileges)
+            db_privileges=db_privileges)
 
     def delete_collaborator(self, repo, collaborator):
         return self.backend.delete_collaborator(
