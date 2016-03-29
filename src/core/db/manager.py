@@ -188,8 +188,15 @@ class DataHubManager:
         - db_privileges must be an array of file privileges.
           e.g. ['read', 'write']
         """
+        # Usage is probably not the right check, but neither is CREATE.
+        # The trouble is that roles INHERIT permissions from one another
+        # depending on whether that flag was set during creation... and I
+        # haven't figured out a way to check on whether a user can grant
+        # permission to another without actually doing it.
+        # For now, we limit adding_collaborators to the actual owner, who has
+        # create privileges
         res = DataHubManager.has_repo_db_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+            self.username, self.repo_base, repo, 'CREATE')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
@@ -250,8 +257,8 @@ class DataHubManager:
 
     def list_repo_files(self, repo):
         # check for permissions
-        res = DataHubManager.has_repo_db_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'read')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
@@ -264,8 +271,8 @@ class DataHubManager:
 
     def list_repo_cards(self, repo):
         # check for permission
-        res = DataHubManager.has_repo_db_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'read')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
@@ -291,8 +298,8 @@ class DataHubManager:
         return result
 
     def save_file(self, repo, data_file):
-        res = DataHubManager.has_repo_db_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'write')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
@@ -306,8 +313,8 @@ class DataHubManager:
                 destination.write(chunk)
 
     def delete_file(self, repo, file_name):
-        res = DataHubManager.has_repo_db_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'write')
 
         if not res:
             raise PermissionDenied(
@@ -317,8 +324,8 @@ class DataHubManager:
         os.remove(file_path)
 
     def get_file(self, repo, file_name):
-        res = DataHubManager.has_repo_db_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'read')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
@@ -332,8 +339,8 @@ class DataHubManager:
         used to get cards. This goes through manage.py because, it requires
         a check that the user actually has repo access.
         """
-        res = DataHubManager.has_repo_db_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'read')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
@@ -374,8 +381,8 @@ class DataHubManager:
         # check that they really do have permissions on the repo base.
         # This is a bit paranoid, but only because I don't like giving users
         # superuser privileges
-        res = DataHubManager.has_repo_db_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'write')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
@@ -391,8 +398,8 @@ class DataHubManager:
                                     file_format=file_format)
 
     def delete_card(self, repo, card_name):
-        res = DataHubManager.has_repo_db_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'write')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
@@ -819,8 +826,13 @@ class DataHubManager:
         Returns a bool describing whether or not a user has the FILE privilege
         passed in the argument. (i.e. read)
         """
+        # users always have privileges for their own files
+        if login == repo_base:
+            return True
+
         user = User.objects.get(username=login)
-        collaborator = Collaborator.objects.get(user, repo_base, repo)
+        collaborator = Collaborator.objects.get(
+            user=user, repo_base=repo_base, repo_name=repo)
         file_permissions = collaborator.file_permissions.split(', ')
 
         return bool(privilege in file_permissions)

@@ -233,10 +233,16 @@ class PrivilegeChecks(TestCase):
         return thing
 
     def test_has_repo_db_privilege(self):
-        self.mock_connection.return_value.has_repo_db_privilege.return_value = True
+        m_has_db_priv = self.mock_connection.return_value.has_repo_db_privilege
+        m_has_db_priv.return_value = True
         res = DataHubManager.has_repo_db_privilege(
             self.username, 'repo_base', 'repo', 'privilege')
         self.assertEqual(True, res)
+
+    def test_has_repo_file_privilege_when_username_is_repo_base(self):
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.username, 'repo', 'read')
+        self.assertEqual(res, True)
 
     def test_has_repo_file_privilege_happy_path(self):
         Collaborator = self.create_patch('core.db.manager.Collaborator')
