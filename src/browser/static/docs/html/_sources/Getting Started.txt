@@ -87,7 +87,7 @@ If your host environment does not allow use of ports 80 and 443, it is possible 
                --volumes-from logs \
                --volumes-from app \
                -v /ssl/:/etc/nginx/ssl/ \
-               --link app:app \
+               -net=datahub_dev \
                -p 80:80 -p 443:443 \
                datahuborg/nginx
         $ sudo docker start web

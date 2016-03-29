@@ -141,7 +141,7 @@ $ sudo docker create --name web <span class="se">\</span>
        --volumes-from logs <span class="se">\</span>
        --volumes-from app <span class="se">\</span>
        -v /ssl/:/etc/nginx/ssl/ <span class="se">\</span>
-       --link app:app <span class="se">\</span>
+       -net<span class="o">=</span>datahub_dev <span class="se">\</span>
        -p 80:80 -p 443:443 <span class="se">\</span>
        datahuborg/nginx
 $ sudo docker start web

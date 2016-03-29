@@ -93,7 +93,7 @@ Example Docker commands:
     
     # Run Django migrations
     $ sudo docker run --rm \
-      --link db:db \
+      -net=datahub_dev \
       datahuborg/datahub \
       python src/manage.py migrate --noinput
     
@@ -132,6 +132,7 @@ Testing DataHub
 To run tests or use the python debugger, you will need to connect to the test container.
 
 .. code-block:: bash
+
     $ vagrant ssh
     $ sudo dh-run-test-container
 
