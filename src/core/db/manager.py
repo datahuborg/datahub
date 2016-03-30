@@ -637,14 +637,14 @@ class DataHubManager:
         return result
 
     @staticmethod
-    def remove_database(repo_name, revoke_collaborators=True):
-        collaborators = Collaborator.objects.filter(repo_name=repo_name)
+    def remove_database(repo_base, revoke_collaborators=True):
+        collaborators = Collaborator.objects.filter(repo_base=repo_base)
         for collaborator in collaborators:
             collaborator.delete()
 
-        DataHubManager.delete_user_data_folder(repo_name)
+        DataHubManager.delete_user_data_folder(repo_base)
         with _superuser_connection() as conn:
-            result = conn.remove_database(repo_name, revoke_collaborators)
+            result = conn.remove_database(repo_base, revoke_collaborators)
         return result
 
     @staticmethod
@@ -842,7 +842,7 @@ class DataHubManager:
         # iterate through the collaboratr objects. If the public/default user
         # have the privileges passed, return true
         for collaborator in collaborators:
-            collab_permissions = collaborator.file_permission
+            collab_permissions = collaborator.file_permissions
             collab_user = collaborator.user
 
             if (collab_user == public_user and
