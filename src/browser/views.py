@@ -3,10 +3,8 @@ import urllib
 import uuid
 import hashlib
 
-from django.contrib.auth import login as django_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-
 
 from django.core.context_processors import csrf
 from django.core.urlresolvers import reverse
@@ -28,7 +26,7 @@ from core.db.manager import DataHubManager
 from datahub import DataHub
 from datahub.account import AccountService
 from service.handler import DataHubHandler
-from utils import post_or_get
+from utils import post_or_get, current_username_or_anon
 
 '''
 @author: Anant Bhardwaj
@@ -179,9 +177,8 @@ def public(request):
         })
 
 
-@login_required
 def user(request, repo_base=None):
-    username = request.user.get_username()
+    username = current_username_or_anon(request)
 
     if not repo_base:
         repo_base = username
@@ -218,18 +215,19 @@ Repository
 '''
 
 
-@login_required
 def repo(request, repo_base, repo):
+    '''
+    forwards to repo_tables method
+    '''
     return HttpResponseRedirect(
         reverse('browser-repo_tables', args=(repo_base, repo)))
 
 
-@login_required
 def repo_tables(request, repo_base, repo):
     '''
     shows the tables under a repo.
     '''
-    username = request.user.get_username()
+    username = current_username_or_anon(request)
 
     # get the base tables and views of the user's repo
     manager = DataHubManager(user=username, repo_base=repo_base)
@@ -251,13 +249,12 @@ def repo_tables(request, repo_base, repo):
     return render_to_response("repo-browse-tables.html", res)
 
 
-@login_required
 def repo_files(request, repo_base, repo):
     '''
     shows thee files in a repo
     '''
 
-    username = request.user.get_username()
+    username = current_username_or_anon(request)
     manager = DataHubManager(user=username, repo_base=repo_base)
     uploaded_files = manager.list_repo_files(repo)
 
@@ -271,12 +268,11 @@ def repo_files(request, repo_base, repo):
     return render_to_response("repo-browse-files.html", res)
 
 
-@login_required
 def repo_cards(request, repo_base, repo):
     '''
     shows the cards in a repo
     '''
-    username = request.user.get_username()
+    username = current_username_or_anon(request)
     manager = DataHubManager(user=username, repo_base=repo_base)
     cards = manager.list_repo_cards(repo)
 
@@ -410,7 +406,6 @@ Tables & Views
 '''
 
 
-@login_required
 def table(request, repo_base, repo, table):
     '''
     return a page indicating how many
@@ -419,7 +414,7 @@ def table(request, repo_base, repo, table):
     if request.POST.get('page'):
         current_page = request.POST.get('page')
 
-    username = request.user.get_username()
+    username = current_username_or_anon(request)
     url_path = reverse('browser-table', args=(repo_base, repo, table))
 
     manager = DataHubManager(user=username, repo_base=repo_base)
@@ -556,9 +551,8 @@ def file_delete(request, repo_base, repo, file_name):
         reverse('browser-repo_files', args=(repo_base, repo)))
 
 
-@login_required
 def file_download(request, repo_base, repo, file_name):
-    username = request.user.get_username()
+    username = current_username_or_anon(request)
     manager = DataHubManager(username, repo_base)
     file_to_download = manager.get_file(repo, file_name)
 
@@ -573,10 +567,9 @@ Query
 '''
 
 
-@login_required
 def query(request, repo_base, repo):
     query = post_or_get(request, key='q', fallback=None)
-    username = request.user.get_username()
+    username = current_username_or_anon(request)
 
     # if the user is just requesting the query page
     if not query:
@@ -648,9 +641,8 @@ Cards
 '''
 
 
-@login_required
 def card(request, repo_base, repo, card_name):
-    username = request.user.get_username()
+    username = current_username_or_anon(request)
 
     # if the user is actually executing a query
     current_page = 1

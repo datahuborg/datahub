@@ -1,4 +1,3 @@
-import collections
 import six
 import hashlib
 import os
@@ -858,7 +857,7 @@ class DataHubManager:
         # The anonymous user is never explicitly shared with, so we don't need
         # to check for that.
         for collaborator in collaborators:
-            collab_permissions = collaborator.file_permissions
+            collab_permissions = collaborator.file_permission
             collab_user = collaborator.user
 
             if (collab_user == public_user and

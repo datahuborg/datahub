@@ -7,8 +7,21 @@ from Crypto import Random
 import urllib
 import urlparse
 
+from config import settings
+
 
 kKey = 'datahub'
+
+
+def current_username_or_anon(request):
+    """
+    If the current user is set, return that. Otherwise, default to anonymous
+    """
+    username = settings.ANONYMOUS_ROLE
+    if request.user.is_authenticated():
+        username = request.user.get_username()
+
+    return username
 
 
 def encrypt_text(plain_text):

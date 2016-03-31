@@ -245,10 +245,19 @@ class PrivilegeChecks(TestCase):
         self.assertEqual(res, True)
 
     def test_has_repo_file_privilege_happy_path(self):
+        # User returns some a mock
+        User = self.create_patch('core.db.manager.User')
+        user = MagicMock()
+        User.objects.get.return_value = user
+
+        # Collaborator.objects.filter returns an array of collaborators
         Collaborator = self.create_patch('core.db.manager.Collaborator')
         collab = MagicMock()
-        collab.file_permissions = 'read, write'
-        Collaborator.objects.get.return_value = collab
+        collab.file_permission = 'read, write'
+        collab.user = user
+        collabs = [collab]
+        Collaborator.objects.filter.return_value = collabs
+
         res = DataHubManager.has_repo_file_privilege(
             self.username, 'repo_base', 'repo', 'read')
         self.assertEqual(res, True)
@@ -258,6 +267,11 @@ class PrivilegeChecks(TestCase):
         collab = MagicMock()
         collab.file_permissions = ''
         Collaborator.objects.get.return_value = collab
+
+        User = self.create_patch('core.db.manager.User')
+        user = MagicMock()
+        User.objects.get.return_value = user
+
         res = DataHubManager.has_repo_file_privilege(
             self.username, 'repo_base', 'repo', 'read')
         self.assertEqual(res, False)
