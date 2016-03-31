@@ -20,8 +20,14 @@ class DataHubSerializer(object):
         self.username = username
         self.repo_base = repo_base
         self.request = request
-        self.manager = DataHubManager(
-            user=self.username, repo_base=self.repo_base)
+
+        # In rare cases, the manager does not need to be instantiated
+        # i.e. when listing public repos, which is done via a static method
+        try:
+            self.manager = DataHubManager(
+                user=self.username, repo_base=self.repo_base)
+        except:
+            pass
 
         self.base_uri = ''
         if request:
@@ -118,6 +124,23 @@ class RepoSerializer(DataHubSerializer):
         for repo in collab_repos:
             relative_uri = reverse('api:repo', args=(
                 self.repo_base, repo.repo_name))
+            absolute_uri = self.base_uri + relative_uri
+
+            repo_obj_list.append({
+                'repo_name': repo.repo_name,
+                'href': absolute_uri,
+                'owner': repo.repo_base,
+                })
+
+        return {'repos': repo_obj_list}
+
+    def public_repos(self):
+        public_repos = DataHubManager.list_public_repos()
+
+        repo_obj_list = []
+        for repo in public_repos:
+            relative_uri = reverse('api:repo', args=(
+                repo.repo_base, repo.repo_name))
             absolute_uri = self.base_uri + relative_uri
 
             repo_obj_list.append({

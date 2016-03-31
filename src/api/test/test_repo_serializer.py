@@ -110,6 +110,24 @@ class RepoSerializerTests(TestCase):
 
         self.assertEqual(repos, expected_response)
 
+    def test_public_repos(self):
+        mock_collab = MagicMock()
+        mock_collab.repo_name = 'repo_name'
+        mock_collab.repo_base = 'repo_base'
+
+        mock_Manager = self.create_patch(
+            'api.serializer.DataHubManager')
+        mock_Manager.list_public_repos.return_value = [mock_collab]
+
+        expected_response = {
+            'repos': [
+                {"owner": "repo_base",
+                 "href": "mock_url",
+                 "repo_name": "repo_name"}]
+        }
+        res = self.serializer.public_repos()
+        self.assertEqual(res, expected_response)
+
     def test_user_accessible_repos(self):
         # mock out the results of different serializer methods
         mock_user_owned = self.create_patch(

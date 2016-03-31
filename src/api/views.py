@@ -116,6 +116,15 @@ class Repo(APIView):
                         status=status.HTTP_200_OK)
 
 
+class ReposPublic(APIView):
+    """
+    Repos that have been made public
+    """
+    def get(self, request, format=None):
+        serializer = RepoSerializer('dh_anonymous', None, request)
+        return Response(serializer.public_repos())
+
+
 class ReposForUser(APIView):
     """
     Repos of the specified user.
