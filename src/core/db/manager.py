@@ -55,10 +55,15 @@ class DataHubManager:
         self.username = username
         self.repo_base = repo_base
 
-        self.user_con = DataHubConnection(
-            user=username,
-            repo_base=repo_base,
-            password=password)
+        # allow a datahub manager instance without a repo base.
+        # This is for anonomous users to be able to instantiate (limited)
+        # managers
+        self.user_con = None
+        if repo_base:
+            self.user_con = DataHubConnection(
+                user=username,
+                repo_base=repo_base,
+                password=password)
 
     def __enter__(self):
         return self
@@ -109,6 +114,9 @@ class DataHubManager:
         Lists repositories that the current user has been granted permission
         to access. If override_user is passed, logged in user is replaced with
         override_user.
+
+        A common case for passing override_user is when finding repos that
+        are shared with the public user.
 
         Note that this method relies on the Collaborators django model. If a
         user bypasses DataHub's api, and grants permissions via the database,
@@ -814,6 +822,9 @@ class DataHubManager:
         """
         Returns a bool describing whether the bool user has the DATABASE
         privilege passed in the argument. (i.e. Select)
+
+        Relies on database role management, so this is a pretty straightforward
+        call
         """
         with _superuser_connection(repo_base) as conn:
             result = conn.has_repo_db_privilege(
@@ -839,8 +850,10 @@ class DataHubManager:
         public_user = User.objects.get(username=settings.PUBLIC_ROLE)
         default_user = User.objects.get(username=login)
 
-        # iterate through the collaboratr objects. If the public/default user
-        # have the privileges passed, return true
+        # iterate through the collaboratr objects. If the public/default
+        # user have the privileges passed, return true
+        # The anonomous user is never explicitly shared with, so we don't need
+        # to check for that.
         for collaborator in collaborators:
             collab_permissions = collaborator.file_permissions
             collab_user = collaborator.user
@@ -857,6 +870,7 @@ class DataHubManager:
 
     @staticmethod
     def has_table_privilege(login, repo_base, table, privilege):
+        """ a straightforward call to the DB, since it manages this """
         with _superuser_connection(repo_base) as conn:
             result = conn.has_table_privilege(
                 login=login, table=table, privilege=privilege)
@@ -864,6 +878,7 @@ class DataHubManager:
 
     @staticmethod
     def has_column_privilege(login, repo_base, table, column, privilege):
+        """ a straightforward call to the DB, since it manages this """
         with _superuser_connection(repo_base) as conn:
             result = conn.has_column_privilege(login=login,
                                                table=table,

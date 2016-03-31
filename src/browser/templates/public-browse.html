@@ -1,0 +1,89 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container">
+    <!-- public repos -->
+    <div class="panel panel-default">
+        <div class="table-responsive">
+            <table id="repos" class="table">
+                <tr>
+                    <th class="lead" style="background-color:#f5f5f5;">Public Repositories</th>
+                    <th style="background-color:#f5f5f5;"></th>
+                    <th style="background-color:#f5f5f5;" colspan="2">
+                        <input type="text" class="form-control" placeholder="Search Repos" id="repo_filter_input">
+                    </th>
+                </tr>
+                
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    var publicRepos = {{public_repos|safe}};
+
+    displayRepos(publicRepos);
+
+    function displayRepos(repos){
+        // insert a row into the table
+        for (var i = 0; i< repos.length; i++) {
+            var repo = repos[i]['fields'];
+            var base = repo['repo_base'];
+            var name = repo['repo_name'];
+
+            var row = createRow(name, base);
+            $('#repos tr:last').after(row);
+        }
+    }
+
+    function createRow(name, base){
+        var url = '/browse/' + base + '/' + name
+        var tableRow = '<tr class="repo_row"><td><a class="link" href=' + url + '>' + name + '</a></td> <td>Public</td><td class="text-right"></td><td class="text-right">owner: ' + base + '</td> </tr>';
+        return tableRow;
+    }
+
+    function filterRepos() {
+        var searchVals = $('#repo_filter_input').val().split(' ');
+
+        // if the filter is empty, display everything
+        if ($('#repo_filter_input').val() == ''){
+            $('.repo_row').remove()
+            displayRepos(publicRepos);
+            return;
+        }
+
+        // filter repo results
+        var filteredRepos = [];
+        for (var i = 0; i< publicRepos.length; i++) {
+            var repo = publicRepos[i]['fields'];
+            var repoStr = repo['repo_base'] + " " + repo['repo_name']
+
+            // check for each searchVal
+            var stringMatches = false;
+            for (var j = 0; j< searchVals.length; j++) {
+                var val = searchVals[j];
+                if (repoStr.includes(val)){
+                    stringMatches = true;
+                }
+            }
+
+            if (stringMatches){
+                filteredRepos.push(publicRepos[i]);
+            }
+            
+        }
+
+        // clear the table
+        $('.repo_row').remove()
+
+        // display the search results
+        displayRepos(filteredRepos);
+    }
+
+    $('#repo_filter_input').on('input', function() {
+        filterRepos();
+    });
+
+
+});
+</script>
+{% endblock %}

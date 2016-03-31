@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 
 from django.core.context_processors import csrf
 from django.core.urlresolvers import reverse
+from django.core import serializers
 
 from django.http import (
     HttpResponse, HttpResponseRedirect, HttpResponseForbidden)
@@ -160,6 +161,25 @@ Repository Base
 '''
 
 
+def public(request):
+    """browse public repos. Login not required"""
+    username = request.user.get_username()
+    public_user = settings.PUBLIC_ROLE
+    manager = DataHubManager(user=username, repo_base=None)
+    public_repos = manager.list_collaborator_repos(override_user=public_user)
+
+    # This should really go through the api... like everything else
+    # in this file.
+    public_repos = serializers.serialize('json', public_repos)
+
+    return render_to_response("public-browse.html", {
+        'login': username,
+        'repo_base': 'repo_base',
+        'repos': [],
+        'public_repos': public_repos,
+        })
+
+
 @login_required
 def user(request, repo_base=None):
     username = request.user.get_username()
@@ -186,13 +206,6 @@ def user(request, repo_base=None):
         })
 
     collaborator_repos = manager.list_collaborator_repos()
-
-    # if the repo_base is dh_public, override the current user and list
-    # dh_public's accessible repos
-    if (repo_base == settings.PUBLIC_ROLE or
-            repo_base == settings.ANONOMOUS_ROLE):
-        collaborator_repos = manager.list_collaborator_repos(
-            override_user='dh_public')
 
     return render_to_response("user-browse.html", {
         'login': username,
