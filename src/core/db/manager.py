@@ -55,15 +55,10 @@ class DataHubManager:
         self.username = username
         self.repo_base = repo_base
 
-        # allow a datahub manager instance without a repo base.
-        # This is for anonymous users to be able to instantiate (limited)
-        # managers
-        self.user_con = None
-        if repo_base:
-            self.user_con = DataHubConnection(
-                user=username,
-                repo_base=repo_base,
-                password=password)
+        self.user_con = DataHubConnection(
+            user=username,
+            repo_base=repo_base,
+            password=password)
 
     def __enter__(self):
         return self
@@ -539,6 +534,14 @@ class DataHubManager:
         repo_dir = os.path.abspath(
             os.path.join(os.sep, 'user_data', username))
         return os.path.exists(repo_dir)
+
+    @staticmethod
+    def list_public_repos():
+        """
+        Lists repositories that are accessible by the dh_public user.
+        """
+        user = User.objects.get(username=settings.PUBLIC_ROLE)
+        return Collaborator.objects.filter(user=user)
 
     """
     The following methods run in superuser mode only

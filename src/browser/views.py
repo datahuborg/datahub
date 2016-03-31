@@ -3,8 +3,10 @@ import urllib
 import uuid
 import hashlib
 
+from django.contrib.auth import login as django_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+
 
 from django.core.context_processors import csrf
 from django.core.urlresolvers import reverse
@@ -163,17 +165,14 @@ Repository Base
 
 def public(request):
     """browse public repos. Login not required"""
-    username = request.user.get_username()
-    public_user = settings.PUBLIC_ROLE
-    manager = DataHubManager(user=username, repo_base=None)
-    public_repos = manager.list_collaborator_repos(override_user=public_user)
+
+    public_repos = DataHubManager.list_public_repos()
 
     # This should really go through the api... like everything else
     # in this file.
     public_repos = serializers.serialize('json', public_repos)
 
     return render_to_response("public-browse.html", {
-        'login': username,
         'repo_base': 'repo_base',
         'repos': [],
         'public_repos': public_repos,
