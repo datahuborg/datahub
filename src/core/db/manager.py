@@ -56,7 +56,7 @@ class DataHubManager:
         self.repo_base = repo_base
 
         # allow a datahub manager instance without a repo base.
-        # This is for anonomous users to be able to instantiate (limited)
+        # This is for anonymous users to be able to instantiate (limited)
         # managers
         self.user_con = None
         if repo_base:
@@ -852,7 +852,7 @@ class DataHubManager:
 
         # iterate through the collaboratr objects. If the public/default
         # user have the privileges passed, return true
-        # The anonomous user is never explicitly shared with, so we don't need
+        # The anonymous user is never explicitly shared with, so we don't need
         # to check for that.
         for collaborator in collaborators:
             collab_permissions = collaborator.file_permissions

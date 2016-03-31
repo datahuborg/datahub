@@ -8,13 +8,13 @@ from core.db.manager import DataHubManager
 
 
 class Command(BaseCommand):
-    help = ("Creates the default datahub public and anonomous users "
+    help = ("Creates the default datahub public and anonymous users "
             "that public repos will be shared with.")
 
     def handle(self, *args, **options):
 
         self.create_public_user()
-        self.create_anonomous_user()
+        self.create_anonymous_user()
 
     def create_public_user(self):
         # Create public user
@@ -28,7 +28,8 @@ class Command(BaseCommand):
         users = User.objects.filter(username=username)
 
         if len(users) > 0:
-            print('\n==> public user already created. Not creating public user\n')
+            print('\n==> public user already created.'
+                  'Not creating public user\n')
             return
 
         try:
@@ -43,10 +44,10 @@ class Command(BaseCommand):
             print '\n==>failed to create public user.'
             print e.message
 
-    def create_anonomous_user(self):
-        # Create anonomous user
-        username = settings.ANONOMOUS_ROLE
-        email = settings.ANONOMOUS_ROLE_EMAIL
+    def create_anonymous_user(self):
+        # Create anonymous user
+        username = settings.ANONYMOUS_ROLE
+        email = settings.ANONYMOUS_ROLE_EMAIL
         # generate a password for the public user
         # This will never be used, so the original passowrd is not stored.
         chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
@@ -56,14 +57,14 @@ class Command(BaseCommand):
 
         if len(users) > 0:
             print(
-                '\n==> anonomous user already created. '
-                'Not creating anonomous user\n')
+                '\n==> anonymous user already created. '
+                'Not creating anonymous user\n')
             return
 
         try:
             # create the user
             message = (
-                '\n==> creating anonomous user %s with email %s '
+                '\n==> creating anonymous user %s with email %s '
                 'and password %s \n') % (username, email, password)
             print message
             User.objects.create_user(
@@ -74,10 +75,10 @@ class Command(BaseCommand):
             # (It's easier to create and then delete, since there's no
             # knowing what future create user signals will do.)
             message = (
-                '\n==>removing anonomous user %s database.\n' % (username))
+                '\n==>removing anonymous user %s database.\n' % (username))
             print message
             DataHubManager.remove_database(username)
 
         except Exception as e:
-            print '\n==>failed to create anonomous user.'
+            print '\n==>failed to create anonymous user.'
             print e.message

@@ -41,8 +41,8 @@ DATABASES = {
 PUBLIC_ROLE = 'dh_public'
 PUBLIC_ROLE_EMAIL = 'noreply_public@datahub.csail.mit.edu'
 
-ANONOMOUS_ROLE = 'dh_anonomous'
-ANONOMOUS_ROLE_EMAIL = 'noreply_anon@datahub.csail.mit.edu'
+ANONYMOUS_ROLE = 'dh_anonymous'
+ANONYMOUS_ROLE_EMAIL = 'noreply_anon@datahub.csail.mit.edu'
 
 TIME_ZONE = 'America/New_York'
 
