@@ -323,7 +323,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.find_element_by_xpath(xpath).click()
 
         # click the remove link next to the user's name
-        xpath = ('(//table/tbody/tr/td[span/text()="{collaborator}"]'
+        xpath = ('(//table/tbody/tr/td/ul/li[span/text()="{collaborator}"]'
                  '/a[@title="Remove"])[1]').format(collaborator=collaborator)
         self.browser.find_element_by_xpath(xpath).click()
 
