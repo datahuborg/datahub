@@ -24,7 +24,7 @@ docker run \
     --volumes-from app \
     --net=datahub_dev \
     datahuborg/datahub \
-    /bin/bash -c "python src/manage.py createpublicuser"
+    /bin/bash -c "python src/manage.py createpublicusers"
 docker start app
 docker start web
 echo "Done."
