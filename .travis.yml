@@ -26,6 +26,7 @@ before_script:
   - psql -c "create database datahub;" -U postgres
 
 script: 
+  - python manage.py createpublicusers
   - python manage.py test inventory www account browser core api
   # tests models
   # tests home page
