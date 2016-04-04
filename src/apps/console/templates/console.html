@@ -20,9 +20,9 @@
 </div>
 <script type = 'text/javascript' >
 
-var base_url = 'https://datahub-local.mit.edu';
-var client_id = '09E2h1ikVvDQBrja3EWJIEjKM4xkzx2mIiXp3ZE5';
-var redirect_uri = 'https://datahub-local.mit.edu/apps/console/';
+var base_url = 'http://' + window.location.host;
+var client_id = '7ByJAnXj2jsMFN1REvvUarQjqXjIAU3nmVB661hR';
+var redirect_uri = 'http://' + window.location.host + '/apps/console/';
 var kCmdList = [
     'connect &lt;repo-base&gt; \t\t\t  -- connect to a datahub user',
     'mkrepo &lt;repo-name&gt; \t\t\t   -- create a new repository',
@@ -30,7 +30,7 @@ var kCmdList = [
     'ls \t\t\t\t\t\t\t   -- list repositories',
     'ls &lt;repo-name&gt; \t\t\t\t   -- list tables/views in a repository',
     'desc &lt;repo-name.table-name [-l]&gt;  -- print schema info of a table [with data type]',
-    '&lt;other dml&gt; \t\t\t\t\t  -- execute arbitrary dml on a repo.tablename in your currently connected repo-base (not implemented)'
+    '&lt;other dml&gt; \t\t\t\t\t  -- execute arbitrary dml on a repo.tablename in your current repo-base'
 ];
 var term;
 var connection;
@@ -59,22 +59,22 @@ function paramsFromQuery(query) {
     return params;
 }
 
-// Convenience function to copy a value to localStorage if it exists in
+// Convenience function to copy a value to sessionStorage if it exists in
 // an associate array.
 function saveIfSet(assocArray, key) {
     if (assocArray[key]) {
         console.log('Saving ' + key + ': ' + assocArray[key]);
-        localStorage.setItem(key, assocArray[key]);
+        sessionStorage.setItem(key, assocArray[key]);
     }
 }
 
-function set_console_height() {
+function setConsoleHeight() {
     var h = window.innerHeight;
     $('#dh-console').height(h * .8);
     return;
 }
 
-function authorize_user() {
+function authorizeUser() {
     // Pull the access token from the URL hash if it's available.
     // Overwrite whatever's currently in storage.
     if (window.location.hash.length > 1) {
@@ -90,10 +90,10 @@ function authorize_user() {
             // history.replaceState('', document.title, window.location.pathname + window.location.search);
         }
         console.log(params);
-    }
+    } else {
 
-    // Request authorization button
-    if (!localStorage.getItem('access_token')) {
+    // // Request authorization button
+    // if (!sessionStorage.getItem('access_token')) {
         var params = {
             'response_type': 'token',
             'scope': 'read write',
@@ -107,16 +107,16 @@ function authorize_user() {
     $.ajaxSetup({
         beforeSend: function(xhr) {
             xhr.setRequestHeader('Authorization', 'Bearer ' +
-                localStorage.getItem('access_token'));
+                sessionStorage.getItem('access_token'));
         }
     });
 }
 
-function make_repo(args) {
+function makeRepo(args) {
     var repo_name = args[1];
 
     if (args.length != 2) {
-        term.error('HELP: mkrepo &lt;repo-name&gt;');
+        term.error('failed: invalid name');
         return;
     }
 
@@ -131,14 +131,14 @@ function make_repo(args) {
         .fail(function(xhr, status, error) {
             // does not error when duplicating existing repo
             console.log(error);
-            term.error('failed: no access or other failure?');
+            term.error('failed: no access or invalid name');
         })
         .done(function(data, status, xhr) {
             term.echo('success');
         });
 }
 
-function remove_repo(args) {
+function removeRepo(args) {
     var repo_name = args[1];
     var flag = args[2];
     var force = Boolean(flag);
@@ -161,12 +161,11 @@ function remove_repo(args) {
         });
 }
 
-function describe_table(args) {
+function describeTable(args) {
     var repo_table = args[1].split('.');
     var flag = args[2];
     var detail = Boolean(flag);
 
-    // long (possibly bad) logic
     if (repo_table.length != 2 || (args.length != 2 &&
         !(args.length == 3 && flag == '-l'))) {
         term.error('HELP: desc &lt;repo-name.table-name [-l]&gt;');
@@ -206,7 +205,7 @@ function describe_table(args) {
         });
 }
 
-function list_repos() {
+function listRepos() {
     $.ajax({
             url: buildURL('/api/v1/repos/' + connection.repo_base + '/'),
             dataType: 'json',
@@ -218,7 +217,6 @@ function list_repos() {
             term.echo('repo_name');
             term.echo('----------');
             var repos = data.repos;
-            // format repos better
             for (i = 0; i < repos.length; i++) {
                 term.echo(repos[i].repo_name);
             }
@@ -227,7 +225,7 @@ function list_repos() {
         });
 }
 
-function list_tables(args) {
+function listTables(args) {
     var repo_name = args[1];
 
     if (args.length > 2) {
@@ -247,7 +245,6 @@ function list_tables(args) {
             term.echo('table_name');
             term.echo('----------');
             var tables = data.tables;
-            // format tables better
             for (i = 0; i < tables.length; i++) {
                 term.echo(tables[i].table_name);
             }
@@ -266,17 +263,18 @@ function list_tables(args) {
         });
 }
 
-function execute_query(cmd) { // this may not work
+function executeQuery(cmd) { // this may not work
     $.ajax({
             url: buildURL('/api/v1/query/' + connection.repo_base + '/'),
-            data: {'sql': cmd},
-            dataType: 'json'
+            type: 'POST',
+            dataType: 'json',
+            data: {'query': cmd}
         })
         .fail(function(xhr, status, error) {
             term.error('failed: try \'help\'');
         })
         .done(function(data, status, xhr) {
-            term.echo('Success: executed query.');
+            term.echo('success');
         });
 }
 
@@ -287,8 +285,8 @@ function help() {
 }
 
 $(document).ready(function($) {
-    authorize_user(); // reauthorize when token expires?
-    set_console_height();
+    authorizeUser();
+    setConsoleHeight();
     var login = '{{login}}';
     connection = {
         'user': login,
@@ -300,26 +298,24 @@ $(document).ready(function($) {
         var cmd = args[0];
         term = terminal;
 
-        if (cmd == 'whereami') {
-            term.echo(connection.user + '.' + connection.repo_base);
-        } else if (cmd == 'connect') {
+        if (cmd.match(/\\?connect|\\c/)) {
             connect(args);
-        } else if (cmd == 'mkrepo') {
-            make_repo(args);
-        } else if (cmd == 'rm') {
-            remove_repo(args);
-        } else if (cmd == 'desc') {
-            describe_table(args);
-        } else if (cmd == 'ls') {
+        } else if (cmd.match(/mkrepo/)) {
+            makeRepo(args);
+        } else if (cmd.match(/rm/)) {
+            removeRepo(args);
+        } else if (cmd.match(/desc|\\d/)) {
+            describeTable(args);
+        } else if (cmd.match(/ls|\\l/)) {
             if (args.length > 1) {
-                list_tables(args);
+                listTables(args);
             } else {
-                list_repos();
+                listRepos();
             }
-        } else if (cmd == 'help') {
+        } else if (cmd.match(/help|\\h/)) {
             help();
         } else {
-            execute_query(cmd);
+            executeQuery(command);
         }
     }
 
@@ -340,7 +336,7 @@ $(document).ready(function($) {
                 term.error('failed: no access or repo-base does not exist');
             })
             .done(function(data, status, xhr) {
-                // have to authorize with other user maybe
+                // will have to authorize with other user to make post requests
                 term.push(function(command, terminal) {
                     try {
                         connection.repo_base = terminal.name();
