@@ -536,7 +536,7 @@ class DataHubManager:
                 DataHubManager.remove_app(app_id=app_id)
 
             Collaborator.objects.filter(user=user).delete()
-        except:
+        except User.DoesNotExist:
             user = None
 
         # do the same thing for legacy users
@@ -546,8 +546,11 @@ class DataHubManager:
             for app in apps:
                 app_id = app.app_id
                 DataHubManager.remove_app(app_id=app_id)
-        except:
+        except DataHubLegacyUser.DoesNotExist:
             legacy_user = None
+
+        if not user and not legacy_user:
+            raise User.DoesNotExist()
 
         # delete the users
         if user:
@@ -575,6 +578,7 @@ class DataHubManager:
     @staticmethod
     def remove_app(app_id):
         app = App.objects.get(app_id=app_id)
+        Collaborator.objects.filter(app=app).delete()
         app.delete()
 
         with _superuser_connection() as conn:
