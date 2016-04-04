@@ -164,6 +164,7 @@ Repository Base
 def public(request):
     """browse public repos. Login not required"""
 
+    username = current_username_or_anon(request)
     public_repos = DataHubManager.list_public_repos()
 
     # This should really go through the api... like everything else
@@ -171,6 +172,7 @@ def public(request):
     public_repos = serializers.serialize('json', public_repos)
 
     return render_to_response("public-browse.html", {
+        'login': username,
         'repo_base': 'repo_base',
         'repos': [],
         'public_repos': public_repos,

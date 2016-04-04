@@ -15,6 +15,7 @@ from psycopg2 import Error as PGError
 from core.db.manager import PermissionDenied
 from django.core.exceptions import ValidationError, \
                                    ObjectDoesNotExist
+from browser.utils import current_username_or_anon
 
 from .serializer import (
     UserSerializer, RepoSerializer, CollaboratorSerializer,
@@ -31,7 +32,7 @@ class CurrentUser(APIView):
     """
 
     def get(self, request, format=None):
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         user = User.objects.get(username=username)
 
         serializer = UserSerializer(user, many=False)
@@ -48,7 +49,7 @@ class CurrentUserRepos(APIView):
 
     def get(self, request, format=None):
         # redirect to another url
-        repo_base = request.user.get_username()
+        repo_base = current_username_or_anon(request)
         return HttpResponseRedirect(
             reverse('api:repos_specific', args=(repo_base,)))
 
@@ -59,7 +60,7 @@ class Repos(APIView):
     """
 
     def get(self, request, format=None):
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         repo_base = username
 
         serializer = RepoSerializer(username, repo_base, request)
@@ -75,7 +76,7 @@ class Repo(APIView):
         """
         Views, tables, collaborators, and files in a repo
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = RepoSerializer(username, repo_base, request)
         return Response(serializer.describe_repo(repo_name),
                         status=status.HTTP_200_OK)
@@ -84,7 +85,7 @@ class Repo(APIView):
         """
         Delete a repo
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = RepoSerializer(username, repo_base, request)
         serializer.delete_repo(repo_name=repo_name, force=True)
         return Response(None, status=status.HTTP_204_NO_CONTENT)
@@ -107,7 +108,7 @@ class Repo(APIView):
 
 
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = RepoSerializer(username, repo_base, request)
         new_repo_name = request.data['new_name']
         serializer.rename_repo(repo=repo_name, new_name=new_repo_name)
@@ -134,7 +135,7 @@ class ReposForUser(APIView):
         """
         Repos of the specified user that are visible to the logged in user
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = RepoSerializer(username, repo_base, request)
 
         if username == repo_base:
@@ -155,7 +156,7 @@ class ReposForUser(APIView):
             required: true
 
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = RepoSerializer(username, repo_base, request)
 
         repo_name = request.data['repo_name']
@@ -181,7 +182,7 @@ class Collaborators(APIView):
         """
         Collaborators in a repo
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = CollaboratorSerializer(username=username,
                                             repo_base=repo_base,
                                             request=request)
@@ -209,7 +210,7 @@ class Collaborators(APIView):
             }
             required: true
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = CollaboratorSerializer(username=username,
                                             repo_base=repo_base)
         data = request.data
@@ -232,7 +233,7 @@ class Collaborator(APIView):
         """
         View collaborator permissions on a given repo
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = CollaboratorSerializer(username=username,
                                             repo_base=repo_base,
                                             request=request)
@@ -244,7 +245,7 @@ class Collaborator(APIView):
         """
         Remove a collaborator from a given repo
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = CollaboratorSerializer(username=username,
                                             repo_base=repo_base)
         serializer.remove_collaborator(repo_name, collaborator)
@@ -257,7 +258,7 @@ class Tables(APIView):
         """
         Tables in a repo
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = TableSerializer(
             username=username, repo_base=repo_base, request=request)
 
@@ -289,7 +290,7 @@ class Tables(APIView):
             required: true
 
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = TableSerializer(
             username=username, repo_base=repo_base)
 
@@ -313,7 +314,7 @@ class Table(APIView):
 
         This endpoint does not throw an error if the table does not exist.
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = TableSerializer(
             username=username, repo_base=repo_base)
 
@@ -327,7 +328,7 @@ class Table(APIView):
         Delete will fail is the table in question has a dependencey.
         In this case, you must first delete the dependency.
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = TableSerializer(
             username=username, repo_base=repo_base)
         force = request.data.get('force')
@@ -343,7 +344,7 @@ class Files(APIView):
         """
         Files in a repo
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = FileSerializer(
                 username=username, repo_base=repo_base, request=request)
         files = serializer.list_files(repo_name)
@@ -385,7 +386,7 @@ class Files(APIView):
             type: string
 
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         file = request.FILES.get('file', None)
 
         data = request.data
@@ -445,7 +446,7 @@ class File(APIView):
         """
         See/Download a file
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = FileSerializer(
                 username=username, repo_base=repo_base)
         files = serializer.get_file(repo_name, file_name)
@@ -455,7 +456,7 @@ class File(APIView):
         """
         Delete a file
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = FileSerializer(
                 username=username, repo_base=repo_base)
         serializer.delete_file(repo_name, file_name)
@@ -468,7 +469,7 @@ class Views(APIView):
         """
         Views in a repo
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = ViewSerializer(
             username=username, repo_base=repo_base, request=request)
 
@@ -494,7 +495,7 @@ class Views(APIView):
             required: true
 
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = ViewSerializer(
             username=username, repo_base=repo_base)
 
@@ -514,7 +515,7 @@ class View(APIView):
 
         This endpoint does not throw an error if the table does not exist.
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = ViewSerializer(
             username=username, repo_base=repo_base)
 
@@ -525,7 +526,7 @@ class View(APIView):
         """
         Delete a single view
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = ViewSerializer(
             username=username, repo_base=repo_base)
 
@@ -539,7 +540,7 @@ class Cards(APIView):
         """
         Cards in a repo
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = CardSerializer(username, repo_base, request)
         cards = serializer.list_cards(repo_name)
         return Response(cards, status=status.HTTP_200_OK)
@@ -563,7 +564,7 @@ class Cards(APIView):
             required: true
 
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = CardSerializer(username, repo_base, request)
         card_name = request.data['card_name']
         query = request.data['query']
@@ -578,7 +579,7 @@ class Card(APIView):
         """
         See the query in a single card
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = CardSerializer(username, repo_base, request)
         res = serializer.describe_card(repo_name, card_name)
         return Response(res, status=status.HTTP_200_OK)
@@ -587,7 +588,7 @@ class Card(APIView):
         """
         Delete a single card
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         serializer = CardSerializer(
             username=username, repo_base=repo_base)
         serializer.delete_card(repo_name, card_name)
@@ -639,7 +640,7 @@ class Query(APIView):
             - text/csv
 
         """
-        username = request.user.get_username()
+        username = current_username_or_anon(request)
         data = request.data
         query = data['query']
         current_page = int(data.get('current_page', 1))
