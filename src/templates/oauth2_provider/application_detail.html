@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+
+{% block js %}
+<script type="text/javascript">
+$(document).ready(function() {
+  $('#confirmModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget)
+    var title = button.data('modal-title')
+    var body = button.data('modal-body')
+    var action = button.data('form-action')
+    var modal = $(this)
+    modal.find('.modal-title').text(title)
+    modal.find('.modal-body').html(body)
+    modal.find('.modal-footer form').attr('action', action)
+  })
+  $('#confirmModal').on('hide.bs.modal', function (argument) {
+    var modal = $(this)
+    modal.find('.modal-footer form').attr('action', '')
+  })
+})
+</script>  
+
+{% endblock js %}
+
+{% block content %}
+<div class="container">
+  
+  <h4 class="inline-block">
+    <a href="{% url 'browser-user' user.get_username %}">{{ user.get_username }}</a> / <a href="{% url 'browser-apps' %}">apps</a>
+  </h4>
+  
+  <hr />
+  <br />
+
+  <div class="col-xs-8 col-xs-offset-2">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">OAuth App Details</h3>
+      </div>
+      <div class="panel-body" style="word-wrap: break-word;">
+        <p>
+          <label>Client id</label><br />
+          {{ application.client_id }}
+        </p>
+
+        <p>
+          <label>Client secret</label><br />
+          {{ application.client_secret }}
+        </p>
+
+        <p>
+          <label>Client type</label><br />
+          {{ application.client_type }}
+        </p>
+
+        <p>
+          <label>Authorization Grant Type</label><br />
+          {{ application.authorization_grant_type }}
+        </p>
+
+        {% if application.redirect_uris %}
+          <p>
+            <label>Redirect URIs</label><br />
+            {{ application.redirect_uris|linebreaksbr }}
+          </p>
+        {% endif %}
+
+        <a class="btn btn-primary" id="id_edit_app_button" href="{% url 'oauth2_provider:update' application.pk %}">Edit</a>
+        <button class="btn btn-danger" id="id_delete_app_button" data-toggle="modal" data-target="#confirmModal" data-modal-title="Delete" data-modal-body="<p>Are you sure you want to delete the app {{ application.name }}?</p><p>This action cannot be undone.</p>" data-form-action="{% url 'oauth2_provider:delete' application.pk %}">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="confirmModal" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Placeholder title</h4>
+      </div>
+      <div class="modal-body">
+        Placeholder body
+      </div>
+      <div class="modal-footer">
+        <form method="post" action="" style="margin-bottom:0">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{% url 'settings' %}" />
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="submit" id="id_delete_confirm_button" class="btn btn-primary btn-danger">Delete</button>
+        </form>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+{% endblock %}
