@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+
+{% block js %}
+<script type="text/javascript">
+$(document).ready(function() {
+  $('#confirmModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget)
+    var title = button.data('modal-title')
+    var body = button.data('modal-body')
+    var action = button.data('form-action')
+    var modal = $(this)
+    modal.find('.modal-title').text(title)
+    modal.find('.modal-body').html(body)
+    modal.find('.modal-footer form').attr('action', action)
+  })
+  $('#confirmModal').on('hide.bs.modal', function (argument) {
+    var modal = $(this)
+    modal.find('.modal-footer form').attr('action', '')
+  })
+})
+</script>  
+
+{% endblock js %}
+
+{% block content %}
+<div class="container">
+  
+  <h4 class="inline-block">
+    <a href="{% url 'browser-user' user.get_username %}">{{ user.get_username }}</a> / <a href="{% url 'browser-apps' %}">apps</a>
+  </h4>
+  
+  <hr />
+  <br />
+
+  <div class="col-xs-8 col-xs-offset-2">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Thrift App Details</h3>
+      </div>
+      <div class="panel-body">
+        <p>
+          <label>App ID</label><br/>
+          {{ app.app_id }}
+        </p>
+        <p>
+          <label>App Name</label><br/>
+          {{ app.app_name }}
+        </p>
+        <p>
+          <label>App Token</label><br/>
+          {{ app.app_token }}
+        </p>
+        <p>
+          <label>Date Created</label><br/>
+          {{ app.timestamp }}
+        </p>
+        <button class="btn btn-danger" id="id_delete_app_button" data-toggle="modal" data-target="#confirmModal" data-modal-title="Delete" data-modal-body="<p>Are you sure you want to delete the app {{ app.app_name }} (id: {{ app.app_id }})?</p><p>This action cannot be undone.</p>" data-form-action="{% url 'browser-app_remove' app.app_id %}">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="confirmModal" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Placeholder title</h4>
+      </div>
+      <div class="modal-body">
+        Placeholder body
+      </div>
+      <div class="modal-footer">
+        <form method="post" action="" style="margin-bottom:0">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{% url 'settings' %}" />
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="submit" id="id_delete_confirm_button" class="btn btn-primary btn-danger">Delete</button>
+        </form>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+{% endblock %}
