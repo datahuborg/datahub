@@ -90,14 +90,14 @@ def add_query_params_to_url(url, params):
 
 
 @contextmanager
-def custom_permission_error_handler(username, repo_base, repo_name, request):
+def custom_manager_error_handler(username, repo_base, repo):
     try:
         yield
 
     except Exception as e:
-        # if the repo_name is supplied, we don't have enough information.
+        # if the repo is supplied, we don't have enough information.
         # Produce a 404 not found
-        if not repo_name:
+        if not repo:
             raise Http404
 
         if username == '':
@@ -105,15 +105,12 @@ def custom_permission_error_handler(username, repo_base, repo_name, request):
 
         # check to see if the role has usage on the repo
         has_repo_usage = DataHubManager.has_repo_db_privilege(
-            username, repo_base, repo_name, 'USAGE')
+            username, repo_base, repo, 'USAGE')
 
         # if the user has select, return an informative message
         if has_repo_usage:
-            # from django.contrib import messages
-            # messages.error(request, 'msg error')
-            foo = PermissionDenied()
-            # foo.message = 'pd_message'
-            raise foo
-
+            # It'd be great to be able to pass a message to the end user
+            # eventually.
+            raise PermissionDenied(e.message)
         else:
             raise Http404
