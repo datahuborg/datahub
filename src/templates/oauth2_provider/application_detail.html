@@ -40,28 +40,28 @@ $(document).ready(function() {
       <div class="panel-body" style="word-wrap: break-word;">
         <p>
           <label>Client id</label><br />
-          {{ application.client_id }}
+          <span>{{ application.client_id }}</span>
         </p>
 
         <p>
           <label>Client secret</label><br />
-          {{ application.client_secret }}
+          <span>{{ application.client_secret }}</span>
         </p>
 
         <p>
           <label>Client type</label><br />
-          {{ application.client_type }}
+          <span>{{ application.client_type }}</span>
         </p>
 
         <p>
           <label>Authorization Grant Type</label><br />
-          {{ application.authorization_grant_type }}
+          <span>{{ application.authorization_grant_type }}</span>
         </p>
 
         {% if application.redirect_uris %}
           <p>
             <label>Redirect URIs</label><br />
-            {{ application.redirect_uris|linebreaksbr }}
+            <span>{{ application.redirect_uris|linebreaksbr }}</span>
           </p>
         {% endif %}
 
