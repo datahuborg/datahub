@@ -134,10 +134,11 @@ class RepoSerializerTests(TestCase):
         repo_obj_mock.permission = 'repo_permission'
         repo_obj_mock.repo_base = 'repo_base'
 
-        mock_collab_repos = self.mock_manager.return_value.list_collaborator_repos
+        mock_manager_return = self.mock_manager.return_value
+        mock_collab_repos = mock_manager_return.list_collaborator_repos
         mock_collab_repos.return_value = [repo_obj_mock, repo_obj_mock]
 
-        mock_list_collabs = self.mock_manager.return_value.list_collaborators
+        mock_list_collabs = mock_manager_return.list_collaborators
         mock_list_collabs.return_value = ['collabs']
 
         response = self.serializer.all_collab_repos()

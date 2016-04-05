@@ -526,8 +526,9 @@ class DataHubManager:
         return res
 
     @staticmethod
-    def remove_user(username, remove_db=True, ignore_missing_user=False):
-        # get the user associated with the username, and delete their apps
+    def _remove_django_user(username):
+        # Get the user associated with the username, delete their apps, and
+        # then delete the user
         try:
             user = User.objects.get(username=username)
             apps = App.objects.filter(user=user)
@@ -536,38 +537,47 @@ class DataHubManager:
                 DataHubManager.remove_app(app_id=app_id)
 
             Collaborator.objects.filter(user=user).delete()
+            user.delete()
         except User.DoesNotExist:
             user = None
 
-        # do the same thing for legacy users
+        # Do the same thing for legacy users
         try:
             legacy_user = DataHubLegacyUser.objects.get(username=username)
             apps = App.objects.filter(legacy_user=legacy_user)
             for app in apps:
                 app_id = app.app_id
                 DataHubManager.remove_app(app_id=app_id)
+            legacy_user.delete()
         except DataHubLegacyUser.DoesNotExist:
             legacy_user = None
 
-        if not ignore_missing_user and not user and not legacy_user:
+        # Raise a not found exception if this didn't result in any deletions
+        if not user and not legacy_user:
             raise User.DoesNotExist()
 
-        # delete the users
-        if user:
-            user.delete()
+    @staticmethod
+    def remove_user(username, remove_db=True, ignore_missing_user=False):
+        # Delete the Django user
+        try:
+            DataHubManager._remove_django_user(username)
+        except User.DoesNotExist as e:
+            if not ignore_missing_user:
+                raise e
 
-        if legacy_user:
-            legacy_user.delete()
-
-        # delete the user's db
+        # Delete the user's db
         if remove_db:
             DataHubManager.remove_database(username)
 
-        # make a connection, and delete the user's database account
+        # Make a connection, and delete the user's database role
         with _superuser_connection() as conn:
             try:
+                # Try the simple case first: delete the user when they have no
+                # db permissions left
                 result = conn.remove_user(username=username)
             except:
+                # Assume the failure was outstanding db permissions. Remove
+                # them and try again.
                 all_db_list = DataHubManager.list_all_databases()
                 for db in all_db_list:
                     DataHubManager.drop_owned_by(username=username,
