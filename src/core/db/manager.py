@@ -828,7 +828,7 @@ class DataHubManager:
     def has_repo_db_privilege(login, repo_base, repo, privilege):
         """
         Returns a bool describing whether the bool user has the DATABASE
-        privilege passed in the argument. (i.e. Select)
+        privilege passed in the argument. (i.e. Usage)
 
         Relies on database role management, so this is a pretty straightforward
         call

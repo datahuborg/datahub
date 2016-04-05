@@ -26,7 +26,7 @@ from core.db.manager import DataHubManager
 from datahub import DataHub
 from datahub.account import AccountService
 from service.handler import DataHubHandler
-from utils import post_or_get, manager_or_403
+from utils import post_or_get, custom_permission_error_handler
 
 '''
 @author: Anant Bhardwaj
@@ -591,10 +591,13 @@ def query(request, repo_base, repo):
     url_path = reverse('browser-query', args=(repo_base, repo))
 
     manager = DataHubManager(user=username, repo_base=repo_base)
-    if repo:
-        manager.set_search_paths([repo])
-    res = manager.paginate_query(
-        query=query, current_page=current_page, rows_per_page=50)
+    with custom_permission_error_handler(username, repo_base, repo, request):
+        print query
+
+        if repo:
+            manager.set_search_paths([repo])
+        res = manager.paginate_query(
+            query=query, current_page=current_page, rows_per_page=50)
 
     # get annotation to the table:
     annotation, created = Annotation.objects.get_or_create(url_path=url_path)

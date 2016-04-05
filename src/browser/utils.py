@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 import hashlib
 import re
 import urllib
@@ -5,10 +6,11 @@ import urlparse
 from Crypto.Cipher import AES
 from Crypto import Random
 
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, Http404
+from django.core.exceptions import PermissionDenied
 
-from core.db.manager import PermissionDenied
-
+from config.settings import ANONYMOUS_ROLE
+from core.db.manager import DataHubManager
 
 kKey = 'datahub'
 
@@ -85,3 +87,33 @@ def add_query_params_to_url(url, params):
     parts[4] = urllib.urlencode(query)
 
     return urlparse.urlunparse(parts)
+
+
+@contextmanager
+def custom_permission_error_handler(username, repo_base, repo_name, request):
+    try:
+        yield
+
+    except Exception as e:
+        # if the repo_name is supplied, we don't have enough information.
+        # Produce a 404 not found
+        if not repo_name:
+            raise Http404
+
+        if username == '':
+            username = ANONYMOUS_ROLE
+
+        # check to see if the role has usage on the repo
+        has_repo_usage = DataHubManager.has_repo_db_privilege(
+            username, repo_base, repo_name, 'USAGE')
+
+        # if the user has select, return an informative message
+        if has_repo_usage:
+            # from django.contrib import messages
+            # messages.error(request, 'msg error')
+            foo = PermissionDenied()
+            # foo.message = 'pd_message'
+            raise foo
+
+        else:
+            raise Http404
