@@ -35,7 +35,12 @@ class _superuser_connection():
 
 class DataHubManager:
 
-    def __init__(self, user, repo_base=None, is_app=False):
+    def __init__(self, user=settings.ANONYMOUS_ROLE, repo_base=None, is_app=False):
+
+        # blank users are set to anonymous role
+        if user == '':
+            user = settings.ANONYMOUS_ROLE
+
         username = None
         password = None
 

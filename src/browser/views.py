@@ -26,7 +26,7 @@ from core.db.manager import DataHubManager
 from datahub import DataHub
 from datahub.account import AccountService
 from service.handler import DataHubHandler
-from utils import post_or_get, current_username_or_anon
+from utils import post_or_get, manager_or_403
 
 '''
 @author: Anant Bhardwaj
@@ -164,7 +164,7 @@ Repository Base
 def public(request):
     """browse public repos. Login not required"""
 
-    username = current_username_or_anon(request)
+    username = request.user.get_username()
     public_repos = DataHubManager.list_public_repos()
 
     # This should really go through the api... like everything else
@@ -180,7 +180,7 @@ def public(request):
 
 
 def user(request, repo_base=None):
-    username = current_username_or_anon(request)
+    username = request.user.get_username()
 
     if not repo_base:
         repo_base = username
@@ -229,7 +229,7 @@ def repo_tables(request, repo_base, repo):
     '''
     shows the tables under a repo.
     '''
-    username = current_username_or_anon(request)
+    username = request.user.get_username()
 
     # get the base tables and views of the user's repo
     manager = DataHubManager(user=username, repo_base=repo_base)
@@ -256,7 +256,7 @@ def repo_files(request, repo_base, repo):
     shows thee files in a repo
     '''
 
-    username = current_username_or_anon(request)
+    username = request.user.get_username()
     manager = DataHubManager(user=username, repo_base=repo_base)
     uploaded_files = manager.list_repo_files(repo)
 
@@ -274,7 +274,7 @@ def repo_cards(request, repo_base, repo):
     '''
     shows the cards in a repo
     '''
-    username = current_username_or_anon(request)
+    username = request.user.get_username()
     manager = DataHubManager(user=username, repo_base=repo_base)
     cards = manager.list_repo_cards(repo)
 
@@ -416,7 +416,7 @@ def table(request, repo_base, repo, table):
     if request.POST.get('page'):
         current_page = request.POST.get('page')
 
-    username = current_username_or_anon(request)
+    username = request.user.get_username()
     url_path = reverse('browser-table', args=(repo_base, repo, table))
 
     manager = DataHubManager(user=username, repo_base=repo_base)
@@ -554,7 +554,7 @@ def file_delete(request, repo_base, repo, file_name):
 
 
 def file_download(request, repo_base, repo, file_name):
-    username = current_username_or_anon(request)
+    username = request.user.get_username()
     manager = DataHubManager(username, repo_base)
     file_to_download = manager.get_file(repo, file_name)
 
@@ -571,7 +571,7 @@ Query
 
 def query(request, repo_base, repo):
     query = post_or_get(request, key='q', fallback=None)
-    username = current_username_or_anon(request)
+    username = request.user.get_username()
 
     # if the user is just requesting the query page
     if not query:
@@ -644,7 +644,7 @@ Cards
 
 
 def card(request, repo_base, repo, card_name):
-    username = current_username_or_anon(request)
+    username = request.user.get_username()
 
     # if the user is actually executing a query
     current_page = 1

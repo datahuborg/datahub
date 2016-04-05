@@ -1,27 +1,16 @@
 import hashlib
 import re
-
+import urllib
+import urlparse
 from Crypto.Cipher import AES
 from Crypto import Random
 
-import urllib
-import urlparse
+from django.http import HttpResponseForbidden
 
-from config import settings
+from core.db.manager import PermissionDenied
 
 
 kKey = 'datahub'
-
-
-def current_username_or_anon(request):
-    """
-    If the current user is set, return that. Otherwise, default to anonymous
-    """
-    username = settings.ANONYMOUS_ROLE
-    if request.user.is_authenticated():
-        username = request.user.get_username()
-
-    return username
 
 
 def encrypt_text(plain_text):
