@@ -26,6 +26,7 @@ DataHub Template Layout
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/css/bootstrap.css">
 <link rel="stylesheet" type="text/css" href="/static/lib/bootstrap/css/docs.min.css" />
 <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/datahub-font/css/MIT-Icons.css" />
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.1/skins/square/green.css">
 <link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.bootstrap.css" />
 <link rel="stylesheet" type="text/css" href="/static/datatables/css/dataTables.bootstrap.extra.css" />
@@ -55,6 +56,9 @@ DataHub Template Layout
 <script src="/static/lib/jquery-datatables/dataTables.colVis.js"></script>
 <script src="/static/datatables/js/dataTables.extra.js"></script>
 
+{% block js %}
+{% endblock %}
+
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <script type="text/javascript">
 google.load("visualization", "1", {packages:["corechart", "table", "timeline", "map"]});
@@ -81,7 +85,7 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
   
   <div class="navbar-collapse collapse">
     {% block headlink-right %}
-      {% if login %}
+      {% if login or user.is_authenticated %}
         <ul class="nav navbar-nav navbar-right">
           <li>
             <a href="/"><i class="fa fa-home"></i> <strong>Home</strong></a>
@@ -98,7 +102,7 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
 
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="id_user_menu" role="button" aria-expanded="false">
-              <i class="fa fa-user"></i> <strong>{{ login }}</strong> <i class="fa fa-caret-down"></i>
+              <i class="fa fa-user"></i> <strong>{% if login %}{{ login }}{% else %}{{ user.get_username }}{% endif %}</strong> <i class="fa fa-caret-down"></i>
             </a>
             
             <ul class="dropdown-menu" role="menu">
@@ -136,10 +140,6 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
-          <span class="sr-only">Close</span>
-        </button>
         <h4 class="modal-title">Confirm</h4>
       </div>
       <div class="modal-body">Are you sure?</div>
