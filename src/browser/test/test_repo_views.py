@@ -93,6 +93,7 @@ class CreateAndDeleteRepo(TestCase):
         self.assertEqual(
             self.mock_DataHubManager.return_value.delete_repo.call_count, 1)
 
+
 class RepoTableCardViews(TestCase):
 
     @factory.django.mute_signals(signals.pre_save)
@@ -170,17 +171,12 @@ class RepoTableCardViews(TestCase):
         self.assertTemplateUsed(response, 'repo-browse-cards.html')
 
     def test_card_view_calls_correct_manager_methods(self):
-        mock_Card = self.create_patch(
-            'browser.views.Card')
         self.client.get(
             '/browse/%s/%s/card/cardname' % (self.username, self.repo_name))
 
         self.assertTrue(self.mock_DataHubManager.return_value.get_card.called)
         self.assertTrue(
             self.mock_DataHubManager.return_value.paginate_query.called)
-
-        # We shouldn't need to call the class, that goes through manager.py
-        self.assertFalse(mock_Card.called and mock_Card.retrn_value.called)
 
 
 class RepoFilesTab(TestCase):
