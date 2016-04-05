@@ -526,7 +526,7 @@ class DataHubManager:
         return res
 
     @staticmethod
-    def remove_user(username, remove_db=True):
+    def remove_user(username, remove_db=True, ignore_missing_user=False):
         # get the user associated with the username, and delete their apps
         try:
             user = User.objects.get(username=username)
@@ -549,7 +549,7 @@ class DataHubManager:
         except DataHubLegacyUser.DoesNotExist:
             legacy_user = None
 
-        if not user and not legacy_user:
+        if not ignore_missing_user and not user and not legacy_user:
             raise User.DoesNotExist()
 
         # delete the users
