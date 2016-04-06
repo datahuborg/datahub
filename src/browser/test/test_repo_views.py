@@ -31,13 +31,13 @@ class CreateAndDeleteRepo(TestCase):
         self.mock_list_repos.return_value = {'tuples': [[self.repo_name]]}
 
         # mock out that they have tables and views, and repo privileges
-        self.mock_DataHubManager = self.create_patch(
+        self.mock_manager = self.create_patch(
             'browser.views.DataHubManager')
-        self.mock_DataHubManager.return_value.create_repo.return_value = {
+        self.mock_manager.return_value.create_repo.return_value = {
             'tuples': [self.repo_name]}
-        self.mock_DataHubManager.return_value.delete_repo.return_value = {
+        self.mock_manager.return_value.delete_repo.return_value = {
             'tuples': [self.repo_name]}
-        self.mock_DataHubManager.has_repo_privilege.return_value = True
+        self.mock_manager.has_repo_privilege.return_value = True
 
         # log the user in
         self.client.login(username=self.username, password=self.password)
@@ -71,7 +71,7 @@ class CreateAndDeleteRepo(TestCase):
         post_object = {'repo': 'repo_name'}
         self.client.post('/create/' + self.username + '/repo', post_object)
 
-        self.mock_DataHubManager.return_value.create_repo.assert_called_once_with(
+        self.mock_manager.return_value.create_repo.assert_called_once_with(
             'repo_name')
 
     def test_create_repo_cannot_happen_on_another_user_acct(self):
@@ -79,7 +79,7 @@ class CreateAndDeleteRepo(TestCase):
         self.client.post(
             '/create/' + 'bad_username' + '/repo', post_object)
 
-        self.mock_DataHubManager.return_value.create_repo.assert_not_called()
+        self.mock_manager.return_value.create_repo.assert_not_called()
 
     # *** Delete Repos ***
 
@@ -91,7 +91,8 @@ class CreateAndDeleteRepo(TestCase):
         self.client.post('/delete/' + self.username + '/repo_name')
 
         self.assertEqual(
-            self.mock_DataHubManager.return_value.delete_repo.call_count, 1)
+            self.mock_manager.return_value.delete_repo.call_count, 1)
+
 
 class RepoTableCardViews(TestCase):
 
@@ -111,13 +112,13 @@ class RepoTableCardViews(TestCase):
         self.mock_list_repos.return_value = {'tuples': [[self.repo_name]]}
 
         # mock out that they have tables and views, and repo privileges
-        self.mock_DataHubManager = self.create_patch(
+        self.mock_manager = self.create_patch(
             'browser.views.DataHubManager')
-        self.mock_DataHubManager.return_value.list_tables.return_value = {
+        self.mock_manager.return_value.list_tables.return_value = {
             'tuples': ['table_1']}
-        self.mock_DataHubManager.return_value.list_views.return_value = {
+        self.mock_manager.return_value.list_views.return_value = {
             'tuples': ['view_1']}
-        self.mock_DataHubManager.has_repo_privilege.return_value = True
+        self.mock_manager.has_repo_privilege.return_value = True
 
         # log the user in
         self.client.login(username=self.username, password=self.password)
@@ -150,9 +151,8 @@ class RepoTableCardViews(TestCase):
         self.client.get(
             '/browse/' + self.username + '/' + self.repo_name + "/tables")
 
-        self.mock_DataHubManager.return_value.list_tables.assert_called_once_with(
-            self.repo_name)
-        self.mock_DataHubManager.return_value.list_tables.assert_called_once_with(
+        mock_list_tables = self.mock_manager.return_value.list_tables
+        mock_list_tables.assert_called_once_with(
             self.repo_name)
 
     # *** Cards Tab ***
@@ -173,10 +173,9 @@ class RepoTableCardViews(TestCase):
         self.client.get(
             '/browse/%s/%s/card/cardname' % (self.username, self.repo_name))
 
-        self.assertTrue(self.mock_DataHubManager.return_value.get_card.called)
+        self.assertTrue(self.mock_manager.return_value.get_card.called)
         self.assertTrue(
-            self.mock_DataHubManager.return_value.paginate_query.called)
-        # We shouldn't need to call the class, that goes through manager.py
+            self.mock_manager.return_value.paginate_query.called)
 
 
 class RepoFilesTab(TestCase):
@@ -192,7 +191,7 @@ class RepoFilesTab(TestCase):
 
         # Mock out a repo for the user
         self.repo_name = 'test_repo'
-        self.mock_DataHubManager = self.create_patch(
+        self.mock_manager = self.create_patch(
             'browser.views.DataHubManager')
 
         # make their files folder
@@ -240,11 +239,11 @@ class RepoMainPage(TestCase):
         self.client.login(username=self.username, password=self.password)
 
         # Mock the DataHubManager
-        self.mock_DataHubManager = self.create_patch(
+        self.mock_manager = self.create_patch(
             'browser.views.DataHubManager')
-        self.mock_DataHubManager.return_value.list_repos.return_value = {
+        self.mock_manager.return_value.list_repos.return_value = {
             'tuples': ['repo_1']}
-        self.mock_DataHubManager.return_value.list_collaborators.return_value = [
+        self.mock_manager.return_value.list_collaborators.return_value = [
             {'username': 'collaborator_1', 'permissions': 'UC'}]
 
     def create_patch(self, name):
@@ -282,11 +281,9 @@ class RepoSettingsPage(TestCase):
         self.client.login(username=self.username, password=self.password)
 
         # Mock the DataHubManager
-        self.mock_DataHubManager = self.create_patch(
+        self.mock_manager = self.create_patch(
             'browser.views.DataHubManager')
-        # self.mock_DataHubManager.return_value.list_repos.return_value = {
-        #     'tuples': ['repo_1']}
-        self.mock_DataHubManager.return_value.list_collaborators.return_value = [
+        self.mock_manager.return_value.list_collaborators.return_value = [
             {'username': 'collaborator_1', 'permissions': 'UC'}]
 
         self.repo_name = "repo_name"
@@ -318,7 +315,7 @@ class RepoSettingsPage(TestCase):
         self.assertEqual(found.func, browser.views.repo_collaborators_add)
 
     def test_add_collaborators_returns_correct_page_and_adds_collab(self):
-        self.mock_DataHubManager.return_value.add_collaborator
+        self.mock_manager.return_value.add_collaborator
         add_url = '/collaborator/repo/' + \
             self.username + '/' + self.repo_name + '/add'
         response = self.client.post(
@@ -326,10 +323,12 @@ class RepoSettingsPage(TestCase):
             follow=True)
 
         self.assertTemplateUsed(response, 'repo-settings.html')
-        m_add_collab = self.mock_DataHubManager.return_value.add_collaborator
-        m_add_collab.assert_called_once_with(
-            self.repo_name, 'test_collaborator', db_privileges=[],
-            file_privileges=[])
+
+        mock_add_collab = self.mock_manager.return_value.add_collaborator
+        mock_add_collab.assert_called_once_with(
+            self.repo_name, 'test_collaborator',
+            db_privileges=[], file_privileges=[])
+
 
 # # to do:
 # # mock out login_required

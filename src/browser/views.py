@@ -10,16 +10,22 @@ from django.core.context_processors import csrf
 from django.core.urlresolvers import reverse
 from django.core import serializers
 
-from django.http import (
-    HttpResponse, HttpResponseRedirect, HttpResponseForbidden)
+from django.http import HttpResponse, \
+                        HttpResponseRedirect, \
+                        HttpResponseForbidden, \
+                        HttpResponseNotAllowed
 from django.shortcuts import render_to_response
+from django.template.context import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 
 from thrift.protocol import TBinaryProtocol
 from thrift.protocol import TJSONProtocol
 from thrift.transport.TTransport import TMemoryBuffer
 
+
 from config import settings
+from oauth2_provider.models import get_application_model
+from oauth2_provider.views import ApplicationUpdate
 from inventory.models import App, Annotation
 from account.utils import grant_app_permission
 from core.db.manager import DataHubManager
@@ -253,7 +259,6 @@ def repo_files(request, repo_base, repo):
     '''
     shows thee files in a repo
     '''
-
     username = request.user.get_username()
     with custom_manager_error_handler(username, repo_base, repo):
         manager = DataHubManager(user=username, repo_base=repo_base)
@@ -293,7 +298,6 @@ def repo_create(request, repo_base):
     '''
     creates a repo (POST), or returns a page for creating repos (GET)
     '''
-
     username = request.user.get_username()
     if username != repo_base:
         message = (
@@ -321,7 +325,6 @@ def repo_delete(request, repo_base, repo):
     '''
     deletes a repo in the current database (repo_base)
     '''
-
     username = request.user.get_username()
     with custom_manager_error_handler(username, repo_base, repo):
         manager = DataHubManager(user=username, repo_base=repo_base)
@@ -371,7 +374,6 @@ def repo_collaborators_add(request, repo_base, repo):
     '''
     adds a user as a collaborator in a repo
     '''
-
     username = request.user.get_username()
     collaborator_username = request.POST['collaborator_username']
     db_privileges = request.POST.getlist('db_privileges')
@@ -752,23 +754,30 @@ Developer Apps
 '''
 
 
-# Foreign keys, migration of old users to new
 @login_required
 def apps(request):
     username = request.user.get_username()
     user = User.objects.get(username=username)
-    user_apps = App.objects.filter(user=user)
-    apps = []
-    for app in user_apps:
-        apps.append(
-            {'app_id': app.app_id,
-             'app_name': app.app_name,
-             'app_token': app.app_token,
-             'date_created': app.timestamp})
+    thrift_apps = App.objects.filter(user=user)
+    oauth_apps = get_application_model().objects.filter(user=request.user)
+
     c = {
         'login': username,
-        'apps': apps}
+        'thrift_apps': thrift_apps,
+        'oauth_apps': oauth_apps}
     return render_to_response('apps.html', c)
+
+
+@login_required
+def thrift_app_detail(request, app_id):
+    username = request.user.get_username()
+    user = User.objects.get(username=username)
+    app = App.objects.get(user=user, app_id=app_id)
+    c = RequestContext(request, {
+        'login': request.user.get_username(),
+        'app': app
+        })
+    return render_to_response('thrift_app_detail.html', c)
 
 
 @login_required
@@ -809,15 +818,12 @@ def app_register(request):
 
 @login_required
 def app_remove(request, app_id):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
     try:
-        username = request.user.get_username()
-        user = User.objects.get(username=username)
-        app = App.objects.get(user=user, app_id=app_id)
-        app.delete()
-
-        DataHubManager.remove_user(username=app_id)
-
-        return HttpResponseRedirect('/developer/apps')
+        DataHubManager.remove_app(app_id=app_id)
+        return HttpResponseRedirect(reverse('browser-apps'))
     except Exception as e:
         c = {'errors': [str(e)]}
         c.update(csrf(request))
@@ -881,3 +887,25 @@ def app_allow_access(request, app_id, repo_name):
             json.dumps(
                 {'error': str(e)}),
             content_type="application/json")
+
+
+class OAuthAppUpdate(ApplicationUpdate):
+    """
+    Customized form for updating a Django OAuth Toolkit client app.
+
+    Reorders some fields and ignores modifications to other fields.
+
+    Extends https://github.com/evonove/django-oauth-toolkit/blob/master/
+        oauth2_provider/views/application.py
+    """
+
+    fields = ['name', 'client_id', 'client_secret', 'client_type',
+              'authorization_grant_type', 'redirect_uris']
+
+    def form_valid(self, form):
+        # Make sure registrants can't disable the authorization step.
+        # Only site admins can do that.
+        original_object = get_application_model().objects.get(
+            name=form.instance.name)
+        form.instance.skip_authorization = original_object.skip_authorization
+        return super(OAuthAppUpdate, self).form_valid(form)

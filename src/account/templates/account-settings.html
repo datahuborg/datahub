@@ -1,4 +1,4 @@
-{% extends "minimal-layout.html" %}
+{% extends "layout.html" %}
 
 {% load crispy_forms_tags %}
 {% load backend_details %}
@@ -53,23 +53,28 @@ $(document).ready(function() {
     </div>
     <ul class="list-group">
     {% if user.has_usable_password %}
-    <li class="list-group-item">
-      <p>Password set.</p>
-      <a href="{% url 'password_change' %}">Change Password</a>
-    </li>
-      {% if backends.associated.count > 0 %}
       <li class="list-group-item">
-      <p>Remove your password to limit access to the external logins below.</p>
-      <a href="#" role="button" data-toggle="modal" data-target="#confirmModal" data-modal-title="Remove Password" data-modal-body="<p>Are you sure you want to remove name and password as a login method for DataHub user {{ user.username }}?</p><p>You will still be able to log in with {{ backends.associated|mapattr:"provider"|provider_names|joinand }}.</p>" data-form-action="{% url 'remove_password' %}">Remove Password</a>
+        <p>Password set.</p>
+        <a href="{% url 'password_change' %}">Change Password</a>
       </li>
+      {% if backends.associated.count > 0 %}
+        <li class="list-group-item">
+        <p>Remove your password to limit access to the external logins below.</p>
+        <a href="#" role="button" data-toggle="modal" data-target="#confirmModal" data-modal-title="Remove Password" data-modal-body="<p>Are you sure you want to remove name and password as a login method for DataHub user {{ user.username }}?</p><p>You will still be able to log in with {{ backends.associated|mapattr:"provider"|provider_names|joinand }}.</p>" data-form-action="{% url 'remove_password' %}">Remove Password</a>
+        </li>
       {% endif %}
     {% else %}
       <li class="list-group-item">
-        <p>No password set. The external logins below are the only way to log into this account.</p>
-        <a href="{% url 'add_password' %}">Add Password</a>
+        No password set. The external logins below are the only way to log into this account.
       </li>
     {% endif %}
     </ul>
+    {% if not user.has_usable_password %}
+      <div class="panel-body">
+        <a href="{% url 'add_password' %}">Add Password</a>
+      </div>
+    {% endif %}
+
   </div>
 
   <div class="panel panel-default">
@@ -91,7 +96,7 @@ $(document).ready(function() {
     {% endfor %}
     </ul>
     <div class="panel-body">
-      <a href="{% url 'add_extra_login' %}">Add logins…</a>
+      <a href="{% url 'add_extra_login' %}">Add logins</a>
     </div>
   </div>
 

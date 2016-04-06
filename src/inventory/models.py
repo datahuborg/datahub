@@ -51,6 +51,7 @@ class Annotation(models.Model):
         db_table = "annotations"
 
 
+# Thrift Apps
 class App(models.Model):
     id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField(auto_now=True)

@@ -85,7 +85,8 @@ class FunctionalTest(StaticLiveServerTestCase):
         test_users = filter(lambda x: x.startswith('delete_me_'), all_users)
         for user in test_users:
             try:
-                DataHubManager.remove_user(user, remove_db=True)
+                DataHubManager.remove_user(user, remove_db=True,
+                                           ignore_missing_user=True)
             except:
                 print('UNABLE TO DELETE USER ' + user)
 

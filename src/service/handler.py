@@ -74,7 +74,7 @@ class DataHubHandler:
                 repo_base=repo_base)
 
             return con
-        except Exception, e:
+        except Exception as e:
             raise DBException(message=str(e))
 
     def create_repo(self, con, repo_name):
@@ -92,7 +92,7 @@ class DataHubHandler:
                                    'tuples': [], 'fields': []}
 
             return construct_result_set(thrift_crazy_result)
-        except Exception, e:
+        except Exception as e:
             raise DBException(message=str(e))
 
     def list_repos(self, con):
@@ -117,7 +117,7 @@ class DataHubHandler:
                 }
 
             return construct_result_set(thrift_crazy_result)
-        except Exception, e:
+        except Exception as e:
             raise DBException(message=str(e))
 
     def delete_repo(self, con, repo_name, force_if_non_empty):
@@ -141,7 +141,7 @@ class DataHubHandler:
                                    'tuples': [], 'fields': []}
 
             return construct_result_set(thrift_crazy_result)
-        except Exception, e:
+        except Exception as e:
             raise DBException(message=str(e))
 
     def list_tables(self, con, repo_name):
@@ -168,7 +168,7 @@ class DataHubHandler:
                 }
 
             return construct_result_set(thrift_crazy_result)
-        except Exception, e:
+        except Exception as e:
             raise DBException(message=str(e))
 
     def get_schema(self, con, table_name):
@@ -193,7 +193,7 @@ class DataHubHandler:
                     {'type': 1043, 'name': 'data_type'}]}
 
             return construct_result_set(thrift_crazy_result)
-        except Exception, e:
+        except Exception as e:
             raise DBException(message=str(e))
 
     def execute_sql(self, con, query, query_params=None):
@@ -202,5 +202,5 @@ class DataHubHandler:
                 user=con.user, repo_base=con.repo_base, is_app=con.is_app)
             res = manager.execute_sql(query=query, params=query_params)
             return construct_result_set(res)
-        except Exception, e:
+        except Exception as e:
             raise DBException(message=str(e))

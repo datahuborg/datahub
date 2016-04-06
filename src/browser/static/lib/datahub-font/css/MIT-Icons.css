@@ -9,7 +9,7 @@
     font-weight: normal;
     font-style: normal;
 }
-[class*='icon-']:before{
+[class*='mit-icon-']:before{
 	display: inline-block;
    font-family: 'MIT-Icons';
    font-style: normal;
@@ -18,7 +18,7 @@
    -webkit-font-smoothing: antialiased;
    -moz-osx-font-smoothing: grayscale
 }
-.icon-mit:before{
+.mit-icon-logo:before{
   content:'\0041';
   vertical-align: -15%;
   font-size:1.1em;
