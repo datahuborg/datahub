@@ -200,7 +200,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 
 # Make sure OAuth redirects use HTTPS, e.g. https://localhost/complete/twitter
-SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
 
 # Only redirect logins to URLs on this domain.
 SOCIAL_AUTH_SANITIZE_REDIRECTS = True

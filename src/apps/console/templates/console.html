@@ -18,8 +18,8 @@
         </div>
     </div>
 </div>
+    
 <script type = 'text/javascript' >
-
 var base_url = 'http://' + window.location.host;
 var client_id = '7ByJAnXj2jsMFN1REvvUarQjqXjIAU3nmVB661hR';
 var redirect_uri = 'http://' + window.location.host + '/apps/console/';
@@ -28,6 +28,7 @@ var kCmdList = [
     'mkrepo &lt;repo-name&gt; \t\t\t   -- create a new repository',
     'rm &lt;repo-name [-f]&gt; \t\t\t  -- remove a repository',
     'ls \t\t\t\t\t\t\t   -- list repositories',
+    'collab &lt;repo-name&gt;\t\t\t\t-- list collaborators of a repository',
     'ls &lt;repo-name&gt; \t\t\t\t   -- list tables/views in a repository',
     'desc &lt;repo-name.table-name [-l]&gt;  -- print schema info of a table [with data type]',
     '&lt;other dml&gt; \t\t\t\t\t  -- execute arbitrary dml on a repo.tablename in your current repo-base'
@@ -130,7 +131,6 @@ function makeRepo(args) {
         })
         .fail(function(xhr, status, error) {
             // does not error when duplicating existing repo
-            console.log(error);
             term.error('failed: no access or invalid name');
         })
         .done(function(data, status, xhr) {
@@ -263,17 +263,96 @@ function listTables(args) {
         });
 }
 
-function executeQuery(cmd) { // this may not work
+function listCollaborators(args) {
+    var repo_name = args[1];
+
+    if (args.length > 2) {
+        term.error('HELP: collab [&lt;repo-name&gt;]');
+        return;
+    }
+
+    $.ajax({
+            url: buildURL('/api/v1/repos/' + connection.repo_base +
+                '/' + repo_name + '/collaborators/'),
+            dataType: 'json'
+        })
+        .fail(function(xhr, status, error) {
+            term.error('failed: repo-name does not exist');
+        })
+        .done(function(data, status, xhr) {
+            term.echo('repo_name: ' + repo_name);
+            term.echo('collaborators');
+            term.echo('-------------');
+            var collaborators = data.collaborators;
+            for (i = 0; i < collaborators.length; i++) {
+                term.echo(collaborators[i].username);
+            }
+            term.echo('');
+            term.echo(collaborators.length + ' rows returned.');
+        });
+}
+
+function printData(rows) {
+    var keys = Object.keys(rows[0]);
+    var counter = 1;
+    var table = new AsciiTable();
+    keys.unshift('');
+    table.setHeading(keys);
+
+    for (i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        var line = [counter];
+        for (j = 1; j < keys.length; j++) {
+            line.push(row[keys[j]]);
+        }
+        table.addRow(line);
+        counter++;
+    }
+
+    term.echo(table.toString());
+}
+
+function paginate(data, cmd, page) {
+    if (data['next_results_params'] ||
+        data['previous_results_params']) {
+        term.history = false;
+        term.push(function(command) {
+            if (command.match(/^y$/i)) {
+                term.history = true;
+                executeQuery(cmd, page + 1);
+                term.pop();
+            } else if (command.match(/^n$/i)) {
+                term.history = true;
+                term.pop();
+            } else if (command.match(/^\d+$/i)) {
+                term.history = true;
+                executeQuery(cmd, command);
+                term.pop();
+            }
+        }, {
+            prompt: 'PAGE ' + page.toString() +
+            ' Continue? [y/n] or jump to page #: '
+        });
+    }
+}
+
+function executeQuery(cmd, page=1) { // this may not work
     $.ajax({
             url: buildURL('/api/v1/query/' + connection.repo_base + '/'),
             type: 'POST',
             dataType: 'json',
-            data: {'query': cmd}
+            data: {'query': cmd,
+                'rows_per_page': term.rows() - 5,
+                'current_page': page},
         })
         .fail(function(xhr, status, error) {
             term.error('failed: try \'help\'');
         })
         .done(function(data, status, xhr) {
+            if (data.rows && data.rows.length > 1) {
+                printData(data.rows);
+                paginate(data, cmd, page);
+            }
             term.echo('success');
         });
 }
@@ -298,21 +377,23 @@ $(document).ready(function($) {
         var cmd = args[0];
         term = terminal;
 
-        if (cmd.match(/\\?connect|\\c/)) {
+        if (cmd.match(/\\?connect$|^\\c$/)) {
             connect(args);
-        } else if (cmd.match(/mkrepo/)) {
+        } else if (cmd.match(/^mkrepo$/)) {
             makeRepo(args);
-        } else if (cmd.match(/rm/)) {
+        } else if (cmd.match(/^rm$/)) {
             removeRepo(args);
-        } else if (cmd.match(/desc|\\d/)) {
+        } else if (cmd.match(/^desc$|^\\d$/)) {
             describeTable(args);
-        } else if (cmd.match(/ls|\\l/)) {
+        } else if (cmd.match(/^ls$|^\\l$/)) {
             if (args.length > 1) {
                 listTables(args);
             } else {
                 listRepos();
             }
-        } else if (cmd.match(/help|\\h/)) {
+        } else if (cmd.match(/^collab$/)) {
+            listCollaborators(args);
+        } else if (cmd.match(/^help$|^\\h$/)) {
             help();
         } else {
             executeQuery(command);

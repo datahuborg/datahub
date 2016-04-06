@@ -33,5 +33,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # migrations.RunPython(create_console_oauth)
+        migrations.RunPython(create_console_oauth)
     ]
