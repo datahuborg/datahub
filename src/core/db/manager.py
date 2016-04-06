@@ -185,15 +185,15 @@ class DataHubManager:
         return self.user_con.execute_sql(query=query, params=params)
 
     def add_collaborator(
-        self, repo, collaborator, db_privileges, file_privileges):
+            self, repo, collaborator, db_privileges, file_privileges):
         """
         Grants a user or app privileges on a repo.
 
         - collaborator must match an existing User's username or an existing
         App's app_id.
-        - file_privileges must be an array of SQL privileges as strings.
+        - db_privileges must be an array of SQL privileges as strings.
           e.g. ['SELECT', 'UPDATE', 'INSERT']
-        - db_privileges must be an array of file privileges.
+        - file_privileges must be an array of file privileges.
           e.g. ['read', 'write']
         """
         # Usage is probably not the right check, but neither is CREATE.

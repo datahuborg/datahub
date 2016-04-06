@@ -192,9 +192,11 @@ class CollaboratorSerializer(DataHubSerializer):
                 return collaborator
         return collaborators
 
-    def add_collaborator(self, repo, collaborator, permissions):
+    def add_collaborator(self, repo, collaborator, db_permissions,
+                         file_permissions):
         success = self.manager.add_collaborator(
-            repo, collaborator, permissions)
+            repo, collaborator, db_permissions, file_permissions)
+
         return success
 
     def remove_collaborator(self, repo, collaborator):

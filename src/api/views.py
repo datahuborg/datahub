@@ -201,11 +201,18 @@ class Collaborators(APIView):
             type: string
             description: user to be added as a collaborator
             required: true
-          - name: permissions
+          - name: db_permissions
             in: body
             type: array
             items: {
               type: string
+            }
+            required: true
+          - name: file_permissions
+            in: body
+            type: array
+            items: {
+                type: string
             }
             required: true
         """
@@ -214,9 +221,13 @@ class Collaborators(APIView):
                                             repo_base=repo_base)
         data = request.data
         collaborator = data['user']
-        permissions = str(data['permissions'])
-        permissions = ast.literal_eval(permissions)
-        serializer.add_collaborator(repo_name, collaborator, permissions)
+        db_permissions = str(data['db_permissions'])
+        db_permissions = ast.literal_eval(db_permissions)
+        file_permissions = str(data['file_permissions'])
+        file_permissions = ast.literal_eval(file_permissions)
+
+        serializer.add_collaborator(
+            repo_name, collaborator, db_permissions, file_permissions)
         collaborator = serializer.describe_collaborator(
           repo_name, collaborator)
 
