@@ -576,7 +576,7 @@ class PGBackend:
             permissions = row[0].split('=')[1].split('/')[0]
 
             collab_obj['username'] = username
-            collab_obj['permissions'] = permissions
+            collab_obj['db_permissions'] = permissions
 
             collaborators.append(collab_obj)
 

@@ -301,9 +301,18 @@ class DataHubManager:
         # [{'username': 'foo_user', 'permissions': 'UC'},
            {'username': 'bar_user', 'permissions': 'U'}]
         """
+        # get the database's idea of permissions
         with _superuser_connection(self.repo_base) as conn:
-            result = conn.list_collaborators(repo=repo)
-        return result
+            db_collabs = conn.list_collaborators(repo=repo)
+
+        # merge it with the datahub collaborator model permissions
+        dh_collabs = Collaborator.objects.all()
+        for dh_collab in dh_collabs:
+            for db_collab in db_collabs:
+                if dh_collab.user.username == db_collab['username']:
+                    db_collab['file_permissions'] = dh_collab.file_permission
+
+        return db_collabs
 
     def save_file(self, repo, data_file):
         res = DataHubManager.has_repo_file_privilege(
