@@ -848,6 +848,6 @@ class OAuthAppUpdate(ApplicationUpdate):
         # Make sure registrants can't disable the authorization step.
         # Only site admins can do that.
         original_object = get_application_model().objects.get(
-            name=form.instance.name)
+            pk=form.instance.pk)
         form.instance.skip_authorization = original_object.skip_authorization
         return super(OAuthAppUpdate, self).form_valid(form)
