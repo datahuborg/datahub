@@ -3,17 +3,58 @@ import itertools
 
 from django.test import TestCase
 
-
+from core.db.backend.pg import connection_pools, \
+                               _pool_for_credentials
 from core.db.backend.pg import PGBackend
 
 
-class HelperMethods(TestCase):
+class MockingMixin(object):
+    """A mixin for mock helper methods"""
 
+    def create_patch(self, name, **kwargs):
+        """
+        Returns a started patch which stops itself on test cleanup.
+
+        Any kwargs pass directly into patch().
+        """
+        patcher = patch(name, **kwargs)
+        thing = patcher.start()
+        self.addCleanup(patcher.stop)
+        return thing
+
+
+class PoolHelperFunctions(MockingMixin, TestCase):
+    """Tests helper functions in pg.py, but not in the PGBackend class."""
+
+    def setUp(self):
+        self.mock_ThreadedConnectionPool = self.create_patch(
+            'core.db.backend.pg.ThreadedConnectionPool')
+
+    def test_pool_for_credentials(self):
+        n = len(connection_pools)
+        _pool_for_credentials('foo', 'password', 'repo_base')
+        self.assertEqual(len(connection_pools), n + 1)
+        _pool_for_credentials('bar', 'password', 'repo_base',
+                              create_if_missing=True)
+        self.assertEqual(len(connection_pools), n + 2)
+        _pool_for_credentials('baz', 'password', 'repo_base',
+                              create_if_missing=False)
+        self.assertEqual(len(connection_pools), n + 2)
+        _pool_for_credentials('bar', 'wordpass', 'repo_base')
+        self.assertEqual(len(connection_pools), n + 3)
+
+    # psycopg2 doesn't expose any good way to test that close_all_connections
+    # works. You can't ask for the list of existing connections and check that
+    # they're closed.
+    # def test_close_all_connections(self):
+
+
+class PGBackendHelperMethods(MockingMixin, TestCase):
     """Tests connections, validation and execution methods in PGBackend."""
 
     def setUp(self):
         # some words to test out
-        self.good_nouns = ['good', 'good_noun', 'good-noun']
+        self.good_nouns = ['good', 'good_noun', 'goodNoun']
 
         # some words that shoudl throw validation errors
         self.bad_nouns = ['_foo', 'foo_', '-foo', 'foo-', 'foo bar',
@@ -23,21 +64,22 @@ class HelperMethods(TestCase):
         self.username = "username"
         self.password = "password"
 
-        # mock open connection,
-        # or else it will try to create a real db connection
-        self.mock_psychopg = self.create_patch('core.db.backend.pg.psycopg2')
+        # mock connection pools so nothing gets a real db connection
+        self.mock_pool_for_cred = self.create_patch(
+            'core.db.backend.pg._pool_for_credentials')
+
+        # mock open connection, only to check if it ever gets called directly
+        self.mock_connect = self.create_patch(
+            'core.db.backend.pg.psycopg2.connect')
 
         # open mocked connection
         self.backend = PGBackend(self.username,
                                  self.password,
                                  repo_base=self.username)
 
-    def create_patch(self, name):
-        # helper method for creating patches
-        patcher = patch(name)
-        thing = patcher.start()
-        self.addCleanup(patcher.stop)
-        return thing
+    def tearDown(self):
+        # Make sure connections are only ever acquired via pools
+        self.assertFalse(self.mock_connect.called)
 
     def test_check_for_injections(self):
         """Tests validation against some sql injection attacks."""
@@ -52,12 +94,18 @@ class HelperMethods(TestCase):
                 self.fail('check_for_injections failed to verify a good name')
 
     def test_check_open_connections(self):
-        self.assertTrue(self.mock_psychopg.connect.called)
+        mock_get_conn = self.mock_pool_for_cred.return_value.getconn
+        mock_set_isol_level = mock_get_conn.return_value.set_isolation_level
+
+        self.assertTrue(self.mock_pool_for_cred.called)
+        self.assertTrue(mock_get_conn.called)
+        self.assertTrue(mock_set_isol_level.called)
 
     def test_execute_sql_strips_queries(self):
         query = ' This query needs stripping; '
         params = ('param1', 'param2')
-        mock_cursor = self.mock_psychopg.connect.return_value.cursor
+
+        mock_cursor = self.backend.connection.cursor
         mock_execute = mock_cursor.return_value.execute
         mock_cursor.return_value.fetchall.return_value = 'sometuples'
         mock_cursor.return_value.rowcount = 1000
@@ -73,8 +121,7 @@ class HelperMethods(TestCase):
         self.assertEqual(res['row_count'], 1000)
 
 
-class SchemaListCreateDeleteShare(TestCase):
-
+class SchemaListCreateDeleteShare(MockingMixin, TestCase):
     """
     Tests that items reach the execute_sql method in pg.py.
 
@@ -116,18 +163,21 @@ class SchemaListCreateDeleteShare(TestCase):
                                  self.password,
                                  repo_base=self.username)
 
-    def create_patch(self, name):
-        # helper method for creating patches
-        patcher = patch(name)
-        thing = patcher.start()
-        self.addCleanup(patcher.stop)
-        return thing
-
     def reset_mocks(self):
         # clears the mock call arguments and sets their call counts to 0
         self.mock_as_is.reset_mock()
         self.mock_execute_sql.reset_mock()
         self.mock_check_for_injections.reset_mock()
+
+    def test_set_search_paths(self):
+        path_query = 'set search_path to %s;'
+        self.mock_execute_sql.return_value = {'status': True, 'row_count': -1,
+                                              'tuples': [], 'fields': []}
+        self.backend.set_search_paths(['foo', 'bar'])
+
+        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+        self.assertEqual(self.mock_execute_sql.call_args[0][0], path_query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], ('foo, bar',))
 
     # testing externally called methods in PGBackend
     def test_create_repo(self):
@@ -171,6 +221,25 @@ class SchemaListCreateDeleteShare(TestCase):
             self.mock_execute_sql.call_args[0][1], params)
 
         self.assertEqual(res, ['test_table'])
+
+    def test_rename_repo(self):
+        alter_repo_sql = 'ALTER SCHEMA %s RENAME TO %s'
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 1, 'tuples': [
+                ('test_table',)],
+            'fields': [{'type': 1043, 'name': 'table_name'}]}
+
+        params = ('old_name', 'new_name')
+
+        res = self.backend.rename_repo('old_name', 'new_name')
+        self.assertEqual(res, True)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], alter_repo_sql)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][1], params)
+
+        self.assertTrue(self.mock_execute_sql.called)
+        self.assertEqual(self.mock_check_for_injections.call_count, 2)
 
     def test_delete_repo_happy_path_cascade(self):
         drop_schema_sql = 'DROP SCHEMA %s %s'
@@ -253,7 +322,8 @@ class SchemaListCreateDeleteShare(TestCase):
                                               'tuples': [], 'fields': []}
 
         self.backend.add_collaborator(repo=repo,
-                                      collaborator=receiver, privileges=privileges)
+                                      collaborator=receiver,
+                                      privileges=privileges)
 
         # make sure that the privileges are passed as a string in params
         self.assertTrue(
@@ -275,7 +345,8 @@ class SchemaListCreateDeleteShare(TestCase):
         username = 'delete_me_user_name'
 
         params = (repo, username, repo, username, repo, username)
-        res = self.backend.delete_collaborator(repo=repo, collaborator=username)
+        res = self.backend.delete_collaborator(
+            repo=repo, collaborator=username)
 
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], delete_collab_sql)
@@ -283,6 +354,33 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_as_is.call_count, len(params))
         self.assertEqual(self.mock_check_for_injections.call_count, 2)
         self.assertEqual(res, True)
+
+    def test_create_table(self):
+        repo = 'repo'
+        table = 'table'
+        params = [
+            {'column_name': 'id', 'data_type': 'integer'},
+            {'column_name': 'words', 'data_type': 'text'}
+            ]
+        expected_params = ('repo', 'table', 'id integer, words text')
+
+        create_table_query = ('CREATE TABLE %s.%s (%s)')
+
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': -1, 'tuples': [], 'fields': []}
+
+        res = self.backend.create_table(repo, table, params)
+
+        # checks repo, table, and all param values for injections
+        self.assertEqual(self.mock_check_for_injections.call_count, 6)
+
+        final_query = self.mock_execute_sql.call_args[0][0]
+        final_params = self.mock_execute_sql.call_args[0][1]
+        self.assertEqual(final_query, create_table_query)
+        self.assertEqual(final_params, expected_params)
+        self.assertEqual(res, True)
+
+        # create table test_repo.test_table (id integer, words text)
 
     def test_list_tables(self):
         repo = 'repo'
@@ -310,6 +408,78 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
         self.assertEqual(res, ['test_table'])
 
+    def test_describe_table_without_detail(self):
+        repo = 'repo'
+        table = 'table'
+        detail = False
+
+        query = ("SELECT %s "
+                 "FROM information_schema.columns "
+                 "WHERE table_schema = %s and table_name = %s;")
+        params = ('column_name, data_type', repo, table)
+
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 2,
+            'tuples': [(u'id', u'integer'), (u'words', u'text')],
+            'fields': [
+                {'type': 1043, 'name': 'column_name'},
+                {'type': 1043, 'name': 'data_type'}
+                ]
+            }
+
+        res = self.backend.describe_table(repo, table, detail)
+
+        self.assertEqual(self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(res,  [(u'id', u'integer'), (u'words', u'text')])
+
+    def test_describe_table_query_in_detail(self):
+        repo = 'repo'
+        table = 'table'
+        detail = True
+
+        query = ("SELECT %s "
+                 "FROM information_schema.columns "
+                 "WHERE table_schema = %s and table_name = %s;")
+        params = ('*', repo, table)
+
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 2,
+            'tuples': [
+                (u'id', u'integer'), (u'words', u'text'), ('foo', 'bar')
+                ],
+            'fields': [
+                {'type': 1043, 'name': 'column_name'},
+                {'type': 1043, 'name': 'data_type'}
+                ]
+            }
+
+        res = self.backend.describe_table(repo, table, detail)
+
+        self.assertEqual(self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(
+            res,  [(u'id', u'integer'), (u'words', u'text'), ('foo', 'bar')])
+
+    def test_delete_table(self):
+        repo = 'repo_name'
+        table = 'table_name'
+        force = False
+
+        expected_query = ('DROP TABLE %s.%s.%s %s')
+        expected_params = ('username', 'repo_name', 'table_name', 'RESTRICT')
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': -1, 'tuples': [], 'fields': []}
+        res = self.backend.delete_table(repo, table, force)
+
+        final_query = self.mock_execute_sql.call_args[0][0]
+        final_params = self.mock_execute_sql.call_args[0][1]
+
+        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+        self.assertEqual(final_query, expected_query)
+        self.assertEqual(final_params, expected_params)
+        self.assertEqual(res, True)
+
     def test_list_views(self):
         repo = 'repo'
         list_views_query = ('SELECT table_name FROM information_schema.tables '
@@ -334,6 +504,70 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
         self.assertEqual(res, ['test_view'])
+
+    def test_delete_view(self):
+        repo = 'repo_name'
+        view = 'view_name'
+        force = False
+
+        expected_query = ('DROP VIEW %s.%s.%s %s')
+        expected_params = ('username', 'repo_name', 'view_name', 'RESTRICT')
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': -1, 'tuples': [], 'fields': []}
+        res = self.backend.delete_view(repo, view, force)
+
+        final_query = self.mock_execute_sql.call_args[0][0]
+        final_params = self.mock_execute_sql.call_args[0][1]
+
+        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+        self.assertEqual(final_query, expected_query)
+        self.assertEqual(final_params, expected_params)
+        self.assertEqual(res, True)
+
+    def test_create_view(self):
+        repo = 'repo_name'
+        view = 'view_name'
+        sql = 'SELECT * FROM table'
+
+        expected_params = ('repo_name', 'view_name', 'SELECT * FROM table')
+        create_view_query = ('CREATE VIEW %s.%s AS (%s)')
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': -1, 'tuples': [], 'fields': []}
+        res = self.backend.create_view(repo, view, sql)
+
+        # checks repo and view for injections
+        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+
+        final_query = self.mock_execute_sql.call_args[0][0]
+        final_params = self.mock_execute_sql.call_args[0][1]
+        self.assertEqual(final_query, create_view_query)
+        self.assertEqual(final_params, expected_params)
+        self.assertEqual(res, True)
+
+    def test_describe_view_without_detail(self):
+        repo = 'repo_name'
+        view = 'view_name'
+        detail = False
+
+        query = ("SELECT %s "
+                 "FROM information_schema.columns "
+                 "WHERE table_schema = %s and table_name = %s;")
+        params = ('column_name, data_type', repo, view)
+
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 2,
+            'tuples': [(u'id', u'integer'), (u'words', u'text')],
+            'fields': [
+                {'type': 1043, 'name': 'column_name'},
+                {'type': 1043, 'name': 'data_type'}
+                ]
+            }
+
+        res = self.backend.describe_view(repo, view, detail)
+
+        self.assertEqual(self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(res,  [(u'id', u'integer'), (u'words', u'text')])
 
     def test_get_schema(self):
 
@@ -482,6 +716,11 @@ class SchemaListCreateDeleteShare(TestCase):
             ],
             'fields': [{'type': 1033, 'name': 'unnest'}]}
 
+        expected_result = [
+            {'username': 'al_carter', 'permissions': 'UC'},
+            {'username': 'foo_bar', 'permissions': 'U'}
+            ]
+
         res = self.backend.list_collaborators(repo)
 
         self.assertEqual(
@@ -489,7 +728,7 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(
             self.mock_execute_sql.call_args[0][1], params)
         self.assertFalse(self.mock_as_is.called)
-        self.assertEqual(res, ['al_carter', 'foo_bar'])
+        self.assertEqual(res, expected_result)
 
     def test_list_all_users(self):
         query = 'SELECT usename FROM pg_catalog.pg_user WHERE usename != %s'
@@ -578,6 +817,7 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(res, True)
 
     def test_export_table_with_header(self):
+        self.mock_execute_sql.return_value = {'status': True}
         query = 'COPY %s TO %s WITH %s %s DELIMITER %s;'
         table_name = 'user_name.repo_name.table_name'
         file_path = 'file_path'
@@ -596,6 +836,7 @@ class SchemaListCreateDeleteShare(TestCase):
         self.assertEqual(self.mock_check_for_injections.call_count, 4)
 
     def test_export_table_with_no_header(self):
+        self.mock_execute_sql.return_value = {'status': True}
         table_name = 'table_name'
         file_path = 'file_path'
         file_format = 'file_format'
@@ -608,6 +849,25 @@ class SchemaListCreateDeleteShare(TestCase):
 
         self.assertEqual(
             self.mock_execute_sql.call_args[0][1], params)
+
+    def test_export_view(self):
+        self.mock_execute_sql.return_value = {'status': True}
+        query = 'COPY(SELECT * FROM %s) TO %s WITH %s %s DELIMITER %s;'
+        view_name = 'user_name.repo_name.view_name'
+        file_path = 'file_path'
+        file_format = 'file_format'
+        delimiter = ','
+        header = True
+
+        params = (view_name, file_path, file_format, 'HEADER', delimiter)
+        self.backend.export_view(view_name, file_path,
+                                 file_format, delimiter, header)
+
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, 3)
+        self.assertEqual(self.mock_check_for_injections.call_count, 4)
 
     def test_export_query_with_header(self):
         query = 'COPY (%s) TO %s WITH %s %s DELIMITER %s;'

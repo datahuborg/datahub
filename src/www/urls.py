@@ -1,5 +1,6 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, url
 
-urlpatterns = patterns('',    
+urlpatterns = patterns(
+    '',
     url(r'^$', 'www.views.index', name='index')
 )

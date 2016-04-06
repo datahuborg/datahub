@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic.base import RedirectView
+from views import OAuthAppUpdate
 
 
 urlpatterns = patterns(
@@ -19,6 +20,24 @@ urlpatterns = patterns(
     url('', include('social.apps.django_app.urls', namespace='social')),
     url(r'^account/', include('account.urls')),
 
+
+    # OAuth Provider
+    # override the default app update form
+    url(r'^oauth2/applications/(?P<pk>\d+)/update/$',
+        OAuthAppUpdate.as_view(), name="update"),
+    # override the default app listing page to use /developer/apps
+    url(r'^oauth2/applications/$',
+        RedirectView.as_view(pattern_name='browser-apps',
+                             permanent=True), name="list"),
+    url(r'^oauth2/', include('oauth2_provider.urls',
+        namespace='oauth2_provider')),
+
+
+    # API Pages
+    url(r'^api/', include('api.urls', namespace='api')),
+    url(r'^api-auth/', include('rest_framework.urls',
+        namespace='rest_framework')),
+    url(r'^api-docs/', include('rest_framework_swagger.urls')),
 
     # Thrift Services
     url(r'^service$', 'browser.views.service_core_binary',
@@ -63,6 +82,8 @@ urlpatterns = patterns(
         name='browser-repo_delete'),
     url(r'^delete/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table_delete',
         name='browser-table_delete'),
+    url(r'^delete/(\w+)/(\w+)/view/(\w+)/?$', 'browser.views.view_delete',
+        name='browser-view_delete'),
     url(r'^delete/(\w+)/(\w+)/card/(\w+)/?$', 'browser.views.card_delete',
         name='browser-card_delete'),
     url(r'^delete/(\w+)/(\w+)/file/([ -~]+)/?$', 'browser.views.file_delete',
@@ -103,6 +124,9 @@ urlpatterns = patterns(
     url(r'^developer/apps/?$', 'browser.views.apps',
         name='browser-apps'),
 
+    url(r'^developer/apps/detail/(\w+)/?$', 'browser.views.thrift_app_detail',
+        name='browser-thrift_app_detail'),
+
     url(r'^developer/apps/register/?$', 'browser.views.app_register',
         name='browser-app_register'),
 
@@ -123,5 +147,6 @@ urlpatterns = patterns(
     url(r'^apps/viz/', include('viz2.urls', namespace='viz2')),
     url(r'^apps/sentiment/', include('sentiment.urls', namespace='sentiment')),
     url(r'^apps/dataq/', include('dataq.urls', namespace='dataq')),
-    url(r'^apps/datatables/', include('datatables.urls', namespace='datatables')),
+    url(r'^apps/datatables/', include('datatables.urls',
+        namespace='datatables')),
 )

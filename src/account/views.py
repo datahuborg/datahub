@@ -20,7 +20,7 @@ from django.http import HttpResponse, \
                         HttpResponseNotFound, \
                         HttpResponseNotAllowed
 from core.db.manager import DataHubManager
-from browser.utils import get_or_post, \
+from browser.utils import post_or_get, \
                           add_query_params_to_url
 
 
@@ -36,8 +36,8 @@ def login(request):
     # Redirect succesful logins to `next` if set.
     # Failing that `redirect_url`.
     # Failing that, LOGIN_REDIRECT_URL from settings.py.
-    redirect_uri = get_or_post(
-        request, 'next', fallback=get_or_post(
+    redirect_uri = post_or_get(
+        request, 'next', fallback=post_or_get(
             request, 'redirect_url', fallback=settings.LOGIN_REDIRECT_URL))
     redirect_absolute_uri = add_query_params_to_url(
         request.build_absolute_uri(redirect_uri),
@@ -90,8 +90,8 @@ def register(request):
     # Redirect succesful logins to `next` if set.
     # Failing that `redirect_url`.
     # Failing that, LOGIN_REDIRECT_URL from settings.py.
-    redirect_uri = get_or_post(
-        request, 'next', fallback=get_or_post(
+    redirect_uri = post_or_get(
+        request, 'next', fallback=post_or_get(
             request, 'redirect_url', fallback=settings.LOGIN_REDIRECT_URL))
     redirect_absolute_uri = add_query_params_to_url(
         request.build_absolute_uri(redirect_uri),

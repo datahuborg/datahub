@@ -14,6 +14,23 @@ from shutil import rmtree
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 
+class _superuser_connection():
+    superuser_con = None
+
+    def __init__(self, repo_base=None):
+        self.repo_base = repo_base
+
+    def __enter__(self):
+        self.superuser_con = DataHubConnection(
+            user=settings.DATABASES['default']['USER'],
+            password=settings.DATABASES['default']['PASSWORD'],
+            repo_base=self.repo_base)
+        return self.superuser_con
+
+    def __exit__(self, type, value, traceback):
+        self.superuser_con.close_connection()
+
+
 class DataHubManager:
 
     def __init__(self, user, repo_base=None, is_app=False):
@@ -40,20 +57,49 @@ class DataHubManager:
             repo_base=repo_base,
             password=password)
 
-    ''' Basic Operations. '''
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close_connection()
+
+    """ Basic Operations. """
 
     def change_repo_base(self, repo_base):
         """Changes the repo base and resets the DB connection."""
         self.user_con.change_repo_base(repo_base=repo_base)
 
+    def set_search_paths(self, search_paths=[]):
+        """
+        Sets the search path, so that the user won't have to write
+        out schema names.
+        """
+        return self.user_con.set_search_paths(search_paths)
+
     def close_connection(self):
-        self.user_con.close()
+        self.user_con.close_connection()
 
     def create_repo(self, repo):
         return self.user_con.create_repo(repo=repo)
 
     def list_repos(self):
         return self.user_con.list_repos()
+
+    def rename_repo(self, repo, new_name):
+        # only a repo owner can rename a repo:
+        if self.repo_base != self.username:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges')
+
+        # rename in user_con
+        success = self.user_con.rename_repo(repo=repo, new_name=new_name)
+        if success:
+            # update collaborator(s), if there are any
+            Collaborator.objects.filter(
+                repo_name=repo, repo_base=self.repo_base).update(
+                    repo_name=new_name)
+
+        return success
 
     def list_collaborator_repos(self):
         user = User.objects.get(username=self.username)
@@ -66,18 +112,37 @@ class DataHubManager:
                 'Access denied. Missing required privileges')
 
         # remove related collaborator objects
-        Collaborator.objects.filter(repo_name=repo).delete()
+        Collaborator.objects.filter(
+            repo_name=repo, repo_base=self.repo_base).delete()
 
         # finally, delete the actual schema
         res = self.user_con.delete_repo(repo=repo, force=force)
         DataHubManager.delete_user_data_folder(self.repo_base, repo)
         return res
 
+    def create_table(self, repo, table, params):
+        """Creates a table with the current user/repo_base"""
+        return self.user_con.create_table(
+            repo=repo, table=table, params=params)
+
     def list_tables(self, repo):
         return self.user_con.list_tables(repo=repo)
 
+    def describe_table(self, repo, table, detail=False):
+        return self.user_con.describe_table(repo, table, detail)
+
+    def create_view(self, repo, view, sql):
+        return self.user_con.create_view(
+            repo=repo, view=view, sql=sql)
+
     def list_views(self, repo):
         return self.user_con.list_views(repo=repo)
+
+    def describe_view(self, repo, view, detail=False):
+        return self.user_con.describe_view(repo, view, detail)
+
+    def delete_view(self, repo, view, force=False):
+        return self.user_con.delete_view(repo=repo, view=view, force=force)
 
     def delete_table(self, repo, table, force=False):
         return self.user_con.delete_table(repo=repo, table=table, force=force)
@@ -119,7 +184,10 @@ class DataHubManager:
             collaborator_obj, _ = Collaborator.objects.get_or_create(
                 user=user, repo_name=repo, repo_base=self.repo_base)
 
-        collaborator_obj.permission = 'ALL'
+        # convert privileges list to string
+        privilege_str = ', '.join(privileges)
+        collaborator_obj.permission = privilege_str
+
         collaborator_obj.save()
 
         return self.user_con.add_collaborator(
@@ -129,29 +197,29 @@ class DataHubManager:
         )
 
     def delete_collaborator(self, repo, collaborator):
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'],
-            repo_base=self.repo_base)
-        repo_collaborators = superuser_con.list_collaborators(repo=repo)
+        with _superuser_connection(self.repo_base) as conn:
+            collaborators = conn.list_collaborators(repo=repo)
+            collaborators = [c.get('username') for c in collaborators]
 
-        # The reason we're enforcing permission checks this way is to deal
-        # with the edge case where a user removes himself as a collaborator
-        # from another user's repo.
-        if collaborator not in repo_collaborators:
-            raise Exception('Failed to delete collaborator.'
-                            ' %s is not a collaborator in the specified'
-                            'repository.' % collaborator)
-        if self.username != collaborator and self.username != self.repo_base:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges')
+            # The reason we're enforcing permission checks this way is to deal
+            # with the edge case where a user removes himself as a collaborator
+            # from another user's repo.
+            if collaborator not in collaborators:
+                raise Exception('Failed to delete collaborator.'
+                                ' %s is not a collaborator in the specified'
+                                'repository.' % collaborator)
+            if (self.username != collaborator and
+                    self.username != self.repo_base):
+                raise PermissionDenied(
+                    'Access denied. Missing required privileges')
 
-        collab = User.objects.get(username=collaborator)
-        Collaborator.objects.get(
-            user=collab, repo_name=repo, repo_base=self.repo_base).delete()
+            collab = User.objects.get(username=collaborator)
+            Collaborator.objects.get(
+                user=collab, repo_name=repo, repo_base=self.repo_base).delete()
 
-        return superuser_con.delete_collaborator(
-            repo=repo, collaborator=collaborator)
+            result = conn.delete_collaborator(
+                repo=repo, collaborator=collaborator)
+        return result
 
     def list_repo_files(self, repo):
         # check for permissions
@@ -182,11 +250,18 @@ class DataHubManager:
         return cards
 
     def list_collaborators(self, repo):
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'],
-            repo_base=self.repo_base)
-        return superuser_con.list_collaborators(repo=repo)
+        """
+        returns a list of objects with keys 'username' and 'permissions'.
+        'permissions' are tied to the database being queried, and left to the
+        user to be interpreted. For postgres, see
+        http://www.postgresql.org/docs/9.4/static/sql-grant.html
+        An example response:
+        # [{'username': 'foo_user', 'permissions': 'UC'},
+           {'username': 'bar_user', 'permissions': 'U'}]
+        """
+        with _superuser_connection(self.repo_base) as conn:
+            result = conn.list_collaborators(repo=repo)
+        return result
 
     def save_file(self, repo, data_file):
         res = DataHubManager.has_repo_privilege(
@@ -226,10 +301,10 @@ class DataHubManager:
         return file
 
     def get_card(self, repo, card_name):
-        '''
+        """
         used to get cards. This goes through manage.py because, it requires
         a check that the user actually has repo access.
-        '''
+        """
         res = DataHubManager.has_repo_privilege(
             self.username, self.repo_base, repo, 'USAGE')
         if not res:
@@ -376,9 +451,9 @@ class DataHubManager:
         return self.user_con.select_table_query(
             repo_base=self.repo_base, repo=repo, table=table)
 
-    '''
+    """
     Static methods that don't require permissions
-    '''
+    """
 
     @staticmethod
     def create_user_data_folder(repo_base, repo=''):
@@ -423,40 +498,37 @@ class DataHubManager:
             os.path.join(os.sep, 'user_data', username))
         return os.path.exists(repo_dir)
 
-    '''
+    """
     The following methods run in superuser mode only
-    '''
+    """
 
     @staticmethod
     def user_exists(username):
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'])
-        return superuser_con.user_exists(username)
+        with _superuser_connection() as conn:
+            result = conn.user_exists(username)
+        return result
 
     @staticmethod
     def database_exists(db_name):
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'])
-        return superuser_con.database_exists(db_name)
+        with _superuser_connection() as conn:
+            result = conn.database_exists(db_name)
+        return result
 
-    ''' User/Role Management '''
+    """ User/Role Management """
 
     @staticmethod
     def create_user(username, password, create_db=True):
         """Creates a DB role, database, and data folder for a new user."""
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'])
-        res = superuser_con.create_user(
-            username=username, password=password, create_db=create_db)
-        DataHubManager.create_user_data_folder(username)
+        with _superuser_connection() as conn:
+            res = conn.create_user(
+                username=username, password=password, create_db=create_db)
+            DataHubManager.create_user_data_folder(username)
         return res
 
     @staticmethod
-    def remove_user(username, remove_db=True):
-        # get the user associated with the username, and delete their apps
+    def _remove_django_user(username):
+        # Get the user associated with the username, delete their apps, and
+        # then delete the user
         try:
             user = User.objects.get(username=username)
             apps = App.objects.filter(user=user)
@@ -465,78 +537,84 @@ class DataHubManager:
                 DataHubManager.remove_app(app_id=app_id)
 
             Collaborator.objects.filter(user=user).delete()
-        except:
+            user.delete()
+        except User.DoesNotExist:
             user = None
 
-        # do the same thing for legacy users
+        # Do the same thing for legacy users
         try:
             legacy_user = DataHubLegacyUser.objects.get(username=username)
             apps = App.objects.filter(legacy_user=legacy_user)
             for app in apps:
                 app_id = app.app_id
                 DataHubManager.remove_app(app_id=app_id)
-        except:
+            legacy_user.delete()
+        except DataHubLegacyUser.DoesNotExist:
             legacy_user = None
 
-        # delete the users
-        if user:
-            user.delete()
+        # Raise a not found exception if this didn't result in any deletions
+        if not user and not legacy_user:
+            raise User.DoesNotExist()
 
-        if legacy_user:
-            legacy_user.delete()
+    @staticmethod
+    def remove_user(username, remove_db=True, ignore_missing_user=False):
+        # Delete the Django user
+        try:
+            DataHubManager._remove_django_user(username)
+        except User.DoesNotExist as e:
+            if not ignore_missing_user:
+                raise e
 
-        # delete the user's db
+        # Delete the user's db
         if remove_db:
             DataHubManager.remove_database(username)
 
-        # make a connection, and delete the user's database account
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'])
-        try:
-            return superuser_con.remove_user(username=username)
-        except:
-
-            all_db_list = DataHubManager.list_all_databases()
-            for db in all_db_list:
-                DataHubManager.drop_owned_by(username=username, repo_base=db)
-            return superuser_con.remove_user(username=username)
+        # Make a connection, and delete the user's database role
+        with _superuser_connection() as conn:
+            try:
+                # Try the simple case first: delete the user when they have no
+                # db permissions left
+                result = conn.remove_user(username=username)
+            except:
+                # Assume the failure was outstanding db permissions. Remove
+                # them and try again.
+                all_db_list = DataHubManager.list_all_databases()
+                for db in all_db_list:
+                    DataHubManager.drop_owned_by(username=username,
+                                                 repo_base=db)
+                result = conn.remove_user(username=username)
+        return result
 
     @staticmethod
     def remove_app(app_id):
         app = App.objects.get(app_id=app_id)
+        Collaborator.objects.filter(app=app).delete()
         app.delete()
 
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'])
-        superuser_con.remove_user(username=app_id)
+        with _superuser_connection() as conn:
+            conn.remove_user(username=app_id)
 
     @staticmethod
     def drop_owned_by(username, repo_base):
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'],
-            repo_base=repo_base)
-        return superuser_con.drop_owned_by(username)
+        with _superuser_connection(repo_base) as conn:
+            result = conn.drop_owned_by(username)
+        return result
 
     @staticmethod
     def list_all_users():
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'])
-        return superuser_con.list_all_users()
+        with _superuser_connection() as conn:
+            result = conn.list_all_users()
+        return result
 
     @staticmethod
     def list_all_databases():
-        '''
+        """
         lists all user databases. Does not list some,
         like postgres, templates0, templates1, or datahub
-        '''
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'])
-        return superuser_con.list_all_databases()
+        """
+        with _superuser_connection() as conn:
+            result = conn.list_all_databases()
+        return result
 
     @staticmethod
     def remove_database(repo_name, revoke_collaborators=True):
@@ -545,20 +623,18 @@ class DataHubManager:
             collaborator.delete()
 
         DataHubManager.delete_user_data_folder(repo_name)
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'])
-        return superuser_con.remove_database(repo_name, revoke_collaborators)
+        with _superuser_connection() as conn:
+            result = conn.remove_database(repo_name, revoke_collaborators)
+        return result
 
     @staticmethod
     def change_password(username, password):
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'])
-        return superuser_con.change_password(username=username,
-                                             password=password)
+        with _superuser_connection() as conn:
+            result = conn.change_password(username=username,
+                                          password=password)
+        return result
 
-    ''' Import/Export Files '''
+    """ Import/Export Files """
 
     @staticmethod
     def import_file(username, repo_base, repo, table, file_name,
@@ -599,18 +675,16 @@ class DataHubManager:
         manager.execute_sql(query=query)
 
         # populate the newly created table with data from the csv
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'],
-            repo_base=repo_base)
-        return superuser_con.import_file(
-            table_name=dh_table_name,
-            file_path=file_path,
-            file_format=file_format,
-            delimiter=delimiter,
-            header=header,
-            encoding=encoding,
-            quote_character=quote_character)
+        with _superuser_connection(repo_base) as conn:
+            result = conn.import_file(
+                table_name=dh_table_name,
+                file_path=file_path,
+                file_format=file_format,
+                delimiter=delimiter,
+                header=header,
+                encoding=encoding,
+                quote_character=quote_character)
+        return result
 
     @staticmethod
     def export_table(username, repo_base, repo, table, file_format='CSV',
@@ -621,6 +695,11 @@ class DataHubManager:
         Only superusers can execute the copy command, so this function
         passes the username, and verifies user's permissions.
         """
+        # clean up names:
+        repo_base = clean_str(repo_base, '')
+        repo = clean_str(repo, '')
+        table = clean_str(table, '')
+
         # check for permissions
         res = DataHubManager.has_repo_privilege(
             username, repo_base, repo, 'CREATE')
@@ -639,70 +718,99 @@ class DataHubManager:
         long_table_name = '%s.%s.%s' % (repo_base, repo, table)
 
         # pass arguments to the connector
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'],
-            repo_base=repo_base)
-        return superuser_con.export_table(
-            table_name=long_table_name,
-            file_path=file_path,
-            file_format=file_format,
-            delimiter=delimiter,
-            header=header)
+        with _superuser_connection(repo_base) as conn:
+            result = conn.export_table(
+                table_name=long_table_name,
+                file_path=file_path,
+                file_format=file_format,
+                delimiter=delimiter,
+                header=header)
+        return result
+
+    @staticmethod
+    def export_view(username, repo_base, repo, view, file_format='CSV',
+                    delimiter=',', header=True):
+        """
+        Export a view to a CSV file in the same repo.
+
+        Only superusers can execute the copy command, so this function
+        passes the username, and verifies user's permissions.
+        """
+        # clean up names:
+        repo_base = clean_str(repo_base, '')
+        repo = clean_str(repo, '')
+        view = clean_str(view, '')
+
+        # check for permissions
+        res = DataHubManager.has_repo_privilege(
+            username, repo_base, repo, 'CREATE')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges.')
+
+        # make the base_repo and repo's folder, if they don't already exist
+        DataHubManager.create_user_data_folder(repo_base, repo)
+
+        # define the file path for the new view
+        file_name = clean_file_name(view)
+        file_path = user_data_path(repo_base, repo, file_name, file_format)
+
+        # format the full view name
+        long_view_name = '%s.%s.%s' % (repo_base, repo, view)
+
+        # pass arguments to the connector
+        with _superuser_connection(repo_base) as conn:
+            result = conn.export_view(
+                view_name=long_view_name,
+                file_path=file_path,
+                file_format=file_format,
+                delimiter=delimiter,
+                header=header)
+        return result
 
     @staticmethod
     def export_query(repo_base, query, file_path, file_format='CSV',
                      delimiter=',', header=True):
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'],
-            repo_base=repo_base)
-        return superuser_con.export_query(
-            query=query,
-            file_path=file_path,
-            file_format=file_format,
-            delimiter=delimiter,
-            header=header)
+        with _superuser_connection(repo_base) as conn:
+            result = conn.export_query(
+                query=query,
+                file_path=file_path,
+                file_format=file_format,
+                delimiter=delimiter,
+                header=header)
+        return result
 
-    ''' Access Privilege Checks '''
+    """ Access Privilege Checks """
 
     @staticmethod
     def has_base_privilege(login, repo_base, privilege):
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'],
-            repo_base=repo_base)
-        return superuser_con.has_base_privilege(
-            login=login, privilege=privilege)
+        with _superuser_connection(repo_base) as conn:
+            result = conn.has_base_privilege(
+                login=login, privilege=privilege)
+        return result
 
     @staticmethod
     def has_repo_privilege(login, repo_base, repo, privilege):
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'],
-            repo_base=repo_base)
-        return superuser_con.has_repo_privilege(
-            login=login, repo=repo, privilege=privilege)
+        with _superuser_connection(repo_base) as conn:
+            result = conn.has_repo_privilege(
+                login=login, repo=repo, privilege=privilege)
+        return result
 
     @staticmethod
     def has_table_privilege(login, repo_base, table, privilege):
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'],
-            repo_base=repo_base)
-        return superuser_con.has_table_privilege(
-            login=login, table=table, privilege=privilege)
+        with _superuser_connection(repo_base) as conn:
+            result = conn.has_table_privilege(
+                login=login, table=table, privilege=privilege)
+        return result
 
     @staticmethod
     def has_column_privilege(login, repo_base, table, column, privilege):
-        superuser_con = DataHubConnection(
-            user=settings.DATABASES['default']['USER'],
-            password=settings.DATABASES['default']['USER'],
-            repo_base=repo_base)
-        return superuser_con.has_column_privilege(login=login,
-                                                  table=table,
-                                                  column=column,
-                                                  privilege=privilege)
+        with _superuser_connection(repo_base) as conn:
+            result = conn.has_column_privilege(login=login,
+                                               table=table,
+                                               column=column,
+                                               privilege=privilege)
+        return result
 
 
 class PermissionDenied(Exception):

@@ -102,10 +102,16 @@ except ImportError as e:
           "`src/scripts/generate_secret_key.py` to create a new key.",
           file=sys.stderr)
 
+# /datahub/src/config/settings.py -> /datahub/src/config/ -> /datahub/src/
+PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'APP_DIRS': True,
+        'DIRS': [
+            os.path.join(PROJECT_ROOT, 'templates'),
+        ],
         'OPTIONS': {
             'context_processors': (
                 'django.contrib.auth.context_processors.auth',
@@ -118,22 +124,17 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social.apps.django_app.context_processors.backends',
                 'social.apps.django_app.context_processors.login_redirect',
-            )
+            ),
         }
     }
 ]
-
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-    # 'django.template.loaders.eggs.Loader',
-)
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'oauth2_provider.middleware.OAuth2TokenMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 
@@ -146,17 +147,12 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+CORS_ORIGIN_ALLOW_ALL = True
+
 ROOT_URLCONF = 'browser.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'browser.wsgi.application'
-
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or
-    # "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -167,7 +163,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'crispy_forms',
     'social.apps.django_app.default',
+    'rest_framework',
+    'oauth2_provider',
+    'rest_framework_swagger',
     'account',
+    'api',
     'console',
     'browser',
     'core',
@@ -193,6 +193,9 @@ SOCIAL_AUTH_URL_NAMESPACE = 'social'
 
 # Make sure OAuth redirects use HTTPS, e.g. https://localhost/complete/twitter
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
+
+# Only redirect logins to URLs on this domain.
+SOCIAL_AUTH_SANITIZE_REDIRECTS = True
 
 SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_details',
@@ -226,6 +229,38 @@ SOCIAL_AUTH_DISCONNECT_PIPELINE = (
 SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['preferred_username']
 
 SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['username', 'email']
+
+OAUTH2_PROVIDER = {
+    'SCOPES': {
+        'read': "Read your DataHub data.",
+        'write': "Modify and delete your DataHub data.",
+    },
+    'READ_SCOPE': 'read',
+    'WRITE_SCOPE': 'write',
+    'ALLOWED_REDIRECT_URI_SCHEMES': ['http', 'https', 'oauthexplorer'],
+    # Access tokens are good for 1 day.
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 24 * 60 * 60,
+    # Authorization codes must be redeemed within 10 minutes.
+    'AUTHORIZATION_CODE_EXPIRE_SECONDS': 600,
+    # Refresh tokens are good for 2 weeks.
+    'REFRESH_TOKEN_EXPIRE_SECONDS': 14 * 24 * 60 * 60,
+    'REQUEST_APPROVAL_PROMPT': 'force',
+    'OAUTH2_BACKEND_CLASS':
+        'api.oauth2_backends.ContentNegotiatingOAuthLibCore',
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+        'api.permissions.WeakTokenHasReadWriteScope',
+    ),
+    'EXCEPTION_HANDLER': 'api.views.custom_exception_handler'
+}
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

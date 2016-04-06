@@ -1,27 +1,39 @@
+# App requirements
 Django==1.8.2
 nltk==3.0.2
-numpy==1.9.1
+numpy==1.10.1
 psycopg2==2.5.4
 pycrypto==2.6.1
 pyparsing==2.0.3
 python-dateutil==2.3
 scorpionsql==0.0.4
-six==1.8.0
+six==1.10.0
 SQLAlchemy==0.9.8
 sqlparse==0.1.15
 textblob==0.9.0
 thrift==0.9.2
 viz==0.0.5
-Sphinx==1.3.1
-pdb==0.1
-coverage
-
 requests>=2.5.1
 python-social-auth==0.2.13
 pyjwkest==1.0.1
 django-crispy-forms==1.5.2
-
-selenium
 factory_boy
+djangorestframework
+django-rest-swagger
+django-oauth-toolkit
+django-cors-headers
+django-rest-framework-social-oauth2
+djangorestframework-csv
+
+# WSGI server
 gunicorn==19.3.0
+
+# Docs
+Sphinx==1.3.1
+
+# Testing
+selenium
 mock==1.3.0
+coverage
+pdb==0.1
+httpie

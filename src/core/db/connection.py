@@ -14,6 +14,9 @@ class DataHubConnection:
     def change_repo_base(self, repo_base):
         self.backend.change_repo_base(repo_base=repo_base)
 
+    def set_search_paths(self, search_paths=[]):
+        return self.backend.set_search_paths(search_paths)
+
     def close_connection(self):
         self.backend.close_connection()
 
@@ -22,6 +25,9 @@ class DataHubConnection:
 
     def list_repos(self):
         return self.backend.list_repos()
+
+    def rename_repo(self, repo, new_name):
+        return self.backend.rename_repo(repo, new_name)
 
     def delete_repo(self, repo, force=False):
         return self.backend.delete_repo(repo=repo, force=force)
@@ -37,11 +43,28 @@ class DataHubConnection:
             repo=repo,
             collaborator=collaborator)
 
+    def create_table(self, repo, table, params):
+        return self.backend.create_table(repo=repo, table=table, params=params)
+
     def list_tables(self, repo):
         return self.backend.list_tables(repo=repo)
 
+    def describe_table(self, repo, table, detail=False):
+        return self.backend.describe_table(
+            repo=repo, table=table, detail=detail)
+
+    def create_view(self, repo, view, sql):
+        return self.backend.create_view(repo=repo, view=view, sql=sql)
+
     def list_views(self, repo):
         return self.backend.list_views(repo=repo)
+
+    def describe_view(self, repo, view, detail=False):
+        return self.backend.describe_view(
+            repo=repo, view=view, detail=detail)
+
+    def delete_view(self, repo, view, force=False):
+        return self.backend.delete_view(repo=repo, view=view, force=force)
 
     def delete_table(self, repo, table, force=False):
         return self.backend.delete_table(repo=repo, table=table, force=force)
@@ -125,6 +148,14 @@ class DataHubConnection:
                      delimiter=',', header=True):
         return self.backend.export_table(
             table_name=table_name,
+            file_path=file_path,
+            file_format=file_format,
+            delimiter=delimiter)
+
+    def export_view(self, view_name, file_path, file_format='CSV',
+                    delimiter=',', header=True):
+        return self.backend.export_view(
+            view_name=view_name,
             file_path=file_path,
             file_format=file_format,
             delimiter=delimiter)

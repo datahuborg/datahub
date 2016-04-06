@@ -73,7 +73,7 @@ def provider_details(backend=None):
             'backend': 'mit-oidc',
             'name': 'MIT OpenID Connect',
             'org_name': 'MIT',
-            'icon': 'icon-mit',
+            'icon': 'mit-icon-logo',
             'priority': -1000,
         },
     ]
@@ -167,6 +167,7 @@ def grant_app_permission(username, repo_name, app_id, app_token):
             repo_name,
             app_id,
             privileges=['SELECT', 'INSERT', 'UPDATE', 'DELETE'])
+        manager.close_connection()
     except Exception as e:
         raise e
 

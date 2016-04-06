@@ -59,11 +59,10 @@ class UsernameForm(forms.Form):
     """
 
     invalid_username_msg = (
-        "Usernames may only contain alphanumeric characters, hyphens, and "
-        "underscores, and must not begin or end with an a hyphen or "
-        "underscore."
+        "Usernames may only contain alphanumeric characters and "
+        "underscores, and must not begin or end with an underscore."
         )
-    regex = r'^(?![\-\_])[\w\-\_]+(?<![\-\_])$'
+    regex = r'^(?![\_])[\w\_]+(?<![\_])$'
     validate_username = RegexValidator(regex, invalid_username_msg)
 
     username = forms.CharField(

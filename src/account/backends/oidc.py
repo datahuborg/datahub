@@ -12,7 +12,6 @@ from jwkest.jws import JWS
 
 
 class _cache(object):
-
     """
     Caches method return values for a specific length of time.
 
@@ -53,7 +52,6 @@ def _autoconf(name):
 
 
 class DataHubFixedOpenIdConnect(OpenIdConnectAuth):
-
     """
     Broader OpenID Connect support than what comes with PSA out of the box.
 
@@ -245,7 +243,6 @@ class DataHubFixedOpenIdConnect(OpenIdConnectAuth):
             raise AuthTokenError(
                 self, ('User info error: Signature verification failed. '
                        'Reason: {0}'.format(e)))
-        print(user_info)
         self.validate_userinfo_claims(user_info)
         return user_info
 
@@ -277,6 +274,5 @@ class DataHubFixedOpenIdConnect(OpenIdConnectAuth):
             raise AuthTokenError(
                 self, ('User info error: Signature verification failed. '
                        'Reason: {0}'.format(e)))
-        print("ID token")
         self.validate_id_token_claims(id_token)
         return id_token

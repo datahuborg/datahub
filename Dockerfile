@@ -1,16 +1,6 @@
-FROM ubuntu:14.04
-ENV PYTHONUNBUFFERED 1
-RUN apt-get update && apt-get install -y \
-        thrift-compiler \
-        python-pip \
-        python-dev \
-        libpq-dev \
-        libpq5 \
-        libffi-dev && \
-        apt-get clean
-RUN mkdir /datahub
-WORKDIR /datahub
+FROM datahuborg/datahub-base:0.1
 ADD requirements.txt /datahub/
+WORKDIR /datahub
 RUN pip install -r requirements.txt
 EXPOSE 8000
 ENV PYTHONPATH "/datahub/src:/datahub/src/gen-py:/datahub/src/apps"
@@ -26,3 +16,5 @@ ADD provisions/docker/test_container_fake_history /root/.bash_history
 # those changes.
 VOLUME /var/log/gunicorn
 VOLUME /static
+
+CMD ["/datahub/src/scripts/start-app.sh"]

@@ -3,60 +3,58 @@
 <div class="container">
   
   <h4 class="inline-block">
-    {{login}} /
+    <a href="{% url 'browser-user' login %}">{{login}}</a> / apps
   </h4>
   
   <hr />
   <br />
   <div class="panel panel-default">
-  <div class="panel-heading">
-    <span class="lead">
-      Apps &nbsp;
-      <a class="btn btn-default btn-sm" href="/developer/apps/register" title="Register a New DataHub App"><span class="glyphicon glyphicon-plus"></span></a>
-    </span>
-  </div>
-  
-  {% if apps|length > 0 %}
     <div class="table-responsive">
-      <table id="apps" class="table">
+      <table id="oauth_apps" class="table">
+        <tr class="panel-default">
+          <th colspan="3" class="lead panel-heading">
+            OAuth Apps &nbsp;
+            <a class="btn btn-default btn-sm" href="{% url 'oauth2_provider:register' %}" title="Register a New DataHub App"><span class="glyphicon glyphicon-plus"></span></a>
+            {# <a class="btn btn-default btn-sm" href="/developer/apps/register" title="Register a New DataHub App"><span class="glyphicon glyphicon-plus"></span></a> #}
+          </th>
+        </tr>
         <tr>
-        <th>App ID</th>
         <th>App Name</th>
-        <th>App Token</th>
-        <th>Date Created</th>
-        <th class="text-right">Actions</th>
+        <th>Client ID</th>
+        <th></th>
         </tr>          
-        {% for app in apps %}
+        {% for app in oauth_apps %}
           <tr>
-            <td>{{app.app_id}}</td>
-            <td>{{app.app_name}}</td>
-            <td>{{app.app_token}}</td>
-            <td>{{app.date_created}}</td>
-            <td class="text-right" style="width: 25em; max-width: 30em;">
-              <span class="modal-confirm-dialog"
-                  target-modal="#confirm-modal"
-                  target-modal-title="Confirm Delete"
-                  target-modal-body="This will permanently delete the app <label>{{app.app_name}} (id: {{app.app_id}})</label>. The operation can't be undone. Are you sure?"
-                  target-modal-operation="Delete"
-                  target-url="/developer/apps/remove/{{app.app_id}}"
-                  title="Delete">
-                <a href="#"><span class="glyphicon glyphicon-trash"></span></a>
-              </span>
-              &nbsp;&nbsp;
-            </td>            
+            <td><a href="{{ app.get_absolute_url }}">{{app.name}}</a></td>
+            <td>{{app.client_id}}</td>
+            <td></td>
           </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3" class="bg-warning">You don't have any registered apps yet.</strong></td>
+            </tr>
         {% endfor %}
-
+        {% if thrift_apps|length > 0 %}
+          <tr class="panel-default">
+            <th colspan="3" class="lead panel-heading">
+              <span class="lead">Thrift Apps</span>
+            </th>
+          </tr>
+          <tr>
+            <th>App Name</th>
+            <th>App Token</th>
+            <th>Date Created</th>
+          </tr>
+          {% for app in thrift_apps %}
+            <tr>
+              <td><a href="{% url 'browser-thrift_app_detail' app.app_id %}">{{app.app_name}} (id: {{app.app_id}})</a></td>
+              <td>{{app.app_token}}</td>
+              <td>{{app.timestamp}}</td>
+            </tr>
+          {% endfor %}
+        {% endif %} 
       </table>
     </div>
-  {% else %}
-    <p class="bg-warning">You don't have any registered app yet.</strong></p>
-  {% endif %} 
   </div>
 </div>
 {% endblock %}
-
-
-
-
-

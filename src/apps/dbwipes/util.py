@@ -7,7 +7,6 @@ import time
 import json
 import decimal
 import md5
-import pdb
 import psycopg2
 import traceback
 
