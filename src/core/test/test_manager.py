@@ -9,7 +9,6 @@ from mock import patch, MagicMock
 
 
 class Initialization(TestCase):
-
     """Test the correct user is returned."""
 
     @factory.django.mute_signals(signals.pre_save)
@@ -47,7 +46,6 @@ class Initialization(TestCase):
 
 
 class BasicOperations(TestCase):
-
     """Tests basic operations in manager.py."""
 
     @factory.django.mute_signals(signals.pre_save)
@@ -169,7 +167,9 @@ class BasicOperations(TestCase):
             MagicMock(), True)
 
         self.manager.add_collaborator(
-            repo='reponame', collaborator='new_collaborator', privileges='select')
+            repo='reponame',
+            collaborator='new_collaborator',
+            privileges='select')
 
         self.assertTrue(con_add_collab.called)
         self.assertEqual(con_add_collab.call_args[1]['repo'], 'reponame')

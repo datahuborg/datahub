@@ -15,7 +15,7 @@ DataHub Server (TCP Mode)
 '''
 
 handler = DataHubHandler()
-  
+
 processor = DataHub.Processor(handler)
 transport = TSocket.TServerSocket('0.0.0.0', 9000)
 tfactory = TTransport.TBufferedTransportFactory()
@@ -24,5 +24,5 @@ pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 server = TServer.TThreadedServer(
     processor, transport, tfactory, pfactory)
 
-print 'Starting DataHub Server'
+print('Starting DataHub Server')
 server.serve()
