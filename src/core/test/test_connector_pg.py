@@ -757,8 +757,8 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
             'fields': [{'type': 1033, 'name': 'unnest'}]}
 
         expected_result = [
-            {'username': 'al_carter', 'permissions': 'UC'},
-            {'username': 'foo_bar', 'permissions': 'U'}
+            {'username': 'al_carter', 'db_permissions': 'UC'},
+            {'username': 'foo_bar', 'db_permissions': 'U'}
             ]
 
         res = self.backend.list_collaborators(repo)
