@@ -579,9 +579,8 @@ class Cards(APIView):
         serializer = CardSerializer(username, repo_base, request)
         card_name = request.data['card_name']
         query = request.data['query']
-        serializer.create_card(repo_name, query, card_name)
-        card = serializer.describe_card(repo_name, card_name)
-        return Response(card, status=status.HTTP_201_CREATED)
+        res = serializer.create_card(repo_name, query, card_name)
+        return Response(res, status=status.HTTP_201_CREATED)
 
 
 class Card(APIView):
@@ -614,6 +613,36 @@ class Card(APIView):
         serializer = CardSerializer(username, repo_base, request)
         res = serializer.describe_card(
             repo_name, card_name, current_page, rows_per_page)
+        return Response(res, status=status.HTTP_200_OK)
+
+    def patch(self, request, repo_base, repo_name, card_name):
+        """
+        Change a card's name, query, and/or make it public or private
+        ---
+        parameters:
+          - name: new_name
+            in: path
+            type: string
+            description: new name for the card
+          - name: new_query
+            in: path
+            type: string
+            description: new query for the card
+          - name: public
+            in: path
+            type: bool
+            description: whether the card is public or not
+        """
+        username = request.user.get_username()
+        data = request.data
+        new_name = data.get('new_name', None)
+        new_query = data.get('new_query', None)
+        public = bool(data.get('public', None))
+
+        serializer = CardSerializer(
+            username=username, repo_base=repo_base)
+        res = serializer.update_card(
+            repo_name, card_name, new_query, new_name, public)
         return Response(res, status=status.HTTP_200_OK)
 
     def delete(self, request, repo_base, repo_name, card_name):

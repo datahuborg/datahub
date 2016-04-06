@@ -351,14 +351,46 @@ class DataHubManager:
         file = open(file_path).read()
         return file
 
+    def update_card(self, repo, card_name, new_query=None,
+                    new_name=None, public=None):
+        """
+        Updates cards with new name/query/public variables
+        """
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'write')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges.')
+
+        card = Card.objects.get(
+            repo_base=self.repo_base, repo_name=repo, card_name=card_name)
+        # update the card
+        if new_query is not None:
+            # Queries for cards must work
+            try:
+                self.execute_sql(new_query)
+            except Exception:
+                raise PermissionDenied(
+                    'Either missing required privileges or bad query')
+            card.query = new_query
+        if new_name is not None:
+            card.card_name = new_name
+        if public is not None:
+            card.public = public
+
+        card.save()
+        return card
+
     def get_card(self, repo, card_name):
         """
         used to get cards. This goes through manage.py because, it requires
         a check that the user actually has repo access.
         """
+        card = Card.objects.get(
+            repo_base=self.repo_base, repo_name=repo, card_name=card_name)
         res = DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'read')
-        if not res:
+        if not (res or card.public):
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
 
