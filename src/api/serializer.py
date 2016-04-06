@@ -321,7 +321,8 @@ class CardSerializer(DataHubSerializer):
 
         return {'cards': card_list}
 
-    def describe_card(self, repo, card_name):
+    def describe_card(
+            self, repo, card_name, current_page=1, rows_per_page=1000):
         card = self.manager.get_card(repo, card_name)
         # relative_uri = reverse('api:query_with_repo', args=(
         #     self.repo_base, repo))
@@ -330,7 +331,17 @@ class CardSerializer(DataHubSerializer):
         res = {}
         res['timestamp'] = card.timestamp
         res['query'] = card.query
-        # res['query_href'] = absolute_uri
+
+        # Get the results of the card
+        # cards must spawn a new serializer, since they run as the user
+        # that created the card (not necessarily the current user)
+        query_serializer = QuerySerializer(self.repo_base, self.repo_base)
+        query_results = query_serializer.execute_query(
+            query=card.query, repo=repo, current_page=current_page,
+            rows_per_page=rows_per_page,
+            rows_only=None)
+        res['results'] = query_results
+
         return res
 
     def create_card(self, repo, query, card_name):

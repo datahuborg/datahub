@@ -27,6 +27,7 @@ class Card(models.Model):
     repo_base = models.CharField(max_length=50)
     repo_name = models.CharField(max_length=50)
     card_name = models.CharField(max_length=50)
+    public = models.BooleanField(default=False)
     query = models.TextField()
 
     def __unicode__(self):

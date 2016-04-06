@@ -573,6 +573,7 @@ class Cards(APIView):
             type: string
             required: true
 
+
         """
         username = request.user.get_username()
         serializer = CardSerializer(username, repo_base, request)
@@ -587,11 +588,32 @@ class Card(APIView):
 
     def get(self, request, repo_base, repo_name, card_name):
         """
-        See the query in a single card
+        See the query and query results of a single card.
+        The results of the card query is exactly what the repo base owner
+        would see.
+        ---
+        omit_serializer: true
+
+        parameters:
+          - name: current_page
+            in: path
+            type: integer
+            description: page being viewed
+          - name: rows_per_page
+            in: path
+            type: integer
+            description: number of rows per page
+
         """
         username = request.user.get_username()
+        data = request.data
+
+        current_page = int(data.get('current_page', 1))
+        rows_per_page = int(data.get('rows_per_page', 1000))
+
         serializer = CardSerializer(username, repo_base, request)
-        res = serializer.describe_card(repo_name, card_name)
+        res = serializer.describe_card(
+            repo_name, card_name, current_page, rows_per_page)
         return Response(res, status=status.HTTP_200_OK)
 
     def delete(self, request, repo_base, repo_name, card_name):
