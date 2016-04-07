@@ -69,17 +69,19 @@ Because the server is containerized, most server commands must be run in a conta
 
 .. code-block:: bash
 
-    $ dh-back-up-all-databases
     $ dh-build-images
-    $ dh-back-up-single-database
     $ dh-create-dev-containers
     $ dh-create-prod-containers
     $ dh-rebuild-and-collect-static-files
-    $ dh-restore-database
-    $ dh-run-pgcli
     $ dh-run-test-container
     $ dh-start-containers
     $ dh-stop-containers
+    $ dh-remove-all-containers
+    $ dh-back-up-single-database
+    $ dh-back-up-all-databases
+    $ dh-restore-database
+    $ dh-run-pgcli
+    $ dh-codeclimate
 
 Example Docker commands:
 
