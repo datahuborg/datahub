@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import sys
 
 from django.db import models, migrations
 
@@ -22,21 +23,25 @@ def create_public_user(apps, schema_editor):
     users = User.objects.filter(username=username)
 
     if len(users) > 0:
-        print('\n==> public user already created.'
-              'Not creating public user\n')
+        # print('==> public user already created.'
+        #       'Not creating public user')
         return
 
     try:
-        message = (
-            '\n==>creating public user %s with email %s '
-            'and password %s \n') % (username, email, password)
-        print message
+        # message = (
+        #     '==>creating public user %s with email %s '
+        #     'and password %s ') % (username, email, password)
+        # print message
         User.objects.create_user(
             username=username, email=email,
             password=password)
     except Exception as e:
-        print '\n==>failed to create public user.'
-        print e.message
+        testing = 'test' in sys.argv
+        if testing:
+            pass
+        else:
+            # print('==>failed to create anonymous user.')
+            print e.message
 
 
 def create_anonymous_user(apps, schema_editor):
@@ -51,17 +56,17 @@ def create_anonymous_user(apps, schema_editor):
     users = User.objects.filter(username=username)
 
     if len(users) > 0:
-        print(
-            '\n==> anonymous user already created. '
-            'Not creating anonymous user\n')
+        # print(
+            # '==> anonymous user already created. '
+            # 'Not creating anonymous user')
         return
 
     try:
         # create the user
-        message = (
-            '\n==> creating anonymous user %s with email %s '
-            'and password %s \n') % (username, email, password)
-        print message
+        # message = (
+        #     '==> creating anonymous user %s with email %s '
+        #     'and password %s ') % (username, email, password)
+        # print message
         User.objects.create_user(
             username=username, email=email,
             password=password)
@@ -69,14 +74,18 @@ def create_anonymous_user(apps, schema_editor):
         # Immediately remove the associated db and user file directory.
         # (It's easier to create and then delete, since there's no
         # knowing what future create user signals will do.)
-        message = (
-            '\n==>removing anonymous user %s database.\n' % (username))
-        print message
+        # message = (
+        #     '==>removing anonymous user %s database.' % (username))
+        # print message
         DataHubManager.remove_database(username)
 
     except Exception as e:
-        print '\n==>failed to create anonymous user.'
-        print e.message
+        testing = 'test' in sys.argv
+        if testing:
+            pass
+        else:
+            print('==>failed to create public user.')
+            print e.message
 
 
 class Migration(migrations.Migration):

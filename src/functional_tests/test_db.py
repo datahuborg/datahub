@@ -73,7 +73,7 @@ class LoginTest(FunctionalTest):
         snoop = 'delete_me_snoop'
 
         # can be uppercase
-        repos = ['efil4zaggin', 'tSoSN', 'sukka']
+        repos = ['efil4zaggin', 'tsosn', 'sukka']
         tables = ['dopeman', 'thapolice']
 
         # print('eazyE joins datahub')
@@ -138,9 +138,9 @@ class LoginTest(FunctionalTest):
                       .format(base=self.server_url, user=dre, repo=repos[1]))
         self.browser.get(sneaky_url)
 
-        # print('the page says error.')
-        page_source = self.browser.page_source
-        search_string = 'No table'
+        # print('the page says not found.')
+        page_source = self.browser.page_source.lower()
+        search_string = 'not found'
         self.assertTrue(search_string in page_source)
 
         # print('eazyE gives up. He goes to the homepage, logs out'
@@ -181,8 +181,11 @@ class LoginTest(FunctionalTest):
         self.browser.get(sneaky_url)
 
         # print('the page says no table')
-        page_source = self.browser.page_source
-        search_string = 'No table'
+        page_source = self.browser.page_source.lower()
+        # It's unclear why, but the test environment uses a different
+        # template when raising 404 than the production env. Instead of
+        # searching for 404, search for 'not found'.
+        search_string = 'not found'
         self.assertTrue(search_string in page_source)
 
         # print('eazyE sends a diss to snoop')
