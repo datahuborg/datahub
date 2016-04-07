@@ -18,13 +18,6 @@ docker run \
     --net=datahub_dev \
     datahuborg/datahub \
     /bin/bash -c "python src/manage.py migrate --noinput"
-docker run \
-    --rm \
-    --env 'USER=vagrant' \
-    --volumes-from app \
-    --net=datahub_dev \
-    datahuborg/datahub \
-    /bin/bash -c "python src/manage.py createpublicusers"
 docker start app
 docker start web
 echo "Done."
