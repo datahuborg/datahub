@@ -331,6 +331,7 @@ class CardSerializer(DataHubSerializer):
         res = {}
         res['timestamp'] = card.timestamp
         res['query'] = card.query
+        res['public'] = card.public
 
         # Get the results of the card
         # cards must spawn a new serializer, since they run as the user

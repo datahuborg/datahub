@@ -1,4 +1,5 @@
 import ast
+import json
 
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -637,7 +638,9 @@ class Card(APIView):
         data = request.data
         new_name = data.get('new_name', None)
         new_query = data.get('new_query', None)
-        public = bool(data.get('public', None))
+
+        # public needs to be able to parse 'false', so uses json.loads
+        public = json.loads(data.get('public', 'null'))
 
         serializer = CardSerializer(
             username=username, repo_base=repo_base)
