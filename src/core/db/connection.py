@@ -122,6 +122,9 @@ class DataHubConnection:
     def remove_user(self, username):
         return self.backend.remove_user(username)
 
+    def create_user_database(self, username):
+        return self.backend.create_user_database(username)
+
     def drop_owned_by(self, username):
         return self.backend.drop_owned_by(username)
 

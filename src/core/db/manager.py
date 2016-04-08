@@ -617,6 +617,14 @@ class DataHubManager:
         return res
 
     @staticmethod
+    def create_user_database(username):
+        """ create just the database for a user """
+        with _superuser_connection() as conn:
+            res = conn.create_user_database(username=username)
+            DataHubManager.create_user_data_folder(username)
+        return res
+
+    @staticmethod
     def _remove_django_user(username):
         # Get the user associated with the username, delete their apps, and
         # then delete the user

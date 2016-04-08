@@ -1,3 +1,5 @@
+from inventory.create_public_anon_users import (
+    create_public_user, create_anonymous_user)
 from .base import FunctionalTest
 
 
@@ -67,17 +69,23 @@ class LoginTest(FunctionalTest):
                 repo_name, table_name, view_name)
 
     def test_public_repo(self):
+        # Django migrations.RunPython doesn't happen before each test.
+        # To work around this we call some methods (that should have been done
+        # in migrations) here.
+        # Django 1.8/1.9 https://code.djangoproject.com/ticket/23640
+        create_public_user(None, None)
+        create_anonymous_user(None, None)
+
         public_repo = 'public_repo'
         private_repo = 'private_repo'
 
         public_table = 'topsecretlol'
         private_table = 'corruptionnstuff'
 
-        ed = 'esnowden'
-        laura = 'lpoitras'
+        ed = 'delete_me_esnowden'
+        laura = 'delete_me_lpoitras'
 
         # laura makes herself a datahub account
-        import pdb; pdb.set_trace()
         self.sign_up_manually(username=laura, password=None)
         self.sign_out_manually()
 
@@ -89,11 +97,11 @@ class LoginTest(FunctionalTest):
         self.create_repo(private_repo, ed)
 
         # ed makes some tables, and shares their repo just with laura
-        self.create_table(private_repo, private_table)
+        self.create_table(private_repo, private_table, ed)
         self.add_collaborator(private_repo, laura)
 
         # he makes some tables in a different repo, and makes the repo public
-        self.create_table(public_repo, public_table)
+        self.create_table(public_repo, public_table, ed)
         self.make_repo_public(public_repo)
 
         # ed logs out
