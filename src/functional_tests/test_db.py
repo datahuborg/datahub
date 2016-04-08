@@ -66,6 +66,65 @@ class LoginTest(FunctionalTest):
             self.create_view(
                 repo_name, table_name, view_name)
 
+    def test_public_repo(self):
+        public_repo = 'public_repo'
+        private_repo = 'private_repo'
+
+        public_table = 'topsecretlol'
+        private_table = 'corruptionnstuff'
+
+        ed = 'esnowden'
+        laura = 'lpoitras'
+
+        # laura makes herself a datahub account
+        import pdb; pdb.set_trace()
+        self.sign_up_manually(username=laura, password=None)
+        self.sign_out_manually()
+
+        # ed makes himself a datahub account
+        self.sign_up_manually(username=ed, password=None)
+
+        # ed decides to make some repos
+        self.create_repo(public_repo, ed)
+        self.create_repo(private_repo, ed)
+
+        # ed makes some tables, and shares their repo just with laura
+        self.create_table(private_repo, private_table)
+        self.add_collaborator(private_repo, laura)
+
+        # he makes some tables in a different repo, and makes the repo public
+        self.create_table(public_repo, public_table)
+        self.make_repo_public(public_repo)
+
+        # ed logs out
+        self.sign_out_manually()
+
+        # laura logs in and can see the repo. she clicks on it
+        self.sign_in_manually(laura)
+        self.browser.get(self.server_url + '/browse/' + ed)
+        self.browser.find_element_by_link_text(private_repo).click()
+
+        # she sees a shared table
+        self.browser.find_element_by_link_text(private_table)
+
+        # If she goes to the public url, she doesn't see the repo
+        self.browser.get(self.server_url + '/browse/' + 'public')
+        try:
+            self.browser.find_element_by_link_text(private_repo)
+            self.fail()
+        except:
+            pass
+
+        # ... but can see the public repo
+        self.browser.find_element_by_link_text(public_repo)
+
+        # Laura signs out, and then goes back to the public url.
+        # Even though She she isn't authenticated, she can still see the public
+        # repo, and click on it.
+        self.sign_out_manually()
+        self.browser.get(self.server_url + '/browse/' + 'public')
+        self.browser.find_element_by_link_text(public_repo).click()
+
     def test_add_remove_collaborator(self):
         # must be lowercase
         eazyE = 'delete_me_eazye'

@@ -889,6 +889,8 @@ class DataHubManager:
         Relies on database role management, so this is a pretty straightforward
         call
         """
+        repo = repo.lower()
+        repo_base = repo_base.lower()
         with _superuser_connection(repo_base) as conn:
             result = conn.has_repo_db_privilege(
                 login=login, repo=repo, privilege=privilege)
@@ -901,6 +903,9 @@ class DataHubManager:
         passed in the argument. (i.e. 'read')
 
         """
+        repo = repo.lower()
+        repo_base = repo_base.lower()
+
         # users always have privileges for their own files
         if login == repo_base:
             return True

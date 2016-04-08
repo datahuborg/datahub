@@ -110,7 +110,7 @@
                         {% csrf_token %}
                         <input type="hidden" class="form-control" name="collaborator_username" id="collaborator_username" value="{{ public_role }}" />
                     </div>
-                    <button class="btn btn-primary btn-lg btn-block" id="add_collaborator" title="This will restrict access to your repo to you and designated collaborators">Revoke Public Access</button>
+                    <button class="btn btn-primary btn-lg btn-block" id="unpublish" title="This will restrict access to your repo to you and designated collaborators">Revoke Public Access</button>
                 </form>
             </td>
         </tr>
@@ -128,7 +128,7 @@
                         <input type="hidden" class="form-control" name="db_privileges" value="SELECT" />
                         <input type="hidden" class="form-control" name="file_privileges" value="read"/>
                     </div>
-                    <button class="btn btn-danger btn-lg btn-block" id="add_collaborator" title="This will make the repo viewable by anyone, including people whom have not logged into datahub.">Make Repo Public</button>
+                    <button class="btn btn-danger btn-lg btn-block" id="publish" title="This will make the repo viewable by anyone, including people whom have not logged into datahub.">Make Repo Public</button>
                 </form>
             </td>
         </tr>
