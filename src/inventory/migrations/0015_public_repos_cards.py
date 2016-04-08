@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 
-from inventory.create_public_anon_users import (
+from account.management.commands.createpublicanonuser import(
     create_public_user, create_anonymous_user)
 
 

@@ -1,4 +1,4 @@
-from inventory.create_public_anon_users import (
+from account.management.commands.createpublicanonuser import(
     create_public_user, create_anonymous_user)
 from .base import FunctionalTest
 
