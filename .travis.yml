@@ -29,7 +29,6 @@ script:
   # Migrations must be run before creating public users
   - python manage.py makemigrations
   - python manage.py migrate
-  - python manage.py createpublicusers
 
   - python manage.py test inventory www account browser core api
   # tests models
