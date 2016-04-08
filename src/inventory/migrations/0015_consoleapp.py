@@ -18,7 +18,11 @@ def create_console_oauth(apps, schema_editor):
     bar.user = foo
     bar.name = "Console"
     bar.client_id = '7ByJAnXj2jsMFN1REvvUarQjqXjIAU3nmVB661hR'
-    bar.redirect_uris = 'https://' + settings.DATAHUB_DOMAIN + '/apps/console/\nhttp://' + settings.DATAHUB_DOMAIN + '/apps/console/\nhttps://web/apps/console/\nhttp://web/apps/console/'
+    bar.redirect_uris = (
+            'https://' + settings.DATAHUB_DOMAIN + '/apps/console/\n'
+            'http://' + settings.DATAHUB_DOMAIN + '/apps/console/\n'
+            'https://web/apps/console/\n'
+            'http://web/apps/console/')
     bar.client_type = 'public'
     bar.authorization_grant_type = 'implicit'
     bar.skip_authorization = True

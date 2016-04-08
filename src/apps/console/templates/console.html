@@ -86,15 +86,10 @@ function authorizeUser() {
                 console.log('Trying ' + keys[i]);
                 saveIfSet(params, keys[i]);
             }
-            // Clear the hash after handling the access_token.
-            // Just setting window.location.hash = '' leaves a dangling #.
-            // history.replaceState('', document.title, window.location.pathname + window.location.search);
         }
         console.log(params);
     } else {
-
-    // // Request authorization button
-    // if (!sessionStorage.getItem('access_token')) {
+        // Request authorization button
         var params = {
             'response_type': 'token',
             'scope': 'read write',
@@ -336,7 +331,11 @@ function paginate(data, cmd, page) {
     }
 }
 
-function executeQuery(cmd, page=1) { // this may not work
+function executeQuery(cmd, page) { // this may not work
+    if (!page) {
+        page = 1;
+    }
+
     $.ajax({
             url: buildURL('/api/v1/query/' + connection.repo_base + '/'),
             type: 'POST',

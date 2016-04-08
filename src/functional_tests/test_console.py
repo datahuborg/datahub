@@ -1,5 +1,4 @@
 from .base import FunctionalTest
-import datetime
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -15,6 +14,18 @@ import factory
 
 class ConsoleTest(FunctionalTest):
 
+    print"""
+        ************************************************************************************
+        Before running test_console,
+            in src/config/settings.py, set SOCIAL_AUTH_REDIRECT_IS_HTTPS = False,
+            in src/inventory/migrations/0015_consoleapp.py, comment line 36:
+                migrations.RunPython(create_console_oauth)
+            docker rm -f $(docker ps -aq) && dh-create-dev-containers && dh-start-containers
+
+        After running test_console, reset changes and
+            docker rm -f $(docker ps -aq) && dh-create-dev-containers && dh-start-containers
+        ************************************************************************************\n"""
+
     @factory.django.mute_signals(signals.pre_save)
     def create_console_oauth(self):
         foo = User(username="foo", email="foo@mit.edu")
@@ -24,7 +35,11 @@ class ConsoleTest(FunctionalTest):
         bar.user = foo
         bar.name = "Console"
         bar.client_id = '7ByJAnXj2jsMFN1REvvUarQjqXjIAU3nmVB661hR'
-        bar.redirect_uris = 'https://' + settings.DATAHUB_DOMAIN + '/apps/console/\nhttp://' + settings.DATAHUB_DOMAIN + '/apps/console/\nhttps://web/apps/console/\nhttp://web/apps/console/'
+        bar.redirect_uris = (
+            'https://' + settings.DATAHUB_DOMAIN + '/apps/console/\n'
+            'http://' + settings.DATAHUB_DOMAIN + '/apps/console/\n'
+            'https://web/apps/console/\n'
+            'http://web/apps/console/')
         bar.client_type = 'public'
         bar.authorization_grant_type = 'implicit'
         bar.skip_authorization = True
@@ -35,7 +50,8 @@ class ConsoleTest(FunctionalTest):
         self.create_console_oauth()
 
     def send_to_console(self, cmd):
-        console = self.browser.find_element_by_xpath("//div[@class='cmd']/span[3]")
+        console = self.browser.find_element_by_xpath(
+            "//div[@class='cmd']/span[3]")
         console.send_keys(cmd)
 
     def wait_for_console(self, text, xpath=None):
@@ -136,15 +152,20 @@ class ConsoleTest(FunctionalTest):
         self.browser.find_element_by_id('id_user_menu').click()
         self.browser.find_element_by_id('id_launch_terminal').click()
         self.send_to_console(
-            ('CREATE TABLE {repo}.{table} (id integer, words text)' + Keys.ENTER)
+            ('CREATE TABLE {repo}.{table}'
+                '(id integer, words text)' + Keys.ENTER)
             .format(repo=repo_name, table=table_name))
         self.wait_for_console('success')
 
         # insert data into table using terminal
         for row in rows:
             self.send_to_console(
-                ("INSERT INTO {repo}.{table} VALUES ({id}, '{words}')" + Keys.ENTER)
-                .format(repo=repo_name, table=table_name, id=row['id'], words=row['words']))
+                ("INSERT INTO {repo}.{table} "
+                    "VALUES ({id}, '{words}')" + Keys.ENTER)
+                .format(repo=repo_name,
+                        table=table_name,
+                        id=row['id'],
+                        words=row['words']))
             self.wait_for_console('success')
 
         # find table and data on the home page
@@ -190,7 +211,8 @@ class ConsoleTest(FunctionalTest):
         # ls repo_name in terminal
         self.browser.find_element_by_id('id_user_menu').click()
         self.browser.find_element_by_id('id_launch_terminal').click()
-        self.send_to_console('desc ' + repo_name + '.' + table_name + Keys.ENTER)
+        self.send_to_console(
+            'desc ' + repo_name + '.' + table_name + Keys.ENTER)
         self.wait_for_console('columns returned')
 
         # confirm column names are listed
@@ -199,7 +221,8 @@ class ConsoleTest(FunctionalTest):
             self.assertTrue(column_name in page_source)
 
         # ls repo_name -l in terminal
-        self.send_to_console('desc ' + repo_name + '.' + table_name + " -l" + Keys.ENTER)
+        self.send_to_console(
+            'desc ' + repo_name + '.' + table_name + " -l" + Keys.ENTER)
         self.wait_for_console('columns returned')
 
         # confirm column names and types are listed
