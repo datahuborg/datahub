@@ -14,17 +14,13 @@ import factory
 
 class ConsoleTest(FunctionalTest):
 
-    print"""
-        ************************************************************************************
-        Before running test_console,
-            in src/config/settings.py, set SOCIAL_AUTH_REDIRECT_IS_HTTPS = False,
-            in src/inventory/migrations/0015_consoleapp.py, comment line 36:
-                migrations.RunPython(create_console_oauth)
-            docker rm -f $(docker ps -aq) && dh-create-dev-containers && dh-start-containers
-
-        After running test_console, reset changes and
-            docker rm -f $(docker ps -aq) && dh-create-dev-containers && dh-start-containers
-        ************************************************************************************\n"""
+    print '\nBefore running test_console,'
+    print '    in src/config/settings.py, set SOCIAL_AUTH_REDIRECT_IS_HTTPS = False,'
+    print '    in src/inventory/migrations/0015_consoleapp.py, comment line 36:'
+    print '        migrations.RunPython(create_console_oauth)'
+    print '    docker rm -f $(docker ps -aq) && dh-create-dev-containers && dh-start-containers\n'
+    print 'After running test_console, reset changes and'
+    print '    docker rm -f $(docker ps -aq) && dh-create-dev-containers && dh-start-containers\n'
 
     @factory.django.mute_signals(signals.pre_save)
     def create_console_oauth(self):
@@ -62,12 +58,21 @@ class ConsoleTest(FunctionalTest):
             EC.text_to_be_present_in_element((By.XPATH, xpath), text)
         )
 
+    def navigate_to_terminal(self):
+        self.browser.find_element_by_id('id_user_menu').click()
+        self.browser.find_element_by_id('id_launch_terminal').click()
+
+        xpath = "//div[@class='cmd']/span[@class='prompt']"
+
+        WebDriverWait(self.browser, 5).until(
+            EC.presence_of_element_located((By.XPATH, xpath))
+        )
+
     def test_create_repos(self):
         good_repo_names = ['nospace', 'alph4numeric', 'middle_underscore']
 
         self.sign_up_manually()
-        self.browser.find_element_by_id('id_user_menu').click()
-        self.browser.find_element_by_id('id_launch_terminal').click()
+        self.navigate_to_terminal()
 
         # make good repos in terminal
         for repo_name in good_repo_names:
@@ -88,8 +93,7 @@ class ConsoleTest(FunctionalTest):
             self.create_repo(repo_name)
 
         # list repos in terminal
-        self.browser.find_element_by_id('id_user_menu').click()
-        self.browser.find_element_by_id('id_launch_terminal').click()
+        self.navigate_to_terminal()
 
         self.send_to_console('ls' + Keys.ENTER)
         self.wait_for_console('3 rows returned')
@@ -107,8 +111,7 @@ class ConsoleTest(FunctionalTest):
             self.create_repo(repo_name)
 
         # delete repos in terminal
-        self.browser.find_element_by_id('id_user_menu').click()
-        self.browser.find_element_by_id('id_launch_terminal').click()
+        self.navigate_to_terminal()
 
         for repo_name in good_repo_names:
             self.send_to_console('rm ' + repo_name + Keys.ENTER)
@@ -124,8 +127,7 @@ class ConsoleTest(FunctionalTest):
         bad_repo_names = ['one space', '_introUnderscore', 'semi;colon']
 
         self.sign_up_manually()
-        self.browser.find_element_by_id('id_user_menu').click()
-        self.browser.find_element_by_id('id_launch_terminal').click()
+        self.navigate_to_terminal()
 
         # make bad repos in terminal
         for repo_name in bad_repo_names:
@@ -149,8 +151,7 @@ class ConsoleTest(FunctionalTest):
         self.create_repo(repo_name)
 
         # make table using the terminal
-        self.browser.find_element_by_id('id_user_menu').click()
-        self.browser.find_element_by_id('id_launch_terminal').click()
+        self.navigate_to_terminal()
         self.send_to_console(
             ('CREATE TABLE {repo}.{table}'
                 '(id integer, words text)' + Keys.ENTER)
@@ -187,8 +188,7 @@ class ConsoleTest(FunctionalTest):
             self.create_table(repo_name, table_name)
 
         # ls repo_name in terminal
-        self.browser.find_element_by_id('id_user_menu').click()
-        self.browser.find_element_by_id('id_launch_terminal').click()
+        self.navigate_to_terminal()
         self.send_to_console('ls ' + repo_name + Keys.ENTER)
         self.wait_for_console('rows returned')
 
@@ -209,8 +209,7 @@ class ConsoleTest(FunctionalTest):
         self.create_table(repo_name, table_name)
 
         # ls repo_name in terminal
-        self.browser.find_element_by_id('id_user_menu').click()
-        self.browser.find_element_by_id('id_launch_terminal').click()
+        self.navigate_to_terminal()
         self.send_to_console(
             'desc ' + repo_name + '.' + table_name + Keys.ENTER)
         self.wait_for_console('columns returned')
@@ -258,8 +257,7 @@ class ConsoleTest(FunctionalTest):
         self.sign_in_manually(username=users[1], password=None)
 
         # user2 tries to connect to user3 and fails
-        self.browser.find_element_by_id('id_user_menu').click()
-        self.browser.find_element_by_id('id_launch_terminal').click()
+        self.navigate_to_terminal()
 
         self.send_to_console('connect ' + users[2] + Keys.ENTER)
         self.wait_for_console('failed')
