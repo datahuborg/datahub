@@ -655,7 +655,6 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
         self.assertFalse(mock_create_user_database.called)
 
-
     def test_create_user_calls_create_db(self):
         username = 'username'
         password = 'password'

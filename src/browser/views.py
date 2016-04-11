@@ -403,7 +403,8 @@ def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
 
     with custom_manager_error_handler(username, repo_base, repo):
         manager = DataHubManager(user=username, repo_base=repo_base)
-        manager.delete_collaborator(repo=repo, collaborator=collaborator_username)
+        manager.delete_collaborator(
+            repo=repo, collaborator=collaborator_username)
 
     # if the user is removing someone else, return the repo-settings page.
     # otherwise, return the browse page
