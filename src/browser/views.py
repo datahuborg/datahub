@@ -673,7 +673,6 @@ Cards
 
 def card(request, repo_base, repo, card_name):
     username = request.user.get_username()
-
     # if the user is actually executing a query
     current_page = 1
     if request.POST.get('page'):
@@ -684,6 +683,7 @@ def card(request, repo_base, repo, card_name):
     with custom_manager_error_handler(username, repo_base, repo):
         manager = DataHubManager(user=username, repo_base=repo_base)
         card = manager.get_card(repo=repo, card_name=card_name)
+        manager.set_search_paths([card.repo_name])
         res = manager.paginate_query(
             query=card.query, current_page=current_page, rows_per_page=50)
 
