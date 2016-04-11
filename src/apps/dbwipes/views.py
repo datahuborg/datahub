@@ -17,6 +17,8 @@ from sqlalchemy import *
 from summary import Summary
 from util import *
 
+import core.db.backend.pg as pg
+
 handler = DataHubHandler()
 processor = DataHub.Processor(handler)
 
@@ -73,6 +75,7 @@ def index(request, username, repo, table):
 
 
 def has_scorpion():
+    import pdb; pdb.set_trace()
     try:
         import scorpion
         return True
@@ -326,7 +329,6 @@ def scorpion(request):
         requestid = request.GET.get('requestid')
         if not fake or fake == 'false':
 
-            import core.db.backend.pg as pg
             qjson = data.get('query', {})
             repo = qjson['db']
             qjson['db'] = username
@@ -354,7 +356,6 @@ def scorpion(request):
                     engine.dispose()
                 except:
                     pass
-
 
     except:
         traceback.print_exc()
