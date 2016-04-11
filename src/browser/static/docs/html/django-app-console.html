@@ -44,18 +44,18 @@
   <div class="section" id="console-app">
 <span id="django-app-console"></span><h1>Console App<a class="headerlink" href="#console-app" title="Permalink to this headline">¶</a></h1>
 <div class="line-block">
-<div class="line">primary(s):   <a class="reference external" href="https://github.com/abhardwaj">Anant Bhardwaj</a></div>
-<div class="line">maintiner(s): <a class="reference external" href="https://github.com/RogerTangos">Al Carter</a></div>
+<div class="line">primary(s):   <a class="reference external" href="https://github.com/ygina">Gina Yuan</a></div>
+<div class="line">maintainer(s): <a class="reference external" href="https://github.com/ygina">Gina Yuan</a></div>
 <div class="line">location: <code class="docutils literal"><span class="pre">src/apps/console</span></code></div>
 </div>
 <p>Console provides a way for users to interact directly with their datahub repos.
-It&#8217;s a database terminal for datahub.</p>
+It&#8217;s a database terminal for datahub. It now uses the Datahub API.</p>
 <div class="section" id="how-to-use">
 <h2>How to use<a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Run DataHub</li>
 <li>Navigate to <a class="reference external" href="apps/console">apps/console</a></li>
-<li>Type SQL</li>
+<li>Type SQL or bash commands</li>
 </ul>
 <div class="section" id="available-commands">
 <h3>Available Commands:<a class="headerlink" href="#available-commands" title="Permalink to this headline">¶</a></h3>
@@ -68,19 +68,23 @@ It&#8217;s a database terminal for datahub.</p>
 <div class="line">e.g. <code class="docutils literal"><span class="pre">mkrepo</span> <span class="pre">myrepo</span></code></div>
 </div>
 <div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">rm</span> <span class="pre">&lt;repo-name</span> <span class="pre">[-f]&gt;</span></code>: to remove a repository</div>
+<div class="line"><code class="docutils literal"><span class="pre">rm</span> <span class="pre">&lt;repo-name</span> <span class="pre">[-f]&gt;</span></code>: remove a repository</div>
 <div class="line">e.g. <code class="docutils literal"><span class="pre">rm</span> <span class="pre">myrepo</span></code></div>
 </div>
 <div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">ls</span></code> : to list repositories</div>
+<div class="line"><code class="docutils literal"><span class="pre">ls</span></code> : list repositories</div>
 <div class="line">e.g. <code class="docutils literal"><span class="pre">ls</span></code></div>
 </div>
 <div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">ls</span> <span class="pre">&lt;repo-name&gt;</span></code> : to list tables in a repository,</div>
+<div class="line"><code class="docutils literal"><span class="pre">collab</span> <span class="pre">&lt;repo-name&gt;</span></code> : list collaborators of a repository</div>
+<div class="line">e.g. <code class="docutils literal"><span class="pre">collab</span> <span class="pre">myrepo</span></code></div>
+</div>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">ls</span> <span class="pre">&lt;repo-name&gt;</span></code> : list tables and views in a repository</div>
 <div class="line">e.g. <code class="docutils literal"><span class="pre">ls</span> <span class="pre">myrepo</span></code></div>
 </div>
 <div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">schema</span> <span class="pre">&lt;table-name&gt;</span></code> : to print schema info of a table,</div>
+<div class="line"><code class="docutils literal"><span class="pre">desc</span> <span class="pre">&lt;table-name</span> <span class="pre">[-l]&gt;</span></code> : print schema info of a table [with data type]</div>
 <div class="line">e.g. <code class="docutils literal"><span class="pre">schema</span> <span class="pre">myrepo.mytable</span></code></div>
 </div>
 <div class="line-block">
