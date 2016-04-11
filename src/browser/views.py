@@ -196,18 +196,21 @@ def user(request, repo_base=None):
         repos = manager.list_repos()
 
     visible_repos = []
+    public_role = settings.PUBLIC_ROLE
 
     for repo in repos:
         collaborators = manager.list_collaborators(repo)
         collaborators = [c.get('username') for c in collaborators]
         collaborators = filter(
             lambda x: x != '' and x != repo_base, collaborators)
+        non_public_collaborators = filter(
+            lambda x: x != public_role, collaborators)
 
         visible_repos.append({
             'name': repo,
             'owner': repo_base,
-            'public': True if 'PUBLIC' in collaborators else False,
-            'collaborators': collaborators,
+            'public': True if public_role in collaborators else False,
+            'collaborators': non_public_collaborators,
         })
 
     collaborator_repos = manager.list_collaborator_repos()
