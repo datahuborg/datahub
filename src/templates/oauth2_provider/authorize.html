@@ -1,0 +1,46 @@
+{% extends "bare-layout.html" %}
+
+{% block content %}
+    <div class="container">
+        {% if not error %}
+            <form class="col-xs-12 col-sm-6 col-sm-offset-3" id="authorizationForm" method="post">
+                <h3 class="block-center-heading">Authorization Request</h3>
+                {% csrf_token %}
+
+                {% for field in form %}
+                    {% if field.is_hidden %}
+                        {{ field }}
+                    {% endif %}
+                {% endfor %}
+
+                <br />
+
+                <p>The application <strong><em>{{ application.name }}</em></strong> requests the following permissions:</p>
+                <ul>
+                    {% for scope in scopes_descriptions %}
+                        <li>{{ scope }}</li>
+                    {% endfor %}
+                </ul>
+
+                {{ form.errors }}
+                {{ form.non_field_errors }}
+
+                <br />
+
+                <p>
+                <input type="submit" class="btn btn-lg btn-default" value="Cancel"/>
+                <input type="submit" class="btn btn-lg btn-primary" name="allow" value="Authorize"/>
+                </p>
+
+                <br />
+                <p>Granted permissions typically expire after 24 hours. You can revoke granted permissions at any time from <a href="{% url 'settings' %}">account settings</a>.</p>
+            </form>
+
+        {% else %}
+            <div class="col-xs-12 col-sm-6 col-sm-offset-3">
+            <h3>Error: {{ error.error }}</h3>
+            <p>{{ error.description }}</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

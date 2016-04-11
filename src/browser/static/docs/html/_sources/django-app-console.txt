@@ -3,7 +3,7 @@
 Console App
 ***********
 | primary(s):   `Gina Yuan <https://github.com/ygina>`_
-| maintiner(s): `Gina Yuan <https://github.com/ygina>`_
+| maintainer(s): `Gina Yuan <https://github.com/ygina>`_
 | location: ``src/apps/console``
 
 Console provides a way for users to interact directly with their datahub repos.

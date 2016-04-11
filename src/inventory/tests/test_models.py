@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 
 
 class LegacyUserTests(TestCase):
-
     """Tests saving and loading legacy users."""
 
     def test_fields(self):
@@ -30,7 +29,6 @@ class LegacyUserTests(TestCase):
 
 
 class CardTests(TestCase):
-
     """Test saving and loading cards."""
 
     def test_fields(self):
@@ -48,7 +46,6 @@ class CardTests(TestCase):
 
 
 class AnnotationTest(TestCase):
-
     """Test saving and loading annotations."""
 
     def test_fields(self):
@@ -62,7 +59,6 @@ class AnnotationTest(TestCase):
 
 
 class AppTest(TestCase):
-
     """Test saving and loading apps."""
 
     @factory.django.mute_signals(signals.pre_save)
@@ -90,7 +86,6 @@ class AppTest(TestCase):
 
 
 class CollaboratorTest(TestCase):
-
     """Test saving and loading collaborators."""
 
     @factory.django.mute_signals(signals.pre_save)
@@ -110,7 +105,8 @@ class CollaboratorTest(TestCase):
 
     def test_fields(self):
         collaborator = models.Collaborator.objects.create(
-            id=10, user=self.user, repo_name='repo_name', repo_base='repo_base',
+            id=10, user=self.user,
+            repo_name='repo_name', repo_base='repo_base',
             permission='ALL')
 
         self.assertEqual(collaborator.user, self.user)

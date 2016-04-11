@@ -26,7 +26,6 @@ class APIEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
 
     def tearDown(self):
-        # Force close all outstanding db connections to this user's database.
         DataHubManager.remove_user(self.username)
 
 

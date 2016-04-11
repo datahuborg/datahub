@@ -132,7 +132,7 @@ class TokenManagementPage(BasePage):
     """Page for managing active OAuth tokens"""
 
     locators = {
-        'revoke_token_link': (By.LINK_TEXT, 'revoke'),
+        'revoke_token_link': (By.LINK_TEXT, 'Revoke'),
     }
 
     def token_revocation_links(self):
@@ -143,7 +143,7 @@ class TokenRevocationPage(BasePage):
     """Confirmation page for revoking OAuth tokens"""
 
     locators = {
-        'confirm_button': (By.XPATH, '//input[@value="Delete"]'),
+        'confirm_button': (By.XPATH, '//input[@value="Revoke"]'),
     }
 
     def confirm_revocation(self):
@@ -156,28 +156,13 @@ class AppsPage(BasePage):
 
     locators = {
         'temporary_oauth_apps_link': (By.PARTIAL_LINK_TEXT, 'OAuth'),
+        'register_app_link': (
+            By.XPATH,
+            '//a[@title="Register a New DataHub App"]'),
     }
 
-    def go_to_oauth_apps(self):
-        self.find_element('temporary_oauth_apps_link').click()
-        return OAuthAppsPage(self.driver)
-
-
-class OAuthAppsPage(BasePage):
-    """
-    OAuth client app management page.
-
-    Temporary until OAuth app management is merged into the regular client app
-    page.
-    """
-
-    locators = {
-        'create_app_link': (
-            By.XPATH, '//a[contains(@href, "oauth2/applications/register")]'),
-    }
-
-    def go_to_create_app(self):
-        self.find_element('create_app_link').click()
+    def go_to_register_app(self):
+        self.find_element('register_app_link').click()
         return RegisterOAuthAppPage(self.driver)
 
 
@@ -218,18 +203,18 @@ class OAuthAppPage(BasePage):
     locators = {
         'client_id': (
             By.XPATH,
-            '//li[p/b/text() = "Client id"]/input'),
+            '//div/p[label/text() = "Client id"]/span'),
         'client_secret': (
             By.XPATH,
-            '//li[p/b/text() = "Client secret"]/input'),
+            '//div/p[label/text() = "Client secret"]/span'),
     }
 
     def client_details(self):
         return {
             'client_id':
-                self.find_element('client_id').get_attribute('value'),
+                self.find_element('client_id').text,
             'client_secret':
-                self.find_element('client_secret').get_attribute('value'),
+                self.find_element('client_secret').text,
         }
 
 

@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% load string_utils %}
+
+{% block content %}
+<div class="container">
+    <div class="col-xs-12 col-sm-6 col-sm-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Granted OAuth Tokens</h3>
+            </div>
+            <ul class="list-group">
+                {% for authorized_token in authorized_tokens %}
+                    <li class="list-group-item">
+                        <a class="btn btn-link pull-right" href="{% url 'oauth2_provider:authorized-token-delete' authorized_token.pk %}">Revoke</a>
+                        <div>
+                            <i class="fa fa-ticket fa-lg fa-fw"></i>&nbsp;{{ authorized_token.application }}
+                            <br />
+                            Scopes: {{ authorized_token.scopes.keys|joinand }}
+                            <br />
+                            Expires: {{ authorized_token.expires }}
+                        </div>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">No granted OAuth tokens.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

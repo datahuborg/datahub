@@ -24,9 +24,10 @@ class APITest(FunctionalTest):
             'redirect_uri': self.server_url + '/gibberishURLForTestClient/',
         }
 
-        # Create a new user
+        # Go directly to the sign up page
         self.browser.get(self.server_url + '/account/register')
         registration_page = pages.RegistrationPage(self.browser)
+        # Create a new user
         registration_page.fill_in_form(**user_info)
         browse_page = registration_page.submit_form()
         # Verify the account was created by seeing if we're on the browse page.
@@ -36,8 +37,7 @@ class APITest(FunctionalTest):
 
         # Register a new OAuth client app as that user
         apps_page = browse_page.go_to_create_app()
-        oauth_apps_page = apps_page.go_to_oauth_apps()
-        create_oauth_app_page = oauth_apps_page.go_to_create_app()
+        create_oauth_app_page = apps_page.go_to_register_app()
         create_oauth_app_page.fill_in_form(**client_info)
         app_page = create_oauth_app_page.submit_form()
         # Save this new client's details for later

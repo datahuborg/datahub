@@ -522,7 +522,7 @@ class PGBackend:
         try:
             return self.execute_sql(query, params)
         except psycopg2.ProgrammingError as e:
-                print e
+                print(e)
                 print('this probably happened because the postgres role'
                       'exists, but a database of the same name does not.')
 
@@ -672,7 +672,7 @@ class PGBackend:
                   AsIs(header_option), delimiter, encoding, quote_character)
         try:
             self.execute_sql(query, params)
-        except Exception, e:
+        except Exception as e:
             self.execute_sql('DROP TABLE IF EXISTS %s', (AsIs(table_name),))
             raise ImportError(e)
 
