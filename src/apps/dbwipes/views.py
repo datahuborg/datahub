@@ -17,8 +17,6 @@ from sqlalchemy import *
 from summary import Summary
 from util import *
 
-import core.db.backend.pg as pg
-
 handler = DataHubHandler()
 processor = DataHub.Processor(handler)
 
@@ -34,12 +32,8 @@ def returns_json(f):
 
 
 def index(request, username, repo, table):
-    if has_scorpion():
-        enable_scorpion = 1
-        title = 'DBWipes + Scorpion!'
-    else:
-        enable_scorpion = 0
-        title = 'DBWipes'
+    enable_scorpion = 0
+    title = 'DBWipes'
 
     schema = get_schema(repo, table, username)
     # pick the first number as y, and first non y as x
@@ -72,15 +66,6 @@ def index(request, username, repo, table):
         'y': y
     }
     return render_to_response("index_base.html", context)
-
-
-def has_scorpion():
-    import pdb; pdb.set_trace()
-    try:
-        import scorpion
-        return True
-    except:
-        return False
 
 
 @returns_json
@@ -134,40 +119,12 @@ def schema(request):
 
 @returns_json
 def requestid(request):
-    if not has_scorpion():
-        return {'error': "Scorpion not installed"}
-
-    from scorpion.util import Status
-    status = Status()
-    requestid = status.reqid
-    status.close()
-    print "requestid", requestid
-    return {'requestid': requestid}
+    return {'error': "Scorpion not installed"}
 
 
 @returns_json
 def api_status(request):
-    if not has_scorpion():
-        return {'error': "Scorpion not installed"}
-
-    from scorpion.util import Status
-    rid = int(request.GET.get('requestid'))
-
-    status = Status(rid)
-    ret = status.latest_status()
-    label_rules = status.get_rules()
-    status.close()
-
-    partial_rules = []
-    for label, rules in label_rules:
-        partial_rules.extend(rules)
-    rules_hash = hash(str(partial_rules))
-
-    return {
-        'status': ret,
-        'results': partial_rules,
-        'hash': rules_hash
-    }
+    return {'error': "Scorpion not installed"}
 
 
 @returns_json
@@ -303,7 +260,6 @@ def column_distributions(request):
     finally:
         summary.close()
 
-
     data = []
     for col, typ, col_stats in stats:
         data.append({
@@ -318,147 +274,7 @@ def column_distributions(request):
 
 @returns_json
 def scorpion(request):
-    if not has_scorpion():
-        print >>sys.stderr, "Could not load scorpionutil.    Maybe scorpion has not been installed?"
-        return {'status': "error: could not load scorpion"}
-
-    try:
-        data =    json.loads(str(request.GET.get('json')))
-        username = request.GET.get('username')
-        fake = request.GET.get('fake', False)
-        requestid = request.GET.get('requestid')
-        if not fake or fake == 'false':
-
-            qjson = data.get('query', {})
-            repo = qjson['db']
-            qjson['db'] = username
-            qjson['table'] = "%s.%s" % (repo, qjson['table'])
-            tablename = qjson['table']
-            host = pg.host
-            port = pg.port
-            dburl = "postgresql://%s@%s:%s/%s" % (username,host, port, username)
-            engine = create_engine(dburl)
-            db = engine.connect()
-            import scorpionutil
-
-            try:
-                results = scorpionutil.scorpion_run(db, data, requestid)
-                return results
-            except:
-                traceback.print_exc()
-                return {}
-            finally:
-                try:
-                    db.close()
-                except:
-                    pass
-                try:
-                    engine.dispose()
-                except:
-                    pass
-
-    except:
-        traceback.print_exc()
-        return {}
-
-    ret = {}
-    results = [
-        {
-            'score': 0.2,
-            'c_range': [0, 1],
-            'count': 100,
-            'clauses': [
-                {'col': 'sensor', 'type': 'str', 'vals': map(str, [18])}
-            ],
-            'alt_rules': [
-                [ {'col': 'humidity', 'type': 'num', 'vals': [0, 1.4]}]
-            ]
-        },
-        {
-            'score': 0.2,
-            'c_range': [0, 1],
-            'count': 100,
-            'clauses': [
-                {'col': 'voltage', 'type': 'num', 'vals': [0, 2.15]},
-                {'col': 'sensor', 'type': 'str', 'vals': ['18']}
-            ],
-            'alt_rules': [
-                [ {'col': 'humidity', 'type': 'num', 'vals': [0, 1.4]},
-                    {'col': 'humidity', 'type': 'num', 'vals': [0, 1.4]} ],
-                [ {'col': 'humidity', 'type': 'num', 'vals': [0, 1.4]},
-                    {'col': 'humidity', 'type': 'num', 'vals': [0, 1.4]} ]
-            ]
-        }
-    ]
-
-    top_k = [
-        {
-            'c': 0,
-            'score': 0.2,
-            'c_range': [0, 0],
-            'count': 100,
-            'clauses': [
-                {'col': 'sensor', 'type': 'str', 'vals': map(str, [18])}
-            ]
-        },
-        {
-            'c': 0,
-            'score': 0.2,
-            'c_range': [0, 0],
-            'count': 100,
-            'clauses': [
-                {'col': 'voltage', 'type': 'num', 'vals': [0, 2.15]},
-                {'col': 'sensor', 'type': 'str', 'vals': ['18']}
-            ]
-        },
-        {
-            'c': 0.5,
-            'score': 0.2,
-            'c_range': [0.5, .5],
-            'count': 100,
-            'clauses': [
-                {'col': 'sensor', 'type': 'str', 'vals': map(str, [18, 15])}
-            ]
-        },
-        {
-            'c': 0.5,
-            'score': 0.2,
-            'c_range': [0.5, .5],
-            'count': 100,
-            'clauses': [
-                {'col': 'voltage', 'type': 'num', 'vals': [-5, 2.5]},
-                {'col': 'sensor', 'type': 'str', 'vals': ['18', '15']}
-            ]
-        },
-        {
-            'c': 1.0,
-            'score': 0.2,
-            'c_range': [1.0, 1.0],
-            'count': 100,
-            'clauses': [
-                {'col': 'sensor', 'type': 'str', 'vals': map(str, [18, 30, 35])}
-            ]
-        },
-        {
-            'c': 1.0,
-            'score': 0.2,
-            'c_range': [1.0, 1.0],
-            'count': 100,
-            'clauses': [
-                {'col': 'humidity', 'type': 'num', 'vals': [-100, 40]},
-                {'col': 'sensor', 'type': 'str', 'vals': ['18', '19']}
-            ]
-        }
-
-    ]
-
-    from scorpion.util import Status
-    status = Status(requestid)
-    status.update_rules('label', results)
-    status.close()
-
-    time.sleep(1)
-
-    ret['results'] = results
-    ret['top_k_results'] = top_k
-    return ret
+    message = ("Could not load scorpionutil. ",
+              " Maybe scorpion has not been installed?")
+    print >>sys.stderr, message
+    return {'status': "error: could not load scorpion"}
