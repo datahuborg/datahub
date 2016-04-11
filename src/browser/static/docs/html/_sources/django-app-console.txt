@@ -2,19 +2,19 @@
 
 Console App
 ***********
-| primary(s):   `Anant Bhardwaj <https://github.com/abhardwaj>`_
-| maintiner(s): `Al Carter <https://github.com/RogerTangos>`_
+| primary(s):   `Gina Yuan <https://github.com/ygina>`_
+| maintiner(s): `Gina Yuan <https://github.com/ygina>`_
 | location: ``src/apps/console``
 
 Console provides a way for users to interact directly with their datahub repos.
-It's a database terminal for datahub.
+It's a database terminal for datahub. It now uses the Datahub API.
 
 ==========
 How to use
 ==========
 * Run DataHub
 * Navigate to `apps\/console <apps/console>`_
-* Type SQL
+* Type SQL or bash commands
 
 -------------------
 Available Commands: 
@@ -26,16 +26,19 @@ Available Commands:
 | ``mkrepo <repo-name>``: create a new repository
 | e.g. ``mkrepo myrepo``
 
-| ``rm <repo-name [-f]>``: to remove a repository
+| ``rm <repo-name [-f]>``: remove a repository
 | e.g. ``rm myrepo``
         
-| ``ls`` : to list repositories
+| ``ls`` : list repositories
 | e.g. ``ls``
 
-| ``ls <repo-name>`` : to list tables in a repository,
+| ``collab <repo-name>`` : list collaborators of a repository
+| e.g. ``collab myrepo``
+
+| ``ls <repo-name>`` : list tables and views in a repository
 | e.g. ``ls myrepo``
 
-| ``schema <table-name>`` : to print schema info of a table,
+| ``desc <table-name [-l]>`` : print schema info of a table [with data type]
 | e.g. ``schema myrepo.mytable``
 
 | ``<other DML>``: execute arbitrary DML on a repo.tablename in your currently connected repo-base
