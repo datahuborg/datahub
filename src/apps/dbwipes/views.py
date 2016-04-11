@@ -1,21 +1,19 @@
 import json
 import sys
-import time
 import traceback
 
 from core.db.manager import DataHubManager
 from service.handler import DataHubHandler
 from datahub import DataHub
 
-from django.http import *
+from django.http import HttpResponse
 from django.shortcuts import render_to_response
 
 from functools import wraps
-from collections import *
-from sqlalchemy import *
+from sqlalchemy import schema
 
 from summary import Summary
-from util import *
+from util import SummaryEncoder, where_to_sql, create_sql_obj, pick
 
 handler = DataHubHandler()
 processor = DataHub.Processor(handler)
@@ -129,7 +127,7 @@ def api_status(request):
 
 @returns_json
 def api_tuples(request):
-    ret = { }
+    ret = {}
     jsonstr = request.GET.get('json')
     if not jsonstr:
         print "query: no json string.    giving up"
@@ -137,7 +135,7 @@ def api_tuples(request):
 
     args = json.loads(jsonstr)
     username = args.get('username')
-    dbname = repo = args.get('db')
+    dbname = args.get('db')
     table = args.get('table')
     where = args.get('where', []) or []
     full_tablename = "%s.%s" % (dbname, table)
@@ -170,7 +168,7 @@ def api_tuples(request):
 
 @returns_json
 def api_query(request):
-    ret = { }
+    ret = {}
     jsonstr = request.GET.get('json', None)
     if not jsonstr:
         print "query: no json string.    giving up"
@@ -183,7 +181,7 @@ def api_query(request):
     args['table'] = "%s.%s" % (dbname, table)
 
     o, params = create_sql_obj(None, args)
-    o.limit = 10000;
+    o.limit = 10000
     query = str(o)
     print query
     print params
@@ -220,7 +218,8 @@ def column_distribution(request):
 
     full_tablename = "%s.%s" % (dbname, tablename)
 
-    summary = Summary(dbname, full_tablename, username, nbuckets=nbuckets, where=where)
+    summary = Summary(
+        dbname, full_tablename, username, nbuckets=nbuckets, where=where)
     try:
         typ = summary.get_type(col)
         stats = summary.get_col_stats(col, typ)
@@ -234,7 +233,7 @@ def column_distribution(request):
         'type': typ,
         'stats': stats
     }
-    context = { "data": data }
+    context = {"data": data}
     return context
 
 
@@ -251,7 +250,8 @@ def column_distributions(request):
         nbuckets = 100
 
     full_tablename = "%s.%s" % (dbname, tablename)
-    summary = Summary(dbname, full_tablename, username, nbuckets=nbuckets, where=where)
+    summary = Summary(
+        dbname, full_tablename, username, nbuckets=nbuckets, where=where)
     print 'where: %s' % where
     try:
         stats = summary()
@@ -263,18 +263,18 @@ def column_distributions(request):
     data = []
     for col, typ, col_stats in stats:
         data.append({
-            'col': col, 
-            'type': typ, 
+            'col': col,
+            'type': typ,
             'stats': col_stats
         })
 
-    context = { "data": data }
+    context = {"data": data}
     return context
 
 
 @returns_json
 def scorpion(request):
     message = ("Could not load scorpionutil. ",
-              " Maybe scorpion has not been installed?")
+               "Maybe scorpion has not been installed?")
     print >>sys.stderr, message
     return {'status': "error: could not load scorpion"}
