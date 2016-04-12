@@ -61,6 +61,7 @@ def index(request, repo_base, repo, table):
         'table': table,
         'username': username,
         'repo': repo,
+        'repo_base': repo_base,
         'x': x,
         'y': y
     }
@@ -214,7 +215,7 @@ def api_query(request):
 @returns_json
 def column_distribution(request):
     username = request.user.get_username()
-    # repo_base = request.GET.get('username')
+    repo_base = request.GET.get('username')
     repo = request.GET.get('db', 'intel')
     tablename = request.GET.get('table', 'readings')
     where = request.GET.get('where', '')
@@ -229,7 +230,7 @@ def column_distribution(request):
 
     summary = Summary(
         dbname=repo, tablename=full_tablename, username=username,
-        nbuckets=nbuckets, where=where)
+        repo_base=repo_base, nbuckets=nbuckets, where=where)
     try:
         typ = summary.get_type(col)
         stats = summary.get_col_stats(col, typ)
@@ -250,7 +251,7 @@ def column_distribution(request):
 @returns_json
 def column_distributions(request):
     username = request.user.get_username()
-    # repo_base = request.GET.get('username')
+    repo_base = request.GET.get('username')
     repo = request.GET.get('db', 'intel')
     tablename = request.GET.get('table', 'readings')
     where = request.GET.get('where', '')
@@ -261,8 +262,8 @@ def column_distributions(request):
         nbuckets = 100
 
     full_tablename = "%s.%s" % (repo, tablename)
-    summary = Summary(
-        repo, full_tablename, username, nbuckets=nbuckets, where=where)
+    summary = Summary(repo, full_tablename, username,
+                      repo_base=repo_base, nbuckets=nbuckets, where=where)
     print('where: %s' % where)
     try:
         stats = summary()

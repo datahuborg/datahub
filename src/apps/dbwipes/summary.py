@@ -22,7 +22,8 @@ def make_cache(f):
         try:
             key = str(map(str, (f.__name__, self.dbname, self.tablename,
                                 self.where, self.nbuckets, map(str, args))))
-            manager = DataHubManager(user=self.username)
+            manager = DataHubManager(user=self.username,
+                                     repo_base=self.repo_base)
             vals = manager.execute_sql(
                 'select val from _dbwipes_cache where key = %s',
                 params=(key,))['tuples']
@@ -35,7 +36,8 @@ def make_cache(f):
 
         res = f(self, *args, **kwargs)
         if key:
-            manager = DataHubManager(user=self.username)
+            manager = DataHubManager(user=self.username,
+                                     repo_base=self.repo_base)
             manager.execute_sql(
                 'insert into _dbwipes_cache values(%s, %s)',
                 params=(key, json.dumps(res, default=json_handler)))
@@ -50,8 +52,10 @@ def json_handler(o):
 
 class Summary(object):
 
-    def __init__(self, dbname, tablename, username, nbuckets=50, where=''):
+    def __init__(self, dbname, tablename, username, repo_base=None,
+                 nbuckets=50, where=''):
         self.username = username
+        self.repo_base = repo_base
         self.dbname = dbname
         self.tablename = tablename
         self.nbuckets = nbuckets
@@ -84,14 +88,14 @@ class Summary(object):
     def reset_cache(self):
         q = "delete from cache where key like '%%%%%s%%%%%s%%%%'" % (
             str(self.engine), self.tablename)
-        manager = DataHubManager(user=self.username)
+        manager = DataHubManager(user=self.username, repo_base=self.repo_base)
         manager.execute_sql(q)
 
     def query(self, q, *args):
         """
         Summaries using other engines only need to override this method
         """
-        manager = DataHubManager(user=self.username)
+        manager = DataHubManager(user=self.username, repo_base=self.repo_base)
         return manager.execute_sql(q, params=args)['tuples']
 
     @make_cache
@@ -116,7 +120,7 @@ class Summary(object):
 
     @make_cache
     def get_columns_and_types(self):
-        manager = DataHubManager(user=self.username)
+        manager = DataHubManager(user=self.username, repo_base=self.repo_base)
 
         tokens = self.tablename.split('.')
         repo = tokens[0]
