@@ -37,6 +37,7 @@ define(function(require) {
                             // only way to set basewhere is to click on a rule
         table: null,
         db: null,
+        repo_base: window.repo_base,
         data: null,
         limit: null,
       }

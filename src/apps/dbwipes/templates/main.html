@@ -14,7 +14,8 @@
     window.tablename = "{{table}}";
     window.x = "{{x}}";
     window.y = "{{y}}";
-    window.username = "{{username}}";
+    window.username = "{{repo_base}}"; // keep this here, because column_distribution still somehow uses it
+    // window.username = "foobar";
     window.repo_base = "{{repo_base}}";
   </script>
   <script data-main="/static/dbwipes/js/{{js}}" src="/static/dbwipes/js/require.js"></script>

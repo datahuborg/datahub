@@ -1,6 +1,5 @@
 from functools import wraps
 import json
-import pdb
 
 from core.db.manager import DataHubManager
 
@@ -8,8 +7,12 @@ from util import pick
 
 
 def get_cache(username, repo_base=None):
+    """ DBWipes stores some metadata about the table in the user's public
+        schema in the user's database. Note that this is not necessarily the
+        repo_base/database where the data is stored
+    """
     try:
-        manager = DataHubManager(user=username, repo_base=repo_base)
+        manager = DataHubManager(user=username, repo_base=username)
         manager.execute_sql(
             "create table _dbwipes_cache(key varchar, val text)")
     except:
@@ -23,7 +26,7 @@ def make_cache(f):
             key = str(map(str, (f.__name__, self.dbname, self.tablename,
                                 self.where, self.nbuckets, map(str, args))))
             manager = DataHubManager(user=self.username,
-                                     repo_base=self.repo_base)
+                                     repo_base=self.username)
             vals = manager.execute_sql(
                 'select val from _dbwipes_cache where key = %s',
                 params=(key,))['tuples']
@@ -32,7 +35,6 @@ def make_cache(f):
                 return json.loads(vals[0][0])
         except Exception as e:
             print(e)
-            pdb.set_trace()
 
         res = f(self, *args, **kwargs)
         if key:
@@ -88,7 +90,7 @@ class Summary(object):
     def reset_cache(self):
         q = "delete from cache where key like '%%%%%s%%%%%s%%%%'" % (
             str(self.engine), self.tablename)
-        manager = DataHubManager(user=self.username, repo_base=self.repo_base)
+        manager = DataHubManager(user=self.username, repo_base=self.username)
         manager.execute_sql(q)
 
     def query(self, q, *args):
