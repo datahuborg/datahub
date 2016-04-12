@@ -87,7 +87,7 @@ def tables(request):
 
 
 def get_schema(repo, table, username, repo_base):
-    manager = DataHubManager(user=username)
+    manager = DataHubManager(user=username, repo_base=repo_base)
     pairs = manager.get_schema(repo, table)
     schema = {}
     for col, typ in pairs:
@@ -105,18 +105,19 @@ def get_schema(repo, table, username, repo_base):
 
 @returns_json
 def schema(request):
+    # This is kind of screwey. DBWipes passes
+    # the repo_base as "username"
+    # the repo as "db"
+    # the table as "table"
     username = request.user.get_username()
-    print("\n--------\n")
-    print(request.GET)
-    print("\n--------\n")
-    username = request.GET.get('username', '')
+    repo_base = request.GET.get('username', '')
     table = request.GET.get('table', '')
-    db = request.GET.get('db', '')
+    repo = request.GET.get('db', '')
     if not table:
         return {}
 
     ret = {}
-    ret['schema'] = get_schema(db, table, username, username)
+    ret['schema'] = get_schema(repo, table, username, repo_base)
     return ret
 
 
@@ -139,11 +140,12 @@ def api_tuples(request):
         return ret
 
     args = json.loads(jsonstr)
-    username = args.get('username')
-    dbname = args.get('db')
+    username = request.user.get_username()
+    repo_base = args.get('username')
+    repo = args.get('db')
     table = args.get('table')
     where = args.get('where', []) or []
-    full_tablename = "%s.%s" % (dbname, table)
+    full_tablename = "%s.%s" % (repo, table)
 
     where, params = where_to_sql(where)
     if where:
@@ -158,14 +160,14 @@ def api_tuples(request):
     query = query % (full_tablename, where, full_tablename, where)
     params = params + params
 
-    manager = DataHubManager(user=username)
+    manager = DataHubManager(user=username, repo_base=repo_base)
     res = manager.execute_sql(query, params=params)
     rows = res['tuples']
     cols = [field['name'] for field in res['fields']]
 
     data = [dict(zip(cols, vals)) for vals in rows]
     ret['data'] = data
-    ret['schema'] = get_schema(dbname, table, username, username)
+    ret['schema'] = get_schema(repo, table, username, repo_base)
 
     print("%d points returned" % len(ret.get('data', [])))
     return(ret)
@@ -180,10 +182,11 @@ def api_query(request):
         return ret
 
     args = json.loads(jsonstr)
-    username = args.get('username')
-    dbname = args.get('db')
+    username = request.user.get_username()
+    repo_base = args.get('username')
+    repo = args.get('db')
     table = args.get('table')
-    args['table'] = "%s.%s" % (dbname, table)
+    args['table'] = "%s.%s" % (repo, table)
 
     o, params = create_sql_obj(None, args)
     o.limit = 10000
@@ -191,18 +194,18 @@ def api_query(request):
     print(query)
     print(params)
 
-    if not dbname or not table or not query:
+    if not repo or not table or not query:
         print("query: no db/table/query. giving up")
         return ret
 
-    manager = DataHubManager(user=username)
+    manager = DataHubManager(user=username, repo_base=repo_base)
     res = manager.execute_sql(query, params)
     rows = res['tuples']
     cols = pick(res['fields'], 'name')
 
     data = [dict(zip(cols, vals)) for vals in rows]
     ret['data'] = data
-    ret['schema'] = get_schema(dbname, table, username, username)
+    ret['schema'] = get_schema(repo, table, username, repo_base)
 
     print("%d points returned" % len(ret.get('data', [])))
     return ret
@@ -210,8 +213,9 @@ def api_query(request):
 
 @returns_json
 def column_distribution(request):
-    username = request.GET.get('username')
-    dbname = request.GET.get('db', 'intel')
+    username = request.user.get_username()
+    # repo_base = request.GET.get('username')
+    repo = request.GET.get('db', 'intel')
     tablename = request.GET.get('table', 'readings')
     where = request.GET.get('where', '')
     col = request.GET.get('col')
@@ -221,10 +225,11 @@ def column_distribution(request):
         print(e)
         nbuckets = 100
 
-    full_tablename = "%s.%s" % (dbname, tablename)
+    full_tablename = "%s.%s" % (repo, tablename)
 
     summary = Summary(
-        dbname, full_tablename, username, nbuckets=nbuckets, where=where)
+        dbname=repo, tablename=full_tablename, username=username,
+        nbuckets=nbuckets, where=where)
     try:
         typ = summary.get_type(col)
         stats = summary.get_col_stats(col, typ)
@@ -244,8 +249,9 @@ def column_distribution(request):
 
 @returns_json
 def column_distributions(request):
-    username = request.GET.get('username')
-    dbname = request.GET.get('db', 'intel')
+    username = request.user.get_username()
+    # repo_base = request.GET.get('username')
+    repo = request.GET.get('db', 'intel')
     tablename = request.GET.get('table', 'readings')
     where = request.GET.get('where', '')
     try:
@@ -254,9 +260,9 @@ def column_distributions(request):
         print(e)
         nbuckets = 100
 
-    full_tablename = "%s.%s" % (dbname, tablename)
+    full_tablename = "%s.%s" % (repo, tablename)
     summary = Summary(
-        dbname, full_tablename, username, nbuckets=nbuckets, where=where)
+        repo, full_tablename, username, nbuckets=nbuckets, where=where)
     print('where: %s' % where)
     try:
         stats = summary()
