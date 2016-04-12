@@ -93,7 +93,7 @@ def parse_agg(s):
     parse an aggregation SELECT clause e.g., avg(temp) as foo
     into dictionary of function name, column, and alias components
     """
-    print s
+    print(s)
     p = re.compile(
         '(?P<func>\w+)\(\s*(?P<col>[\w\,\s]+)\s*\)\s*(as\s+(?P<alias>\w+))?')
     d = p.match(s).groupdict()
@@ -101,9 +101,9 @@ def parse_agg(s):
     expr = str(d['col'])
     cols = [col.strip() for col in expr.split(',')]
     varlist = [Var(col) for col in cols]
-    print klass
-    print cols
-    print varlist
+    print(klass)
+    print(cols)
+    print(varlist)
     func = klass(varlist)
     return {
         'fname': d['func'],

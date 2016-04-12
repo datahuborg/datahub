@@ -10,7 +10,6 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response
 
 from functools import wraps
-from sqlalchemy import schema
 
 from summary import Summary
 from util import SummaryEncoder, where_to_sql, create_sql_obj, pick
@@ -29,11 +28,13 @@ def returns_json(f):
     return json_returner
 
 
-def index(request, username, repo, table):
+def index(request, repo_base, repo, table):
+    username = request.user.get_username()
+
     enable_scorpion = 0
     title = 'DBWipes'
 
-    schema = get_schema(repo, table, username)
+    schema = get_schema(repo, table, username, repo_base)
     # pick the first number as y, and first non y as x
     x = y = ''
     for col, typ in schema.iteritems():
@@ -85,7 +86,7 @@ def tables(request):
     return {'tables': tables}
 
 
-def get_schema(repo, table, username):
+def get_schema(repo, table, username, repo_base):
     manager = DataHubManager(user=username)
     pairs = manager.get_schema(repo, table)
     schema = {}
@@ -104,6 +105,10 @@ def get_schema(repo, table, username):
 
 @returns_json
 def schema(request):
+    username = request.user.get_username()
+    print("\n--------\n")
+    print(request.GET)
+    print("\n--------\n")
     username = request.GET.get('username', '')
     table = request.GET.get('table', '')
     db = request.GET.get('db', '')
@@ -111,7 +116,7 @@ def schema(request):
         return {}
 
     ret = {}
-    ret['schema'] = get_schema(db, table, username)
+    ret['schema'] = get_schema(db, table, username, username)
     return ret
 
 
@@ -130,7 +135,7 @@ def api_tuples(request):
     ret = {}
     jsonstr = request.GET.get('json')
     if not jsonstr:
-        print "query: no json string.    giving up"
+        print("query: no json string. giving up")
         return ret
 
     args = json.loads(jsonstr)
@@ -143,8 +148,8 @@ def api_tuples(request):
     where, params = where_to_sql(where)
     if where:
         where = 'AND %s' % where
-    print where
-    print params
+    print(where)
+    print(params)
 
     query = ("WITH XXXX as (select count(*) from %s WHERE 1 = 1 %s) "
              "SELECT * FROM %s "
@@ -160,10 +165,10 @@ def api_tuples(request):
 
     data = [dict(zip(cols, vals)) for vals in rows]
     ret['data'] = data
-    ret['schema'] = get_schema(dbname, table, username)
+    ret['schema'] = get_schema(dbname, table, username, username)
 
-    print "%d points returned" % len(ret.get('data', []))
-    return ret
+    print("%d points returned" % len(ret.get('data', [])))
+    return(ret)
 
 
 @returns_json
@@ -171,7 +176,7 @@ def api_query(request):
     ret = {}
     jsonstr = request.GET.get('json', None)
     if not jsonstr:
-        print "query: no json string.    giving up"
+        print("query: no json string. giving up")
         return ret
 
     args = json.loads(jsonstr)
@@ -183,11 +188,11 @@ def api_query(request):
     o, params = create_sql_obj(None, args)
     o.limit = 10000
     query = str(o)
-    print query
-    print params
+    print(query)
+    print(params)
 
     if not dbname or not table or not query:
-        print "query: no db/table/query.    giving up"
+        print("query: no db/table/query. giving up")
         return ret
 
     manager = DataHubManager(user=username)
@@ -197,9 +202,9 @@ def api_query(request):
 
     data = [dict(zip(cols, vals)) for vals in rows]
     ret['data'] = data
-    ret['schema'] = get_schema(dbname, table, username)
+    ret['schema'] = get_schema(dbname, table, username, username)
 
-    print "%d points returned" % len(ret.get('data', []))
+    print("%d points returned" % len(ret.get('data', [])))
     return ret
 
 
@@ -213,7 +218,7 @@ def column_distribution(request):
     try:
         nbuckets = int(request.GET.get('nbuckets', 100))
     except Exception as e:
-        print e
+        print(e)
         nbuckets = 100
 
     full_tablename = "%s.%s" % (dbname, tablename)
@@ -246,13 +251,13 @@ def column_distributions(request):
     try:
         nbuckets = int(request.GET.get('nbuckets', 100))
     except Exception as e:
-        print e
+        print(e)
         nbuckets = 100
 
     full_tablename = "%s.%s" % (dbname, tablename)
     summary = Summary(
         dbname, full_tablename, username, nbuckets=nbuckets, where=where)
-    print 'where: %s' % where
+    print('where: %s' % where)
     try:
         stats = summary()
     except Exception as e:
