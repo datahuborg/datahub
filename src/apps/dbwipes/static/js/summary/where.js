@@ -78,7 +78,7 @@ define(function(require) {
         }); 
         cs.fetch({
           data: {
-            username: window.username,
+            username: window.repo_base,
             db: this.q.get('db'),
             table: this.q.get('table'),
             col: col,
