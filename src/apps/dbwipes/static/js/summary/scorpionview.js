@@ -139,7 +139,7 @@ define(function(require) {
             fake: util.debugMode(),
             requestid: requestid,
             json: JSON.stringify(_this.model.toJSON()) ,
-            username: window.repo_base,
+            repo_base: window.repo_base,
             db: _this.model.get('query').get('db')
           }, 
           //type: 'POST',
@@ -151,7 +151,7 @@ define(function(require) {
         _this.statusview = new StatusView({ 
           requestid: requestid ,
           query: _this.model.get('query'),
-          username: window.repo_base,
+          repo_base: window.repo_base,
           results: _this.model.get('partialresults')
         });
         _this.statusview.render();

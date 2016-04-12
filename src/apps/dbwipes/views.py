@@ -111,7 +111,7 @@ def schema(request):
     # the repo as "db"
     # the table as "table"
     username = request.user.get_username()
-    repo_base = request.GET.get('username', '')
+    repo_base = request.GET.get('repo_base', '')
     table = request.GET.get('table', '')
     repo = request.GET.get('db', '')
     if not table:
@@ -142,7 +142,7 @@ def api_tuples(request):
 
     args = json.loads(jsonstr)
     username = request.user.get_username()
-    repo_base = args.get('username')
+    repo_base = args.get('repo_base')
     repo = args.get('db')
     table = args.get('table')
     where = args.get('where', []) or []
@@ -184,7 +184,7 @@ def api_query(request):
 
     args = json.loads(jsonstr)
     username = request.user.get_username()
-    repo_base = args.get('username')
+    repo_base = args.get('repo_base')
     repo = args.get('db')
     table = args.get('table')
     args['table'] = "%s.%s" % (repo, table)
@@ -214,7 +214,10 @@ def api_query(request):
 
 @returns_json
 def column_distribution(request):
+    # import pdb; pdb.set_trace()
     username = request.user.get_username()
+    repo_base = request.GET.get('repo_base')
+    # import pdb; pdb.set_trace()
     repo_base = request.GET.get('username')
     repo = request.GET.get('db', 'intel')
     tablename = request.GET.get('table', 'readings')
@@ -251,7 +254,7 @@ def column_distribution(request):
 @returns_json
 def column_distributions(request):
     username = request.user.get_username()
-    repo_base = request.GET.get('username')
+    repo_base = request.GET.get('repo_base')
     repo = request.GET.get('db', 'intel')
     tablename = request.GET.get('table', 'readings')
     where = request.GET.get('where', '')

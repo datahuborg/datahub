@@ -24,9 +24,9 @@
 
 <body>
 <h4>{{title}} <small>{{subtitle}}</small>
-<a class="blue bold" href="/browse/{{username}}">{{username}}</a> /
-<a class="blue bold" href="/browse/{{username}}/{{repo}}">{{repo}}</a> /
-<a class="blue bold" href="/browse/{{username}}/{{repo}}/{{table}}">{{table}}</a>
+<a class="blue bold" href="/browse/{{repo_base}}">{{repo_base}}</a> /
+<a class="blue bold" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a> /
+<a class="blue bold" href="/browse/{{repo_base}}/{{repo}}/{{table}}">{{table}}</a>
   {% if enableScorpion == 1 %}
   <span id="togglescorpion" class="btn btn-sm btn-primary walkthrough-btn">toggle scorpion</span>
   {% endif %}
