@@ -7,9 +7,9 @@ from core.db.manager import DataHubManager
 from util import pick
 
 
-def get_cache(username):
+def get_cache(username, repo_base=None):
     try:
-        manager = DataHubManager(user=username)
+        manager = DataHubManager(user=username, repo_base=repo_base)
         manager.execute_sql(
             "create table _dbwipes_cache(key varchar, val text)")
     except:
@@ -148,7 +148,7 @@ class Summary(object):
         return dict(self.get_columns_and_types()).get(col_name, None)
 
     def get_col_groupby(self, col_name, col_type):
-        if col_type == None:
+        if col_type is None:
             return None
 
         groupby = None
@@ -184,9 +184,9 @@ class Summary(object):
         return None
 
     def get_group_stats(self, col_name, groupby):
-        q = """select %s as GRP, min(%s), max(%s), count(*) 
-    from %s  %s group by GRP 
-    order by GRP limit %d"""
+        q = ('select %s as GRP, min(%s), max(%s), count(*) '
+             'from %s  %s group by GRP '
+             'order by GRP limit %d')
         q = q % (groupby, col_name, col_name,
                  self.tablename, self.where, self.nbuckets)
         rows = [{'val': x, 'count': count, 'range': [minv, maxv]}
@@ -207,34 +207,34 @@ class Summary(object):
             val = self.query(q % args)[0][0]
             return [{'val': val, 'count': self.nrows, 'range': [val, val]}]
 
-        q = """
-    with bound as (
-      SELECT min(%s) as min, max(%s) as max, avg(%s) as avg, stddev(%s) as std FROM %s %s
-    )
-    SELECT width_bucket(%s::numeric, (avg-2.5*std), (avg+2.5*std), %d) as bucket,
-           min(%s) as min,
-           max(%s) as max,
-           count(*) as count
-    FROM %s, bound
-    %s
-    GROUP BY bucket
-    """
+        q = ('with bound as ('
+             'SELECT min(%s) as min, max(%s) as max, avg(%s) as avg, '
+             'stddev(%s) as std FROM %s %s )'
+             'SELECT width_bucket(%s::numeric, (avg-2.5*std), (avg+2.5*std), '
+             '%d) '
+             'as bucket, '
+             'min(%s) as min, '
+             'max(%s) as max, '
+             'count(*) as count '
+             'FROM %s, bound'
+             '%s'
+             'GROUP BY bucket')
+
         q = q % (c, c, c, c, self.tablename, self.where, c,
                  self.nbuckets, c, c, self.tablename, self.where)
 
-        q = """
-    with TMP as (
-      SELECT 2.5 * stddev(%s) / %d as block FROM %s %s
-    )
-    SELECT (%s/block)::int*block as bucket, 
-           min(%s) as min, 
-           max(%s) as max, 
-           count(*) as count
-    FROM %s,  TMP
-    %s
-    GROUP BY bucket
-    ORDER BY bucket
-    """
+        q = ('with TMP as ('
+             'SELECT 2.5 * stddev(%s) / %d as block FROM %s %s)'
+             'SELECT (%s/block)::int*block as bucket, '
+             'min(%s) as min, '
+             'max(%s) as max, '
+             'count(*) as count'
+             'FROM %s,  TMP '
+             '%s'
+             'GROUP BY bucket'
+             'ORDER BY bucket'
+             ')')
+
         q = q % (c, self.nbuckets, self.tablename, self.where,
                  c, c, c, self.tablename, self.where)
 
@@ -276,7 +276,9 @@ class Summary(object):
         return "date_trunc('hour', %s)::time" % col_name
 
     def get_date_stats(self, col_name):
-        q = "select max(%s)::date, min(%s)::date, EXTRACT(EPOCH FROM (max(%s::timestamp) - min(%s::timestamp)))/60 as minutes from %s"
+        q = ('select max(%s)::date, min(%s)::date, '
+             'EXTRACT(EPOCH FROM (max(%s::timestamp) - min(%s::timestamp)))/60'
+             ' as minutes from %s')
         q = q % (col_name, col_name, col_name, col_name, self.tablename)
         (maxv, minv, nminutes) = self.query(q)[0]
         if maxv is None or minv is None or nminutes is None:
