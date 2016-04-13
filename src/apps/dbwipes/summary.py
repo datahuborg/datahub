@@ -16,7 +16,7 @@ def get_cache(username, repo_base=None):
     try:
         query = ('create table if not exists %s.dbwipes_cache'
                  '(key varchar, val text)') % dbwipes_repo
-        manager = DataHubManager(user=username, repo_base=username)
+        manager = DataHubManager(user=repo_base, repo_base=repo_base)
         manager.create_repo(dbwipes_repo)
         manager.execute_sql(query)
     except Exception as e:
@@ -34,7 +34,7 @@ def make_cache(f):
             query = 'select val from %s.dbwipes_cache where key = %s' (
                 dbwipes_repo, key)
 
-            manager = DataHubManager(user=self.username)
+            manager = DataHubManager(user=self.repo_base)
             vals = manager.execute_sql(query)['tuples']
 
             if len(vals):
@@ -48,7 +48,7 @@ def make_cache(f):
             params = (key, value)
             q = 'insert into ' + dbwipes_repo + '.dbwipes_cache values(%s, %s)'
 
-            manager = DataHubManager(user=self.username)
+            manager = DataHubManager(user=self.repo_base)
             foo = manager.execute_sql(q, params)
 
             # print('***********')
@@ -82,7 +82,7 @@ class Summary(object):
             self.where = 'WHERE %s' % where
 
         # make sure cache exists
-        get_cache(username)
+        get_cache(username, repo_base)
 
         self.nrows = self.get_num_rows()
         self.col_types = self.get_columns_and_types()
