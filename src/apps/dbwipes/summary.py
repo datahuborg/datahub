@@ -5,31 +5,37 @@ from core.db.manager import DataHubManager
 
 from util import pick
 
+dbwipes_repo = 'dbwipes_cache_repo'
+
 
 def get_cache(username, repo_base=None):
-    """ DBWipes stores some metadata about the table in the user's public
-        schema in the user's database. Note that this is not necessarily the
+    """ DBWipes stores some metadata about the table in a schema in the user's
+        database. Note that this is not necessarily the
         repo_base/database where the data is stored
     """
     try:
+        query = ('create table if not exists %s.dbwipes_cache'
+                 '(key varchar, val text)') % dbwipes_repo
         manager = DataHubManager(user=username, repo_base=username)
-        manager.execute_sql(
-            "create table _dbwipes_cache(key varchar, val text)")
-    except:
+        manager.create_repo(dbwipes_repo)
+        manager.execute_sql(query)
+    except Exception as e:
+        print(e)
         pass
 
 
 def make_cache(f):
+    """ insert metadata into the cache"""
     @wraps(f)
     def _f(self, *args, **kwargs):
         try:
             key = str(map(str, (f.__name__, self.dbname, self.tablename,
                                 self.where, self.nbuckets, map(str, args))))
-            manager = DataHubManager(user=self.username,
-                                     repo_base=self.username)
-            vals = manager.execute_sql(
-                'select val from _dbwipes_cache where key = %s',
-                params=(key,))['tuples']
+            query = 'select val from %s.dbwipes_cache where key = %s' (
+                dbwipes_repo, key)
+
+            manager = DataHubManager(user=self.username)
+            vals = manager.execute_sql(query)['tuples']
 
             if len(vals):
                 return json.loads(vals[0][0])
@@ -38,11 +44,20 @@ def make_cache(f):
 
         res = f(self, *args, **kwargs)
         if key:
-            manager = DataHubManager(user=self.username,
-                                     repo_base=self.repo_base)
-            manager.execute_sql(
-                'insert into _dbwipes_cache values(%s, %s)',
-                params=(key, json.dumps(res, default=json_handler)))
+            value = json.dumps(res, default=json_handler)
+            params = (key, value)
+            q = 'insert into ' + dbwipes_repo + '.dbwipes_cache values(%s, %s)'
+
+            manager = DataHubManager(user=self.username)
+            foo = manager.execute_sql(q, params)
+
+            # print('***********')
+            # print foo
+            # print('***********')
+            # print res
+            # print('***********')
+
+            # manager.execute_sql(query)
         return res
     return _f
 
@@ -176,11 +191,14 @@ class Summary(object):
         # return None
 
         numerics = ['int', 'float', 'double', 'numeric', 'num']
-        is_numeric = any([s in col_type for s in numerics])
+        chars = ['char', 'text', 'str']
+
+        is_numeric = col_type in numerics
+        is_char = col_type in chars
+
         if is_numeric:
-            stats = self.get_numeric_stats(col_name)
-            return stats
-        if any([s in col_type for s in ['char', 'text', 'str']]):
+            return self.get_numeric_stats(col_name)
+        elif is_char:
             return self.get_char_stats(col_name)
 
         groupby = self.get_col_groupby(col_name, col_type)
@@ -213,36 +231,22 @@ class Summary(object):
             val = self.query(q % args)[0][0]
             return [{'val': val, 'count': self.nrows, 'range': [val, val]}]
 
-        q = ('with bound as ('
-             'SELECT min(%s) as min, max(%s) as max, avg(%s) as avg, '
-             'stddev(%s) as std FROM %s %s )'
-             'SELECT width_bucket(%s::numeric, (avg-2.5*std), (avg+2.5*std), '
-             '%d) '
-             'as bucket, '
-             'min(%s) as min, '
-             'max(%s) as max, '
-             'count(*) as count '
-             'FROM %s, bound'
-             '%s'
-             'GROUP BY bucket')
-
-        q = q % (c, c, c, c, self.tablename, self.where, c,
-                 self.nbuckets, c, c, self.tablename, self.where)
-
-        q = ('with TMP as ('
-             'SELECT 2.5 * stddev(%s) / %d as block FROM %s %s)'
-             'SELECT (%s/block)::int*block as bucket, '
-             'min(%s) as min, '
-             'max(%s) as max, '
-             'count(*) as count'
-             'FROM %s,  TMP '
-             '%s'
-             'GROUP BY bucket'
-             'ORDER BY bucket'
-             ')')
-
+        q = """
+          with TMP as (
+            SELECT 2.5 * stddev(%s) / %d as block FROM %s %s
+          )
+          SELECT (%s/block)::int*block as bucket,
+                 min(%s) as min,
+                 max(%s) as max,
+                 count(*) as count
+          FROM %s,  TMP
+          %s
+          GROUP BY bucket
+          ORDER BY bucket
+          """
         q = q % (c, self.nbuckets, self.tablename, self.where,
                  c, c, c, self.tablename, self.where)
+        # print q
 
         stats = []
         for (val, minv, maxv, count) in self.query(q):
@@ -262,21 +266,19 @@ class Summary(object):
         return stats
 
     def get_char_stats(self, col_name):
-        q = ('select %s as GRP, min(%s), max(%s), count(*) ',
-             'FROM %s '
-             '%s '
-             'GROUP BY GRP '
-             'ORDER BY count(*) desc '
-             'LIMIT %d')
+        q = """
+            select %s as GRP, min(%s), max(%s), count(*)
+            FROM %s
+            %s
+            GROUP BY GRP
+            ORDER BY count(*) desc
+            LIMIT %d
+            """
         q = q % (col_name, col_name, col_name,
                  self.tablename, self.where, self.nbuckets)
         rows = [{'val': x, 'count': count, 'range': [minv, maxv]}
                 for (x, minv, maxv, count) in self.query(q)]
         return rows
-
-        groupby = col_name
-        return groupby
-        return self.get_group_stats(col_name, groupby)
 
     def get_time_stats(self, col_name):
         return "date_trunc('hour', %s)::time" % col_name

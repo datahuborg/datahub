@@ -137,7 +137,7 @@ def api_tuples(request):
     ret = {}
     jsonstr = request.GET.get('json')
     if not jsonstr:
-        print("query: no json string. giving up")
+        # print("query: no json string. giving up")
         return ret
 
     args = json.loads(jsonstr)
@@ -151,8 +151,8 @@ def api_tuples(request):
     where, params = where_to_sql(where)
     if where:
         where = 'AND %s' % where
-    print(where)
-    print(params)
+    # print(where)
+    # print(params)
 
     query = ("WITH XXXX as (select count(*) from %s WHERE 1 = 1 %s) "
              "SELECT * FROM %s "
@@ -170,7 +170,7 @@ def api_tuples(request):
     ret['data'] = data
     ret['schema'] = get_schema(repo, table, username, repo_base)
 
-    print("%d points returned" % len(ret.get('data', [])))
+    # print("%d points returned" % len(ret.get('data', [])))
     return(ret)
 
 
@@ -179,7 +179,7 @@ def api_query(request):
     ret = {}
     jsonstr = request.GET.get('json', None)
     if not jsonstr:
-        print("query: no json string. giving up")
+        # print("query: no json string. giving up")
         return ret
 
     args = json.loads(jsonstr)
@@ -192,11 +192,11 @@ def api_query(request):
     o, params = create_sql_obj(None, args)
     o.limit = 10000
     query = str(o)
-    print(query)
-    print(params)
+    # print(query)
+    # print(params)
 
     if not repo or not table or not query:
-        print("query: no db/table/query. giving up")
+        # print("query: no db/table/query. giving up")
         return ret
 
     manager = DataHubManager(user=username, repo_base=repo_base)
@@ -208,7 +208,7 @@ def api_query(request):
     ret['data'] = data
     ret['schema'] = get_schema(repo, table, username, repo_base)
 
-    print("%d points returned" % len(ret.get('data', [])))
+    # print("%d points returned" % len(ret.get('data', [])))
     return ret
 
 
@@ -271,7 +271,7 @@ def column_distributions(request):
     full_tablename = "%s.%s" % (repo, tablename)
     summary = Summary(repo, full_tablename, username,
                       repo_base=repo_base, nbuckets=nbuckets, where=where)
-    print('where: %s' % where)
+    # print('where: %s' % where)
     try:
         stats = summary()
     except Exception as e:
@@ -293,7 +293,7 @@ def column_distributions(request):
 
 @returns_json
 def scorpion(request):
-    message = ("Could not load scorpionutil. ",
-               "Maybe scorpion has not been installed?")
-    print >>sys.stderr, message
+    # message = ("Could not load scorpionutil. ",
+    #            "Maybe scorpion has not been installed?")
+    # print >>sys.stderr, message
     return {'status': "error: could not load scorpion"}
