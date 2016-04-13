@@ -9,9 +9,8 @@ dbwipes_repo = 'dbwipes_cache_repo'
 
 
 def get_cache(username, repo_base=None):
-    """ DBWipes stores some metadata about the table in a schema in the user's
-        database. Note that this is not necessarily the
-        repo_base/database where the data is stored
+    """ DBWipes stores some metadata about the table in a schema in the owner's
+        database. Note that this is not necessarily the current user's DB
     """
     try:
         query = ('create table if not exists %s.dbwipes_cache'
@@ -29,7 +28,7 @@ def make_cache(f):
     @wraps(f)
     def _f(self, *args, **kwargs):
         try:
-            key = str(map(str, (f.__name__, self.dbname, self.tablename,
+            key = str(map(str, (f.__name__, self.repo, self.tablename,
                                 self.where, self.nbuckets, map(str, args))))
             query = 'select val from %s.dbwipes_cache where key = %s' (
                 dbwipes_repo, key)
@@ -49,7 +48,7 @@ def make_cache(f):
             q = 'insert into ' + dbwipes_repo + '.dbwipes_cache values(%s, %s)'
 
             manager = DataHubManager(user=self.repo_base)
-            foo = manager.execute_sql(q, params)
+            manager.execute_sql(q, params)
 
             # print('***********')
             # print foo
@@ -69,11 +68,11 @@ def json_handler(o):
 
 class Summary(object):
 
-    def __init__(self, dbname, tablename, username, repo_base=None,
+    def __init__(self, repo, tablename, username, repo_base=None,
                  nbuckets=50, where=''):
         self.username = username
         self.repo_base = repo_base
-        self.dbname = dbname
+        self.repo = repo
         self.tablename = tablename
         self.nbuckets = nbuckets
         self.where = ''

@@ -1,21 +1,13 @@
 import json
-import sys
 import traceback
-
-from core.db.manager import DataHubManager
-from service.handler import DataHubHandler
-from datahub import DataHub
+from functools import wraps
 
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 
-from functools import wraps
-
+from core.db.manager import DataHubManager
 from summary import Summary
 from util import SummaryEncoder, where_to_sql, create_sql_obj, pick
-
-handler = DataHubHandler()
-processor = DataHub.Processor(handler)
 
 
 def returns_json(f):
@@ -29,6 +21,7 @@ def returns_json(f):
 
 
 def index(request, repo_base, repo, table):
+    """ Main page for dbWipes """
     username = request.user.get_username()
 
     enable_scorpion = 0
@@ -69,9 +62,13 @@ def index(request, repo_base, repo, table):
 
 
 @returns_json
-def dbs(request):
+def repos(request):
+    """ return the repos in the user's database.
+        I think this is only used for (disabled) scorpion features.
+    """
     username = request.user.get_username()
-    manager = DataHubManager(user=username)
+    repo_base = request.GET.get('username', None)
+    manager = DataHubManager(username, repo_base)
     dbnames = manager.list_repos()
     # q = "SELECT datname FROM pg_database where datistemplate = false;"
     # dbnames = [str(row[0]) for row in manager.execute_sql(query=q)['tuples']]
@@ -80,14 +77,19 @@ def dbs(request):
 
 @returns_json
 def tables(request):
+    """ Returns the tables in a user's repo.
+        I think this is only used for (disabled) scorpion features.
+    """
     username = request.user.get_username()
-    manager = DataHubManager(user=username)
+    repo_base = request.GET.get('username', None)
+    manager = DataHubManager(username, repo_base)
     repo = request.GET.get('repo')
     tables = manager.list_tables(repo)
     return {'tables': tables}
 
 
 def get_schema(repo, table, username, repo_base):
+    """ gets the schema of a given repo.table in a repo_base """
     manager = DataHubManager(user=username, repo_base=repo_base)
     pairs = manager.get_schema(repo, table)
     schema = {}
@@ -106,6 +108,9 @@ def get_schema(repo, table, username, repo_base):
 
 @returns_json
 def schema(request):
+    """ Figure out the repo_base repo.table, and then use get_schema to
+        get the schema of that table
+    """
     # This is kind of screwey. DBWipes passes
     # the repo_base as "username"
     # the repo as "db"
@@ -120,16 +125,6 @@ def schema(request):
     ret = {}
     ret['schema'] = get_schema(repo, table, username, repo_base)
     return ret
-
-
-@returns_json
-def requestid(request):
-    return {'error': "Scorpion not installed"}
-
-
-@returns_json
-def api_status(request):
-    return {'error': "Scorpion not installed"}
 
 
 @returns_json
@@ -236,7 +231,7 @@ def column_distribution(request):
     full_tablename = "%s.%s" % (repo, tablename)
 
     summary = Summary(
-        dbname=repo, tablename=full_tablename, username=username,
+        repo=repo, tablename=full_tablename, username=username,
         repo_base=repo_base, nbuckets=nbuckets, where=where)
     try:
         typ = summary.get_type(col)
@@ -297,3 +292,13 @@ def scorpion(request):
     #            "Maybe scorpion has not been installed?")
     # print >>sys.stderr, message
     return {'status': "error: could not load scorpion"}
+
+
+@returns_json
+def requestid(request):
+    return {'error': "Scorpion not installed"}
+
+
+@returns_json
+def api_status(request):
+    return {'error': "Scorpion not installed"}

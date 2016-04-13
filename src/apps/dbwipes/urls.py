@@ -4,7 +4,7 @@ urlpatterns = patterns(
     '',
     url(r'^page/(\w+)/(\w+)/(\w+)/?$', 'dbwipes.views.index'),
 
-    url(r'^api/databases/?$', 'dbwipes.views.dbs'),
+    url(r'^api/repos/?$', 'dbwipes.views.repos'),
     url(r'^api/tables/?$', 'dbwipes.views.tables'),
     url(r'^api/schema/?$', 'dbwipes.views.schema'),
     url(r'^api/tuples/?$', 'dbwipes.views.api_tuples'),
