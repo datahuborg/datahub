@@ -40,7 +40,6 @@ class DataHubManager:
 
         # blank users are set to anonymous role
         if user == '':
-            import pdb; pdb.set_trace()
             user = settings.ANONYMOUS_ROLE
 
         username = None
@@ -299,11 +298,15 @@ class DataHubManager:
             db_collabs = conn.list_collaborators(repo=repo)
 
         # merge it with the datahub collaborator model permissions
-        dh_collabs = Collaborator.objects.all()
-        for dh_collab in dh_collabs:
-            for db_collab in db_collabs:
-                if dh_collab.user.username == db_collab['username']:
-                    db_collab['file_permissions'] = dh_collab.file_permission
+        usernames = (db_collab['username'] for db_collab in db_collabs)
+        dh_collabs = Collaborator.objects.filter(user__username__in=usernames,
+                                                 repo_base=self.repo_base,
+                                                 repo_name=repo)
+        for db_collab in db_collabs:
+            db_collab['file_permissions'] = next(
+                (dh_collab.file_permission for dh_collab in dh_collabs
+                    if dh_collab.user.username == db_collab['username']),
+                '')
 
         return db_collabs
 
@@ -579,8 +582,7 @@ class DataHubManager:
         """
         Lists repositories that are accessible by the dh_public user.
         """
-        user = User.objects.get(username=settings.PUBLIC_ROLE)
-        return Collaborator.objects.filter(user=user)
+        return Collaborator.objects.filter(user__username=settings.PUBLIC_ROLE)
 
     """
     The following methods run in superuser mode only
@@ -911,31 +913,16 @@ class DataHubManager:
         if login == repo_base:
             return True
 
-        # get the collaborator objets for that repo and repo base
-        collaborators = Collaborator.objects.filter(
-            repo_base=repo_base, repo_name=repo)
-
-        # assign the public and default users
-        public_user = User.objects.get(username=settings.PUBLIC_ROLE)
-        default_user = User.objects.get(username=login)
-
         # iterate through the collaboratr objects. If the public/default
         # user have the privileges passed, return true
         # The anonymous user is never explicitly shared with, so we don't need
         # to check for that.
-        for collaborator in collaborators:
-            collab_permissions = collaborator.file_permission
-            collab_user = collaborator.user
-
-            if (collab_user == public_user and
-                    privilege in collab_permissions):
-                return True
-            if (collab_user == default_user and
-                    privilege in collab_permissions):
-                return True
-
-        # default to returning false
-        return False
+        permitted_collaborators = Collaborator.objects.filter(
+            repo_base=repo_base,
+            repo_name=repo,
+            file_permission__contains=privilege,
+            user__username__in=[settings.PUBLIC_ROLE, login])
+        return next((True for c in permitted_collaborators), False)
 
     @staticmethod
     def has_table_privilege(login, repo_base, table, privilege):
