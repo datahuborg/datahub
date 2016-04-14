@@ -40,6 +40,7 @@ class DataHubManager:
 
         # blank users are set to anonymous role
         if user == '':
+            import pdb; pdb.set_trace()
             user = settings.ANONYMOUS_ROLE
 
         username = None
@@ -109,24 +110,16 @@ class DataHubManager:
 
         return success
 
-    def list_collaborator_repos(self, override_user=None):
+    def list_collaborator_repos(self):
         """
         Lists repositories that the current user has been granted permission
-        to access. If override_user is passed, logged in user is replaced with
-        override_user.
-
-        A common case for passing override_user is when finding repos that
-        are shared with the public user.
+        to access.
 
         Note that this method relies on the Collaborators django model. If a
         user bypasses DataHub's api, and grants permissions via the database,
         collaborator repos will not show.
         """
-        user = None
-        if override_user:
-            user = User.objects.get(username=override_user)
-        else:
-            user = User.objects.get(username=self.username)
+        user = User.objects.get(username=self.username)
 
         return Collaborator.objects.filter(user=user)
 
