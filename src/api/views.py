@@ -17,6 +17,7 @@ from core.db.manager import PermissionDenied
 from django.core.exceptions import ValidationError, \
                                    ObjectDoesNotExist
 
+from config import settings
 from .serializer import (
     UserSerializer, RepoSerializer, CollaboratorSerializer,
     TableSerializer, ViewSerializer, FileSerializer, QuerySerializer,
@@ -122,7 +123,7 @@ class ReposPublic(APIView):
     Repos that have been made public
     """
     def get(self, request, format=None):
-        serializer = RepoSerializer('dh_anonymous', None, request)
+        serializer = RepoSerializer(settings.ANONYMOUS_ROLE, None, request)
         return Response(serializer.public_repos())
 
 

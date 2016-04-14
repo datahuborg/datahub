@@ -39,10 +39,10 @@ DATABASES = {
 # Database role that public repos grant access to
 # All datahub users are granted access to this role
 PUBLIC_ROLE = 'dh_public'
-PUBLIC_ROLE_EMAIL = 'noreply_public@datahub.csail.mit.edu'
+PUBLIC_ROLE_EMAIL = 'noreply+public@datahub.csail.mit.edu'
 
 ANONYMOUS_ROLE = 'dh_anonymous'
-ANONYMOUS_ROLE_EMAIL = 'noreply_anon@datahub.csail.mit.edu'
+ANONYMOUS_ROLE_EMAIL = 'noreply+anon@datahub.csail.mit.edu'
 
 TIME_ZONE = 'America/New_York'
 
