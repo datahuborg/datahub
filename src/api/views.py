@@ -587,6 +587,9 @@ class Cards(APIView):
 
 class Card(APIView):
 
+    renderer_classes = (api_settings.DEFAULT_RENDERER_CLASSES +
+                        [CSVRenderer])
+
     def get(self, request, repo_base, repo_name, card_name):
         """
         See the query and query results of a single card.
@@ -604,6 +607,10 @@ class Card(APIView):
             in: path
             type: integer
             description: number of rows per page
+
+        produces:
+            - application/json
+            - text/csv
 
         """
         username = request.user.get_username()
