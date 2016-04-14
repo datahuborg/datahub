@@ -5,6 +5,7 @@ engines:
     enabled: true
     config:
       threshold: 'C'
+      python_version: 2
   fixme:
     enabled: true
     checks:

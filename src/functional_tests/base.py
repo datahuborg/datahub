@@ -85,7 +85,8 @@ class FunctionalTest(StaticLiveServerTestCase):
         test_users = filter(lambda x: x.startswith('delete_me_'), all_users)
         for user in test_users:
             try:
-                DataHubManager.remove_user(user, remove_db=True)
+                DataHubManager.remove_user(user, remove_db=True,
+                                           ignore_missing_user=True)
             except:
                 print('UNABLE TO DELETE USER ' + user)
 
@@ -299,11 +300,33 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         self.assertRegexpMatches(table_url, regex)
 
+    def make_repo_public(self, repo):
+        self.browser.find_element_by_id('logo').click()
+
+        # click the collaborators button next to the repo
+        xpath = ('(//table/tbody/tr[td/a/text()="{repo}"]/td/a[text()['
+                 'contains(.,"collaborator(s)")]])[1]').format(repo=repo)
+        self.browser.find_element_by_xpath(xpath).click()
+
+        # click the button to make the repo public
+        self.browser.find_element_by_id('publish').click()
+
+    def make_repo_not_public(self, repo):
+        self.browser.find_element_by_id('logo').click()
+
+        # click the collaborators button next to the repo
+        xpath = ('(//table/tbody/tr[td/a/text()="{repo}"]/td/a[text()['
+                 'contains(.,"collaborator(s)")]])[1]').format(repo=repo)
+        self.browser.find_element_by_xpath(xpath).click()
+
+        # click the button to revoke public access
+        self.browser.find_element_by_id('unpublish').click()
+
     def add_collaborator(self, repo, collaborator):
         # assumes the user is logged in
         self.browser.find_element_by_id('logo').click()
 
-        # click the collaborators button
+        # click the collaborators button next to the repo
         xpath = ('(//table/tbody/tr[td/a/text()="{repo}"]/td/a[text()['
                  'contains(.,"collaborator(s)")]])[1]').format(repo=repo)
         self.browser.find_element_by_xpath(xpath).click()
@@ -323,7 +346,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.find_element_by_xpath(xpath).click()
 
         # click the remove link next to the user's name
-        xpath = ('(//table/tbody/tr/td[span/text()="{collaborator}"]'
+        xpath = ('(//table/tbody/tr/td/ul/li[span/text()="{collaborator}"]'
                  '/a[@title="Remove"])[1]').format(collaborator=collaborator)
         self.browser.find_element_by_xpath(xpath).click()
 

@@ -3,9 +3,10 @@ import itertools
 
 from django.test import TestCase
 
+from config.settings import PUBLIC_ROLE
 from core.db.backend.pg import connection_pools, \
-                               _pool_for_credentials
-from core.db.backend.pg import PGBackend
+                               _pool_for_credentials, \
+                               PGBackend
 
 
 class MockingMixin(object):
@@ -302,7 +303,7 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
                       repo, privilege, receiver)
 
             res = self.backend.add_collaborator(
-                repo=repo, collaborator=receiver, privileges=[privilege])
+                repo=repo, collaborator=receiver, db_privileges=[privilege])
 
             self.assertEqual(
                 self.mock_execute_sql.call_args[0][0], add_collab_query)
@@ -323,7 +324,7 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
 
         self.backend.add_collaborator(repo=repo,
                                       collaborator=receiver,
-                                      privileges=privileges)
+                                      db_privileges=privileges)
 
         # make sure that the privileges are passed as a string in params
         self.assertTrue(
@@ -461,6 +462,24 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         self.assertEqual(
             res,  [(u'id', u'integer'), (u'words', u'text'), ('foo', 'bar')])
 
+    def test_list_table_permissions(self):
+        repo = 'repo'
+        table = 'table'
+        query = ("select privilege_type from "
+                 "information_schema.role_table_grants where table_schema=%s "
+                 "and table_name=%s and grantee=%s")
+        params = ('repo', 'table', self.username)
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 2,
+            'tuples': [
+                (u'SELECT'), (u'UPDATE')],
+            'fields': [{'type': 1043, 'name': 'privilege_type'}]
+            }
+
+        self.backend.list_table_permissions(repo, table)
+        self.assertEqual(self.mock_execute_sql.call_args[0][0], query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+
     def test_delete_table(self):
         repo = 'repo_name'
         table = 'table_name'
@@ -596,12 +615,12 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_check_for_injections.call_count, 2)
 
-    def test_create_user_no_create_db(self):
+    def test_create_public_user_no_create_db(self):
         create_user_query = ('CREATE ROLE %s WITH LOGIN '
                              'NOCREATEDB NOCREATEROLE NOCREATEUSER '
                              'PASSWORD %s')
 
-        username = 'username'
+        username = PUBLIC_ROLE
         password = 'password'
 
         self.backend.create_user(username, password, create_db=False)
@@ -609,10 +628,30 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         mock_create_user_database = self.create_patch(
             'core.db.backend.pg.PGBackend.create_user_database')
 
+        # import pdb; pdb.set_trace()
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], create_user_query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_as_is.call_count, 1)
+        self.assertEqual(self.mock_check_for_injections.call_count, 1)
+        self.assertFalse(mock_create_user_database.called)
+
+    def test_create_normal_user_no_create_db(self):
+        create_user_query = 'GRANT %s to %s'
+
+        username = 'username'
+        password = 'password'
+
+        self.backend.create_user(username, password, create_db=False)
+        params = (PUBLIC_ROLE, username)
+        mock_create_user_database = self.create_patch(
+            'core.db.backend.pg.PGBackend.create_user_database')
+
+        # import pdb; pdb.set_trace()
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][0], create_user_query)
+        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        self.assertEqual(self.mock_as_is.call_count, 3)
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
         self.assertFalse(mock_create_user_database.called)
 
@@ -717,8 +756,8 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
             'fields': [{'type': 1033, 'name': 'unnest'}]}
 
         expected_result = [
-            {'username': 'al_carter', 'permissions': 'UC'},
-            {'username': 'foo_bar', 'permissions': 'U'}
+            {'username': 'al_carter', 'db_permissions': 'UC'},
+            {'username': 'foo_bar', 'db_permissions': 'U'}
             ]
 
         res = self.backend.list_collaborators(repo)
@@ -764,7 +803,7 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         self.assertEqual(self.mock_as_is.call_count, 0)
         self.assertEqual(res, True)
 
-    def test_has_repo_privilege(self):
+    def test_has_repo_db_privilege(self):
         query = 'SELECT has_schema_privilege(%s, %s, %s);'
         repo = 'repo'
         privilege = 'CONNECT'
@@ -772,7 +811,7 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         self.mock_execute_sql.return_value = {'status': True, 'row_count': -1,
                                               'tuples': [[True]], 'fields': []}
 
-        res = self.backend.has_repo_privilege(
+        res = self.backend.has_repo_db_privilege(
             login=self.username, repo=repo, privilege=privilege)
 
         self.assertEqual(

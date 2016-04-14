@@ -20,8 +20,14 @@ class DataHubSerializer(object):
         self.username = username
         self.repo_base = repo_base
         self.request = request
-        self.manager = DataHubManager(
-            user=self.username, repo_base=self.repo_base)
+
+        # In rare cases, the manager does not need to be instantiated
+        # i.e. when listing public repos, which is done via a static method
+        try:
+            self.manager = DataHubManager(
+                user=self.username, repo_base=self.repo_base)
+        except:
+            pass
 
         self.base_uri = ''
         if request:
@@ -128,6 +134,23 @@ class RepoSerializer(DataHubSerializer):
 
         return {'repos': repo_obj_list}
 
+    def public_repos(self):
+        public_repos = DataHubManager.list_public_repos()
+
+        repo_obj_list = []
+        for repo in public_repos:
+            relative_uri = reverse('api:repo', args=(
+                repo.repo_base, repo.repo_name))
+            absolute_uri = self.base_uri + relative_uri
+
+            repo_obj_list.append({
+                'repo_name': repo.repo_name,
+                'href': absolute_uri,
+                'owner': repo.repo_base,
+                })
+
+        return {'repos': repo_obj_list}
+
     def all_collab_repos(self):
         collab_repos = self.manager.list_collaborator_repos()
 
@@ -169,9 +192,11 @@ class CollaboratorSerializer(DataHubSerializer):
                 return collaborator
         return collaborators
 
-    def add_collaborator(self, repo, collaborator, permissions):
+    def add_collaborator(self, repo, collaborator, db_permissions,
+                         file_permissions):
         success = self.manager.add_collaborator(
-            repo, collaborator, permissions)
+            repo, collaborator, db_permissions, file_permissions)
+
         return success
 
     def remove_collaborator(self, repo, collaborator):
@@ -205,13 +230,17 @@ class TableSerializer(DataHubSerializer):
         res = self.manager.describe_table(
             repo=repo, table=table, detail=False)
 
-        response = []
+        columns = []
         for column in res:
             response_obj = {}
             response_obj['column_name'] = column[0]
             response_obj['data_type'] = column[1]
-            response.append(response_obj)
-        return {'columns': response}
+            columns.append(response_obj)
+
+        res = self.manager.list_table_permissions(repo, table)
+        permissions = [permission for sublist in res for permission in sublist]
+
+        return {'columns': columns, 'permissions': permissions}
 
     def delete_table(self, repo, table, force=False):
         success = self.manager.delete_table(repo, table, force)
@@ -292,7 +321,8 @@ class CardSerializer(DataHubSerializer):
 
         return {'cards': card_list}
 
-    def describe_card(self, repo, card_name):
+    def describe_card(
+            self, repo, card_name, current_page=1, rows_per_page=1000):
         card = self.manager.get_card(repo, card_name)
         # relative_uri = reverse('api:query_with_repo', args=(
         #     self.repo_base, repo))
@@ -301,12 +331,32 @@ class CardSerializer(DataHubSerializer):
         res = {}
         res['timestamp'] = card.timestamp
         res['query'] = card.query
-        # res['query_href'] = absolute_uri
+        res['public'] = card.public
+
+        # Get the results of the card
+        # cards must spawn a new serializer, since they run as the user
+        # that created the card (not necessarily the current user)
+        query_serializer = QuerySerializer(self.repo_base, self.repo_base)
+        query_results = query_serializer.execute_query(
+            query=card.query, repo=repo, current_page=current_page,
+            rows_per_page=rows_per_page,
+            rows_only=None)
+        res['results'] = query_results
+
         return res
+
+    def update_card(self, repo, card_name, new_query, new_name, public):
+        self.manager.set_search_paths([repo])
+        card = self.manager.update_card(
+            repo, card_name, new_query, new_name, public)
+
+        return self.describe_card(repo, card.card_name)
 
     def create_card(self, repo, query, card_name):
         self.manager.set_search_paths([repo])
-        return self.manager.create_card(repo, query, card_name)
+        card = self.manager.create_card(repo, query, card_name)
+
+        return self.describe_card(repo, card.card_name)
 
     def delete_card(self, repo, card_name):
         return self.manager.delete_card(repo, card_name)

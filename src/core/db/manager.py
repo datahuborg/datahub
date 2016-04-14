@@ -1,8 +1,3 @@
-from config import settings
-from core.db.connection import DataHubConnection
-from inventory.models import App, Card, Collaborator, DataHubLegacyUser
-from django.contrib.auth.models import User
-
 import six
 import hashlib
 import os
@@ -11,6 +6,13 @@ import re
 import codecs
 import csv
 from shutil import rmtree
+
+from django.contrib.auth.models import User
+
+from config import settings
+from core.db.connection import DataHubConnection
+from inventory.models import App, Card, Collaborator, DataHubLegacyUser
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 
@@ -33,7 +35,13 @@ class _superuser_connection():
 
 class DataHubManager:
 
-    def __init__(self, user, repo_base=None, is_app=False):
+    def __init__(self, user=settings.ANONYMOUS_ROLE, repo_base=None,
+                 is_app=False):
+
+        # blank users are set to anonymous role
+        if user == '':
+            user = settings.ANONYMOUS_ROLE
+
         username = None
         password = None
 
@@ -101,8 +109,25 @@ class DataHubManager:
 
         return success
 
-    def list_collaborator_repos(self):
-        user = User.objects.get(username=self.username)
+    def list_collaborator_repos(self, override_user=None):
+        """
+        Lists repositories that the current user has been granted permission
+        to access. If override_user is passed, logged in user is replaced with
+        override_user.
+
+        A common case for passing override_user is when finding repos that
+        are shared with the public user.
+
+        Note that this method relies on the Collaborators django model. If a
+        user bypasses DataHub's api, and grants permissions via the database,
+        collaborator repos will not show.
+        """
+        user = None
+        if override_user:
+            user = User.objects.get(username=override_user)
+        else:
+            user = User.objects.get(username=self.username)
+
         return Collaborator.objects.filter(user=user)
 
     def delete_repo(self, repo, force=False):
@@ -131,6 +156,9 @@ class DataHubManager:
     def describe_table(self, repo, table, detail=False):
         return self.user_con.describe_table(repo, table, detail)
 
+    def list_table_permissions(self, repo, table):
+        return self.user_con.list_table_permissions(repo, table)
+
     def create_view(self, repo, view, sql):
         return self.user_con.create_view(
             repo=repo, view=view, sql=sql)
@@ -157,16 +185,27 @@ class DataHubManager:
         print query
         return self.user_con.execute_sql(query=query, params=params)
 
-    def add_collaborator(self, repo, collaborator, privileges):
+    def add_collaborator(
+            self, repo, collaborator, db_privileges, file_privileges):
         """
         Grants a user or app privileges on a repo.
 
         - collaborator must match an existing User's username or an existing
         App's app_id.
-        - privileges must be an array of SQL privileges as strings.
+        - db_privileges must be an array of SQL privileges as strings.
+          e.g. ['SELECT', 'UPDATE', 'INSERT']
+        - file_privileges must be an array of file privileges.
+          e.g. ['read', 'write']
         """
-        res = DataHubManager.has_repo_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        # Usage is probably not the right check, but neither is CREATE.
+        # The trouble is that roles INHERIT permissions from one another
+        # depending on whether that flag was set during creation... and I
+        # haven't figured out a way to check on whether a user can grant
+        # permission to another without actually doing it.
+        # For now, we limit adding_collaborators to the actual owner, who has
+        # create privileges
+        res = DataHubManager.has_repo_db_privilege(
+            self.username, self.repo_base, repo, 'CREATE')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
@@ -185,16 +224,19 @@ class DataHubManager:
             collaborator_obj, _ = Collaborator.objects.get_or_create(
                 user=user, repo_name=repo, repo_base=self.repo_base)
 
-        # convert privileges list to string
-        privilege_str = ', '.join(privileges)
-        collaborator_obj.permission = privilege_str
+        # convert privileges list to string and save the object
+        db_privilege_str = ', '.join(db_privileges)
+        file_privilege_str = ', '.join(file_privileges).lower()
+
+        collaborator_obj.permission = db_privilege_str
+        collaborator_obj.file_permission = file_privilege_str
 
         collaborator_obj.save()
 
         return self.user_con.add_collaborator(
             repo=repo,
             collaborator=collaborator,
-            privileges=privileges
+            db_privileges=db_privileges
         )
 
     def delete_collaborator(self, repo, collaborator):
@@ -224,8 +266,8 @@ class DataHubManager:
 
     def list_repo_files(self, repo):
         # check for permissions
-        res = DataHubManager.has_repo_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'read')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
@@ -238,8 +280,8 @@ class DataHubManager:
 
     def list_repo_cards(self, repo):
         # check for permission
-        res = DataHubManager.has_repo_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'read')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
@@ -260,13 +302,22 @@ class DataHubManager:
         # [{'username': 'foo_user', 'permissions': 'UC'},
            {'username': 'bar_user', 'permissions': 'U'}]
         """
+        # get the database's idea of permissions
         with _superuser_connection(self.repo_base) as conn:
-            result = conn.list_collaborators(repo=repo)
-        return result
+            db_collabs = conn.list_collaborators(repo=repo)
+
+        # merge it with the datahub collaborator model permissions
+        dh_collabs = Collaborator.objects.all()
+        for dh_collab in dh_collabs:
+            for db_collab in db_collabs:
+                if dh_collab.user.username == db_collab['username']:
+                    db_collab['file_permissions'] = dh_collab.file_permission
+
+        return db_collabs
 
     def save_file(self, repo, data_file):
-        res = DataHubManager.has_repo_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'write')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
@@ -280,8 +331,8 @@ class DataHubManager:
                 destination.write(chunk)
 
     def delete_file(self, repo, file_name):
-        res = DataHubManager.has_repo_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'write')
 
         if not res:
             raise PermissionDenied(
@@ -291,8 +342,8 @@ class DataHubManager:
         os.remove(file_path)
 
     def get_file(self, repo, file_name):
-        res = DataHubManager.has_repo_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'read')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
@@ -301,14 +352,46 @@ class DataHubManager:
         file = open(file_path).read()
         return file
 
+    def update_card(self, repo, card_name, new_query=None,
+                    new_name=None, public=None):
+        """
+        Updates cards with new name/query/public variables
+        """
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'write')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges.')
+
+        card = Card.objects.get(
+            repo_base=self.repo_base, repo_name=repo, card_name=card_name)
+        # update the card
+        if new_query is not None:
+            # Queries for cards must work
+            try:
+                self.execute_sql(new_query)
+            except Exception:
+                raise PermissionDenied(
+                    'Either missing required privileges or bad query')
+            card.query = new_query
+        if new_name is not None:
+            card.card_name = new_name
+        if public is not None:
+            card.public = public
+
+        card.save()
+        return card
+
     def get_card(self, repo, card_name):
         """
         used to get cards. This goes through manage.py because, it requires
         a check that the user actually has repo access.
         """
-        res = DataHubManager.has_repo_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
-        if not res:
+        card = Card.objects.get(
+            repo_base=self.repo_base, repo_name=repo, card_name=card_name)
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'read')
+        if not (res or card.public):
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
 
@@ -348,8 +431,8 @@ class DataHubManager:
         # check that they really do have permissions on the repo base.
         # This is a bit paranoid, but only because I don't like giving users
         # superuser privileges
-        res = DataHubManager.has_repo_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'write')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
@@ -365,8 +448,8 @@ class DataHubManager:
                                     file_format=file_format)
 
     def delete_card(self, repo, card_name):
-        res = DataHubManager.has_repo_privilege(
-            self.username, self.repo_base, repo, 'USAGE')
+        res = DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'write')
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
@@ -499,6 +582,14 @@ class DataHubManager:
             os.path.join(os.sep, 'user_data', username))
         return os.path.exists(repo_dir)
 
+    @staticmethod
+    def list_public_repos():
+        """
+        Lists repositories that are accessible by the dh_public user.
+        """
+        user = User.objects.get(username=settings.PUBLIC_ROLE)
+        return Collaborator.objects.filter(user=user)
+
     """
     The following methods run in superuser mode only
     """
@@ -527,8 +618,17 @@ class DataHubManager:
         return res
 
     @staticmethod
-    def remove_user(username, remove_db=True):
-        # get the user associated with the username, and delete their apps
+    def create_user_database(username):
+        """ create just the database for a user """
+        with _superuser_connection() as conn:
+            res = conn.create_user_database(username=username)
+            DataHubManager.create_user_data_folder(username)
+        return res
+
+    @staticmethod
+    def _remove_django_user(username):
+        # Get the user associated with the username, delete their apps, and
+        # then delete the user
         try:
             user = User.objects.get(username=username)
             apps = App.objects.filter(user=user)
@@ -537,35 +637,47 @@ class DataHubManager:
                 DataHubManager.remove_app(app_id=app_id)
 
             Collaborator.objects.filter(user=user).delete()
-        except:
+            user.delete()
+        except User.DoesNotExist:
             user = None
 
-        # do the same thing for legacy users
+        # Do the same thing for legacy users
         try:
             legacy_user = DataHubLegacyUser.objects.get(username=username)
             apps = App.objects.filter(legacy_user=legacy_user)
             for app in apps:
                 app_id = app.app_id
                 DataHubManager.remove_app(app_id=app_id)
-        except:
+            legacy_user.delete()
+        except DataHubLegacyUser.DoesNotExist:
             legacy_user = None
 
-        # delete the users
-        if user:
-            user.delete()
+        # Raise a not found exception if this didn't result in any deletions
+        if not user and not legacy_user:
+            raise User.DoesNotExist()
 
-        if legacy_user:
-            legacy_user.delete()
+    @staticmethod
+    def remove_user(username, remove_db=True, ignore_missing_user=False):
+        # Delete the Django user
+        try:
+            DataHubManager._remove_django_user(username)
+        except User.DoesNotExist as e:
+            if not ignore_missing_user:
+                raise e
 
-        # delete the user's db
+        # Delete the user's db
         if remove_db:
             DataHubManager.remove_database(username)
 
-        # make a connection, and delete the user's database account
+        # Make a connection, and delete the user's database role
         with _superuser_connection() as conn:
             try:
+                # Try the simple case first: delete the user when they have no
+                # db permissions left
                 result = conn.remove_user(username=username)
             except:
+                # Assume the failure was outstanding db permissions. Remove
+                # them and try again.
                 all_db_list = DataHubManager.list_all_databases()
                 for db in all_db_list:
                     DataHubManager.drop_owned_by(username=username,
@@ -576,6 +688,7 @@ class DataHubManager:
     @staticmethod
     def remove_app(app_id):
         app = App.objects.get(app_id=app_id)
+        Collaborator.objects.filter(app=app).delete()
         app.delete()
 
         with _superuser_connection() as conn:
@@ -604,14 +717,14 @@ class DataHubManager:
         return result
 
     @staticmethod
-    def remove_database(repo_name, revoke_collaborators=True):
-        collaborators = Collaborator.objects.filter(repo_name=repo_name)
+    def remove_database(repo_base, revoke_collaborators=True):
+        collaborators = Collaborator.objects.filter(repo_base=repo_base)
         for collaborator in collaborators:
             collaborator.delete()
 
-        DataHubManager.delete_user_data_folder(repo_name)
+        DataHubManager.delete_user_data_folder(repo_base)
         with _superuser_connection() as conn:
-            result = conn.remove_database(repo_name, revoke_collaborators)
+            result = conn.remove_database(repo_base, revoke_collaborators)
         return result
 
     @staticmethod
@@ -630,7 +743,7 @@ class DataHubManager:
         # check for permissions
         delimiter = delimiter.decode('string_escape')
 
-        res = DataHubManager.has_repo_privilege(
+        res = DataHubManager.has_repo_db_privilege(
             username, repo_base, repo, 'CREATE')
         if not res:
             raise PermissionDenied(
@@ -688,7 +801,7 @@ class DataHubManager:
         table = clean_str(table, '')
 
         # check for permissions
-        res = DataHubManager.has_repo_privilege(
+        res = DataHubManager.has_repo_db_privilege(
             username, repo_base, repo, 'CREATE')
         if not res:
             raise PermissionDenied(
@@ -729,7 +842,7 @@ class DataHubManager:
         view = clean_str(view, '')
 
         # check for permissions
-        res = DataHubManager.has_repo_privilege(
+        res = DataHubManager.has_repo_db_privilege(
             username, repo_base, repo, 'CREATE')
         if not res:
             raise PermissionDenied(
@@ -777,14 +890,64 @@ class DataHubManager:
         return result
 
     @staticmethod
-    def has_repo_privilege(login, repo_base, repo, privilege):
+    def has_repo_db_privilege(login, repo_base, repo, privilege):
+        """
+        Returns a bool describing whether the bool user has the DATABASE
+        privilege passed in the argument. (i.e. Usage)
+
+        Relies on database role management, so this is a pretty straightforward
+        call
+        """
+        repo = repo.lower()
+        repo_base = repo_base.lower()
         with _superuser_connection(repo_base) as conn:
-            result = conn.has_repo_privilege(
+            result = conn.has_repo_db_privilege(
                 login=login, repo=repo, privilege=privilege)
         return result
 
     @staticmethod
+    def has_repo_file_privilege(login, repo_base, repo, privilege):
+        """
+        Returns a bool describing whether or not a user has the FILE privilege
+        passed in the argument. (i.e. 'read')
+
+        """
+        repo = repo.lower()
+        repo_base = repo_base.lower()
+
+        # users always have privileges for their own files
+        if login == repo_base:
+            return True
+
+        # get the collaborator objets for that repo and repo base
+        collaborators = Collaborator.objects.filter(
+            repo_base=repo_base, repo_name=repo)
+
+        # assign the public and default users
+        public_user = User.objects.get(username=settings.PUBLIC_ROLE)
+        default_user = User.objects.get(username=login)
+
+        # iterate through the collaboratr objects. If the public/default
+        # user have the privileges passed, return true
+        # The anonymous user is never explicitly shared with, so we don't need
+        # to check for that.
+        for collaborator in collaborators:
+            collab_permissions = collaborator.file_permission
+            collab_user = collaborator.user
+
+            if (collab_user == public_user and
+                    privilege in collab_permissions):
+                return True
+            if (collab_user == default_user and
+                    privilege in collab_permissions):
+                return True
+
+        # default to returning false
+        return False
+
+    @staticmethod
     def has_table_privilege(login, repo_base, table, privilege):
+        """ a straightforward call to the DB, since it manages this """
         with _superuser_connection(repo_base) as conn:
             result = conn.has_table_privilege(
                 login=login, table=table, privilege=privilege)
@@ -792,6 +955,7 @@ class DataHubManager:
 
     @staticmethod
     def has_column_privilege(login, repo_base, table, column, privilege):
+        """ a straightforward call to the DB, since it manages this """
         with _superuser_connection(repo_base) as conn:
             result = conn.has_column_privilege(login=login,
                                                table=table,

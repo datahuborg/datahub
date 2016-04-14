@@ -1,3 +1,5 @@
+from account.management.commands.createpublicanonuser import(
+    create_public_user, create_anonymous_user)
 from .base import FunctionalTest
 
 
@@ -66,6 +68,71 @@ class LoginTest(FunctionalTest):
             self.create_view(
                 repo_name, table_name, view_name)
 
+    def test_public_repo(self):
+        # Django migrations.RunPython doesn't happen before each test.
+        # To work around this we call some methods (that should have been done
+        # in migrations) here.
+        # Django 1.8/1.9 https://code.djangoproject.com/ticket/23640
+        create_public_user(None, None)
+        create_anonymous_user(None, None)
+
+        public_repo = 'public_repo'
+        private_repo = 'private_repo'
+
+        public_table = 'topsecretlol'
+        private_table = 'corruptionnstuff'
+
+        ed = 'delete_me_esnowden'
+        laura = 'delete_me_lpoitras'
+
+        # laura makes herself a datahub account
+        self.sign_up_manually(username=laura, password=None)
+        self.sign_out_manually()
+
+        # ed makes himself a datahub account
+        self.sign_up_manually(username=ed, password=None)
+
+        # ed decides to make some repos
+        self.create_repo(public_repo, ed)
+        self.create_repo(private_repo, ed)
+
+        # ed makes some tables, and shares their repo just with laura
+        self.create_table(private_repo, private_table, ed)
+        self.add_collaborator(private_repo, laura)
+
+        # he makes some tables in a different repo, and makes the repo public
+        self.create_table(public_repo, public_table, ed)
+        self.make_repo_public(public_repo)
+
+        # ed logs out
+        self.sign_out_manually()
+
+        # laura logs in and can see the repo. she clicks on it
+        self.sign_in_manually(laura)
+        self.browser.get(self.server_url + '/browse/' + ed)
+        self.browser.find_element_by_link_text(private_repo).click()
+
+        # she sees a shared table
+        self.browser.find_element_by_link_text(private_table)
+
+        # If she goes to the public url, she doesn't see the repo
+        self.browser.get(self.server_url + '/browse/' + 'public')
+        try:
+            self.browser.find_element_by_link_text(private_repo)
+            self.fail()
+        except:
+            pass
+
+        # ... but can see the public repo
+        self.browser.find_element_by_link_text(public_repo)
+
+        # Laura signs out, and then goes back to the public url.
+        # Even though She she isn't authenticated, she can still see the public
+        # repo, and click on it.
+        self.sign_out_manually()
+        self.browser.get(self.server_url + '/browse/' + 'public')
+        self.browser.find_element_by_link_text(public_repo).click()
+
     def test_add_remove_collaborator(self):
         # must be lowercase
         eazyE = 'delete_me_eazye'
@@ -73,7 +140,7 @@ class LoginTest(FunctionalTest):
         snoop = 'delete_me_snoop'
 
         # can be uppercase
-        repos = ['efil4zaggin', 'tSoSN', 'sukka']
+        repos = ['efil4zaggin', 'tsosn', 'sukka']
         tables = ['dopeman', 'thapolice']
 
         # print('eazyE joins datahub')
@@ -138,9 +205,9 @@ class LoginTest(FunctionalTest):
                       .format(base=self.server_url, user=dre, repo=repos[1]))
         self.browser.get(sneaky_url)
 
-        # print('the page says error.')
-        page_source = self.browser.page_source
-        search_string = 'No table'
+        # print('the page says not found.')
+        page_source = self.browser.page_source.lower()
+        search_string = 'not found'
         self.assertTrue(search_string in page_source)
 
         # print('eazyE gives up. He goes to the homepage, logs out'
@@ -181,8 +248,11 @@ class LoginTest(FunctionalTest):
         self.browser.get(sneaky_url)
 
         # print('the page says no table')
-        page_source = self.browser.page_source
-        search_string = 'No table'
+        page_source = self.browser.page_source.lower()
+        # It's unclear why, but the test environment uses a different
+        # template when raising 404 than the production env. Instead of
+        # searching for 404, search for 'not found'.
+        search_string = 'not found'
         self.assertTrue(search_string in page_source)
 
         # print('eazyE sends a diss to snoop')

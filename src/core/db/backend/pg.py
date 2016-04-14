@@ -157,12 +157,12 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['status']
 
-    def add_collaborator(self, repo, collaborator, privileges=[]):
+    def add_collaborator(self, repo, collaborator, db_privileges=[]):
         # check that all repo names, usernames, and privileges passed aren't
         # sql injections
         self._check_for_injections(repo)
         self._check_for_injections(collaborator)
-        for privilege in privileges:
+        for privilege in db_privileges:
             self._check_for_injections(privilege)
 
         query = ('BEGIN;'
@@ -173,7 +173,7 @@ class PGBackend:
                  'COMMIT;'
                  )
 
-        privileges_str = ', '.join(privileges)
+        privileges_str = ', '.join(db_privileges)
         params = [repo, collaborator, privileges_str, repo,
                   collaborator, repo, privileges_str, collaborator]
         params = tuple(map(lambda x: AsIs(x), params))
@@ -243,7 +243,6 @@ class PGBackend:
         query = ("SELECT %s "
                  "FROM information_schema.columns "
                  "WHERE table_schema = %s and table_name = %s;")
-
         params = None
         if detail:
             params = (AsIs('*'), repo, table)
@@ -251,7 +250,14 @@ class PGBackend:
             params = (AsIs('column_name, data_type'), repo, table)
 
         res = self.execute_sql(query, params)
+        return res['tuples']
 
+    def list_table_permissions(self, repo, table):
+        query = ("select privilege_type from "
+                 "information_schema.role_table_grants where table_schema=%s "
+                 "and table_name=%s and grantee=%s")
+        params = (repo, table, self.user)
+        res = self.execute_sql(query, params)
         return res['tuples']
 
     def create_view(self, repo, view, sql):
@@ -455,6 +461,12 @@ class PGBackend:
         params = (AsIs(username), password)
         self.execute_sql(query, params)
 
+        # Don't do this in the case of the public user.
+        if username != settings.PUBLIC_ROLE:
+            query = ('GRANT %s to %s')
+            params = (AsIs(settings.PUBLIC_ROLE), AsIs(username))
+            self.execute_sql(query, params)
+
         if create_db:
             return self.create_user_database(username)
 
@@ -534,7 +546,7 @@ class PGBackend:
         try:
             return self.execute_sql(query, params)
         except psycopg2.ProgrammingError as e:
-                print e
+                print(e)
                 print('this probably happened because the postgres role'
                       'exists, but a database of the same name does not.')
 
@@ -576,7 +588,7 @@ class PGBackend:
             permissions = row[0].split('=')[1].split('/')[0]
 
             collab_obj['username'] = username
-            collab_obj['permissions'] = permissions
+            collab_obj['db_permissions'] = permissions
 
             collaborators.append(collab_obj)
 
@@ -592,7 +604,7 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['tuples'][0][0]
 
-    def has_repo_privilege(self, login, repo, privilege):
+    def has_repo_db_privilege(self, login, repo, privilege):
         """
         returns True or False for whether the use has privileges for the
         repo (schema)
@@ -684,7 +696,7 @@ class PGBackend:
                   AsIs(header_option), delimiter, encoding, quote_character)
         try:
             self.execute_sql(query, params, row_level_security=False)
-        except Exception, e:
+        except Exception as e:
             self.execute_sql('DROP TABLE IF EXISTS %s', (AsIs(table_name),))
             raise ImportError(e)
 

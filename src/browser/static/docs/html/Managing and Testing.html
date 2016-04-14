@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="DH_Doc 0.1 documentation" href="index.html" />
-    <link rel="next" title="Client API" href="Client API.html" />
+    <link rel="next" title="REST Client API" href="REST Client API.html" />
     <link rel="prev" title="Getting Started" href="Getting Started.html" />
    
   
@@ -97,17 +97,19 @@ $ sudo docker <span class="nb">exec</span> -ti app /bin/bash
 </pre></div>
 </div>
 <p>Because the server is containerized, most server commands must be run in a container. Docker commands can be complicated, so several common tasks have been made into scripts under <code class="docutils literal"><span class="pre">/vagrant/provisions/docker</span></code>.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ dh-back-up-all-databases
-$ dh-build-images
-$ dh-back-up-single-database
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ dh-build-images
 $ dh-create-dev-containers
 $ dh-create-prod-containers
 $ dh-rebuild-and-collect-static-files
-$ dh-restore-database
-$ dh-run-pgcli
 $ dh-run-test-container
 $ dh-start-containers
 $ dh-stop-containers
+$ dh-remove-all-containers
+$ dh-back-up-single-database
+$ dh-back-up-all-databases
+$ dh-restore-database
+$ dh-run-pgcli
+$ dh-codeclimate
 </pre></div>
 </div>
 <p>Example Docker commands:</p>
@@ -119,7 +121,8 @@ $ sudo docker run --rm <span class="se">\</span>
 
 <span class="c1"># Run Django migrations</span>
 $ sudo docker run --rm <span class="se">\</span>
-  --link db:db <span class="se">\</span>
+  --net<span class="o">=</span>datahub_dev <span class="se">\</span>
+  --volumes-from app <span class="se">\</span>
   datahuborg/datahub <span class="se">\</span>
   python src/manage.py migrate --noinput
 
@@ -156,6 +159,10 @@ $ docker <span class="nb">help</span>
 <div class="section" id="testing-datahub">
 <h2>Testing DataHub<a class="headerlink" href="#testing-datahub" title="Permalink to this headline">¶</a></h2>
 <p>To run tests or use the python debugger, you will need to connect to the test container.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ vagrant ssh
+$ sudo dh-run-test-container
+</pre></div>
+</div>
 <p>You can exit the testing container with control-d or via the command <code class="docutils literal"><span class="pre">exit</span></code>.</p>
 <div class="section" id="functional-tests">
 <h3>Functional Tests<a class="headerlink" href="#functional-tests" title="Permalink to this headline">¶</a></h3>
@@ -223,7 +230,7 @@ e.g.: <code class="docutils literal"><span class="pre">src/browser/tests</span><
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="Getting Started.html" title="previous chapter">Getting Started</a></li>
-      <li>Next: <a href="Client API.html" title="next chapter">Client API</a></li>
+      <li>Next: <a href="REST Client API.html" title="next chapter">REST Client API</a></li>
   </ul></li>
 </ul>
 </div>

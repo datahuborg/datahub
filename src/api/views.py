@@ -1,4 +1,5 @@
 import ast
+import json
 
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -16,6 +17,7 @@ from core.db.manager import PermissionDenied
 from django.core.exceptions import ValidationError, \
                                    ObjectDoesNotExist
 
+from config import settings
 from .serializer import (
     UserSerializer, RepoSerializer, CollaboratorSerializer,
     TableSerializer, ViewSerializer, FileSerializer, QuerySerializer,
@@ -116,6 +118,15 @@ class Repo(APIView):
                         status=status.HTTP_200_OK)
 
 
+class ReposPublic(APIView):
+    """
+    Repos that have been made public
+    """
+    def get(self, request, format=None):
+        serializer = RepoSerializer(settings.ANONYMOUS_ROLE, None, request)
+        return Response(serializer.public_repos())
+
+
 class ReposForUser(APIView):
     """
     Repos of the specified user.
@@ -192,11 +203,18 @@ class Collaborators(APIView):
             type: string
             description: user to be added as a collaborator
             required: true
-          - name: permissions
+          - name: db_permissions
             in: body
             type: array
             items: {
               type: string
+            }
+            required: true
+          - name: file_permissions
+            in: body
+            type: array
+            items: {
+                type: string
             }
             required: true
         """
@@ -205,9 +223,13 @@ class Collaborators(APIView):
                                             repo_base=repo_base)
         data = request.data
         collaborator = data['user']
-        permissions = str(data['permissions'])
-        permissions = ast.literal_eval(permissions)
-        serializer.add_collaborator(repo_name, collaborator, permissions)
+        db_permissions = str(data['db_permissions'])
+        db_permissions = ast.literal_eval(db_permissions)
+        file_permissions = str(data['file_permissions'])
+        file_permissions = ast.literal_eval(file_permissions)
+
+        serializer.add_collaborator(
+            repo_name, collaborator, db_permissions, file_permissions)
         collaborator = serializer.describe_collaborator(
           repo_name, collaborator)
 
@@ -553,25 +575,78 @@ class Cards(APIView):
             type: string
             required: true
 
+
         """
         username = request.user.get_username()
         serializer = CardSerializer(username, repo_base, request)
         card_name = request.data['card_name']
         query = request.data['query']
-        serializer.create_card(repo_name, query, card_name)
-        card = serializer.describe_card(repo_name, card_name)
-        return Response(card, status=status.HTTP_201_CREATED)
+        res = serializer.create_card(repo_name, query, card_name)
+        return Response(res, status=status.HTTP_201_CREATED)
 
 
 class Card(APIView):
 
     def get(self, request, repo_base, repo_name, card_name):
         """
-        See the query in a single card
+        See the query and query results of a single card.
+        The results of the card query is exactly what the repo base owner
+        would see.
+        ---
+        omit_serializer: true
+
+        parameters:
+          - name: current_page
+            in: path
+            type: integer
+            description: page being viewed
+          - name: rows_per_page
+            in: path
+            type: integer
+            description: number of rows per page
+
         """
         username = request.user.get_username()
+        data = request.data
+
+        current_page = int(data.get('current_page', 1))
+        rows_per_page = int(data.get('rows_per_page', 1000))
+
         serializer = CardSerializer(username, repo_base, request)
-        res = serializer.describe_card(repo_name, card_name)
+        res = serializer.describe_card(
+            repo_name, card_name, current_page, rows_per_page)
+        return Response(res, status=status.HTTP_200_OK)
+
+    def patch(self, request, repo_base, repo_name, card_name):
+        """
+        Change a card's name, query, and/or make it public or private
+        ---
+        parameters:
+          - name: new_name
+            in: path
+            type: string
+            description: new name for the card
+          - name: new_query
+            in: path
+            type: string
+            description: new query for the card
+          - name: public
+            in: path
+            type: bool
+            description: whether the card is public or not
+        """
+        username = request.user.get_username()
+        data = request.data
+        new_name = data.get('new_name', None)
+        new_query = data.get('new_query', None)
+
+        # public needs to be able to parse 'false', so uses json.loads
+        public = json.loads(data.get('public', 'null'))
+
+        serializer = CardSerializer(
+            username=username, repo_base=repo_base)
+        res = serializer.update_card(
+            repo_name, card_name, new_query, new_name, public)
         return Response(res, status=status.HTTP_200_OK)
 
     def delete(self, request, repo_base, repo_name, card_name):

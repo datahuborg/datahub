@@ -26,6 +26,7 @@ DataHub Template Layout
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/css/bootstrap.css">
 <link rel="stylesheet" type="text/css" href="/static/lib/bootstrap/css/docs.min.css" />
 <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/datahub-font/css/MIT-Icons.css" />
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.1/skins/square/green.css">
 <link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.bootstrap.css" />
 <link rel="stylesheet" type="text/css" href="/static/datatables/css/dataTables.bootstrap.extra.css" />
@@ -55,6 +56,9 @@ DataHub Template Layout
 <script src="/static/lib/jquery-datatables/dataTables.colVis.js"></script>
 <script src="/static/datatables/js/dataTables.extra.js"></script>
 
+{% block js %}
+{% endblock %}
+
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <script type="text/javascript">
 google.load("visualization", "1", {packages:["corechart", "table", "timeline", "map"]});
@@ -81,10 +85,14 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
   
   <div class="navbar-collapse collapse">
     {% block headlink-right %}
-      {% if login %}
+
+      {% if login != 'dh_anonymous' and login or user.is_authenticated  %}
         <ul class="nav navbar-nav navbar-right">
           <li>
             <a href="/"><i class="fa fa-home"></i> <strong>Home</strong></a>
+          </li>
+              <li>
+            <a href="/browse/public"><i class="fa fa-globe"></i> <strong>Public Data</strong></a>
           </li>
 
 <!--          <li>
@@ -98,11 +106,11 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
 
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="id_user_menu" role="button" aria-expanded="false">
-              <i class="fa fa-user"></i> <strong>{{ login }}</strong> <i class="fa fa-caret-down"></i>
+              <i class="fa fa-user"></i> <strong>{% if login %}{{ login }}{% else %}{{ user.get_username }}{% endif %}</strong> <i class="fa fa-caret-down"></i>
             </a>
             
             <ul class="dropdown-menu" role="menu">
-              <li><a href="/apps/console" id="id_launch_terminal" title="SQL Console">Launch Terminal</a></li>
+              <li><a href="/apps/console" id="id_launch_terminal" title="SQL Console">Terminal</a></li>
               <li><a href="/developer/apps" id="id_create_app" title="Create App">Create App</a></li>
               <li class="divider"></li>
               <li><a href="/account/settings" id="id_settings" title="Sign Out">Settings</a></li>
@@ -112,6 +120,8 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
         </ul>
       {% else %}
         <div class="nav navbar-nav navbar-right">
+          <a href="/browse/public" class="btn navbar-btn btn-info"><i class="fa fa-globe"></i> <strong>Public Data</strong></a>
+           &nbsp; &nbsp;
           <a href="/account/login" title="Sign In" id="id_sign_in" class="btn navbar-btn btn-primary">Sign In</a> &nbsp; &nbsp;
           <a href="/account/register" title="Sign Up" id="id_sign_up" class="btn navbar-btn btn-success">Sign Up</a>
         </div>
@@ -136,10 +146,6 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
-          <span class="sr-only">Close</span>
-        </button>
         <h4 class="modal-title">Confirm</h4>
       </div>
       <div class="modal-body">Are you sure?</div>
@@ -204,9 +210,9 @@ ga('send', 'pageview');
   <div class="navbar navbar-default navbar-static-bottom text-center">
   <div class="navbar-footer">
     <a href="/www/" class="btn navbar-btn">About</a> &nbsp; &nbsp;
-    <a href="{% static 'docs/html/index.html' %}" class="btn navbar-btn">API Docs</a> &nbsp; &nbsp;
-    <a href="https://github.com/abhardwaj/datahub" class="btn navbar-btn">GitHub Repo</a> &nbsp; &nbsp;
-    <a href="https://github.com/abhardwaj/datahub/tree/master/src/examples" class="btn navbar-btn">Sample Code</a>
+    <a href="{% static 'docs/html/index.html' %}" class="btn navbar-btn">Documentation</a> &nbsp; &nbsp;
+    <a href="https://github.com/datahuborg/datahub" class="btn navbar-btn">GitHub Repo</a> &nbsp; &nbsp;
+    <a href="{% url 'django.swagger.base.view' %}" class="btn navbar-btn">API</a>
   </div>
   </div>
 </div>

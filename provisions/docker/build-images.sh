@@ -15,6 +15,8 @@ docker build -t datahuborg/postgres provisions/postgres/
 echo "Building datahuborg/nginx (2/4)"
 docker build -t datahuborg/nginx provisions/nginx/
 echo "Building datahuborg/datahub (3/4)"
+# Build the base image manually if you can't pull from Docker Hub.
+# docker build -t datahuborg/datahub-base -f Dockerfile-base .
 docker build -t datahuborg/datahub .
 echo "Pulling latest phantomjs (4/4)"
 docker pull wernight/phantomjs:latest

@@ -27,6 +27,7 @@ class Card(models.Model):
     repo_base = models.CharField(max_length=50)
     repo_name = models.CharField(max_length=50)
     card_name = models.CharField(max_length=50)
+    public = models.BooleanField(default=False)
     query = models.TextField()
 
     def __unicode__(self):
@@ -51,6 +52,7 @@ class Annotation(models.Model):
         db_table = "annotations"
 
 
+# Thrift Apps
 class App(models.Model):
     id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField(auto_now=True)
@@ -75,7 +77,8 @@ class Collaborator(models.Model):
     app = models.ForeignKey('App', null=True)
     repo_name = models.TextField()
     repo_base = models.TextField()
-    permission = models.TextField()
+    permission = models.TextField()  # e.g. 'SELECT, UPDATE, INSERT'
+    file_permission = models.TextField()  # e.g. 'read, write'
 
     def __unicode__(self):
         if self.user:

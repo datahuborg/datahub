@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic.base import RedirectView
+from views import OAuthAppUpdate
 
 
 urlpatterns = patterns(
@@ -21,8 +22,16 @@ urlpatterns = patterns(
 
 
     # OAuth Provider
+    # override the default app update form
+    url(r'^oauth2/applications/(?P<pk>\d+)/update/$',
+        OAuthAppUpdate.as_view(), name="update"),
+    # override the default app listing page to use /developer/apps
+    url(r'^oauth2/applications/$',
+        RedirectView.as_view(pattern_name='browser-apps',
+                             permanent=True), name="list"),
     url(r'^oauth2/', include('oauth2_provider.urls',
         namespace='oauth2_provider')),
+
 
     # API Pages
     url(r'^api/', include('api.urls', namespace='api')),
@@ -65,6 +74,7 @@ urlpatterns = patterns(
         name='browser-repo_files'),
     url(r'^browse/(\w+)/(\w+)/cards/?$', 'browser.views.repo_cards',
         name='browser-repo_cards'),
+    url(r'^browse/public/?$', 'browser.views.public', name='browser-public'),
     url(r'^browse/(\w+)/?$', 'browser.views.user', name='browser-user'),
     url(r'^browse/?$', 'browser.views.user', name='browser-user-default'),
 
@@ -122,6 +132,9 @@ urlpatterns = patterns(
     # Developer Apps
     url(r'^developer/apps/?$', 'browser.views.apps',
         name='browser-apps'),
+
+    url(r'^developer/apps/detail/(\w+)/?$', 'browser.views.thrift_app_detail',
+        name='browser-thrift_app_detail'),
 
     url(r'^developer/apps/register/?$', 'browser.views.app_register',
         name='browser-app_register'),

@@ -73,7 +73,7 @@ def provider_details(backend=None):
             'backend': 'mit-oidc',
             'name': 'MIT OpenID Connect',
             'org_name': 'MIT',
-            'icon': 'icon-mit',
+            'icon': 'mit-icon-logo',
             'priority': -1000,
         },
     ]

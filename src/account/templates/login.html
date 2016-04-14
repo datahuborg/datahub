@@ -1,10 +1,7 @@
-{% extends "minimal-layout.html" %}
+{% extends "layout.html" %}
 
 {% load crispy_forms_tags %}
 
-{% block headlink-right %}
-  <a href="{% url 'register' %}" title="Sign Up" id="id_sign_up" class="btn btn-success navbar-btn">Sign Up</a>
-{% endblock %}
 {% block content %}
 <div class="container-fluid" style="max-width:740px;">
 <form class="col-xs-12 col-sm-6 col-sm-offset-3" role="form" method="POST" action="{% url 'login' %}">
