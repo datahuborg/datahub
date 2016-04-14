@@ -51,10 +51,10 @@ def create_public_user(apps, schema_editor):
         DataHubManager.create_user_database(
             username=username)
 
-    # try to create the user data folder
-    if not user_data_folder_exists:
-        print('creating data folder for %s' % username)
-        DataHubManager.create_user_data_folder(username)
+    # delete any user data folder that exists
+    if user_data_folder_exists:
+        print('deleting user data folder for %s' % username)
+        DataHubManager.delete_user_data_folder(username)
 
 
 @factory.django.mute_signals(signals.pre_save)
