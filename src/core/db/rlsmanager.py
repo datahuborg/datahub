@@ -60,7 +60,7 @@ class RowLevelSecurityManager:
         Updates the existing security policy with the specified inputs.
         '''
         return self.user_con.update_security_policy(
-            policy_id, new_policy, new_policy_type, new_grantee, self.username)
+            policy_id, new_policy, new_policy_type, new_grantee)
 
     def remove_security_policy(self, policy_id):
         '''

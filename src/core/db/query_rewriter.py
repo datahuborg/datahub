@@ -111,7 +111,85 @@ class SQLQueryRewriter:
         processed_subquery = self.apply_row_level_security(subquery[1])
         return result % processed_subquery
 
+
     def apply_row_level_security(self, query):
+        token = sqlparse.parse(query)[0].tokens[0].to_unicode().lower()
+        if token == "insert":
+            return self.apply_row_level_security_insert(query)
+        elif token == "update":
+            return self.apply_row_level_security_update(query)
+        else:
+            #print "final", self.apply_row_level_security_base(query)
+            return self.apply_row_level_security_base(query)
+
+
+    def apply_row_level_security_insert(self, query):
+        '''
+        Takes in an insert SQL query and applies security policies related to
+        the insert access type to it. Currently, we only support one type 
+        of insert permission -- which is that the user making the insert call
+        has permission to insert into the specified table.
+
+        # Insert into repo.table values (...)
+        # Insert into repo.table values (select * from ....)
+        '''
+        # Find the table of interest, and check if any meta user insert 
+        # policies are defined on the table (user='username'). If so, 
+        # return the query as entered, as the user has insert permissions. If 
+        # not, raise an exception stating user does not have insert permissions.
+
+        tokens = sqlparse.parse(query)[0].tokens
+        result = ''
+
+        table = None
+        for token in tokens:
+        #    print token
+            if self.contains_subquery(token):
+                result += self.process_subquery(token)
+                continue
+        #    print "here"
+            if self.extract_table_token(token) != [] and table is None:
+                table = self.extract_table_info(token.to_unicode())
+
+            result += token.to_unicode()
+
+        if table is not None:
+            policy = self.find_security_policy(table[1], table[0], "insert")
+            print policy
+            if policy[0] == ('Username = %s' % self.user):
+                return result
+
+        raise Exception('User does not have insert access on %s' % table[1])
+
+
+
+    def apply_row_level_security_update(self, query):
+        '''
+        Takes in an update SQL query and applies security policies related to
+        the update access type to it.
+        '''
+        tokens = sqlparse.parse(query.replace(";", ''))[0].tokens
+        result = ''
+
+        table = None
+        for token in tokens:
+            if self.contains_subquery(token):
+                result += self.process_subquery(token)
+                continue
+
+            if self.extract_table_token(token) != [] and table is None:
+                table = self.extract_table_info(token.to_unicode())
+
+            result += token.to_unicode()
+
+        if table is not None:
+            policies = self.find_security_policy(table[1], table[0], "update")
+            for policy in policies:
+                result += (' AND %s' % policy)
+
+        return result
+
+    def apply_row_level_security_base(self, query):
         '''
         Takes in a SQL query and applies row level security to it. All table
         references in the query are replaced with a subquery that only extracts
@@ -122,6 +200,8 @@ class SQLQueryRewriter:
         result = ''
 
         for token in tokens:
+            print token
+            print result
             if self.contains_subquery(token):
                 result += self.process_subquery(token)
                 continue
@@ -135,7 +215,7 @@ class SQLQueryRewriter:
                 query = '(SELECT * FROM %s.%s' % (table[0][0], table[0][1])
                 policies = self.find_security_policy(table[0][1],
                                                      table[0][0],
-                                                     "ALL")
+                                                     "select")
 
                 if policies:
                     query += ' WHERE '

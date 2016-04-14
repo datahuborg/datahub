@@ -187,9 +187,9 @@ class DataHubConnection:
             grantee, grantor)
 
     def update_security_policy(self, policy_id, new_policy, new_policy_type,
-                               new_grantee, new_grantor):
+                               new_grantee):
         return self.backend.update_security_policy(
-            policy_id, new_policy, new_policy_type, new_grantee, new_grantor)
+            policy_id, new_policy, new_policy_type, new_grantee)
 
     def find_security_policy_by_id(self, policy_id):
         return self.backend.find_security_policy_by_id(policy_id)

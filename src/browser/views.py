@@ -21,6 +21,8 @@ from thrift.transport.TTransport import TMemoryBuffer
 from inventory.models import App, Card, Annotation
 from account.utils import grant_app_permission
 from core.db.manager import DataHubManager
+from core.db.rlsmanager import RowLevelSecurityManager
+from core.db.rls_permissions import RLSPermissionsParser
 from datahub import DataHub
 from datahub.account import AccountService
 from service.handler import DataHubHandler
@@ -823,3 +825,120 @@ def app_allow_access(request, app_id, repo_name):
             json.dumps(
                 {'error': str(e)}),
             content_type="application/json")
+
+
+'''
+Row Level Security Policies
+'''
+
+@login_required
+def security_policies(request, repo_base, repo, table):
+    '''
+    shows the security policies defined for a table.
+    '''
+    username = request.user.get_username()
+
+    # get the base tables and views of the user's repo
+    manager = RowLevelSecurityManager(username, table, repo, repo_base)
+    try:
+        policies = manager.list_security_policies()
+    except LookupError:
+        policies = []
+
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'table': table,
+        'policies': policies}
+
+    res.update(csrf(request))
+    return render_to_response("security-policies.html", res)
+
+
+@login_required
+def security_policy_delete(request, repo_base, repo, table, policyid):
+    '''
+    shows the security policies defined for a table.
+    '''
+    username = request.user.get_username()
+
+    try:
+        manager = RowLevelSecurityManager(username, table, repo, repo_base)
+        policies = manager.remove_security_policy(policyid)
+    except Exception as e:
+        return HttpResponse(
+            json.dumps(
+                {'error': str(e)}),
+            content_type="application/json")
+    return HttpResponseRedirect(
+        reverse('browse-security_policies', args=(repo_base, repo, table)))
+
+@login_required
+def security_policy_create(request, repo_base, repo, table):
+    '''
+    shows the security policies defined for a table.
+    '''
+    username = request.user.get_username()
+    try:
+        manager = RowLevelSecurityManager(username, table, repo, repo_base)
+        policy = request.POST['security-policy']
+        policy_type = request.POST['policy-type']
+        grantee = request.POST['policy-grantee']
+        manager.add_security_policy(policy, policy_type, grantee)
+
+    except Exception as e:
+        return HttpResponse(
+            json.dumps(
+                {'error': str(e)}),
+            content_type="application/json")
+
+    return HttpResponseRedirect(
+        reverse('browse-security_policies', args=(repo_base, repo, table)))
+
+@login_required
+def security_policy_edit(request, repo_base, repo, table, policyid):
+    '''
+    shows the security policies defined for a table.
+    '''
+    username = request.user.get_username()
+    try:
+        manager = RowLevelSecurityManager(username, table, repo, repo_base)
+        policy = request.POST['security-policy-edit']
+        policy_type = request.POST['policy-type-edit']
+        grantee = request.POST['policy-grantee-edit']
+        manager.update_security_policy(policyid, policy, policy_type, grantee)
+        
+    except Exception as e:
+        return HttpResponse(
+            json.dumps(
+                {'error': str(e)}),
+            content_type="application/json")
+
+    return HttpResponseRedirect(
+        reverse('browse-security_policies', args=(repo_base, repo, table)))
+
+
+@login_required
+def security_policy_query(request, repo_base, repo, table):
+    '''
+    shows the security policies defined for a table.
+    '''
+    username = request.user.get_username()
+    query = post_or_get(request, key='q', fallback=None)
+    try:
+        permissions_parser = RLSPermissionsParser(repo_base, username)
+        permissions_parser.process_permissions(query)
+
+    except Exception as e:
+        return HttpResponse(
+            json.dumps(
+                {'error': str(e)}),
+            content_type="application/json")
+
+    return HttpResponseRedirect(
+        reverse('browse-security_policies', args=(repo_base, repo, table)))
+
+
+
+
