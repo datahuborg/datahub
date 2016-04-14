@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response
 
 from core.db.manager import DataHubManager
-from summary import Summary
+from summary import Summary, does_cache_exist
 from util import SummaryEncoder, where_to_sql, create_sql_obj, pick
 
 
@@ -23,6 +23,7 @@ def returns_json(f):
 def index(request, repo_base, repo, table):
     """ Main page for dbWipes """
     username = request.user.get_username()
+    cache_exists = does_cache_exist(username, repo_base)
 
     enable_scorpion = 0
     title = 'DBWipes'
@@ -47,6 +48,7 @@ def index(request, repo_base, repo, table):
 
     context = {
         'enableScorpion': enable_scorpion,
+        'cacheExists': json.dumps(cache_exists),
         'js': 'summary',
         'study': 0,
         'title': title,

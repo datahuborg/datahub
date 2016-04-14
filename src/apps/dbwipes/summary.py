@@ -5,10 +5,37 @@ from core.db.manager import DataHubManager
 
 from util import pick
 
-dbwipes_repo = 'dbwipes_cache_repo'
+dbwipes_repo = 'dbwipes_cache'
+dbwipes_table = 'dbwipes_cache'
 
 
-def get_cache(username, repo_base=None):
+def does_cache_exist(username, repo_base):
+    """ check to see if the cache exists for the user"""
+    manager = DataHubManager(username, repo_base)
+    repo_exists = False
+    table_exists = False
+    schema_correct = False
+
+    # check for repo
+    if dbwipes_repo in manager.list_repos():
+        repo_exists = True
+
+    # check for table
+    if repo_exists and dbwipes_table in manager.list_tables(dbwipes_repo):
+        table_exists = True
+
+    # check for schema
+    schema = None
+    if table_exists:
+        schema = manager.get_schema(dbwipes_repo, dbwipes_table)
+
+    if schema == [('key', 'character varying'), ('val', 'text')]:
+        schema_correct = True
+
+    return repo_exists and table_exists and schema_correct
+
+
+def create_cache(username, repo_base=None):
     """ DBWipes stores some metadata about the table in a schema in the owner's
         database. Note that this is not necessarily the current user's DB
     """
@@ -18,12 +45,13 @@ def get_cache(username, repo_base=None):
         manager = DataHubManager(user=repo_base, repo_base=repo_base)
         manager.create_repo(dbwipes_repo)
         manager.execute_sql(query)
+        return True
     except Exception as e:
         print(e)
-        pass
+        return False
 
 
-def make_cache(f):
+def insert_into_cache(f):
     """ insert metadata into the cache"""
     @wraps(f)
     def _f(self, *args, **kwargs):
@@ -81,7 +109,7 @@ class Summary(object):
             self.where = 'WHERE %s' % where
 
         # make sure cache exists
-        get_cache(username, repo_base)
+        create_cache(username, repo_base)
 
         self.nrows = self.get_num_rows()
         self.col_types = self.get_columns_and_types()
@@ -114,18 +142,18 @@ class Summary(object):
         manager = DataHubManager(user=self.username, repo_base=self.repo_base)
         return manager.execute_sql(q, params=args)['tuples']
 
-    @make_cache
+    @insert_into_cache
     def get_num_rows(self):
         q = "SELECT count(*) from %s" % self.tablename
         return self.query(q)[0][0]
 
-    @make_cache
+    @insert_into_cache
     def get_distinct_count(self, col):
         q = "SELECT count(distinct %s) FROM %s %s" % (
             col, self.tablename, self.where)
         return self.query(q)[0][0]
 
-    @make_cache
+    @insert_into_cache
     def get_column_counts(self, cols):
         q = 'SELECT %s FROM %s'
         select = ["count(distinct %s)" % col for col in cols]
@@ -134,7 +162,7 @@ class Summary(object):
         counts = tuple(self.query(q)[0])
         return dict(zip(cols, counts))
 
-    @make_cache
+    @insert_into_cache
     def get_columns_and_types(self):
         manager = DataHubManager(user=self.username, repo_base=self.repo_base)
 
@@ -156,14 +184,14 @@ class Summary(object):
             ret.append((str(col), str(typ)))
         return ret
 
-    @make_cache
+    @insert_into_cache
     def get_columns(self):
         """
         engine specific way to get table columns
         """
         return pick(self.get_columns_and_types(), 0)
 
-    @make_cache
+    @insert_into_cache
     def get_type(self, col_name):
         return dict(self.get_columns_and_types()).get(col_name, None)
 
@@ -181,7 +209,7 @@ class Summary(object):
 
         return groupby
 
-    @make_cache
+    @insert_into_cache
     def get_col_stats(self, col_name, col_type=None):
         if col_type is None:
             col_type = self.get_type(col_name)
