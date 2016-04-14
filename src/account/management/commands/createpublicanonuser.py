@@ -23,11 +23,6 @@ def create_public_user(apps, schema_editor):
     # Create public user
     username = settings.PUBLIC_ROLE
     email = settings.PUBLIC_ROLE_EMAIL
-    # generate a password for the public user
-    # This will never be used, so the original passowrd is not stored.
-    chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
-    password = get_random_string(10, chars)
-
     users = User.objects.filter(username=username)
 
     dh_user_exists = False
@@ -36,6 +31,13 @@ def create_public_user(apps, schema_editor):
     db_exists = DataHubManager.database_exists(username)
     db_role_exists = DataHubManager.user_exists(username)
     user_data_folder_exists = DataHubManager.user_data_folder_exists(username)
+
+    # try to create the django user. Get the password from them
+    password = None
+    if not dh_user_exists:
+        print('creating django user %s' % username)
+        password = User.objects.create_user(
+            username=username, email=email, password=None).password
 
     # try to create the db role
     if not db_role_exists:
@@ -54,23 +56,12 @@ def create_public_user(apps, schema_editor):
         print('creating data folder for %s' % username)
         DataHubManager.create_user_data_folder(username)
 
-    # try to create the django user
-    if not dh_user_exists:
-        print('creating django user %s' % username)
-        User.objects.create_user(
-            username=username, email=email, password=password)
-
 
 @factory.django.mute_signals(signals.pre_save)
 def create_anonymous_user(apps, schema_editor):
     # Create anonymous user
     username = settings.ANONYMOUS_ROLE
     email = settings.ANONYMOUS_ROLE_EMAIL
-    # generate a password for the public user
-    # This will never be used, so the original passowrd is not stored.
-    chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
-    password = get_random_string(10, chars)
-
     users = User.objects.filter(username=username)
 
     dh_user_exists = False
@@ -80,17 +71,18 @@ def create_anonymous_user(apps, schema_editor):
     db_role_exists = DataHubManager.user_exists(username)
     user_data_folder_exists = DataHubManager.user_data_folder_exists(username)
 
+    # try to create the django user. Get the password from them
+    password = None
+    if not dh_user_exists:
+        print('creating django user %s' % username)
+        password = User.objects.create_user(
+            username=username, email=email, password=None).password
+
     # try to create the db role
     if not db_role_exists:
         print('creating database role %s' % username)
         DataHubManager.create_user(
             username=username, password=password, create_db=False)
-
-    # try to create the django user
-    if not dh_user_exists:
-        print('creating django user %s' % username)
-        User.objects.create_user(
-            username=username, email=email, password=password)
 
     # delete any db that exists
     if db_exists:
