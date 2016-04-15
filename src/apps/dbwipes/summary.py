@@ -35,14 +35,14 @@ def does_cache_exist(username, repo_base):
     return repo_exists and table_exists and schema_correct
 
 
-def create_cache(username, repo_base=None):
+def create_cache(username):
     """ DBWipes stores some metadata about the table in a schema in the owner's
         database. Note that this is not necessarily the current user's DB
     """
     try:
         query = ('create table if not exists %s.dbwipes_cache'
                  '(key varchar, val text)') % dbwipes_repo
-        manager = DataHubManager(user=repo_base, repo_base=repo_base)
+        manager = DataHubManager(user=username)
         manager.create_repo(dbwipes_repo)
         manager.execute_sql(query)
         return True
@@ -109,7 +109,7 @@ class Summary(object):
             self.where = 'WHERE %s' % where
 
         # make sure cache exists
-        create_cache(username, repo_base)
+        # create_cache(username)
 
         self.nrows = self.get_num_rows()
         self.col_types = self.get_columns_and_types()
