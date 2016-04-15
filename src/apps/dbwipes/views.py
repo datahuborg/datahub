@@ -2,11 +2,13 @@ import json
 import traceback
 from functools import wraps
 
+from django.views.decorators.http import require_http_methods
+from django.core.context_processors import csrf
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 
 from core.db.manager import DataHubManager
-from summary import Summary, does_cache_exist
+from summary import Summary, does_cache_exist, create_cache
 from util import SummaryEncoder, where_to_sql, create_sql_obj, pick
 
 
@@ -60,6 +62,8 @@ def index(request, repo_base, repo, table):
         'x': x,
         'y': y
     }
+
+    context.update(csrf(request))
     return render_to_response("index_base.html", context)
 
 
@@ -286,6 +290,20 @@ def column_distributions(request):
 
     context = {"data": data}
     return context
+
+
+@require_http_methods(["POST"])
+@returns_json
+def create_data_cache(request):
+    username = request.user.get_username()
+    repo_base = request.POST.get('repo_base', None)
+    if username != repo_base:
+        return {
+            'error': 'Only the owner of this repo can create the data cache'}
+
+    if not does_cache_exist(username, repo_base):
+        create_cache(username)
+    return {'status': "success"}
 
 
 @returns_json

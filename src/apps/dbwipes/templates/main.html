@@ -28,29 +28,27 @@
 
 <body>
 
-<!-- Trigger/Open The Modal -->
-<button id="myBtn">Open Modal</button>
+<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#ownerModal">
+        Launch demo modal
+</button>
 
-<!-- The Modal -->
-<div id="myModal" class="modal">
-
-  <!-- Modal content -->
-  <div class="modal-content">
-    <div class="modal-header">
-      <span class="close">×</span>
-      <h2>Modal Header</h2>
+<!-- Modal -->
+<div class="modal fade" id="ownerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">Create DBWipes Cache?</h4>
+            </div>
+            <div class="modal-body">
+                DBWipes needs to create its own repo for caching work on your data. if you make this repo public, public users will be able to use dbwipes with your data.
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cancel-button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" id="create-cache-button" class="btn btn-primary">Create cache and use DBWipes</button>
+            </div>
+        </div>
     </div>
-    <div class="modal-body">
-      <p>Some text in the Modal Body</p>
-      <p>Some other text...</p>
-    </div>
-    <div class="modal-footer">
-      <h3>Modal Footer</h3>
-    </div>
-  </div>
-
 </div>
-
 
 
 
@@ -72,6 +70,22 @@
 
 
 <script>
+
+$('#create-cache-button').click(function(){
+
+  $.ajax({
+  url: "/apps/dbwipes/api/create_data_cache/",
+  context: document.body,
+  method: "POST",
+  data: { repo_base: window.repo_base, csrfmiddlewaretoken: "{{ csrf_token }}"},
+  }).done(function(result) {
+    console.log('done');
+    console.log(result);
+  });
+
+
+});
+
 // Get the modal
 var modal = document.getElementById('myModal');
 

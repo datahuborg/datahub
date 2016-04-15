@@ -14,4 +14,5 @@ urlpatterns = patterns(
     url(r'^api/requestid/?$', 'dbwipes.views.requestid'),
     url(r'^api/status/?$', 'dbwipes.views.api_status'),
     url(r'^api/scorpion/?$', 'dbwipes.views.scorpion'),
+    url(r'^api/create_data_cache/$', 'dbwipes.views.create_data_cache'),
 )
