@@ -312,7 +312,6 @@ def create_data_cache(request):
         return HttpResponseBadRequest()
 
 
-
 @returns_json
 def scorpion(request):
     # message = ("Could not load scorpionutil. ",

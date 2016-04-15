@@ -1,9 +1,11 @@
 <html>
 <title>DataHub DBWipes {{repo}}.{{table}}</title>
 <head>
-  <script src="/static/dbwipes/js/lib/tether.js"></script>
   <script src="//code.jquery.com/jquery-1.10.2.js"></script>
   <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  <script src="/static/dbwipes/js/lib/tether.js"></script>
   <script>
     window.enableScorpion = {{enableScorpion}};
     window.cacheExists = {{cacheExists}};
@@ -28,10 +30,6 @@
 
 <body>
 
-<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#ownerModal">
-        Launch demo modal
-</button>
-
 <!-- Modal -->
 <div class="modal fade" id="ownerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
@@ -43,8 +41,25 @@
                 DBWipes needs to create its own repo for caching work on your data. if you make this repo public, public users will be able to use dbwipes with your data.
             </div>
             <div class="modal-footer">
-                <button type="button" id="cancel-button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-default exit-button" data-dismiss="modal">Exit DBWipes</button>
                 <button type="button" id="create-cache-button" class="btn btn-primary">Create cache and use DBWipes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="nonOwnerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">DBWipes requires authorization from the table owner</h4>
+            </div>
+            <div class="modal-body">
+                DBWipes needs to create its own repo for caching work on this repo. Only the repo's owner can approve that.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary exit-button">Exit DbWipes</button>
             </div>
         </div>
     </div>
@@ -71,6 +86,7 @@
 
 <script>
 
+// Set up the create cache modal button
 $('#create-cache-button').click(function(){
   data = { repo_base: window.repo_base, csrfmiddlewaretoken: "{{ csrf_token }}"};
 
@@ -84,6 +100,29 @@ $('#create-cache-button').click(function(){
     console.log(result);
   });
 });
+
+// set up the "exit" modal buttons
+$('.exit-button').click(function(){
+  window.location.href = '/';
+})
+
+// prevent the modal from being exited
+
+// launch the modal if the cache isn't created
+$( document ).ready(function(){
+  if (!window.cacheExists) {
+    if (window.repo_base !== window.login){
+      myModal = $('#nonOwnerModal');
+      myModal.modal({keyboard: false, backdrop: 'static'});
+      myModal.modal('toggle');
+    } else{
+      myModal = $('#ownerModal');
+      myModal.modal({keyboard: false, backdrop: 'static'});
+      myModal.modal('show');
+    }
+  }
+})
+
 
 </script>
 {% block content %}{% endblock %}
