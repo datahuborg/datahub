@@ -36,7 +36,7 @@ def _pool_for_credentials(user, password, repo_base, create_if_missing=True):
         # Throws "PoolError: connection pool exausted" if a thread tries
         # holding onto than 10 connections to a single database.
         connection_pools[pool_key] = ThreadedConnectionPool(
-            1,
+            0,
             10,
             user=user,
             password=password,
@@ -94,7 +94,7 @@ class PGBackend:
         pool = _pool_for_credentials(self.user, self.password, self.repo_base,
                                      create_if_missing=False)
         if self.connection and pool and not pool.closed:
-            pool.putconn(self.connection)
+            pool.putconn(self.connection, close=True)
             self.connection = None
 
     def _check_for_injections(self, noun):
