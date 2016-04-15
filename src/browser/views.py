@@ -341,24 +341,22 @@ def repo_settings(request, repo_base, repo):
     returns the settings page for a repo.
     '''
     username = request.user.get_username()
+    public_role = settings.PUBLIC_ROLE
 
     with custom_manager_error_handler(username, repo_base, repo):
         manager = DataHubManager(user=username, repo_base=repo_base)
         collaborators = manager.list_collaborators(repo)
 
     # if the public role is in collaborators, note that it's already added
-    repo_is_public = False
-    for collaborator in collaborators:
-        if collaborator['username'] == settings.PUBLIC_ROLE:
-            repo_is_public = True
+    repo_is_public = next(
+        (True for c in collaborators if
+            c['username'] == settings.PUBLIC_ROLE), False)
 
     # remove the current user, public user from the collaborator list
     # collaborators = [c.get('username') for c in collaborators]
-    collaborators = filter(
-        lambda x: x['username'] != '' and x['username'] != username and
-        x['username'] != settings.PUBLIC_ROLE, collaborators)
 
-    public_role = settings.PUBLIC_ROLE
+    collaborators = [c for c in collaborators if c['username']
+                     not in ['', username, settings.PUBLIC_ROLE]]
 
     res = {
         'login': username,

@@ -17,6 +17,7 @@ from core.db.manager import PermissionDenied
 from django.core.exceptions import ValidationError, \
                                    ObjectDoesNotExist
 
+from config import settings
 from .serializer import (
     UserSerializer, RepoSerializer, CollaboratorSerializer,
     TableSerializer, ViewSerializer, FileSerializer, QuerySerializer,
@@ -122,7 +123,7 @@ class ReposPublic(APIView):
     Repos that have been made public
     """
     def get(self, request, format=None):
-        serializer = RepoSerializer('dh_anonymous', None, request)
+        serializer = RepoSerializer(settings.ANONYMOUS_ROLE, None, request)
         return Response(serializer.public_repos())
 
 
@@ -586,6 +587,9 @@ class Cards(APIView):
 
 class Card(APIView):
 
+    renderer_classes = (api_settings.DEFAULT_RENDERER_CLASSES +
+                        [CSVRenderer])
+
     def get(self, request, repo_base, repo_name, card_name):
         """
         See the query and query results of a single card.
@@ -603,6 +607,10 @@ class Card(APIView):
             in: path
             type: integer
             description: number of rows per page
+
+        produces:
+            - application/json
+            - text/csv
 
         """
         username = request.user.get_username()
