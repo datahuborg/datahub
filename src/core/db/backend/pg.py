@@ -150,7 +150,7 @@ class PGBackend:
 
         # drop the schema
         query = 'DROP SCHEMA %s %s'
-        params = (AsIs(repo), AsIs('CASCADE') if force else None)
+        params = (AsIs(repo), AsIs('CASCADE') if force is True else AsIs(''))
         res = self.execute_sql(query, params)
         return res['status']
 
