@@ -27,7 +27,7 @@ def returns_json(f):
 def index(request, repo_base, repo, table):
     """ Main page for dbWipes """
     username = request.user.get_username()
-    cache_exists = does_cache_exist(username, repo_base)
+    cache_exists = does_cache_exist(repo_base)
 
     enable_scorpion = 0
     title = 'DBWipes'
@@ -303,7 +303,7 @@ def create_data_cache(request):
             'Only the owner of this repo can create the data cache')
 
     cache_created = False
-    if not does_cache_exist(username, repo_base):
+    if not does_cache_exist(repo_base):
         cache_created = create_cache(username)
 
     if cache_created:

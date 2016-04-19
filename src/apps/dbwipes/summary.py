@@ -9,9 +9,9 @@ dbwipes_repo = 'dbwipes_cache'
 dbwipes_table = 'dbwipes_cache'
 
 
-def does_cache_exist(username, repo_base):
-    """ check to see if the cache exists for the user"""
-    manager = DataHubManager(username, repo_base)
+def does_cache_exist(repo_base):
+    """ check to see if the cache exists for the repo base"""
+    manager = DataHubManager(repo_base)
     repo_exists = False
     table_exists = False
     schema_correct = False
