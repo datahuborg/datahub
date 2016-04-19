@@ -38,7 +38,7 @@
                 <h4 class="modal-title" id="myModalLabel">Create DBWipes Cache?</h4>
             </div>
             <div class="modal-body">
-                DBWipes needs to create its own repo for caching work on your data. if you make this repo public, public users will be able to use dbwipes with your data.
+                DBWipes needs to create its own repo for caching work on your data. If you make this data public, users will be able to access the cache.
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default exit-button" data-dismiss="modal">Exit DBWipes</button>
@@ -56,7 +56,7 @@
                 <h4 class="modal-title" id="myModalLabel">DBWipes requires authorization from the table owner</h4>
             </div>
             <div class="modal-body">
-                DBWipes needs to create its own repo for caching work on this repo. Only the repo's owner can approve that.
+                DBWipes needs to create its own repo for caching work on this repo. Only the repo's owner can approve this. Please ask the repo owner to load this page and create the cache.
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary exit-button">Exit DbWipes</button>
@@ -96,8 +96,12 @@ $('#create-cache-button').click(function(){
   method: "POST",
   data: data,
   }).done(function(result) {
-    console.log('done');
-    console.log(result);
+    window.cacheExists = false;
+    myModal = $('#ownerModal');
+    myModal.modal({keyboard: true, backdrop: true});
+    myModal.modal('hide');
+    $('.modal-backdrop').hide()
+    location.reload();
   });
 });
 
@@ -114,7 +118,7 @@ $( document ).ready(function(){
     if (window.repo_base !== window.login){
       myModal = $('#nonOwnerModal');
       myModal.modal({keyboard: false, backdrop: 'static'});
-      myModal.modal('toggle');
+      myModal.modal('show');
     } else{
       myModal = $('#ownerModal');
       myModal.modal({keyboard: false, backdrop: 'static'});
