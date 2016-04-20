@@ -408,7 +408,7 @@ class DataHubManager:
             # from another user's repo.
             if collaborator not in collaborators:
                 raise Exception('Failed to delete collaborator.'
-                                ' %s is not a collaborator in the specified'
+                                ' %s is not a collaborator in the specified '
                                 'repository.' % collaborator)
             if (self.username != collaborator and
                     self.username != self.repo_base):
