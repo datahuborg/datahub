@@ -237,8 +237,6 @@ class PGBackend:
         return [t[0] for t in res['tuples']]
 
     def describe_table(self, repo, table, detail=False):
-        self._check_for_injections(repo)
-        self._check_for_injections(table)
         query = ("SELECT %s "
                  "FROM information_schema.columns "
                  "WHERE table_schema = %s and table_name = %s;")
@@ -252,8 +250,6 @@ class PGBackend:
         return res['tuples']
 
     def list_table_permissions(self, repo, table):
-        self._check_for_injections(repo)
-        self._check_for_injections(table)
         query = ("select privilege_type from "
                  "information_schema.role_table_grants where table_schema=%s "
                  "and table_name=%s and grantee=%s")
@@ -304,8 +300,6 @@ class PGBackend:
         return res['status']
 
     def describe_view(self, repo, view, detail=False):
-        self._check_for_injections(repo)
-        self._check_for_injections(view)
         query = ("SELECT %s "
                  "FROM information_schema.columns "
                  "WHERE table_schema = %s and table_name = %s;")

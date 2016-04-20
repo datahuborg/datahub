@@ -212,9 +212,12 @@ class DataHubManager:
         Default return includes column names and types only.
 
         Returns empty list on insufficient permissions.
-        Raises ValueError if repo or table has invalid
-        characters.
+        Raises ValueError if repo or table are missing or the empty string.
         """
+        if repo.strip() in ['', None]:
+            raise ValueError("repo cannot be empty.")
+        if table.strip() in ['', None]:
+            raise ValueError("table cannot be empty.")
         return self.user_con.describe_table(repo, table, detail)
 
     def list_table_permissions(self, repo, table):
@@ -224,8 +227,12 @@ class DataHubManager:
         Default return includes column names and types only.
 
         Returns empty list on insufficient permissions.
-        Raises ValueError if repo or table has invalid characters.
+        Raises ValueError if repo or table are missing or the empty string.
         """
+        if repo.strip() in ['', None]:
+            raise ValueError("repo cannot be empty.")
+        if table.strip() in ['', None]:
+            raise ValueError("table cannot be empty.")
         return self.user_con.list_table_permissions(repo, table)
 
     def create_view(self, repo, view, sql):
@@ -261,8 +268,12 @@ class DataHubManager:
         Default return includes column names and types only.
 
         Returns empty list on insufficient permissions.
-        Raises ValueError if repo or view has invalid characters.
+        Raises ValueError if repo or table are missing or the empty string.
         """
+        if repo.strip() in ['', None]:
+            raise ValueError("repo cannot be empty.")
+        if view.strip() in ['', None]:
+            raise ValueError("view cannot be empty.")
         return self.user_con.describe_view(repo, view, detail)
 
     def delete_view(self, repo, view, force=False):
