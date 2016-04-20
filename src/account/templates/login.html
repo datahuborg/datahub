@@ -1,6 +1,10 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 
 {% load crispy_forms_tags %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="/static/lib/datahub-font/css/MIT-Icons.css" />
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid" style="max-width:740px;">
