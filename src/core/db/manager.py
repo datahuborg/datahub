@@ -370,8 +370,13 @@ class DataHubManager:
                     'Either missing required privileges or bad query')
             card.query = new_query
         if new_name is not None:
+            if len(new_name) < 1:
+                raise ValueError("new_name must be longer than zero "
+                                 "characters")
             card.card_name = new_name
         if public is not None:
+            if type(public) is not bool:
+                raise TypeError("public must be of type bool")
             card.public = public
 
         card.save()
