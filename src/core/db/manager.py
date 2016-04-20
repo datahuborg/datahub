@@ -88,12 +88,37 @@ class DataHubManager:
         self.user_con.close_connection()
 
     def create_repo(self, repo):
+        """
+        Creates a repo in the current repo_base.
+
+        Returns True on success.
+
+        Succeeds if repo already exists.
+
+        Raises ValueError on an invalid repo name.
+        Raises ProgrammingError on permission denied.
+        """
         return self.user_con.create_repo(repo=repo)
 
     def list_repos(self):
+        """
+        Returns a list of repo (schema) names in the current repo_base.
+
+        Should never fail or raise any exceptions.
+        """
         return self.user_con.list_repos()
 
     def rename_repo(self, repo, new_name):
+        """
+        Renames a repo.
+
+        Returns True on success.
+
+        Raises ValueError if either name has invalid characters.
+        Raises ProgrammingError if the repo doesn't exist.
+        Raises ProgrammingError if the new name is taken.
+        Raises PermissionDenied if not repo_base owner.
+        """
         # only a repo owner can rename a repo:
         if self.repo_base != self.username:
             raise PermissionDenied(
@@ -111,18 +136,32 @@ class DataHubManager:
 
     def list_collaborator_repos(self):
         """
-        Lists repositories that the current user has been granted permission
-        to access.
+        Lists repos to which the current user has been granted access.
+
+        Includes repos across all databases, not just the DataHubManager's
+        repo_base.
 
         Note that this method relies on the Collaborators django model. If a
-        user bypasses DataHub's api, and grants permissions via the database,
-        collaborator repos will not show.
+        user bypasses DataHub's API and grants permissions via the database,
+        that will not be reflected in this response.
         """
         user = User.objects.get(username=self.username)
 
         return Collaborator.objects.filter(user=user)
 
     def delete_repo(self, repo, force=False):
+        """
+        Deletes a repo.
+
+        Pass force=True to delete the repo even if it is not empty.
+
+        Returns True on success.
+
+        Raises ValueError if repo has invalid characters.
+        Raises ProgrammingError if the repo doesn't exist.
+        Raises InternalError if the repo is not empty and force is not True.
+        Raises PermissionDenied if not repo_base owner.
+        """
         # Only a repo owner can delete repos.
         if self.repo_base != self.username:
             raise PermissionDenied(
@@ -138,42 +177,149 @@ class DataHubManager:
         return res
 
     def create_table(self, repo, table, params):
-        """Creates a table with the current user/repo_base"""
+        """
+        Creates a table in the current repo_base.
+
+        Returns True on success.
+
+        Raises ValueError if repo, table, or the column names have invalid
+        characters.
+        Raises ProgrammingError if the repo doesn't exist.
+        Raises ProgrammingError if the table already exists.
+        Raises TypeError if params isn't iterable.
+        Raises KeyError if params doesn't have the right structure.
+        Raises ProgrammingError if the params has invalid values.
+        Raises PermissionDenied on insufficient permissions.
+        """
         return self.user_con.create_table(
             repo=repo, table=table, params=params)
 
     def list_tables(self, repo):
+        """
+        Lists the tables in a repo.
+
+        Returns a list of table names.
+
+        Raises LookupError on insufficient permissions or if the repo doesn't
+        exist.
+        """
         return self.user_con.list_tables(repo=repo)
 
     def describe_table(self, repo, table, detail=False):
+        """
+        Lists a table's schema. If detail=True, provides all schema info.
+
+        Default return includes column names and types only.
+
+        Returns empty list on insufficient permissions.
+        Raises ValueError if repo or table has invalid
+        characters.
+        """
         return self.user_con.describe_table(repo, table, detail)
 
     def list_table_permissions(self, repo, table):
+        """
+        Lists the current user's permissions on a table.
+
+        Default return includes column names and types only.
+
+        Returns empty list on insufficient permissions.
+        Raises ValueError if repo or table has invalid characters.
+        """
         return self.user_con.list_table_permissions(repo, table)
 
     def create_view(self, repo, view, sql):
+        """
+        Creates a view in the current repo_base from a given query.
+
+        Returns True on success.
+
+        Raises ValueError if repo or view have invalid characters.
+        Raises ProgrammingError if the repo doesn't exist.
+        Raises ProgrammingError if the view already exists.
+        Raises ProgrammingError if the query has syntax errors.
+        Raises PermissionDenied on insufficient permissions.
+        """
         return self.user_con.create_view(
             repo=repo, view=view, sql=sql)
 
     def list_views(self, repo):
+        """
+        Lists the views in a repo.
+
+        Returns a list of view names.
+
+        Raises LookupError on insufficient permissions or if the repo doesn't
+        exist.
+        """
         return self.user_con.list_views(repo=repo)
 
     def describe_view(self, repo, view, detail=False):
+        """
+        Lists a view's schema. If detail=True, provides all schema info.
+
+        Default return includes column names and types only.
+
+        Returns empty list on insufficient permissions.
+        Raises ValueError if repo or view has invalid characters.
+        """
         return self.user_con.describe_view(repo, view, detail)
 
     def delete_view(self, repo, view, force=False):
+        """
+        Deletes a view.
+
+        Set force=True to drop dependent objects (e.g. other views).
+
+        Return True on success.
+
+        Raises ValueError if repo or view has invalid characters.
+        Raises ProgrammingError if the repo or view do not exist, even without
+        sufficient permissions to see the repo exists.
+        Raises ProgrammingError on insufficient permissions.
+        """
         return self.user_con.delete_view(repo=repo, view=view, force=force)
 
     def delete_table(self, repo, table, force=False):
+        """
+        Deletes a table.
+
+        Set force=True to drop dependent objects (e.g. views).
+
+        Return True on success.
+
+        Raises ValueError if repo or table has invalid characters.
+        Raises ProgrammingError if the repo or table do not exist, even without
+        sufficient permissions to see the repo exists.
+        Raises ProgrammingError on insufficient permissions.
+        """
         return self.user_con.delete_table(repo=repo, table=table, force=force)
 
     def get_schema(self, repo, table):
+        """
+        Lists a table or view's schema.
+
+        Raises NameError if the repo or table/view does not exist.
+        """
         return self.user_con.get_schema(repo=repo, table=table)
 
     def explain_query(self, query):
+        """
+        Returns the result of calling EXPLAIN on the query.
+
+        Raises ProgrammingError on query syntax errors.
+        Raises ProgrammingError on insufficient repo permissions.
+        """
         return self.user_con.explain_query(query)
 
     def execute_sql(self, query, params=None):
+        """
+        Executes the query and returns its result.
+
+        Raises ProgrammingError on query syntax errors.
+        Raises ProgrammingError on insufficient repo permissions.
+        Raises other psycopg2 errors depending on the query.
+        """
         return self.user_con.execute_sql(query=query, params=params)
 
     def add_collaborator(
@@ -187,6 +333,18 @@ class DataHubManager:
           e.g. ['SELECT', 'UPDATE', 'INSERT']
         - file_privileges must be an array of file privileges.
           e.g. ['read', 'write']
+
+        Returns True on success.
+
+        Raises Exception if collaborator owns repo.
+        Raises ProgrammingError if repo does not exist.
+        Raises User.DoesNotExist if collaborator does not exist.
+        Raises PermissionDenied on insufficient permissions.
+        Raises DatabaseError on misused db privilege type.
+        Raises ProgrammingError on invalid db privilege type.
+        Raises InternalError on subsequent calls after a failed call.
+        Causes other requests on the same DataHubManager to raise InternalError
+        if a call to add_collaborator failed mid-transaction.
         """
         # Usage is probably not the right check, but neither is CREATE.
         # The trouble is that roles INHERIT permissions from one another
@@ -231,6 +389,16 @@ class DataHubManager:
         )
 
     def delete_collaborator(self, repo, collaborator):
+        """
+        Removes a user's or app's privileges on a repo.
+
+        Returns True on success.
+
+        Raises Exception when repo or collaborator does not exist or
+        collaborator has no privileges on repo.
+        Raises User.DoesNotExist if collaborator owns repo.
+        Raises PermissionDenied on insufficient permissions.
+        """
         with _superuser_connection(self.repo_base) as conn:
             collaborators = conn.list_collaborators(repo=repo)
             collaborators = [c.get('username') for c in collaborators]
@@ -256,6 +424,14 @@ class DataHubManager:
         return result
 
     def list_repo_files(self, repo):
+        """
+        Lists a repo's files.
+
+        Returns an empty list on bad repo names.
+
+        Raises PermissionDenied on insufficient privileges, even for bad repo
+        names.
+        """
         # check for permissions
         res = DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'read')
@@ -270,6 +446,14 @@ class DataHubManager:
         return uploaded_files
 
     def list_repo_cards(self, repo):
+        """
+        Lists a repo's cards.
+
+        Returns an empty list on bad repo names.
+
+        Raises PermissionDenied on insufficient privileges, even for bad repo
+        names.
+        """
         # check for permission
         res = DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'read')
@@ -292,6 +476,9 @@ class DataHubManager:
         An example response:
         # [{'username': 'foo_user', 'permissions': 'UC'},
            {'username': 'bar_user', 'permissions': 'U'}]
+
+        Doesn't raise any exceptions, though it really should raise
+        PermissionDenied if the current user isn't a collaborator.
         """
         # get the database's idea of permissions
         with _superuser_connection(self.repo_base) as conn:
@@ -311,6 +498,11 @@ class DataHubManager:
         return db_collabs
 
     def save_file(self, repo, data_file):
+        """
+        Saves a file to a repo.
+
+        Raises PermissionDenied on insufficient privileges.
+        """
         res = DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'write')
         if not res:
@@ -326,6 +518,11 @@ class DataHubManager:
                 destination.write(chunk)
 
     def delete_file(self, repo, file_name):
+        """
+        Deletes a file from a repo.
+
+        Raises PermissionDenied on insufficient privileges.
+        """
         res = DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'write')
 
@@ -337,6 +534,11 @@ class DataHubManager:
         os.remove(file_path)
 
     def get_file(self, repo, file_name):
+        """
+        Gets the contents of a file in a repo.
+
+        Raises PermissionDenied on insufficient privileges.
+        """
         res = DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'read')
         if not res:
@@ -350,7 +552,13 @@ class DataHubManager:
     def update_card(self, repo, card_name, new_query=None,
                     new_name=None, public=None):
         """
-        Updates cards with new name/query/public variables
+        Updates a card's name, query, and/or public visibility.
+
+        Returns the card on success.
+
+        Raises ValueError if new_name is the empty string.
+        Raises TypeError on invalid public parameter.
+        Raises PermissionDenied on insufficient privileges or bad new_query.
         """
         res = DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'write')
@@ -384,9 +592,12 @@ class DataHubManager:
 
     def get_card(self, repo, card_name):
         """
-        used to get cards. This goes through manage.py because, it requires
-        a check that the user actually has repo access.
+        Gets a card in a repo.
+
+        Raises PermissionDenied on insufficient privileges.
         """
+        # This goes through manage.py because, it requires a check that the
+        # user actually has repo access.
         card = Card.objects.get(
             repo_base=self.repo_base, repo_name=repo, card_name=card_name)
         res = DataHubManager.has_repo_file_privilege(
@@ -401,6 +612,14 @@ class DataHubManager:
         return card
 
     def create_card(self, repo, card_name, query):
+        """
+        Creates a card in a repo from a given query.
+
+        Returns the card on success.
+
+        Raises IntegrityError if card with same name already exists.
+        Raises PermissionDenied on insufficient privileges or bad query.
+        """
         # to create a card, the user must be able to successfully execute
         # the query from their own database user.
         try:
@@ -416,6 +635,13 @@ class DataHubManager:
         return card
 
     def export_card(self, repo, card_name, file_format='CSV'):
+        """
+        Exports the results of a card to a new file in the repo.
+
+        Any existing file with that name is overwritten.
+
+        Raises PermissionDenied on insufficient privileges or bad query.
+        """
         card = Card.objects.get(repo_base=self.repo_base,
                                 repo_name=repo, card_name=card_name)
         query = card.query
@@ -448,6 +674,12 @@ class DataHubManager:
                                     file_format=file_format)
 
     def delete_card(self, repo, card_name):
+        """
+        Deletes a card from a repo.
+
+        Raises Card.DoesNotExist for invalid card_name.
+        Raises PermissionDenied on insufficient privileges.
+        """
         res = DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'write')
         if not res:
