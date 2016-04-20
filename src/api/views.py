@@ -581,7 +581,7 @@ class Cards(APIView):
         serializer = CardSerializer(username, repo_base, request)
         card_name = request.data['card_name']
         query = request.data['query']
-        res = serializer.create_card(repo_name, query, card_name)
+        res = serializer.create_card(repo_name, card_name, query)
         return Response(res, status=status.HTTP_201_CREATED)
 
 

@@ -400,7 +400,7 @@ class DataHubManager:
 
         return card
 
-    def create_card(self, repo, query, card_name):
+    def create_card(self, repo, card_name, query):
         # to create a card, the user must be able to successfully execute
         # the query from their own database user.
         try:

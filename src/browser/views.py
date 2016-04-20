@@ -722,7 +722,7 @@ def card_create(request, repo_base, repo):
 
     with custom_manager_error_handler(username, repo_base, repo):
         manager = DataHubManager(username, repo_base)
-        manager.create_card(repo, query, card_name)
+        manager.create_card(repo, card_name, query)
 
     return HttpResponseRedirect(url)
 

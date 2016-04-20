@@ -352,9 +352,9 @@ class CardSerializer(DataHubSerializer):
 
         return self.describe_card(repo, card.card_name)
 
-    def create_card(self, repo, query, card_name):
+    def create_card(self, repo, card_name, query):
         self.manager.set_search_paths([repo])
-        card = self.manager.create_card(repo, query, card_name)
+        card = self.manager.create_card(repo, card_name, query)
 
         return self.describe_card(repo, card.card_name)
 
