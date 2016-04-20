@@ -1,7 +1,7 @@
 var del = require('del');
 var gulp = require('gulp');
 var watch = require('gulp-watch');
-var handlebars = require('gulp-handlebars');
+var handlebars = require('gulp-handlebars'); // must use v3.0.1 (4.0.0 failed)
 var wrap = require('gulp-wrap');
 var declare = require('gulp-declare');
 var concat = require('gulp-concat');
@@ -13,7 +13,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var static_base = '../../browser/static/dataq/';
 
 // 'gulp' rebuilds all files
-gulp.task('default', ['templates', 'styles', 'scripts', 'index', 'watch']);
+gulp.task('default', ['templates', 'styles', 'scripts', 'index']);
 
 gulp.task('templates', function() {
   gulp.src('./client_src/templates/*.hbs')
