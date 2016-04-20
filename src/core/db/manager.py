@@ -336,12 +336,11 @@ class DataHubManager:
 
         Returns True on success.
 
-        Raises Exception if collaborator owns repo.
+        Raises ValueError if collaborator owns repo or if db_privileges or
+        file_privileges are invalid.
         Raises ProgrammingError if repo does not exist.
         Raises User.DoesNotExist if collaborator does not exist.
         Raises PermissionDenied on insufficient permissions.
-        Raises DatabaseError on misused db privilege type.
-        Raises ProgrammingError on invalid db privilege type.
         Raises InternalError on subsequent calls after a failed call.
         Causes other requests on the same DataHubManager to raise InternalError
         if a call to add_collaborator failed mid-transaction.
@@ -361,8 +360,20 @@ class DataHubManager:
 
         # you can't add yourself as a collaborator
         if self.username == collaborator:
-            raise Exception(
+            raise ValueError(
                 "Can't add a repository's owner as a collaborator.")
+
+        db_privileges = [p.upper() for p in db_privileges]
+        file_privileges = [p.lower() for p in file_privileges]
+
+        for p in db_privileges:
+            if p not in ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'TRUNCATE',
+                         'REFERENCES', 'TRIGGER']:
+                raise ValueError("Unsupported db privilege: \"{0}\"".format(p))
+        for p in file_privileges:
+            if p not in ['read', 'write']:
+                raise ValueError(
+                    "Unsupported file privilege: \"{0}\"".format(p))
 
         try:
             app = App.objects.get(app_id=collaborator)
