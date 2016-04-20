@@ -317,3 +317,11 @@ p.bg-warning {
   font-weight: 400;
   font-size: 44px;
 }
+
+body {
+  padding-top: 5em;
+}
+
+.bs-docs-sidebar .nav>li>a {
+  color: #767676;
+}
