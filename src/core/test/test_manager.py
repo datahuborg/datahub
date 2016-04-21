@@ -182,7 +182,7 @@ class BasicOperations(TestCase):
         self.assertEqual(
             con_add_collab.call_args[1]['collaborator'], 'new_collaborator')
         self.assertEqual(
-            con_add_collab.call_args[1]['db_privileges'], ['select'])
+            con_add_collab.call_args[1]['db_privileges'], ['SELECT'])
 
     def test_delete_collaborator(self):
         self.mock_connection.return_value.list_collaborators.return_value = [

@@ -271,7 +271,7 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         self.assertEqual(
             self.mock_execute_sql.call_args[0][1][0], repo_name)
         self.assertEqual(
-            self.mock_execute_sql.call_args[0][1][1], None)
+            self.mock_execute_sql.call_args[0][1][1], '')
         self.assertTrue(self.mock_as_is.called)
         self.assertTrue(self.mock_check_for_injections.called)
         self.assertEqual(res, True)
