@@ -1,11 +1,12 @@
 {% extends "repo-browse-template.html" %}
+
 {% block tabs %}
 <ul class="nav nav-tabs" role="tablist">
   <li><a href="/browse/{{repo_base}}/{{repo}}/tables" role="tab">Tables</a></li>
   <li><a href="/browse/{{repo_base}}/{{repo}}/files" role="tab">Files</a></li>
   <li class="active"><a href="/browse/{{repo_base}}/{{repo}}/cards" role="tab">Cards</a></li>
 </ul>
-{% endblock %}
+{% endblock tabs %}
 
 {% block tab-content %}
 <div class="panel panel-default">
@@ -55,8 +56,7 @@
     <p class="bg-warning">No card in <strong>{{repo_base}}/{{repo}}</strong></p>
   {% endif %}
 </div>
-
-{% endblock %}
+{% endblock tab-content %}
 
 
 
