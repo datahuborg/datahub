@@ -1,4 +1,6 @@
-{% extends "layout.html" %} {% block content %}
+{% extends "base.html" %}
+
+{% block content %}
 <div class="container">
     <h4 class="inline-block">
     <a class="link" href="/browse/{{repo_base}}">{{repo_base}}</a>
@@ -137,6 +139,9 @@
     <br />
     <br />
 </div>
+{% endblock content %}
+
+{% block js %}
 <script type="text/javascript">
 $(document).ready(function () {
     $('#add_collaborator').click(function() {
@@ -162,8 +167,5 @@ $(document).ready(function () {
 
     });
 });
-
 </script>
-
-
-{% endblock %}
+{% endblock js %}

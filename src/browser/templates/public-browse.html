@@ -1,4 +1,6 @@
-{% extends "layout.html" %} {% block content %}
+{% extends "base.html" %}
+
+{% block content %}
 <div class="container">
     <!-- public repos -->
     <div class="panel panel-default">
@@ -16,7 +18,10 @@
         </div>
     </div>
 </div>
+{% endblock content %}
 
+
+{% block js %}
 <script>
 $(document).ready(function() {
     var publicRepos = {{public_repos|safe}};
@@ -86,4 +91,4 @@ $(document).ready(function() {
 
 });
 </script>
-{% endblock %}
+{% endblock js %}
