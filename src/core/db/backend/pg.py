@@ -107,11 +107,11 @@ class PGBackend:
         """
         invalid_noun_msg = (
             "Usernames, repo names, and table names may only contain "
-            "alphanumeric characters and underscores, and must not "
-            "begin or end with an underscore."
+            "alphanumeric characters and underscores, must begin with a "
+            "letter, and must not begin or end with an underscore."
         )
 
-        regex = r'^(?![\_])[\w\_]+(?<![\_])$'
+        regex = r'^(?![\_\d])[\w\_]+(?<![\_])$'
         valid_pattern = re.compile(regex)
         matches = valid_pattern.match(noun)
 
