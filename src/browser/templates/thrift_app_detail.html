@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 
 {% block js %}
 <script type="text/javascript">
@@ -18,17 +18,16 @@ $(document).ready(function() {
     modal.find('.modal-footer form').attr('action', '')
   })
 })
-</script>  
-
+</script>
 {% endblock js %}
 
 {% block content %}
 <div class="container">
-  
+
   <h4 class="inline-block">
     <a href="{% url 'browser-user' user.get_username %}">{{ user.get_username }}</a> / <a href="{% url 'browser-apps' %}">apps</a>
   </h4>
-  
+
   <hr />
   <br />
 
@@ -79,4 +78,4 @@ $(document).ready(function() {
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-{% endblock %}
+{% endblock content %}
