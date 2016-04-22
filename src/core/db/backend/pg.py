@@ -3,6 +3,7 @@ from collections import namedtuple
 import psycopg2
 from psycopg2.extensions import AsIs
 from psycopg2.pool import ThreadedConnectionPool
+from psycopg2 import errorcodes
 
 from config import settings
 
@@ -410,7 +411,22 @@ class PGBackend:
 
         query = query.strip()
         cur = self.connection.cursor()
+
+        try:
         cur.execute(query, params)
+        except psycopg2.Error as e:
+            # Convert some psycopg2 errors into exceptions meaningful to
+            # Django.
+            if (e.pgcode == errorcodes.INVALID_PARAMETER_VALUE or
+                    e.pgcode == errorcodes.UNDEFINED_OBJECT):
+                raise ValueError("Invalid parameter in query.")
+            if e.pgcode == errorcodes.INVALID_SCHEMA_NAME:
+                raise LookupError("Repo not found.")
+            if e.pgcode == errorcodes.DUPLICATE_SCHEMA:
+                raise ValueError("A repo with that name already exists.")
+            if e.pgcode == errorcodes.DUPLICATE_TABLE:
+                raise ValueError("A table with that name already exists.")
+            raise e
 
         # if cur.execute() failed, this will print it.
         try:

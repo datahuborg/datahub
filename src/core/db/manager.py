@@ -329,6 +329,8 @@ class DataHubManager:
 
         Raises ProgrammingError on query syntax errors.
         Raises ProgrammingError on insufficient repo permissions.
+        Raises LookupError on invalid role or repo.
+        Raises ValueError on invalid query parameters.
         Raises other psycopg2 errors depending on the query.
         """
         return self.user_con.execute_sql(query=query, params=params)
@@ -347,14 +349,11 @@ class DataHubManager:
 
         Returns True on success.
 
-        Raises ValueError if collaborator owns repo or if db_privileges or
-        file_privileges are invalid.
-        Raises ProgrammingError if repo does not exist.
+        Raises ValueError if collaborator owns or is already a collaborator of
+        repo or if db_privileges or file_privileges are invalid.
+        Raises LookupError if repo does not exist.
         Raises User.DoesNotExist if collaborator does not exist.
         Raises PermissionDenied on insufficient permissions.
-        Raises InternalError on subsequent calls after a failed call.
-        Causes other requests on the same DataHubManager to raise InternalError
-        if a call to add_collaborator failed mid-transaction.
         """
         # Usage is probably not the right check, but neither is CREATE.
         # The trouble is that roles INHERIT permissions from one another
@@ -373,6 +372,12 @@ class DataHubManager:
         if self.username == collaborator:
             raise ValueError(
                 "Can't add a repository's owner as a collaborator.")
+
+        collaborators = self.list_collaborators(repo)
+        if collaborator in (c['username'] for c in collaborators):
+            raise ValueError(
+                "{0} is already a collaborator of {1}.".format(
+                    collaborator, repo))
 
         db_privileges = [p.upper() for p in db_privileges]
         file_privileges = [p.lower() for p in file_privileges]
@@ -416,8 +421,7 @@ class DataHubManager:
 
         Returns True on success.
 
-        Raises Exception when repo or collaborator does not exist or
-        collaborator has no privileges on repo.
+        Raises LookupError when repo or collaborator does not exist.
         Raises User.DoesNotExist if collaborator owns repo.
         Raises PermissionDenied on insufficient permissions.
         """
@@ -425,17 +429,19 @@ class DataHubManager:
             collaborators = conn.list_collaborators(repo=repo)
             collaborators = [c.get('username') for c in collaborators]
 
+            # Current user must be the repo's owner or the collaborator to be
+            # removed and must be an existing collaborator.
+            if (self.username not in [collaborator, self.repo_base] or
+                    self.username not in collaborators):
+                raise PermissionDenied(
+                    'Access denied. Missing required privileges')
             # The reason we're enforcing permission checks this way is to deal
             # with the edge case where a user removes himself as a collaborator
             # from another user's repo.
             if collaborator not in collaborators:
-                raise Exception('Failed to delete collaborator.'
+                raise LookupError('Failed to delete collaborator.'
                                 ' %s is not a collaborator in the specified '
                                 'repository.' % collaborator)
-            if (self.username != collaborator and
-                    self.username != self.repo_base):
-                raise PermissionDenied(
-                    'Access denied. Missing required privileges')
 
             collab = User.objects.get(username=collaborator)
             Collaborator.objects.get(
@@ -872,7 +878,7 @@ class DataHubManager:
 
     @staticmethod
     def create_user_database(username):
-        """ create just the database for a user """
+        """Creates the database and data folder for a user."""
         with _superuser_connection() as conn:
             res = conn.create_user_database(username=username)
             DataHubManager.create_user_data_folder(username)
@@ -1145,7 +1151,7 @@ class DataHubManager:
     @staticmethod
     def has_repo_db_privilege(login, repo_base, repo, privilege):
         """
-        Returns a bool describing whether the bool user has the DATABASE
+        Returns a bool describing whether a user has the DATABASE
         privilege passed in the argument. (i.e. Usage)
 
         Relies on database role management, so this is a pretty straightforward
@@ -1185,7 +1191,7 @@ class DataHubManager:
 
     @staticmethod
     def has_table_privilege(login, repo_base, table, privilege):
-        """ a straightforward call to the DB, since it manages this """
+        # a straightforward call to the DB, since it manages this
         with _superuser_connection(repo_base) as conn:
             result = conn.has_table_privilege(
                 login=login, table=table, privilege=privilege)
@@ -1193,7 +1199,7 @@ class DataHubManager:
 
     @staticmethod
     def has_column_privilege(login, repo_base, table, column, privilege):
-        """ a straightforward call to the DB, since it manages this """
+        # a straightforward call to the DB, since it manages this
         with _superuser_connection(repo_base) as conn:
             result = conn.has_column_privilege(login=login,
                                                table=table,
