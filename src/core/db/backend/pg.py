@@ -438,7 +438,7 @@ class PGBackend:
         cur = self.connection.cursor()
 
         try:
-        cur.execute(query, params)
+            cur.execute(query, params)
         except psycopg2.Error as e:
             # Convert some psycopg2 errors into exceptions meaningful to
             # Django.
