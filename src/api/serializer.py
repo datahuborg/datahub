@@ -248,13 +248,9 @@ class TableSerializer(DataHubSerializer):
 
     def export_table(self, repo, table, file_format='CSV', delimiter=',',
                      header=True):
-
-        success = DataHubManager.export_table(
-            username=self.username, repo_base=self.repo_base,
+        self.manager.export_table(
             repo=repo, table=table, file_format=file_format,
             delimiter=delimiter, header=header)
-
-        return success
 
 
 class ViewSerializer(DataHubSerializer):
@@ -296,13 +292,9 @@ class ViewSerializer(DataHubSerializer):
 
     def export_view(self, repo, view, file_format='CSV', delimiter=',',
                     header=True):
-
-        success = DataHubManager.export_view(
-            username=self.username, repo_base=self.repo_base,
+        self.manager.export_view(
             repo=repo, view=view, file_format=file_format,
             delimiter=delimiter, header=header)
-
-        return success
 
 
 class CardSerializer(DataHubSerializer):
@@ -363,7 +355,7 @@ class CardSerializer(DataHubSerializer):
 
     def export_card(self, repo, card_name, file_format='CSV'):
         self.manager.set_search_paths([repo])
-        return self.manager.export_card(repo, card_name, file_format)
+        self.manager.export_card(repo, card_name, file_format)
 
 
 class FileSerializer(DataHubSerializer):

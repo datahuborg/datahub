@@ -441,8 +441,8 @@ class DataHubManager:
             # from another user's repo.
             if collaborator not in collaborators:
                 raise LookupError('Failed to delete collaborator.'
-                                ' %s is not a collaborator in the specified '
-                                'repository.' % collaborator)
+                                  ' %s is not a collaborator in the specified '
+                                  'repository.' % collaborator)
 
             collab = User.objects.get(username=collaborator)
             Collaborator.objects.get(
@@ -578,6 +578,89 @@ class DataHubManager:
         file = open(file_path).read()
         return file
 
+    def export_table(self, repo, table, file_format='CSV',
+                     delimiter=',', header=True):
+        """
+        Exports a table to a file in the same repo.
+
+        Defaults to CSV format with header row.
+
+        Raises LookupError on invalid repo or table.
+        Raises ProgrammingError on invalid combinations of file_format,
+        delimiter, and header.
+        Raises PermissionDenied on insufficient privileges.
+        """
+        # clean up names:
+        repo = clean_str(repo, '')
+        table = clean_str(table, '')
+
+        # check for permissions
+        res = DataHubManager.has_repo_db_privilege(
+            self.username, self.repo_base, repo, 'CREATE')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges.')
+
+        # make the base_repo and repo's folder, if they don't already exist
+        DataHubManager.create_user_data_folder(self.repo_base, repo)
+
+        # define the file path for the new table
+        file_name = clean_file_name(table)
+        file_path = user_data_path(
+            self.repo_base, repo, file_name, file_format)
+
+        # format the full table name
+        table_name = '%s.%s' % (repo, table)
+
+        # pass arguments to the connector
+        self.user_con.export_table(
+            table_name=table_name,
+            file_path=file_path,
+            file_format=file_format,
+            delimiter=delimiter,
+            header=header)
+
+    def export_view(self, repo, view, file_format='CSV',
+                    delimiter=',', header=True):
+        """
+        Exports a view to a file in the same repo.
+
+        Defaults to CSV format with header row.
+
+        Raises LookupError on invalid repo or view.
+        Raises ProgrammingError on invalid combinations of file_format,
+        delimiter, and header.
+        Raises PermissionDenied on insufficient privileges.
+        """
+        # clean up names:
+        repo = clean_str(repo, '')
+        view = clean_str(view, '')
+
+        # check for permissions
+        res = DataHubManager.has_repo_db_privilege(
+            self.username, self.repo_base, repo, 'CREATE')
+        if not res:
+            raise PermissionDenied(
+                'Access denied. Missing required privileges.')
+
+        # make the repo_base and repo's folder, if they don't already exist
+        DataHubManager.create_user_data_folder(self.repo_base, repo)
+
+        # define the file path for the new view
+        file_name = clean_file_name(view)
+        file_path = user_data_path(
+            self.repo_base, repo, file_name, file_format)
+
+        # format the full view name
+        view_name = '%s.%s' % (repo, view)
+
+        self.user_con.export_view(
+            view_name=view_name,
+            file_path=file_path,
+            file_format=file_format,
+            delimiter=delimiter,
+            header=header)
+
     def update_card(self, repo, card_name, new_query=None,
                     new_name=None, public=None):
         """
@@ -692,15 +775,16 @@ class DataHubManager:
             raise PermissionDenied(
                 'Access denied. Missing required privileges.')
 
-        # create the repo if it doesn't already exist
+        # create the user data folder if it doesn't already exist
         DataHubManager.create_user_data_folder(self.repo_base, repo)
 
         file_name = clean_file_name(card_name)
         file_path = user_data_path(
             self.repo_base, repo, file_name, file_format)
-        DataHubManager.export_query(repo_base=self.repo_base, query=query,
-                                    file_path=file_path,
-                                    file_format=file_format)
+
+        self.user_con.export_query(query=query,
+                                   file_path=file_path,
+                                   file_format=file_format)
 
     def delete_card(self, repo, card_name):
         """
@@ -1044,100 +1128,6 @@ class DataHubManager:
                 header=header,
                 encoding=encoding,
                 quote_character=quote_character)
-        return result
-
-    @staticmethod
-    def export_table(username, repo_base, repo, table, file_format='CSV',
-                     delimiter=',', header=True):
-        """
-        Export a table to a CSV file in the same repo.
-
-        Only superusers can execute the copy command, so this function
-        passes the username, and verifies user's permissions.
-        """
-        # clean up names:
-        repo_base = clean_str(repo_base, '')
-        repo = clean_str(repo, '')
-        table = clean_str(table, '')
-
-        # check for permissions
-        res = DataHubManager.has_repo_db_privilege(
-            username, repo_base, repo, 'CREATE')
-        if not res:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges.')
-
-        # make the base_repo and repo's folder, if they don't already exist
-        DataHubManager.create_user_data_folder(repo_base, repo)
-
-        # define the file path for the new table
-        file_name = clean_file_name(table)
-        file_path = user_data_path(repo_base, repo, file_name, file_format)
-
-        # format the full table name
-        long_table_name = '%s.%s.%s' % (repo_base, repo, table)
-
-        # pass arguments to the connector
-        with _superuser_connection(repo_base) as conn:
-            result = conn.export_table(
-                table_name=long_table_name,
-                file_path=file_path,
-                file_format=file_format,
-                delimiter=delimiter,
-                header=header)
-        return result
-
-    @staticmethod
-    def export_view(username, repo_base, repo, view, file_format='CSV',
-                    delimiter=',', header=True):
-        """
-        Export a view to a CSV file in the same repo.
-
-        Only superusers can execute the copy command, so this function
-        passes the username, and verifies user's permissions.
-        """
-        # clean up names:
-        repo_base = clean_str(repo_base, '')
-        repo = clean_str(repo, '')
-        view = clean_str(view, '')
-
-        # check for permissions
-        res = DataHubManager.has_repo_db_privilege(
-            username, repo_base, repo, 'CREATE')
-        if not res:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges.')
-
-        # make the base_repo and repo's folder, if they don't already exist
-        DataHubManager.create_user_data_folder(repo_base, repo)
-
-        # define the file path for the new view
-        file_name = clean_file_name(view)
-        file_path = user_data_path(repo_base, repo, file_name, file_format)
-
-        # format the full view name
-        long_view_name = '%s.%s.%s' % (repo_base, repo, view)
-
-        # pass arguments to the connector
-        with _superuser_connection(repo_base) as conn:
-            result = conn.export_view(
-                view_name=long_view_name,
-                file_path=file_path,
-                file_format=file_format,
-                delimiter=delimiter,
-                header=header)
-        return result
-
-    @staticmethod
-    def export_query(repo_base, query, file_path, file_format='CSV',
-                     delimiter=',', header=True):
-        with _superuser_connection(repo_base) as conn:
-            result = conn.export_query(
-                query=query,
-                file_path=file_path,
-                file_format=file_format,
-                delimiter=delimiter,
-                header=header)
         return result
 
     """ Access Privilege Checks """
