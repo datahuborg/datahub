@@ -47,7 +47,6 @@
 
     // Display the modal (disable Esc and clicking the backdrop to exit modal)
     $('#dq-table-modal').modal({
-      backdrop: 'static',
       keyboard: false
     });
     
@@ -60,6 +59,12 @@
         populate_column_list(table);
       }
     });
+
+    // Handle modal close when clicking backdrop.
+    $(".modal-backdrop").click(function() {
+      $("#dq-table-modal").remove();
+      cb();
+    })
   }; 
 
   // If the user quits, trigger the callback.

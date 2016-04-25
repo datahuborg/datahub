@@ -34,9 +34,8 @@
       $("body").append(html);
     }
 
-    // Display the modal.
+    // Display the modal. (disable Esc)
     $("#dq-grouping-modal").modal({
-      backdrop: "static",
       keyboard: false
     });
 
@@ -46,6 +45,12 @@
         forcePlaceholderSize: true 
       });
     });
+
+    // Handle modal close when clicking backdrop.
+    $(".modal-backdrop").click(function() {
+      callback();
+      $("#dq-grouping-modal").remove();
+    })
   }; // End GroupingModal
 
   // Handler for close modal.
