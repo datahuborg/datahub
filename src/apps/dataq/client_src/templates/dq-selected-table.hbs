@@ -1,15 +1,15 @@
 <!-- Display a selected table in the main DataQ container -->
-<div class="row dq-contains-table-{{table_name}}" >
-  <ul class="dq-table-list col-xs-12">
-    <li class="col-xs-10">
+<div class="dq-contains-table-{{table_name}}" >
+  <ul class="dq-table-list">
+    <li>
 
       <!-- Button for deleting -->
-      <div class="btn-group row" role="group" aria-label="...">
-        <button type="button" class="btn btn-danger btn-mini dq-btn-delete-table" data-tablename="{{table_name}}">
+      <div class="btn-group" role="group" aria-label="...">
+        <button type="button" class="btn btn-default btn-mini dq-btn-delete-table" data-tablename="{{table_name}}">
           <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
         </button>
         <!-- Button for editing -->
-        <button type="button" class="btn btn-warning btn-mini dq-btn-edit-table" data-tablename="{{table_name}}">
+        <button type="button" class="btn btn-default btn-mini dq-btn-edit-table" data-tablename="{{table_name}}">
           <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
         </button>
 
@@ -18,7 +18,7 @@
       </div>
 
       <!-- Columns in the table -->
-      <span class="row dq-columns">{{column_list}}</span>
+      <span class="dq-columns">{{column_list}}</span>
     </li>
   </ul>
 </div>

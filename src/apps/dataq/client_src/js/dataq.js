@@ -31,10 +31,6 @@
     // Create the query object and set the repo name.
     query = DataQ.Query();
     query.repo(repo_name);
-
-    // Add the table section outline to the container.
-    var html = DataQ.templates["dq-table-section"]();
-    $('.dq-table-section-container').append(html);
   };
 
   /**
