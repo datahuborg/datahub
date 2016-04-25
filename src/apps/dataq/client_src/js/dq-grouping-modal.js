@@ -39,7 +39,7 @@
       keyboard: false
     });
 
-    // When the modal is displayed, enable iCheck and HTML5Sortable.
+    // When the modal is displayed, enable HTML5Sortable.
     $("#dq-grouping-modal").on("shown.bs.modal", function() {
       $(".dq-grouping-modal-list").sortable({
         forcePlaceholderSize: true 

@@ -31,6 +31,13 @@
     // Create the query object and set the repo name.
     query = DataQ.Query();
     query.repo(repo_name);
+
+    // Handle DataQ close when clicking backdrop.
+    $(".dq-black-background").click(function() {
+      $(".dq-black-background").remove();
+      $(".dataq").remove();
+      callback(null);
+    })
   };
 
   /**

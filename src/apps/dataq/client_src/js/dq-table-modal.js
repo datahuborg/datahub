@@ -114,12 +114,6 @@
       });
       $('.dq-column-list').html(html);
 
-      // Enable iCheck.
-      $('.dq-column-list input[type=checkbox]').iCheck({
-        checkboxClass: 'icheckbox_square-green',
-        radioClass: 'iradio_square-green',
-      });
-
       if (query.selected_columns(table)) {
         // Iterate through the columns for the selected table.
         query.selected_columns(table).forEach(function(column) {
@@ -129,7 +123,7 @@
           element.data("columnname", column.name);
           element.data("columntype", column.type);
           element.data("currentaggregate", column.agg || "none")
-          element.find("input[type=checkbox]").iCheck('check');
+          element.find("input[type=checkbox]").prop('checked', true);
           if (column.agg !== "none") {
             element.find("button").text(column.agg + "(" + column.name + ")");
           }
