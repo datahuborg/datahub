@@ -6,8 +6,9 @@ Console App
 | maintainer(s): `Gina Yuan <https://github.com/ygina>`_
 | location: ``src/apps/console``
 
-Console provides a way for users to interact directly with their datahub repos.
-It's a database terminal for datahub. It now uses the Datahub API.
+Console is a database terminal for datahub. It provides a way for users to
+interact directly with their database and repos/schemas, and is a consumer of
+the DataHub API.
 
 ==========
 How to use
@@ -17,8 +18,11 @@ How to use
 * Type SQL or bash commands
 
 -------------------
-Available Commands: 
+Available Commands:
 -------------------
+
+| ``help``: lists available commands
+| e.g. ``help``
 
 | ``connect <repo-base>``: connect to a datahub user
 | e.g. ``connect username``
@@ -28,7 +32,7 @@ Available Commands:
 
 | ``rm <repo-name [-f]>``: remove a repository
 | e.g. ``rm myrepo``
-        
+
 | ``ls`` : list repositories
 | e.g. ``ls``
 
