@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 
 from config import settings
 from core.db.connection import DataHubConnection
+from core.db.errors import PermissionDenied
 from inventory.models import App, Card, Collaborator, DataHubLegacyUser
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
@@ -1206,11 +1207,6 @@ class DataHubManager:
                                                column=column,
                                                privilege=privilege)
         return result
-
-
-class PermissionDenied(Exception):
-    def __init__(self, *args, **kwargs):
-        Exception.__init__(self, *args, **kwargs)
 
 
 def user_data_path(repo_base, repo=None, file_name=None, file_format=None):
