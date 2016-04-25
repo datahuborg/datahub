@@ -1,15 +1,13 @@
+import json
+
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 
-'''
-@author: Anant Bhardwaj
-@date: Mar 21, 2013
-
-Datahub Console
-'''
+import sys
 
 
 @login_required
 def index(request):
-    res = {'login': request.user.get_username()}
+    testing = json.dumps('test' in sys.argv)
+    res = {'login': request.user.get_username(), 'testing': testing}
     return render_to_response("console.html", res)

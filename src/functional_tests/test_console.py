@@ -16,7 +16,7 @@ class ConsoleTest(FunctionalTest):
 
     print '\nBefore running test_console,'
     print '    in src/config/settings.py, set SOCIAL_AUTH_REDIRECT_IS_HTTPS = False,'
-    print '    in src/inventory/migrations/0015_consoleapp.py, comment line 36:'
+    print '    in src/inventory/migrations/0015_consoleapp.py, comment out:'
     print '        migrations.RunPython(create_console_oauth)'
     print '    docker rm -f $(docker ps -aq) && dh-create-dev-containers && dh-start-containers\n'
     print 'After running test_console, reset changes and'
@@ -24,7 +24,7 @@ class ConsoleTest(FunctionalTest):
 
     @factory.django.mute_signals(signals.pre_save)
     def create_console_oauth(self):
-        foo = User(username="foo", email="foo@mit.edu")
+        foo = User(username="delete_me_foo", email="delete_me_foo@mit.edu")
         foo.save()
         model = get_application_model()
         bar = model()
@@ -77,6 +77,7 @@ class ConsoleTest(FunctionalTest):
         # make good repos in terminal
         for repo_name in good_repo_names:
             self.send_to_console('mkrepo ' + repo_name + Keys.ENTER)
+            self.browser.get_screenshot_as_file('foo.png')
             self.wait_for_console('success')
 
         # check to see good repos exist in home

@@ -3,12 +3,12 @@
     <div id='dh-console-container'>
         <div id='dh-console'>
             <pre class='ascii-art-console'>
- _____        _        _    _       _     
-|  __ \      | |      | |  | |     | |    
-| |  | | __ _| |_ __ _| |__| |_   _| |__  
-| |  | |/ _` | __/ _` |  __  | | | | '_ \ 
+ _____        _        _    _       _
+|  __ \      | |      | |  | |     | |
+| |  | | __ _| |_ __ _| |__| |_   _| |__
+| |  | |/ _` | __/ _` |  __  | | | | '_ \
 | |__| | (_| | || (_| | |  | | |_| | |_) |
-|_____/ \__,_|\__\__,_|_|  |_|\__,_|_.__/ 
+|_____/ \__,_|\__\__,_|_|  |_|\__,_|_.__/
 </pre>
             <br />
             <br />
@@ -18,11 +18,21 @@
         </div>
     </div>
 </div>
-    
+
 <script type = 'text/javascript' >
-var base_url = 'http://' + window.location.host;
+
+// decide whether to use http or https
+var testing = {{testing}};
+var transfer_protocol;
+if (testing) {
+    transfer_protocol = 'http://'
+} else {
+    transfer_protocol = 'https://'
+}
+
+var base_url = transfer_protocol + window.location.host;
 var client_id = '7ByJAnXj2jsMFN1REvvUarQjqXjIAU3nmVB661hR';
-var redirect_uri = 'http://' + window.location.host + '/apps/console/';
+var redirect_uri = transfer_protocol + window.location.host + '/apps/console/';
 var kCmdList = [
     'connect &lt;repo-base&gt; \t\t\t  -- connect to a datahub user',
     'mkrepo &lt;repo-name&gt; \t\t\t   -- create a new repository',
@@ -348,7 +358,7 @@ function executeQuery(cmd, page) { // this may not work
             term.error('failed: try \'help\'');
         })
         .done(function(data, status, xhr) {
-            if (data.rows && data.rows.length > 1) {
+            if (data.rows && data.rows.length > 0) {
                 printData(data.rows);
                 paginate(data, cmd, page);
             }
