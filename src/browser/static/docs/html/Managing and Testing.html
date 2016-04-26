@@ -120,11 +120,9 @@ $ sudo docker run --rm <span class="se">\</span>
   cat /var/log/nginx/access.log
 
 <span class="c1"># Run Django migrations</span>
-$ sudo docker run --rm <span class="se">\</span>
-  --net<span class="o">=</span>datahub_dev <span class="se">\</span>
-  --volumes-from app <span class="se">\</span>
-  datahuborg/datahub <span class="se">\</span>
-  python src/manage.py migrate --noinput
+$ sudo dh-remove-all-containers <span class="o">&amp;&amp;</span> <span class="se">\</span>
+  dh-create-dev-containers <span class="o">&amp;&amp;</span> <span class="se">\</span>
+  dh-start-containers
 
 <span class="c1"># Collect changes to Django&#39;s static files so the web container</span>
 <span class="c1"># can see them.</span>

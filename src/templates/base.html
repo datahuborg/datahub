@@ -108,6 +108,73 @@
       (function(i, s, o, g, r, a, m) { i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function() { (i[r].q = i[r].q || []).push(arguments) }, i[r].l = 1 * new Date(); a = s.createElement(o), m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m) })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga'); ga('create', 'UA-55860060-1', 'auto'); ga('send', 'pageview');
     </script>
   {% endblock %}
+
+
+  {% block modal_dialog %}
+  <!-- Common Modal Dialogs -->
+  <div
+      class="modal" id="confirm-modal"
+      tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Confirm</h4>
+        </div>
+        <div class="modal-body">Are you sure?</div>
+        <div class="modal-footer">
+          <button type="button"
+              class="btn btn-primary">OK</button>
+          <button type="button"
+              class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal hide" id="wait-dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-header">
+      <h1>Processing...</h1>
+    </div>
+    <div class="modal-body">
+      <div class="progress progress-striped active">
+        <div class="bar" style="width: 100%;"></div>
+      </div>
+    </div>
+  </div>
+  <!-- /Confirm Modal Dialog -->
+  {% endblock modal_dialog %}
+
+  {% block modal_js%}
+  <script type="text/javascript">
+  $(document).ready(
+    $(function() {
+      $('.modal-confirm-dialog').on('click', function(e) {
+        var modal_id = $(this).attr('target-modal')
+        var modal_title = $(this).attr('target-modal-title')
+        var modal_body = $(this).attr('target-modal-body')
+        var modal_operation = $(this).attr('target-modal-operation')
+        var target_url = $(this).attr('target-url')
+
+        $(modal_id + ' .modal-title').html(modal_title)
+        $(modal_id + ' .modal-body').html(modal_body)
+        $(modal_id + ' .btn-primary').html(modal_operation)
+
+        $(modal_id).off('click')
+        $(modal_id + ' .btn-primary').off('click')
+
+        $(modal_id + ' .btn-primary').on('click', function(e) {
+          $(modal_id).modal('hide')
+          $("#wait-dialog").modal()
+          window.location.href = window.location.protocol + '//' + window.location.host + target_url
+        });
+
+        $(modal_id).modal({keyboard: true})
+      });
+    })
+  );
+  </script>
+  {% endblock modal_js %}
+
 </body>
 
 </html>
