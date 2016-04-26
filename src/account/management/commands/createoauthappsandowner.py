@@ -9,6 +9,7 @@ from config.settings import OAUTH2_APP_OWNER, \
     OAUTH2_APP_OWNER_EMAIL, \
     OAUTH2_APP_CLIENTS
 from core.db.manager import DataHubManager
+import sys
 
 
 class Command(BaseCommand):
@@ -54,7 +55,8 @@ def create_oauth2_user(apps, schema_editor):
     if user_data_folder_exists:
         DataHubManager.delete_user_data_folder(username)
 
-    print('...success.')
+    if 'test' not in sys.argv:
+        print('...success.')
 
 
 @factory.django.mute_signals(signals.pre_save)
@@ -76,4 +78,5 @@ def create_console_app(apps, schema_editor):
         'console']['skip_authorization']
     app.save()
 
-    print('...success.')
+    if 'test' not in sys.argv:
+        print('...success.')

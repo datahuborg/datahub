@@ -5,6 +5,7 @@ from django.db import migrations
 
 from account.management.commands.createoauthappsandowner import(
     create_oauth2_user, create_console_app)
+import sys
 
 
 class Migration(migrations.Migration):
@@ -14,7 +15,11 @@ class Migration(migrations.Migration):
         ('oauth2_provider', '__latest__')
     ]
 
-    operations = [
-        migrations.RunPython(create_oauth2_user),
-        migrations.RunPython(create_console_app)
-    ]
+    # operations should only be run if this is not a test environment
+    # otherwise, tests do these operations themselves.
+    operations = []
+    if 'test' not in sys.argv:
+        operations = [
+            migrations.RunPython(create_oauth2_user),
+            migrations.RunPython(create_console_app)
+        ]

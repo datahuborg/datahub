@@ -1,45 +1,33 @@
-from .base import FunctionalTest
+import factory
+
+from django.db.models import signals
+
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-
-from oauth2_provider.models import get_application_model
-from django.contrib.auth.models import User
-from django.conf import settings
-from django.db.models import signals
-import factory
+from account.management.commands.createoauthappsandowner import(
+    create_oauth2_user, create_console_app)
+from .base import FunctionalTest
 
 
 class ConsoleTest(FunctionalTest):
-
-    print '\nBefore running test_console,'
-    print '    in src/config/settings.py, set SOCIAL_AUTH_REDIRECT_IS_HTTPS = False,'
-    print '    in src/inventory/migrations/0015_consoleapp.py, comment out:'
-    print '        migrations.RunPython(create_console_oauth)'
-    print '    docker rm -f $(docker ps -aq) && dh-create-dev-containers && dh-start-containers\n'
-    print 'After running test_console, reset changes and'
-    print '    docker rm -f $(docker ps -aq) && dh-create-dev-containers && dh-start-containers\n'
+    message = """
+        Before running test_console,\n
+        in src/config/settings.py, set SOCIAL_AUTH_REDIRECT_IS_HTTPS = False,\n
+            docker rm -f $(docker ps -aq) && dh-create-dev-containers
+            && dh-start-containers\n'
+        After running test_console, reset changes and\n
+            \tdocker rm -f $(docker ps -aq) && dh-create-dev-containers
+            && dh-start-containers\n'
+        """
 
     @factory.django.mute_signals(signals.pre_save)
     def create_console_oauth(self):
-        foo = User(username="delete_me_foo", email="delete_me_foo@mit.edu")
-        foo.save()
-        model = get_application_model()
-        bar = model()
-        bar.user = foo
-        bar.name = "Console"
-        bar.client_id = '7ByJAnXj2jsMFN1REvvUarQjqXjIAU3nmVB661hR'
-        bar.redirect_uris = (
-            'https://' + settings.DATAHUB_DOMAIN + '/apps/console/\n'
-            'http://' + settings.DATAHUB_DOMAIN + '/apps/console/\n'
-            'https://web/apps/console/\n'
-            'http://web/apps/console/')
-        bar.client_type = 'public'
-        bar.authorization_grant_type = 'implicit'
-        bar.skip_authorization = True
-        bar.save()
+
+        create_oauth2_user(None, None)
+        create_console_app(None, None)
 
     def setUp(self):
         super(ConsoleTest, self).setUp()
