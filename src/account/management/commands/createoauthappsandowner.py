@@ -79,7 +79,6 @@ def create_console_app(apps, schema_editor):
     # Raisees KeyError for missing key in params
     [params[k] for k in keys]
 
-    model.objects.get(user=user, name=params['name']).delete()
     try:
         # see if the model exists
         model.objects.get(user=user, name=params['name'])
