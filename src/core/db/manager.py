@@ -122,8 +122,7 @@ class DataHubManager:
         """
         # only a repo owner can rename a repo:
         if self.repo_base != self.username:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges')
+            raise PermissionDenied()
 
         # rename in user_con
         success = self.user_con.rename_repo(repo=repo, new_name=new_name)
@@ -168,8 +167,7 @@ class DataHubManager:
         """
         # Only a repo owner can delete repos.
         if self.repo_base != self.username:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges')
+            raise PermissionDenied()
 
         # remove related collaborator objects
         Collaborator.objects.filter(
@@ -206,6 +204,7 @@ class DataHubManager:
 
         Raises LookupError on insufficient permissions or if the repo doesn't
         exist.
+        Raises ValueError if repo is invalid.
         """
         return self.user_con.list_tables(repo=repo)
 
@@ -366,11 +365,8 @@ class DataHubManager:
         # permission to another without actually doing it.
         # For now, we limit adding_collaborators to the actual owner, who has
         # create privileges
-        res = DataHubManager.has_repo_db_privilege(
+        DataHubManager.has_repo_db_privilege(
             self.username, self.repo_base, repo, 'CREATE')
-        if not res:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges')
 
         # you can't add yourself as a collaborator
         if self.username == collaborator:
@@ -437,8 +433,7 @@ class DataHubManager:
             # removed and must be an existing collaborator.
             if (self.username not in [collaborator, self.repo_base] or
                     self.username not in collaborators):
-                raise PermissionDenied(
-                    'Access denied. Missing required privileges')
+                raise PermissionDenied()
             # The reason we're enforcing permission checks this way is to deal
             # with the edge case where a user removes himself as a collaborator
             # from another user's repo.
@@ -465,11 +460,8 @@ class DataHubManager:
         names.
         """
         # check for permissions
-        res = DataHubManager.has_repo_file_privilege(
+        DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'read')
-        if not res:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges')
 
         # make a directory for files, if it doesn't already exist
         repo_dir = DataHubManager.create_user_data_folder(self.repo_base, repo)
@@ -487,11 +479,8 @@ class DataHubManager:
         names.
         """
         # check for permission
-        res = DataHubManager.has_repo_file_privilege(
+        DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'read')
-        if not res:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges')
 
         # get the relevant cards
         cards = Card.objects.all().filter(
@@ -535,11 +524,8 @@ class DataHubManager:
 
         Raises PermissionDenied on insufficient privileges.
         """
-        res = DataHubManager.has_repo_file_privilege(
+        DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'write')
-        if not res:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges')
 
         DataHubManager.create_user_data_folder(self.repo_base, repo)
 
@@ -555,12 +541,8 @@ class DataHubManager:
 
         Raises PermissionDenied on insufficient privileges.
         """
-        res = DataHubManager.has_repo_file_privilege(
+        DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'write')
-
-        if not res:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges.')
 
         file_path = user_data_path(self.repo_base, repo, file_name)
         os.remove(file_path)
@@ -571,11 +553,8 @@ class DataHubManager:
 
         Raises PermissionDenied on insufficient privileges.
         """
-        res = DataHubManager.has_repo_file_privilege(
+        DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'read')
-        if not res:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges.')
 
         file_path = user_data_path(self.repo_base, repo, file_name)
         file = open(file_path).read()
@@ -598,11 +577,8 @@ class DataHubManager:
         table = clean_str(table, '')
 
         # check for permissions
-        res = DataHubManager.has_repo_db_privilege(
+        DataHubManager.has_repo_db_privilege(
             self.username, self.repo_base, repo, 'CREATE')
-        if not res:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges.')
 
         # make the base_repo and repo's folder, if they don't already exist
         DataHubManager.create_user_data_folder(self.repo_base, repo)
@@ -640,11 +616,8 @@ class DataHubManager:
         view = clean_str(view, '')
 
         # check for permissions
-        res = DataHubManager.has_repo_db_privilege(
+        DataHubManager.has_repo_db_privilege(
             self.username, self.repo_base, repo, 'CREATE')
-        if not res:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges.')
 
         # make the repo_base and repo's folder, if they don't already exist
         DataHubManager.create_user_data_folder(self.repo_base, repo)
@@ -675,11 +648,8 @@ class DataHubManager:
         Raises TypeError on invalid public parameter.
         Raises PermissionDenied on insufficient privileges or bad new_query.
         """
-        res = DataHubManager.has_repo_file_privilege(
+        DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'write')
-        if not res:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges.')
 
         card = Card.objects.get(
             repo_base=self.repo_base, repo_name=repo, card_name=card_name)
@@ -715,11 +685,9 @@ class DataHubManager:
         # user actually has repo access.
         card = Card.objects.get(
             repo_base=self.repo_base, repo_name=repo, card_name=card_name)
-        res = DataHubManager.has_repo_file_privilege(
-            self.username, self.repo_base, repo, 'read')
-        if not (res or card.public):
-            raise PermissionDenied(
-                'Access denied. Missing required privileges.')
+        if not card.public:
+            DataHubManager.has_repo_file_privilege(
+                self.username, self.repo_base, repo, 'read')
 
         card = Card.objects.get(
             repo_base=self.repo_base, repo_name=repo, card_name=card_name)
@@ -772,11 +740,8 @@ class DataHubManager:
         # check that they really do have permissions on the repo base.
         # This is a bit paranoid, but only because I don't like giving users
         # superuser privileges
-        res = DataHubManager.has_repo_file_privilege(
+        DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'write')
-        if not res:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges.')
 
         # create the user data folder if it doesn't already exist
         DataHubManager.create_user_data_folder(self.repo_base, repo)
@@ -796,11 +761,8 @@ class DataHubManager:
         Raises Card.DoesNotExist for invalid card_name.
         Raises PermissionDenied on insufficient privileges.
         """
-        res = DataHubManager.has_repo_file_privilege(
+        DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'write')
-        if not res:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges.')
 
         card = Card.objects.get(repo_base=self.repo_base,
                                 repo_name=repo, card_name=card_name)
@@ -1090,11 +1052,8 @@ class DataHubManager:
         # check for permissions
         delimiter = delimiter.decode('string_escape')
 
-        res = DataHubManager.has_repo_db_privilege(
+        DataHubManager.has_repo_db_privilege(
             username, repo_base, repo, 'CREATE')
-        if not res:
-            raise PermissionDenied(
-                'Access denied. Missing required privileges.')
 
         # prepare some variables
         file_path = user_data_path(repo_base, repo, file_name)
@@ -1145,35 +1104,35 @@ class DataHubManager:
     @staticmethod
     def has_repo_db_privilege(login, repo_base, repo, privilege):
         """
-        Returns a bool describing whether a user has the DATABASE
-        privilege passed in the argument. (i.e. Usage)
+        Raises PermissonDenied if user does not have the DATABASE privilege
+        passed in the argument, e.g. 'USAGE'.
 
         Relies on database role management, so this is a pretty straightforward
-        call
+        call.
         """
         repo = repo.lower()
         repo_base = repo_base.lower()
         with _superuser_connection(repo_base) as conn:
             result = conn.has_repo_db_privilege(
                 login=login, repo=repo, privilege=privilege)
-        return result
+        if not result:
+            raise PermissionDenied()
 
     @staticmethod
     def has_repo_file_privilege(login, repo_base, repo, privilege):
         """
-        Returns a bool describing whether or not a user has the FILE privilege
-        passed in the argument. (i.e. 'read')
-
+        Raises PermissonDenied if user does not have the FILE privilege passed
+        in the argument, e.g. 'read'.
         """
         repo = repo.lower()
         repo_base = repo_base.lower()
 
-        # users always have privileges for their own files
+        # Users always have privileges over their own files.
         if login == repo_base:
-            return True
+            return
 
-        # iterate through the collaboratr objects. If the public/default
-        # user have the privileges passed, return true
+        # Check if the current user or the public user has the privilege on
+        # this repo.
         # The anonymous user is never explicitly shared with, so we don't need
         # to check for that.
         permitted_collaborators = Collaborator.objects.filter(
@@ -1181,7 +1140,8 @@ class DataHubManager:
             repo_name=repo,
             file_permission__contains=privilege,
             user__username__in=[settings.PUBLIC_ROLE, login])
-        return next((True for c in permitted_collaborators), False)
+        if not next((c for c in permitted_collaborators), None):
+            raise PermissionDenied()
 
     @staticmethod
     def has_table_privilege(login, repo_base, table, privilege):
