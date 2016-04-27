@@ -424,6 +424,8 @@ class ManagerIntegrationTests(TestCase):
 
     def _create_table_helper(self, username, repo, cases, tables_after):
         """
+        Tries to create a table in a repo as a user.
+
         Cases should be an array of test case tuples, where each tuple is the
         Exception to be raised or None plus the arguments to be passed to
         create_table.
@@ -435,6 +437,56 @@ class ManagerIntegrationTests(TestCase):
                 with self._assertRaisesOrNone(c[0], message=c):
                     m.create_table(*c[1:])
             self.assertEquals(tables_after, m.list_tables(repo))
+
+    def test_list_table_errors(self):
+        # List as owner
+        with DataHubManager(user=self.owner_username,
+                            repo_base=self.owner_username) as m:
+            tables = m.list_tables('full1')
+            self.assertEquals(set(tables), set(['table1']))
+            with self._assertRaisesOrNone(LookupError):
+                tables = m.list_tables('missing_repo')
+                self.assertEquals(set(tables), set(['table1']))
+            with self._assertRaisesOrNone(ValueError):
+                tables = m.list_tables('1invalid repo')
+                self.assertEquals(set(tables), set(['table1']))
+
+            # Set up rest of test
+            m.add_collaborator(
+                repo='full2',
+                collaborator=self.other_username,
+                db_privileges=['select', 'update', 'insert', 'delete'],
+                file_privileges=['read', 'write'])
+            m.add_collaborator(
+                repo='full3',
+                collaborator=self.other_username,
+                db_privileges=['select'],
+                file_privileges=['read'])
+
+        # List as public role
+        with DataHubManager(user=settings.PUBLIC_ROLE,
+                            repo_base=self.owner_username) as m:
+            # Not a collaborator
+            with self._assertRaisesOrNone(LookupError):
+                m.list_tables('full1')
+            tables = m.list_tables('public1')
+            self.assertEquals(set(tables), set([]))
+
+        # List as collaborator
+        with DataHubManager(user=self.other_username,
+                            repo_base=self.owner_username) as m:
+            # Not a collaborator
+            with self._assertRaisesOrNone(LookupError):
+                m.list_tables('full1')
+            # Readwrite collaborator
+            tables = m.list_tables('full2')
+            self.assertEquals(set(tables), set(['table1']))
+            # Read-only collaborator
+            tables = m.list_tables('full3')
+            self.assertEquals(set(tables), set(['table1']))
+            # Public collaborator
+            tables = m.list_tables('public1')
+            self.assertEquals(set(tables), set([]))
 
     def test_collaborator_errors(self):
         collaborator = self.other_username
