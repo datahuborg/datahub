@@ -1,6 +1,6 @@
 from core.db.manager import DataHubManager
 from core.db.errors import PermissionDenied
-from psycopg2 import InternalError
+from psycopg2 import InternalError, ProgrammingError
 
 from contextlib import contextmanager
 
@@ -100,17 +100,24 @@ class ManagerIntegrationTests(TestCase):
         self.delete_all_test_users()
 
     @contextmanager
-    def _assertRaisesOrNone(self, exception):
+    def _assertRaisesOrNone(self, exception, message=None):
         """
         Same as assertRaises, but works as a noop if passed None.
 
         Used to make tests easier to parameterize and reuse.
+
+        Include message to show if unexpected Exception is raised.
         """
-        if exception is not None:
-            with self.assertRaises(exception):
+        try:
+            if exception is not None:
+                with self.assertRaises(exception):
+                    yield
+            else:
                 yield
-        else:
-            yield
+        except Exception as e:
+            if message:
+                print(message)
+            raise e
 
     def test_repo_owner_errors(self):
         outcomes = {
@@ -289,6 +296,145 @@ class ManagerIntegrationTests(TestCase):
             # Delete public
             with self._assertRaisesOrNone(o['delete_public']):
                 m.delete_repo('public2')
+
+    def test_create_table_as_owner_errors(self):
+        repo = 'empty1'
+        cases = [
+            # Valid create_table
+            (None, repo, 'table1',
+             [{'column_name': 'column1', 'data_type': 'int'}]),
+            # Invalid repo name
+            (ValueError, '1repo', 'table2',
+             [{'column_name': 'column1', 'data_type': 'int'}]),
+            # Missing repo
+            (LookupError, 'i_dont_exist', 'table2',
+             [{'column_name': 'column1', 'data_type': 'int'}]),
+            # Invalid table name
+            (ValueError, repo, '1table',
+             [{'column_name': 'column1', 'data_type': 'int'}]),
+            # Taken table name
+            (ValueError, repo, 'table1',
+             [{'column_name': 'column1', 'data_type': 'int'}]),
+            # Invalid column name
+            (ValueError, repo, 'table2',
+             [{'column_name': '1column', 'data_type': 'int'}]),
+            # Reserved column name
+            (ProgrammingError, repo, 'table2',
+             [{'column_name': 'user', 'data_type': 'int'}]),
+            # Invalid data type
+            (ValueError, repo, 'table2',
+             [{'column_name': 'column1', 'data_type': 'foo'}]),
+            # Invalid params keys
+            (KeyError, repo, 'table2',
+             [{'foo': 'column1', 'data_type': 'int'}]),
+            # Params iterable but not right structure
+            (AttributeError, repo, 'table2',
+             {'foo': 'int', 'bar': 'int'}),
+            # Params not iterable
+            (TypeError, repo, 'table2', 5),
+        ]
+        self._create_table_helper(
+            self.owner_username, repo, cases, tables_after=['table1'])
+
+    def test_create_table_as_public_errors(self):
+        repo = 'public1'
+        cases = [
+            # Valid create_table
+            (PermissionDenied, repo, 'table1',
+             [{'column_name': 'column1', 'data_type': 'int'}]),
+            # Invalid repo name
+            (ValueError, '1repo', 'table2',
+             [{'column_name': 'column1', 'data_type': 'int'}]),
+            # Missing repo
+            (LookupError, 'i_dont_exist', 'table2',
+             [{'column_name': 'column1', 'data_type': 'int'}]),
+            # Invalid table name
+            (ValueError, repo, '1table',
+             [{'column_name': 'column1', 'data_type': 'int'}]),
+            # Taken table name
+            (PermissionDenied, repo, 'table1',
+             [{'column_name': 'column1', 'data_type': 'int'}]),
+            # Invalid column name
+            (ValueError, repo, 'table2',
+             [{'column_name': '1column', 'data_type': 'int'}]),
+            # Reserved column name
+            (ProgrammingError, repo, 'table2',
+             [{'column_name': 'user', 'data_type': 'int'}]),
+            # Invalid data type
+            (PermissionDenied, repo, 'table2',
+             [{'column_name': 'column1', 'data_type': 'foo'}]),
+            # Invalid params structure
+            (KeyError, repo, 'table2',
+             [{'foo': 'column1', 'data_type': 'int'}]),
+            # Params iterable but not right structure
+            (AttributeError, repo, 'table2',
+             {'foo': 'int', 'bar': 'int'}),
+            # Params not iterable
+            (TypeError, repo, 'table2', 5),
+        ]
+        self._create_table_helper(
+            settings.PUBLIC_ROLE, repo, cases, tables_after=[])
+
+    def test_create_table_as_read_write_collaborator_errors(self):
+        repo = 'empty1'
+        cases = [
+            # Valid create_table
+            (PermissionDenied, repo, 'table1',
+             [{'column_name': 'column1', 'data_type': 'int'}]),
+            # Invalid repo name
+            (ValueError, '1repo', 'table2',
+             [{'column_name': 'column1', 'data_type': 'int'}]),
+            # Missing repo
+            (LookupError, 'i_dont_exist', 'table2',
+             [{'column_name': 'column1', 'data_type': 'int'}]),
+            # Invalid table name
+            (ValueError, repo, '1table',
+             [{'column_name': 'column1', 'data_type': 'int'}]),
+            # Taken table name
+            (PermissionDenied, repo, 'table1',
+             [{'column_name': 'column1', 'data_type': 'int'}]),
+            # Invalid column name
+            (ValueError, repo, 'table2',
+             [{'column_name': '1column', 'data_type': 'int'}]),
+            # Reserved column name
+            (ProgrammingError, repo, 'table2',
+             [{'column_name': 'user', 'data_type': 'int'}]),
+            # Invalid data type
+            (PermissionDenied, repo, 'table2',
+             [{'column_name': 'column1', 'data_type': 'foo'}]),
+            # Invalid params structure
+            (KeyError, repo, 'table2',
+             [{'foo': 'column1', 'data_type': 'int'}]),
+            # Params iterable but not right structure
+            (AttributeError, repo, 'table2',
+             {'foo': 'int', 'bar': 'int'}),
+            # Params not iterable
+            (TypeError, repo, 'table2', 5),
+        ]
+        with DataHubManager(user=self.owner_username,
+                            repo_base=self.owner_username) as m:
+            m.add_collaborator(
+                repo='empty1',
+                collaborator=self.other_username,
+                db_privileges=['select', 'update', 'insert', 'delete'],
+                file_privileges=['read', 'write'])
+
+        self._create_table_helper(
+            self.other_username, repo, cases, tables_after=[])
+
+    def _create_table_helper(self, username, repo, cases, tables_after):
+        """
+        Cases should be an array of test case tuples, where each tuple is the
+        Exception to be raised or None plus the arguments to be passed to
+        create_table.
+        """
+        with DataHubManager(user=username,
+                            repo_base=self.owner_username) as m:
+            self.assertEquals([], m.list_tables(repo))
+            for c in cases:
+                with self._assertRaisesOrNone(c[0], message=c):
+                    m.create_table(*c[1:])
+            self.assertEquals(tables_after, m.list_tables(repo))
 
     def test_collaborator_errors(self):
         collaborator = self.other_username
