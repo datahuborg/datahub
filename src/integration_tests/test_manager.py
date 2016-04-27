@@ -117,6 +117,7 @@ class ManagerIntegrationTests(TestCase):
             'create_valid': None,
             'create_invalid': ValueError,
             'repo_list': self.expected_repos,
+            'collaborator_repo_list': [],
             'rename_valid_to_valid': None,
             'rename_non_existent_source': LookupError,
             'rename_to_existing_destination': ValueError,
@@ -141,7 +142,8 @@ class ManagerIntegrationTests(TestCase):
         outcomes = {
             'create_valid': PermissionDenied,
             'create_invalid': ValueError,
-            'repo_list': [] + self.public_repos,
+            'repo_list': self.public_repos,
+            'collaborator_repo_list': [],
             'rename_valid_to_valid': PermissionDenied,
             'rename_non_existent_source': PermissionDenied,
             'rename_to_existing_destination': PermissionDenied,
@@ -163,10 +165,14 @@ class ManagerIntegrationTests(TestCase):
         self._repo_collaborator_test_helper(self.other_username, outcomes)
 
     def test_repo_errors_read_only_collaborator(self):
+        collaborator_repos = [
+            '%s.%s' % (self.owner_username, r)
+            for r in ['full1']]
         outcomes = {
             'create_valid': PermissionDenied,
             'create_invalid': ValueError,
             'repo_list': ['full1'] + self.public_repos,
+            'collaborator_repo_list': collaborator_repos,
             'rename_valid_to_valid': PermissionDenied,
             'rename_non_existent_source': PermissionDenied,
             'rename_to_existing_destination': PermissionDenied,
@@ -193,10 +199,14 @@ class ManagerIntegrationTests(TestCase):
         self._repo_collaborator_test_helper(self.other_username, outcomes)
 
     def test_repo_errors_read_write_collaborator(self):
+        collaborator_repos = [
+            '%s.%s' % (self.owner_username, r)
+            for r in ['full1']]
         outcomes = {
             'create_valid': PermissionDenied,
             'create_invalid': ValueError,
             'repo_list': ['full1'] + self.public_repos,
+            'collaborator_repo_list': collaborator_repos,
             'rename_valid_to_valid': PermissionDenied,
             'rename_non_existent_source': PermissionDenied,
             'rename_to_existing_destination': PermissionDenied,
@@ -235,6 +245,11 @@ class ManagerIntegrationTests(TestCase):
                 with self._assertRaisesOrNone(o['create_invalid']):
                     m.create_repo(name)
             self.assertEqual(set(o['repo_list']), set(m.list_repos()))
+            collaborator_repos = [
+                '%s.%s' % (c.repo_base, c.repo_name)
+                for c in m.list_collaborator_repos()]
+            self.assertEqual(set(o['collaborator_repo_list']),
+                             set(collaborator_repos))
 
             # Rename valid to valid
             with self._assertRaisesOrNone(o['rename_valid_to_valid']):

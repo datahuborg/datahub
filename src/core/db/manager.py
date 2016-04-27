@@ -116,8 +116,8 @@ class DataHubManager:
         Returns True on success.
 
         Raises ValueError if either name has invalid characters.
-        Raises ProgrammingError if the repo doesn't exist.
-        Raises ProgrammingError if the new name is taken.
+        Raises LookupError if the repo doesn't exist.
+        Raises ValueError if the new name is taken.
         Raises PermissionDenied if not repo_base owner.
         """
         # only a repo owner can rename a repo:
@@ -139,12 +139,15 @@ class DataHubManager:
         """
         Lists repos to which the current user has been granted access.
 
+        Returns Collaborator objects, which have repo_base and repo attributes.
         Includes repos across all databases, not just the DataHubManager's
         repo_base.
 
         Note that this method relies on the Collaborators django model. If a
         user bypasses DataHub's API and grants permissions via the database,
         that will not be reflected in this response.
+
+        Should never fail or raise any exceptions.
         """
         user = User.objects.get(username=self.username)
 
@@ -159,7 +162,7 @@ class DataHubManager:
         Returns True on success.
 
         Raises ValueError if repo has invalid characters.
-        Raises ProgrammingError if the repo doesn't exist.
+        Raises LookupError if the repo doesn't exist.
         Raises InternalError if the repo is not empty and force is not True.
         Raises PermissionDenied if not repo_base owner.
         """
@@ -185,8 +188,8 @@ class DataHubManager:
 
         Raises ValueError if repo, table, or the column names have invalid
         characters.
-        Raises ProgrammingError if the repo doesn't exist.
-        Raises ProgrammingError if the table already exists.
+        Raises LookupError if the repo doesn't exist.
+        Raises ValueError if the table already exists.
         Raises TypeError if params isn't iterable.
         Raises KeyError if params doesn't have the right structure.
         Raises ProgrammingError if the params has invalid values.
