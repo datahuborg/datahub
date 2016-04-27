@@ -72,23 +72,22 @@ def create_console_app(apps, schema_editor):
     username = OAUTH2_APP_OWNER
     user = User.objects.get(username=username)
     model = get_application_model()
+    params = OAUTH2_APP_CLIENTS['console']
 
-    app = model()
-    app.user = user
-    app.name = OAUTH2_APP_CLIENTS['console']['name']
-    app.client_id = OAUTH2_APP_CLIENTS['console']['client_id']
-    app.redirect_uris = OAUTH2_APP_CLIENTS['console']['redirect_uris']
-    app.client_type = OAUTH2_APP_CLIENTS['console']['client_type']
-    app.authorization_grant_type = OAUTH2_APP_CLIENTS[
-        'console']['authorization_grant_type']
-    app.skip_authorization = OAUTH2_APP_CLIENTS[
-        'console']['skip_authorization']
+    keys = ['name', 'client_id', 'redirect_uris', 'client_type',
+            'authorization_grant_type', 'skip_authorization']
+    # Raisees KeyError for missing key in params
+    [params[k] for k in keys]
 
+    model.objects.get(user=user, name=params['name']).delete()
     try:
-        app.save()
-        print_if_not_testing('...success.')
-    except IntegrityError as e:
-        print_if_not_testing("...console app not created: " + e.message)
+        # see if the model exists
+        model.objects.get(user=user, name=params['name'])
+        print_if_not_testing("...console app already registered. Skipping.")
+    except model.DoesNotExist:
+        # if it doesn't create it
+        model(user=user, **params).save()
+        print_if_not_testing('...success')
 
 
 def print_if_not_testing(message):
