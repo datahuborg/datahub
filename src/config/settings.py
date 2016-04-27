@@ -250,8 +250,9 @@ OAUTH2_PROVIDER = {
 }
 
 # DataHub comes with pre-registered OAuth2 Applications.
-# You can change these ids for your local instance by overriding in
-# your local settings.py
+# You can change these ids for your local instance by overriding in your local
+# settings.py. NOTE that changing DATAHUB_DOMAIN in local settings will not
+# result in updated redirect_uris here.
 OAUTH2_APP_CLIENTS = {
     'console':
         {'name': 'console',
@@ -265,8 +266,7 @@ OAUTH2_APP_CLIENTS = {
          'skip_authorization': True},
 }
 
-OAUTH2_APP_OWNER = 'dh_oauth'
-OAUTH2_APP_OWNER_EMAIL = 'dh_oauth+noreply@datahub.csail.mit.edu'
+OAUTH2_APP_OWNER = '_dh_oauth_user'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

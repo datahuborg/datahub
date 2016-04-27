@@ -13,19 +13,13 @@ from .base import FunctionalTest
 
 
 class ConsoleTest(FunctionalTest):
-    message = """
-        Before running test_console,\n
-        in src/config/settings.py, set SOCIAL_AUTH_REDIRECT_IS_HTTPS = False,\n
-            docker rm -f $(docker ps -aq) && dh-create-dev-containers
-            && dh-start-containers\n'
-        After running test_console, reset changes and\n
-            \tdocker rm -f $(docker ps -aq) && dh-create-dev-containers
-            && dh-start-containers\n'
-        """
 
     @factory.django.mute_signals(signals.pre_save)
     def create_console_oauth(self):
-
+        # django migration operations aren't run consistently by
+        # StaticLiveServerTestCase in 1.8/1.9. If they were, we wouldn't need
+        # this here (though it wouldn't do anything bad, either.)
+        # https://code.djangoproject.com/ticket/23640
         create_oauth2_user(None, None)
         create_console_app(None, None)
 
