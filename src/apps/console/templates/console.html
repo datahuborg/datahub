@@ -1,4 +1,7 @@
-{% extends 'layout.html' %} {% block content %}
+{% extends 'layout.html' %}
+
+
+{% block content %}
 <div class='container-fluid'>
     <div id='dh-console-container'>
         <div id='dh-console'>
@@ -18,6 +21,9 @@
         </div>
     </div>
 </div>
+{% endblock content %}
+
+{% block js %}
 
 <script type = 'text/javascript' >
 
@@ -386,7 +392,7 @@ $(document).ready(function($) {
         var cmd = args[0];
         term = terminal;
 
-        if (cmd.match(/\\?connect$|^\\c$/)) {
+        if (cmd.match(/^connect$|^\\c$/)) {
             connect(args);
         } else if (cmd.match(/^mkrepo$/)) {
             makeRepo(args);
@@ -459,4 +465,4 @@ $(document).ready(function($) {
 
 });
 </script>
-{% endblock %}
+{% endblock js %}
