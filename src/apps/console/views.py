@@ -11,7 +11,7 @@ import sys
 def index(request):
     testing = json.dumps('test' in sys.argv)
     res = {'login': request.user.get_username(),
-              'testing': testing,
-              'client_id': OAUTH2_APP_CLIENTS['console']['client_id']
-              }
+           'testing': testing,
+           'client_id': OAUTH2_APP_CLIENTS['console']['client_id']
+           }
     return render_to_response("console.html", res)
