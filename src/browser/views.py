@@ -32,7 +32,7 @@ from core.db.manager import DataHubManager
 from datahub import DataHub
 from datahub.account import AccountService
 from service.handler import DataHubHandler
-from utils import post_or_get, custom_manager_error_handler
+from utils import post_or_get
 
 '''
 @author: Anant Bhardwaj
@@ -169,7 +169,6 @@ Repository Base
 
 def public(request):
     """browse public repos. Login not required"""
-
     username = request.user.get_username()
     public_repos = DataHubManager.list_public_repos()
 
@@ -191,8 +190,7 @@ def user(request, repo_base=None):
     if not repo_base:
         repo_base = username
 
-    with custom_manager_error_handler(username, repo_base, repo=None):
-        manager = DataHubManager(user=username, repo_base=repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         repos = manager.list_repos()
 
     visible_repos = []
@@ -242,8 +240,7 @@ def repo_tables(request, repo_base, repo):
     username = request.user.get_username()
 
     # get the base tables and views of the user's repo
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(user=username, repo_base=repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         base_tables = manager.list_tables(repo)
         views = manager.list_views(repo)
 
@@ -263,8 +260,7 @@ def repo_files(request, repo_base, repo):
     shows thee files in a repo
     '''
     username = request.user.get_username()
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(user=username, repo_base=repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         uploaded_files = manager.list_repo_files(repo)
 
     res = {
@@ -282,8 +278,7 @@ def repo_cards(request, repo_base, repo):
     shows the cards in a repo
     '''
     username = request.user.get_username()
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(user=username, repo_base=repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         cards = manager.list_repo_cards(repo)
 
     res = {
@@ -312,8 +307,7 @@ def repo_create(request, repo_base):
 
     if request.method == 'POST':
         repo = request.POST['repo']
-        with custom_manager_error_handler(username, repo_base, repo):
-            manager = DataHubManager(user=username, repo_base=repo_base)
+        with DataHubManager(user=username, repo_base=repo_base) as manager:
             manager.create_repo(repo)
         return HttpResponseRedirect(reverse('browser-user', args=(username,)))
 
@@ -329,8 +323,7 @@ def repo_delete(request, repo_base, repo):
     deletes a repo in the current database (repo_base)
     '''
     username = request.user.get_username()
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(user=username, repo_base=repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         manager.delete_repo(repo=repo, force=True)
     return HttpResponseRedirect(reverse('browser-user-default'))
 
@@ -343,8 +336,7 @@ def repo_settings(request, repo_base, repo):
     username = request.user.get_username()
     public_role = settings.PUBLIC_ROLE
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(user=username, repo_base=repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         collaborators = manager.list_collaborators(repo)
 
     # if the public role is in collaborators, note that it's already added
@@ -380,8 +372,7 @@ def repo_collaborators_add(request, repo_base, repo):
     db_privileges = request.POST.getlist('db_privileges')
     file_privileges = request.POST.getlist('file_privileges')
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(user=username, repo_base=repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         manager.add_collaborator(
             repo, collaborator_username,
             db_privileges=db_privileges,
@@ -399,8 +390,7 @@ def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
     '''
     username = request.user.get_username()
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(user=username, repo_base=repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         manager.delete_collaborator(
             repo=repo, collaborator=collaborator_username)
 
@@ -429,8 +419,7 @@ def table(request, repo_base, repo, table):
     username = request.user.get_username()
     url_path = reverse('browser-table', args=(repo_base, repo, table))
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(user=username, repo_base=repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         query = manager.select_table_query(repo, table)
         res = manager.paginate_query(
             query=query, current_page=current_page, rows_per_page=50)
@@ -469,10 +458,9 @@ def table(request, repo_base, repo, table):
 def table_export(request, repo_base, repo, table_name):
     username = request.user.get_username()
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        DataHubManager.export_table(
-            username=username, repo_base=repo_base, repo=repo,
-            table=table_name, file_format='CSV', delimiter=',', header=True)
+    DataHubManager.export_table(
+        username=username, repo_base=repo_base, repo=repo,
+        table=table_name, file_format='CSV', delimiter=',', header=True)
 
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))
@@ -489,8 +477,7 @@ def table_delete(request, repo_base, repo, table_name):
     """
     username = request.user.get_username()
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(user=username, repo_base=repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         manager.delete_table(repo, table_name)
 
     return HttpResponseRedirect(
@@ -508,8 +495,7 @@ def view_delete(request, repo_base, repo, view_name):
     """
     username = request.user.get_username()
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(user=username, repo_base=repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         manager.delete_view(repo, view_name)
 
     return HttpResponseRedirect(
@@ -525,8 +511,7 @@ def file_upload(request, repo_base, repo):
     username = request.user.get_username()
     data_file = request.FILES['data_file']
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(username, repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         manager.save_file(repo, data_file)
 
     return HttpResponseRedirect(
@@ -549,16 +534,15 @@ def file_import(request, repo_base, repo, file_name):
     if quote_character == '':
         quote_character = request.GET['other_quote_character']
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        DataHubManager.import_file(
-            username=username,
-            repo_base=repo_base,
-            repo=repo,
-            table=table,
-            file_name=file_name,
-            delimiter=delimiter,
-            header=header,
-            quote_character=quote_character)
+    DataHubManager.import_file(
+        username=username,
+        repo_base=repo_base,
+        repo=repo,
+        table=table,
+        file_name=file_name,
+        delimiter=delimiter,
+        header=header,
+        quote_character=quote_character)
 
     return HttpResponseRedirect(
         reverse('browser-repo', args=(repo_base, repo)))
@@ -568,8 +552,7 @@ def file_import(request, repo_base, repo, file_name):
 def file_delete(request, repo_base, repo, file_name):
     username = request.user.get_username()
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(username, repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         manager.delete_file(repo, file_name)
 
     return HttpResponseRedirect(
@@ -579,8 +562,7 @@ def file_delete(request, repo_base, repo, file_name):
 def file_download(request, repo_base, repo, file_name):
     username = request.user.get_username()
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(username, repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         file_to_download = manager.get_file(repo, file_name)
 
     response = HttpResponse(file_to_download,
@@ -615,9 +597,7 @@ def query(request, repo_base, repo):
 
     url_path = reverse('browser-query', args=(repo_base, repo))
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(user=username, repo_base=repo_base)
-
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         if repo:
             manager.set_search_paths([repo])
         res = manager.paginate_query(
@@ -679,8 +659,7 @@ def card(request, repo_base, repo, card_name):
 
     url_path = reverse('browser-query', args=(repo_base, repo))
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(user=username, repo_base=repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         card = manager.get_card(repo=repo, card_name=card_name)
         manager.set_search_paths([card.repo_name])
         res = manager.paginate_query(
@@ -720,8 +699,7 @@ def card_create(request, repo_base, repo):
     query = request.POST['query']
     url = reverse('browser-card', args=(repo_base, repo, card_name))
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(username, repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         manager.create_card(repo, card_name, query)
 
     return HttpResponseRedirect(url)
@@ -731,8 +709,7 @@ def card_create(request, repo_base, repo):
 def card_export(request, repo_base, repo, card_name):
     username = request.user.get_username()
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(username, repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         manager.export_card(repo, card_name)
 
     return HttpResponseRedirect(
@@ -743,8 +720,7 @@ def card_export(request, repo_base, repo, card_name):
 def card_delete(request, repo_base, repo, card_name):
     username = request.user.get_username()
 
-    with custom_manager_error_handler(username, repo_base, repo):
-        manager = DataHubManager(username, repo_base)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         manager.delete_card(repo, card_name)
 
     return HttpResponseRedirect(
