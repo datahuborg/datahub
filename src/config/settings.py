@@ -137,6 +137,9 @@ TEMPLATES = [
 ]
 
 MIDDLEWARE_CLASSES = (
+    # Uncomment the next line and set SECURE_SSL_REDIRECT = True in your
+    # local_settings.py to redirect all non-HTTPS requests to HTTPS.
+    # 'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -144,12 +147,8 @@ MIDDLEWARE_CLASSES = (
     'oauth2_provider.middleware.OAuth2TokenMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-
-    # Uncomment the next line and set SECURE_SSL_REDIRECT = True in your
-    # local_settings.py to redirect all non-HTTPS requests to HTTPS.
-    # 'django.middleware.security.SecurityMiddleware',
-
     'browser.middleware.XForwardedPort',
+    'browser.middleware.DataHubManagerExceptionHandler',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
