@@ -33,6 +33,7 @@ class CreateAndDeleteRepo(TestCase):
         # mock out that they have tables and views, and repo privileges
         self.mock_manager = self.create_patch(
             'browser.views.DataHubManager')
+        self.mock_enter = self.mock_manager.return_value.__enter__
         self.mock_manager.return_value.create_repo.return_value = {
             'tuples': [self.repo_name]}
         self.mock_manager.return_value.delete_repo.return_value = {
@@ -70,8 +71,7 @@ class CreateAndDeleteRepo(TestCase):
         # The method checks to make sure that the correct method is called.
         post_object = {'repo': 'repo_name'}
         self.client.post('/create/' + self.username + '/repo', post_object)
-
-        self.mock_manager.return_value.create_repo.assert_called_once_with(
+        self.mock_enter.return_value.create_repo.assert_called_once_with(
             'repo_name')
 
     def test_create_repo_cannot_happen_on_another_user_acct(self):
@@ -79,7 +79,7 @@ class CreateAndDeleteRepo(TestCase):
         self.client.post(
             '/create/' + 'bad_username' + '/repo', post_object)
 
-        self.mock_manager.return_value.create_repo.assert_not_called()
+        self.mock_enter.return_value.create_repo.assert_not_called()
 
     # *** Delete Repos ***
 
@@ -91,7 +91,7 @@ class CreateAndDeleteRepo(TestCase):
         self.client.post('/delete/' + self.username + '/repo_name')
 
         self.assertEqual(
-            self.mock_manager.return_value.delete_repo.call_count, 1)
+            self.mock_enter.return_value.delete_repo.call_count, 1)
 
 
 class RepoTableCardViews(TestCase):
@@ -114,6 +114,7 @@ class RepoTableCardViews(TestCase):
         # mock out that they have tables and views, and repo privileges
         self.mock_manager = self.create_patch(
             'browser.views.DataHubManager')
+        self.mock_enter = self.mock_manager.return_value.__enter__
         self.mock_manager.return_value.list_tables.return_value = {
             'tuples': ['table_1']}
         self.mock_manager.return_value.list_views.return_value = {
@@ -151,7 +152,7 @@ class RepoTableCardViews(TestCase):
         self.client.get(
             '/browse/' + self.username + '/' + self.repo_name + "/tables")
 
-        mock_list_tables = self.mock_manager.return_value.list_tables
+        mock_list_tables = self.mock_enter.return_value.list_tables
         mock_list_tables.assert_called_once_with(
             self.repo_name)
 
@@ -173,9 +174,8 @@ class RepoTableCardViews(TestCase):
         self.client.get(
             '/browse/%s/%s/card/cardname' % (self.username, self.repo_name))
 
-        self.assertTrue(self.mock_manager.return_value.get_card.called)
-        self.assertTrue(
-            self.mock_manager.return_value.paginate_query.called)
+        self.assertTrue(self.mock_enter.return_value.get_card.called)
+        self.assertTrue(self.mock_enter.return_value.paginate_query.called)
 
 
 class RepoFilesTab(TestCase):
@@ -283,6 +283,7 @@ class RepoSettingsPage(TestCase):
         # Mock the DataHubManager
         self.mock_manager = self.create_patch(
             'browser.views.DataHubManager')
+        self.mock_enter = self.mock_manager.return_value.__enter__
         self.mock_manager.return_value.list_collaborators.return_value = [
             {'username': 'collaborator_1', 'permissions': 'UC'}]
 
@@ -315,7 +316,6 @@ class RepoSettingsPage(TestCase):
         self.assertEqual(found.func, browser.views.repo_collaborators_add)
 
     def test_add_collaborators_returns_correct_page_and_adds_collab(self):
-        self.mock_manager.return_value.add_collaborator
         add_url = '/collaborator/repo/' + \
             self.username + '/' + self.repo_name + '/add'
         response = self.client.post(
@@ -324,7 +324,7 @@ class RepoSettingsPage(TestCase):
 
         self.assertTemplateUsed(response, 'repo-settings.html')
 
-        mock_add_collab = self.mock_manager.return_value.add_collaborator
+        mock_add_collab = self.mock_enter.return_value.add_collaborator
         mock_add_collab.assert_called_once_with(
             self.repo_name, 'test_collaborator',
             db_privileges=[], file_privileges=[])
