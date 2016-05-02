@@ -48,7 +48,6 @@ class ManagerIntegrationTests(TestCase):
         for user in test_users:
             user.delete()
 
-
     def setUp(self):
         # Start with a clean slate.
         self.delete_all_test_users()
@@ -258,44 +257,52 @@ class ManagerIntegrationTests(TestCase):
             self.assertEqual(set(o['collaborator_repo_list']),
                              set(collaborator_repos))
 
-            # Rename valid to valid
-            with self._assertRaisesOrNone(o['rename_valid_to_valid']):
-                m.rename_repo('full1', 'full11')
-            # Rename non-existent
-            with self._assertRaisesOrNone(o['rename_non_existent_source']):
-                m.rename_repo('full1', 'full11')
-            # Rename to taken name
-            with self._assertRaisesOrNone(o['rename_to_existing_destination']):
-                m.rename_repo('one1', 'full2')
-            # Rename invalid source
-            with self._assertRaisesOrNone(o['rename_invalid_source']):
-                m.rename_repo('1one', 'one11')
-            # Rename invalid destination
-            with self._assertRaisesOrNone(o['rename_invalid_destination']):
-                m.rename_repo('one1', '1one')
-            # Rename public
-            with self._assertRaisesOrNone(o['rename_public']):
-                m.rename_repo('public1', 'public11')
+            self._repo_collaborator_test_helper_rename(outcomes, m)
 
-            # Delete valid
-            with self._assertRaisesOrNone(o['delete_valid']):
-                m.delete_repo('one_1')
-            # Delete with dependents
-            with self._assertRaisesOrNone(o['delete_valid_with_dependents']):
-                m.delete_repo('full2')
-            # Delete with dependents and force
-            with self._assertRaisesOrNone(
-                    o['delete_valid_with_dependents_and_force']):
-                m.delete_repo('full2', force=True)
-            # Delete invalid
-            with self._assertRaisesOrNone(o['delete_invalid']):
-                m.delete_repo('1one')
-            # Delete non-existent
-            with self._assertRaisesOrNone(o['delete_non_existent']):
-                m.delete_repo('one_1111')
-            # Delete public
-            with self._assertRaisesOrNone(o['delete_public']):
-                m.delete_repo('public2')
+            self._repo_collaborator_test_helper_delete(outcomes, m)
+
+    def _repo_collaborator_test_helper_rename(self, outcomes, m):
+        o = outcomes
+        # Rename valid to valid
+        with self._assertRaisesOrNone(o['rename_valid_to_valid']):
+            m.rename_repo('full1', 'full11')
+        # Rename non-existent
+        with self._assertRaisesOrNone(o['rename_non_existent_source']):
+            m.rename_repo('full1', 'full11')
+        # Rename to taken name
+        with self._assertRaisesOrNone(o['rename_to_existing_destination']):
+            m.rename_repo('one1', 'full2')
+        # Rename invalid source
+        with self._assertRaisesOrNone(o['rename_invalid_source']):
+            m.rename_repo('1one', 'one11')
+        # Rename invalid destination
+        with self._assertRaisesOrNone(o['rename_invalid_destination']):
+            m.rename_repo('one1', '1one')
+        # Rename public
+        with self._assertRaisesOrNone(o['rename_public']):
+            m.rename_repo('public1', 'public11')
+
+    def _repo_collaborator_test_helper_delete(self, outcomes, m):
+        o = outcomes
+        # Delete valid
+        with self._assertRaisesOrNone(o['delete_valid']):
+            m.delete_repo('one_1')
+        # Delete with dependents
+        with self._assertRaisesOrNone(o['delete_valid_with_dependents']):
+            m.delete_repo('full2')
+        # Delete with dependents and force
+        with self._assertRaisesOrNone(
+                o['delete_valid_with_dependents_and_force']):
+            m.delete_repo('full2', force=True)
+        # Delete invalid
+        with self._assertRaisesOrNone(o['delete_invalid']):
+            m.delete_repo('1one')
+        # Delete non-existent
+        with self._assertRaisesOrNone(o['delete_non_existent']):
+            m.delete_repo('one_1111')
+        # Delete public
+        with self._assertRaisesOrNone(o['delete_public']):
+            m.delete_repo('public2')
 
     def test_create_table_as_owner_errors(self):
         repo = 'empty1'
@@ -491,6 +498,14 @@ class ManagerIntegrationTests(TestCase):
     def test_collaborator_errors(self):
         collaborator = self.other_username
         repo = 'full1'
+
+        self._test_collaborator_errors_as_owner_helper(
+            collaborator, repo)
+        self._test_collaborator_errors_as_collaborator_helper(
+            collaborator, repo)
+
+    def _test_collaborator_errors_as_owner_helper(
+            self, collaborator, repo):
         with DataHubManager(user=self.owner_username,
                             repo_base=self.owner_username) as m:
             # Add a read-only collaborator.
@@ -556,6 +571,9 @@ class ManagerIntegrationTests(TestCase):
                     collaborator=collaborator,
                     db_privileges=['select'],
                     file_privileges=['_invalid_file_privilege'])
+
+    def _test_collaborator_errors_as_collaborator_helper(
+            self, collaborator, repo):
         with DataHubManager(user=collaborator,
                             repo_base=self.owner_username) as m:
             # Strangers shouldn't be able to add themselves as collaborators.
