@@ -703,6 +703,9 @@ class DataHubManager:
         Raises IntegrityError if card with same name already exists.
         Raises PermissionDenied on insufficient privileges or bad query.
         """
+        DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'write')
+
         # to create a card, the user must be able to successfully execute
         # the query from their own database user.
         try:
@@ -725,6 +728,9 @@ class DataHubManager:
 
         Raises PermissionDenied on insufficient privileges or bad query.
         """
+        DataHubManager.has_repo_file_privilege(
+            self.username, self.repo_base, repo, 'write')
+
         card = Card.objects.get(repo_base=self.repo_base,
                                 repo_name=repo, card_name=card_name)
         query = card.query
@@ -736,12 +742,6 @@ class DataHubManager:
         except Exception:
             raise PermissionDenied(
                 'Either missing required privileges or bad query')
-
-        # check that they really do have permissions on the repo base.
-        # This is a bit paranoid, but only because I don't like giving users
-        # superuser privileges
-        DataHubManager.has_repo_file_privilege(
-            self.username, self.repo_base, repo, 'write')
 
         # create the user data folder if it doesn't already exist
         DataHubManager.create_user_data_folder(self.repo_base, repo)
