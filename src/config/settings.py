@@ -249,6 +249,25 @@ OAUTH2_PROVIDER = {
         'api.oauth2_backends.ContentNegotiatingOAuthLibCore',
 }
 
+# DataHub comes with pre-registered OAuth2 Applications.
+# You can change these ids for your local instance by overriding in your local
+# settings.py. NOTE that changing DATAHUB_DOMAIN in local settings will not
+# result in updated redirect_uris here.
+OAUTH2_APP_CLIENTS = {
+    'console':
+        {'name': 'console',
+         'client_id': '7ByJAnXj2jsMFN1REvvUarQjqXjIAU3nmVB661hR',
+         'redirect_uris': ('https://' + DATAHUB_DOMAIN + '/apps/console/\n'
+                           'http://' + DATAHUB_DOMAIN + '/apps/console/\n'
+                           'https://web/apps/console/\n'
+                           'http://web/apps/console/'),
+         'client_type': 'public',
+         'authorization_grant_type': 'implicit',
+         'skip_authorization': True},
+}
+
+OAUTH2_APP_OWNER = '_dh_oauth_user'
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
