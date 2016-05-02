@@ -28,13 +28,7 @@
 <script type = 'text/javascript' >
 
 // decide whether to use http or https
-var testing = {{testing}};
-var transfer_protocol;
-if (testing) {
-    transfer_protocol = 'http://'
-} else {
-    transfer_protocol = 'https://'
-}
+var transfer_protocol = '{{transfer_protocol}}';
 
 var base_url = transfer_protocol + window.location.host;
 var client_id = '{{client_id}}';

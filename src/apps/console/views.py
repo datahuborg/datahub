@@ -1,5 +1,3 @@
-import json
-
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 
@@ -9,9 +7,12 @@ import sys
 
 @login_required
 def index(request):
-    testing = json.dumps('test' in sys.argv)
+    transfer_protocol = 'https://'
+    if 'test' in sys.argv:
+        transfer_protocol = 'http://'
+
     res = {'login': request.user.get_username(),
-           'testing': testing,
+           'transfer_protocol': transfer_protocol,
            'client_id': OAUTH2_APP_CLIENTS['console']['client_id']
            }
     return render_to_response("console.html", res)
