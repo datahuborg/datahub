@@ -97,17 +97,19 @@ $ sudo docker <span class="nb">exec</span> -ti app /bin/bash
 </pre></div>
 </div>
 <p>Because the server is containerized, most server commands must be run in a container. Docker commands can be complicated, so several common tasks have been made into scripts under <code class="docutils literal"><span class="pre">/vagrant/provisions/docker</span></code>.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ dh-back-up-all-databases
-$ dh-build-images
-$ dh-back-up-single-database
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ dh-build-images
 $ dh-create-dev-containers
 $ dh-create-prod-containers
 $ dh-rebuild-and-collect-static-files
-$ dh-restore-database
-$ dh-run-pgcli
 $ dh-run-test-container
 $ dh-start-containers
 $ dh-stop-containers
+$ dh-remove-all-containers
+$ dh-back-up-single-database
+$ dh-back-up-all-databases
+$ dh-restore-database
+$ dh-run-pgcli
+$ dh-codeclimate
 </pre></div>
 </div>
 <p>Example Docker commands:</p>

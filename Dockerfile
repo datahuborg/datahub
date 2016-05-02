@@ -1,4 +1,4 @@
-FROM datahuborg/datahub-base:0.1
+FROM datahuborg/datahub-base:0.4
 ADD requirements.txt /datahub/
 WORKDIR /datahub
 RUN pip install -r requirements.txt
