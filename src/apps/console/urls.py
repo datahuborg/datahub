@@ -1,5 +1,3 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, url
 
-urlpatterns = patterns('',    
-    url(r'^$', 'console.views.index'),
-)
+urlpatterns = patterns('', url(r'^$', 'console.views.index'))
