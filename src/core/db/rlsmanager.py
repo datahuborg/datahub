@@ -10,8 +10,12 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 class RowLevelSecurityManager:
 
     def __init__(self, user, table, repo, repo_base):
-        user = User.objects.get(username=user)
-        self.username = user.username
+        if user != 'dh_public' and user != 'postgres':
+            user = User.objects.get(username=user)
+            self.username = user.username
+        else:
+            self.username = user
+
         self.repo_base = repo_base
         self.repo = repo
         self.table = table
@@ -19,7 +23,7 @@ class RowLevelSecurityManager:
         self.user_con = core.db.connection.DataHubConnection(
             user=settings.DATABASES['default']['USER'],
             password=settings.DATABASES['default']['USER'],
-            repo_base='datahub')
+            repo_base='dh_public')
 
     def add_security_policy(self, policy, policy_type, grantee):
         '''

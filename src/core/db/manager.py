@@ -182,7 +182,6 @@ class DataHubManager:
         return self.user_con.explain_query(query)
 
     def execute_sql(self, query, params=None):
-        print query
         return self.user_con.execute_sql(query=query, params=params)
 
     def add_collaborator(
@@ -206,6 +205,7 @@ class DataHubManager:
         # create privileges
         res = DataHubManager.has_repo_db_privilege(
             self.username, self.repo_base, repo, 'CREATE')
+
         if not res:
             raise PermissionDenied(
                 'Access denied. Missing required privileges')
@@ -472,6 +472,7 @@ class DataHubManager:
         Set variables for query pagination, limiting query statement
         to just the section of the table that will be displayed
         """
+
         explanation = self.explain_query(query)
 
         num_rows = explanation['num_rows']

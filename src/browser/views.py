@@ -243,18 +243,23 @@ def repo_tables(request, repo_base, repo):
     '''
     username = request.user.get_username()
 
+
     # get the base tables and views of the user's repo
     with custom_manager_error_handler(username, repo_base, repo):
         manager = DataHubManager(user=username, repo_base=repo_base)
         base_tables = manager.list_tables(repo)
         views = manager.list_views(repo)
 
+
+    rls_table = 'policy'
+
     res = {
         'login': username,
         'repo_base': repo_base,
         'repo': repo,
         'base_tables': base_tables,
-        'views': views}
+        'views': views,
+        'rls-table': rls_table}
 
     res.update(csrf(request))
     return render_to_response("repo-browse-tables.html", res)
@@ -431,15 +436,20 @@ def table(request, repo_base, repo, table):
     username = request.user.get_username()
     url_path = reverse('browser-table', args=(repo_base, repo, table))
 
+
     with custom_manager_error_handler(username, repo_base, repo):
         manager = DataHubManager(user=username, repo_base=repo_base)
         query = manager.select_table_query(repo, table)
+
         res = manager.paginate_query(
             query=query, current_page=current_page, rows_per_page=50)
+
 
     # get annotation to the table:
     annotation, created = Annotation.objects.get_or_create(url_path=url_path)
     annotation_text = annotation.annotation_text
+
+
 
     data = {
         'login': username,

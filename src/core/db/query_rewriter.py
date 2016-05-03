@@ -13,11 +13,16 @@ class SQLQueryRewriter:
         Takes in a string and parses it for the repo and table name.
         Tables are typically in the form of repo_name.table_name, so
         in this function, we check if the string is of the right form. If so,
-        we return a list of [repo_name, table_name]. Otherwise, we return None.
+        we return a list of [repo_name, table_name, repo_base].
+        Otherwise, we return None.
+
+        Valid table infos can be of form repo.table or repo_base.repo.table
         '''
         table_info = table_string.rstrip().split('.')
         if len(table_info) == 2:
-            return table_info
+            return [table_info[0], table_info[1], None]
+        if len(table_info) == 3:
+            return [table_info[1], table_info[2], table_info[0]]
         return None
 
     def extract_table_string(self, table):
@@ -91,11 +96,11 @@ class SQLQueryRewriter:
         separating the subquery from the other parts that come before and
         after the query.
         '''
-        subquery_start_index = token.to_unicode().find('(')
-        subquery_end_index = token.to_unicode().rfind(')')
-        return (token.to_unicode()[:subquery_start_index+1],
-                token.to_unicode()[subquery_start_index+1:subquery_end_index],
-                token.to_unicode()[subquery_end_index:])
+        subquery_start = token.to_unicode().find('(')
+        subquery_end = token.to_unicode().rfind(')')
+        return (token.to_unicode()[:subquery_start + 1],
+                token.to_unicode()[subquery_start + 1:subquery_end],
+                token.to_unicode()[subquery_end:])
 
     def process_subquery(self, token):
         '''
@@ -108,9 +113,9 @@ class SQLQueryRewriter:
         result = ''
         subquery = self.extract_subquery(token)
         result = subquery[0] + '%s' + subquery[2]
-        processed_subquery = self.apply_row_level_security(subquery[1])
+        processed_subquery = self.apply_row_level_security(
+            subquery[1].rstrip().lstrip())
         return result % processed_subquery
-
 
     def apply_row_level_security(self, query):
         token = sqlparse.parse(query)[0].tokens[0].to_unicode().lower()
@@ -118,50 +123,47 @@ class SQLQueryRewriter:
             return self.apply_row_level_security_insert(query)
         elif token == "update":
             return self.apply_row_level_security_update(query)
-        else:
-            #print "final", self.apply_row_level_security_base(query)
+        elif token == "explain" or token == "select":
             return self.apply_row_level_security_base(query)
-
+        return query
 
     def apply_row_level_security_insert(self, query):
         '''
         Takes in an insert SQL query and applies security policies related to
-        the insert access type to it. Currently, we only support one type 
+        the insert access type to it. Currently, we only support one type
         of insert permission -- which is that the user making the insert call
         has permission to insert into the specified table.
 
         # Insert into repo.table values (...)
         # Insert into repo.table values (select * from ....)
         '''
-        # Find the table of interest, and check if any meta user insert 
-        # policies are defined on the table (user='username'). If so, 
-        # return the query as entered, as the user has insert permissions. If 
-        # not, raise an exception stating user does not have insert permissions.
+        # Find the table of interest, and check if any meta user insert
+        # policies are defined on the table (user='username'). If so,
+        # return the query as entered, as the user has insert permissions. If
+        # not, raise an exception stating user does not have insert
+        # permissions.
 
         tokens = sqlparse.parse(query)[0].tokens
         result = ''
 
         table = None
         for token in tokens:
-        #    print token
             if self.contains_subquery(token):
                 result += self.process_subquery(token)
                 continue
-        #    print "here"
             if self.extract_table_token(token) != [] and table is None:
                 table = self.extract_table_info(token.to_unicode())
 
             result += token.to_unicode()
 
         if table is not None:
-            policy = self.find_security_policy(table[1], table[0], "insert")
-            print policy
-            if policy[0] == ('Username = %s' % self.user):
+            policy = self.find_security_policy(
+                table[1], table[0], "insert", table[2])
+
+            if policy == [] or policy[0] == "INSERT='True'":
                 return result
 
         raise Exception('User does not have insert access on %s' % table[1])
-
-
 
     def apply_row_level_security_update(self, query):
         '''
@@ -183,10 +185,12 @@ class SQLQueryRewriter:
             result += token.to_unicode()
 
         if table is not None:
-            policies = self.find_security_policy(table[1], table[0], "update")
+            policies = self.find_security_policy(
+                table[1], table[0], "update", table[2])
             for policy in policies:
                 result += (' AND %s' % policy)
 
+        result = result.replace("USERNAME", "'" + self.user + "'")
         return result
 
     def apply_row_level_security_base(self, query):
@@ -200,8 +204,6 @@ class SQLQueryRewriter:
         result = ''
 
         for token in tokens:
-            print token
-            print result
             if self.contains_subquery(token):
                 result += self.process_subquery(token)
                 continue
@@ -212,11 +214,16 @@ class SQLQueryRewriter:
                 continue
 
             for table in table_information:
-                query = '(SELECT * FROM %s.%s' % (table[0][0], table[0][1])
+                if table[0][2] is not None:
+                    query = '(SELECT * FROM %s.%s.%s' % (
+                        table[0][2], table[0][0], table[0][1])
+                else:
+                    query = '(SELECT * FROM %s.%s' % (table[0][0], table[0][1])
+
                 policies = self.find_security_policy(table[0][1],
                                                      table[0][0],
-                                                     "select")
-
+                                                     "select",
+                                                     table[0][2])
                 if policies:
                     query += ' WHERE '
                     for policy in policies:
@@ -233,13 +240,12 @@ class SQLQueryRewriter:
                 if table[1] != "":
                     query += " %s" % table[1]
                 else:
-                    original_table_name = table[0][0]+"."+table[0][1]
-                    alias_name = table[0][0]+table[0][1]
+                    original_table_name = table[0][0] + "." + table[0][1]
+                    alias_name = table[0][0] + table[0][1]
                     query += " AS %s" % (alias_name)
                     replace_list.append((original_table_name,
                                          alias_name,
-                                         len(result) + len(query) +
-                                         len(original_table_name)))
+                                         len(result) + len(query)))
 
                 result += query
                 if len(table_information) > 1:
@@ -249,26 +255,38 @@ class SQLQueryRewriter:
                 result = result[:-2]
 
         for alias in replace_list:
-            result = result[0:alias[2]]+result[alias[2]:].replace(
-                alias[0], alias[1])
+            result = result[0:alias[2]] + result[alias[2]:].replace(
+                alias[0] + ".", alias[1] + ".")
+            result = result[0:alias[2]] + result[alias[2]:].replace(
+                alias[0] + " ", alias[1] + " ")
 
+        result = result.replace("USERNAME", "'" + self.user + "'")
         return result
 
-    def find_security_policy(self, table, repo, policytype):
+    def find_security_policy(self, table, repo, policytype, repo_base):
         '''
         Look up policies associated with the table and repo and returns a
         list of all the policies defined for the user.
         '''
+
+        if repo_base is None:
+            repo_base = self.repo_base
+
         rls_manager = core.db.rlsmanager.RowLevelSecurityManager(
             user=self.user,
             table=table,
             repo=repo,
-            repo_base=self.repo_base)
+            repo_base=repo_base)
 
-        security_policies = rls_manager.find_security_policy(
+        user_policies = rls_manager.find_security_policy(
             policy_type=policytype, grantee=self.user)
+        all_policies = rls_manager.find_security_policy(
+            policy_type=policytype, grantee="ALL")
+
+        security_policies = user_policies + all_policies
 
         result = []
         for policy in security_policies:
             result.append(policy[1])
+
         return result

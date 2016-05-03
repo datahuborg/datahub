@@ -1,4 +1,4 @@
-from mock import patch
+from mock import patch, MagicMock
 import itertools
 
 from django.test import TestCase
@@ -111,12 +111,16 @@ class PGBackendHelperMethods(MockingMixin, TestCase):
         mock_cursor.return_value.fetchall.return_value = 'sometuples'
         mock_cursor.return_value.rowcount = 1000
 
+        mock_query_rewriter = MagicMock()
+        mock_query_rewriter.apply_row_level_security.side_effect = lambda x: x
+        self.backend.query_rewriter = mock_query_rewriter
+
         res = self.backend.execute_sql(query, params)
 
+        self.assertTrue(mock_query_rewriter.apply_row_level_security.called)
         self.assertTrue(mock_cursor.called)
         self.assertTrue(mock_execute.called)
 
-        self.assertEqual(mock_execute.call_args[0][1], params)
         self.assertEqual(res['tuples'], 'sometuples')
         self.assertEqual(res['status'], True)
         self.assertEqual(res['row_count'], 1000)

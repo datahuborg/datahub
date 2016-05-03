@@ -62,7 +62,7 @@ class PGBackend:
         self.port = port
         self.repo_base = repo_base
         self.query_rewriter = core.db.query_rewriter.SQLQueryRewriter(
-            self.user, self.repo_base)
+            self.repo_base, self.user)
         self.connection = None
 
         self.__open_connection__()
@@ -227,6 +227,7 @@ class PGBackend:
         self._check_for_injections(repo)
 
         all_repos = self.list_repos()
+
         if repo not in all_repos:
             raise LookupError('Invalid repository name: %s' % (repo))
 
@@ -234,9 +235,7 @@ class PGBackend:
                  'WHERE table_schema = %s AND table_type = \'BASE TABLE\';'
                  )
         params = (repo,)
-
         res = self.execute_sql(query, params)
-
         return [t[0] for t in res['tuples']]
 
     def describe_table(self, repo, table, detail=False):
@@ -378,7 +377,6 @@ class PGBackend:
                     'time_cost': time_cost,
                     'byte_width': int(byte_width)
                     }
-
         return response
 
     def limit_and_offset_select_query(self, query, limit, offset):
@@ -414,13 +412,11 @@ class PGBackend:
         query = query.strip()
         cur = self.connection.cursor()
 
-        # Change query into a default query.
+        # Change query by passing in parameters. Need to do so in order
+        # to apply row level security
         SQLQuery = cur.mogrify(query, params)
         if row_level_security:
-           SQLQuery = self.query_rewriter.apply_row_level_security(SQLQuery)
-
-
-        #print "executed query", SQLQuery
+            SQLQuery = self.query_rewriter.apply_row_level_security(SQLQuery)
 
         cur.execute(SQLQuery)
 
@@ -755,12 +751,12 @@ class PGBackend:
 
         # Raise an exception if the security policy already exists in the table
         security_policy = self.find_security_policy(
-            table, repo, repo_base, policy=policy, grantee=grantee,
+            table, repo, repo_base, policy=policy, policy_type=policy_type, grantee=grantee,
             grantor=grantor)
         if security_policy != []:
             raise Exception('Security policy already exists in table.')
 
-        query = ('INSERT INTO policy (policy, policy_type, grantee, grantor,'
+        query = ('INSERT INTO dh_public.policy (policy, policy_type, grantee, grantor,'
                  'table_name, repo, repo_base) values '
                  '(\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\')')
         params = tuple(map(lambda x: AsIs(x), params))
@@ -779,7 +775,7 @@ class PGBackend:
             self._check_for_injections(param)
 
         query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
-                 'FROM policy '
+                 'FROM dh_public.policy '
                  'WHERE table_name = \'%s\' '
                  'AND repo = \'%s\' AND repo_base = \'%s\'')
         params = tuple(map(lambda x: AsIs(x), params))
@@ -797,7 +793,7 @@ class PGBackend:
         params = locals()
         del params["self"]
         query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
-                 'FROM policy WHERE ')
+                 'FROM dh_public.policy WHERE ')
 
         first_conditional_added = False
         for key, value in params.items():
@@ -825,7 +821,7 @@ class PGBackend:
         self._check_for_injections(str(policy_id))
         query = ('SELECT policy_id, policy, policy_type, grantee, grantor, '
                  'table_name, repo, repo_base '
-                 'FROM policy WHERE policy_id = %s' % policy_id)
+                 'FROM dh_public.policy WHERE policy_id = %s' % policy_id)
         res = self.execute_sql(query)
         return res['tuples']
 
@@ -851,12 +847,12 @@ class PGBackend:
                             'policies on %s.%s.'
                             % (policy[0][4], policy[0][6], policy[0][5]))
 
-        query = ('UPDATE \"policy\"'
+        query = ('UPDATE dh_public.policy '
                  'SET policy = \'%s\', policy_type = \'%s\', '
                  'grantee = \'%s\' '
                  'WHERE policy_id = %s')
 
-        
+
         params = tuple(map(lambda x: AsIs(x), params))
         res = self.execute_sql(query, params, row_level_security=False)
         return res['status']
@@ -876,6 +872,6 @@ class PGBackend:
                             'policies on %s.%s.'
                             % (policy[0][4], policy[0][6], policy[0][5]))
 
-        query = ('DELETE FROM policy WHERE policy_id = %s' % policy_id)
+        query = ('DELETE FROM dh_public.policy WHERE policy_id = %s' % policy_id)
         res = self.execute_sql(query, row_level_security=False)
         return res['status']

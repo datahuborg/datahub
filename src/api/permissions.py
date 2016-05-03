@@ -1,3 +1,7 @@
+from django.contrib.auth.models import User
+from rest_framework import authentication
+from rest_framework import exceptions
+
 from oauth2_provider.ext.rest_framework import OAuth2Authentication, \
                                                TokenHasScope, \
                                                TokenHasReadWriteScope
@@ -20,6 +24,7 @@ class WeakTokenHasScope(TokenHasScope):
             return True
 
         return super(WeakTokenHasScope, self).has_permission(request, view)
+        #return True
 
 
 class WeakTokenHasReadWriteScope(TokenHasReadWriteScope):
@@ -45,3 +50,15 @@ class WeakTokenHasReadWriteScope(TokenHasReadWriteScope):
 
         return super(WeakTokenHasReadWriteScope, self).has_permission(
             request, view)
+        #return True
+
+
+#class benchmarkTestAuthentication(authentication.BaseAuthentication):
+#
+#    def authenticate(self, request):
+#        try:
+#            user = User.objects.get(username="ddd")
+#        except User.DoesNotExist:
+#            raise exceptions.AuthenticationFailed('No such user')
+#
+#        return (user, None)

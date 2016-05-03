@@ -20,6 +20,7 @@ from django.http import HttpResponse, \
                         HttpResponseNotFound, \
                         HttpResponseNotAllowed
 from core.db.manager import DataHubManager
+from core.db.rlsmanager import RowLevelSecurityManager
 from browser.utils import post_or_get, \
                           add_query_params_to_url
 
@@ -113,6 +114,16 @@ def register(request):
             # doesn't exist. If the database cannot be created, that handler
             # will throw an exception.
             user = datahub_authenticate(username, password)
+
+            # Create row level security policies in the dh_public policy table
+            # granting user select, insert, update access to policies he create
+            rls_manager = RowLevelSecurityManager(
+                'dh_public', 'policy', 'dh_public', 'dh_public')
+            policy = ('grantor = \'%s\'' % username)
+            rls_manager.add_security_policy(policy, "select", username)
+            rls_manager.add_security_policy(policy, "insert", username)
+            rls_manager.add_security_policy(policy, "update", username)
+
             if user is not None and user.is_active:
                 django_login(request, user)
                 # Append auth_user to redirect_uri so apps like Kibitz can

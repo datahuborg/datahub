@@ -28,7 +28,7 @@ class RLSPermissionsParser:
             rls_manager.add_security_policy(
                 policy=policy, policy_type=access_type, grantee=grantee)
         else:
-            # TODO: Need to remove policy
+            # Need to remove policy if it is remove
             policy = rls_manager.find_security_policy(
                 policy=policy, policy_type=access_type, grantee=grantee,
                 grantor=self.user)
@@ -37,9 +37,9 @@ class RLSPermissionsParser:
     def extract_permission_type(self, permission):
         '''
         Takes in a SQL permissions statement, extracts the permission type,
-        and returns it in the form of a string. There are two types of 
-        permissions: Grant and Revoke. Throws an exception if the 
-        permissions statement does not contain a matching type. 
+        and returns it in the form of a string. There are two types of
+        permissions: Grant and Revoke. Throws an exception if the
+        permissions statement does not contain a matching type.
         '''
         valid_permission_types = ["grant", "revoke"]
         try:
@@ -62,8 +62,12 @@ class RLSPermissionsParser:
         valid_access_types = ["select", "insert", "update"]
 
         try:
-            result = re.search("grant (.*) access", permission)
-            result = result.group(1).lower()
+            if permission.split(' ', 1)[0].lower() == "grant":
+                result = re.search("grant (.*) access", permission)
+                result = result.group(1).lower()
+            else:
+                result = re.search("revoke (.*) access", permission)
+                result = result.group(1).lower()
         except:
             raise Exception('Failed to create security policy due to '
                             'incorrect syntax.')

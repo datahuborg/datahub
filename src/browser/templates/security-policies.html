@@ -101,8 +101,8 @@
               <th> Policy ID </th>
               <th> Policy </th>
               <th> Type </th>
-              <th> Grantor </th>
               <th> Grantee </th>
+              <th> Grantor </th>
               <th></th>
             </tr>
           </thead>
@@ -120,7 +120,7 @@
                   target-url="/edit/{{repo_base}}/{{repo}}/{{table}}/securitypolicy/{{policy.0}}"
                   data-policyid="policy_{{policy.0}}" 
                   title="edit">
-                 <span class="glyphicon glyphicon-pencil"></span>
+                 <span class="fa fa-pencil"></span>
                  </span>
 
                  <span
@@ -209,7 +209,7 @@ $(function() {
     
     current_policy = "#"+row + " td:nth-child(2)";
     current_policy_type = "#"+row + " td:nth-child(3)";
-    current_grantee = "#"+row + " td:nth-child(5)";
+    current_grantee = "#"+row + " td:nth-child(4)";
 
 
     $("#security-policy-edit").val($(current_policy).text());
