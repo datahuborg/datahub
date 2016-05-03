@@ -379,15 +379,12 @@ class DataHubManager:
                 "{0} is already a collaborator of {1}.".format(
                     collaborator, repo))
 
-        db_privileges = [p.upper() for p in db_privileges]
-        file_privileges = [p.lower() for p in file_privileges]
-
         for p in db_privileges:
-            if p not in ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'TRUNCATE',
-                         'REFERENCES', 'TRIGGER']:
+            if p.upper() not in ['SELECT', 'INSERT', 'UPDATE', 'DELETE',
+                                 'TRUNCATE', 'REFERENCES', 'TRIGGER']:
                 raise ValueError("Unsupported db privilege: \"{0}\"".format(p))
         for p in file_privileges:
-            if p not in ['read', 'write']:
+            if p.lower() not in ['read', 'write']:
                 raise ValueError(
                     "Unsupported file privilege: \"{0}\"".format(p))
 
@@ -401,7 +398,7 @@ class DataHubManager:
                 user=user, repo_name=repo, repo_base=self.repo_base)
 
         # convert privileges list to string and save the object
-        db_privilege_str = ', '.join(db_privileges)
+        db_privilege_str = ', '.join(db_privileges).upper()
         file_privilege_str = ', '.join(file_privileges).lower()
 
         collaborator_obj.permission = db_privilege_str
@@ -1162,7 +1159,7 @@ class DataHubManager:
         return result
 
 
-def user_data_path(repo_base, repo=None, file_name=None, file_format=None):
+def user_data_path(repo_base, repo='', file_name='', file_format=None):
     """
     Returns an absolute path to a file or repo in a user's data folder.
 
@@ -1170,15 +1167,18 @@ def user_data_path(repo_base, repo=None, file_name=None, file_format=None):
     user_data_path('foo', repo='bar') => '/user_data/foo/bar'
     user_data_path('foo', repo='bar', file_name='baz')
         => '/user_data/foo/bar/baz'
+
+    Raises ValueError on non-string input, if repo_base is '', or if file_name
+    is provided without repo.
     """
-    if file_name and not repo:
+    if len(repo_base) == 0:
+        raise ValueError('Invalid repo_base.')
+    if len(file_name) > 0 and len(repo) == 0:
         raise ValueError('Must pass in repo when providing file_name.')
     parts = [repo_base, repo, file_name]
     for p in parts:
-        if (isinstance(p, six.string_types) and
-                (len(p) == 0 or p.startswith('.'))):
+        if (not isinstance(p, six.string_types) or p.startswith('.')):
             raise ValueError('Invalid path component.')
-    parts = [repo_base, repo or '', file_name or '']
     path = os.path.abspath(os.path.join(os.sep, 'user_data', *parts))
 
     if file_format:
