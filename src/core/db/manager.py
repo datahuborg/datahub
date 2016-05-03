@@ -379,14 +379,21 @@ class DataHubManager:
                 "{0} is already a collaborator of {1}.".format(
                     collaborator, repo))
 
-        for p in db_privileges:
-            if p.upper() not in ['SELECT', 'INSERT', 'UPDATE', 'DELETE',
-                                 'TRUNCATE', 'REFERENCES', 'TRIGGER']:
-                raise ValueError("Unsupported db privilege: \"{0}\"".format(p))
-        for p in file_privileges:
-            if p.lower() not in ['read', 'write']:
-                raise ValueError(
-                    "Unsupported file privilege: \"{0}\"".format(p))
+        db_privileges = [p.upper() for p in db_privileges]
+        file_privileges = [p.lower() for p in file_privileges]
+
+        invalid_db_privileges = set(db_privileges) - {
+            'SELECT', 'INSERT', 'UPDATE', 'DELETE',
+            'TRUNCATE', 'REFERENCES', 'TRIGGER'}
+        if len(invalid_db_privileges) > 0:
+            raise ValueError(
+                "Unsupported db privileges: \"{0}\"".format(
+                    ','.join(invalid_db_privileges)))
+        invalid_file_privileges = set(file_privileges) - {'read', 'write'}
+        if len(invalid_file_privileges) > 0:
+            raise ValueError(
+                "Unsupported file privileges: \"{0}\"".format(
+                    ','.join(invalid_file_privileges)))
 
         try:
             app = App.objects.get(app_id=collaborator)
