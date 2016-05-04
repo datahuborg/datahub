@@ -118,7 +118,13 @@ class RepoSerializer(DataHubSerializer):
     def specific_collab_repos(self, collab_username):
         # get the collaborators
         user = User.objects.get(username=self.username)
-        collab_repos = Collaborator.objects.filter(user=user)
+        collab_repos = Collaborator.objects.filter(
+            user=user, repo_base=collab_username)
+
+        # Either the repo_base doesn't exist, or the current user isn't allowed
+        # to see that it exists.
+        if len(collab_repos) == 0:
+            raise LookupError()
 
         repo_obj_list = []
         for repo in collab_repos:
