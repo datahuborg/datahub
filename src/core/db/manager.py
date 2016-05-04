@@ -434,10 +434,13 @@ class DataHubManager:
             collaborators = [c.get('username') for c in collaborators]
 
             # Current user must be the repo's owner or the collaborator to be
-            # removed and must be an existing collaborator.
+            # removed and must be an existing collaborator. If not the owner
+            # and removing someone else, current user must have CREATE db
+            # privileges.
             if (self.username not in [collaborator, self.repo_base] or
                     self.username not in collaborators):
-                raise PermissionDenied()
+                DataHubManager.has_repo_db_privilege(
+                    self.username, self.repo_base, repo, 'CREATE')
             # The reason we're enforcing permission checks this way is to deal
             # with the edge case where a user removes himself as a collaborator
             # from another user's repo.
