@@ -16,7 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class DataHubSerializer(object):
 
-    def __init__(self, username, repo_base, request=None):
+    def __init__(self, username, repo_base, request=None, manager=None):
         self.username = username
         self.repo_base = repo_base
         self.request = request
@@ -24,9 +24,11 @@ class DataHubSerializer(object):
         # In rare cases, the manager does not need to be instantiated
         # i.e. when listing public repos, which is done via a static method
         try:
-            self.manager = DataHubManager(
+            # Reuse an existing manager if one was passed in, to minimize the
+            # number of concurrent db connections.
+            self.manager = manager or DataHubManager(
                 user=self.username, repo_base=self.repo_base)
-        except:
+        except Exception:
             pass
 
         self.base_uri = ''
@@ -55,35 +57,35 @@ class RepoSerializer(DataHubSerializer):
         # get collaborators
         collaborator_serializer = CollaboratorSerializer(
             username=self.username, repo_base=self.repo_base,
-            request=self.request)
+            request=self.request, manager=self.manager)
         collaborators = collaborator_serializer.list_collaborators(repo_name)
         description["collaborators"] = collaborators["collaborators"]
 
         # get tables
         table_serializer = TableSerializer(
             username=self.username, repo_base=self.repo_base,
-            request=self.request)
+            request=self.request, manager=self.manager)
         tables = table_serializer.list_tables(repo_name)
         description["tables"] = tables["tables"]
 
         # get views
         view_serializer = ViewSerializer(
             username=self.username, repo_base=self.repo_base,
-            request=self.request)
+            request=self.request, manager=self.manager)
         views = view_serializer.list_views(repo_name)
         description["views"] = views["views"]
 
         # get cards
         card_serializer = CardSerializer(
             username=self.username, repo_base=self.repo_base,
-            request=self.request)
+            request=self.request, manager=self.manager)
         cards = card_serializer.list_cards(repo_name)
         description["cards"] = cards["cards"]
 
         # get files
         file_serializer = FileSerializer(
             username=self.username, repo_base=self.repo_base,
-            request=self.request)
+            request=self.request, manager=self.manager)
         files = file_serializer.list_files(repo_name)
         description["files"] = files["files"]
 
