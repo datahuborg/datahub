@@ -1,6 +1,5 @@
 import factory
 
-from django.db import IntegrityError
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from oauth2_provider.models import get_application_model

@@ -32,11 +32,11 @@ class DataHubConnection:
     def delete_repo(self, repo, force=False):
         return self.backend.delete_repo(repo=repo, force=force)
 
-    def add_collaborator(self, repo, collaborator, privileges):
+    def add_collaborator(self, repo, collaborator, db_privileges):
         return self.backend.add_collaborator(
             repo=repo,
             collaborator=collaborator,
-            privileges=privileges)
+            db_privileges=db_privileges)
 
     def delete_collaborator(self, repo, collaborator):
         return self.backend.delete_collaborator(
@@ -52,6 +52,10 @@ class DataHubConnection:
     def describe_table(self, repo, table, detail=False):
         return self.backend.describe_table(
             repo=repo, table=table, detail=detail)
+
+    def list_table_permissions(self, repo, table):
+        return self.backend.list_table_permissions(
+            repo=repo, table=table)
 
     def create_view(self, repo, view, sql):
         return self.backend.create_view(repo=repo, view=view, sql=sql)
@@ -90,8 +94,8 @@ class DataHubConnection:
         return self.backend.has_base_privilege(
             login=login, privilege=privilege)
 
-    def has_repo_privilege(self, login, repo, privilege):
-        return self.backend.has_repo_privilege(
+    def has_repo_db_privilege(self, login, repo, privilege):
+        return self.backend.has_repo_db_privilege(
             login=login, repo=repo, privilege=privilege)
 
     def has_table_privilege(self, login, table, privilege):
@@ -117,6 +121,9 @@ class DataHubConnection:
 
     def remove_user(self, username):
         return self.backend.remove_user(username)
+
+    def create_user_database(self, username):
+        return self.backend.create_user_database(username)
 
     def drop_owned_by(self, username):
         return self.backend.drop_owned_by(username)

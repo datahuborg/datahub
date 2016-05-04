@@ -85,6 +85,22 @@ function setConsoleHeight() {
     return;
 }
 
+function authorizeUserIfNeeded() {
+    // Get a new access token if there is none or if the current access token
+    // is for a different user.
+    if (sessionStorage.getItem('access_token') ||
+        sessionStorage.getItem('authorized_user') != connection.user) {
+        authorizeUser()
+    }
+
+    $.ajaxSetup({
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' +
+                sessionStorage.getItem('access_token'));
+        }
+    });
+}
+
 function authorizeUser() {
     // Pull the access token from the URL hash if it's available.
     // Overwrite whatever's currently in storage.
@@ -96,6 +112,11 @@ function authorizeUser() {
                 console.log('Trying ' + keys[i]);
                 saveIfSet(params, keys[i]);
             }
+            // Keep track of who this access token is associated with.
+            sessionStorage.setItem('authorized_user', connection.user);
+            // Clear the hash after handling the access_token.
+            // Just setting window.location.hash = "" leaves a dangling #.
+            history.replaceState("", document.title, window.location.pathname + window.location.search);
         }
         console.log(params);
     } else {
@@ -109,13 +130,6 @@ function authorizeUser() {
         var authorization_url = buildURL('/oauth2/authorize/', params);
         window.location.href = authorization_url;
     }
-
-    $.ajaxSetup({
-        beforeSend: function(xhr) {
-            xhr.setRequestHeader('Authorization', 'Bearer ' +
-                sessionStorage.getItem('access_token'));
-        }
-    });
 }
 
 function makeRepo(args) {
@@ -373,13 +387,13 @@ function help() {
 }
 
 $(document).ready(function($) {
-    authorizeUser();
-    setConsoleHeight();
     var login = '{{login}}';
     connection = {
         'user': login,
         'repo_base': login
     };
+    authorizeUserIfNeeded();
+    setConsoleHeight();
 
     function evaluate(command, terminal) {
         var args = $.trim(command.toLowerCase()).split(/ +/);

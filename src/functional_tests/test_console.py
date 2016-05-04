@@ -59,7 +59,6 @@ class ConsoleTest(FunctionalTest):
         # make good repos in terminal
         for repo_name in good_repo_names:
             self.send_to_console('mkrepo ' + repo_name + Keys.ENTER)
-            self.browser.get_screenshot_as_file('foo.png')
             self.wait_for_console('success')
 
         # check to see good repos exist in home

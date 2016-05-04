@@ -68,12 +68,14 @@ class TableSerializerTests(TestCase):
                                              (u'words', u'text')]
         repo = 'repo_name'
         table = 'table_name'
-        expected_description = [{"data_type": "integer", "column_name": "id"},
-                                {"data_type": "text", "column_name": "words"}]
+        expected_description = {
+            'columns': [{'data_type': u'integer', 'column_name': u'id'},
+                        {'data_type': u'text', 'column_name': u'words'}],
+            'permissions': []}
         description = self.serializer.describe_table(repo, table)
 
         self.assertTrue(mock_mngr_desc_table.called)
-        self.assertEqual(description, {'columns': expected_description})
+        self.assertEqual(description, expected_description)
 
     def test_delete_table(self):
         mock_manager_delete_table = self.mock_manager.return_value.delete_table
@@ -88,4 +90,4 @@ class TableSerializerTests(TestCase):
 
     def test_export_table(self):
         self.serializer.export_table('repo', 'table')
-        self.assertTrue(self.mock_manager.export_table.called)
+        self.assertTrue(self.mock_manager.return_value.export_table.called)

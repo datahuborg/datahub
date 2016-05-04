@@ -16,6 +16,8 @@ urlpatterns = [
     url(r'^v1/repos/?$',
         views.Repos.as_view(),
         name='repos_all'),
+    url(r'^v1/repos/public/?$', views.ReposPublic.as_view(),
+        name='repos_public'),
     url(r'^v1/repos/(?P<repo_base>\w+)/?$',
         views.ReposForUser.as_view(),
         name='repos_specific'),

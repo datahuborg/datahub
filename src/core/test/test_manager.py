@@ -1,4 +1,5 @@
-from core.db.manager import DataHubManager
+from core.db.manager import DataHubManager, \
+                            PermissionDenied
 
 from django.db.models import signals
 from django.contrib.auth.models import User
@@ -94,6 +95,12 @@ class BasicOperations(TestCase):
 
         self.assertTrue(con_describe_table.called)
 
+    def test_list_table_permissions(self):
+        con_tbl_perm = self.mock_connection.return_value.list_table_permissions
+        self.manager.list_table_permissions(repo='repo', table='table')
+
+        self.assertTrue(con_tbl_perm.called)
+
     def test_delete_table(self):
         con_delete_table = self.mock_connection.return_value.delete_table
         self.manager.delete_table(repo='repo', table='table', force=False)
@@ -169,13 +176,14 @@ class BasicOperations(TestCase):
         self.manager.add_collaborator(
             repo='reponame',
             collaborator='new_collaborator',
-            privileges='select')
+            db_privileges=['select'], file_privileges=['read', 'write'])
 
         self.assertTrue(con_add_collab.called)
         self.assertEqual(con_add_collab.call_args[1]['repo'], 'reponame')
         self.assertEqual(
             con_add_collab.call_args[1]['collaborator'], 'new_collaborator')
-        self.assertEqual(con_add_collab.call_args[1]['privileges'], 'select')
+        self.assertEqual(
+            con_add_collab.call_args[1]['db_privileges'], ['SELECT'])
 
     def test_delete_collaborator(self):
         self.mock_connection.return_value.list_collaborators.return_value = [
@@ -202,3 +210,72 @@ class BasicOperations(TestCase):
         self.assertTrue(con_get_schema.called)
         self.assertEqual(con_get_schema.call_args[1]['repo'], 'reponame')
         self.assertEqual(con_get_schema.call_args[1]['table'], 'tablename')
+
+
+class PrivilegeChecks(TestCase):
+    """Test privilege checking methods"""
+
+    @factory.django.mute_signals(signals.pre_save)
+    def setUp(self):
+        self.username = "test_username"
+        self.password = "_test diff1;cul t passw0rd-"
+        self.email = "test_email@csail.mit.edu"
+        self.user = User.objects.create_user(
+            self.username, self.email, self.password)
+
+        self.mock_connection = self.create_patch(
+            'core.db.manager.DataHubConnection')
+
+    def create_patch(self, name):
+        # helper method for creating patches
+        patcher = patch(name)
+        thing = patcher.start()
+        self.addCleanup(patcher.stop)
+        return thing
+
+    def test_has_repo_db_privilege(self):
+        m_has_db_priv = self.mock_connection.return_value.has_repo_db_privilege
+        m_has_db_priv.return_value = True
+        # Not raising a PermissionDenied exception when connection returns True
+        # means has_repo_db_privilege is behaving correctly.
+        DataHubManager.has_repo_db_privilege(
+            self.username, 'repo_base', 'repo', 'privilege')
+
+    def test_has_repo_file_privilege_when_username_is_repo_base(self):
+        # Not raising a PermissionDenied exception when connection returns True
+        # means has_repo_db_privilege is behaving correctly.
+        DataHubManager.has_repo_file_privilege(
+            self.username, self.username, 'repo', 'read')
+
+    def test_has_repo_file_privilege_happy_path(self):
+        # User returns some a mock
+        User = self.create_patch('core.db.manager.User')
+        user = MagicMock()
+        User.objects.get.return_value = user
+
+        # Collaborator.objects.filter returns an array of collaborators
+        Collaborator = self.create_patch('core.db.manager.Collaborator')
+        collab = MagicMock()
+        collab.file_permission = 'read, write'
+        collab.user = user
+        collabs = [collab]
+        Collaborator.objects.filter.return_value = collabs
+
+        # Not raising a PermissionDenied exception when connection returns True
+        # means has_repo_db_privilege is behaving correctly.
+        DataHubManager.has_repo_file_privilege(
+            self.username, 'repo_base', 'repo', 'read')
+
+    def test_has_repo_file_privilege_sad_path(self):
+        Collaborator = self.create_patch('core.db.manager.Collaborator')
+        collab = MagicMock()
+        collab.file_permissions = ''
+        Collaborator.objects.get.return_value = collab
+
+        User = self.create_patch('core.db.manager.User')
+        user = MagicMock()
+        User.objects.get.return_value = user
+
+        with self.assertRaises(PermissionDenied):
+            DataHubManager.has_repo_file_privilege(
+                self.username, 'repo_base', 'repo', 'read')

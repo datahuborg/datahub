@@ -1,12 +1,9 @@
 import hashlib
 import re
-
-from Crypto.Cipher import AES
-from Crypto import Random
-
 import urllib
 import urlparse
-
+from Crypto.Cipher import AES
+from Crypto import Random
 
 kKey = 'datahub'
 

@@ -16,6 +16,7 @@ echo "Stopping app container..."
 (set -x; docker stop app)
 echo "Spinning up test app container..."
 echo "*** Run unit tests with 'sh /datahub/src/scripts/run-unit-tests.sh'."
+echo "*** Run integration tests with 'sh /datahub/src/scripts/run-integration-tests.sh'."
 echo "*** Run functional tests with 'sh /datahub/src/scripts/run-functional-tests.sh'."
 echo "*** Run specific tests with commands like 'python manage.py test core'."
 echo "*** Run a debuggable server with 'python manage.py runserver 0.0.0.0:8000'."

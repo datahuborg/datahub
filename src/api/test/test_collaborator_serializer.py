@@ -47,7 +47,7 @@ class CollaboratorSerializerTests(TestCase):
         mock_add_collab = self.mock_manager.return_value.add_collaborator
         mock_add_collab.return_value = True
 
-        res = self.serializer.add_collaborator('repo_name', 'collab', [])
+        res = self.serializer.add_collaborator('repo_name', 'collab', [], [])
         self.assertTrue(mock_add_collab.called)
         self.assertEqual(True, res)
 

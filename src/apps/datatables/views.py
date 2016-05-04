@@ -29,7 +29,6 @@ def table(request, repo, table):
         tables = get_tables(manager, repo)
         if tables is not None and table in tables:
             draw_request = DrawRequest(request)
-            print draw_request
             draw_response = RunDrawRequest(
                 repo, table, draw_request,
                 DrawResponse(draw_request.draw), manager

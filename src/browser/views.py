@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 
 from django.core.context_processors import csrf
 from django.core.urlresolvers import reverse
+from django.core import serializers
 
 from django.http import HttpResponse, \
                         HttpResponseRedirect, \
@@ -21,9 +22,10 @@ from thrift.protocol import TBinaryProtocol
 from thrift.protocol import TJSONProtocol
 from thrift.transport.TTransport import TMemoryBuffer
 
+
+from config import settings
 from oauth2_provider.models import get_application_model
 from oauth2_provider.views import ApplicationUpdate
-
 from inventory.models import App, Annotation
 from account.utils import grant_app_permission
 from core.db.manager import DataHubManager
@@ -165,29 +167,48 @@ Repository Base
 '''
 
 
-@login_required
+def public(request):
+    """browse public repos. Login not required"""
+    username = request.user.get_username()
+    public_repos = DataHubManager.list_public_repos()
+
+    # This should really go through the api... like everything else
+    # in this file.
+    public_repos = serializers.serialize('json', public_repos)
+
+    return render_to_response("public-browse.html", {
+        'login': username,
+        'repo_base': 'repo_base',
+        'repos': [],
+        'public_repos': public_repos,
+        })
+
+
 def user(request, repo_base=None):
     username = request.user.get_username()
 
     if not repo_base:
         repo_base = username
 
-    manager = DataHubManager(user=username, repo_base=repo_base)
-    repos = manager.list_repos()
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        repos = manager.list_repos()
 
     visible_repos = []
+    public_role = settings.PUBLIC_ROLE
 
     for repo in repos:
         collaborators = manager.list_collaborators(repo)
         collaborators = [c.get('username') for c in collaborators]
         collaborators = filter(
             lambda x: x != '' and x != repo_base, collaborators)
+        non_public_collaborators = filter(
+            lambda x: x != public_role, collaborators)
 
         visible_repos.append({
             'name': repo,
             'owner': repo_base,
-            'public': True if 'PUBLIC' in collaborators else False,
-            'collaborators': collaborators,
+            'public': True if public_role in collaborators else False,
+            'collaborators': non_public_collaborators,
         })
 
     collaborator_repos = manager.list_collaborator_repos()
@@ -204,13 +225,14 @@ Repository
 '''
 
 
-@login_required
 def repo(request, repo_base, repo):
+    '''
+    forwards to repo_tables method
+    '''
     return HttpResponseRedirect(
         reverse('browser-repo_tables', args=(repo_base, repo)))
 
 
-@login_required
 def repo_tables(request, repo_base, repo):
     '''
     shows the tables under a repo.
@@ -218,13 +240,9 @@ def repo_tables(request, repo_base, repo):
     username = request.user.get_username()
 
     # get the base tables and views of the user's repo
-    manager = DataHubManager(user=username, repo_base=repo_base)
-    try:
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
         base_tables = manager.list_tables(repo)
         views = manager.list_views(repo)
-    except LookupError:
-        base_tables = []
-        views = []
 
     res = {
         'login': username,
@@ -237,14 +255,13 @@ def repo_tables(request, repo_base, repo):
     return render_to_response("repo-browse-tables.html", res)
 
 
-@login_required
 def repo_files(request, repo_base, repo):
     '''
     shows thee files in a repo
     '''
     username = request.user.get_username()
-    manager = DataHubManager(user=username, repo_base=repo_base)
-    uploaded_files = manager.list_repo_files(repo)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        uploaded_files = manager.list_repo_files(repo)
 
     res = {
         'login': username,
@@ -256,14 +273,13 @@ def repo_files(request, repo_base, repo):
     return render_to_response("repo-browse-files.html", res)
 
 
-@login_required
 def repo_cards(request, repo_base, repo):
     '''
     shows the cards in a repo
     '''
     username = request.user.get_username()
-    manager = DataHubManager(user=username, repo_base=repo_base)
-    cards = manager.list_repo_cards(repo)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        cards = manager.list_repo_cards(repo)
 
     res = {
         'login': username,
@@ -291,8 +307,8 @@ def repo_create(request, repo_base):
 
     if request.method == 'POST':
         repo = request.POST['repo']
-        manager = DataHubManager(user=username, repo_base=repo_base)
-        manager.create_repo(repo)
+        with DataHubManager(user=username, repo_base=repo_base) as manager:
+            manager.create_repo(repo)
         return HttpResponseRedirect(reverse('browser-user', args=(username,)))
 
     elif request.method == 'GET':
@@ -307,8 +323,8 @@ def repo_delete(request, repo_base, repo):
     deletes a repo in the current database (repo_base)
     '''
     username = request.user.get_username()
-    manager = DataHubManager(user=username, repo_base=repo_base)
-    manager.delete_repo(repo=repo, force=True)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.delete_repo(repo=repo, force=True)
     return HttpResponseRedirect(reverse('browser-user-default'))
 
 
@@ -318,19 +334,29 @@ def repo_settings(request, repo_base, repo):
     returns the settings page for a repo.
     '''
     username = request.user.get_username()
-    manager = DataHubManager(user=username, repo_base=repo_base)
-    collaborators = manager.list_collaborators(repo)
+    public_role = settings.PUBLIC_ROLE
 
-    # remove the current user from the collaborator list
-    collaborators = [c.get('username') for c in collaborators]
-    collaborators = filter(lambda x: x != '' and x !=
-                           username, collaborators)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo)
+
+    # if the public role is in collaborators, note that it's already added
+    repo_is_public = next(
+        (True for c in collaborators if
+            c['username'] == settings.PUBLIC_ROLE), False)
+
+    # remove the current user, public user from the collaborator list
+    # collaborators = [c.get('username') for c in collaborators]
+
+    collaborators = [c for c in collaborators if c['username']
+                     not in ['', username, settings.PUBLIC_ROLE]]
 
     res = {
         'login': username,
         'repo_base': repo_base,
         'repo': repo,
-        'collaborators': collaborators}
+        'collaborators': collaborators,
+        'public_role': public_role,
+        'repo_is_public': repo_is_public}
     res.update(csrf(request))
 
     return render_to_response("repo-settings.html", res)
@@ -343,12 +369,15 @@ def repo_collaborators_add(request, repo_base, repo):
     '''
     username = request.user.get_username()
     collaborator_username = request.POST['collaborator_username']
+    db_privileges = request.POST.getlist('db_privileges')
+    file_privileges = request.POST.getlist('file_privileges')
 
-    manager = DataHubManager(user=username, repo_base=repo_base)
-
-    manager.add_collaborator(
-        repo, collaborator_username,
-        privileges=['SELECT', 'INSERT', 'UPDATE'])
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.add_collaborator(
+            repo, collaborator_username,
+            db_privileges=db_privileges,
+            file_privileges=file_privileges
+            )
 
     return HttpResponseRedirect(
             reverse('browser-repo_settings', args=(repo_base, repo,)))
@@ -360,8 +389,10 @@ def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
     removes a user from a repo
     '''
     username = request.user.get_username()
-    manager = DataHubManager(user=username, repo_base=repo_base)
-    manager.delete_collaborator(repo=repo, collaborator=collaborator_username)
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.delete_collaborator(
+            repo=repo, collaborator=collaborator_username)
 
     # if the user is removing someone else, return the repo-settings page.
     # otherwise, return the browse page
@@ -377,7 +408,6 @@ Tables & Views
 '''
 
 
-@login_required
 def table(request, repo_base, repo, table):
     '''
     return a page indicating how many
@@ -389,10 +419,10 @@ def table(request, repo_base, repo, table):
     username = request.user.get_username()
     url_path = reverse('browser-table', args=(repo_base, repo, table))
 
-    manager = DataHubManager(user=username, repo_base=repo_base)
-    query = manager.select_table_query(repo, table)
-    res = manager.paginate_query(
-        query=query, current_page=current_page, rows_per_page=50)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        query = manager.select_table_query(repo, table)
+        res = manager.paginate_query(
+            query=query, current_page=current_page, rows_per_page=50)
 
     # get annotation to the table:
     annotation, created = Annotation.objects.get_or_create(url_path=url_path)
@@ -427,9 +457,10 @@ def table(request, repo_base, repo, table):
 @login_required
 def table_export(request, repo_base, repo, table_name):
     username = request.user.get_username()
+
     DataHubManager.export_table(
-        username=username, repo_base=repo_base, repo=repo, table=table_name,
-        file_format='CSV', delimiter=',', header=True)
+        username=username, repo_base=repo_base, repo=repo,
+        table=table_name, file_format='CSV', delimiter=',', header=True)
 
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))
@@ -445,8 +476,9 @@ def table_delete(request, repo_base, repo, table_name):
     be passed.
     """
     username = request.user.get_username()
-    manager = DataHubManager(user=username, repo_base=repo_base)
-    manager.delete_table(repo, table_name)
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.delete_table(repo, table_name)
 
     return HttpResponseRedirect(
         reverse('browser-repo_tables', args=(repo_base, repo)))
@@ -462,8 +494,9 @@ def view_delete(request, repo_base, repo, view_name):
     be passed.
     """
     username = request.user.get_username()
-    manager = DataHubManager(user=username, repo_base=repo_base)
-    manager.delete_view(repo, view_name)
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.delete_view(repo, view_name)
 
     return HttpResponseRedirect(
         reverse('browser-repo_tables', args=(repo_base, repo)))
@@ -478,8 +511,9 @@ def file_upload(request, repo_base, repo):
     username = request.user.get_username()
     data_file = request.FILES['data_file']
 
-    manager = DataHubManager(username, repo_base)
-    manager.save_file(repo, data_file)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.save_file(repo, data_file)
+
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))
 
@@ -517,17 +551,19 @@ def file_import(request, repo_base, repo, file_name):
 @login_required
 def file_delete(request, repo_base, repo, file_name):
     username = request.user.get_username()
-    manager = DataHubManager(username, repo_base)
-    manager.delete_file(repo, file_name)
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.delete_file(repo, file_name)
+
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))
 
 
-@login_required
 def file_download(request, repo_base, repo, file_name):
     username = request.user.get_username()
-    manager = DataHubManager(username, repo_base)
-    file_to_download = manager.get_file(repo, file_name)
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        file_to_download = manager.get_file(repo, file_name)
 
     response = HttpResponse(file_to_download,
                             content_type='application/force-download')
@@ -540,7 +576,6 @@ Query
 '''
 
 
-@login_required
 def query(request, repo_base, repo):
     query = post_or_get(request, key='q', fallback=None)
     username = request.user.get_username()
@@ -562,11 +597,11 @@ def query(request, repo_base, repo):
 
     url_path = reverse('browser-query', args=(repo_base, repo))
 
-    manager = DataHubManager(user=username, repo_base=repo_base)
-    if repo:
-        manager.set_search_paths([repo])
-    res = manager.paginate_query(
-        query=query, current_page=current_page, rows_per_page=50)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        if repo:
+            manager.set_search_paths([repo])
+        res = manager.paginate_query(
+            query=query, current_page=current_page, rows_per_page=50)
 
     # get annotation to the table:
     annotation, created = Annotation.objects.get_or_create(url_path=url_path)
@@ -615,10 +650,8 @@ Cards
 '''
 
 
-@login_required
 def card(request, repo_base, repo, card_name):
     username = request.user.get_username()
-
     # if the user is actually executing a query
     current_page = 1
     if request.POST.get('page'):
@@ -626,10 +659,11 @@ def card(request, repo_base, repo, card_name):
 
     url_path = reverse('browser-query', args=(repo_base, repo))
 
-    manager = DataHubManager(user=username, repo_base=repo_base)
-    card = manager.get_card(repo=repo, card_name=card_name)
-    res = manager.paginate_query(
-        query=card.query, current_page=current_page, rows_per_page=50)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        card = manager.get_card(repo=repo, card_name=card_name)
+        manager.set_search_paths([card.repo_name])
+        res = manager.paginate_query(
+            query=card.query, current_page=current_page, rows_per_page=50)
 
     # get annotation to the table:
     annotation, created = Annotation.objects.get_or_create(url_path=url_path)
@@ -665,8 +699,8 @@ def card_create(request, repo_base, repo):
     query = request.POST['query']
     url = reverse('browser-card', args=(repo_base, repo, card_name))
 
-    manager = DataHubManager(username, repo_base)
-    manager.create_card(repo, query, card_name)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.create_card(repo, card_name, query)
 
     return HttpResponseRedirect(url)
 
@@ -674,8 +708,9 @@ def card_create(request, repo_base, repo):
 @login_required
 def card_export(request, repo_base, repo, card_name):
     username = request.user.get_username()
-    manager = DataHubManager(username, repo_base)
-    manager.export_card(repo, card_name)
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.export_card(repo, card_name)
 
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))
@@ -684,8 +719,9 @@ def card_export(request, repo_base, repo, card_name):
 @login_required
 def card_delete(request, repo_base, repo, card_name):
     username = request.user.get_username()
-    manager = DataHubManager(username, repo_base)
-    manager.delete_card(repo, card_name)
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.delete_card(repo, card_name)
 
     return HttpResponseRedirect(
         reverse('browser-repo_cards', args=(repo_base, repo)))

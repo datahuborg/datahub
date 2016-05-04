@@ -97,13 +97,10 @@ class RepoTests(APIEndpointTests):
         # Try renaming a repo that doesn't exist
         response = self.client.patch(
             url, {'new_name': repo_name}, follow=True, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data,
-                         {'pgcode': '3F000',
-                          'error_type': 'ProgrammingError',
-                          'detail': 'schema "' + repo_name +
-                          '" does not exist\n',
-                          'severity': 'ERROR'})
+                         {'error_type': 'LookupError',
+                          'detail': 'Repo not found.'})
 
         with DataHubManager(self.username) as manager:
             manager.create_repo(repo_name)
@@ -113,11 +110,8 @@ class RepoTests(APIEndpointTests):
             url, {'new_name': 'repo_one'}, follow=True, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data,
-                         {'pgcode': '42P06',
-                          'error_type': 'ProgrammingError',
-                          'detail': 'schema "' + repo_name +
-                          '" already exists\n',
-                          'severity': 'ERROR'})
+                         {'error_type': 'ValueError',
+                          'detail': 'A repo with that name already exists.'})
 
         # Try renaming for real
         response = self.client.patch(
@@ -139,12 +133,10 @@ class RepoTests(APIEndpointTests):
                       kwargs={'repo_base': self.username,
                               'repo_name': repo_name})
         response = self.client.delete(url, follow=True)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data,
-                         {'pgcode': '3F000',
-                          'error_type': 'ProgrammingError',
-                          'detail': 'schema "repo_one" does not exist\n',
-                          'severity': 'ERROR'})
+                         {'error_type': 'LookupError',
+                          'detail': 'Repo not found.'})
 
         # Create a repo and make sure it's a 200.
         with DataHubManager(self.username) as manager:
