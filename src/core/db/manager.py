@@ -938,7 +938,6 @@ class DataHubManager:
         """Creates the database and data folder for a user."""
         with _superuser_connection() as conn:
             res = conn.create_user_database(username=username)
-            DataHubManager.create_user_data_folder(username)
         return res
 
     @staticmethod
