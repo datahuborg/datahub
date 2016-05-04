@@ -1,4 +1,7 @@
-from mock import patch, MagicMock
+from mock import Mock, \
+                 MagicMock, \
+                 patch, \
+                 mock_open
 import itertools
 
 from django.test import TestCase
@@ -55,10 +58,10 @@ class PGBackendHelperMethods(MockingMixin, TestCase):
 
     def setUp(self):
         # some words to test out
-        self.good_nouns = ['good', 'good_noun', 'goodNoun']
+        self.good_nouns = ['good', 'good_noun', 'goodNoun', 'good1']
 
-        # some words that shoudl throw validation errors
-        self.bad_nouns = ['_foo', 'foo_', '-foo', 'foo-', 'foo bar',
+        # some words that should throw validation errors
+        self.bad_nouns = ['_foo', 'foo_', '-foo', 'foo-', 'foo bar', '1foo',
                           'injection;attack', ';injection', 'injection;',
                           ]
 
@@ -275,7 +278,7 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         self.assertEqual(
             self.mock_execute_sql.call_args[0][1][0], repo_name)
         self.assertEqual(
-            self.mock_execute_sql.call_args[0][1][1], None)
+            self.mock_execute_sql.call_args[0][1][1], '')
         self.assertTrue(self.mock_as_is.called)
         self.assertTrue(self.mock_check_for_injections.called)
         self.assertEqual(res, True)
@@ -319,7 +322,7 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
 
             self.reset_mocks()
 
-    def test_add_collaborator_concatinates_privileges(self):
+    def test_add_collaborator_concatenates_privileges(self):
         privileges = ['SELECT', 'USAGE']
         repo = 'repo'
         receiver = 'receiver'
@@ -859,103 +862,176 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         self.assertEqual(self.mock_as_is.call_count, 0)
         self.assertEqual(res, True)
 
-    def test_export_table_with_header(self):
-        self.mock_execute_sql.return_value = {'status': True}
-        query = 'COPY %s TO %s WITH %s %s DELIMITER %s;'
-        table_name = 'user_name.repo_name.table_name'
+    @patch('core.db.backend.pg.os.makedirs')
+    @patch('core.db.backend.pg.os.remove')
+    @patch('core.db.backend.pg.shutil.move')
+    def test_export_table_with_header(self, *args):
+        table_name = 'repo_name.table_name'
+        table_name_prepped = 'SELECT * FROM %s' % table_name
         file_path = 'file_path'
         file_format = 'file_format'
         delimiter = ','
         header = True
+        query = ('COPY (SELECT * FROM repo_name.table_name) '
+                 'TO STDOUT WITH CSV HEADER DELIMITER \',\';')
 
-        params = (table_name, file_path, file_format, 'HEADER', delimiter)
-        self.backend.export_table(table_name, file_path,
-                                  file_format, delimiter, header)
+        self.backend.connection = Mock()
+        mock_connection = self.backend.connection
+        mock_mogrify = mock_connection.cursor.return_value.mogrify
+        mock_mogrify.return_value = query
+        mock_copy_expert = mock_connection.cursor.return_value.copy_expert
 
-        self.assertEqual(
-            self.mock_execute_sql.call_args[0][0], query)
-        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        with patch("__builtin__.open", mock_open()):
+            self.backend.export_table(table_name, file_path,
+                                      file_format, delimiter, header)
+
+        mock_mogrify.assert_called_once_with(
+            'COPY (%s) TO STDOUT WITH %s %s DELIMITER %s;',
+            (table_name_prepped, file_format,
+             'HEADER' if header else '', delimiter))
+
+        # Kind of a meaningless check since we have to mock the return value
+        # of mogrify, but at least it ensures the result of mogrify is passed
+        # into copy_expert as is.
+        self.assertEqual(mock_copy_expert.call_args[0][0], query)
         self.assertEqual(self.mock_as_is.call_count, 3)
-        self.assertEqual(self.mock_check_for_injections.call_count, 4)
+        self.assertEqual(self.mock_check_for_injections.call_count, 5)
 
-    def test_export_table_with_no_header(self):
-        self.mock_execute_sql.return_value = {'status': True}
-        table_name = 'table_name'
+    @patch('core.db.backend.pg.os.makedirs')
+    @patch('core.db.backend.pg.os.remove')
+    @patch('core.db.backend.pg.shutil.move')
+    def test_export_table_with_no_header(self, *args):
+        table_name = 'repo_name.table_name'
+        table_name_prepped = 'SELECT * FROM %s' % table_name
         file_path = 'file_path'
         file_format = 'file_format'
         delimiter = ','
         header = False
+        query = ('COPY (SELECT * FROM repo_name.table_name) '
+                 'TO STDOUT WITH CSV  DELIMITER \',\';')
 
-        params = (table_name, file_path, file_format, '', delimiter)
-        self.backend.export_table(table_name, file_path,
-                                  file_format, delimiter, header)
+        self.backend.connection = Mock()
+        mock_connection = self.backend.connection
+        mock_mogrify = mock_connection.cursor.return_value.mogrify
+        mock_mogrify.return_value = query
+        mock_copy_expert = mock_connection.cursor.return_value.copy_expert
 
-        self.assertEqual(
-            self.mock_execute_sql.call_args[0][1], params)
+        with patch("__builtin__.open", mock_open()):
+            self.backend.export_table(table_name, file_path,
+                                      file_format, delimiter, header)
 
-    def test_export_view(self):
-        self.mock_execute_sql.return_value = {'status': True}
-        query = 'COPY(SELECT * FROM %s) TO %s WITH %s %s DELIMITER %s;'
-        view_name = 'user_name.repo_name.view_name'
+        mock_mogrify.assert_called_once_with(
+            'COPY (%s) TO STDOUT WITH %s %s DELIMITER %s;',
+            (table_name_prepped, file_format,
+             'HEADER' if header else '', delimiter))
+
+        # Kind of a meaningless check since we have to mock the return value
+        # of mogrify, but at least it ensures the result of mogrify is passed
+        # into copy_expert as is.
+        self.assertEqual(mock_copy_expert.call_args[0][0], query)
+        self.assertEqual(self.mock_as_is.call_count, 3)
+        self.assertEqual(self.mock_check_for_injections.call_count, 5)
+
+    @patch('core.db.backend.pg.os.makedirs')
+    @patch('core.db.backend.pg.os.remove')
+    @patch('core.db.backend.pg.shutil.move')
+    def test_export_view(self, *args):
+        view_name = 'repo_name.view_name'
+        view_name_prepped = 'SELECT * FROM %s' % view_name
         file_path = 'file_path'
         file_format = 'file_format'
         delimiter = ','
         header = True
+        query = ('COPY (SELECT * FROM repo_name.view_name) '
+                 'TO STDOUT WITH CSV HEADER DELIMITER \',\';')
 
-        params = (view_name, file_path, file_format, 'HEADER', delimiter)
-        self.backend.export_view(view_name, file_path,
-                                 file_format, delimiter, header)
+        self.backend.connection = Mock()
+        mock_connection = self.backend.connection
+        mock_mogrify = mock_connection.cursor.return_value.mogrify
+        mock_mogrify.return_value = query
+        mock_copy_expert = mock_connection.cursor.return_value.copy_expert
 
-        self.assertEqual(
-            self.mock_execute_sql.call_args[0][0], query)
-        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        with patch("__builtin__.open", mock_open()):
+            self.backend.export_view(view_name, file_path,
+                                     file_format, delimiter, header)
+
+        mock_mogrify.assert_called_once_with(
+            'COPY (%s) TO STDOUT WITH %s %s DELIMITER %s;',
+            (view_name_prepped, file_format,
+             'HEADER' if header else '', delimiter))
+
+        # Kind of a meaningless check since we have to mock the return value
+        # of mogrify, but at least it ensures the result of mogrify is passed
+        # into copy_expert as is.
+        self.assertEqual(mock_copy_expert.call_args[0][0], query)
         self.assertEqual(self.mock_as_is.call_count, 3)
-        self.assertEqual(self.mock_check_for_injections.call_count, 4)
+        self.assertEqual(self.mock_check_for_injections.call_count, 5)
 
-    def test_export_query_with_header(self):
-        query = 'COPY (%s) TO %s WITH %s %s DELIMITER %s;'
+    @patch('core.db.backend.pg.os.makedirs')
+    @patch('core.db.backend.pg.os.remove')
+    @patch('core.db.backend.pg.shutil.move')
+    def _export_query_test_helper(self, *args, **kwargs):
+        passed_query = kwargs['passed_query']
+        passed_query_cleaned = kwargs.get(
+            'passed_query_cleaned', passed_query)
+        file_path = kwargs['file_path']
+        file_format = kwargs['file_format']
+        delimiter = kwargs['delimiter']
+        header = kwargs['header']
+        query = kwargs['query']
 
-        passed_query = 'myquery'
-        file_path = 'file_path'
-        file_format = 'CSV'
-        delimiter = ','
-        header = True
+        self.backend.connection = Mock()
+        mock_connection = self.backend.connection
+        mock_mogrify = mock_connection.cursor.return_value.mogrify
+        mock_mogrify.return_value = query
+        mock_copy_expert = mock_connection.cursor.return_value.copy_expert
 
-        params = (passed_query, file_path, file_format, 'HEADER', delimiter)
-        self.backend.export_query(passed_query, file_path,
-                                  file_format, delimiter, header)
+        with patch("__builtin__.open", mock_open()):
+            self.backend.export_query(passed_query, file_path,
+                                      file_format, delimiter, header)
 
-        self.assertEqual(
-            self.mock_execute_sql.call_args[0][0], query)
-        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+        mock_mogrify.assert_called_once_with(
+            'COPY (%s) TO STDOUT WITH %s %s DELIMITER %s;',
+            (passed_query_cleaned, file_format,
+             'HEADER' if header else '', delimiter))
+
+        # Kind of a meaningless check since we have to mock the return value
+        # of mogrify, but at least it ensures the result of mogrify is passed
+        # into copy_expert as is.
+        self.assertEqual(mock_copy_expert.call_args[0][0], query)
         self.assertEqual(self.mock_as_is.call_count, 3)
         self.assertEqual(self.mock_check_for_injections.call_count, 2)
 
-    def test_export_query_with_no_header(self):
-        passed_query = 'myquery'
-        file_path = 'file_path'
-        file_format = 'CSV'
-        delimiter = ','
-        header = False
+    def test_export_query_with_header(self, *args):
+        self._export_query_test_helper(
+            passed_query='myquery',
+            file_path='file_path',
+            file_format='CSV',
+            delimiter=',',
+            header=True,
+            query=('COPY (myquery) '
+                   'TO STDOUT WITH CSV HEADER DELIMITER \',\';'))
 
-        params = (passed_query, file_path, file_format, '', delimiter)
-        self.backend.export_query(passed_query, file_path,
-                                  file_format, delimiter, header)
+    def test_export_query_with_no_header(self, *args):
+        self._export_query_test_helper(
+            passed_query='myquery',
+            file_path='file_path',
+            file_format='CSV',
+            delimiter=',',
+            header=False,
+            query=('COPY (myquery) '
+                   'TO STDOUT WITH CSV  DELIMITER \',\';'))
 
-        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
-
-    def test_export_query_only_executes_text_before_semicolon(self):
-        passed_query = ' text before semicolon; text after; '
-        file_path = 'file_path'
-        file_format = 'CSV'
-        delimiter = ','
-        header = False
-
-        passed_query_cleaned = ' text before semicolon'
-        params = (passed_query_cleaned, file_path, file_format, '', delimiter)
-        self.backend.export_query(passed_query, file_path,
-                                  file_format, delimiter, header)
-        self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
+    def test_export_query_only_executes_text_before_semicolon(self, *args):
+        self._export_query_test_helper(
+            passed_query=' text before semicolon; text after; ',
+            passed_query_cleaned='text before semicolon',
+            file_path='file_path',
+            file_format='CSV',
+            delimiter=',',
+            header=False,
+            query=('COPY (text before semicolon) '
+                   'TO STDOUT WITH CSV  DELIMITER \',\';'))
 
     def test_import_file_with_header(self):
         query = 'COPY %s FROM %s WITH %s %s DELIMITER %s ENCODING %s QUOTE %s;'
