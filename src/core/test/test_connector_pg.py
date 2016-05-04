@@ -59,7 +59,7 @@ class PGBackendHelperMethods(MockingMixin, TestCase):
         # some words to test out
         self.good_nouns = ['good', 'good_noun', 'goodNoun', 'good1']
 
-        # some words that shoudl throw validation errors
+        # some words that should throw validation errors
         self.bad_nouns = ['_foo', 'foo_', '-foo', 'foo-', 'foo bar', '1foo',
                           'injection;attack', ';injection', 'injection;',
                           ]

@@ -40,7 +40,7 @@ def _pool_for_credentials(user, password, repo_base, create_if_missing=True):
         if create_if_missing is False:
             return None
         # Maintains at least 1 connection.
-        # Throws "PoolError: connection pool exausted" if a thread tries
+        # Raises "PoolError: connection pool exausted" if a thread tries
         # holding onto than 10 connections to a single database.
         connection_pools[pool_key] = ThreadedConnectionPool(
             0,

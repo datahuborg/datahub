@@ -122,6 +122,7 @@ class ReposPublic(APIView):
     """
     Repos that have been made public
     """
+
     def get(self, request, format=None):
         serializer = RepoSerializer(settings.ANONYMOUS_ROLE, None, request)
         return Response(serializer.public_repos())
