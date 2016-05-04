@@ -109,6 +109,9 @@ class RLS_Permissions(TestCase):
 
         revoke_permission = ("revoke select access to kxzhang on test.customer"
                              " where customerid='1'")
+        mock_find_policy = mock_manager.return_value.find_security_policy
+        mock_find_policy.return_value = ["test_policy"]
         mock_remove_policy = mock_manager.return_value.remove_security_policy
+
         self.rls_permissions_parser.process_permissions(revoke_permission)
         self.assertTrue(mock_remove_policy.called)

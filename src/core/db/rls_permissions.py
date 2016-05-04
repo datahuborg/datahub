@@ -32,7 +32,10 @@ class RLSPermissionsParser:
             policy = rls_manager.find_security_policy(
                 policy=policy, policy_type=access_type, grantee=grantee,
                 grantor=self.user)
-            rls_manager.remove_security_policy(policy.policyid)
+            if len(policy) == 1:
+                rls_manager.remove_security_policy(policy[0][0])
+            else:
+                raise Exception('Error identifying security policy.')
 
     def extract_permission_type(self, permission):
         '''
