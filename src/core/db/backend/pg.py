@@ -441,7 +441,8 @@ class PGBackend:
         try:
             sql_query = cur.mogrify(query, params)
             if row_level_security:
-                sql_query = self.query_rewriter.apply_row_level_security(sql_query)
+                sql_query = self.query_rewriter.apply_row_level_security(
+                    sql_query)
             cur.execute(sql_query)
         except psycopg2.Error as e:
             # Convert some psycopg2 errors into exceptions meaningful to
@@ -770,6 +771,10 @@ class PGBackend:
                                 PGMethods, **dbsettings)
 
     def escape_quotes(self, parameter):
+        '''
+        Replaces single quotes in parameter with double quotes
+        to ensure that postgres escapes them.
+        '''
         return parameter.replace("'", "''")
 
     def check_access_permissions(self, grantor, repo_base):
@@ -790,7 +795,7 @@ class PGBackend:
         params = [policy, policy_type, grantee, grantor,
                   table, repo, repo_base]
         params = [self.escape_quotes(param) for param in params]
-        for param in params[2:]:
+        for param in params[1:]:
             self._check_for_injections(param)
 
         if not self.check_access_permissions(grantor, repo_base):
@@ -799,17 +804,19 @@ class PGBackend:
 
         # Raise an exception if the security policy already exists in the table
         security_policy = self.find_security_policy(
-            table, repo, repo_base, policy=policy, policy_type=policy_type, grantee=grantee,
-            grantor=grantor)
+            table, repo, repo_base, policy=policy, policy_type=policy_type,
+            grantee=grantee, grantor=grantor)
+
         if security_policy != []:
             raise Exception('Security policy already exists in table.')
 
-        query = ('INSERT INTO dh_public.policy (policy, policy_type, grantee, grantor,'
-                 'table_name, repo, repo_base) values '
+        query = ('INSERT INTO dh_public.policy (policy, policy_type, grantee, '
+                 'grantor, table_name, repo, repo_base) values '
                  '(\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\')')
         params = tuple(map(lambda x: AsIs(x), params))
 
         res = self.execute_sql(query, params, row_level_security=False)
+
         return res['status']
 
     def list_security_policies(self, table, repo, repo_base):
@@ -849,7 +856,7 @@ class PGBackend:
                 del params[key]
                 continue
             value = self.escape_quotes(value)
-            if key != 'policy':
+            if key != 'policy_id' and key != 'policy':
                 self._check_for_injections(str(value))
 
             if not first_conditional_added:
@@ -866,7 +873,6 @@ class PGBackend:
         Returns the security policy that has a policy_id matching the input
         specified by the user.
         '''
-        self._check_for_injections(str(policy_id))
         query = ('SELECT policy_id, policy, policy_type, grantee, grantor, '
                  'table_name, repo, repo_base '
                  'FROM dh_public.policy WHERE policy_id = %s' % policy_id)
@@ -881,10 +887,10 @@ class PGBackend:
         '''
         # Need to add quote in front of single quotes to make sure that
         # postgres will escape it
-        new_policy = new_policy.replace("'", "''")
         params = [new_policy, new_policy_type, new_grantee, policy_id]
-        for param in params[1:]:
-            self._check_for_injections(str(param))
+        params = [self.escape_quotes(param) for param in params]
+        self._check_for_injections(params[1])
+        self._check_for_injections(params[2])
 
         policy = self.find_security_policy_by_id(policy_id)
         if policy == []:
@@ -900,7 +906,6 @@ class PGBackend:
                  'grantee = \'%s\' '
                  'WHERE policy_id = %s')
 
-
         params = tuple(map(lambda x: AsIs(x), params))
         res = self.execute_sql(query, params, row_level_security=False)
         return res['status']
@@ -910,7 +915,6 @@ class PGBackend:
         Removes the security policy from the policy table with a policy_id
         matching the one specified by the user.
         '''
-        self._check_for_injections(str(policy_id))
         policy = self.find_security_policy_by_id(policy_id)
         if policy == []:
             raise LookupError('Policy_ID %s does not exist.' % (policy_id))
@@ -920,6 +924,7 @@ class PGBackend:
                             'policies on %s.%s.'
                             % (policy[0][4], policy[0][6], policy[0][5]))
 
-        query = ('DELETE FROM dh_public.policy WHERE policy_id = %s' % policy_id)
+        query = ('DELETE FROM dh_public.policy WHERE policy_id = %s'
+                 % policy_id)
         res = self.execute_sql(query, row_level_security=False)
         return res['status']

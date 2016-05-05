@@ -119,6 +119,7 @@ def register(request):
             # granting user select, insert, update access to policies he create
             rls_manager = RowLevelSecurityManager(
                 'dh_public', 'policy', 'dh_public', 'dh_public')
+
             policy = ('grantor = \'%s\'' % username)
             rls_manager.add_security_policy(policy, "select", username)
             rls_manager.add_security_policy(policy, "insert", username)
@@ -321,6 +322,19 @@ def delete(request):
         'username': username
         })
     try:
+        # Remove row level security policies in the dh_public policy table
+        # granting user select, insert, update access to policies he create
+        rls_manager = RowLevelSecurityManager(
+            'dh_public', 'policy', 'dh_public', 'dh_public')
+
+        policy = ('grantor = \'%s\'' % username)
+
+        rls_operations = ["select", "insert", "update"]
+        for operation in rls_operations:
+            policy_id = rls_manager.find_security_policy(
+                policy=policy, policy_type=operation, grantee=username)[0][0]
+            rls_manager.remove_security_policy(policy_id)
+
         DataHubManager.remove_user(username=username, remove_db=True)
         django_logout(request)
         return render(request, 'delete-done.html', context)

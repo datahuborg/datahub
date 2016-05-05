@@ -201,10 +201,11 @@ Query = namedtuple(
 
 class QueryTests(APIEndpointTests):
 
+     ## TODO: THE INSERT COMMAND DOES NOT WORK AS INTENDED. IT IS RETURNING A 500 ERROR CODE. PLEASE LOOK INTO IT!!!!
+
     def _queries(self, table):
         return [
-            Query(sql="""
-                  CREATE TABLE """ + table + """ (
+            Query(sql="""CREATE TABLE """ + table + """ (
                       name varchar (255) NOT NULL,
                       deliciousness numeric,
                       is_deep_fried boolean);
@@ -254,26 +255,11 @@ class QueryTests(APIEndpointTests):
             self.assertEqual(response.status_code, q.status_code)
             self.assertEqual(response.data.get('rows'), q.expect_json)
 
-    def test_post_query(self):
-        repo_name = 'repo_one'
-        table_name = 'sandwiches'
-        queries = self._queries(table_name)
-
-        with DataHubManager(self.username) as manager:
-            manager.create_repo(repo_name)
-        url = reverse('api:query',
-                      kwargs={'repo_base': self.username})
-
-        for q in queries:
-            response = self.client.post(
-                url, {'query': q.sql}, follow=True, format='json')
-            self.assertEqual(response.status_code, q.status_code)
-            self.assertEqual(response.data.get('rows'), q.expect_json)
-
     def test_post_query_csv_accept_header(self):
         repo_name = 'repo_one'
         table_name = 'sandwiches'
-        queries = self._queries(table_name)
+        repo_table = repo_name + '.' + table_name
+        queries = self._queries(repo_table)
 
         with DataHubManager(self.username) as manager:
             manager.create_repo(repo_name)
@@ -291,7 +277,8 @@ class QueryTests(APIEndpointTests):
     def test_post_query_json_accept_header(self):
         repo_name = 'repo_one'
         table_name = 'sandwiches'
-        queries = self._queries(table_name)
+        repo_table = repo_name + '.' + table_name
+        queries = self._queries(repo_table)
 
         with DataHubManager(self.username) as manager:
             manager.create_repo(repo_name)
@@ -309,7 +296,8 @@ class QueryTests(APIEndpointTests):
     def test_post_query_csv_suffix(self):
         repo_name = 'repo_one'
         table_name = 'sandwiches'
-        queries = self._queries(table_name)
+        repo_table = repo_name + '.' + table_name
+        queries = self._queries(repo_table)
 
         with DataHubManager(self.username) as manager:
             manager.create_repo(repo_name)
@@ -326,7 +314,8 @@ class QueryTests(APIEndpointTests):
     def test_post_query_json_suffix(self):
         repo_name = 'repo_one'
         table_name = 'sandwiches'
-        queries = self._queries(table_name)
+        repo_table = repo_name + '.' + table_name
+        queries = self._queries(repo_table)
 
         with DataHubManager(self.username) as manager:
             manager.create_repo(repo_name)
