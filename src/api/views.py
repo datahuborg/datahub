@@ -34,7 +34,6 @@ class CurrentUser(APIView):
 
     def get(self, request, format=None):
         username = request.user.get_username()
-        #username = "ddd"
         user = User.objects.get(username=username)
 
         serializer = UserSerializer(user, many=False)
