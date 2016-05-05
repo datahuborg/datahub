@@ -78,13 +78,6 @@ class DataHubManager:
         """Changes the repo base and resets the DB connection."""
         self.user_con.change_repo_base(repo_base=repo_base)
 
-    def set_search_paths(self, search_paths=[]):
-        """
-        Sets the search path, so that the user won't have to write
-        out schema names.
-        """
-        return self.user_con.set_search_paths(search_paths)
-
     def close_connection(self):
         self.user_con.close_connection()
 

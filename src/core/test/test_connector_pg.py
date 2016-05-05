@@ -177,16 +177,6 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         self.mock_execute_sql.reset_mock()
         self.mock_check_for_injections.reset_mock()
 
-    def test_set_search_paths(self):
-        path_query = 'set search_path to %s;'
-        self.mock_execute_sql.return_value = {'status': True, 'row_count': -1,
-                                              'tuples': [], 'fields': []}
-        self.backend.set_search_paths(['foo', 'bar'])
-
-        self.assertEqual(self.mock_check_for_injections.call_count, 2)
-        self.assertEqual(self.mock_execute_sql.call_args[0][0], path_query)
-        self.assertEqual(self.mock_execute_sql.call_args[0][1], ('foo, bar',))
-
     # testing externally called methods in PGBackend
     def test_create_repo(self):
         create_repo_sql = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'

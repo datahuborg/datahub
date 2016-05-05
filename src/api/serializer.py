@@ -216,7 +216,6 @@ class CollaboratorSerializer(DataHubSerializer):
 class TableSerializer(DataHubSerializer):
 
     def create_table(self, repo, table, params):
-        self.manager.set_search_paths([repo])
         success = self.manager.create_table(repo, table, params)
         return success
 
@@ -264,7 +263,6 @@ class TableSerializer(DataHubSerializer):
 class ViewSerializer(DataHubSerializer):
 
     def create_view(self, repo, view, query):
-        self.manager.set_search_paths([repo])
         success = self.manager.create_view(repo, view, query)
         return success
 
@@ -346,14 +344,12 @@ class CardSerializer(DataHubSerializer):
         return res
 
     def update_card(self, repo, card_name, new_query, new_name, public):
-        self.manager.set_search_paths([repo])
         card = self.manager.update_card(
             repo, card_name, new_query, new_name, public)
 
         return self.describe_card(repo, card.card_name)
 
     def create_card(self, repo, card_name, query):
-        self.manager.set_search_paths([repo])
         card = self.manager.create_card(repo, card_name, query)
 
         return self.describe_card(repo, card.card_name)
@@ -362,7 +358,6 @@ class CardSerializer(DataHubSerializer):
         return self.manager.delete_card(repo, card_name)
 
     def export_card(self, repo, card_name, file_format='CSV'):
-        self.manager.set_search_paths([repo])
         self.manager.export_card(repo, card_name, file_format)
 
 
@@ -396,8 +391,6 @@ class QuerySerializer(DataHubSerializer):
     def execute_query(self, query, current_page=1,
                       rows_per_page=1000, repo=None,
                       rows_only=False):
-        if repo:
-            self.manager.set_search_paths([repo])
 
         result = None
         result = self.manager.paginate_query(
@@ -412,16 +405,15 @@ class QuerySerializer(DataHubSerializer):
         return_dict['est_byte_width'] = result.get('byte_width', None)
         return_dict['est_total_pages'] = result.get('total_pages', None)
 
-        if select_query:
-            new_rows = []
-            for row in rows:
-                obj = {}
-                for i in range(len(columns)):
-                    column = columns[i]
-                    obj[column] = row[i]
-                new_rows.append(obj)
+        new_rows = []
+        for row in rows:
+            obj = {}
+            for i in range(len(columns)):
+                column = columns[i]
+                obj[column] = row[i]
+            new_rows.append(obj)
 
-            return_dict['rows'] = new_rows
+        return_dict['rows'] = new_rows
 
         # add appropriate link to previous and next:
         # next
