@@ -2,4 +2,4 @@
 
 cd /datahub/src
 set -x
-python manage.py test integration_tests.test_manager
+python manage.py test integration_tests
