@@ -827,6 +827,16 @@ class PGBackend:
         res = self.execute_sql(query, params, row_level_security=False)
         return res['tuples']
 
+    def find_all_security_policies(self, username):
+        self._check_for_injections(username)
+        params = [username, username]
+        query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
+                 'FROM dh_public.policy WHERE grantee = \'%s\' or '
+                 'grantor = \'%s\'')
+        params = tuple(map(lambda x: AsIs(x), params))
+        res = self.execute_sql(query, params, row_level_security=False)
+        return res['tuples']
+
     def find_security_policy(self, table_name, repo, repo_base,
                              policy_id=None, policy=None, policy_type=None,
                              grantee=None, grantor=None):

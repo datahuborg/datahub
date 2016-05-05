@@ -150,7 +150,6 @@ class SQLQueryRewriter:
 
         table = None
         for token in tokens:
-            print token
             if self.contains_subquery(token):
                 result += self.process_subquery(token)
                 prev_token = token
@@ -163,13 +162,10 @@ class SQLQueryRewriter:
                     prev_token = token
                 continue
 
-            #table = self.extract_table_info(token.to_unicode())
             table = self.extract_table_string(token.to_unicode())
             result += token.to_unicode()
             if token.to_unicode() != " ":
                 prev_token = token
-
-        print table
 
         if table is not None:
             policy = self.find_security_policy(
@@ -320,13 +316,12 @@ class SQLQueryRewriter:
         if repo_base is None:
             repo_base = self.repo_base
 
-
         rls_manager = core.db.rlsmanager.RowLevelSecurityManager(
             username=self.user,
             repo_base=repo_base,
             repo=repo,
             table=table
-            )
+        )
 
         user_policies = rls_manager.find_security_policy(
             policy_type=policytype, grantee=self.user)

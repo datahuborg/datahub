@@ -1,5 +1,4 @@
 from config import settings
-from django.contrib.auth.models import User
 import os
 import core.db.connection
 
@@ -99,6 +98,9 @@ class RowLevelSecurityManager:
         '''
         return self.user_con.remove_security_policy(policy_id)
 
+    def find_all_security_policies(self, user):
+        return self.user_con.find_all_security_policies(username=user)
+
     """
     static methods don't require permissions
     """
@@ -124,32 +126,33 @@ class RowLevelSecurityManager:
             conn.create_security_policy(
                 policy=policy,
                 policy_type="select",
-                grantee = grantee,
-                grantor = grantor,
-                repo_base = repo_base,
+                grantee=grantee,
+                grantor=grantor,
+                repo_base=repo_base,
                 repo=repo,
                 table=table)
 
             conn.create_security_policy(
                 policy=policy,
                 policy_type="insert",
-                grantee = grantee,
-                grantor = grantor,
-                repo_base = repo_base,
+                grantee=grantee,
+                grantor=grantor,
+                repo_base=repo_base,
                 repo=repo,
                 table=table)
 
             conn.create_security_policy(
                 policy=policy,
                 policy_type="update",
-                grantee = grantee,
-                grantor = grantor,
-                repo_base = repo_base,
+                grantee=grantee,
+                grantor=grantor,
+                repo_base=repo_base,
                 repo=repo,
                 table=table)
-
 
     @staticmethod
     def remove_user_from_policy_table(username):
         with _superuser_connection(settings.POLICY_DB) as conn:
-            pass
+                policies = conn.find_all_security_policies(username)
+                for policy in policies:
+                    conn.remove_security_policy(policy[0])

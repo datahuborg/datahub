@@ -11,8 +11,10 @@ from django.contrib.auth.models import User
 
 from config import settings
 from core.db.connection import DataHubConnection
+from core.db.rlsmanager import RowLevelSecurityManager
 from core.db.errors import PermissionDenied
 from inventory.models import App, Card, Collaborator, DataHubLegacyUser
+
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
@@ -984,6 +986,9 @@ class DataHubManager:
                 # Try the simple case first: delete the user when they have no
                 # db permissions left
                 result = conn.remove_user(username=username)
+                RowLevelSecurityManager.remove_user_from_policy_table(
+                    username=username)
+
             except:
                 # Assume the failure was outstanding db permissions. Remove
                 # them and try again.
