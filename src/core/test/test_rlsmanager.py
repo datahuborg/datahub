@@ -32,7 +32,7 @@ class RowLevelSecurityManagerTests(TestCase):
     def test_add_security_policy(self):
         add_policy = self.mock_connection.return_value.create_security_policy
         self.manager.add_security_policy(
-            "policy='True", "select", "test_grantee")
+            "policy='True'", "select", "test_grantee")
         self.assertTrue(add_policy.called)
 
     def test_list_security_policies(self):

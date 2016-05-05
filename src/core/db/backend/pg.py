@@ -776,7 +776,7 @@ class PGBackend:
         return False
 
     def create_security_policy(self, policy, policy_type, grantee, grantor,
-                               table, repo, repo_base):
+                               repo_base, repo, table):
         '''
         Creates a new security policy in the policy table if the policy
         does not yet exist.

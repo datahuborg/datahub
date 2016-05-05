@@ -117,16 +117,7 @@ def register(request):
 
             # Create row level security policies in the dh_public policy table
             # granting user select, insert, update access to policies he create
-            rls_manager = RowLevelSecurityManager(
-                username = settings.DATABASES['default']['USER'],
-                repo_base = settings.POLICY_DB,
-                repo = settings.POLICY_SCHEMA,
-                table = settings.POLICY_TABLE)
-
-            policy = ('grantor = \'%s\'' % username)
-            rls_manager.add_security_policy(policy, "select", username)
-            rls_manager.add_security_policy(policy, "insert", username)
-            rls_manager.add_security_policy(policy, "update", username)
+            RowLevelSecurityManager.add_user_to_policy_table(username)
 
             if user is not None and user.is_active:
                 django_login(request, user)
