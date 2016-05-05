@@ -25,17 +25,17 @@
         <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Type security policy query here">
       {% endif %}
     </div>
-    
+
     <div class="col-sm-2">
       <button class="btn btn-primary btn-xsm" id="btn-run" type="submit">Execute</button>
       <button class="btn btn-primary btn-xsm modal-upload-dialog" type="button" target-modal="#security-policy-modal" title="New Policy"> New </button>
     </div>
-    
+
     </div>
   </form>
 
 
-<div class="modal" id="security-policy-modal" 
+<div class="modal" id="security-policy-modal"
     tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -68,7 +68,7 @@
           <br />
           <label for="policy-grantee">Grantee: </label>&nbsp;
           <input type="text" name="policy-grantee" id="policy-grantee"/>
-        </form> 
+        </form>
 
       </div>
       <div class="modal-footer">
@@ -84,15 +84,15 @@
 
   {% block tabs %}
   {% endblock %}
-  
+
   <br />
 
-  <div class="panel panel-default">    
+  <div class="panel panel-default">
     <div class="panel-heading">
-      Security Policies 
-    </div>    
+      Security Policies
+    </div>
 
-    
+
     {% if policies %}
         <div class="table-responsive datahub-datatable-no-scroll table-container">
         <table id="table_data" class="table table-condensed table-bordered datahub-datatable-no-scroll">
@@ -106,19 +106,19 @@
               <th></th>
             </tr>
           </thead>
-          
+
           <tbody>
             {% for policy in policies %}
             <tr id="policy_{{policy.0}}">
               {% for cell in policy %}
                 <td class="strong">{{cell}}</td>
               {% endfor %}
-              <td>            
+              <td>
                   <span
                   class="modal-link modal-import-dialog"
                   target-modal="#import-modal"
                   target-url="{% url 'security-policy_edit' repo_base repo table policy.0 %}"
-                  data-policyid="policy_{{policy.0}}" 
+                  data-policyid="policy_{{policy.0}}"
                   title="edit">
                  <span class="fa fa-pencil"></span>
                  </span>
@@ -146,9 +146,9 @@
       <p class="bg-warning"> No security policies exist for <strong> {{table}} </strong>. </p>
       {% endblock %}
     {% endif %}
-  
+
   </div>
-  
+
 </div>
 
 
@@ -166,7 +166,7 @@
       <div class="modal-body" id="confirm-modal-body">
         <form id="frm-import" role="form" method="POST" action="#">
          {% csrf_token %}
-         <p> Please insert the changes you wish to make to the security policy below. 
+         <p> Please insert the changes you wish to make to the security policy below.
           <br />
           <br />
           <label for="security-policy-edit">Security Policy: </label>&nbsp;
@@ -193,8 +193,9 @@
     </div>
   </div>
 </div>
+{% endblock content %}
 
-
+{% block js %}
 <script type="text/javascript">
 
 $(function() {
@@ -204,9 +205,9 @@ $(function() {
       var target_file = $(this).attr('target-file')
 
     $(modal_id).off('click');
-    
+
     var row = $(this).data('policyid');
-    
+
     current_policy = "#"+row + " td:nth-child(2)";
     current_policy_type = "#"+row + " td:nth-child(3)";
     current_grantee = "#"+row + " td:nth-child(4)";
@@ -215,7 +216,7 @@ $(function() {
     $("#security-policy-edit").val($(current_policy).text());
     $("#policy-type-edit").val($(current_policy_type).text());
     $("#policy-grantee-edit").val($(current_grantee).text());
-   
+
     $(modal_id).modal({keyboard: true})
       .on('click', modal_id + '-operation', function(e) {
         $("#frm-import").attr("action", target_url)
@@ -223,7 +224,7 @@ $(function() {
 
       });
   });
- 
+
   $('.modal-upload-dialog').on('click', function(e){
     var modal_id = $(this).attr('target-modal')
     $(modal_id).off('click');
@@ -238,9 +239,4 @@ $(function() {
 
 });
 </script>
-
-{% endblock %}
-
-
-
-
+{% endblock js %}
