@@ -8,8 +8,8 @@ from core.db.manager import DataHubManager
 
 
 class Command(BaseCommand):
-    help = ("Creates the public and anonymous users "
-            "necessary for publishing data.")
+    help = ("Creates the public policy schema and table "
+            "necessary for creating row level security policies.")
 
     def handle(self, *args, **options):
         print('Creating the public policy schema')
