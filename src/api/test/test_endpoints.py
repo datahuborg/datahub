@@ -201,8 +201,6 @@ Query = namedtuple(
 
 class QueryTests(APIEndpointTests):
 
-     ## TODO: THE INSERT COMMAND DOES NOT WORK AS INTENDED. IT IS RETURNING A 500 ERROR CODE. PLEASE LOOK INTO IT!!!!
-
     def _queries(self, table):
         return [
             Query(sql="""CREATE TABLE """ + table + """ (

@@ -241,12 +241,10 @@ def repo_tables(request, repo_base, repo):
     '''
     username = request.user.get_username()
 
-
     # get the base tables and views of the user's repo
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         base_tables = manager.list_tables(repo)
         views = manager.list_views(repo)
-
 
     rls_table = 'policy'
 
@@ -432,12 +430,9 @@ def table(request, repo_base, repo, table):
         res = manager.paginate_query(
             query=query, current_page=current_page, rows_per_page=50)
 
-
     # get annotation to the table:
     annotation, created = Annotation.objects.get_or_create(url_path=url_path)
     annotation_text = annotation.annotation_text
-
-
 
     data = {
         'login': username,
@@ -882,6 +877,7 @@ def app_allow_access(request, app_id, repo_name):
 Row Level Security Policies
 '''
 
+
 @login_required
 def security_policies(request, repo_base, repo, table):
     '''
@@ -925,6 +921,7 @@ def security_policy_delete(request, repo_base, repo, table, policyid):
     return HttpResponseRedirect(
         reverse('browse-security_policies', args=(repo_base, repo, table)))
 
+
 @login_required
 def security_policy_create(request, repo_base, repo, table):
     '''
@@ -946,6 +943,7 @@ def security_policy_create(request, repo_base, repo, table):
 
     return HttpResponseRedirect(
         reverse('browse-security_policies', args=(repo_base, repo, table)))
+
 
 @login_required
 def security_policy_edit(request, repo_base, repo, table, policyid):
@@ -991,8 +989,6 @@ def security_policy_query(request, repo_base, repo, table):
         reverse('browse-security_policies', args=(repo_base, repo, table)))
 
 
-
-
 class OAuthAppUpdate(ApplicationUpdate):
     """
     Customized form for updating a Django OAuth Toolkit client app.
@@ -1013,4 +1009,3 @@ class OAuthAppUpdate(ApplicationUpdate):
             name=form.instance.name)
         form.instance.skip_authorization = original_object.skip_authorization
         return super(OAuthAppUpdate, self).form_valid(form)
-
