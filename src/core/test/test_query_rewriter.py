@@ -42,16 +42,20 @@ class QueryRewriter(TestCase):
             expected_result)
 
         invalid_table_token = "testtable"
-        expected_result = None
-        self.assertEqual(
-            self.query_rewriter.extract_table_info(invalid_table_token),
-            expected_result)
+        exception_raised = False
+        try:
+            self.query_rewriter.extract_table_info(invalid_table_token)
+        except Exception:
+            exception_raised = True
+        self.assertEquals(exception_raised, True)
 
         invalid_table_token = "table1.table2.table3.table4"
-        expected_result = None
-        self.assertEqual(
-            self.query_rewriter.extract_table_info(invalid_table_token),
-            expected_result)
+        exception_raised = False
+        try:
+            self.query_rewriter.extract_table_info(invalid_table_token)
+        except Exception:
+            exception_raised = True
+        self.assertEquals(exception_raised, True)
 
     def test_extract_table_token(self):
         query = "SELECT * from repo1.table1 as tbl1"
@@ -107,10 +111,12 @@ class QueryRewriter(TestCase):
             expected_result)
 
         invalid_table_string = "invalidtable"
-        expected_result = None
-        self.assertEqual(
-            self.query_rewriter.extract_table_string(invalid_table_string),
-            expected_result)
+        exception_raised = False
+        try:
+            self.query_rewriter.extract_table_string(invalid_table_string)
+        except Exception:
+            exception_raised = True
+        self.assertEquals(exception_raised, True)
 
     def test_contains_subquery(self):
         query = ("select * from (select * from repo.table where "

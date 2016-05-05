@@ -606,6 +606,8 @@ def query(request, repo_base, repo):
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         if repo:
             manager.set_search_paths([repo])
+
+            
         res = manager.paginate_query(
             query=query, current_page=current_page, rows_per_page=50)
 

@@ -23,7 +23,8 @@ class SQLQueryRewriter:
             return [table_info[0], table_info[1], None]
         if len(table_info) == 3:
             return [table_info[1], table_info[2], table_info[0]]
-        return None
+
+        raise Exception('Error parsing %s: missing schema name' % table_string)
 
     def extract_table_string(self, table):
         '''
@@ -144,17 +145,27 @@ class SQLQueryRewriter:
         # permissions.
 
         tokens = sqlparse.parse(query)[0].tokens
+        prev_token = None
         result = ''
 
         table = None
         for token in tokens:
             if self.contains_subquery(token):
                 result += self.process_subquery(token)
+                prev_token = token
                 continue
-            if self.extract_table_token(token) != [] and table is None:
-                table = self.extract_table_info(token.to_unicode())
 
+            if (prev_token is None or token.to_unicode() == " " or
+                    prev_token.to_unicode().lower() != "into"):
+                result += token.to_unicode()
+                if token.to_unicode() != " ":
+                    prev_token = token
+                continue
+
+            table = self.extract_table_info(token.to_unicode())
             result += token.to_unicode()
+            if token.to_unicode() != " ":
+                prev_token = token
 
         if table is not None:
             policy = self.find_security_policy(
@@ -171,6 +182,7 @@ class SQLQueryRewriter:
         the update access type to it.
         '''
         tokens = sqlparse.parse(query.replace(";", ''))[0].tokens
+        prev_token = None
         result = ''
 
         table = None
@@ -179,10 +191,17 @@ class SQLQueryRewriter:
                 result += self.process_subquery(token)
                 continue
 
-            if self.extract_table_token(token) != [] and table is None:
-                table = self.extract_table_info(token.to_unicode())
+            if (prev_token is None or token.to_unicode() == " " or
+                    prev_token.to_unicode().lower() != "update"):
+                result += token.to_unicode()
+                if token.to_unicode() != " ":
+                    prev_token = token
+                continue
 
+            table = self.extract_table_info(token.to_unicode())
             result += token.to_unicode()
+            if token.to_unicode() != " ":
+                prev_token = token
 
         if table is not None:
             policies = self.find_security_policy(
@@ -193,6 +212,19 @@ class SQLQueryRewriter:
         result = result.replace("USERNAME", "'" + self.user + "'")
         return result
 
+    def is_postgres_catalog(self, token):
+        token_name = token.to_unicode()
+        if token_name[:3] == 'pg_':
+            return True
+        return False
+
+    def need_query_rewrite(self, prev_token):
+        prev_token = prev_token.to_unicode().lower()
+        joins = ["inner join", "left join", "right join", "join"]
+        if prev_token == "from" or prev_token in joins:
+            return True
+        return False
+
     def apply_row_level_security_base(self, query):
         '''
         Takes in a SQL query and applies row level security to it. All table
@@ -201,18 +233,28 @@ class SQLQueryRewriter:
         '''
         tokens = sqlparse.parse(query)[0].tokens
         replace_list = []
+        prev_token = None
         result = ''
 
         for token in tokens:
             if self.contains_subquery(token):
                 result += self.process_subquery(token)
+                prev_token = token
+                continue
+
+            if self.is_postgres_catalog(token):
+                result += token.to_unicode()
+                prev_token = token
+                continue
+
+            if (prev_token is None or token.to_unicode() == " " or
+                    not self.need_query_rewrite(prev_token)):
+                result += token.to_unicode()
+                if token.to_unicode() != " ":
+                    prev_token = token
                 continue
 
             table_information = self.extract_table_token(token)
-            if table_information == []:
-                result += token.to_unicode()
-                continue
-
             for table in table_information:
                 if table[0][2] is not None:
                     query = '(SELECT * FROM %s.%s.%s' % (
@@ -244,8 +286,8 @@ class SQLQueryRewriter:
                     alias_name = table[0][0] + table[0][1]
                     query += " AS %s" % (alias_name)
                     replace_list.append((original_table_name,
-                                         alias_name,
-                                         len(result) + len(query)))
+                                        alias_name,
+                                        len(result) + len(query)))
 
                 result += query
                 if len(table_information) > 1:
@@ -253,6 +295,8 @@ class SQLQueryRewriter:
 
             if len(table_information) > 1:
                 result = result[:-2]
+
+            prev_token = token
 
         for alias in replace_list:
             result = result[0:alias[2]] + result[alias[2]:].replace(
