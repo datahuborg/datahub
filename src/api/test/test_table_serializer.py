@@ -29,7 +29,6 @@ class TableSerializerTests(TestCase):
         return thing
 
     def test_create_table(self):
-        mm_set_search_paths = self.mock_manager.return_value.set_search_paths
         mock_manager_create_table = self.mock_manager.return_value.create_table
         mock_manager_create_table.return_value = True
 
@@ -42,7 +41,6 @@ class TableSerializerTests(TestCase):
 
         success = self.serializer.create_table(repo, table, params)
 
-        self.assertTrue(mm_set_search_paths.called)
         self.assertTrue(mock_manager_create_table.called)
         self.assertEqual(success, True)
 

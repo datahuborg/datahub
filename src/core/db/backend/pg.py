@@ -107,18 +107,6 @@ class PGBackend:
         self.repo_base = repo_base
         self.__open_connection__()
 
-    def set_search_paths(self, search_paths):
-        for path in search_paths:
-            self._check_for_injections(path)
-
-        paths = ', '.join(search_paths)
-        params = (AsIs(paths),)
-
-        query = 'set search_path to %s;'
-
-        res = self.execute_sql(query, params)
-        return res
-
     def close_connection(self):
         pool = _pool_for_credentials(self.user, self.password, self.repo_base,
                                      create_if_missing=False)
