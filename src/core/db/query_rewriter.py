@@ -150,6 +150,7 @@ class SQLQueryRewriter:
 
         table = None
         for token in tokens:
+            print token
             if self.contains_subquery(token):
                 result += self.process_subquery(token)
                 prev_token = token
@@ -162,19 +163,22 @@ class SQLQueryRewriter:
                     prev_token = token
                 continue
 
-            table = self.extract_table_info(token.to_unicode())
+            #table = self.extract_table_info(token.to_unicode())
+            table = self.extract_table_string(token.to_unicode())
             result += token.to_unicode()
             if token.to_unicode() != " ":
                 prev_token = token
 
+        print table
+
         if table is not None:
             policy = self.find_security_policy(
-                table[1], table[0], "insert", table[2])
+                table[0][1], table[0][0], "insert", table[0][2])
 
             if policy == [] or policy[0] == "INSERT='True'":
                 return result
 
-        raise Exception('User does not have insert access on %s' % table[1])
+        raise Exception('User does not have insert access on %s' % table[0][1])
 
     def apply_row_level_security_update(self, query):
         '''
