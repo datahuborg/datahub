@@ -95,9 +95,6 @@ urlpatterns = patterns(
         name='browser-card_delete'),
     url(r'^delete/(\w+)/(\w+)/file/([ -~]+)/?$', 'browser.views.file_delete',
         name='browser-file_delete'),
-    url(r'^delete/(\w+)/(\w+)/(\w+)/securitypolicy/(\w+)/?$',
-        'browser.views.security_policy_delete',
-        name='browser-securitypolicy_delete'),
 
 
     # Export
@@ -155,6 +152,9 @@ urlpatterns = patterns(
         'browser.views.security_policy_create', name='security-policy_create'),
     url(r'^edit/(\w+)/(\w+)/(\w+)/securitypolicy/(\w+)/?$',
         'browser.views.security_policy_edit', name='security-policy_edit'),
+    url(r'^delete/(\w+)/(\w+)/(\w+)/securitypolicy/(\w+)/?$',
+        'browser.views.security_policy_delete',
+        name='browser-securitypolicy_delete'),
     url(r'^execute/(\w+)/(\w+)/(\w+)/securitypolicy/query/?$',
         'browser.views.security_policy_query', name='security-policy_query'),
 
