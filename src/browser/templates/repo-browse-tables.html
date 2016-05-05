@@ -30,7 +30,7 @@
             <td class="text-right">
 
               {% if login == repo_base %} 
-              <a href="/browse/{{repo_base}}/{{repo}}/securitypolicies/{{base_table}}" title="View Security Policies"><span class="fa fa-lock"></span></a>
+              <a href="{% url 'browse-security_policies' repo_base repo base_table %}" title="View Security Policies"><span class="fa fa-lock"></span></a>
               &nbsp;&nbsp;
               {% endif %}
                

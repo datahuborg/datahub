@@ -3,9 +3,9 @@
 {% block content %}
 <div class="container">
   <h4 class="inline-block">
-    <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
+    <a class="link" href="{% url 'browser-user' repo_base %}">{{repo_base}}</a>
     /
-    <a class="link" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a>
+    <a class="link" href="{% url 'browser-repo' repo_base repo %}">{{repo}}</a>
     /
     {% block table-name %}
       table / {{table}}
@@ -15,7 +15,7 @@
   <hr />
   <br />
 
-  <form role="form" method="POST" action="/execute/{{repo_base}}/{{repo}}/{{table}}/securitypolicy/query/">
+  <form role="form" method="POST" action="{% url 'security-policy_query' repo_base repo table %}">
     {% csrf_token %}
     <div class="row">
     <div class="form-group col-sm-10">
@@ -47,7 +47,7 @@
         <h4 class="modal-title" id="security-policy-modal-title">Create New Security Policy</h4>
       </div>
       <div class="modal-body" id="security-policy-modal-body">
-        <form role="form" method="POST" action="/create/{{repo_base}}/{{repo}}/{{table}}/securitypolicy" enctype='multipart/form-data' id="security-policy-modal-form">
+        <form role="form" method="POST" action="{% url 'security-policy_create' repo_base repo table %}" enctype='multipart/form-data' id="security-policy-modal-form">
 
         {% csrf_token %}
         <p>This will create a new security policy for the <strong>{{repo_base}}/{{repo}}/{{table}}</strong> table.
@@ -117,7 +117,7 @@
                   <span
                   class="modal-link modal-import-dialog"
                   target-modal="#import-modal"
-                  target-url="/edit/{{repo_base}}/{{repo}}/{{table}}/securitypolicy/{{policy.0}}"
+                  target-url="{% url 'security-policy_edit' repo_base repo table policy.0 %}"
                   data-policyid="policy_{{policy.0}}" 
                   title="edit">
                  <span class="fa fa-pencil"></span>
@@ -129,7 +129,7 @@
                   target-modal-title="Confirm Delete"
                   target-modal-body="This will permanently delete this security policy. The operation can't be undone. Are you sure?"
                   target-modal-operation="Delete"
-                  target-url="/delete/{{repo_base}}/{{repo}}/{{table}}/securitypolicy/{{policy.0}}"
+                  target-url="{% url 'browser-securitypolicy_delete' repo_base repo table policy.0 %}"
                   title="Delete">
                  <span class="delete-icon"></span>
                  </span>
