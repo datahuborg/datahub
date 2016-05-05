@@ -209,7 +209,7 @@ class QueryTests(APIEndpointTests):
                       is_deep_fried boolean);
                   """,
                   status_code=status.HTTP_200_OK,
-                  expect_json=None,
+                  expect_json=[{'status': 'success'}],
                   expect_csv=''),
             Query(sql="SELECT * FROM " + table + ";",
                   status_code=status.HTTP_200_OK,
@@ -218,7 +218,7 @@ class QueryTests(APIEndpointTests):
             Query(sql="INSERT INTO " + table +
                       " VALUES ('reuben', 25, FALSE);",
                   status_code=status.HTTP_200_OK,
-                  expect_json=None,
+                  expect_json=[{'status': 'success'}],
                   expect_csv=''),
             Query(sql="SELECT * FROM " + table + ";",
                   status_code=status.HTTP_200_OK,
@@ -230,7 +230,7 @@ class QueryTests(APIEndpointTests):
                              "25,False,reuben"),
             Query(sql="DROP TABLE " + table,
                   status_code=status.HTTP_200_OK,
-                  expect_json=None,
+                  expect_json=[{'status': 'success'}],
                   expect_csv=''),
         ]
 
