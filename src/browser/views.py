@@ -926,11 +926,11 @@ def security_policy_create(request, repo_base, repo, table):
     '''
     username = request.user.get_username()
     try:
-        manager = RowLevelSecurityManager(username, repo_base, repo, table)
-        policy = request.POST['security-policy']
-        policy_type = request.POST['policy-type']
-        grantee = request.POST['policy-grantee']
-        manager.add_security_policy(policy, policy_type, grantee)
+        with RowLevelSecurityManager(username, repo_base, repo, table) as manager:
+            policy = request.POST['security-policy']
+            policy_type = request.POST['policy-type']
+            grantee = request.POST['policy-grantee']
+            manager.add_security_policy(policy, policy_type, grantee)
 
     except Exception as e:
         return HttpResponse(

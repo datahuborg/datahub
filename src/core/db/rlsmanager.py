@@ -38,6 +38,15 @@ class RowLevelSecurityManager:
             password=settings.DATABASES['default']['USER'],
             repo_base='dh_public')
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close_connection()
+
+    def close_connection(self):
+        self.user_con.close_connection()
+
     def add_security_policy(self, policy, policy_type, grantee):
         '''
         Creates a new security policy in the policy table. First, we check
