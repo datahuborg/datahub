@@ -758,7 +758,7 @@ class PGBackend:
         return import_datafiles([file_path], create_new, table_name, errfile,
                                 PGMethods, **dbsettings)
 
-    def escape_quotes(self, parameter):
+    def _escape_quotes(self, parameter):
         '''
         Replaces single quotes in parameter with double quotes
         to ensure that postgres escapes them.
@@ -782,7 +782,7 @@ class PGBackend:
         '''
         params = [policy, policy_type, grantee, grantor,
                   table, repo, repo_base]
-        params = [self.escape_quotes(param) for param in params]
+        params = [self._escape_quotes(param) for param in params]
         for param in params[1:]:
             self._check_for_injections(param)
 
@@ -813,7 +813,7 @@ class PGBackend:
         specified table.
         '''
         params = [table, repo, repo_base]
-        params = [self.escape_quotes(param) for param in params]
+        params = [self._escape_quotes(param) for param in params]
         for param in params:
             self._check_for_injections(param)
 
@@ -843,7 +843,7 @@ class PGBackend:
             if value is None:
                 del params[key]
                 continue
-            value = self.escape_quotes(value)
+            value = self._escape_quotes(value)
             if key != 'policy_id' and key != 'policy':
                 self._check_for_injections(str(value))
 
@@ -876,7 +876,7 @@ class PGBackend:
         # Need to add quote in front of single quotes to make sure that
         # postgres will escape it
         params = [new_policy, new_policy_type, new_grantee, policy_id]
-        params = [self.escape_quotes(param) for param in params]
+        params = [self._escape_quotes(param) for param in params]
         self._check_for_injections(params[1])
         self._check_for_injections(params[2])
 
