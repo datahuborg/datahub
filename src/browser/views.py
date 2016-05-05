@@ -878,7 +878,7 @@ Row Level Security Policies
 @login_required
 def security_policies(request, repo_base, repo, table):
     '''
-    shows the security policies defined for a table.
+    Shows the security policies defined for a table.
     '''
     username = request.user.get_username()
 
@@ -903,13 +903,13 @@ def security_policies(request, repo_base, repo, table):
 @login_required
 def security_policy_delete(request, repo_base, repo, table, policyid):
     '''
-    shows the security policies defined for a table.
+    Deletes a security policy defined for a table given a policy_id.
     '''
     username = request.user.get_username()
 
     try:
         manager = RowLevelSecurityManager(username, repo_base, repo, table)
-        policies = manager.remove_security_policy(policyid)
+        manager.remove_security_policy(policyid)
     except Exception as e:
         return HttpResponse(
             json.dumps(
@@ -922,7 +922,7 @@ def security_policy_delete(request, repo_base, repo, table, policyid):
 @login_required
 def security_policy_create(request, repo_base, repo, table):
     '''
-    shows the security policies defined for a table.
+    Creates a security policy for a table.
     '''
     username = request.user.get_username()
     try:
@@ -945,7 +945,7 @@ def security_policy_create(request, repo_base, repo, table):
 @login_required
 def security_policy_edit(request, repo_base, repo, table, policyid):
     '''
-    shows the security policies defined for a table.
+    Edits a security policy defined for a table given a policy_id.
     '''
     username = request.user.get_username()
     try:
@@ -968,7 +968,7 @@ def security_policy_edit(request, repo_base, repo, table, policyid):
 @login_required
 def security_policy_query(request, repo_base, repo, table):
     '''
-    shows the security policies defined for a table.
+    Converts a SQL permissions statement into a new security policy.
     '''
     username = request.user.get_username()
     query = post_or_get(request, key='q', fallback=None)
