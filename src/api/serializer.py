@@ -405,16 +405,15 @@ class QuerySerializer(DataHubSerializer):
         return_dict['est_byte_width'] = result.get('byte_width', None)
         return_dict['est_total_pages'] = result.get('total_pages', None)
 
-        if select_query:
-            new_rows = []
-            for row in rows:
-                obj = {}
-                for i in range(len(columns)):
-                    column = columns[i]
-                    obj[column] = row[i]
-                new_rows.append(obj)
+        new_rows = []
+        for row in rows:
+            obj = {}
+            for i in range(len(columns)):
+                column = columns[i]
+                obj[column] = row[i]
+            new_rows.append(obj)
 
-            return_dict['rows'] = new_rows
+        return_dict['rows'] = new_rows
 
         # add appropriate link to previous and next:
         # next
