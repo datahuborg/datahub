@@ -214,10 +214,6 @@ p.bg-warning {
   height: 17px;
 }
 
-.fa-lock {
-  color: black;
-}
-
 .open-icon{
   display: inline-block;
   background-image:url(/static/images/open.png);
