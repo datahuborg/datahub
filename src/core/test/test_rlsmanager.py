@@ -20,7 +20,7 @@ class RowLevelSecurityManagerTests(TestCase):
             'core.db.rlsmanager.core.db.connection.DataHubConnection')
 
         self.manager = RowLevelSecurityManager(
-            self.username, self.table, self.repo, self.repo_base)
+            self.username, self.repo_base, self.repo, self.table)
 
     def create_patch(self, name):
         # helper method for creating patches

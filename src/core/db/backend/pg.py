@@ -770,7 +770,8 @@ class PGBackend:
         Checks if the repo owner is the person granting security policies.
         Only repo owners can create security policies.
         '''
-        if grantor == repo_base:
+        if (grantor == repo_base or
+            grantor == settings.DATABASES['default']['USER']):
             return True
         return False
 

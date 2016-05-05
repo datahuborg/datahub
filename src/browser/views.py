@@ -883,7 +883,7 @@ def security_policies(request, repo_base, repo, table):
     username = request.user.get_username()
 
     # get the base tables and views of the user's repo
-    manager = RowLevelSecurityManager(username, table, repo, repo_base)
+    manager = RowLevelSecurityManager(username, repo_base, repo, table)
     try:
         policies = manager.list_security_policies()
     except LookupError:
@@ -908,7 +908,7 @@ def security_policy_delete(request, repo_base, repo, table, policyid):
     username = request.user.get_username()
 
     try:
-        manager = RowLevelSecurityManager(username, table, repo, repo_base)
+        manager = RowLevelSecurityManager(username, repo_base, repo, table)
         policies = manager.remove_security_policy(policyid)
     except Exception as e:
         return HttpResponse(
@@ -926,7 +926,7 @@ def security_policy_create(request, repo_base, repo, table):
     '''
     username = request.user.get_username()
     try:
-        manager = RowLevelSecurityManager(username, table, repo, repo_base)
+        manager = RowLevelSecurityManager(username, repo_base, repo, table)
         policy = request.POST['security-policy']
         policy_type = request.POST['policy-type']
         grantee = request.POST['policy-grantee']
@@ -949,7 +949,7 @@ def security_policy_edit(request, repo_base, repo, table, policyid):
     '''
     username = request.user.get_username()
     try:
-        manager = RowLevelSecurityManager(username, table, repo, repo_base)
+        manager = RowLevelSecurityManager(username, repo_base, repo, table)
         policy = request.POST['security-policy-edit']
         policy_type = request.POST['policy-type-edit']
         grantee = request.POST['policy-grantee-edit']

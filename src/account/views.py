@@ -118,7 +118,10 @@ def register(request):
             # Create row level security policies in the dh_public policy table
             # granting user select, insert, update access to policies he create
             rls_manager = RowLevelSecurityManager(
-                'dh_public', 'policy', 'dh_public', 'dh_public')
+                username = settings.DATABASES['default']['USER'],
+                repo_base = settings.POLICY_DB,
+                repo = settings.POLICY_SCHEMA,
+                table = settings.POLICY_TABLE)
 
             policy = ('grantor = \'%s\'' % username)
             rls_manager.add_security_policy(policy, "select", username)
@@ -325,7 +328,8 @@ def delete(request):
         # Remove row level security policies in the dh_public policy table
         # granting user select, insert, update access to policies he create
         rls_manager = RowLevelSecurityManager(
-            'dh_public', 'policy', 'dh_public', 'dh_public')
+            username='dh_public', repo_base='dh_public', repo='dh_public',
+            table='policy')
 
         policy = ('grantor = \'%s\'' % username)
 

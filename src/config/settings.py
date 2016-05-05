@@ -44,6 +44,11 @@ PUBLIC_ROLE_EMAIL = 'noreply+public@datahub.csail.mit.edu'
 ANONYMOUS_ROLE = 'dh_anonymous'
 ANONYMOUS_ROLE_EMAIL = 'noreply+anon@datahub.csail.mit.edu'
 
+# Where the row level security policies are stored
+POLICY_DB = PUBLIC_ROLE
+POLICY_SCHEMA = PUBLIC_ROLE
+POLICY_TABLE = 'policy'
+
 TIME_ZONE = 'America/New_York'
 
 # Language code for this installation.

@@ -9,13 +9,9 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 class RowLevelSecurityManager:
 
-    def __init__(self, user, table, repo, repo_base):
-        if user != 'dh_public' and user != 'postgres':
-            user = User.objects.get(username=user)
-            self.username = user.username
-        else:
-            self.username = user
+    def __init__(self, username, repo_base, repo, table):
 
+        self.username = username
         self.repo_base = repo_base
         self.repo = repo
         self.table = table
