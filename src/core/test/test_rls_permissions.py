@@ -96,22 +96,26 @@ class RLS_Permissions(TestCase):
             self.rls_permissions_parser.extract_policy(grant_permission),
             expected_policy)
 
-    def test_process_permissions(self):
+    def test_process_permissions_grant(self):
         grant_permission = ("grant select access to kxzhang on test.customer "
                             "where customerid='1'")
 
         mock_manager = self.create_patch(
             'core.db.rls_permissions.RowLevelSecurityManager')
-        mock_add_policy = mock_manager.return_value.add_security_policy
+        mock_add_policy = mock_manager.return_value.__enter__.return_value.add_security_policy
 
+        # import pdb; pdb.set_trace()
         self.rls_permissions_parser.process_permissions(grant_permission)
         self.assertTrue(mock_add_policy.called)
 
+    def test_process_permissions_revoke(self):
+        mock_manager = self.create_patch(
+            'core.db.rls_permissions.RowLevelSecurityManager')
         revoke_permission = ("revoke select access to kxzhang on test.customer"
                              " where customerid='1'")
-        mock_find_policy = mock_manager.return_value.find_security_policy
+        mock_find_policy = mock_manager.return_value.__enter__.return_value.find_security_policy
         mock_find_policy.return_value = ["test_policy"]
-        mock_remove_policy = mock_manager.return_value.remove_security_policy
+        mock_remove_policy = mock_manager.return_value.__enter__.return_value.remove_security_policy
 
         self.rls_permissions_parser.process_permissions(revoke_permission)
         self.assertTrue(mock_remove_policy.called)

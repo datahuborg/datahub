@@ -316,17 +316,16 @@ class SQLQueryRewriter:
         if repo_base is None:
             repo_base = self.repo_base
 
-        rls_manager = core.db.rlsmanager.RowLevelSecurityManager(
+        with core.db.rlsmanager.RowLevelSecurityManager(
             username=self.user,
             repo_base=repo_base,
             repo=repo,
             table=table
-        )
-
-        user_policies = rls_manager.find_security_policy(
-            policy_type=policytype, grantee=self.user)
-        all_policies = rls_manager.find_security_policy(
-            policy_type=policytype, grantee="ALL")
+        ) as mngr:
+            user_policies = mngr.find_security_policy(
+                policy_type=policytype, grantee=self.user)
+            all_policies = mngr.find_security_policy(
+                policy_type=policytype, grantee="ALL")
 
         security_policies = user_policies + all_policies
 
