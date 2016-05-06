@@ -784,7 +784,6 @@ class DataHubManager:
         Set variables for query pagination, limiting query statement
         to just the section of the table that will be displayed
         """
-
         explanation = self.explain_query(query)
 
         num_rows = explanation['num_rows']
@@ -986,9 +985,6 @@ class DataHubManager:
                 # Try the simple case first: delete the user when they have no
                 # db permissions left
                 result = conn.remove_user(username=username)
-                RowLevelSecurityManager.remove_user_from_policy_table(
-                    username=username)
-
             except:
                 # Assume the failure was outstanding db permissions. Remove
                 # them and try again.
@@ -997,6 +993,10 @@ class DataHubManager:
                     DataHubManager.drop_owned_by(username=username,
                                                  repo_base=db)
                 result = conn.remove_user(username=username)
+
+            RowLevelSecurityManager.remove_user_from_policy_table(
+                username=username)
+
         return result
 
     @staticmethod
