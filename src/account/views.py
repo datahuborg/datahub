@@ -20,7 +20,6 @@ from django.http import HttpResponse, \
                         HttpResponseNotFound, \
                         HttpResponseNotAllowed
 from core.db.manager import DataHubManager
-from core.db.rlsmanager import RowLevelSecurityManager
 from browser.utils import post_or_get, \
                           add_query_params_to_url
 
@@ -113,10 +112,6 @@ def register(request):
             # doesn't exist. If the database cannot be created, that handler
             # will throw an exception.
             user = datahub_authenticate(username, password)
-
-            # Create row level security policies in the dh_public policy table
-            # granting user select, insert, update access to policies he create
-            RowLevelSecurityManager.add_user_to_policy_table(username)
 
             if user is not None and user.is_active:
                 django_login(request, user)
@@ -309,8 +304,6 @@ def delete(request):
     context = RequestContext(request, {
         'username': username})
     try:
-        # Remove row level security policies in the dh_public policy table
-        # granting user select, insert, update access to policies he create
         DataHubManager.remove_user(username=username, remove_db=True)
         django_logout(request)
         return render(request, 'delete-done.html', context)

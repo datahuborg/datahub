@@ -4,6 +4,7 @@ from django.db.models.signals import pre_save
 from psycopg2 import OperationalError
 from django.db.utils import IntegrityError
 from core.db.manager import DataHubManager
+from core.db.rlsmanager import RowLevelSecurityManager
 
 # Note that these may fire multiple times and for users that already exist.
 
@@ -68,3 +69,21 @@ def create_user_db_and_data_folder_if_needed(sender, instance, **kwargs):
     else:
         raise Exception("Failed to create user. That name is already"
                         " in use by either a role, database, or data folder.")
+
+
+@receiver(pre_save, sender=User,
+          dispatch_uid="dh_user_pre_save_add_user_to_policy_table")
+def add_user_to_policy_table(sender, instance, **kwargs):
+    """
+    Adds default policies for user to row level security policy table.
+
+    Does nothing if the user already has an entry in the policy table.
+    """
+    username = instance.username
+    # Create row level security policies in the dh_public policy table
+    # granting user select, insert, update access to policies he create
+    try:
+        RowLevelSecurityManager.add_user_to_policy_table(username)
+    except Exception:
+        # Ignore failures when the user already has a policy.
+        pass
