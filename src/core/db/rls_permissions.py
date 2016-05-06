@@ -21,9 +21,9 @@ class RLSPermissionsParser:
         policy = self.extract_policy(permission)
 
         with RowLevelSecurityManager(username=self.user,
-                                    table=extract_table_info[1],
-                                    repo=extract_table_info[0],
-                                    repo_base=self.repo_base) as rls_manager:
+                                     table=extract_table_info[1],
+                                     repo=extract_table_info[0],
+                                     repo_base=self.repo_base) as rls_manager:
 
             if permission_type == "grant":
                 rls_manager.add_security_policy(

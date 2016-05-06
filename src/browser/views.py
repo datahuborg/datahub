@@ -11,9 +11,9 @@ from django.core.urlresolvers import reverse
 from django.core import serializers
 
 from django.http import HttpResponse, \
-                        HttpResponseRedirect, \
-                        HttpResponseForbidden, \
-                        HttpResponseNotAllowed
+    HttpResponseRedirect, \
+    HttpResponseForbidden, \
+    HttpResponseNotAllowed
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.views.decorators.csrf import csrf_exempt
@@ -182,8 +182,7 @@ def public(request):
         'login': username,
         'repo_base': 'repo_base',
         'repos': [],
-        'public_repos': public_repos,
-        })
+        'public_repos': public_repos})
 
 
 def user(request, repo_base=None):
@@ -306,8 +305,7 @@ def repo_create(request, repo_base):
         message = (
             'Error: Permission Denied. '
             '%s cannot create new repositories in %s.'
-            % (username, repo_base)
-            )
+            % (username, repo_base))
         return HttpResponseForbidden(message)
 
     if request.method == 'POST':
@@ -381,11 +379,10 @@ def repo_collaborators_add(request, repo_base, repo):
         manager.add_collaborator(
             repo, collaborator_username,
             db_privileges=db_privileges,
-            file_privileges=file_privileges
-            )
+            file_privileges=file_privileges)
 
     return HttpResponseRedirect(
-            reverse('browser-repo_settings', args=(repo_base, repo,)))
+        reverse('browser-repo_settings', args=(repo_base, repo,)))
 
 
 @login_required
@@ -403,7 +400,7 @@ def repo_collaborators_remove(request, repo_base, repo, collaborator_username):
     # otherwise, return the browse page
     if username == repo_base:
         return HttpResponseRedirect(
-                reverse('browser-repo_settings', args=(repo_base, repo,)))
+            reverse('browser-repo_settings', args=(repo_base, repo,)))
     else:
         return HttpResponseRedirect(reverse('browser-user-default'))
 
@@ -756,8 +753,7 @@ def thrift_app_detail(request, app_id):
     app = App.objects.get(user=user, app_id=app_id)
     c = RequestContext(request, {
         'login': request.user.get_username(),
-        'app': app
-        })
+        'app': app})
     return render_to_response('thrift_app_detail.html', c)
 
 
