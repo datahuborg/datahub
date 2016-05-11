@@ -209,3 +209,8 @@ class DataHubConnection:
 
     def remove_security_policy(self, policy_id):
         return self.backend.remove_security_policy(policy_id)
+
+    def can_user_access_rls_table(self,
+                                  username,
+                                  permissions=['SELECT', 'UPDATE', 'INSERT']):
+        return self.backend.can_user_access_rls_table(username, permissions)

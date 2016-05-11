@@ -1063,3 +1063,30 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         # The method does so little
         # that it doesn't even make much sense to test it.
         pass
+
+    def test_can_user_access_rls_table(self):
+        mock_settings = self.create_patch("core.db.backend.pg.settings")
+        mock_settings.POLICY_SCHEMA = 'SCHEMA'
+        mock_settings.POLICY_TABLE = 'TABLE'
+
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 1,
+            'tuples': [
+                (True,),
+            ]}
+
+        username = 'delete_me_user'
+        permissions = ['select', 'update']
+
+        expected_query = (
+            "SELECT exists("
+            "SELECT * FROM %s.%s where grantee=lower(%s) and ("
+            "lower(policy_type)=lower(%s) or lower(policy_type)=lower(%s)"
+            "))")
+        expected_params = ('SCHEMA', 'TABLE', 'delete_me_user', 'select',
+                           'update')
+
+        self.backend.can_user_access_rls_table(username, permissions)
+        self.assertEqual(self.mock_execute_sql.call_args[0][0], expected_query)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][1], expected_params)

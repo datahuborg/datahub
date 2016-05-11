@@ -927,3 +927,28 @@ class PGBackend:
                  % policy_id)
         res = self.execute_sql(query, row_level_security=False)
         return res['status']
+
+    def can_user_access_rls_table(self,
+                                  username,
+                                  permissions=['SELECT', 'UPDATE', 'INSERT']):
+        '''
+        Returns True if the has been granted specified type(s) of access to
+        select/update/insert into the RLS policy table. Else, returns false.
+
+        This must be executed from a connection to the
+        settings.POLICY_DB database. Otherwise, it will check the wrong
+        database, and (most likely) return fFalse
+        '''
+        query = ("SELECT exists("
+                 "SELECT * FROM %s.%s where grantee=lower(%s) and (")
+
+        conditions = ["lower(policy_type)=lower(%s)"] * len(permissions)
+        conditions = " or ".join(conditions)
+        query += conditions + "))"
+
+        params = (AsIs(settings.POLICY_SCHEMA),
+                  AsIs(settings.POLICY_TABLE),
+                  username) + tuple(permissions)
+
+        res = self.execute_sql(query, params, row_level_security=False)
+        return res['tuples'][0][0]

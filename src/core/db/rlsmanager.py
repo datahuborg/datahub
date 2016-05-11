@@ -156,3 +156,11 @@ class RowLevelSecurityManager:
                 policies = conn.find_all_security_policies(username)
                 for policy in policies:
                     conn.remove_security_policy(policy[0])
+
+    @staticmethod
+    def can_user_access_rls_table(username,
+                                  permissions=['SELECT', 'UPDATE', 'INSERT']):
+        with _superuser_connection(settings.POLICY_DB) as conn:
+            result = conn.can_user_access_rls_table(username, permissions)
+
+        return result
