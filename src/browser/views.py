@@ -897,15 +897,16 @@ def security_policies(request, repo_base, repo, table):
 
 
 @login_required
-def security_policy_delete(request, repo_base, repo, table, policyid):
+def security_policy_delete(request, repo_base, repo, table, policy_id):
     '''
     Deletes a security policy defined for a table given a policy_id.
     '''
     username = request.user.get_username()
+    policy_id = int(policy_id)
 
     try:
         with RowLevelSecurityManager(username, repo_base, repo, table) as mngr:
-            mngr.remove_security_policy(policyid)
+            mngr.remove_security_policy(policy_id)
     except Exception as e:
         return HttpResponse(
             json.dumps(

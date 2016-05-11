@@ -758,12 +758,7 @@ class PGBackend:
         return import_datafiles([file_path], create_new, table_name, errfile,
                                 PGMethods, **dbsettings)
 
-    def _escape_quotes(self, parameter):
-        '''
-        Replaces single quotes in parameter with double quotes
-        to ensure that postgres escapes them.
-        '''
-        return parameter.replace("'", "''")
+    # Below methods can only be called from the RLSSecurityManager #
 
     def check_access_permissions(self, grantor, repo_base):
         '''
@@ -781,12 +776,6 @@ class PGBackend:
         Creates a new security policy in the policy table if the policy
         does not yet exist.
         '''
-        params = [policy, policy_type, grantee, grantor,
-                  table, repo, repo_base]
-        params = [self._escape_quotes(param) for param in params]
-        for param in params[1:]:
-            self._check_for_injections(param)
-
         if not self.check_access_permissions(grantor, repo_base):
             raise Exception('%s does not have permission to define security '
                             'policies on %s.%s.' % (grantor, repo, table))
@@ -801,8 +790,9 @@ class PGBackend:
 
         query = ('INSERT INTO dh_public.policy (policy, policy_type, grantee, '
                  'grantor, table_name, repo, repo_base) values '
-                 '(\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\')')
-        params = tuple(map(lambda x: AsIs(x), params))
+                 '(%s, %s, %s, %s, %s, %s, %s)')
+        params = (policy, policy_type, grantee, grantor, table, repo,
+                  repo_base)
 
         res = self.execute_sql(query, params, row_level_security=False)
 
@@ -813,27 +803,23 @@ class PGBackend:
         Return a list of all the security policies defined for the
         specified table.
         '''
-        params = [table, repo, repo_base]
-        params = [self._escape_quotes(param) for param in params]
-        for param in params:
-            self._check_for_injections(param)
+        params = (table, repo, repo_base)
 
         query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
                  'FROM dh_public.policy '
-                 'WHERE table_name = \'%s\' '
-                 'AND repo = \'%s\' AND repo_base = \'%s\'')
-        params = tuple(map(lambda x: AsIs(x), params))
+                 'WHERE table_name = %s '
+                 'AND repo = %s AND repo_base = %s')
 
         res = self.execute_sql(query, params, row_level_security=False)
         return res['tuples']
 
     def find_all_security_policies(self, username):
-        self._check_for_injections(username)
-        params = [username, username]
+        params = (username, username)
+
         query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
-                 'FROM dh_public.policy WHERE grantee = \'%s\' or '
-                 'grantor = \'%s\'')
-        params = tuple(map(lambda x: AsIs(x), params))
+                 'FROM dh_public.policy WHERE grantee = %s or '
+                 'grantor = %s')
+
         res = self.execute_sql(query, params, row_level_security=False)
         return res['tuples']
 
@@ -844,27 +830,33 @@ class PGBackend:
         Returns a list of all security polices that match the inputs specied
         by the user.
         '''
-        params = locals()
-        del params["self"]
         query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
-                 'FROM dh_public.policy WHERE ')
+                 'FROM %s.%s WHERE ')
+        params = [AsIs(settings.POLICY_SCHEMA), AsIs(settings.POLICY_TABLE)]
+        conditions = []
 
-        first_conditional_added = False
-        for key, value in params.items():
-            if value is None:
-                del params[key]
-                continue
-            value = self._escape_quotes(value)
-            if key != 'policy_id' and key != 'policy':
-                self._check_for_injections(str(value))
+        if policy_id:
+            conditions.append('policy_id = %s')
+            params.append(policy_id)
+        if policy:
+            conditions.append('policy = %s')
+            params.append(policy)
+        if policy_type:
+            conditions.append('policy_type = %s')
+            params.append(policy_type)
+        if grantee:
+            conditions.append('grantee = %s')
+            params.append(grantee)
+        if grantor:
+            conditions.append('grantor = %s')
+            params.append(grantor)
 
-            if not first_conditional_added:
-                query += '%s = \'%s\'' % (key, value)
-                first_conditional_added = True
-            else:
-                query += ' AND %s = \'%s\'' % (key, value)
+        conditions = " and ".join(conditions)
+        params = tuple(params)
+        query += conditions
 
-        res = self.execute_sql(query, row_level_security=False)
+        res = self.execute_sql(query, params, row_level_security=False)
+
         return res['tuples']
 
     def find_security_policy_by_id(self, policy_id):
@@ -874,8 +866,9 @@ class PGBackend:
         '''
         query = ('SELECT policy_id, policy, policy_type, grantee, grantor, '
                  'table_name, repo, repo_base '
-                 'FROM dh_public.policy WHERE policy_id = %s' % policy_id)
-        res = self.execute_sql(query)
+                 'FROM dh_public.policy WHERE policy_id = %s')
+        params = (policy_id,)
+        res = self.execute_sql(query, params)
         return res['tuples']
 
     def update_security_policy(self, policy_id, new_policy, new_policy_type,
@@ -884,13 +877,6 @@ class PGBackend:
         Updates an existing security policy based on the inputs specified
         by the user.
         '''
-        # Need to add quote in front of single quotes to make sure that
-        # postgres will escape it
-        params = [new_policy, new_policy_type, new_grantee, policy_id]
-        params = [self._escape_quotes(param) for param in params]
-        self._check_for_injections(params[1])
-        self._check_for_injections(params[2])
-
         policy = self.find_security_policy_by_id(policy_id)
         if policy == []:
             raise LookupError('Policy_ID %s does not exist.' % policy_id)
@@ -901,11 +887,11 @@ class PGBackend:
                             % (policy[0][4], policy[0][6], policy[0][5]))
 
         query = ('UPDATE dh_public.policy '
-                 'SET policy = \'%s\', policy_type = \'%s\', '
-                 'grantee = \'%s\' '
+                 'SET policy = %s, policy_type = %s, '
+                 'grantee = %s '
                  'WHERE policy_id = %s')
+        params = (new_policy, new_policy_type, new_grantee, policy_id)
 
-        params = tuple(map(lambda x: AsIs(x), params))
         res = self.execute_sql(query, params, row_level_security=False)
         return res['status']
 
@@ -914,6 +900,9 @@ class PGBackend:
         Removes the security policy from the policy table with a policy_id
         matching the one specified by the user.
         '''
+        # sometimes people forget to pass policy_id as an int
+        policy_id = int(policy_id)
+
         policy = self.find_security_policy_by_id(policy_id)
         if policy == []:
             raise LookupError('Policy_ID %s does not exist.' % (policy_id))
@@ -923,9 +912,9 @@ class PGBackend:
                             'policies on %s.%s.'
                             % (policy[0][4], policy[0][6], policy[0][5]))
 
-        query = ('DELETE FROM dh_public.policy WHERE policy_id = %s'
-                 % policy_id)
-        res = self.execute_sql(query, row_level_security=False)
+        query = 'DELETE FROM dh_public.policy WHERE policy_id = %s'
+        params = (policy_id,)
+        res = self.execute_sql(query, params, row_level_security=False)
         return res['status']
 
     def can_user_access_rls_table(self,
