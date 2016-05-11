@@ -1,6 +1,13 @@
+from rest_framework import permissions, \
+                           authentication
 from oauth2_provider.ext.rest_framework import OAuth2Authentication, \
                                                TokenHasScope, \
                                                TokenHasReadWriteScope
+
+from inventory.models import Card
+
+from django.contrib.auth.models import User
+from django.conf import settings
 
 
 class WeakTokenHasScope(TokenHasScope):
@@ -45,3 +52,55 @@ class WeakTokenHasReadWriteScope(TokenHasReadWriteScope):
 
         return super(WeakTokenHasReadWriteScope, self).has_permission(
             request, view)
+
+
+def _card_is_public(repo_base, repo_name, card_name):
+    """Returns True if card exists and is public, False otherwise."""
+    try:
+        card = Card.objects.get(
+            repo_base=repo_base,
+            repo_name=repo_name,
+            card_name=card_name)
+        if card.public is not False:
+            return True
+    except Card.DoesNotExist:
+        pass
+
+    return False
+
+
+class PublicCardPermission(permissions.BasePermission):
+    """
+    Returns True if the card exists and is public.
+
+    Only allows safe methods: GET, OPTIONS, and HEAD.
+    """
+
+    def has_permission(self, request, view):
+        params = request.parser_context['kwargs']
+        if (request.method in permissions.SAFE_METHODS and
+            _card_is_public(repo_base=params['repo_base'],
+                            repo_name=params['repo_name'],
+                            card_name=params['card_name'])):
+            return True
+
+        return False
+
+
+class PublicCardAuthentication(authentication.BaseAuthentication):
+    """
+    Returns anonymous user if the card exists and is public.
+
+    Only allows safe methods: GET, OPTIONS, and HEAD.
+    """
+
+    def authenticate(self, request):
+        params = request.parser_context['kwargs']
+        if (request.method in permissions.SAFE_METHODS and
+            _card_is_public(repo_base=params['repo_base'],
+                            repo_name=params['repo_name'],
+                            card_name=params['card_name'])):
+            user = User.objects.get(username=settings.ANONYMOUS_ROLE)
+            return (user, None)
+
+        return None
