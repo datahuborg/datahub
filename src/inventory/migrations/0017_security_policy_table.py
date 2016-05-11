@@ -3,8 +3,9 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-from account.management.commands.create_security_policy_table import(
-    create_policy_schema, create_policy_table)
+from core.management.commands.create_security_policy_table import(
+    create_policy_schema, create_policy_table,
+    add_existing_users_to_security_policy_table)
 
 
 class Migration(migrations.Migration):
@@ -16,5 +17,5 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(create_policy_schema),
         migrations.RunPython(create_policy_table),
-
+        migrations.RunPython(add_existing_users_to_security_policy_table)
     ]
