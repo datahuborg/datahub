@@ -203,10 +203,10 @@ class OAuthAppPage(BasePage):
     locators = {
         'client_id': (
             By.XPATH,
-            '//div/p[label/text() = "Client id"]/span'),
+            '//div/p[label/text() = "Client ID"]/span'),
         'client_secret': (
             By.XPATH,
-            '//div/p[label/text() = "Client secret"]/span'),
+            '//div/p[label/text() = "Client Secret"]/span'),
     }
 
     def client_details(self):
