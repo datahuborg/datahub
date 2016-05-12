@@ -1,5 +1,7 @@
 DATAHUB_DOMAIN = 'datahub-local.mit.edu'
 
+ALLOWED_HOSTS = [DATAHUB_DOMAIN]
+
 # Set `SECURE_SSL_REDIRECT = True` and enable
 # django.middleware.security.SecurityMiddleware in settings.py to redirect all
 # non-HTTPS requests to HTTPS.

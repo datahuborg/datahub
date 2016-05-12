@@ -2,7 +2,6 @@ import factory
 from django.db.models import signals
 
 from django.core.management.base import BaseCommand
-from django.utils.crypto import get_random_string
 from django.contrib.auth.models import User
 
 from config import settings
@@ -10,11 +9,15 @@ from core.db.manager import DataHubManager
 
 
 class Command(BaseCommand):
-    help = ("Creates public an anonymous users that are "
-            "necessary for publishing data")
+    help = ("Creates the public and anonymous users "
+            "necessary for publishing data.")
 
     def handle(self, *args, **options):
+        print('Ensuring public user, role, and db exist...')
+        print('Ensuring public data folder does not exist...')
         create_public_user(None, None)
+        print('Ensuring anonymous user and role exist...')
+        print('Ensuring anonymous db and data folder do not exist...')
         create_anonymous_user(None, None)
 
 
@@ -35,25 +38,21 @@ def create_public_user(apps, schema_editor):
     # try to create the django user. Get the password from them
     password = None
     if not dh_user_exists:
-        print('creating django user %s' % username)
         password = User.objects.create_user(
             username=username, email=email, password=None).password
 
     # try to create the db role
     if not db_role_exists:
-        print('creating database role %s' % username)
         DataHubManager.create_user(
             username=username, password=password, create_db=False)
 
     # try to create the db
     if not db_exists:
-        print('creating database %s' % username)
         DataHubManager.create_user_database(
             username=username)
 
     # delete any user data folder that exists
     if user_data_folder_exists:
-        print('deleting user data folder for %s' % username)
         DataHubManager.delete_user_data_folder(username)
 
 
@@ -74,23 +73,19 @@ def create_anonymous_user(apps, schema_editor):
     # try to create the django user. Get the password from them
     password = None
     if not dh_user_exists:
-        print('creating django user %s' % username)
         password = User.objects.create_user(
             username=username, email=email, password=None).password
 
     # try to create the db role
     if not db_role_exists:
-        print('creating database role %s' % username)
         DataHubManager.create_user(
             username=username, password=password, create_db=False)
 
     # delete any db that exists
     if db_exists:
-        print('deleting database %s' % username)
         DataHubManager.remove_database(
             repo_base=username, revoke_collaborators=False)
 
     # delete any user data folder that exists
     if user_data_folder_exists:
-        print('deleting user data folder for %s' % username)
         DataHubManager.delete_user_data_folder(username)

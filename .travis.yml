@@ -30,6 +30,7 @@ script:
   - python manage.py migrate
 
   - python manage.py test inventory www account browser core api
+  - python manage.py test integration_tests
   # tests models
   # tests home page
   # tests account management views

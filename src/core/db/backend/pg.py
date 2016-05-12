@@ -1,9 +1,16 @@
 import re
+import os
+import errno
+import shutil
+import hashlib
 from collections import namedtuple
+from uuid import uuid4
 import psycopg2
 from psycopg2.extensions import AsIs
 from psycopg2.pool import ThreadedConnectionPool
+from psycopg2 import errorcodes
 
+from core.db.errors import PermissionDenied
 from config import settings
 
 """
@@ -33,7 +40,7 @@ def _pool_for_credentials(user, password, repo_base, create_if_missing=True):
         if create_if_missing is False:
             return None
         # Maintains at least 1 connection.
-        # Throws "PoolError: connection pool exausted" if a thread tries
+        # Raises "PoolError: connection pool exausted" if a thread tries
         # holding onto than 10 connections to a single database.
         connection_pools[pool_key] = ThreadedConnectionPool(
             0,
@@ -50,6 +57,25 @@ def _close_all_connections(repo_base):
     for key, pool in connection_pools.iteritems():
         if repo_base == key.repo_base and not pool.closed:
             pool.closeall()
+
+
+def _convert_pg_exception(e):
+    # Convert some psycopg2 errors into exceptions meaningful to
+    # Django.
+    if (e.pgcode == errorcodes.INSUFFICIENT_PRIVILEGE):
+        raise PermissionDenied()
+    if (e.pgcode == errorcodes.INVALID_PARAMETER_VALUE or
+            e.pgcode == errorcodes.UNDEFINED_OBJECT):
+        raise ValueError("Invalid parameter in query.")
+    if e.pgcode == errorcodes.INVALID_SCHEMA_NAME:
+        raise LookupError("Repo not found.")
+    if e.pgcode == errorcodes.UNDEFINED_TABLE:
+        raise LookupError("Table or view not found.")
+    if e.pgcode == errorcodes.DUPLICATE_SCHEMA:
+        raise ValueError("A repo with that name already exists.")
+    if e.pgcode == errorcodes.DUPLICATE_TABLE:
+        raise ValueError("A table with that name already exists.")
+    raise e
 
 
 class PGBackend:
@@ -105,12 +131,31 @@ class PGBackend:
         must not begin or end with an underscore.
         """
         invalid_noun_msg = (
-            "Usernames, repo names, and table names may only contain "
-            "alphanumeric characters and underscores, and must not "
-            "begin or end with an underscore."
+            "Usernames and repo names may only contain "
+            "alphanumeric characters and underscores, must begin with a "
+            "letter, and must not begin or end with an underscore."
         )
 
-        regex = r'^(?![\_])[\w\_]+(?<![\_])$'
+        regex = r'^(?![\_\d])[\w\_]+(?<![\_])$'
+        valid_pattern = re.compile(regex)
+        matches = valid_pattern.match(noun)
+
+        if matches is None:
+            raise ValueError(invalid_noun_msg)
+
+    def _validate_table_name(self, noun):
+        """
+        Raises ValueError if the proposed table name is invalid.
+
+        Valid table names contain only alphanumeric characters and underscores.
+        """
+        invalid_noun_msg = (
+            "Table names may only contain "
+            "alphanumeric characters and underscores, must begin with a "
+            "letter, and must not begin or end with an underscore."
+        )
+
+        regex = r'^(?![\d])[\w\_]+(?<![\_])$'
         valid_pattern = re.compile(regex)
         matches = valid_pattern.match(noun)
 
@@ -150,7 +195,7 @@ class PGBackend:
 
         # drop the schema
         query = 'DROP SCHEMA %s %s'
-        params = (AsIs(repo), AsIs('CASCADE') if force else None)
+        params = (AsIs(repo), AsIs('CASCADE') if force is True else AsIs(''))
         res = self.execute_sql(query, params)
         return res['status']
 
@@ -197,7 +242,7 @@ class PGBackend:
     def create_table(self, repo, table, params):
         # check for injections
         self._check_for_injections(repo)
-        self._check_for_injections(table)
+        self._validate_table_name(table)
         param_values = []
         for obj in params:
             param_values += obj.values()
@@ -259,7 +304,7 @@ class PGBackend:
 
     def create_view(self, repo, view, sql):
         self._check_for_injections(repo)
-        self._check_for_injections(view)
+        self._validate_table_name(view)
         query = ('CREATE VIEW %s.%s AS (%s)')
 
         params = (AsIs(repo), AsIs(view), AsIs(sql))
@@ -286,7 +331,7 @@ class PGBackend:
 
     def delete_view(self, repo, view, force=False):
         self._check_for_injections(repo)
-        self._check_for_injections(view)
+        self._validate_table_name(view)
 
         force_param = 'RESTRICT'
         if force:
@@ -316,7 +361,7 @@ class PGBackend:
 
     def delete_table(self, repo, table, force=False):
         self._check_for_injections(repo)
-        self._check_for_injections(table)
+        self._validate_table_name(table)
 
         force_param = 'RESTRICT'
         if force:
@@ -331,7 +376,7 @@ class PGBackend:
 
     def get_schema(self, repo, table):
         self._check_for_injections(repo)
-        self._check_for_injections(table)
+        self._validate_table_name(table)
 
         query = ('SELECT column_name, data_type '
                  'FROM information_schema.columns '
@@ -410,7 +455,13 @@ class PGBackend:
 
         query = query.strip()
         cur = self.connection.cursor()
-        cur.execute(query, params)
+
+        try:
+            cur.execute(query, params)
+        except psycopg2.Error as e:
+            # Convert some psycopg2 errors into exceptions meaningful to
+            # Django.
+            _convert_pg_exception(e)
 
         # if cur.execute() failed, this will print it.
         try:
@@ -616,57 +667,81 @@ class PGBackend:
 
     def export_table(self, table_name, file_path, file_format='CSV',
                      delimiter=',', header=True):
-        header_option = 'HEADER' if header else ''
-
-        for word in table_name.split('.'):
+        words = table_name.split('.')
+        for word in words[:-1]:
             self._check_for_injections(word)
+        self._validate_table_name(words[-1])
 
         self._check_for_injections(file_format)
 
-        query = 'COPY %s TO %s WITH %s %s DELIMITER %s;'
-        params = (AsIs(table_name), file_path,
-                  AsIs(file_format), AsIs(header_option), delimiter)
-
-        res = self.execute_sql(query, params)
-        return res['status']
+        query = 'SELECT * FROM %s' % table_name
+        self.export_query(
+            query,
+            file_path,
+            file_format=file_format,
+            delimiter=delimiter,
+            header=header)
 
     def export_view(self, view_name, file_path, file_format='CSV',
                     delimiter=',', header=True):
-        header_option = 'HEADER' if header else ''
-
-        for word in view_name.split('.'):
+        words = view_name.split('.')
+        for word in words[:-1]:
             self._check_for_injections(word)
+        self._validate_table_name(words[-1])
 
         self._check_for_injections(file_format)
 
-        query = 'COPY(SELECT * FROM %s) TO %s WITH %s %s DELIMITER %s;'
-        params = (AsIs(view_name), file_path,
-                  AsIs(file_format), AsIs(header_option), delimiter)
-
-        res = self.execute_sql(query, params)
-        return res['status']
+        query = 'SELECT * FROM %s' % view_name
+        self.export_query(
+            query,
+            file_path,
+            file_format=file_format,
+            delimiter=delimiter,
+            header=header)
 
     def export_query(self, query, file_path, file_format='CSV',
                      delimiter=',', header=True):
-        # warning: this method is inherently unsafe, since there's no way to
-        # properly escape the query string, and it runs as root!
+        """
+        Runs a query as the current user and saves the result to a file.
 
-        # I've made it safer by stripping out everything after the semicolon
-        # in the passed query.
-        # manager.py should also check to ensure the user has repo/folder
-        # access RogerTangos 2015-012-09
-
+        query can be a sql query or table reference.
+        """
         header_option = 'HEADER' if header else ''
-        query = query.split(';')[0]
+        query = query.split(';')[0].strip()
 
         self._check_for_injections(file_format)
         self._check_for_injections(header_option)
 
-        meta_query = 'COPY (%s) TO %s WITH %s %s DELIMITER %s;'
-        params = (AsIs(query), file_path, AsIs(file_format),
+        meta_query = 'COPY (%s) TO STDOUT WITH %s %s DELIMITER %s;'
+        params = (AsIs(query), AsIs(file_format),
                   AsIs(header_option), delimiter)
 
-        return self.execute_sql(meta_query, params)
+        cur = self.connection.cursor()
+        query = cur.mogrify(meta_query, params)
+
+        # Store pending exports in a temporary location so they're aren't
+        # discoverable while being exported.
+        tmp_path = '/tmp/user_exports/{0}-{1}'.format(
+            uuid4().hex, hashlib.sha256(query).hexdigest())
+        try:
+            os.makedirs('/tmp/user_exports')
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise e
+
+        try:
+            with open(tmp_path, 'w') as f:
+                cur.copy_expert(query, f)
+        except psycopg2.Error as e:
+            # Delete the temporary files of failed exports.
+            os.remove(tmp_path)
+            _convert_pg_exception(e)
+        finally:
+            cur.close()
+        # Move successful exports into the user's data folder.
+        # os.rename() would fail here if /tmp and /user_data are stored on
+        # different filesystems, so use shutil.move() instead.
+        shutil.move(tmp_path, file_path)
 
     def import_file(self, table_name, file_path, file_format='CSV',
                     delimiter=',', header=True, encoding='ISO-8859-1',
@@ -674,8 +749,10 @@ class PGBackend:
 
         header_option = 'HEADER' if header else ''
 
-        for word in table_name.split('.'):
+        words = table_name.split('.')
+        for word in words[:-1]:
             self._check_for_injections(word)
+        self._validate_table_name(words[-1])
         self._check_for_injections(file_format)
         self._check_for_injections(header_option)
 

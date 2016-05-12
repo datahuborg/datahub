@@ -1,173 +1,476 @@
-{% extends "layout.html" %} {% block content %}
-<div class="container-fluid">
-    <div id="dh-console-container">
-        <div id="dh-console">
-            <pre class="ascii-art-console">
- _____        _        _    _       _     
-|  __ \      | |      | |  | |     | |    
-| |  | | __ _| |_ __ _| |__| |_   _| |__  
-| |  | |/ _` | __/ _` |  __  | | | | '_ \ 
+{% extends 'layout.html' %}
+
+
+{% block content %}
+<div class='container-fluid'>
+    <div id='dh-console-container'>
+        <div id='dh-console'>
+            <pre class='ascii-art-console'>
+ _____        _        _    _       _
+|  __ \      | |      | |  | |     | |
+| |  | | __ _| |_ __ _| |__| |_   _| |__
+| |  | |/ _` | __/ _` |  __  | | | | '_ \
 | |__| | (_| | || (_| | |  | | |_| | |_) |
-|_____/ \__,_|\__\__,_|_|  |_|\__,_|_.__/ 
+|_____/ \__,_|\__\__,_|_|  |_|\__,_|_.__/
 </pre>
             <br />
             <br />
-            <div class="punch">DataHub is a (GitHub-Like) Data Ecosystem for Individuals, Teams and People.
+            <div class='punch'>DataHub is a (GitHub-Like) Data Ecosystem for Individuals, Teams and People.
             </div>
             <br />
         </div>
     </div>
 </div>
-<script type="text/javascript">
-if (typeof String.prototype.startsWith != 'function') {
-    // see below for better implementation!
-    String.prototype.startsWith = function(str) {
-        return this.indexOf(str) == 0;
-    };
+{% endblock content %}
+
+{% block js %}
+
+<script type = 'text/javascript' >
+
+// decide whether to use http or https
+var transfer_protocol = '{{transfer_protocol}}';
+
+var base_url = transfer_protocol + window.location.host;
+var client_id = '{{client_id}}';
+var redirect_uri = transfer_protocol + window.location.host + '/apps/console/';
+var kCmdList = [
+    'connect &lt;repo-base&gt; \t\t\t  -- connect to a datahub user',
+    'mkrepo &lt;repo-name&gt; \t\t\t   -- create a new repository',
+    'rm &lt;repo-name [-f]&gt; \t\t\t  -- remove a repository',
+    'ls \t\t\t\t\t\t\t   -- list repositories',
+    'collab &lt;repo-name&gt;\t\t\t\t-- list collaborators of a repository',
+    'ls &lt;repo-name&gt; \t\t\t\t   -- list tables/views in a repository',
+    'desc &lt;repo-name.table-name [-l]&gt;  -- print schema info of a table [with data type]',
+    '&lt;other dml&gt; \t\t\t\t\t  -- execute arbitrary dml on a repo.tablename in your current repo-base'
+];
+var term;
+var connection;
+
+// Convenience function to build DataHub URL strings
+// Expects a path starting with a slash. If a params object is present,
+// it encodes and appends that as query parameters.
+function buildURL(path, params) {
+    query = '';
+    if (params !== undefined && Object.keys(params).length > 0) {
+        query = '?' + $.param(params);
+    }
+    return base_url + path + query;
 }
 
-function print_result(res, term) {
-    if (res.num_tuples >= 0) {
-        var col_names = []
-        var separator = []
+// Convenience function to convert a query string into an associative
+// array.
+function paramsFromQuery(query) {
+    params = {};
+    parts = query.split('&');
+    for (var i = parts.length - 1; i >= 0; i--) {
+        pieces = parts[i].split('=');
+        params[decodeURIComponent(pieces[0])] = decodeURIComponent(
+            pieces[1].replace(/\+/g, ' '));
+    }
+    return params;
+}
 
-        $.each(res.field_names, function(field_idx, field) {
-            col_names.push(field)
-            separator.push('------------')
-        });
-
-        term.echo(col_names.join('\t'))
-        term.echo(separator.join(''))
-
-        $.each(res.tuples, function(tuple_idx, tuple) {
-            values = []
-            $.each(tuple.cells, function(cell_idx, cell) {
-                values.push(cell)
-            });
-            term.echo(values.join('\t'))
-        });
-
-        term.echo('')
-        term.echo(res.num_tuples + ' rows returned.')
-        if (res.num_more_tuples && res.num_more_tuples > 0) {
-            term.echo(res.num_more_tuples + ' more rows available. Type \'more\' to see more rows.')
-        }
-    } else {
-        if (res.status) {
-            term.echo('success')
-        } else {
-            term.echo('error')
-        }
+// Convenience function to copy a value to sessionStorage if it exists in
+// an associate array.
+function saveIfSet(assocArray, key) {
+    if (assocArray[key]) {
+        console.log('Saving ' + key + ': ' + assocArray[key]);
+        sessionStorage.setItem(key, assocArray[key]);
     }
 }
 
-function set_console_height() {
+function setConsoleHeight() {
     var h = window.innerHeight;
-    $("#dh-console").height(h * .8);
+    $('#dh-console').height(h * .8);
     return;
 }
 
-$(document).ready(function($) {
+function authorizeUserIfNeeded() {
+    // Get a new access token if there is none or if the current access token
+    // is for a different user.
+    if (sessionStorage.getItem('access_token') ||
+        sessionStorage.getItem('authorized_user') != connection.user) {
+        authorizeUser()
+    }
 
-    set_console_height();
-
-    var kCmdList = [
-        '** Any SQL Query **',
-        'connect &lt;repo-base&gt; \t -- connect to a datahub user',
-        'mkrepo &lt;repo-name&gt; \t -- to create a new repository',
-        'rm &lt;repo-name [-f]&gt; \t -- to remove a repository',
-        'ls \t\t\t\t\t -- to list repositories',
-        'ls &lt;repo-name&gt; \t\t -- to list tables in a repository',
-        'schema &lt;table-name&gt; \t\t -- to print schema info of a table',
-        '&lt;other dml&gt; \t\t -- execute arbitrary dml on a repo.tablename in your currently connected repo-base'
-    ]
-
-    var login = '{{login}}'
-    var transport = new Thrift.Transport(window.location.protocol + '//' + window.location.host + '/service/json');
-    var protocol = new Thrift.Protocol(transport);
-    var client = new DataHubClient(protocol);
-    var con = new Connection({
-        'user': login,
-        'repo_base': login
+    $.ajaxSetup({
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' +
+                sessionStorage.getItem('access_token'));
+        }
     });
+}
 
-    $('#dh-console').terminal(
-        function(command, term) {
-            try {
-                var cmd = $.trim(command.toLowerCase())
+function authorizeUser() {
+    // Pull the access token from the URL hash if it's available.
+    // Overwrite whatever's currently in storage.
+    if (window.location.hash.length > 1) {
+        params = paramsFromQuery(window.location.hash.substring(1));
+        if (params['access_token']) {
+            keys = ['access_token', 'scope'];
+            for (var i = keys.length - 1; i >= 0; i--) {
+                console.log('Trying ' + keys[i]);
+                saveIfSet(params, keys[i]);
+            }
+            // Keep track of who this access token is associated with.
+            sessionStorage.setItem('authorized_user', connection.user);
+            // Clear the hash after handling the access_token.
+            // Just setting window.location.hash = "" leaves a dangling #.
+            history.replaceState("", document.title, window.location.pathname + window.location.search);
+        }
+        console.log(params);
+    } else {
+        // Request authorization button
+        var params = {
+            'response_type': 'token',
+            'scope': 'read write',
+            'client_id': client_id,
+            'redirect_uri': redirect_uri
+        };
+        var authorization_url = buildURL('/oauth2/authorize/', params);
+        window.location.href = authorization_url;
+    }
+}
 
-                if (cmd == '') {
-                    return
+function makeRepo(args) {
+    var repo_name = args[1];
+
+    if (args.length != 2) {
+        term.error('failed: invalid name');
+        return;
+    }
+
+    $.ajax({
+            url: buildURL('/api/v1/repos/' + connection.repo_base + '/'),
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'repo_name': repo_name
+            }
+        })
+        .fail(function(xhr, status, error) {
+            // does not error when duplicating existing repo
+            term.error('failed: no access or invalid name');
+        })
+        .done(function(data, status, xhr) {
+            term.echo('success');
+        });
+}
+
+function removeRepo(args) {
+    var repo_name = args[1];
+    var flag = args[2];
+    var force = Boolean(flag);
+
+    if (args.length != 2 && !(args.length == 3 && flag == '-f')) {
+        term.error('HELP: rm &lt;repo-name [-f]&gt;');
+        return;
+    }
+
+    $.ajax({
+            url: buildURL('/api/v1/repos/' +
+                connection.repo_base + '/' + repo_name + '/'),
+            type: 'DELETE'
+        })
+        .fail(function(xhr, status, error) {
+            term.error('failed: repo-name does not exist');
+        })
+        .done(function(data, status, xhr) {
+            term.echo('success');
+        });
+}
+
+function describeTable(args) {
+    var repo_table = args[1].split('.');
+    var flag = args[2];
+    var detail = Boolean(flag);
+
+    if (repo_table.length != 2 || (args.length != 2 &&
+        !(args.length == 3 && flag == '-l'))) {
+        term.error('HELP: desc &lt;repo-name.table-name [-l]&gt;');
+        return;
+    }
+
+    $.ajax({
+            url: buildURL('/api/v1/repos/' + connection.repo_base + '/' +
+                repo_table[0] + '/tables/' + repo_table[1] + '/'),
+            dataType: 'json',
+        })
+        .fail(function(xhr, status, error) {
+            term.error('failed');
+        })
+        .done(function(data, status, xhr) {
+            term.echo('table_schema');
+
+            if (detail) {
+                term.echo('COLUMN_NAME: DATA_TYPE');
+                term.echo('----------------------');
+                var columns = data.columns;
+                for (i = 0; i < columns.length; i++) {
+                    var c = columns[i];
+                    term.echo(c.column_name + ': ' + c.data_type);
                 }
-                if (cmd.startsWith('connect')) {
-                    var args = cmd.split(' ', 2)
-                    if (args.length > 1) {
-
-                        // trim blank spaces and semicolons from usernames
-                        var username = args[1].trim();
-                        if (username.substr(username.length - 1) === ";") {
-                            username = username.substring(0, username.length - 1);
-                        }
-
-                        con.repo_base = username;
-                        term.echo("Connected to: " + con.repo_base);
-                    } else {
-                        term.error('HELP: connect &lt;repo-base&gt;');
-                    }
-                } else if (cmd.startsWith('mkrepo')) {
-                    var args = cmd.split(' ', 2)
-                    if (args.length > 1) {
-                        res = client.create_repo(con, args[1])
-                        print_result(res, term)
-                    } else {
-                        term.error('HELP: mkrepo &lt;repo-name&gt;')
-                    }
-                } else if (cmd.startsWith('rm')) {
-                    var args = cmd.split(' ', 3)
-                    if (args.length > 1) {
-                        force = false
-                        if (args.length == 3 && args[2] == '-f') {
-                            force = true
-                        }
-                        res = client.delete_repo(con, args[1], force)
-                        print_result(res, term)
-                    } else {
-                        term.error('HELP: rm &lt;repo-name&gt; [-f]')
-                    }
-                } else if (cmd.startsWith('desc')) {
-                    var args = cmd.split(' ', 2)
-                    if (args.length > 1) {
-                        res = client.get_schema(con, args[1])
-                        print_result(res, term)
-                    } else {
-                        term.error('HELP: desc &lt;table-name&gt;')
-                    }
-                } else if (cmd.startsWith('ls')) {
-                    var args = cmd.split(' ', 2)
-                    res = null
-                    if (args.length > 1) {
-                        res = client.list_tables(con, args[1])
-                    } else {
-                        res = client.list_repos(con)
-                    }
-                    print_result(res, term)
-                } else if (cmd.startsWith('help')) {
-                    for (var cmd in kCmdList) {
-                        term.echo(kCmdList[cmd])
-                    }
-                } else {
-                    res = client.execute_sql(con, cmd);
-                    print_result(res, term);
+            } else {
+                term.echo('COLUMN_NAME');
+                term.echo('-----------');
+                var columns = data.columns;
+                for (i = 0; i < columns.length; i++) {
+                    term.echo(columns[i].column_name);
                 }
-            } catch (error) {
-                term.error(error.message);
+            }
+
+            term.echo('');
+            term.echo(columns.length + ' columns returned.');
+        });
+}
+
+function listRepos() {
+    $.ajax({
+            url: buildURL('/api/v1/repos/' + connection.repo_base + '/'),
+            dataType: 'json',
+        })
+        .fail(function(xhr, status, error) {
+            term.error('failed');
+        })
+        .done(function(data, status, xhr) {
+            term.echo('repo_name');
+            term.echo('----------');
+            var repos = data.repos;
+            for (i = 0; i < repos.length; i++) {
+                term.echo(repos[i].repo_name);
+            }
+            term.echo('');
+            term.echo(repos.length + ' rows returned.');
+        });
+}
+
+function listTables(args) {
+    var repo_name = args[1];
+
+    if (args.length > 2) {
+        term.error('HELP: ls [&lt;repo-name&gt;]');
+        return;
+    }
+
+    $.ajax({
+            url: buildURL('/api/v1/repos/' + connection.repo_base +
+                '/' + repo_name + '/'),
+            dataType: 'json'
+        })
+        .fail(function(xhr, status, error) {
+            term.error('failed: repo-name does not exist');
+        })
+        .done(function(data, status, xhr) {
+            term.echo('table_name');
+            term.echo('----------');
+            var tables = data.tables;
+            for (i = 0; i < tables.length; i++) {
+                term.echo(tables[i].table_name);
+            }
+            term.echo('');
+            term.echo(tables.length + ' rows returned.');
+            term.echo('');
+
+            term.echo('view_name');
+            term.echo('----------');
+            var views = data.views;
+            for (j = 0; j < views.length; j++) {
+                term.echo(views[j].view_name);
+            }
+            term.echo('');
+            term.echo(views.length + ' rows returned.');
+        });
+}
+
+function listCollaborators(args) {
+    var repo_name = args[1];
+
+    if (args.length > 2) {
+        term.error('HELP: collab [&lt;repo-name&gt;]');
+        return;
+    }
+
+    $.ajax({
+            url: buildURL('/api/v1/repos/' + connection.repo_base +
+                '/' + repo_name + '/collaborators/'),
+            dataType: 'json'
+        })
+        .fail(function(xhr, status, error) {
+            term.error('failed: repo-name does not exist');
+        })
+        .done(function(data, status, xhr) {
+            term.echo('repo_name: ' + repo_name);
+            term.echo('collaborators');
+            term.echo('-------------');
+            var collaborators = data.collaborators;
+            for (i = 0; i < collaborators.length; i++) {
+                term.echo(collaborators[i].username);
+            }
+            term.echo('');
+            term.echo(collaborators.length + ' rows returned.');
+        });
+}
+
+function printData(rows) {
+    var keys = Object.keys(rows[0]);
+    var counter = 1;
+    var table = new AsciiTable();
+    keys.unshift('');
+    table.setHeading(keys);
+
+    for (i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        var line = [counter];
+        for (j = 1; j < keys.length; j++) {
+            line.push(row[keys[j]]);
+        }
+        table.addRow(line);
+        counter++;
+    }
+
+    term.echo(table.toString());
+}
+
+function paginate(data, cmd, page) {
+    if (data['next_results_params'] ||
+        data['previous_results_params']) {
+        term.history = false;
+        term.push(function(command) {
+            if (command.match(/^y$/i)) {
+                term.history = true;
+                executeQuery(cmd, page + 1);
+                term.pop();
+            } else if (command.match(/^n$/i)) {
+                term.history = true;
+                term.pop();
+            } else if (command.match(/^\d+$/i)) {
+                term.history = true;
+                executeQuery(cmd, command);
+                term.pop();
             }
         }, {
-            prompt: '{{login}}@' + con.repo_base + '> ',
-            greetings: 'Welcome to DataHub!\nConnected to: ' + con.repo_base
+            prompt: 'PAGE ' + page.toString() +
+            ' Continue? [y/n] or jump to page #: '
+        });
+    }
+}
+
+function executeQuery(cmd, page) { // this may not work
+    if (!page) {
+        page = 1;
+    }
+
+    $.ajax({
+            url: buildURL('/api/v1/query/' + connection.repo_base + '/'),
+            type: 'POST',
+            dataType: 'json',
+            data: {'query': cmd,
+                'rows_per_page': term.rows() - 5,
+                'current_page': page},
+        })
+        .fail(function(xhr, status, error) {
+            term.error('failed: try \'help\'');
+        })
+        .done(function(data, status, xhr) {
+            if (data.rows && data.rows.length > 0) {
+                printData(data.rows);
+                paginate(data, cmd, page);
+            }
+            term.echo('success');
+        });
+}
+
+function help() {
+    for (var cmd in kCmdList) {
+        term.echo(kCmdList[cmd]);
+    }
+}
+
+$(document).ready(function($) {
+    var login = '{{login}}';
+    connection = {
+        'user': login,
+        'repo_base': login
+    };
+    authorizeUserIfNeeded();
+    setConsoleHeight();
+
+    function evaluate(command, terminal) {
+        var args = $.trim(command.toLowerCase()).split(/ +/);
+        var cmd = args[0];
+        term = terminal;
+
+        if (cmd.match(/^connect$|^\\c$/)) {
+            connect(args);
+        } else if (cmd.match(/^mkrepo$/)) {
+            makeRepo(args);
+        } else if (cmd.match(/^rm$/)) {
+            removeRepo(args);
+        } else if (cmd.match(/^desc$|^\\d$/)) {
+            describeTable(args);
+        } else if (cmd.match(/^ls$|^\\l$/)) {
+            if (args.length > 1) {
+                listTables(args);
+            } else {
+                listRepos();
+            }
+        } else if (cmd.match(/^collab$/)) {
+            listCollaborators(args);
+        } else if (cmd.match(/^help$|^\\h$/)) {
+            help();
+        } else {
+            executeQuery(command);
+        }
+    }
+
+
+    function connect(args) {
+        var username = args[1];
+
+        if (args.length != 2) {
+            term.error('HELP: connect &lt;repo-base&gt;');
+            return;
+        }
+
+        $.ajax({
+                url: buildURL('/api/v1/repos/' + username + '/'),
+                dataType: 'json'
+            })
+            .fail(function(xhr, status, error) {
+                term.error('failed: no access or repo-base does not exist');
+            })
+            .done(function(data, status, xhr) {
+                // will have to authorize with other user to make post requests
+                term.push(function(command, terminal) {
+                    try {
+                        connection.repo_base = terminal.name();
+                        evaluate(command, terminal);
+                    } catch (error) {
+                        terminal.error(error.message);
+                    }
+                }, {
+                    name: username,
+                    prompt: connection.user + '@' + username + '> '
+                });
+            });
+    }
+
+
+    $('#dh-console').terminal(
+        function(command, terminal) {
+            try {
+                connection.repo_base = terminal.name();
+                evaluate(command, terminal);
+            } catch (error) {
+                terminal.error(error.message);
+            }
+        }, {
+            name: connection.user,
+            prompt: connection.user + '@' + connection.repo_base + '> ',
+            greetings: 'Welcome to DataHub!\nConnected to: ' + connection.user
         }
     );
 
 });
 </script>
-{% endblock %}
+{% endblock js %}

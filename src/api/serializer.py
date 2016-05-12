@@ -16,7 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class DataHubSerializer(object):
 
-    def __init__(self, username, repo_base, request=None):
+    def __init__(self, username, repo_base, request=None, manager=None):
         self.username = username
         self.repo_base = repo_base
         self.request = request
@@ -24,9 +24,11 @@ class DataHubSerializer(object):
         # In rare cases, the manager does not need to be instantiated
         # i.e. when listing public repos, which is done via a static method
         try:
-            self.manager = DataHubManager(
+            # Reuse an existing manager if one was passed in, to minimize the
+            # number of concurrent db connections.
+            self.manager = manager or DataHubManager(
                 user=self.username, repo_base=self.repo_base)
-        except:
+        except Exception:
             pass
 
         self.base_uri = ''
@@ -55,35 +57,35 @@ class RepoSerializer(DataHubSerializer):
         # get collaborators
         collaborator_serializer = CollaboratorSerializer(
             username=self.username, repo_base=self.repo_base,
-            request=self.request)
+            request=self.request, manager=self.manager)
         collaborators = collaborator_serializer.list_collaborators(repo_name)
         description["collaborators"] = collaborators["collaborators"]
 
         # get tables
         table_serializer = TableSerializer(
             username=self.username, repo_base=self.repo_base,
-            request=self.request)
+            request=self.request, manager=self.manager)
         tables = table_serializer.list_tables(repo_name)
         description["tables"] = tables["tables"]
 
         # get views
         view_serializer = ViewSerializer(
             username=self.username, repo_base=self.repo_base,
-            request=self.request)
+            request=self.request, manager=self.manager)
         views = view_serializer.list_views(repo_name)
         description["views"] = views["views"]
 
         # get cards
         card_serializer = CardSerializer(
             username=self.username, repo_base=self.repo_base,
-            request=self.request)
+            request=self.request, manager=self.manager)
         cards = card_serializer.list_cards(repo_name)
         description["cards"] = cards["cards"]
 
         # get files
         file_serializer = FileSerializer(
             username=self.username, repo_base=self.repo_base,
-            request=self.request)
+            request=self.request, manager=self.manager)
         files = file_serializer.list_files(repo_name)
         description["files"] = files["files"]
 
@@ -118,7 +120,13 @@ class RepoSerializer(DataHubSerializer):
     def specific_collab_repos(self, collab_username):
         # get the collaborators
         user = User.objects.get(username=self.username)
-        collab_repos = Collaborator.objects.filter(user=user)
+        collab_repos = Collaborator.objects.filter(
+            user=user, repo_base=collab_username)
+
+        # Either the repo_base doesn't exist, or the current user isn't allowed
+        # to see that it exists.
+        if len(collab_repos) == 0:
+            raise LookupError()
 
         repo_obj_list = []
         for repo in collab_repos:
@@ -248,13 +256,9 @@ class TableSerializer(DataHubSerializer):
 
     def export_table(self, repo, table, file_format='CSV', delimiter=',',
                      header=True):
-
-        success = DataHubManager.export_table(
-            username=self.username, repo_base=self.repo_base,
+        self.manager.export_table(
             repo=repo, table=table, file_format=file_format,
             delimiter=delimiter, header=header)
-
-        return success
 
 
 class ViewSerializer(DataHubSerializer):
@@ -296,13 +300,9 @@ class ViewSerializer(DataHubSerializer):
 
     def export_view(self, repo, view, file_format='CSV', delimiter=',',
                     header=True):
-
-        success = DataHubManager.export_view(
-            username=self.username, repo_base=self.repo_base,
+        self.manager.export_view(
             repo=repo, view=view, file_format=file_format,
             delimiter=delimiter, header=header)
-
-        return success
 
 
 class CardSerializer(DataHubSerializer):
@@ -352,9 +352,9 @@ class CardSerializer(DataHubSerializer):
 
         return self.describe_card(repo, card.card_name)
 
-    def create_card(self, repo, query, card_name):
+    def create_card(self, repo, card_name, query):
         self.manager.set_search_paths([repo])
-        card = self.manager.create_card(repo, query, card_name)
+        card = self.manager.create_card(repo, card_name, query)
 
         return self.describe_card(repo, card.card_name)
 
@@ -363,7 +363,7 @@ class CardSerializer(DataHubSerializer):
 
     def export_card(self, repo, card_name, file_format='CSV'):
         self.manager.set_search_paths([repo])
-        return self.manager.export_card(repo, card_name, file_format)
+        self.manager.export_card(repo, card_name, file_format)
 
 
 class FileSerializer(DataHubSerializer):

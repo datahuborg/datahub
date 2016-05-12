@@ -163,16 +163,16 @@ $ docker <span class="nb">help</span>
 $ sudo dh-run-test-container
 </pre></div>
 </div>
-<p>You can exit the testing container with control-d or via the command <code class="docutils literal"><span class="pre">exit</span></code>.</p>
+<p>You can exit the testing container by typing control-d or via the command <code class="docutils literal"><span class="pre">exit</span></code>.</p>
 <div class="section" id="functional-tests">
 <h3>Functional Tests<a class="headerlink" href="#functional-tests" title="Permalink to this headline">¶</a></h3>
 <p>DataHub uses Selenium and PhantomJS to test functionality from an end user&#8217;s perspective. Both are installed as part of DataHub&#8217;s Vagrant setup.</p>
-<p>Once connected with the test container, you can run all functional tests with</p>
+<p>Once in the test container, you can run all functional tests with:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ sh /datahub/src/scripts/run-functional-tests.sh
 </pre></div>
 </div>
 <p>Browser screenshots are saved in <code class="docutils literal"><span class="pre">src/functional_tests/screenshots</span></code> on teardown</p>
-<p>You can run individual functional tests:</p>
+<p>You can run individual functional tests with:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ python manage.py <span class="nb">test</span> functional_tests.test_login_auth          <span class="c1"># tests authentication</span>
 $ python manage.py <span class="nb">test</span> functional_tests.test_layout_and_styling  <span class="c1"># tests main page layout</span>
 $ python manage.py <span class="nb">test</span> functional_tests.test_db                  <span class="c1"># tests data control and sharing</span>
@@ -180,10 +180,18 @@ $ python manage.py <span class="nb">test</span> functional_tests.test_db        
 </div>
 <p>Functional test files are saved in <code class="docutils literal"><span class="pre">src/functional_tests</span></code>.</p>
 </div>
+<div class="section" id="integration-tests">
+<h3>Integration Tests<a class="headerlink" href="#integration-tests" title="Permalink to this headline">¶</a></h3>
+<p>Integration tests verify that DataHub&#8217;s components behave as expected when used as a whole with a database.</p>
+<p>Once in the test container, you can run all integration tests with:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ sh /datahub/src/scripts/run-integration-tests.sh
+</pre></div>
+</div>
+</div>
 <div class="section" id="unit-tests">
 <h3>Unit Tests<a class="headerlink" href="#unit-tests" title="Permalink to this headline">¶</a></h3>
-<p>Unit tests are used to test DataHub&#8217;s models and views.</p>
-<p>Once connected with the test container, you can run all functional tests with</p>
+<p>Unit tests are used to test DataHub&#8217;s components in isolation from the database and each other.</p>
+<p>Once in the test container, you can run all unit tests with:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ sh /datahub/src/scripts/run-unit-tests.sh
 </pre></div>
 </div>
@@ -219,6 +227,7 @@ e.g.: <code class="docutils literal"><span class="pre">src/browser/tests</span><
 </li>
 <li><a class="reference internal" href="#testing-datahub">Testing DataHub</a><ul>
 <li><a class="reference internal" href="#functional-tests">Functional Tests</a></li>
+<li><a class="reference internal" href="#integration-tests">Integration Tests</a></li>
 <li><a class="reference internal" href="#unit-tests">Unit Tests</a></li>
 </ul>
 </li>

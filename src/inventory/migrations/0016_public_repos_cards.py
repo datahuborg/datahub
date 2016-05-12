@@ -10,7 +10,7 @@ from account.management.commands.createpublicanonuser import(
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('inventory', '0014_remove_permissions_model'),
+        ('inventory', '0015_consoleapp'),
     ]
 
     operations = [

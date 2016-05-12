@@ -11,6 +11,8 @@ from rest_framework.views import exception_handler
 from rest_framework.response import Response
 from rest_framework_csv.renderers import CSVRenderer
 from rest_framework.settings import api_settings
+from api.permissions import PublicCardPermission, \
+                            PublicCardAuthentication
 
 from psycopg2 import Error as PGError
 from core.db.manager import PermissionDenied
@@ -122,6 +124,7 @@ class ReposPublic(APIView):
     """
     Repos that have been made public
     """
+
     def get(self, request, format=None):
         serializer = RepoSerializer(settings.ANONYMOUS_ROLE, None, request)
         return Response(serializer.public_repos())
@@ -320,7 +323,7 @@ class Tables(APIView):
 
 class Table(APIView):
 
-    def get(self, request, repo_base, repo_name, table):
+    def get(self, request, repo_base, repo_name, table, format=None):
         """
         See the schema of a single table
 
@@ -333,7 +336,7 @@ class Table(APIView):
         table_info = serializer.describe_table(repo_name, table, detail=False)
         return Response(table_info, status=status.HTTP_200_OK)
 
-    def delete(self, request, repo_base, repo_name, table):
+    def delete(self, request, repo_base, repo_name, table, format=None):
         """
         Delete a single table
 
@@ -352,7 +355,7 @@ class Table(APIView):
 class Files(APIView):
     # parser_classes = (FileUploadParser,)
 
-    def get(self, request, repo_base, repo_name):
+    def get(self, request, repo_base, repo_name, format=None):
         """
         Files in a repo
         """
@@ -362,7 +365,7 @@ class Files(APIView):
         files = serializer.list_files(repo_name)
         return Response(files, status=status.HTTP_200_OK)
 
-    def post(self, request, repo_base, repo_name):
+    def post(self, request, repo_base, repo_name, format=None):
         """
         Create a file
 
@@ -454,7 +457,7 @@ class Files(APIView):
 
 class File(APIView):
 
-    def get(self, request, repo_base, repo_name, file_name):
+    def get(self, request, repo_base, repo_name, file_name, format=None):
         """
         See/Download a file
         """
@@ -464,7 +467,7 @@ class File(APIView):
         files = serializer.get_file(repo_name, file_name)
         return Response(files, status=status.HTTP_200_OK)
 
-    def delete(self, request, repo_base, repo_name, file_name):
+    def delete(self, request, repo_base, repo_name, file_name, format=None):
         """
         Delete a file
         """
@@ -521,7 +524,7 @@ class Views(APIView):
 
 class View(APIView):
 
-    def get(self, request, repo_base, repo_name, view):
+    def get(self, request, repo_base, repo_name, view, format=None):
         """
         See the schema of a single view
 
@@ -534,7 +537,7 @@ class View(APIView):
         view_info = serializer.describe_view(repo_name, view, detail=False)
         return Response(view_info, status=status.HTTP_200_OK)
 
-    def delete(self, request, repo_base, repo_name, view):
+    def delete(self, request, repo_base, repo_name, view, format=None):
         """
         Delete a single view
         """
@@ -548,7 +551,7 @@ class View(APIView):
 
 class Cards(APIView):
 
-    def get(self, request, repo_base, repo_name):
+    def get(self, request, repo_base, repo_name, format=None):
         """
         Cards in a repo
         """
@@ -557,7 +560,7 @@ class Cards(APIView):
         cards = serializer.list_cards(repo_name)
         return Response(cards, status=status.HTTP_200_OK)
 
-    def post(self, request, repo_base, repo_name):
+    def post(self, request, repo_base, repo_name, format=None):
         """
         Create a card in a repo
         ---
@@ -581,7 +584,7 @@ class Cards(APIView):
         serializer = CardSerializer(username, repo_base, request)
         card_name = request.data['card_name']
         query = request.data['query']
-        res = serializer.create_card(repo_name, query, card_name)
+        res = serializer.create_card(repo_name, card_name, query)
         return Response(res, status=status.HTTP_201_CREATED)
 
 
@@ -589,8 +592,12 @@ class Card(APIView):
 
     renderer_classes = (api_settings.DEFAULT_RENDERER_CLASSES +
                         [CSVRenderer])
+    permission_classes = (api_settings.DEFAULT_PERMISSION_CLASSES +
+                          [PublicCardPermission])
+    authentication_classes = (api_settings.DEFAULT_AUTHENTICATION_CLASSES +
+                              [PublicCardAuthentication])
 
-    def get(self, request, repo_base, repo_name, card_name):
+    def get(self, request, repo_base, repo_name, card_name, format=None):
         """
         See the query and query results of a single card.
         The results of the card query is exactly what the repo base owner
@@ -624,7 +631,7 @@ class Card(APIView):
             repo_name, card_name, current_page, rows_per_page)
         return Response(res, status=status.HTTP_200_OK)
 
-    def patch(self, request, repo_base, repo_name, card_name):
+    def patch(self, request, repo_base, repo_name, card_name, format=None):
         """
         Change a card's name, query, and/or make it public or private
         ---
@@ -656,7 +663,7 @@ class Card(APIView):
             repo_name, card_name, new_query, new_name, public)
         return Response(res, status=status.HTTP_200_OK)
 
-    def delete(self, request, repo_base, repo_name, card_name):
+    def delete(self, request, repo_base, repo_name, card_name, format=None):
         """
         Delete a single card
         """

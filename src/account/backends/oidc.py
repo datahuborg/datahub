@@ -166,13 +166,7 @@ class DataHubFixedOpenIdConnect(OpenIdConnectAuth):
         if abs(utc_timestamp - jwt['iat']) > self.CLOCK_LEEWAY:
             raise AuthTokenError(self, 'Incorrect userinfo jwt: iat')
 
-    def validate_id_token_claims(self, id_token):
-        if id_token['iss'] != self.ID_TOKEN_ISSUER:
-            raise AuthTokenError(self, 'Invalid issuer')
-
-        if 'sub' not in id_token:
-            raise AuthTokenError(self, 'Missing subject')
-
+    def _validate_id_token_audience(self, id_token):
         client_id, _client_secret = self.get_key_and_secret()
         if isinstance(id_token['aud'], six.string_types):
             id_token['aud'] = [id_token['aud']]
@@ -188,6 +182,7 @@ class DataHubFixedOpenIdConnect(OpenIdConnectAuth):
         if 'azp' in id_token and id_token['azp'] != client_id:
             raise AuthTokenError(self, 'Incorrect id_token: azp')
 
+    def _validate_id_token_times(self, id_token):
         utc_timestamp = timegm(datetime.datetime.utcnow().utctimetuple())
         # Verify the token has no expired yet, with x minutes leeway.
         if utc_timestamp > id_token['exp'] + self.CLOCK_LEEWAY:
@@ -200,6 +195,17 @@ class DataHubFixedOpenIdConnect(OpenIdConnectAuth):
         # Verify the token was issued in the last x minutes.
         if abs(utc_timestamp - id_token['iat']) > self.CLOCK_LEEWAY:
             raise AuthTokenError(self, 'Incorrect id_token: iat')
+
+    def validate_id_token_claims(self, id_token):
+        if id_token['iss'] != self.ID_TOKEN_ISSUER:
+            raise AuthTokenError(self, 'Invalid issuer')
+
+        if 'sub' not in id_token:
+            raise AuthTokenError(self, 'Missing subject')
+
+        self._validate_id_token_audience(id_token)
+
+        self._validate_id_token_times(id_token)
 
         # Validate the nonce to ensure the request was not modified
         nonce = id_token.get('nonce')

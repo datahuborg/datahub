@@ -36,7 +36,7 @@ class LoginTest(FunctionalTest):
 
             # the page says error
             page_source = self.browser.page_source
-            self.assertTrue('Error' in page_source)
+            self.assertTrue('Bad Request' in page_source)
 
             # he goes to the main page
             self.browser.get(self.server_url + '/browse/' + self.username)
@@ -298,7 +298,7 @@ class LoginTest(FunctionalTest):
         # print('eazye is done. He deletes his account')
         self.delete_account()
 
-        # print('dre logs in, and deletes his account too. Fuckem.')
+        # print('dre logs in, and deletes his account too.')
         self.sign_in_manually(username=dre)
         self.delete_account()
 

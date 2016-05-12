@@ -1,16 +1,18 @@
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 
-
-'''
-@author: Anant Bhardwaj
-@date: Mar 21, 2013
-
-Datahub Console
-'''
+from config.settings import OAUTH2_APP_CLIENTS
+import sys
 
 
 @login_required
 def index(request):
-    return render_to_response("console.html", {
-        'login': request.user.get_username()})
+    transfer_protocol = 'https://'
+    if 'test' in sys.argv:
+        transfer_protocol = 'http://'
+
+    res = {'login': request.user.get_username(),
+           'transfer_protocol': transfer_protocol,
+           'client_id': OAUTH2_APP_CLIENTS['console']['client_id']
+           }
+    return render_to_response("console.html", res)

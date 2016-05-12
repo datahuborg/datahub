@@ -1,3 +1,4 @@
 sh /datahub/src/scripts/run-functional-tests.sh
+sh /datahub/src/scripts/run-integration-tests.sh
 sh /datahub/src/scripts/run-unit-tests.sh
 python manage.py runserver 0.0.0.0:8000
