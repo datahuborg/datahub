@@ -18,7 +18,7 @@ class CreateAndDeleteRepo(TestCase):
         # set up the user. This is the only integration-ey part
         # It's because I had trouble mocking out
         # django.contrib.auth.decorators.login_required
-        self.username = "test_username"
+        self.username = "delete_me_test_username"
         self.password = "test_password"
         self.email = "test_email@csail.mit.edu"
         self.user = User.objects.create_user(
@@ -99,7 +99,7 @@ class RepoTableCardViews(TestCase):
     @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
         # create the user
-        self.username = "test_username"
+        self.username = "delete_me_test_username"
         self.password = "test_password"
         self.email = "test_email@csail.mit.edu"
         self.user = User.objects.create_user(
@@ -183,7 +183,7 @@ class RepoFilesTab(TestCase):
     @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
         # create the user
-        self.username = "test_username"
+        self.username = "delete_me_test_username"
         self.password = "test_password"
         self.email = "test_email@csail.mit.edu"
         self.user = User.objects.create_user(
@@ -229,7 +229,7 @@ class RepoMainPage(TestCase):
     @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
         # create the user
-        self.username = "test_username"
+        self.username = "delete_me_test_username"
         self.password = "test_password"
         self.email = "test_email@csail.mit.edu"
         self.user = User.objects.create_user(
@@ -271,7 +271,7 @@ class RepoSettingsPage(TestCase):
     @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
         # create the user
-        self.username = "test_username"
+        self.username = "delete_me_test_username"
         self.password = "test_password"
         self.email = "test_email@csail.mit.edu"
         self.user = User.objects.create_user(
