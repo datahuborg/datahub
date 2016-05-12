@@ -39,17 +39,22 @@ $(document).ready(function() {
       </div>
       <div class="panel-body" style="word-wrap: break-word;">
         <p>
-          <label>Client id</label><br />
+          <label>App Name</label><br />
+          <span>{{ application.name }}</span>
+        </p>
+
+        <p>
+          <label>Client ID</label><br />
           <span>{{ application.client_id }}</span>
         </p>
 
         <p>
-          <label>Client secret</label><br />
+          <label>Client Secret</label><br />
           <span>{{ application.client_secret }}</span>
         </p>
 
         <p>
-          <label>Client type</label><br />
+          <label>Client Type</label><br />
           <span>{{ application.client_type }}</span>
         </p>
 
