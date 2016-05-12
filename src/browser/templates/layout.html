@@ -160,6 +160,26 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
   </div>
 </div>
 
+<div
+    class="modal" id="confirm-form-modal" 
+    tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Confirm</h4>
+      </div>
+      <div class="modal-body">Are you sure?</div>
+      <div class="modal-footer">
+        <form method="post" action="" style="margin-bottom:0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary btn-danger">OK</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal hide" id="wait-dialog" data-backdrop="static" data-keyboard="false">
   <div class="modal-header">
     <h1>Processing...</h1>
@@ -192,6 +212,28 @@ $(function() {
       $("#wait-dialog").modal()
       window.location.href = window.location.protocol + '//' + window.location.host + target_url
     });
+    
+    $(modal_id).modal({keyboard: true})
+  });
+});
+
+$(function() {
+  $('.modal-confirm-form-dialog').on('click', function(e) {
+    var modal_id = $(this).attr('target-modal')
+    var modal_title = $(this).attr('target-modal-title')
+    var modal_body = $(this).attr('target-modal-body')
+    var modal_operation = $(this).attr('target-modal-operation')
+    var target_url = $(this).attr('target-url')
+    var modal_form_inputs = $(this).attr('target-modal-form-inputs')
+
+    $(modal_id + ' .modal-title').html(modal_title)  
+    $(modal_id + ' .modal-body').html(modal_body) 
+    $(modal_id + ' .btn-primary').html(modal_operation)
+    $(modal_id + ' form').attr('action', target_url)
+    $(modal_id + ' form').prepend(modal_form_inputs);
+
+    $(modal_id).off('click') 
+    $(modal_id + ' .btn-primary').off('click')  
     
     $(modal_id).modal({keyboard: true})
   });
