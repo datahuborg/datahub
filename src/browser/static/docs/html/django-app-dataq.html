@@ -43,7 +43,6 @@
             
   <div class="section" id="dataq">
 <span id="django-app-dataq"></span><h1>DataQ<a class="headerlink" href="#dataq" title="Permalink to this headline">¶</a></h1>
-<p><strong>NOTE: DataQ is not currently enabled in DataHub</strong></p>
 <div class="line-block">
 <div class="line">primary(s): <a class="reference external" href="https://github.com/hariharsubramanyam">Harihar Subramanyam</a></div>
 <div class="line">maintainer(s): <a class="reference external" href="https://github.com/ygina">Gina Yuan</a></div>
@@ -62,17 +61,17 @@
 <h2>How to build<a class="headerlink" href="#how-to-build" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Install the dependencies in package.json (Note: DataQ is not compatible with more recent versions of gulp-handlebars)</li>
-<li>From /src/apps/dataq/, run &#8216;gulp&#8217; to build existing files to /src/browser/static/</li>
-<li>From /src/apps/dataq/, run &#8216;gulp watch&#8217; to automatically compile files as you edit them</li>
-<li>Edit the files in /src/apps/dataq/client_src/</li>
-<li>In vagrant, &#8216;dh-rebuild-and-collect-static-files&#8217;</li>
+<li>From <code class="docutils literal"><span class="pre">/src/apps/dataq/</span></code>, run <code class="docutils literal"><span class="pre">gulp</span></code> to build existing files to <code class="docutils literal"><span class="pre">/src/browser/static/</span></code></li>
+<li>From <code class="docutils literal"><span class="pre">/src/apps/dataq/</span></code>, run <code class="docutils literal"><span class="pre">gulp</span> <span class="pre">watch</span></code> to automatically compile files as you edit them</li>
+<li>To make changes to the current configuration, edit the files in <code class="docutils literal"><span class="pre">/src/apps/dataq/client_src/</span></code></li>
+<li>In vagrant, <code class="docutils literal"><span class="pre">dh-rebuild-and-collect-static-files</span></code></li>
 <li>Clear cache and view changes in browser</li>
 </ul>
 <div class="section" id="building-a-query">
 <h3>Building a Query<a class="headerlink" href="#building-a-query" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
 <li><strong>Pick Columns</strong>: Click &#8220;Add Table&#8221; and select the columns to include in the query (click columns to apply aggregates)</li>
-<li><strong>Filter</strong>: Click &#8220;Add Filter&#8221; and specify a filter condition of the form &#8220;&lt;expr&gt; &lt;operator&gt; &lt;expr&gt;&#8221;</li>
+<li><strong>Filter</strong>: Click &#8220;Add Filter&#8221; and specify a filter condition of the form <code class="docutils literal"><span class="pre">&lt;expr&gt;</span> <span class="pre">&lt;operator&gt;</span> <span class="pre">&lt;expr&gt;</span></code></li>
 <li><strong>Group</strong>: If you have an aggregate, click &#8220;Edit Grouping&#8221; and reorder the columns (click and drag)</li>
 <li><strong>Sort</strong>: Click &#8220;Edit Sorting&#8221; and reorder the order of sorting.</li>
 </ol>
