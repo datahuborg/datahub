@@ -19,10 +19,11 @@ How to use
 ============
 How to build
 ============
-* Install the dependencies in package.json (Note: DataQ is not compatible with more recent versions of gulp-handlebars)
-* From ``/src/apps/dataq/``, run ``gulp`` to build existing files to ``/src/browser/static/``
-* From ``/src/apps/dataq/``, run ``gulp watch`` to automatically compile files as you edit them
-* To make changes to the current configuration, edit the files in ``/src/apps/dataq/client_src/``
+* Go to ``datahub/src/apps/dataq``
+* ``$ npm install`` to install dependencies in package.json (Note: DataQ is not compatible with more recent versions of gulp-handlebars)
+* ``$ gulp`` to build existing files to ``/src/browser/static/``
+* ``$ gulp watch`` to automatically compile files as you edit them
+* To make changes to the current configuration, edit the files in ``datahub/src/apps/dataq/client_src/``
 * In vagrant, ``dh-rebuild-and-collect-static-files``
 * Clear cache and view changes in browser
 

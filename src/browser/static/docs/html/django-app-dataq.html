@@ -60,10 +60,11 @@
 <div class="section" id="how-to-build">
 <h2>How to build<a class="headerlink" href="#how-to-build" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Install the dependencies in package.json (Note: DataQ is not compatible with more recent versions of gulp-handlebars)</li>
-<li>From <code class="docutils literal"><span class="pre">/src/apps/dataq/</span></code>, run <code class="docutils literal"><span class="pre">gulp</span></code> to build existing files to <code class="docutils literal"><span class="pre">/src/browser/static/</span></code></li>
-<li>From <code class="docutils literal"><span class="pre">/src/apps/dataq/</span></code>, run <code class="docutils literal"><span class="pre">gulp</span> <span class="pre">watch</span></code> to automatically compile files as you edit them</li>
-<li>To make changes to the current configuration, edit the files in <code class="docutils literal"><span class="pre">/src/apps/dataq/client_src/</span></code></li>
+<li>Go to <code class="docutils literal"><span class="pre">datahub/src/apps/dataq</span></code></li>
+<li><code class="docutils literal"><span class="pre">$</span> <span class="pre">npm</span> <span class="pre">install</span></code> to install dependencies in package.json (Note: DataQ is not compatible with more recent versions of gulp-handlebars)</li>
+<li><code class="docutils literal"><span class="pre">$</span> <span class="pre">gulp</span></code> to build existing files to <code class="docutils literal"><span class="pre">/src/browser/static/</span></code></li>
+<li><code class="docutils literal"><span class="pre">$</span> <span class="pre">gulp</span> <span class="pre">watch</span></code> to automatically compile files as you edit them</li>
+<li>To make changes to the current configuration, edit the files in <code class="docutils literal"><span class="pre">datahub/src/apps/dataq/client_src/</span></code></li>
 <li>In vagrant, <code class="docutils literal"><span class="pre">dh-rebuild-and-collect-static-files</span></code></li>
 <li>Clear cache and view changes in browser</li>
 </ul>
