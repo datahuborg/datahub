@@ -77,7 +77,7 @@ Confer Login/Register Template Layout
     <a href="/www/" class="btn navbar-btn">About</a> &nbsp; &nbsp;
     <a href="{% static 'docs/html/index.html' %}" class="btn navbar-btn">Documentation</a> &nbsp; &nbsp;
     <a href="https://github.com/abhardwaj/datahub" class="btn navbar-btn">GitHub Repo</a> &nbsp; &nbsp;
-    <a href="/api-docs" class="btn navbar-btn">API</a>
+    <a href="{% url 'django.swagger.base.view' %}" class="btn navbar-btn">API</a>
   </div>
   </div>
 </div>

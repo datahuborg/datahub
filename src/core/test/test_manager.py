@@ -1,4 +1,5 @@
-from core.db.manager import DataHubManager
+from core.db.manager import DataHubManager, \
+                            PermissionDenied
 
 from django.db.models import signals
 from django.contrib.auth.models import User
@@ -182,7 +183,7 @@ class BasicOperations(TestCase):
         self.assertEqual(
             con_add_collab.call_args[1]['collaborator'], 'new_collaborator')
         self.assertEqual(
-            con_add_collab.call_args[1]['db_privileges'], ['select'])
+            con_add_collab.call_args[1]['db_privileges'], ['SELECT'])
 
     def test_delete_collaborator(self):
         self.mock_connection.return_value.list_collaborators.return_value = [
@@ -213,6 +214,7 @@ class BasicOperations(TestCase):
 
 class PrivilegeChecks(TestCase):
     """Test privilege checking methods"""
+
     @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
         self.username = "test_username"
@@ -234,14 +236,16 @@ class PrivilegeChecks(TestCase):
     def test_has_repo_db_privilege(self):
         m_has_db_priv = self.mock_connection.return_value.has_repo_db_privilege
         m_has_db_priv.return_value = True
-        res = DataHubManager.has_repo_db_privilege(
+        # Not raising a PermissionDenied exception when connection returns True
+        # means has_repo_db_privilege is behaving correctly.
+        DataHubManager.has_repo_db_privilege(
             self.username, 'repo_base', 'repo', 'privilege')
-        self.assertEqual(True, res)
 
     def test_has_repo_file_privilege_when_username_is_repo_base(self):
-        res = DataHubManager.has_repo_file_privilege(
+        # Not raising a PermissionDenied exception when connection returns True
+        # means has_repo_db_privilege is behaving correctly.
+        DataHubManager.has_repo_file_privilege(
             self.username, self.username, 'repo', 'read')
-        self.assertEqual(res, True)
 
     def test_has_repo_file_privilege_happy_path(self):
         # User returns some a mock
@@ -257,9 +261,10 @@ class PrivilegeChecks(TestCase):
         collabs = [collab]
         Collaborator.objects.filter.return_value = collabs
 
-        res = DataHubManager.has_repo_file_privilege(
+        # Not raising a PermissionDenied exception when connection returns True
+        # means has_repo_db_privilege is behaving correctly.
+        DataHubManager.has_repo_file_privilege(
             self.username, 'repo_base', 'repo', 'read')
-        self.assertEqual(res, True)
 
     def test_has_repo_file_privilege_sad_path(self):
         Collaborator = self.create_patch('core.db.manager.Collaborator')
@@ -271,6 +276,6 @@ class PrivilegeChecks(TestCase):
         user = MagicMock()
         User.objects.get.return_value = user
 
-        res = DataHubManager.has_repo_file_privilege(
-            self.username, 'repo_base', 'repo', 'read')
-        self.assertEqual(res, False)
+        with self.assertRaises(PermissionDenied):
+            DataHubManager.has_repo_file_privilege(
+                self.username, 'repo_base', 'repo', 'read')

@@ -90,4 +90,4 @@ class TableSerializerTests(TestCase):
 
     def test_export_table(self):
         self.serializer.export_table('repo', 'table')
-        self.assertTrue(self.mock_manager.export_table.called)
+        self.assertTrue(self.mock_manager.return_value.export_table.called)

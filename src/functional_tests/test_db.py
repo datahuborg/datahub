@@ -298,7 +298,7 @@ class LoginTest(FunctionalTest):
         # print('eazye is done. He deletes his account')
         self.delete_account()
 
-        # print('dre logs in, and deletes his account too. Fuckem.')
+        # print('dre logs in, and deletes his account too.')
         self.sign_in_manually(username=dre)
         self.delete_account()
 

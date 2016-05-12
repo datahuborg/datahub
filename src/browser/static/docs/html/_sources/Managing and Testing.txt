@@ -140,7 +140,7 @@ To run tests or use the python debugger, you will need to connect to the test co
     $ sudo dh-run-test-container
 
 
-You can exit the testing container with control-d or via the command ``exit``.
+You can exit the testing container by typing control-d or via the command ``exit``.
 
 ----------------
 Functional Tests
@@ -148,7 +148,7 @@ Functional Tests
 
 DataHub uses Selenium and PhantomJS to test functionality from an end user's perspective. Both are installed as part of DataHub's Vagrant setup.
 
-Once connected with the test container, you can run all functional tests with
+Once in the test container, you can run all functional tests with:
 
 .. code-block:: bash
 
@@ -156,7 +156,7 @@ Once connected with the test container, you can run all functional tests with
 
 Browser screenshots are saved in ``src/functional_tests/screenshots`` on teardown
 
-You can run individual functional tests:
+You can run individual functional tests with:
     
 .. code-block:: bash
     
@@ -166,13 +166,25 @@ You can run individual functional tests:
 
 Functional test files are saved in ``src/functional_tests``. 
 
+-----------------
+Integration Tests
+-----------------
+
+Integration tests verify that DataHub's components behave as expected when used as a whole with a database.
+
+Once in the test container, you can run all integration tests with:
+
+.. code-block:: bash
+
+    $ sh /datahub/src/scripts/run-integration-tests.sh
+
 ----------
 Unit Tests
 ----------
 
-Unit tests are used to test DataHub's models and views.
+Unit tests are used to test DataHub's components in isolation from the database and each other.
 
-Once connected with the test container, you can run all functional tests with
+Once in the test container, you can run all unit tests with:
 
 .. code-block:: bash
 

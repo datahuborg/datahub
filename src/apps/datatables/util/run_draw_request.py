@@ -17,7 +17,6 @@ class RunDrawRequest:
         limit_offset_clause = self.limit_offset_clause()
         sql = "%s %s %s %s %s;" % (select_clause, from_clause, where_clause, order_by_clause, limit_offset_clause) 
         self.draw_response.query = "%s %s %s %s;" % (select_clause, from_clause, where_clause, order_by_clause)
-        print sql
         data = self.manager.execute_sql(sql)
         data = data['tuples']
         self.draw_response.records_total = self.num_tuples(False)

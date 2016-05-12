@@ -89,4 +89,4 @@ class ViewSerializerTests(TestCase):
 
     def test_export_view(self):
         self.serializer.export_view('repo', 'view')
-        self.assertTrue(self.mock_manager.export_view.called)
+        self.assertTrue(self.mock_manager.return_value.export_view.called)

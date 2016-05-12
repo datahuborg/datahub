@@ -39,10 +39,10 @@ DATABASES = {
 # Database role that public repos grant access to
 # All datahub users are granted access to this role
 PUBLIC_ROLE = 'dh_public'
-PUBLIC_ROLE_EMAIL = 'noreply_public@datahub.csail.mit.edu'
+PUBLIC_ROLE_EMAIL = 'noreply+public@datahub.csail.mit.edu'
 
 ANONYMOUS_ROLE = 'dh_anonymous'
-ANONYMOUS_ROLE_EMAIL = 'noreply_anon@datahub.csail.mit.edu'
+ANONYMOUS_ROLE_EMAIL = 'noreply+anon@datahub.csail.mit.edu'
 
 TIME_ZONE = 'America/New_York'
 
@@ -137,6 +137,9 @@ TEMPLATES = [
 ]
 
 MIDDLEWARE_CLASSES = (
+    # Uncomment the next line and set SECURE_SSL_REDIRECT = True in your
+    # local_settings.py to redirect all non-HTTPS requests to HTTPS.
+    # 'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -144,12 +147,8 @@ MIDDLEWARE_CLASSES = (
     'oauth2_provider.middleware.OAuth2TokenMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-
-    # Uncomment the next line and set SECURE_SSL_REDIRECT = True in your
-    # local_settings.py to redirect all non-HTTPS requests to HTTPS.
-    # 'django.middleware.security.SecurityMiddleware',
-
     'browser.middleware.XForwardedPort',
+    'browser.middleware.DataHubManagerExceptionHandler',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -255,6 +254,25 @@ OAUTH2_PROVIDER = {
     'OAUTH2_BACKEND_CLASS':
         'api.oauth2_backends.ContentNegotiatingOAuthLibCore',
 }
+
+# DataHub comes with pre-registered OAuth2 Applications.
+# You can change these ids for your local instance by overriding in your local
+# settings.py. NOTE that changing DATAHUB_DOMAIN in local settings will not
+# result in updated redirect_uris here.
+OAUTH2_APP_CLIENTS = {
+    'console':
+        {'name': 'console',
+         'client_id': '7ByJAnXj2jsMFN1REvvUarQjqXjIAU3nmVB661hR',
+         'redirect_uris': ('https://' + DATAHUB_DOMAIN + '/apps/console/\n'
+                           'http://' + DATAHUB_DOMAIN + '/apps/console/\n'
+                           'https://web/apps/console/\n'
+                           'http://web/apps/console/'),
+         'client_type': 'public',
+         'authorization_grant_type': 'implicit',
+         'skip_authorization': True},
+}
+
+OAUTH2_APP_OWNER = '_dh_oauth_user'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
