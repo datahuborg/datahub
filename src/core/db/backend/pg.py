@@ -835,6 +835,17 @@ class PGBackend:
         params = [AsIs(settings.POLICY_SCHEMA), AsIs(settings.POLICY_TABLE)]
         conditions = []
 
+        # append mandatory passed-in conditions
+        conditions.append('table_name = %s')
+        params.append(table_name)
+
+        conditions.append('repo = %s')
+        params.append(repo)
+
+        conditions.append('repo_base = %s')
+        params.append(repo_base)
+
+        # append optional conditions
         if policy_id:
             conditions.append('policy_id = %s')
             params.append(policy_id)
