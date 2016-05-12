@@ -17,6 +17,7 @@ from django.http import HttpResponse, \
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 from thrift.protocol import TBinaryProtocol
 from thrift.protocol import TJSONProtocol
@@ -673,12 +674,12 @@ def card(request, repo_base, repo, card_name):
         'login': username,
         'repo_base': repo_base,
         'repo': repo,
+        'card': card,
         'annotation': annotation_text,
         'current_page': current_page,
         'next_page': current_page + 1,  # the template should relaly do this
         'prev_page': current_page - 1,  # the template should relaly do this
         'url_path': url_path,
-        'query': card.query,
         'select_query': res['select_query'],
         'column_names': res['column_names'],
         'tuples': res['rows'],
@@ -703,6 +704,23 @@ def card_create(request, repo_base, repo):
         manager.create_card(repo, card_name, query)
 
     return HttpResponseRedirect(url)
+
+
+@require_POST
+@login_required
+def card_update_public(request, repo_base, repo, card_name):
+    username = request.user.get_username()
+
+    if 'public' in request.POST:
+        public = request.POST['public'] == 'True'
+    else:
+        raise ValueError("Request missing \'public\' parameter.")
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.update_card(repo, card_name, public=public)
+
+    return HttpResponseRedirect(
+        reverse('browser-card', args=(repo_base, repo, card_name)))
 
 
 @login_required

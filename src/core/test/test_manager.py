@@ -14,7 +14,7 @@ class Initialization(TestCase):
 
     @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
-        self.username = "test_username"
+        self.username = "delete_me_test_username"
         self.password = "_test diff1;cul t passw0rd-"
         self.email = "test_email@csail.mit.edu"
         self.user = User.objects.create_user(
@@ -51,7 +51,7 @@ class BasicOperations(TestCase):
 
     @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
-        self.username = "test_username"
+        self.username = "delete_me_test_username"
         self.password = "_test diff1;cul t passw0rd-"
         self.email = "test_email@csail.mit.edu"
         self.user = User.objects.create_user(
@@ -217,7 +217,7 @@ class PrivilegeChecks(TestCase):
 
     @factory.django.mute_signals(signals.pre_save)
     def setUp(self):
-        self.username = "test_username"
+        self.username = "delete_me_test_username"
         self.password = "_test diff1;cul t passw0rd-"
         self.email = "test_email@csail.mit.edu"
         self.user = User.objects.create_user(
