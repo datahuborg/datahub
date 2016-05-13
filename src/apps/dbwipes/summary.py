@@ -78,13 +78,6 @@ def insert_into_cache(f):
             manager = DataHubManager(user=self.repo_base)
             manager.execute_sql(q, params)
 
-            # print('***********')
-            # print foo
-            # print('***********')
-            # print res
-            # print('***********')
-
-            # manager.execute_sql(query)
         return res
     return _f
 
@@ -273,7 +266,6 @@ class Summary(object):
           """
         q = q % (c, self.nbuckets, self.tablename, self.where,
                  c, c, c, self.tablename, self.where)
-        # print q
 
         stats = []
         for (val, minv, maxv, count) in self.query(q):
