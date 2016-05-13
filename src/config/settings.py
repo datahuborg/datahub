@@ -49,6 +49,10 @@ POLICY_DB = PUBLIC_ROLE
 POLICY_SCHEMA = PUBLIC_ROLE
 POLICY_TABLE = 'policy'
 
+# Other blacklisted usernames
+BLACKLISTED_USERNAMES = ['ALL',  # keyword for row level security
+                         ]
+
 TIME_ZONE = 'America/New_York'
 
 # Language code for this installation.

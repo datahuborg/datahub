@@ -6,6 +6,8 @@ from django.db.utils import IntegrityError
 from core.db.manager import DataHubManager
 from core.db.rlsmanager import RowLevelSecurityManager
 
+from django.conf import settings
+
 # Note that these may fire multiple times and for users that already exist.
 
 
@@ -31,6 +33,24 @@ def enforce_email_uniqueness(sender, instance, **kwargs):
                 "The email address {0} is associated with another account."
                 .format(email)
             )
+
+
+@receiver(pre_save, sender=User,
+          dispatch_uid="dh_user_pre_save_not_blacklisted")
+def enforce_blacklist(sender, instance, **kwargs):
+    """
+    Prevents certain usernames from being created
+
+    Checks usernmames against settings.BLACKLISTED_USERNAMES
+    """
+    if instance is not None:
+        username = instance.username.lower()
+        if not username:
+            raise IntegrityError("Username required.")
+        if username in [x.lower() for x in settings.BLACKLISTED_USERNAMES]:
+            raise IntegrityError(
+                "Failed to create user. The name {0} is reserved"
+                "for DataHub use.".format(username))
 
 
 @receiver(pre_save, sender=User,
