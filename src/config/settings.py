@@ -49,9 +49,11 @@ POLICY_DB = PUBLIC_ROLE
 POLICY_SCHEMA = PUBLIC_ROLE
 POLICY_TABLE = 'policy'
 
+# RowLevelSecurity string to mean all users
+RLS_ALL = 'ALL'
+
 # Other blacklisted usernames
-BLACKLISTED_USERNAMES = ['ALL',  # keyword for row level security
-                         ]
+BLACKLISTED_USERNAMES = [RLS_ALL]
 
 TIME_ZONE = 'America/New_York'
 
