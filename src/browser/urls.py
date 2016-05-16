@@ -145,6 +145,9 @@ urlpatterns = patterns(
     url(r'^permissions/apps/allow_access/(\w+)/(\w+)$',
         'browser.views.app_allow_access',
         name='browser-app_allow_access'),
+    url(r'^update_visibility/(\w+)/(\w+)/card/(.+)/?$',
+        'browser.views.card_update_public',
+        name='browser-card_update_public'),
 
 
     # Security Policies

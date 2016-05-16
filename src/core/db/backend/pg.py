@@ -122,12 +122,31 @@ class PGBackend:
         must not begin or end with an underscore.
         """
         invalid_noun_msg = (
-            "Usernames, repo names, and table names may only contain "
+            "Usernames and repo names may only contain "
             "alphanumeric characters and underscores, must begin with a "
             "letter, and must not begin or end with an underscore."
         )
 
         regex = r'^(?![\_\d])[\w\_]+(?<![\_])$'
+        valid_pattern = re.compile(regex)
+        matches = valid_pattern.match(noun)
+
+        if matches is None:
+            raise ValueError(invalid_noun_msg)
+
+    def _validate_table_name(self, noun):
+        """
+        Raises ValueError if the proposed table name is invalid.
+
+        Valid table names contain only alphanumeric characters and underscores.
+        """
+        invalid_noun_msg = (
+            "Table names may only contain "
+            "alphanumeric characters and underscores, must begin with a "
+            "letter, and must not begin or end with an underscore."
+        )
+
+        regex = r'^(?![\d])[\w\_]+(?<![\_])$'
         valid_pattern = re.compile(regex)
         matches = valid_pattern.match(noun)
 
@@ -214,7 +233,7 @@ class PGBackend:
     def create_table(self, repo, table, params):
         # check for injections
         self._check_for_injections(repo)
-        self._check_for_injections(table)
+        self._validate_table_name(table)
         param_values = []
         for obj in params:
             param_values += obj.values()
@@ -275,7 +294,7 @@ class PGBackend:
 
     def create_view(self, repo, view, sql):
         self._check_for_injections(repo)
-        self._check_for_injections(view)
+        self._validate_table_name(view)
         query = ('CREATE VIEW %s.%s AS (%s)')
 
         params = (AsIs(repo), AsIs(view), AsIs(sql))
@@ -302,7 +321,7 @@ class PGBackend:
 
     def delete_view(self, repo, view, force=False):
         self._check_for_injections(repo)
-        self._check_for_injections(view)
+        self._validate_table_name(view)
 
         force_param = 'RESTRICT'
         if force:
@@ -332,7 +351,7 @@ class PGBackend:
 
     def delete_table(self, repo, table, force=False):
         self._check_for_injections(repo)
-        self._check_for_injections(table)
+        self._validate_table_name(table)
 
         force_param = 'RESTRICT'
         if force:
@@ -347,7 +366,7 @@ class PGBackend:
 
     def get_schema(self, repo, table):
         self._check_for_injections(repo)
-        self._check_for_injections(table)
+        self._validate_table_name(table)
 
         query = ('SELECT column_name, data_type '
                  'FROM information_schema.columns '
@@ -641,8 +660,10 @@ class PGBackend:
 
     def export_table(self, table_name, file_path, file_format='CSV',
                      delimiter=',', header=True):
-        for word in table_name.split('.'):
+        words = table_name.split('.')
+        for word in words[:-1]:
             self._check_for_injections(word)
+        self._validate_table_name(words[-1])
 
         self._check_for_injections(file_format)
 
@@ -656,8 +677,10 @@ class PGBackend:
 
     def export_view(self, view_name, file_path, file_format='CSV',
                     delimiter=',', header=True):
-        for word in view_name.split('.'):
+        words = view_name.split('.')
+        for word in words[:-1]:
             self._check_for_injections(word)
+        self._validate_table_name(words[-1])
 
         self._check_for_injections(file_format)
 
@@ -719,8 +742,10 @@ class PGBackend:
 
         header_option = 'HEADER' if header else ''
 
-        for word in table_name.split('.'):
+        words = table_name.split('.')
+        for word in words[:-1]:
             self._check_for_injections(word)
+        self._validate_table_name(words[-1])
         self._check_for_injections(file_format)
         self._check_for_injections(header_option)
 

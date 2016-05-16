@@ -95,7 +95,23 @@ class PGBackendHelperMethods(MockingMixin, TestCase):
             try:
                 self.backend._check_for_injections(noun)
             except ValueError:
-                self.fail('check_for_injections failed to verify a good name')
+                self.fail('_check_for_injections failed to verify a good name')
+
+    def test_validate_table_names(self):
+        """Tests validation against some invalid table names."""
+        good_tables = ['table', '_dbwipes_cache', 'my_repo1',
+                       'asdfl_fsdvbrbhg_______jkhadsc']
+        bad_tables = [' table', '1table', 'table;select * from somewhere',
+                      'table-table']
+        for noun in bad_tables:
+            with self.assertRaises(ValueError):
+                self.backend._validate_table_name(noun)
+
+        for noun in good_tables:
+            try:
+                self.backend._validate_table_name(noun)
+            except ValueError:
+                self.fail('_validate_table_name failed to verify a good name')
 
     def test_check_open_connections(self):
         mock_get_conn = self.mock_pool_for_cred.return_value.getconn
@@ -152,9 +168,13 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
             'core.db.backend.pg.PGBackend.execute_sql')
         self.mock_execute_sql.return_value = True
 
-        # mock the is_valid_noun_name, which checks for injection attacks
+        # mock the mock_check_for_injections, which checks for injection
+        # attacks
         self.mock_check_for_injections = self.create_patch(
             'core.db.backend.pg.PGBackend._check_for_injections')
+
+        self.mock_validate_table_name = self.create_patch(
+            'core.db.backend.pg.PGBackend._validate_table_name')
 
         # mock open connection, or else it will try to
         # create a real db connection
@@ -370,7 +390,8 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         res = self.backend.create_table(repo, table, params)
 
         # checks repo, table, and all param values for injections
-        self.assertEqual(self.mock_check_for_injections.call_count, 6)
+        self.assertEqual(self.mock_check_for_injections.call_count, 5)
+        self.assertEqual(self.mock_validate_table_name.call_count, 1)
 
         final_query = self.mock_execute_sql.call_args[0][0]
         final_params = self.mock_execute_sql.call_args[0][1]
@@ -491,7 +512,8 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         final_query = self.mock_execute_sql.call_args[0][0]
         final_params = self.mock_execute_sql.call_args[0][1]
 
-        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+        self.assertEqual(self.mock_check_for_injections.call_count, 1)
+        self.assertEqual(self.mock_validate_table_name.call_count, 1)
         self.assertEqual(final_query, expected_query)
         self.assertEqual(final_params, expected_params)
         self.assertEqual(res, True)
@@ -535,7 +557,8 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         final_query = self.mock_execute_sql.call_args[0][0]
         final_params = self.mock_execute_sql.call_args[0][1]
 
-        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+        self.assertEqual(self.mock_check_for_injections.call_count, 1)
+        self.assertEqual(self.mock_validate_table_name.call_count, 1)
         self.assertEqual(final_query, expected_query)
         self.assertEqual(final_params, expected_params)
         self.assertEqual(res, True)
@@ -552,7 +575,8 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         res = self.backend.create_view(repo, view, sql)
 
         # checks repo and view for injections
-        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+        self.assertEqual(self.mock_check_for_injections.call_count, 1)
+        self.assertEqual(self.mock_validate_table_name.call_count, 1)
 
         final_query = self.mock_execute_sql.call_args[0][0]
         final_params = self.mock_execute_sql.call_args[0][1]
@@ -610,7 +634,8 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         self.assertEqual(
             self.mock_execute_sql.call_args[0][0], get_schema_query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
-        self.assertEqual(self.mock_check_for_injections.call_count, 2)
+        self.assertEqual(self.mock_check_for_injections.call_count, 1)
+        self.assertEqual(self.mock_validate_table_name.call_count, 1)
 
     def test_create_public_user_no_create_db(self):
         create_user_query = ('CREATE ROLE %s WITH LOGIN '
@@ -885,7 +910,8 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         # into copy_expert as is.
         self.assertEqual(mock_copy_expert.call_args[0][0], query)
         self.assertEqual(self.mock_as_is.call_count, 3)
-        self.assertEqual(self.mock_check_for_injections.call_count, 5)
+        self.assertEqual(self.mock_check_for_injections.call_count, 4)
+        self.assertEqual(self.mock_validate_table_name.call_count, 1)
 
     @patch('core.db.backend.pg.os.makedirs')
     @patch('core.db.backend.pg.os.remove')
@@ -920,7 +946,8 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         # into copy_expert as is.
         self.assertEqual(mock_copy_expert.call_args[0][0], query)
         self.assertEqual(self.mock_as_is.call_count, 3)
-        self.assertEqual(self.mock_check_for_injections.call_count, 5)
+        self.assertEqual(self.mock_check_for_injections.call_count, 4)
+        self.assertEqual(self.mock_validate_table_name.call_count, 1)
 
     @patch('core.db.backend.pg.os.makedirs')
     @patch('core.db.backend.pg.os.remove')
@@ -955,7 +982,8 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         # into copy_expert as is.
         self.assertEqual(mock_copy_expert.call_args[0][0], query)
         self.assertEqual(self.mock_as_is.call_count, 3)
-        self.assertEqual(self.mock_check_for_injections.call_count, 5)
+        self.assertEqual(self.mock_check_for_injections.call_count, 4)
+        self.assertEqual(self.mock_validate_table_name.call_count, 1)
 
     @patch('core.db.backend.pg.os.makedirs')
     @patch('core.db.backend.pg.os.remove')
@@ -1041,7 +1069,8 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         self.assertEqual(self.mock_execute_sql.call_args[0][0], query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_as_is.call_count, 3)
-        self.assertEqual(self.mock_check_for_injections. call_count, 5)
+        self.assertEqual(self.mock_check_for_injections. call_count, 4)
+        self.assertEqual(self.mock_validate_table_name.call_count, 1)
 
     def test_import_table_with_no_header(self):
         table_name = 'table_name'
