@@ -3,7 +3,7 @@
 Refiner
 ***********
 | primary(s):   `Anant Bhardwaj <https://github.com/abhardwaj>`_
-| maintiner(s): `Anant Bhardwaj <https://github.com/abhardwaj>`_
+| maintainer(s): `Anant Bhardwaj <https://github.com/abhardwaj>`_
 | location: ``src/apps/refiner``
 | presentation: ``src/apps/refiner/presentation``
 
