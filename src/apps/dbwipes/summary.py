@@ -52,19 +52,19 @@ def create_cache(username):
 
 
 def insert_into_cache(f):
-    """ insert metadata into the cache"""
+    """Inserts metadata into the cache"""
     @wraps(f)
     def _f(self, *args, **kwargs):
         try:
             key = str(map(str, (f.__name__, self.repo, self.tablename,
                                 self.where, self.nbuckets, map(str, args))))
-            query = 'select val from %s.dbwipes_cache where key = %s' (
-                dbwipes_repo, key)
+            query = 'select val from {}.dbwipes_cache where key = %s'.format(
+                dbwipes_repo)
 
             manager = DataHubManager(user=self.repo_base)
-            vals = manager.execute_sql(query)['tuples']
+            vals = manager.execute_sql(query, (key,))['tuples']
 
-            if len(vals):
+            if len(vals) > 0:
                 return json.loads(vals[0][0])
         except Exception as e:
             print(e)
