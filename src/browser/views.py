@@ -945,11 +945,11 @@ def security_policy_create(request, repo_base, repo, table):
             policy = request.POST['security-policy']
             policy_type = request.POST['policy-type']
             grantee = request.POST['policy-grantee']
-            mngr.add_security_policy(policy=policy,
-                                     policy_type=policy_type,
-                                     grantee=grantee,
-                                     repo=repo,
-                                     table=table)
+            mngr.create_security_policy(policy=policy,
+                                        policy_type=policy_type,
+                                        grantee=grantee,
+                                        repo=repo,
+                                        table=table)
 
     except Exception as e:
         return HttpResponse(

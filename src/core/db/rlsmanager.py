@@ -44,7 +44,7 @@ class RowLevelSecurityManager:
     def close_connection(self):
         self.user_con.close_connection()
 
-    def add_security_policy(self, policy, policy_type, grantee, repo, table):
+    def create_security_policy(self, policy, policy_type, grantee, repo, table):
         '''
         Creates a new security policy in the policy table. First, we check
         whether this policy exists in the table. If so, return an error.

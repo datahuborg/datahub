@@ -103,11 +103,11 @@ class RLS_Permissions(TestCase):
         mock_manager = self.create_patch(
             'core.db.rls_permissions.RowLevelSecurityManager')
         mock_manager = mock_manager.return_value.__enter__.return_value
-        mock_add_policy = mock_manager.add_security_policy
+        mock_create_policy = mock_manager.create_security_policy
 
         # import pdb; pdb.set_trace()
         self.rls_permissions_parser.process_permissions(grant_permission)
-        self.assertTrue(mock_add_policy.called)
+        self.assertTrue(mock_create_policy.called)
 
     def test_process_permissions_revoke(self):
         mock_manager = self.create_patch(
