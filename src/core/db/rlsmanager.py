@@ -25,12 +25,10 @@ class _superuser_connection():
 
 class RowLevelSecurityManager:
 
-    def __init__(self, username, repo_base, repo, table):
+    def __init__(self, username, repo_base):
 
         self.username = username
         self.repo_base = repo_base
-        self.repo = repo
-        self.table = table
 
         self.user_con = core.db.connection.DataHubConnection(
             user=settings.DATABASES['default']['USER'],
@@ -46,7 +44,7 @@ class RowLevelSecurityManager:
     def close_connection(self):
         self.user_con.close_connection()
 
-    def add_security_policy(self, policy, policy_type, grantee):
+    def add_security_policy(self, policy, policy_type, grantee, repo, table):
         '''
         Creates a new security policy in the policy table. First, we check
         whether this policy exists in the table. If so, return an error.
@@ -58,24 +56,24 @@ class RowLevelSecurityManager:
             grantee=grantee,
             grantor=self.username,
             repo_base=self.repo_base,
-            repo=self.repo,
-            table=self.table)
+            repo=repo,
+            table=table)
 
-    def list_security_policies(self):
+    def list_security_policies(self, repo, table):
         '''
         Returns a list of all the security policies defined on the table.
         '''
         return self.user_con.list_security_policies(
-            self.table, self.repo, self.repo_base)
+            table, repo, self.repo_base)
 
-    def find_security_policy(self, policy_id=None, policy=None,
+    def find_security_policy(self, repo, table, policy_id=None, policy=None,
                              policy_type=None, grantee=None, grantor=None):
         '''
         Looks for security policies matching what the user specified in
         the input.
         '''
         return self.user_con.find_security_policy(
-            self.table, self.repo, self.repo_base, policy_id, policy,
+            table, repo, self.repo_base, policy_id, policy,
             policy_type, grantee, grantor)
 
     def find_security_policy_by_id(self, policy_id):
@@ -88,6 +86,8 @@ class RowLevelSecurityManager:
                                new_grantee):
         '''
         Updates the existing security policy with the specified inputs.
+
+        Uses policy_id to locate the existing policy.
         '''
         return self.user_con.update_security_policy(
             policy_id, new_policy, new_policy_type, new_grantee)
@@ -98,8 +98,9 @@ class RowLevelSecurityManager:
         '''
         return self.user_con.remove_security_policy(policy_id)
 
-    def find_all_security_policies(self, user):
-        return self.user_con.find_all_security_policies(username=user)
+    # def find_all_security_policies is not implemented in rlsmanager, because
+    # it allows a user to view security policies that have been applied to
+    # them.
 
     """
     static methods don't require permissions

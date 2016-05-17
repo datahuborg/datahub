@@ -897,9 +897,9 @@ def security_policies(request, repo_base, repo, table):
     username = request.user.get_username()
 
     # get the security policies on a given repo.table
-    with RowLevelSecurityManager(username, repo_base, repo, table) as mngr:
+    with RowLevelSecurityManager(username, repo_base) as mngr:
         try:
-            policies = mngr.list_security_policies()
+            policies = mngr.list_security_policies(repo, table)
         except LookupError:
             policies = []
 
@@ -923,7 +923,7 @@ def security_policy_delete(request, repo_base, repo, table, policy_id):
     policy_id = int(policy_id)
 
     try:
-        with RowLevelSecurityManager(username, repo_base, repo, table) as mngr:
+        with RowLevelSecurityManager(username, repo_base) as mngr:
             mngr.remove_security_policy(policy_id)
     except Exception as e:
         return HttpResponse(
@@ -941,11 +941,15 @@ def security_policy_create(request, repo_base, repo, table):
     '''
     username = request.user.get_username()
     try:
-        with RowLevelSecurityManager(username, repo_base, repo, table) as mngr:
+        with RowLevelSecurityManager(username, repo_base) as mngr:
             policy = request.POST['security-policy']
             policy_type = request.POST['policy-type']
             grantee = request.POST['policy-grantee']
-            mngr.add_security_policy(policy, policy_type, grantee)
+            mngr.add_security_policy(policy=policy,
+                                     policy_type=policy_type,
+                                     grantee=grantee,
+                                     repo=repo,
+                                     table=table)
 
     except Exception as e:
         return HttpResponse(
@@ -964,7 +968,7 @@ def security_policy_edit(request, repo_base, repo, table, policyid):
     '''
     username = request.user.get_username()
     try:
-        with RowLevelSecurityManager(username, repo_base, repo, table) as mngr:
+        with RowLevelSecurityManager(username, repo_base) as mngr:
             policy = request.POST['security-policy-edit']
             policy_type = request.POST['policy-type-edit']
             grantee = request.POST['policy-grantee-edit']

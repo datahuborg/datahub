@@ -20,19 +20,27 @@ class RLSPermissionsParser:
         extract_table_info = self.extract_table_info(permission)
         policy = self.extract_policy(permission)
 
-        with RowLevelSecurityManager(username=self.user,
-                                     table=extract_table_info[1],
-                                     repo=extract_table_info[0],
-                                     repo_base=self.repo_base) as rls_manager:
+        repo = extract_table_info[0]
+        table = extract_table_info[1]
+
+        with RowLevelSecurityManager(self.user, self.repo_base) as rls_manager:
 
             if permission_type == "grant":
-                rls_manager.add_security_policy(
-                    policy=policy, policy_type=access_type, grantee=grantee)
+                rls_manager.add_security_policy(policy=policy,
+                                                policy_type=access_type,
+                                                grantee=grantee,
+                                                repo=repo,
+                                                table=table)
             else:
                 # Need to remove policy if it is remove
                 policy = rls_manager.find_security_policy(
-                    policy=policy, policy_type=access_type, grantee=grantee,
+                    repo=repo,
+                    table=table,
+                    policy=policy,
+                    policy_type=access_type,
+                    grantee=grantee,
                     grantor=self.user)
+
                 if len(policy) == 1:
                     rls_manager.remove_security_policy(policy[0][0])
                 else:

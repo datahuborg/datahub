@@ -197,6 +197,9 @@ class DataHubConnection:
             grantee, grantor)
 
     def find_all_security_policies(self, username):
+        """
+        Find all security policies that are granted by or to a username
+        """
         return self.backend.find_all_security_policies(username)
 
     def update_security_policy(self, policy_id, new_policy, new_policy_type,

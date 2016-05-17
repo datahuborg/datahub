@@ -19,8 +19,7 @@ class RowLevelSecurityManagerTests(TestCase):
         self.mock_connection = self.create_patch(
             'core.db.rlsmanager.core.db.connection.DataHubConnection')
 
-        self.manager = RowLevelSecurityManager(
-            self.username, self.repo_base, self.repo, self.table)
+        self.manager = RowLevelSecurityManager(self.username, self.repo_base)
 
     def create_patch(self, name):
         # helper method for creating patches
@@ -31,18 +30,22 @@ class RowLevelSecurityManagerTests(TestCase):
 
     def test_add_security_policy(self):
         add_policy = self.mock_connection.return_value.create_security_policy
-        self.manager.add_security_policy(
-            "policy='True'", "select", "test_grantee")
+        self.manager.add_security_policy(policy="policy='True'",
+                                         policy_type="select",
+                                         grantee="test_grantee",
+                                         repo=self.repo,
+                                         table=self.repo)
         self.assertTrue(add_policy.called)
 
     def test_list_security_policies(self):
         list_policy = self.mock_connection.return_value.list_security_policies
-        self.manager.list_security_policies()
+        self.manager.list_security_policies(self.repo, self.table)
         self.assertTrue(list_policy.called)
 
     def test_find_security_policy(self):
         find_policy = self.mock_connection.return_value.find_security_policy
         self.manager.find_security_policy(
+            repo=self.repo, table=self.table,
             policy="visible='True", policy_type="insert",
             grantee="test", grantor="test_grantor")
         self.assertTrue(find_policy.called)
