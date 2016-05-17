@@ -823,7 +823,7 @@ class PGBackend:
 
         return res['status']
 
-    def list_security_policies(self, table, repo, repo_base):
+    def list_security_policies(self, repo_base, repo, table):
         '''
         Return a list of all the security policies defined for the
         specified table.
@@ -848,7 +848,7 @@ class PGBackend:
         res = self.execute_sql(query, params, row_level_security=False)
         return res['tuples']
 
-    def find_security_policy(self, table_name, repo, repo_base,
+    def find_security_policy(self, repo_base, repo, table,
                              policy_id=None, policy=None, policy_type=None,
                              grantee=None, grantor=None):
         '''
@@ -862,7 +862,7 @@ class PGBackend:
 
         # append mandatory passed-in conditions
         conditions.append('table_name = %s')
-        params.append(table_name)
+        params.append(table)
 
         conditions.append('repo = %s')
         params.append(repo)

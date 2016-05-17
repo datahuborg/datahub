@@ -44,7 +44,8 @@ class RowLevelSecurityManager:
     def close_connection(self):
         self.user_con.close_connection()
 
-    def create_security_policy(self, policy, policy_type, grantee, repo, table):
+    def create_security_policy(
+            self, policy, policy_type, grantee, repo, table):
         '''
         Creates a new security policy in the policy table. First, we check
         whether this policy exists in the table. If so, return an error.
@@ -64,7 +65,7 @@ class RowLevelSecurityManager:
         Returns a list of all the security policies defined on the table.
         '''
         return self.user_con.list_security_policies(
-            table, repo, self.repo_base)
+            self.repo_base, repo, table)
 
     def find_security_policy(self, repo, table, policy_id=None, policy=None,
                              policy_type=None, grantee=None, grantor=None):
@@ -73,8 +74,14 @@ class RowLevelSecurityManager:
         the input.
         '''
         return self.user_con.find_security_policy(
-            table, repo, self.repo_base, policy_id, policy,
-            policy_type, grantee, grantor)
+            repo_base=self.repo_base,
+            repo=repo,
+            table=table,
+            policy_id=policy_id,
+            policy=policy,
+            policy_type=policy_type,
+            grantee=grantee,
+            grantor=grantor)
 
     def find_security_policy_by_id(self, policy_id):
         '''

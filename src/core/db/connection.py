@@ -176,7 +176,7 @@ class DataHubConnection:
         return self.backend.list_collaborators(repo)
 
     def create_security_policy(self, policy, policy_type, grantee,
-                               grantor, table, repo, repo_base):
+                               grantor, repo_base, repo, table):
         return self.backend.create_security_policy(
             policy=policy,
             policy_type=policy_type,
@@ -186,14 +186,14 @@ class DataHubConnection:
             repo=repo,
             table=table)
 
-    def list_security_policies(self, table, repo, repo_base):
-        return self.backend.list_security_policies(table, repo, repo_base)
+    def list_security_policies(self, repo_base, repo, table):
+        return self.backend.list_security_policies(repo_base, repo, table)
 
-    def find_security_policy(self, table, repo, repo_base, policy_id=None,
+    def find_security_policy(self, repo_base, repo, table, policy_id=None,
                              policy=None, policy_type=None, grantee=None,
                              grantor=None):
         return self.backend.find_security_policy(
-            table, repo, repo_base, policy_id, policy, policy_type,
+            repo_base, repo, table, policy_id, policy, policy_type,
             grantee, grantor)
 
     def find_all_security_policies(self, username):
