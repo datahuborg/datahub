@@ -67,28 +67,6 @@ class RowLevelSecurityManager:
         return self.user_con.list_security_policies(
             self.repo_base, repo, table)
 
-    def find_security_policies(self, repo, table, policy_id=None, policy=None,
-                               policy_type=None, grantee=None, grantor=None):
-        '''
-        Looks for security policies matching what the user specified in
-        the input.
-        '''
-        return self.user_con.find_security_policies(
-            repo_base=self.repo_base,
-            repo=repo,
-            table=table,
-            policy_id=policy_id,
-            policy=policy,
-            policy_type=policy_type,
-            grantee=grantee,
-            grantor=grantor)
-
-    def find_security_policy_by_id(self, policy_id):
-        '''
-        Looks for a security policy matching the specified policy_id.
-        '''
-        return self.user_con.find_security_policy_by_id(policy_id)
-
     def update_security_policy(self, policy_id, new_policy, new_policy_type,
                                new_grantee):
         '''
@@ -196,3 +174,30 @@ class RowLevelSecurityManager:
         with _superuser_connection(settings.POLICY_DB) as conn:
             result = conn.find_all_security_policies(username)
         return result
+
+    @staticmethod
+    def find_security_policies(repo_base, repo, table, policy_id=None,
+                               policy=None, policy_type=None, grantee=None,
+                               grantor=None):
+        '''
+        Looks for security policies matching what the user specified in
+        the input.
+        '''
+        with _superuser_connection(settings.POLICY_DB) as conn:
+            return conn.find_security_policies(
+                repo_base=repo_base,
+                repo=repo,
+                table=table,
+                policy_id=policy_id,
+                policy=policy,
+                policy_type=policy_type,
+                grantee=grantee,
+                grantor=grantor)
+
+    @staticmethod
+    def find_security_policy_by_id(policy_id):
+        '''
+        Looks for a security policy matching the specified policy_id.
+        '''
+        with _superuser_connection(settings.POLICY_DB) as conn:
+            return conn.find_security_policy_by_id(policy_id)

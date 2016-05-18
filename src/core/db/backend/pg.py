@@ -843,12 +843,12 @@ class PGBackend:
                             'policies on %s.%s.' % (grantor, repo, table))
 
         # Raise an exception if the security policy already exists in the table
-        security_policy = self.find_security_policies(
-            table, repo, repo_base, policy=policy, policy_type=policy_type,
-            grantee=grantee, grantor=grantor)
+        # security_policy = self.find_security_policies(
+        #     table, repo, repo_base, policy=policy, policy_type=policy_type,
+        #     grantee=grantee, grantor=grantor)
 
-        if security_policy != []:
-            raise Exception('Security policy already exists in table.')
+        # if security_policy != []:
+        #     raise Exception('Security policy already exists in table.')
 
         query = ('INSERT INTO dh_public.policy (policy, policy_type, grantee, '
                  'grantor, table_name, repo, repo_base) values '
@@ -941,7 +941,7 @@ class PGBackend:
                  'table_name, repo, repo_base '
                  'FROM dh_public.policy WHERE policy_id = %s')
         params = (policy_id,)
-        res = self.execute_sql(query, params)
+        res = self.execute_sql(query, params, row_level_security=False)
 
         # return None if the list is empty
         if not res['tuples']:

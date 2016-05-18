@@ -33,7 +33,8 @@ class RLSPermissionsParser:
                                                    table=table)
             else:
                 # Need to remove policy if it is remove
-                policies = rls_manager.find_security_policies(
+                policies = RowLevelSecurityManager.find_security_policies(
+                    repo_base=self.repo_base,
                     repo=repo,
                     table=table,
                     policy=policy,
