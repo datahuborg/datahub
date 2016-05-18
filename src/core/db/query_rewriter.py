@@ -320,14 +320,14 @@ class SQLQueryRewriter:
         with core.db.rlsmanager.RowLevelSecurityManager(username=self.user,
                                                         repo_base=repo_base,
                                                         ) as mngr:
-            user_policies = mngr.find_security_policy(repo=repo,
-                                                      table=table,
-                                                      policy_type=policytype,
-                                                      grantee=self.user)
-            all_policies = mngr.find_security_policy(repo=repo,
-                                                     table=table,
-                                                     policy_type=policytype,
-                                                     grantee=settings.RLS_ALL)
+            user_policies = mngr.find_security_policies(repo=repo,
+                                                        table=table,
+                                                        policy_type=policytype,
+                                                        grantee=self.user)
+            all_policies = mngr.find_security_policies(repo=repo,
+                                                       table=table,
+                                                       policy_type=policytype,
+                                                       grantee=settings.RLS_ALL)
 
         security_policies = user_policies + all_policies
 

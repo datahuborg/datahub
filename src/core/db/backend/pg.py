@@ -843,7 +843,7 @@ class PGBackend:
                             'policies on %s.%s.' % (grantor, repo, table))
 
         # Raise an exception if the security policy already exists in the table
-        security_policy = self.find_security_policy(
+        security_policy = self.find_security_policies(
             table, repo, repo_base, policy=policy, policy_type=policy_type,
             grantee=grantee, grantor=grantor)
 
@@ -885,9 +885,9 @@ class PGBackend:
         res = self.execute_sql(query, params, row_level_security=False)
         return res['tuples']
 
-    def find_security_policy(self, repo_base, repo, table,
-                             policy_id=None, policy=None, policy_type=None,
-                             grantee=None, grantor=None):
+    def find_security_policies(self, repo_base, repo, table,
+                               policy_id=None, policy=None, policy_type=None,
+                               grantee=None, grantor=None):
         '''
         Returns a list of all security polices that match the inputs specied
         by the user.

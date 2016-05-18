@@ -42,13 +42,14 @@ class RowLevelSecurityManagerTests(TestCase):
         self.manager.list_security_policies(self.repo, self.table)
         self.assertTrue(list_policy.called)
 
-    def test_find_security_policy(self):
-        find_policy = self.mock_connection.return_value.find_security_policy
-        self.manager.find_security_policy(
+    def test_find_security_policies(self):
+        find_policies = self.mock_connection.return_value\
+            .find_security_policies
+        self.manager.find_security_policies(
             repo=self.repo, table=self.table,
             policy="visible='True", policy_type="insert",
             grantee="test", grantor="test_grantor")
-        self.assertTrue(find_policy.called)
+        self.assertTrue(find_policies.called)
 
     def test_find_security_policy_by_id(self):
         find_id = self.mock_connection.return_value.find_security_policy_by_id

@@ -33,7 +33,7 @@ class RLSPermissionsParser:
                                                    table=table)
             else:
                 # Need to remove policy if it is remove
-                policy = rls_manager.find_security_policy(
+                policies = rls_manager.find_security_policies(
                     repo=repo,
                     table=table,
                     policy=policy,
@@ -41,7 +41,7 @@ class RLSPermissionsParser:
                     grantee=grantee,
                     grantor=self.user)
 
-                if len(policy) == 1:
+                if len(policies) == 1:
                     rls_manager.remove_security_policy(policy[0][0])
                 else:
                     raise Exception('Error identifying security policy.')

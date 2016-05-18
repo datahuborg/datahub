@@ -67,13 +67,13 @@ class RowLevelSecurityManager:
         return self.user_con.list_security_policies(
             self.repo_base, repo, table)
 
-    def find_security_policy(self, repo, table, policy_id=None, policy=None,
-                             policy_type=None, grantee=None, grantor=None):
+    def find_security_policies(self, repo, table, policy_id=None, policy=None,
+                               policy_type=None, grantee=None, grantor=None):
         '''
         Looks for security policies matching what the user specified in
         the input.
         '''
-        return self.user_con.find_security_policy(
+        return self.user_con.find_security_policies(
             repo_base=self.repo_base,
             repo=repo,
             table=table,
