@@ -169,7 +169,7 @@ class SQLQueryRewriter:
                 prev_token = token
 
         if table is not None:
-            policy = self.find_security_policy(
+            policy = self.find_table_policies(
                 table[0][1], table[0][0], "insert", table[0][2])
 
             if policy == [] or policy[0] == "INSERT='True'":
@@ -205,7 +205,7 @@ class SQLQueryRewriter:
                 prev_token = token
 
         if table is not None:
-            policies = self.find_security_policy(
+            policies = self.find_table_policies(
                 table[1], table[0], "update", table[2])
             for policy in policies:
                 result += (' AND %s' % policy)
@@ -263,10 +263,10 @@ class SQLQueryRewriter:
                 else:
                     query = '(SELECT * FROM %s.%s' % (table[0][0], table[0][1])
 
-                policies = self.find_security_policy(table[0][1],
-                                                     table[0][0],
-                                                     "select",
-                                                     table[0][2])
+                policies = self.find_table_policies(table[0][1],
+                                                    table[0][0],
+                                                    "select",
+                                                    table[0][2])
                 if policies:
                     query += ' WHERE '
                     for policy in policies:
@@ -287,8 +287,8 @@ class SQLQueryRewriter:
                     alias_name = table[0][0] + table[0][1]
                     query += " AS %s" % (alias_name)
                     replace_list.append((original_table_name,
-                                        alias_name,
-                                        len(result) + len(query)))
+                                         alias_name,
+                                         len(result) + len(query)))
 
                 result += query
                 if len(table_information) > 1:
@@ -308,7 +308,7 @@ class SQLQueryRewriter:
         result = result.replace("USERNAME", "'" + self.user + "'")
         return result
 
-    def find_security_policy(self, table, repo, policytype, repo_base):
+    def find_table_policies(self, table, repo, policytype, repo_base):
         '''
         Look up policies associated with the table and repo and returns a
         list of all the policies defined for the user.

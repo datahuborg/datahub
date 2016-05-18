@@ -133,7 +133,7 @@ class QueryRewriter(TestCase):
                  "repo.table.test='True')")
         subquery_token = sqlparse.parse(query)[0].tokens[6]
         expected_result = ('(', ('select * from repo.table where '
-                           'repo.table.test=\'True\''), ')')
+                                 'repo.table.test=\'True\''), ')')
         self.assertEqual(
             self.query_rewriter.extract_subquery(subquery_token),
             expected_result)
@@ -141,9 +141,9 @@ class QueryRewriter(TestCase):
     def test_process_subquery(self):
         query = "select * from (select * from repo.table)"
         subquery_token = sqlparse.parse(query)[0].tokens[6]
-        mock_find_security_policy = self.create_patch(
-            'core.db.query_rewriter.SQLQueryRewriter.find_security_policy')
-        mock_find_security_policy.return_value = ["tester='Alice"]
+        mock_table_policies = self.create_patch(
+            'core.db.query_rewriter.SQLQueryRewriter.find_table_policies')
+        mock_table_policies.return_value = ["tester='Alice"]
         expected_result = ("(select * from (SELECT * FROM repo.table WHERE "
                            "tester='Alice) AS repotable)")
         self.assertEqual(
@@ -151,9 +151,9 @@ class QueryRewriter(TestCase):
             expected_result)
 
     def test_apply_row_level_security_base(self):
-        mock_find_security_policy = self.create_patch(
-            'core.db.query_rewriter.SQLQueryRewriter.find_security_policy')
-        mock_find_security_policy.return_value = ["tester='Alice'"]
+        mock_find_table_policies = self.create_patch(
+            'core.db.query_rewriter.SQLQueryRewriter.find_table_policies')
+        mock_find_table_policies.return_value = ["tester='Alice'"]
 
         query = "select * from repo.table"
         expected_result = ("select * from (SELECT * FROM repo.table WHERE "
@@ -169,10 +169,10 @@ class QueryRewriter(TestCase):
             self.query_rewriter.apply_row_level_security_base(query),
             expected_result)
 
-        mock_find_security_policy = self.create_patch(
-            'core.db.query_rewriter.SQLQueryRewriter.find_security_policy')
-        mock_find_security_policy.return_value = ["tester='Alice'",
-                                                  "tester='Bob'"]
+        mock_find_table_policies = self.create_patch(
+            'core.db.query_rewriter.SQLQueryRewriter.find_table_policies')
+        mock_find_table_policies.return_value = ["tester='Alice'",
+                                                 "tester='Bob'"]
 
         query = ("select * from hola.orders o, hola.customer t where "
                  "o.customerid=t.customerid order by customer")
@@ -272,9 +272,9 @@ class QueryRewriter(TestCase):
             expected_result)
 
     def test_apply_row_level_security_update(self):
-        mock_find_security_policy = self.create_patch(
-            'core.db.query_rewriter.SQLQueryRewriter.find_security_policy')
-        mock_find_security_policy.return_value = ["count > 10"]
+        mock_find_table_policies = self.create_patch(
+            'core.db.query_rewriter.SQLQueryRewriter.find_table_policies')
+        mock_find_table_policies.return_value = ["count > 10"]
         query = ("update hola.grades_file set firstname='Alice' "
                  "where lastname='Abby'")
         expected_result = ("update hola.grades_file set firstname='Alice' "
@@ -283,9 +283,9 @@ class QueryRewriter(TestCase):
             self.query_rewriter.apply_row_level_security_update(query),
             expected_result)
 
-        mock_find_security_policy = self.create_patch(
-            'core.db.query_rewriter.SQLQueryRewriter.find_security_policy')
-        mock_find_security_policy.return_value = []
+        mock_find_table_policies = self.create_patch(
+            'core.db.query_rewriter.SQLQueryRewriter.find_table_policies')
+        mock_find_table_policies.return_value = []
         query = ("update hola.grades_file set firstname='Alice' "
                  "where lastname='Abby'")
         expected_result = ("update hola.grades_file set firstname='Alice' "
@@ -296,17 +296,17 @@ class QueryRewriter(TestCase):
 
     def test_apply_row_level_security_insert(self):
         query = "insert into repo.table values (a,b,c)"
-        mock_find_security_policy = self.create_patch(
-            'core.db.query_rewriter.SQLQueryRewriter.find_security_policy')
-        mock_find_security_policy.return_value = ["INSERT='True'"]
+        mock_find_table_policies = self.create_patch(
+            'core.db.query_rewriter.SQLQueryRewriter.find_table_policies')
+        mock_find_table_policies.return_value = ["INSERT='True'"]
         expected_result = "insert into repo.table values (a,b,c)"
         self.assertEquals(
             self.query_rewriter.apply_row_level_security_insert(query),
             expected_result)
 
-        mock_find_security_policy = self.create_patch(
-            'core.db.query_rewriter.SQLQueryRewriter.find_security_policy')
-        mock_find_security_policy.return_value = ["INSERT='False'"]
+        mock_find_table_policies = self.create_patch(
+            'core.db.query_rewriter.SQLQueryRewriter.find_table_policies')
+        mock_find_table_policies.return_value = ["INSERT='False'"]
 
         exception_raised = False
         try:
@@ -315,9 +315,9 @@ class QueryRewriter(TestCase):
             exception_raised = True
         self.assertEquals(exception_raised, True)
 
-        mock_find_security_policy = self.create_patch(
-            'core.db.query_rewriter.SQLQueryRewriter.find_security_policy')
-        mock_find_security_policy.return_value = []
+        mock_find_table_policies = self.create_patch(
+            'core.db.query_rewriter.SQLQueryRewriter.find_table_policies')
+        mock_find_table_policies.return_value = []
         self.assertEquals(
             self.query_rewriter.apply_row_level_security_insert(query),
             expected_result)
