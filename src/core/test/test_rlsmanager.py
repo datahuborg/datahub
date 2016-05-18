@@ -30,11 +30,20 @@ class RowLevelSecurityManagerTests(TestCase):
 
     def test_create_security_policy(self):
         create_pol = self.mock_connection.return_value.create_security_policy
-        self.manager.create_security_policy(policy="policy='True'",
-                                            policy_type="select",
-                                            grantee="test_grantee",
-                                            repo=self.repo,
-                                            table=self.repo)
+        mock_find_security_policies = self.create_patch(
+            'core.db.rlsmanager'
+            '.RowLevelSecurityManager.find_security_policies')
+        mock_find_security_policies.return_value = []
+
+        RowLevelSecurityManager.create_security_policy(
+            policy="policy='True'",
+            policy_type="select",
+            grantee="test_grantee",
+            grantor=self.username,
+            repo_base=self.repo_base,
+            repo=self.repo,
+            table=self.repo)
+
         self.assertTrue(create_pol.called)
 
     def test_list_security_policies(self):

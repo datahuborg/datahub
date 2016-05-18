@@ -838,18 +838,6 @@ class PGBackend:
         Creates a new security policy in the policy table if the policy
         does not yet exist.
         '''
-        if not self.check_access_permissions(grantor, repo_base):
-            raise Exception('%s does not have permission to define security '
-                            'policies on %s.%s.' % (grantor, repo, table))
-
-        # Raise an exception if the security policy already exists in the table
-        # security_policy = self.find_security_policies(
-        #     table, repo, repo_base, policy=policy, policy_type=policy_type,
-        #     grantee=grantee, grantor=grantor)
-
-        # if security_policy != []:
-        #     raise Exception('Security policy already exists in table.')
-
         query = ('INSERT INTO dh_public.policy (policy, policy_type, grantee, '
                  'grantor, table_name, repo, repo_base) values '
                  '(%s, %s, %s, %s, %s, %s, %s)')

@@ -44,22 +44,6 @@ class RowLevelSecurityManager:
     def close_connection(self):
         self.user_con.close_connection()
 
-    def create_security_policy(
-            self, policy, policy_type, grantee, repo, table):
-        '''
-        Creates a new security policy in the policy table. First, we check
-        whether this policy exists in the table. If so, return an error.
-        Otherwise, create the policy.
-        '''
-        return self.user_con.create_security_policy(
-            policy=policy,
-            policy_type=policy_type,
-            grantee=grantee,
-            grantor=self.username,
-            repo_base=self.repo_base,
-            repo=repo,
-            table=table)
-
     def list_security_policies(self, repo, table):
         '''
         Returns a list of all the security policies defined on the table.
@@ -201,3 +185,34 @@ class RowLevelSecurityManager:
         '''
         with _superuser_connection(settings.POLICY_DB) as conn:
             return conn.find_security_policy_by_id(policy_id)
+
+    @staticmethod
+    def create_security_policy(
+            policy, policy_type, grantee, grantor, repo_base, repo, table):
+        '''
+        Creates a new security policy in the policy table. First, we check
+        whether this policy exists in the table. If so, return an error.
+        Otherwise, create the policy.
+        '''
+        # Does the policy exist?
+        security_policies = RowLevelSecurityManager.find_security_policies(
+            repo_base=repo_base, repo=repo, table=table, policy=policy,
+            policy_type=policy_type, grantee=grantee, grantor=grantor
+        )
+        if security_policies != []:
+            raise Exception('Security policy already exists in table.')
+
+        # Is the user the table owner?
+        if repo_base != grantor:
+            raise Exception('%s does not have permission to define security '
+                            'policies on %s.%s.' % (grantor, repo, table))
+
+        with _superuser_connection(settings.POLICY_DB) as conn:
+            return conn.create_security_policy(
+                policy=policy,
+                policy_type=policy_type,
+                grantee=grantee,
+                grantor=grantor,
+                repo_base=repo_base,
+                repo=repo,
+                table=table)

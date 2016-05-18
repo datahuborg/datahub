@@ -25,12 +25,16 @@ class RLSPermissionsParser:
 
         with RowLevelSecurityManager(self.user, self.repo_base) as rls_manager:
 
+
             if permission_type == "grant":
-                rls_manager.create_security_policy(policy=policy,
-                                                   policy_type=access_type,
-                                                   grantee=grantee,
-                                                   repo=repo,
-                                                   table=table)
+                RowLevelSecurityManager.create_security_policy(
+                    policy=policy,
+                    policy_type=access_type,
+                    grantee=grantee,
+                    grantor=self.user,
+                    repo_base=self.repo_base,
+                    repo=repo,
+                    table=table)
             else:
                 # Need to remove policy if it is remove
                 policies = RowLevelSecurityManager.find_security_policies(
