@@ -22,32 +22,12 @@ class Command(BaseCommand):
 
 @factory.django.mute_signals(signals.pre_save)
 def create_policy_schema(apps, schema_editor):
-    # create the dh_public schema if it doesn't exist
-    public_username = settings.PUBLIC_ROLE
-    datahub_manager = DataHubManager(public_username)
-
-    create_schema_query = ('CREATE SCHEMA IF NOT EXISTS dh_public')
-    datahub_manager.execute_sql(create_schema_query)
+    RowLevelSecurityManager.create_security_policy_schema()
 
 
 @factory.django.mute_signals(signals.pre_save)
 def create_policy_table(apps, schema_editor):
-    # create the policy table inside dh_public if it doesn't exist
-    public_username = settings.PUBLIC_ROLE
-    datahub_manager = DataHubManager(public_username)
-
-    create_table_query = ('CREATE TABLE IF NOT EXISTS dh_public.policy'
-                          '('
-                          'policy_id serial primary key,'
-                          'policy VARCHAR(80) NOT NULL,'
-                          'policy_type VARCHAR(80) NOT NULL,'
-                          'grantee VARCHAR(80) NOT NULL,'
-                          'grantor VARCHAR(80) NOT NULL,'
-                          'table_name VARCHAR(80) NOT NULL,'
-                          'repo VARCHAR(80) NOT NULL,'
-                          'repo_base VARCHAR(80) NOT NULL'
-                          ');')
-    datahub_manager.execute_sql(create_table_query)
+    RowLevelSecurityManager.create_security_policy_table()
 
 
 def add_existing_users_to_security_policy_table(apps, schema_editor):

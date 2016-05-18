@@ -175,6 +175,14 @@ class DataHubConnection:
     def list_collaborators(self, repo):
         return self.backend.list_collaborators(repo)
 
+
+    # Row Level Security Stuff
+    def create_security_policy_schema(self):
+        return self.backend.create_security_policy_schema()
+
+    def create_security_policy_table(self):
+        return self.backend.create_security_policy_table()
+
     def create_security_policy(self, policy, policy_type, grantee,
                                grantor, repo_base, repo, table):
         return self.backend.create_security_policy(

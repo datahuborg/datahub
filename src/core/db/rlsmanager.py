@@ -114,6 +114,22 @@ class RowLevelSecurityManager:
     """
 
     @staticmethod
+    def create_security_policy_schema():
+        ''' Used to create the security policy schema on DataHub start '''
+        repo_base = settings.POLICY_DB
+        with _superuser_connection(repo_base) as conn:
+            result = conn.create_security_policy_schema()
+        return result
+
+    @staticmethod
+    def create_security_policy_table():
+        ''' Used to create the security policy table on DataHub start '''
+        repo_base = settings.POLICY_DB
+        with _superuser_connection(repo_base) as conn:
+            result = conn.create_security_policy_table()
+        return result
+
+    @staticmethod
     def add_user_to_policy_table(username):
         """
         grant a user permission to select, insert, and update their own rows

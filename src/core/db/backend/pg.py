@@ -785,6 +785,43 @@ class PGBackend:
 
     # Below methods can only be called from the RLSSecurityManager #
 
+    def create_security_policy_schema(self):
+        public_role = settings.PUBLIC_ROLE
+        schema = settings.POLICY_SCHEMA
+        self._check_for_injections(public_role)
+        self._check_for_injections(schema)
+
+        query = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'
+        params = (AsIs(schema), AsIs(public_role))
+        return self.execute_sql(query, params, row_level_security=False)
+
+    def create_security_policy_table(self):
+        schema = settings.POLICY_SCHEMA
+        table = settings.POLICY_TABLE
+        public_role = settings.PUBLIC_ROLE
+
+        self._check_for_injections(schema)
+        self._validate_table_name(table)
+        self._check_for_injections(public_role)
+
+        query = ('CREATE TABLE IF NOT EXISTS %s.%s'
+                 '('
+                 'policy_id serial primary key,'
+                 'policy VARCHAR(80) NOT NULL,'
+                 'policy_type VARCHAR(80) NOT NULL,'
+                 'grantee VARCHAR(80) NOT NULL,'
+                 'grantor VARCHAR(80) NOT NULL,'
+                 'table_name VARCHAR(80) NOT NULL,'
+                 'repo VARCHAR(80) NOT NULL,'
+                 'repo_base VARCHAR(80) NOT NULL'
+                 ');')
+        params = (AsIs(schema), AsIs(table))
+        self.execute_sql(query, params, row_level_security=False)
+
+        query = ('GRANT ALL ON %s.%s to %s;')
+        params = (AsIs(schema), AsIs(table), AsIs(public_role))
+        return self.execute_sql(query, params, row_level_security=False)
+
     def check_access_permissions(self, grantor, repo_base):
         '''
         Checks if the repo owner is the person granting security policies.
