@@ -113,6 +113,7 @@ class RowLevelSecurityManager:
     static methods don't require permissions
     """
 
+    # Creating the schema & table
     @staticmethod
     def create_security_policy_schema():
         ''' Used to create the security policy schema on DataHub start '''
@@ -129,6 +130,7 @@ class RowLevelSecurityManager:
             result = conn.create_security_policy_table()
         return result
 
+    # managing users
     @staticmethod
     def add_user_to_policy_table(username):
         """
@@ -177,14 +179,20 @@ class RowLevelSecurityManager:
     @staticmethod
     def remove_user_from_policy_table(username):
         with _superuser_connection(settings.POLICY_DB) as conn:
-                policies = conn.find_all_security_policies(username)
-                for policy in policies:
-                    conn.remove_security_policy(policy[0])
+            policies = conn.find_all_security_policies(username)
+            for policy in policies:
+                conn.remove_security_policy(policy[0])
 
     @staticmethod
     def can_user_access_rls_table(username,
                                   permissions=['SELECT', 'UPDATE', 'INSERT']):
         with _superuser_connection(settings.POLICY_DB) as conn:
             result = conn.can_user_access_rls_table(username, permissions)
+        return result
 
+    # looking up security policies
+    @staticmethod
+    def find_all_security_policies(username):
+        with _superuser_connection(settings.POLICY_DB) as conn:
+            result = conn.find_all_security_policies(username)
         return result
