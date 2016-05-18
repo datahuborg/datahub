@@ -942,7 +942,13 @@ class PGBackend:
                  'FROM dh_public.policy WHERE policy_id = %s')
         params = (policy_id,)
         res = self.execute_sql(query, params)
-        return res['tuples']
+
+        # return None if the list is empty
+        if not res['tuples']:
+            return None
+
+        # else, return the policy
+        return res['tuples'][0]
 
     def update_security_policy(self, policy_id, new_policy, new_policy_type,
                                new_grantee):
@@ -951,13 +957,13 @@ class PGBackend:
         by the user.
         '''
         policy = self.find_security_policy_by_id(policy_id)
-        if policy == []:
+        if not policy:
             raise LookupError('Policy_ID %s does not exist.' % policy_id)
 
-        if not self.check_access_permissions(policy[0][4], policy[0][7]):
+        if not self.check_access_permissions(policy[4], policy[7]):
             raise Exception('%s does not have permission to update security '
                             'policies on %s.%s.'
-                            % (policy[0][4], policy[0][6], policy[0][5]))
+                            % (policy[4], policy[6], policy[5]))
 
         query = ('UPDATE dh_public.policy '
                  'SET policy = %s, policy_type = %s, '
@@ -977,13 +983,13 @@ class PGBackend:
         policy_id = int(policy_id)
 
         policy = self.find_security_policy_by_id(policy_id)
-        if policy == []:
+        if not policy:
             raise LookupError('Policy_ID %s does not exist.' % (policy_id))
 
-        if not self.check_access_permissions(policy[0][4], policy[0][7]):
+        if not self.check_access_permissions(policy[4], policy[7]):
             raise Exception('%s does not have permission to update security '
                             'policies on %s.%s.'
-                            % (policy[0][4], policy[0][6], policy[0][5]))
+                            % (policy[4], policy[6], policy[5]))
 
         query = 'DELETE FROM dh_public.policy WHERE policy_id = %s'
         params = (policy_id,)
