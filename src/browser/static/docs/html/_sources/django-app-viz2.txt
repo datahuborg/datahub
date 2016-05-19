@@ -3,7 +3,7 @@
 Visuzliation App
 ****************
 | primary(s):   `Anant Bhardwaj <https://github.com/abhardwaj>`_
-| maintiner(s): `Al Carter <https://github.com/RogerTangos>`_
+| maintainer(s): `Al Carter <https://github.com/RogerTangos>`_
 
 viz2 (renamed due to a naming collision) uses Google Charts to visualize the 
 results of database queries.

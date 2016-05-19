@@ -32,9 +32,8 @@
       $('body').append(html);
     }
 
-    // Display the modal (disable Esc and clicking the backdrop to exit modal)
+    // Display the modal (disable Esc)
     $('#dq-sort-modal').modal({
-      backdrop: 'static',
       keyboard: false
     });
 
@@ -42,6 +41,12 @@
     $("#dq-sort-modal").on("shown.bs.modal", function() {
       update_list();
     });
+
+    // Handle modal close when clicking backdrop.
+    $(".modal-backdrop").click(function() {
+      $("#dq-sort-modal").remove();
+      callback();
+    })
   };
 
   // Handle dropdown item click.

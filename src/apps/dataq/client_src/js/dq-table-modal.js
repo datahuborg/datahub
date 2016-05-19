@@ -47,7 +47,6 @@
 
     // Display the modal (disable Esc and clicking the backdrop to exit modal)
     $('#dq-table-modal').modal({
-      backdrop: 'static',
       keyboard: false
     });
     
@@ -60,6 +59,12 @@
         populate_column_list(table);
       }
     });
+
+    // Handle modal close when clicking backdrop.
+    $(".modal-backdrop").click(function() {
+      $("#dq-table-modal").remove();
+      cb();
+    })
   }; 
 
   // If the user quits, trigger the callback.
@@ -109,12 +114,6 @@
       });
       $('.dq-column-list').html(html);
 
-      // Enable iCheck.
-      $('.dq-column-list input[type=checkbox]').iCheck({
-        checkboxClass: 'icheckbox_square-green',
-        radioClass: 'iradio_square-green',
-      });
-
       if (query.selected_columns(table)) {
         // Iterate through the columns for the selected table.
         query.selected_columns(table).forEach(function(column) {
@@ -124,7 +123,7 @@
           element.data("columnname", column.name);
           element.data("columntype", column.type);
           element.data("currentaggregate", column.agg || "none")
-          element.find("input[type=checkbox]").iCheck('check');
+          element.find("input[type=checkbox]").prop('checked', true);
           if (column.agg !== "none") {
             element.find("button").text(column.agg + "(" + column.name + ")");
           }

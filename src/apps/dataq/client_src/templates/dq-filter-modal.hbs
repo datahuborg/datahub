@@ -1,12 +1,12 @@
 <!-- Modal HTML for adding a filter -->
-<div class="modal fade" id="dq-filter-modal">
+<div class="modal fade" id="dq-filter-modal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close dq-filter-quit" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
 
         <!-- Title indicating that this modal is for creating filters -->
-        <h4 class="modal-title">Create a Filter</h4>
+        <h4 class="modal-title">Specify a filter condition of the form "&lt;expr&gt; &lt;operator&gt; &lt;expr&gt;".</h4>
       </div>
 
       <!-- Modal body -->
@@ -30,7 +30,7 @@
         <!-- The first dropdown where the user can specify <operation> in the filter <val1> <operation> <val2> -->
         <div class="input-group col-xs-3">
           <!-- Text box for entering the operation text -->
-          <input type="text" class="form-control dq-filter-op-text" placeholder="=">
+          <input type="text" class="form-control dq-filter-op-text" value="=">
           <!-- The possible operations are <, <=, >, >=, =, LIKE, IN, and NOT IN -->
           <div class="input-group-btn">
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>

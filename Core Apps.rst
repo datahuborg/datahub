@@ -35,7 +35,7 @@ DataQ
 :ref:`django-app-dataq`
 
 | primary(s):   `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_
-| maintainer(s): `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_
+| maintainer(s): `Gina Yuan <https://github.com/ygina>`_
 
 DataQ is a visual SQL query builder
 

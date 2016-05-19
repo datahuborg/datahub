@@ -51,12 +51,16 @@
       $('body').append(html);
     }
 
-    // Display the modal (disable Esc and clicking the backdrop to exit modal)
+    // Display the modal (disable Esc)
     $('#dq-filter-modal').modal({
-      backdrop: 'static',
       keyboard: false
     });
 
+    // Handle modal close when clicking backdrop.
+    $(".modal-backdrop").click(function() {
+      callback();
+      $("#dq-filter-modal").remove();
+    })
   } // End FilterModal
 
   // Handle modal close.
