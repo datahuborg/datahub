@@ -182,7 +182,8 @@ class RowLevelSecurityManager:
 
     @staticmethod
     def create_security_policy(
-            policy, policy_type, grantee, grantor, repo_base, repo, table):
+            policy, policy_type, grantee, grantor, repo_base, repo, table,
+            safe=True):
         '''
         Creates a new security policy in the policy table. First, we check
         whether this policy exists in the table. If so, return an error.
@@ -197,7 +198,7 @@ class RowLevelSecurityManager:
             raise Exception('Security policy already exists in table.')
 
         # Is the user the table owner?
-        if repo_base != grantor:
+        if safe and (repo_base != grantor):
             raise Exception('%s does not have permission to define security '
                             'policies on %s.%s.' % (grantor, repo, table))
 
