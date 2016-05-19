@@ -91,6 +91,11 @@ class PGBackend:
             self.repo_base, self.user)
         self.connection = None
 
+        # row level security is enabled unless the user is a superuser
+        self.row_level_security = True
+        if user == settings.DATABASES['default']['USER']:
+            self.row_level_security = False
+
         self.__open_connection__()
 
     def __del__(self):
@@ -434,7 +439,7 @@ class PGBackend:
         query = 'SELECT * FROM %s;' % (dh_table_name)
         return query
 
-    def execute_sql(self, query, params=None, row_level_security=True):
+    def execute_sql(self, query, params=None):
         result = {
             'status': False,
             'row_count': 0,
@@ -447,7 +452,7 @@ class PGBackend:
 
         try:
             sql_query = cur.mogrify(query, params)
-            if row_level_security:
+            if self.row_level_security:
                 sql_query = self.query_rewriter.apply_row_level_security(
                     sql_query)
             cur.execute(sql_query)
@@ -753,7 +758,7 @@ class PGBackend:
         params = (AsIs(table_name), file_path, AsIs(file_format),
                   AsIs(header_option), delimiter, encoding, quote_character)
         try:
-            self.execute_sql(query, params, row_level_security=False)
+            self.execute_sql(query, params)
         except Exception as e:
             self.execute_sql('DROP TABLE IF EXISTS %s', (AsIs(table_name),))
             raise ImportError(e)
@@ -793,7 +798,7 @@ class PGBackend:
 
         query = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'
         params = (AsIs(schema), AsIs(public_role))
-        return self.execute_sql(query, params, row_level_security=False)
+        return self.execute_sql(query, params)
 
     def create_security_policy_table(self):
         schema = settings.POLICY_SCHEMA
@@ -816,21 +821,11 @@ class PGBackend:
                  'repo_base VARCHAR(80) NOT NULL'
                  ');')
         params = (AsIs(schema), AsIs(table))
-        self.execute_sql(query, params, row_level_security=False)
+        self.execute_sql(query, params)
 
         query = ('GRANT ALL ON %s.%s to %s;')
         params = (AsIs(schema), AsIs(table), AsIs(public_role))
-        return self.execute_sql(query, params, row_level_security=False)
-
-    def check_access_permissions(self, grantor, repo_base):
-        '''
-        Checks if the repo owner is the person granting security policies.
-        Only repo owners can create security policies.
-        '''
-        if (grantor == repo_base or
-                grantor == settings.DATABASES['default']['USER']):
-            return True
-        return False
+        return self.execute_sql(query, params)
 
     def create_security_policy(self, policy, policy_type, grantee, grantor,
                                repo_base, repo, table):
@@ -844,7 +839,7 @@ class PGBackend:
         params = (policy, policy_type, grantee, grantor, table, repo,
                   repo_base)
 
-        res = self.execute_sql(query, params, row_level_security=False)
+        res = self.execute_sql(query, params)
 
         return res['status']
 
@@ -860,7 +855,7 @@ class PGBackend:
                  'WHERE table_name = %s '
                  'AND repo = %s AND repo_base = %s')
 
-        res = self.execute_sql(query, params, row_level_security=False)
+        res = self.execute_sql(query, params)
         return res['tuples']
 
     def find_all_security_policies(self, username):
@@ -870,7 +865,7 @@ class PGBackend:
                  'FROM dh_public.policy WHERE grantee = %s or '
                  'grantor = %s')
 
-        res = self.execute_sql(query, params, row_level_security=False)
+        res = self.execute_sql(query, params)
         return res['tuples']
 
     def find_security_policies(self, repo_base, repo, table,
@@ -916,7 +911,7 @@ class PGBackend:
         params = tuple(params)
         query += conditions
 
-        res = self.execute_sql(query, params, row_level_security=False)
+        res = self.execute_sql(query, params)
 
         return res['tuples']
 
@@ -929,7 +924,7 @@ class PGBackend:
                  'table_name, repo, repo_base '
                  'FROM dh_public.policy WHERE policy_id = %s')
         params = (policy_id,)
-        res = self.execute_sql(query, params, row_level_security=False)
+        res = self.execute_sql(query, params)
 
         # return None if the list is empty
         if not res['tuples']:
@@ -950,7 +945,7 @@ class PGBackend:
                  'WHERE policy_id = %s')
         params = (new_policy, new_policy_type, new_grantee, policy_id)
 
-        res = self.execute_sql(query, params, row_level_security=False)
+        res = self.execute_sql(query, params)
         return res['status']
 
     def remove_security_policy(self, policy_id):
@@ -960,7 +955,7 @@ class PGBackend:
         '''
         query = 'DELETE FROM dh_public.policy WHERE policy_id = %s'
         params = (policy_id,)
-        res = self.execute_sql(query, params, row_level_security=False)
+        res = self.execute_sql(query, params)
         return res['status']
 
     def can_user_access_rls_table(self,
@@ -985,5 +980,5 @@ class PGBackend:
                   AsIs(settings.POLICY_TABLE),
                   username) + tuple(permissions)
 
-        res = self.execute_sql(query, params, row_level_security=False)
+        res = self.execute_sql(query, params)
         return res['tuples'][0][0]
