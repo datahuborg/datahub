@@ -44,13 +44,6 @@ class RowLevelSecurityManager:
     def close_connection(self):
         self.user_con.close_connection()
 
-    def list_security_policies(self, repo, table):
-        '''
-        Returns a list of all the security policies defined on the table.
-        '''
-        return self.user_con.list_security_policies(
-            self.repo_base, repo, table)
-
     """
     static methods don't require permissions
     """
@@ -241,9 +234,23 @@ class RowLevelSecurityManager:
         # check to make sure the user can do this
         if safe and (username != policy[7]):  # policy[7] is repo_base
             raise Exception('%s does not have permission to update security '
-                            'policies on %s.%s, which belongs to %s'
-                            % (username, policy[6], policy[5], policy[7]))
+                            'policies on %s'
+                            % (username, policy[7]))
 
         with _superuser_connection(settings.POLICY_DB) as conn:
             return conn.update_security_policy(
                 policy_id, new_policy, new_policy_type, new_grantee)
+
+    @staticmethod
+    def list_security_policies(repo_base, repo, table, username=None,
+                               safe=True):
+        '''
+        Returns a list of all the security policies defined on the table.
+        '''
+        if safe and (username != repo_base):
+            raise Exception('%s does not have permission to update security '
+                            'policies on %s'
+                            % (username, repo_base))
+
+        with _superuser_connection(settings.POLICY_DB) as conn:
+            return conn.list_security_policies(repo_base, repo, table)

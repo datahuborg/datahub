@@ -47,7 +47,9 @@ class RowLevelSecurityManagerTests(TestCase):
         self.assertTrue(create_pol.called)
 
     def test_list_security_policies(self):
-        list_policy = self.mock_connection.return_value.list_security_policies
+        list_policy = self.create_patch(
+            'core.db.rls_permissions.RowLevelSecurityManager.'
+            'list_security_policies')
         self.manager.list_security_policies(self.repo, self.table)
         self.assertTrue(list_policy.called)
 

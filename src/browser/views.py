@@ -897,11 +897,11 @@ def security_policies(request, repo_base, repo, table):
     username = request.user.get_username()
 
     # get the security policies on a given repo.table
-    with RowLevelSecurityManager(username, repo_base) as mngr:
-        try:
-            policies = mngr.list_security_policies(repo, table)
-        except LookupError:
-            policies = []
+    try:
+        policies = RowLevelSecurityManager.list_security_policies(
+            repo_base, repo, table, username)
+    except LookupError:
+        policies = []
 
     res = {
         'login': username,
