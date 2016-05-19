@@ -944,15 +944,6 @@ class PGBackend:
         Updates an existing security policy based on the inputs specified
         by the user.
         '''
-        policy = self.find_security_policy_by_id(policy_id)
-        if not policy:
-            raise LookupError('Policy_ID %s does not exist.' % policy_id)
-
-        if not self.check_access_permissions(policy[4], policy[7]):
-            raise Exception('%s does not have permission to update security '
-                            'policies on %s.%s.'
-                            % (policy[4], policy[6], policy[5]))
-
         query = ('UPDATE dh_public.policy '
                  'SET policy = %s, policy_type = %s, '
                  'grantee = %s '

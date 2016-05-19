@@ -51,20 +51,6 @@ class RowLevelSecurityManager:
         return self.user_con.list_security_policies(
             self.repo_base, repo, table)
 
-    def update_security_policy(self, policy_id, new_policy, new_policy_type,
-                               new_grantee):
-        '''
-        Updates the existing security policy with the specified inputs.
-
-        Uses policy_id to locate the existing policy.
-        '''
-        return self.user_con.update_security_policy(
-            policy_id, new_policy, new_policy_type, new_grantee)
-
-    # def find_all_security_policies is not implemented in rlsmanager, because
-    # it allows a user to view security policies that have been applied to
-    # them.
-
     """
     static methods don't require permissions
     """
@@ -235,3 +221,29 @@ class RowLevelSecurityManager:
 
         with _superuser_connection(settings.POLICY_DB) as conn:
             return conn.remove_security_policy(policy_id)
+
+    @staticmethod
+    def update_security_policy(policy_id, new_policy, new_policy_type,
+                               new_grantee, username=None, safe=True):
+        '''
+        Updates the existing security policy with the specified inputs.
+
+        Uses policy_id to locate the existing policy.
+
+        if safe is true, makes sure that the policy's repo_base is the same
+        as the username
+        '''
+        # get the policy, and make sure it exists
+        policy = RowLevelSecurityManager.find_security_policy_by_id(policy_id)
+        if not policy:
+            raise LookupError('Policy_ID %s does not exist.' % (policy_id))
+
+        # check to make sure the user can do this
+        if safe and (username != policy[7]):  # policy[7] is repo_base
+            raise Exception('%s does not have permission to update security '
+                            'policies on %s.%s, which belongs to %s'
+                            % (username, policy[6], policy[5], policy[7]))
+
+        with _superuser_connection(settings.POLICY_DB) as conn:
+            return conn.update_security_policy(
+                policy_id, new_policy, new_policy_type, new_grantee)

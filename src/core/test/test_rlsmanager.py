@@ -70,10 +70,13 @@ class RowLevelSecurityManagerTests(TestCase):
         self.assertTrue(find_id.called)
 
     def test_update_security_policy(self):
-        update_pol = self.mock_connection.return_value.update_security_policy
+        update_pol = self.create_patch(
+            'core.db.rls_permissions.RowLevelSecurityManager.'
+            'update_security_policy')
         self.manager.update_security_policy(
             policy_id=1, new_policy="visible=False",
-            new_policy_type="select", new_grantee="test_grantor")
+            new_policy_type="select", new_grantee="test_grantor",
+            username=self.username)
         self.assertTrue(update_pol.called)
 
     def test_remove_security_policy(self):

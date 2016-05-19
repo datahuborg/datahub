@@ -971,11 +971,11 @@ def security_policy_edit(request, repo_base, repo, table, policyid):
     '''
     username = request.user.get_username()
     try:
-        with RowLevelSecurityManager(username, repo_base) as mngr:
-            policy = request.POST['security-policy-edit']
-            policy_type = request.POST['policy-type-edit']
-            grantee = request.POST['policy-grantee-edit']
-            mngr.update_security_policy(policyid, policy, policy_type, grantee)
+        policy = request.POST['security-policy-edit']
+        policy_type = request.POST['policy-type-edit']
+        grantee = request.POST['policy-grantee-edit']
+        RowLevelSecurityManager.update_security_policy(
+            policyid, policy, policy_type, grantee, username)
 
     except Exception as e:
         return HttpResponse(
