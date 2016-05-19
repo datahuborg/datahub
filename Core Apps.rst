@@ -58,9 +58,9 @@ dbWipes
 :ref:`django-app-dbwipes`
 
 | primary(s):   `Eugene Wu <https://github.com/sirrice>`_
-| maintainer(s): `Eugene Wu <https://github.com/sirrice>`_
+| maintainer(s): `Albert Carter <https://github.com/RogerTangos>`_
 
-`DBWipes <http://www.mit.edu/~eugenewu/dbwipes.html>`_ helps you quickly
+`DBWipes <http://www.cs.columbia.edu/~ewu/dbwipes.html>`_ helps you quickly
 visualize data, identify outliers, and understand where those outliers arise
 from in the underlying data set
 
