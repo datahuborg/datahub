@@ -80,5 +80,6 @@ class RowLevelSecurityManagerTests(TestCase):
         remove_pol = self.create_patch(
             'core.db.rls_permissions.RowLevelSecurityManager.'
             'remove_security_policy')
-        self.manager.remove_security_policy(self.username, policy_id=1)
+        self.manager.remove_security_policy(
+            policy_id=1, username=self.username, repo_base=self.repo_base)
         self.assertTrue(remove_pol.called)

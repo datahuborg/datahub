@@ -212,9 +212,13 @@ class RowLevelSecurityManager:
                 table=table)
 
     @staticmethod
-    def remove_security_policy(username, policy_id):
+    def remove_security_policy(
+            policy_id, username=None, repo_base=None, safe=True):
         '''
         Removes the security policy specified by the policy_id.
+
+        If safe is true, checks to make sure that the username==repo_base
+        Else, skips the check, and deletes
         '''
         policy_id = int(policy_id)
 
@@ -224,7 +228,9 @@ class RowLevelSecurityManager:
             raise LookupError('Policy_ID %s does not exist.' % (policy_id))
 
         # check to make sure the user can actually do this
-        # ToDo - check pg.py for the code
+        if safe and (username != repo_base):
+            raise Exception('%s does not have permission to delete security '
+                            'policies on %s' % (username, repo_base))
 
         with _superuser_connection(settings.POLICY_DB) as conn:
             return conn.remove_security_policy(policy_id)

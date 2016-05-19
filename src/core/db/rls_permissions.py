@@ -45,8 +45,8 @@ class RLSPermissionsParser:
 
             if len(policies) == 1:
                 RowLevelSecurityManager.remove_security_policy(
-                    self.user,
-                    policy[0][0])
+                    policy_id=policy[0][0], username=self.user,
+                    repo_base=self.repo_base)
             else:
                 raise Exception('Error identifying security policy.')
 
