@@ -77,6 +77,8 @@ class RowLevelSecurityManagerTests(TestCase):
         self.assertTrue(update_pol.called)
 
     def test_remove_security_policy(self):
-        remove_pol = self.mock_connection.return_value.remove_security_policy
-        self.manager.remove_security_policy(policy_id=1)
+        remove_pol = self.create_patch(
+            'core.db.rls_permissions.RowLevelSecurityManager.'
+            'remove_security_policy')
+        self.manager.remove_security_policy(self.username, policy_id=1)
         self.assertTrue(remove_pol.called)

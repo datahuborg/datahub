@@ -23,33 +23,32 @@ class RLSPermissionsParser:
         repo = extract_table_info[0]
         table = extract_table_info[1]
 
-        with RowLevelSecurityManager(self.user, self.repo_base) as rls_manager:
+        if permission_type == "grant":
+            RowLevelSecurityManager.create_security_policy(
+                policy=policy,
+                policy_type=access_type,
+                grantee=grantee,
+                grantor=self.user,
+                repo_base=self.repo_base,
+                repo=repo,
+                table=table)
+        else:
+            # Need to remove policy if it is remove
+            policies = RowLevelSecurityManager.find_security_policies(
+                repo_base=self.repo_base,
+                repo=repo,
+                table=table,
+                policy=policy,
+                policy_type=access_type,
+                grantee=grantee,
+                grantor=self.user)
 
-
-            if permission_type == "grant":
-                RowLevelSecurityManager.create_security_policy(
-                    policy=policy,
-                    policy_type=access_type,
-                    grantee=grantee,
-                    grantor=self.user,
-                    repo_base=self.repo_base,
-                    repo=repo,
-                    table=table)
+            if len(policies) == 1:
+                RowLevelSecurityManager.remove_security_policy(
+                    self.user,
+                    policy[0][0])
             else:
-                # Need to remove policy if it is remove
-                policies = RowLevelSecurityManager.find_security_policies(
-                    repo_base=self.repo_base,
-                    repo=repo,
-                    table=table,
-                    policy=policy,
-                    policy_type=access_type,
-                    grantee=grantee,
-                    grantor=self.user)
-
-                if len(policies) == 1:
-                    rls_manager.remove_security_policy(policy[0][0])
-                else:
-                    raise Exception('Error identifying security policy.')
+                raise Exception('Error identifying security policy.')
 
     def extract_permission_type(self, permission):
         '''

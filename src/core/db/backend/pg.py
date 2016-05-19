@@ -968,16 +968,16 @@ class PGBackend:
         matching the one specified by the user.
         '''
         # sometimes people forget to pass policy_id as an int
-        policy_id = int(policy_id)
+        # policy_id = int(policy_id)
 
-        policy = self.find_security_policy_by_id(policy_id)
-        if not policy:
-            raise LookupError('Policy_ID %s does not exist.' % (policy_id))
+        # policy = self.find_security_policy_by_id(policy_id)
+        # if not policy:
+        #     raise LookupError('Policy_ID %s does not exist.' % (policy_id))
 
-        if not self.check_access_permissions(policy[4], policy[7]):
-            raise Exception('%s does not have permission to update security '
-                            'policies on %s.%s.'
-                            % (policy[4], policy[6], policy[5]))
+        # if not self.check_access_permissions(policy[4], policy[7]):
+        #     raise Exception('%s does not have permission to update security '
+        #                     'policies on %s.%s.'
+        #                     % (policy[4], policy[6], policy[5]))
 
         query = 'DELETE FROM dh_public.policy WHERE policy_id = %s'
         params = (policy_id,)

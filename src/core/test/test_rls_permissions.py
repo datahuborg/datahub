@@ -120,7 +120,10 @@ class RLS_Permissions(TestCase):
             'core.db.rls_permissions.RowLevelSecurityManager.'
             'find_security_policies')
         mock_find_policy.return_value = ["test_policy"]
-        mock_remove_policy = mock_manager.remove_security_policy
+
+        mock_remove_policy = self.create_patch(
+            'core.db.rls_permissions.RowLevelSecurityManager.'
+            'remove_security_policy')
 
         self.rls_permissions_parser.process_permissions(revoke_permission)
         self.assertTrue(mock_remove_policy.called)

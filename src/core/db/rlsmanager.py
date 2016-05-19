@@ -61,12 +61,6 @@ class RowLevelSecurityManager:
         return self.user_con.update_security_policy(
             policy_id, new_policy, new_policy_type, new_grantee)
 
-    def remove_security_policy(self, policy_id):
-        '''
-        Removes the security policy specified by the policy_id.
-        '''
-        return self.user_con.remove_security_policy(policy_id)
-
     # def find_all_security_policies is not implemented in rlsmanager, because
     # it allows a user to view security policies that have been applied to
     # them.
@@ -216,3 +210,21 @@ class RowLevelSecurityManager:
                 repo_base=repo_base,
                 repo=repo,
                 table=table)
+
+    @staticmethod
+    def remove_security_policy(username, policy_id):
+        '''
+        Removes the security policy specified by the policy_id.
+        '''
+        policy_id = int(policy_id)
+
+        # get the policy, and make sure it exists
+        policy = RowLevelSecurityManager.find_security_policy_by_id(policy_id)
+        if not policy:
+            raise LookupError('Policy_ID %s does not exist.' % (policy_id))
+
+        # check to make sure the user can actually do this
+        # ToDo - check pg.py for the code
+
+        with _superuser_connection(settings.POLICY_DB) as conn:
+            return conn.remove_security_policy(policy_id)
