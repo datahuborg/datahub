@@ -1,4 +1,6 @@
 import sqlparse
+
+from inventory.models import Collaborator
 from core.db.rlsmanager import RowLevelSecurityManager
 from config import settings
 
@@ -317,12 +319,15 @@ class SQLQueryRewriter:
         if repo_base is None:
             repo_base = self.repo_base
 
+        # policies that are meant to apply to specific users
         user_policies = RowLevelSecurityManager.find_security_policies(
             repo_base=repo_base,
             repo=repo,
             table=table,
             policy_type=policytype,
             grantee=self.user)
+
+        # policies that are meant to apply to all users
         all_policies = RowLevelSecurityManager.find_security_policies(
             repo_base=repo_base,
             repo=repo,
@@ -330,7 +335,22 @@ class SQLQueryRewriter:
             policy_type=policytype,
             grantee=settings.RLS_ALL)
 
-        security_policies = user_policies + all_policies
+        # People collaborating on this repo
+        collaborators = Collaborator.objects.filter(repo_base=repo_base,
+                                                    repo_name=repo)
+
+        # If the user is not explicitly granted access, also load the
+        # public_policies
+        public_policies = []
+        if self.user not in collaborators:
+            public_policies = RowLevelSecurityManager.find_security_policies(
+                repo_base=repo_base,
+                repo=repo,
+                table=table,
+                policy_type=policytype,
+                grantee=settings.RLS_PUBLIC)
+
+        security_policies = user_policies + all_policies + public_policies
 
         result = []
         for policy in security_policies:

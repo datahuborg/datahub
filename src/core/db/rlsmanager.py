@@ -75,6 +75,7 @@ class RowLevelSecurityManager:
         These rows are now owned by the superuser, so only the superuser can
         remove them.
         """
+        username = username.lower()
         policy = ('grantor = \'%s\'' % username)
         grantee = username
         grantor = settings.DATABASES['default']['USER']
@@ -113,6 +114,7 @@ class RowLevelSecurityManager:
 
     @staticmethod
     def remove_user_from_policy_table(username):
+        username = username.lower()
         with _superuser_connection(settings.POLICY_DB) as conn:
             policies = conn.find_all_security_policies(username)
             for policy in policies:
@@ -121,13 +123,18 @@ class RowLevelSecurityManager:
     @staticmethod
     def can_user_access_rls_table(username,
                                   permissions=['SELECT', 'UPDATE', 'INSERT']):
+        username = username.lower()
         with _superuser_connection(settings.POLICY_DB) as conn:
             result = conn.can_user_access_rls_table(username, permissions)
         return result
 
-    # looking up security policies
     @staticmethod
     def find_all_security_policies(username):
+        '''
+        Find all security policies that are either granted to or granted by
+        the passed username
+        '''
+        username = username.lower()
         with _superuser_connection(settings.POLICY_DB) as conn:
             result = conn.find_all_security_policies(username)
         return result
@@ -140,6 +147,18 @@ class RowLevelSecurityManager:
         Looks for security policies matching what the user specified in
         the input.
         '''
+        repo_base = repo_base.lower()
+        repo = repo.lower()
+        table = table.lower()
+        if policy_id:
+            policy_id = int(policy_id)
+        if policy_type:
+            policy_type = policy_type.lower()
+        if grantee:
+            grantee = grantee.lower()
+        if grantor:
+            grantor = grantor.lower()
+
         with _superuser_connection(settings.POLICY_DB) as conn:
             return conn.find_security_policies(
                 repo_base=repo_base,
@@ -156,6 +175,7 @@ class RowLevelSecurityManager:
         '''
         Looks for a security policy matching the specified policy_id.
         '''
+        policy_id = int(policy_id)
         with _superuser_connection(settings.POLICY_DB) as conn:
             return conn.find_security_policy_by_id(policy_id)
 
@@ -168,6 +188,13 @@ class RowLevelSecurityManager:
         whether this policy exists in the table. If so, return an error.
         Otherwise, create the policy.
         '''
+        policy_type = policy_type.lower()
+        grantee = grantee.lower()
+        grantor = grantor.lower()
+        repo_base = repo_base.lower()
+        repo = repo.lower()
+        table = table.lower()
+
         # Does the policy exist?
         security_policies = RowLevelSecurityManager.find_security_policies(
             repo_base=repo_base, repo=repo, table=table, policy=policy,
@@ -201,6 +228,10 @@ class RowLevelSecurityManager:
         Else, skips the check, and deletes
         '''
         policy_id = int(policy_id)
+        if username:
+            username = username.lower()
+        if repo_base:
+            repo_base = repo_base.lower()
 
         # get the policy, and make sure it exists
         policy = RowLevelSecurityManager.find_security_policy_by_id(policy_id)
@@ -226,6 +257,12 @@ class RowLevelSecurityManager:
         if safe is true, makes sure that the policy's repo_base is the same
         as the username
         '''
+        policy_id = int(policy_id)
+        new_policy_type = new_policy_type.lower()
+        new_grantee = new_grantee.lower()
+        if username:
+            username = username.lower()
+
         # get the policy, and make sure it exists
         policy = RowLevelSecurityManager.find_security_policy_by_id(policy_id)
         if not policy:
@@ -247,6 +284,12 @@ class RowLevelSecurityManager:
         '''
         Returns a list of all the security policies defined on the table.
         '''
+        repo_base = repo_base.lower()
+        repo = repo.lower()
+        table = table.lower()
+        if username:
+            username = username.lower()
+
         if safe and (username != repo_base):
             raise Exception('%s does not have permission to update security '
                             'policies on %s'
