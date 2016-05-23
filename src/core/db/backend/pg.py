@@ -825,6 +825,24 @@ class PGBackend:
         params = (AsIs(schema), AsIs(table))
         self.execute_sql(query, params)
 
+        # create indexes for faster seraching
+        query = ('create index grantee_index on '
+                 'dh_public.policy using hash(grantee); '
+
+                 'create index grantor_index on '
+                 'dh_public.policy using hash(grantor); '
+
+                 'create index table_name_index on '
+                 'dh_public.policy using hash(table_name); '
+
+                 'create index repo_index on '
+                 'dh_public.policy using hash(repo); '
+
+                 'create index repo_base_index on '
+                 'dh_public.policy using hash(repo_base);')
+        self.execute_sql(query)
+
+        # grant the public role access to the table
         query = ('GRANT ALL ON %s.%s to %s;')
         params = (AsIs(schema), AsIs(table), AsIs(public_role))
         return self.execute_sql(query, params)
