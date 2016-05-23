@@ -1,5 +1,5 @@
 import sqlparse
-import core.db.rlsmanager
+from core.db.rlsmanager import RowLevelSecurityManager
 from config import settings
 
 
@@ -317,20 +317,18 @@ class SQLQueryRewriter:
         if repo_base is None:
             repo_base = self.repo_base
 
-        user_policies = core.db.rlsmanager.RowLevelSecurityManager\
-            .find_security_policies(
-                repo_base=repo_base,
-                repo=repo,
-                table=table,
-                policy_type=policytype,
-                grantee=self.user)
-        all_policies = core.db.rlsmanager.RowLevelSecurityManager\
-            .find_security_policies(
-                repo_base=repo_base,
-                repo=repo,
-                table=table,
-                policy_type=policytype,
-                grantee=settings.RLS_ALL)
+        user_policies = RowLevelSecurityManager.find_security_policies(
+            repo_base=repo_base,
+            repo=repo,
+            table=table,
+            policy_type=policytype,
+            grantee=self.user)
+        all_policies = RowLevelSecurityManager.find_security_policies(
+            repo_base=repo_base,
+            repo=repo,
+            table=table,
+            policy_type=policytype,
+            grantee=settings.RLS_ALL)
 
         security_policies = user_policies + all_policies
 
