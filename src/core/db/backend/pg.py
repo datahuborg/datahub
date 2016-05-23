@@ -87,14 +87,16 @@ class PGBackend:
         self.host = host
         self.port = port
         self.repo_base = repo_base
-        self.query_rewriter = core.db.query_rewriter.SQLQueryRewriter(
-            self.repo_base, self.user)
         self.connection = None
 
         # row level security is enabled unless the user is a superuser
-        self.row_level_security = True
-        if user == settings.DATABASES['default']['USER']:
-            self.row_level_security = False
+        self.row_level_security = bool(
+            user != settings.DATABASES['default']['USER'])
+
+        # We only need a query rewriter if RLS is enabled
+        if self.row_level_security:
+            self.query_rewriter = core.db.query_rewriter.SQLQueryRewriter(
+                self.repo_base, self.user)
 
         self.__open_connection__()
 
@@ -583,9 +585,9 @@ class PGBackend:
         try:
             return self.execute_sql(query, params)
         except psycopg2.ProgrammingError as e:
-                print(e)
-                print('this probably happened because the postgres role'
-                      'exists, but a database of the same name does not.')
+            print(e)
+            print('this probably happened because the postgres role'
+                  'exists, but a database of the same name does not.')
 
     def change_password(self, username, password):
         self._check_for_injections(username)
