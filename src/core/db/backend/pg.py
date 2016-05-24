@@ -840,7 +840,14 @@ class PGBackend:
 
                  'create index repo_base_index on '
                  'dh_public.policy using hash(repo_base);')
-        self.execute_sql(query)
+
+        # postgres 9.4 doesn't support IF NOT EXISTS when creating indexes
+        # so it's possible for tests to attempt to create duplicate indexes
+        # This catches that exception
+        try:
+            self.execute_sql(query)
+        except:
+            pass
 
         # grant the public role access to the table
         query = ('GRANT ALL ON %s.%s to %s;')
