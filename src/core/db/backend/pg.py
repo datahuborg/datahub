@@ -69,7 +69,10 @@ def _convert_pg_exception(e):
             e.pgcode == errorcodes.UNDEFINED_OBJECT):
         raise ValueError("Invalid parameter in query.")
     if e.pgcode == errorcodes.INVALID_SCHEMA_NAME:
-        raise LookupError("Repo not found.")
+        error = ('Repo not found. '
+                 'You must specify a repo in your query. '
+                 'i.e. select * from REPO_NAME.TABLE_NAME. ')
+        raise LookupError(error)
     if e.pgcode == errorcodes.UNDEFINED_TABLE:
         raise LookupError("Table or view not found.")
     if e.pgcode == errorcodes.DUPLICATE_SCHEMA:
