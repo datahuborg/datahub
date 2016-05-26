@@ -98,9 +98,12 @@ class RepoTests(APIEndpointTests):
         response = self.client.patch(
             url, {'new_name': repo_name}, follow=True, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        error_detail = ('Repo not found. '
+                        'You must specify a repo in your query. '
+                        'i.e. select * from REPO_NAME.TABLE_NAME. ')
         self.assertEqual(response.data,
                          {'error_type': 'LookupError',
-                          'detail': 'Repo not found.'})
+                          'detail': error_detail})
 
         with DataHubManager(self.username) as manager:
             manager.create_repo(repo_name)
@@ -134,9 +137,12 @@ class RepoTests(APIEndpointTests):
                               'repo_name': repo_name})
         response = self.client.delete(url, follow=True)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        error_detail = ('Repo not found. '
+                        'You must specify a repo in your query. '
+                        'i.e. select * from REPO_NAME.TABLE_NAME. ')
         self.assertEqual(response.data,
                          {'error_type': 'LookupError',
-                          'detail': 'Repo not found.'})
+                          'detail': error_detail})
 
         # Create a repo and make sure it's a 200.
         with DataHubManager(self.username) as manager:
