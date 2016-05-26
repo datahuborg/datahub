@@ -110,7 +110,6 @@ class RepoTableCardViews(TestCase):
         self.mock_list_repos = self.create_patch(
             'core.db.manager.DataHubManager.list_repos')
         self.mock_list_repos.return_value = {'tuples': [[self.repo_name]]}
-
         # mock out that they have tables and views, and repo privileges
         self.mock_manager = self.create_patch(
             'browser.views.DataHubManager')
@@ -203,6 +202,16 @@ class RepoFilesTab(TestCase):
 
         # log the user in
         self.client.login(username=self.username, password=self.password)
+
+    def tearDown(self):
+        # remove the files folder
+        repo_dir = '/user_data/%s/%s' % (self.username, self.repo_name)
+        if os.path.exists(repo_dir):
+            os.removedirs(repo_dir)
+
+        user_dir = '/user_data/%s' % (self.username)
+        if os.path.exists(user_dir):
+            os.removedirs(user_dir)
 
     def create_patch(self, name):
         # helper method for creating patches
