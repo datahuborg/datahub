@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 from config import settings
 import os
 import core.db.connection
@@ -150,7 +152,6 @@ class RowLevelSecurityManager:
         repo_base = repo_base.lower()
 
         if safe and (repo_base != grantor):
-            import pdb; pdb.set_trace()
             raise Exception('%s does not have permission to search security'
                             'policies on %s.%s.' % (grantor, repo, table))
 
@@ -168,7 +169,7 @@ class RowLevelSecurityManager:
             grantor = grantor.lower()
 
         with _superuser_connection(settings.POLICY_DB) as conn:
-            return conn.find_security_policies(
+            res = conn.find_security_policies(
                 repo_base=repo_base,
                 repo=repo,
                 table=table,
@@ -178,6 +179,23 @@ class RowLevelSecurityManager:
                 grantee=grantee,
                 grantor=grantor)
 
+        # convert this to a named tuple for easier handling
+        tuple_policies = []
+        for policy in res:
+            tuple_policy = namedtuple(
+                'Policy',
+                ['id', 'policy', 'policy_type', 'grantee', 'grantor'])
+
+            tuple_policy.id = policy[0]
+            tuple_policy.policy = policy[1]
+            tuple_policy.policy_type = policy[2]
+            tuple_policy.grantee = policy[3]
+            tuple_policy.grantor = policy[4]
+
+            tuple_policies.append(tuple_policy)
+
+        return tuple_policies
+
     @staticmethod
     def find_security_policy_by_id(policy_id):
         '''
@@ -185,7 +203,19 @@ class RowLevelSecurityManager:
         '''
         policy_id = int(policy_id)
         with _superuser_connection(settings.POLICY_DB) as conn:
-            return conn.find_security_policy_by_id(policy_id)
+            res = conn.find_security_policy_by_id(policy_id)
+
+        tuple_policy = namedtuple(
+            'Policy',
+            ['id', 'policy', 'policy_type', 'grantee', 'grantor'])
+
+        tuple_policy.id = res[0]
+        tuple_policy.policy = res[1]
+        tuple_policy.policy_type = res[2]
+        tuple_policy.grantee = res[3]
+        tuple_policy.grantor = res[4]
+
+        return tuple_policy
 
     @staticmethod
     def create_security_policy(

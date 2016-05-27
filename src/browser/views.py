@@ -904,6 +904,12 @@ def security_policies(request, repo_base, repo, table):
     except LookupError:
         policies = []
 
+    # repack the named tuples. This is a bit of a hack, (since we could just
+    # get the view to display named tuples)
+    # but is happening for expediency
+    policies = [(p.id, p.policy, p.policy_type, p.grantee, p.grantor)
+                for p in policies]
+
     res = {
         'login': username,
         'repo_base': repo_base,

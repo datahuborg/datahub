@@ -356,7 +356,7 @@ class SQLQueryRewriter:
         security_policies = user_policies + all_policies + public_policies
 
         result = []
-        for policy in security_policies:
-            result.append(policy[1])
+        for policy_tuple in security_policies:
+            result.append(policy_tuple.policy)
 
         return result

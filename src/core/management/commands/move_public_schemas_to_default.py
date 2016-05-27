@@ -1,3 +1,5 @@
+import sys
+
 from django.core.management.base import BaseCommand
 
 from config import settings
@@ -13,6 +15,13 @@ class Command(BaseCommand):
 
 
 def migrate_tables_and_views(apps, schema_editor):
+
+    # This shouldn't run during tests. If it does, list_all_users
+    # will return actual users, and then crash when it can't find them
+    # in django's test_db
+    if 'test' in sys.argv:
+        return
+
     DataHubManager.execute_sql
 
     all_users = DataHubManager.list_all_users()
