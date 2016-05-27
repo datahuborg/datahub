@@ -46,13 +46,6 @@ class RowLevelSecurityManagerTests(TestCase):
 
         self.assertTrue(create_pol.called)
 
-    def test_list_security_policies(self):
-        list_policy = self.create_patch(
-            'core.db.rls_permissions.RowLevelSecurityManager.'
-            'list_security_policies')
-        self.manager.list_security_policies(self.repo, self.table)
-        self.assertTrue(list_policy.called)
-
     def test_find_security_policies(self):
         find_policies = self.mock_connection.return_value\
             .find_security_policies
@@ -63,7 +56,8 @@ class RowLevelSecurityManagerTests(TestCase):
             policy="visible='True",
             policy_type="insert",
             grantee="test",
-            grantor="test_grantor")
+            grantor="test_grantor",
+            safe=False)
         self.assertTrue(find_policies.called)
 
     def test_find_security_policy_by_id(self):

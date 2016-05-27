@@ -898,8 +898,9 @@ def security_policies(request, repo_base, repo, table):
 
     # get the security policies on a given repo.table
     try:
-        policies = RowLevelSecurityManager.list_security_policies(
-            repo_base, repo, table, username)
+        policies = RowLevelSecurityManager.find_security_policies(
+            repo_base=repo_base, repo=repo, table=table, grantor=username,
+            safe=True)
     except LookupError:
         policies = []
 

@@ -325,7 +325,8 @@ class SQLQueryRewriter:
             repo=repo,
             table=table,
             policy_type=policytype,
-            grantee=self.user)
+            grantee=self.user,
+            safe=False)
 
         # policies that are meant to apply to all users
         all_policies = RowLevelSecurityManager.find_security_policies(
@@ -333,7 +334,8 @@ class SQLQueryRewriter:
             repo=repo,
             table=table,
             policy_type=policytype,
-            grantee=settings.RLS_ALL)
+            grantee=settings.RLS_ALL,
+            safe=False)
 
         # People collaborating on this repo
         collaborators = Collaborator.objects.filter(repo_base=repo_base,
@@ -348,7 +350,8 @@ class SQLQueryRewriter:
                 repo=repo,
                 table=table,
                 policy_type=policytype,
-                grantee=settings.RLS_PUBLIC)
+                grantee=settings.RLS_PUBLIC,
+                safe=False)
 
         security_policies = user_policies + all_policies + public_policies
 

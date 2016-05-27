@@ -140,16 +140,24 @@ class RowLevelSecurityManager:
         return result
 
     @staticmethod
-    def find_security_policies(repo_base, repo, table, policy_id=None,
-                               policy=None, policy_type=None, grantee=None,
-                               grantor=None):
+    def find_security_policies(repo_base, repo=None, table=None,
+                               policy_id=None, policy=None, policy_type=None,
+                               grantee=None, grantor=None, safe=True):
         '''
         Looks for security policies matching what the user specified in
         the input.
         '''
         repo_base = repo_base.lower()
-        repo = repo.lower()
-        table = table.lower()
+
+        if safe and (repo_base != grantor):
+            import pdb; pdb.set_trace()
+            raise Exception('%s does not have permission to search security'
+                            'policies on %s.%s.' % (grantor, repo, table))
+
+        if repo:
+            repo = repo.lower()
+        if table:
+            table = table.lower()
         if policy_id:
             policy_id = int(policy_id)
         if policy_type:
@@ -198,7 +206,8 @@ class RowLevelSecurityManager:
         # Does the policy exist?
         security_policies = RowLevelSecurityManager.find_security_policies(
             repo_base=repo_base, repo=repo, table=table, policy=policy,
-            policy_type=policy_type, grantee=grantee, grantor=grantor
+            policy_type=policy_type, grantee=grantee, grantor=grantor,
+            safe=False
         )
         if security_policies != []:
             raise Exception('Security policy already exists in table.')
@@ -277,23 +286,3 @@ class RowLevelSecurityManager:
         with _superuser_connection(settings.POLICY_DB) as conn:
             return conn.update_security_policy(
                 policy_id, new_policy, new_policy_type, new_grantee)
-
-    @staticmethod
-    def list_security_policies(repo_base, repo, table, username=None,
-                               safe=True):
-        '''
-        Returns a list of all the security policies defined on the table.
-        '''
-        repo_base = repo_base.lower()
-        repo = repo.lower()
-        table = table.lower()
-        if username:
-            username = username.lower()
-
-        if safe and (username != repo_base):
-            raise Exception('%s does not have permission to update security '
-                            'policies on %s'
-                            % (username, repo_base))
-
-        with _superuser_connection(settings.POLICY_DB) as conn:
-            return conn.list_security_policies(repo_base, repo, table)

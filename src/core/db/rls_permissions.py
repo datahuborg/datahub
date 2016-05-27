@@ -41,7 +41,8 @@ class RLSPermissionsParser:
                 policy=policy,
                 policy_type=access_type,
                 grantee=grantee,
-                grantor=self.user)
+                grantor=self.user,
+                safe=False)
 
             if len(policies) == 1:
                 RowLevelSecurityManager.remove_security_policy(

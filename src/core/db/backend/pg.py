@@ -873,21 +873,6 @@ class PGBackend:
 
         return res['status']
 
-    def list_security_policies(self, repo_base, repo, table):
-        '''
-        Return a list of all the security policies defined for the
-        specified table.
-        '''
-        params = (table, repo, repo_base)
-
-        query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
-                 'FROM dh_public.policy '
-                 'WHERE table_name = %s '
-                 'AND repo = %s AND repo_base = %s')
-
-        res = self.execute_sql(query, params)
-        return res['tuples']
-
     def find_all_security_policies(self, username):
         params = (username, username)
 
@@ -898,7 +883,7 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['tuples']
 
-    def find_security_policies(self, repo_base, repo, table,
+    def find_security_policies(self, repo_base, repo=None, table=None,
                                policy_id=None, policy=None, policy_type=None,
                                grantee=None, grantor=None):
         '''
@@ -911,16 +896,16 @@ class PGBackend:
         conditions = []
 
         # append mandatory passed-in conditions
-        conditions.append('table_name = %s')
-        params.append(table)
-
-        conditions.append('repo = %s')
-        params.append(repo)
-
         conditions.append('repo_base = %s')
         params.append(repo_base)
 
         # append optional conditions
+        if repo:
+            conditions.append('repo = %s')
+            params.append(repo)
+        if table:
+            conditions.append('table_name = %s')
+            params.append(table)
         if policy_id:
             conditions.append('policy_id = %s')
             params.append(policy_id)
