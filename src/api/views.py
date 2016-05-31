@@ -12,18 +12,18 @@ from rest_framework.response import Response
 from rest_framework_csv.renderers import CSVRenderer
 from rest_framework.settings import api_settings
 from api.permissions import PublicCardPermission, \
-                            PublicCardAuthentication
+    PublicCardAuthentication
 
 from psycopg2 import Error as PGError
 from core.db.manager import PermissionDenied
 from django.core.exceptions import ValidationError, \
-                                   ObjectDoesNotExist
+    ObjectDoesNotExist
 
 from config import settings
 from .serializer import (
     UserSerializer, RepoSerializer, CollaboratorSerializer,
     TableSerializer, ViewSerializer, FileSerializer, QuerySerializer,
-    CardSerializer)
+    CardSerializer, RowLevelSecuritySerializer)
 
 
 class CurrentUser(APIView):
@@ -234,7 +234,7 @@ class Collaborators(APIView):
         serializer.add_collaborator(
             repo_name, collaborator, db_permissions, file_permissions)
         collaborator = serializer.describe_collaborator(
-          repo_name, collaborator)
+            repo_name, collaborator)
 
         return Response(collaborator, status=status.HTTP_201_CREATED)
 
@@ -253,7 +253,7 @@ class Collaborator(APIView):
                                             repo_base=repo_base,
                                             request=request)
         collaborators = serializer.describe_collaborator(
-          repo_name, collaborator)
+            repo_name, collaborator)
         return Response(collaborators, status=status.HTTP_200_OK)
 
     def delete(self, request, repo_base, repo_name, collaborator, format=None):
@@ -361,7 +361,7 @@ class Files(APIView):
         """
         username = request.user.get_username()
         serializer = FileSerializer(
-                username=username, repo_base=repo_base, request=request)
+            username=username, repo_base=repo_base, request=request)
         files = serializer.list_files(repo_name)
         return Response(files, status=status.HTTP_200_OK)
 
@@ -463,7 +463,7 @@ class File(APIView):
         """
         username = request.user.get_username()
         serializer = FileSerializer(
-                username=username, repo_base=repo_base)
+            username=username, repo_base=repo_base)
         files = serializer.get_file(repo_name, file_name)
         return Response(files, status=status.HTTP_200_OK)
 
@@ -473,7 +473,7 @@ class File(APIView):
         """
         username = request.user.get_username()
         serializer = FileSerializer(
-                username=username, repo_base=repo_base)
+            username=username, repo_base=repo_base)
         serializer.delete_file(repo_name, file_name)
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
@@ -775,3 +775,134 @@ def custom_exception_handler(exc, context):
         result['severity'] = exc.diag.severity
 
     return Response(result, status=status_code)
+
+
+class RowLevelSecurity(APIView):
+    """
+    Manage Row Level Security Table
+    """
+
+    def get(self, request, repo_name=None, table=None, format=None):
+        """
+        List security policies in your repo
+        """
+        username = request.user.get_username()
+
+        serializer = RowLevelSecuritySerializer(username=username)
+        result = serializer.find_security_policies(repo=repo_name, table=table)
+        return Response(result, status=status.HTTP_200_OK)
+
+    def post(self, request, repo_name=None, table=None, format=None):
+        """
+        Create a security policy in a repo. URL parameters overwrite POST body
+        ---
+        omit_serializer: true
+
+        parameters:
+          - name: repo_name
+            in: body
+            type: string
+            description: name of the repo that this applies to
+            required: false
+          - name: table
+            in: body
+            description: name of the table that this applies to
+            type: string
+            required: false
+          - name: policy
+            in: body
+            description: SQL Condition that governs access to the table.
+                e.g. "id=1"
+            type: string
+            required: true
+          - name: policy_type
+            in: body
+            description: SQL privilege being granted. e.g. "select" or "update"
+            type: string
+            required: true
+          - name: grantee
+            in: body
+            description: the username of the datahub user being granted access
+                to these rows
+            type: string
+            required: true
+        """
+        username = request.user.get_username()
+        serializer = RowLevelSecuritySerializer(username=username)
+
+        if not repo_name:
+            repo_name = request.data['repo_name']
+        if not table:
+            table = request.data['table']
+
+        policy = request.data['policy']
+        policy_type = request.data['policy_type']
+        grantee = request.data['grantee']
+
+        res = serializer.create_security_policy(
+            policy=policy, policy_type=policy_type, grantee=grantee,
+            repo=repo_name, table=table)
+
+        if res:
+            res = serializer.find_security_policies(
+                repo=repo_name,
+                table=table,
+                policy=policy,
+                policy_type=policy_type,
+                grantee=grantee)
+
+        return Response(res, status=status.HTTP_201_CREATED)
+
+    def patch(self, request, format=None):
+        """
+        Update a security policy of the specified id.
+        Ignores additional URL params, and just uses body
+        ---
+        omit_serializer: true
+
+        parameters:
+          - name: policy_id
+            in: body
+            description: The id of the policy to be updated
+            type: integer
+            required: false
+          - name: policy
+            in: body
+            description: New SQL Condition that governs access to the table.
+                e.g. "id=1"
+            type: string
+            required: false
+          - name: policy_type
+            in: body
+            description: New SQL privilege being granted. e.g. "select" or
+                "update"
+            type: string
+            required: false
+          - name: grantee
+            in: body
+            description: new datahub user whom this policy applies to
+            type: string
+            required: false
+        """
+
+        username = request.user.get_username()
+        serializer = RowLevelSecuritySerializer(username=username)
+        policy_id = int(request.data['policy_id'])
+        row = serializer.find_security_policies(policy_id=policy_id)[0]
+
+        # use existing policy values if they aren't specified
+        policy = request.data.get('policy', row['policy'])
+        policy_type = request.data.get('policy_type', row['policy_type'])
+        grantee = request.data.get('grantee', row['grantee'])
+
+        res = serializer.update_security_policy(
+            policy_id, policy, policy_type, grantee)
+
+        if res:
+            res = serializer.find_security_policies(policy_id=policy_id)
+
+        return Response(res, status=status.HTTP_200_OK)
+
+
+    def delete(self):
+        pass

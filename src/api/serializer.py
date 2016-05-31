@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
-
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from inventory.models import Collaborator
 from core.db.manager import DataHubManager
+from core.db.rlsmanager import RowLevelSecurityManager
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -440,3 +440,49 @@ class QuerySerializer(DataHubSerializer):
                 return {}
         # By default, return the query result plus metadata.
         return return_dict
+
+
+class RowLevelSecuritySerializer(object):
+
+    def __init__(self, username):
+        self.username = username
+
+    def find_security_policies(
+            self, repo=None, table=None, policy_id=None,
+            policy=None, policy_type=None, grantee=None):
+
+        res = RowLevelSecurityManager.find_security_policies(
+            repo_base=self.username, repo=repo, table=table,
+            policy_id=policy_id, policy=policy, policy_type=policy_type,
+            grantee=grantee, grantor=self.username, safe=True)
+
+        policies = [p._asdict() for p in res]
+
+        return policies
+
+    def create_security_policy(
+            self, policy, policy_type, grantee, repo, table):
+
+        res = RowLevelSecurityManager.create_security_policy(
+            policy=policy,
+            policy_type=policy_type,
+            grantee=grantee,
+            grantor=self.username,
+            repo_base=self.username,
+            repo=repo,
+            table=table,
+            safe=True)
+
+        return res
+
+    def update_security_policy(
+            self, policy_id, new_policy, new_policy_type, new_grantee):
+
+        res = RowLevelSecurityManager.update_security_policy(
+            policy_id=policy_id,
+            new_policy=new_policy,
+            new_policy_type=new_policy_type,
+            new_grantee=new_grantee,
+            username=self.username)
+
+        return res

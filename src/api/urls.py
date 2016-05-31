@@ -78,6 +78,16 @@ urlpatterns = [
         views.Query.as_view(),
         name='query'),
 
+    # row level security
+    url(r'^v1/rls/?$', views.RowLevelSecurity.as_view(),
+        name='row_level_security'),
+    url(r'^v1/rls/(?P<repo_name>\w+)/?$',
+        views.RowLevelSecurity.as_view(),
+        name='row_level_security_repo_name'),
+    url(r'^v1/rls/(?P<repo_name>\w+)/(?P<table>\w+)/?$',
+        views.RowLevelSecurity.as_view(),
+        name='row_level_security_table'),
+
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
