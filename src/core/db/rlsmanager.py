@@ -182,15 +182,12 @@ class RowLevelSecurityManager:
         # convert this to a named tuple for easier handling
         tuple_policies = []
         for policy in res:
-            tuple_policy = namedtuple(
+            Policy = namedtuple(
                 'Policy',
-                ['id', 'policy', 'policy_type', 'grantee', 'grantor'])
+                ['id', 'policy', 'policy_type', 'grantee', 'grantor',
+                 'repo_base' 'repo', 'table'])
 
-            tuple_policy.id = policy[0]
-            tuple_policy.policy = policy[1]
-            tuple_policy.policy_type = policy[2]
-            tuple_policy.grantee = policy[3]
-            tuple_policy.grantor = policy[4]
+            tuple_policy = Policy(*policy)
 
             tuple_policies.append(tuple_policy)
 
@@ -203,17 +200,12 @@ class RowLevelSecurityManager:
         '''
         policy_id = int(policy_id)
         with _superuser_connection(settings.POLICY_DB) as conn:
-            res = conn.find_security_policy_by_id(policy_id)
-
-        tuple_policy = namedtuple(
+            res = conn.find_security_policy_by_id(policy_id=policy_id)
+        Policy = namedtuple(
             'Policy',
-            ['id', 'policy', 'policy_type', 'grantee', 'grantor'])
-
-        tuple_policy.id = res[0]
-        tuple_policy.policy = res[1]
-        tuple_policy.policy_type = res[2]
-        tuple_policy.grantee = res[3]
-        tuple_policy.grantor = res[4]
+            ['id', 'policy', 'policy_type', 'grantee', 'grantor',
+             'repo_base', 'repo', 'table'])
+        tuple_policy = Policy(*res)
 
         return tuple_policy
 
@@ -308,10 +300,10 @@ class RowLevelSecurityManager:
             raise LookupError('Policy_ID %s does not exist.' % (policy_id))
 
         # check to make sure the user can do this
-        if safe and (username != policy[7]):  # policy[7] is repo_base
+        if safe and (username != policy.repo_base):
             raise Exception('%s does not have permission to update security '
                             'policies on %s'
-                            % (username, policy[7]))
+                            % (username, policy.repo_base))
 
         with _superuser_connection(settings.POLICY_DB) as conn:
             return conn.update_security_policy(

@@ -891,6 +891,7 @@ class PGBackend:
         by the user.
         '''
         query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
+                 'repo_base, repo, table_name '
                  'FROM %s.%s WHERE ')
         params = [AsIs(settings.POLICY_SCHEMA), AsIs(settings.POLICY_TABLE)]
         conditions = []
@@ -936,7 +937,7 @@ class PGBackend:
         specified by the user.
         '''
         query = ('SELECT policy_id, policy, policy_type, grantee, grantor, '
-                 'table_name, repo, repo_base '
+                 'repo_base, repo, table_name '
                  'FROM dh_public.policy WHERE policy_id = %s')
         params = (policy_id,)
         res = self.execute_sql(query, params)
