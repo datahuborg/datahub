@@ -733,53 +733,9 @@ class Query(APIView):
         return Response(result, status=status.HTTP_200_OK)
 
 
-def custom_exception_handler(exc, context):
-    result = {}
-
-    # Call REST framework's default exception handler first, to let it handle
-    # errors it knows about.
-    response = exception_handler(exc, context)
-    if response is not None:
-        return response
-
-    # Default to a 500 error. If we can't explain what happened, blame
-    # ourselves.
-    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-
-    # Use an appropriate status code for each exception type.
-    exceptions_by_status = {
-        status.HTTP_400_BAD_REQUEST: [
-            ValueError,
-            ValidationError,
-            PGError,
-        ],
-        status.HTTP_403_FORBIDDEN: [
-            PermissionDenied
-        ],
-        status.HTTP_404_NOT_FOUND: [
-            ObjectDoesNotExist,
-            LookupError
-        ],
-    }
-    for drf_status, exceptions in exceptions_by_status.iteritems():
-        if next((e for e in exceptions if issubclass(type(exc), e)), None):
-            status_code = drf_status
-            break
-
-    result['error_type'] = type(exc).__name__
-    result['detail'] = exc.message
-
-    # Add extra info for psycopg errors
-    if issubclass(type(exc), PGError):
-        result['pgcode'] = exc.pgcode
-        result['severity'] = exc.diag.severity
-
-    return Response(result, status=status_code)
-
-
 class RowLevelSecurity(APIView):
     """
-    Manage Row Level Security Table
+    Manage Row Level Security Table based on URl passed params
     """
 
     def get(self, request, repo_name=None, table=None, format=None):
@@ -853,7 +809,12 @@ class RowLevelSecurity(APIView):
 
         return Response(res, status=status.HTTP_201_CREATED)
 
-    def patch(self, request, format=None):
+
+class RowLevelSecurityById(APIView):
+    """
+    manage the RLS table based on row IDs
+    """
+    def patch(self, request, policy_id, format=None):
         """
         Update a security policy of the specified id.
         Ignores additional URL params, and just uses body
@@ -861,15 +822,10 @@ class RowLevelSecurity(APIView):
         omit_serializer: true
 
         parameters:
-          - name: policy_id
-            in: body
-            description: The id of the policy to be updated
-            type: integer
-            required: false
           - name: policy
             in: body
             description: New SQL Condition that governs access to the table.
-                e.g. "id=1"
+                e.g. "accessible = 1"
             type: string
             required: false
           - name: policy_type
@@ -887,7 +843,7 @@ class RowLevelSecurity(APIView):
 
         username = request.user.get_username()
         serializer = RowLevelSecuritySerializer(username=username)
-        policy_id = int(request.data['policy_id'])
+        policy_id = int(policy_id)
         row = serializer.find_security_policies(policy_id=policy_id)[0]
 
         # use existing policy values if they aren't specified
@@ -903,6 +859,60 @@ class RowLevelSecurity(APIView):
 
         return Response(res, status=status.HTTP_200_OK)
 
+    def delete(self, request, policy_id, format=None):
+        """
+        Delete a policy of the specified id
+        ---
+        """
+        username = request.user.get_username()
+        serializer = RowLevelSecuritySerializer(username=username)
+        policy_id = int(policy_id)
 
-    def delete(self):
-        pass
+        res = serializer.remove_security_policy(policy_id)
+
+        if res:
+            return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+
+def custom_exception_handler(exc, context):
+    result = {}
+
+    # Call REST framework's default exception handler first, to let it handle
+    # errors it knows about.
+    response = exception_handler(exc, context)
+    if response is not None:
+        return response
+
+    # Default to a 500 error. If we can't explain what happened, blame
+    # ourselves.
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+
+    # Use an appropriate status code for each exception type.
+    exceptions_by_status = {
+        status.HTTP_400_BAD_REQUEST: [
+            ValueError,
+            ValidationError,
+            PGError,
+        ],
+        status.HTTP_403_FORBIDDEN: [
+            PermissionDenied
+        ],
+        status.HTTP_404_NOT_FOUND: [
+            ObjectDoesNotExist,
+            LookupError
+        ],
+    }
+    for drf_status, exceptions in exceptions_by_status.iteritems():
+        if next((e for e in exceptions if issubclass(type(exc), e)), None):
+            status_code = drf_status
+            break
+
+    result['error_type'] = type(exc).__name__
+    result['detail'] = exc.message
+
+    # Add extra info for psycopg errors
+    if issubclass(type(exc), PGError):
+        result['pgcode'] = exc.pgcode
+        result['severity'] = exc.diag.severity
+
+    return Response(result, status=status_code)

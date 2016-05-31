@@ -270,9 +270,9 @@ class RowLevelSecurityManager:
             raise LookupError('Policy_ID %s does not exist.' % (policy_id))
 
         # check to make sure the user can actually do this
-        if safe and (username != repo_base):
+        if safe and (username != policy.grantor):
             raise Exception('%s does not have permission to delete security '
-                            'policies on %s' % (username, repo_base))
+                            'policies on %s' % (username, policy.grantor))
 
         with _superuser_connection(settings.POLICY_DB) as conn:
             return conn.remove_security_policy(policy_id)

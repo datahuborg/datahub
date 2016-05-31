@@ -931,7 +931,7 @@ def security_policy_delete(request, repo_base, repo, table, policy_id):
 
     try:
         RowLevelSecurityManager.remove_security_policy(
-            policy_id, username, repo_base)
+            policy_id, username)
     except Exception as e:
         return HttpResponse(
             json.dumps(

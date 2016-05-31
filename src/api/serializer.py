@@ -486,3 +486,10 @@ class RowLevelSecuritySerializer(object):
             username=self.username)
 
         return res
+
+    def remove_security_policy(self, policy_id):
+        res = RowLevelSecurityManager.remove_security_policy(
+            policy_id=policy_id,
+            username=self.username)
+
+        return res
