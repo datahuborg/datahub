@@ -8,9 +8,9 @@
     <meta name="viewport" content="initial-scale=1.0 user-scalable=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="Description" content="DataHub is a (GitHub-Like) Data Ecosystem for Individuals, Teams and People. It provides an efficient platform and easy to use tools/interfaces for publishing of your own data (hosting, sharing, collaboration), using other’s data (querying, linking), and making sense of data (analysis, visualization)" />
-  {% endblock %}
+  {% endblock meta_tags %}
 
-  {% block title %} <title>DataHub</title> {% endblock %}
+  {% block title %} <title>DataHub</title> {% endblock title %}
 
   <!-- jQuery + Bootstrap -->
   <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>
@@ -23,9 +23,9 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
   <!-- /Font Awesome -->
   <link rel="stylesheet" type="text/css" href="/static/css/datahub.css" />
-  {% block stylesheets %} {% endblock %}
-  {% block js %} {% endblock %}
-  {% block extra_head %} {% endblock %}
+  {% block stylesheets %} {% endblock stylesheets %}
+  {% block js %} {% endblock js %}
+  {% block extra_head %} {% endblock extra_head %}
 </head>
 <body>
 <div class="row">
@@ -83,14 +83,14 @@
                 </div>
               {% endif %}
 
-            {% endblock %}
+            {% endblock headlink-right %}
         </div>
       </div>
     </div>
   </header>
 </div>
-  {% block header %} {% endblock %}
-  {% block content %} {% endblock %}
+  {% block header %} {% endblock header %}
+  {% block content %} {% endblock content %}
   {% block footer %}
     <div class="container" style="padding-top: 50px">
       <div class="navbar navbar-default navbar-static-bottom text-center">
@@ -102,12 +102,12 @@
           </div>
       </div>
     </div>
-  {% endblock %}
+  {% endblock footer %}
   {% block google_analytics %}
     <script>
       (function(i, s, o, g, r, a, m) { i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function() { (i[r].q = i[r].q || []).push(arguments) }, i[r].l = 1 * new Date(); a = s.createElement(o), m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m) })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga'); ga('create', 'UA-55860060-1', 'auto'); ga('send', 'pageview');
     </script>
-  {% endblock %}
+  {% endblock google_analytics %}
 
 
   {% block modal_dialog %}
@@ -131,6 +131,24 @@
     </div>
   </div>
 
+  <div class="modal" id="confirm-form-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header"><h4 class="modal-title">Confirm</h4></div>
+        <div class="modal-body">Are you sure?</div>
+        <div class="modal-footer">
+          <form method="post" action="" style="margin-bottom:0">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-danger">OK</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
   <div class="modal hide" id="wait-dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-header">
       <h1>Processing...</h1>
@@ -144,7 +162,7 @@
   <!-- /Confirm Modal Dialog -->
   {% endblock modal_dialog %}
 
-  {% block modal_js%}
+  {% block modal_js %}
   <script type="text/javascript">
   $(document).ready(
     $(function() {

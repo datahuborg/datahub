@@ -170,12 +170,11 @@ $ sudo dh-run-test-container
 </pre></div>
 </div>
 <p>Browser screenshots are saved in <code class="docutils literal"><span class="pre">src/functional_tests/screenshots</span></code> on teardown</p>
-<p>You can run individual functional tests with:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ python manage.py <span class="nb">test</span> functional_tests.test_login_auth          <span class="c1"># tests authentication</span>
-$ python manage.py <span class="nb">test</span> functional_tests.test_layout_and_styling  <span class="c1"># tests main page layout</span>
-$ python manage.py <span class="nb">test</span> functional_tests.test_db                  <span class="c1"># tests data control and sharing</span>
-</pre></div>
-</div>
+<p>You can run individual functional tests:</p>
+<blockquote>
+<div>$ python manage.py test functional_tests.test_login_auth          # tests authentication
+$ python manage.py test functional_tests.test_layout_and_styling  # tests main page layout
+$ python manage.py test functional_tests.test_db                  # tests data control and sharing</div></blockquote>
 <p>Functional test files are saved in <code class="docutils literal"><span class="pre">src/functional_tests</span></code>.</p>
 </div>
 <div class="section" id="integration-tests">

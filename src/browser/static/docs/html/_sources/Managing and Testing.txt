@@ -154,14 +154,7 @@ Once in the test container, you can run all functional tests with:
 
 Browser screenshots are saved in ``src/functional_tests/screenshots`` on teardown
 
-<<<<<<< 09f878e46dfcdaeaf1337a48ca9df726f9c3ddcf
-You can run individual functional tests with:
-    
-=======
 You can run individual functional tests:
-
->>>>>>> add confirm dialog modal for deleting repos/tables/files. Correct migration documentation
-.. code-block:: bash
 
     $ python manage.py test functional_tests.test_login_auth          # tests authentication
     $ python manage.py test functional_tests.test_layout_and_styling  # tests main page layout
