@@ -179,6 +179,8 @@ class DataHubManager:
 
         Returns True on success.
 
+        params = [{'column_name': '', 'data_type': ''} ...]
+
         Raises ValueError if repo, table, or the column names have invalid
         characters.
         Raises LookupError if the repo doesn't exist.
@@ -1077,13 +1079,13 @@ class DataHubManager:
             columns = map(lambda x: clean_str(x, 'col'), cells)
         columns = rename_duplicates(columns)
 
-        query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
-        for column in columns[1:len(columns)]:
-            query += ', %s %s' % (column, 'text')
-        query += ')'
+        params = [{'column_name': c, 'data_type': 'text'} for c in columns]
 
-        manager = DataHubManager(user=username, repo_base=repo_base)
-        manager.execute_sql(query=query)
+        with DataHubManager(user=username, repo_base=repo_base) as manager:
+            manager.create_table(
+                repo=repo,
+                table=table_name,
+                params=params)
 
         # populate the newly created table with data from the csv
         with _superuser_connection(repo_base) as conn:

@@ -235,7 +235,7 @@ def repo(request, repo_base, repo):
 
 def repo_tables(request, repo_base, repo):
     '''
-    shows the tables under a repo.
+    shows the tables and views under a repo.
     '''
     username = request.user.get_username()
     if repo_base.lower() == 'user':

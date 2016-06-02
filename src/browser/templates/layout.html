@@ -83,7 +83,7 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
     </button>
     <a class="navbar-brand" id="logo" href="/">DataHub</a>
   </div>
-  
+
   <div class="navbar-collapse collapse">
     {% block headlink-right %}
 
@@ -109,15 +109,15 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="id_user_menu" role="button" aria-expanded="false">
               <i class="fa fa-user"></i> <strong>{% if login %}{{ login }}{% else %}{{ user.get_username }}{% endif %}</strong> <i class="fa fa-caret-down"></i>
             </a>
-            
+
             <ul class="dropdown-menu" role="menu">
               <li><a href="/apps/console" id="id_launch_terminal" title="SQL Console">Terminal</a></li>
-              <li><a href="/developer/apps" id="id_create_app" title="Create App">Create App</a></li>
+              <li><a href="/developer/apps" id="id_create_app" title="Manage Apps">Manage Apps</a></li>
               <li class="divider"></li>
               <li><a href="/account/settings" id="id_settings" title="Sign Out">Settings</a></li>
               <li><a href="/account/logout" id="id_sign_out" title="Sign Out">Sign Out</a></li>
             </ul>
-          </li>     
+          </li>
         </ul>
       {% else %}
         <div class="nav navbar-nav navbar-right">
@@ -127,7 +127,7 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
           <a href="/account/register" title="Sign Up" id="id_sign_up" class="btn navbar-btn btn-success">Sign Up</a>
         </div>
       {% endif %}
-    {% endblock %}    
+    {% endblock %}
   </div>
 </div>
 
@@ -142,7 +142,7 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
 
 <!-- Common Modal Dialogs -->
 <div
-    class="modal" id="confirm-modal" 
+    class="modal" id="confirm-modal"
     tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -161,7 +161,7 @@ google.load("visualization", "1", {packages:["corechart", "table", "timeline", "
 </div>
 
 <div
-    class="modal" id="confirm-form-modal" 
+    class="modal" id="confirm-form-modal"
     tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -200,19 +200,19 @@ $(function() {
     var modal_operation = $(this).attr('target-modal-operation')
     var target_url = $(this).attr('target-url')
 
-    $(modal_id + ' .modal-title').html(modal_title)  
-    $(modal_id + ' .modal-body').html(modal_body) 
+    $(modal_id + ' .modal-title').html(modal_title)
+    $(modal_id + ' .modal-body').html(modal_body)
     $(modal_id + ' .btn-primary').html(modal_operation)
 
-    $(modal_id).off('click') 
-    $(modal_id + ' .btn-primary').off('click')  
-    
+    $(modal_id).off('click')
+    $(modal_id + ' .btn-primary').off('click')
+
     $(modal_id + ' .btn-primary').on('click', function(e) {
       $(modal_id).modal('hide')
       $("#wait-dialog").modal()
       window.location.href = window.location.protocol + '//' + window.location.host + target_url
     });
-    
+
     $(modal_id).modal({keyboard: true})
   });
 });
@@ -226,15 +226,15 @@ $(function() {
     var target_url = $(this).attr('target-url')
     var modal_form_inputs = $(this).attr('target-modal-form-inputs')
 
-    $(modal_id + ' .modal-title').html(modal_title)  
-    $(modal_id + ' .modal-body').html(modal_body) 
+    $(modal_id + ' .modal-title').html(modal_title)
+    $(modal_id + ' .modal-body').html(modal_body)
     $(modal_id + ' .btn-primary').html(modal_operation)
     $(modal_id + ' form').attr('action', target_url)
     $(modal_id + ' form').prepend(modal_form_inputs);
 
-    $(modal_id).off('click') 
-    $(modal_id + ' .btn-primary').off('click')  
-    
+    $(modal_id).off('click')
+    $(modal_id + ' .btn-primary').off('click')
+
     $(modal_id).modal({keyboard: true})
   });
 });
