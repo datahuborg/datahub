@@ -2,25 +2,49 @@
 
 {% block content %}
 <div class="container">
-  <h4 class="inline-block">
-    <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
-    / {{repo}} /
-  </h4>
+
+  <div class="row">
+    <div class="col-sm-10">
+      <h4 class="inline-block">
+        <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
+        / {{repo}} /
+      </h4>
+    </div>
+
+
+    <div class="col-sm-2">
+      <div class="btn-group class=pull-right" style="width: 100%" role="group">
+        <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; display:block;">
+          Open App...
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li class="disabled"><a href="#" title="Outlier Visualizer (dbwipes) can only be launched from a table in the tables & views tab"><i class="fa fa-bullseye" aria-hidden="true"></i> Outlier Viz</a></li>
+          <li><a href="/apps/viz/" title="Chart Maker (Viz) allows you to visualize queries using Google Charts. Need to make a quick and dirty pie chart/histogram from an arbitrary query? This is the place."><i class="fa fa-pie-chart" aria-hidden="true"></i> Chart Maker</a></li>
+          <li><a href="/apps/refiner/" title="Data Refiner takes semi-structured data and turns it into actually structured data, so that you can run queries on it. Sample data is included!"><i class="fa fa-filter" aria-hidden="true"></i> Data Refiner</a></li>
+        </ul>
+      </div>
+    </div>
+
+
+  </div>
+
+
 
   <hr />
   <br />
 
   <form role="form" method="GET" action="/browse/{{repo_base}}/{{repo}}/query">
     <div class="row">
-    <div class="form-group col-sm-10">
+    <div class="form-group col-sm-10" style="padding-top: 1em;">
       <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Type SQL here">
     </div>
-    
-    <div class="col-sm-2">
-      <button class="btn btn-primary btn-xsm" id="btn-run" type="submit">Run</button>
-      <button class="btn btn-primary btn-xsm" id="btn-dataq">DataQ</button>
+
+    <div class="col-sm-2 btn-group-vertical" role="group" >
+      <button class="btn btn-primary btn-sm" id="btn-run" title="Run the query in the input box and display the results" type="submit">Run</button>
+      <button class="btn btn-info btn-sm" id="btn-dataq" title="Query Builder (formerly dataQ) helps you create SQL statements to search your data.">Query Builder</button>
     </div>
-    
+
     </div>
   </form>
   <br />
@@ -35,13 +59,13 @@
 
 
 {% block js %}
-  <script>    
-    $(document).on("click", "#btn-dataq", function(e) {    
-      e.preventDefault();    
-      DataQ.DQ("{{repo}}", function(query) {   
-        $("#txt-sql").val(query);    
-      });    
-    });    
+  <script>
+    $(document).on("click", "#btn-dataq", function(e) {
+      e.preventDefault();
+      DataQ.DQ("{{repo}}", function(query) {
+        $("#txt-sql").val(query);
+      });
+    });
   </script>
 {% endblock js %}
 
