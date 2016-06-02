@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends 'base.html' %}
 
 
 {% block content %}
@@ -23,7 +23,12 @@
 </div>
 {% endblock content %}
 
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-terminal/css/jquery.terminal.css" />
+{% endblock stylesheets %}
+
 {% block js %}
+<script type="text/javascript" src="/static/lib/jquery-terminal/jquery.terminal-0.8.8.min.js"></script>
 
 <script type = 'text/javascript' >
 
