@@ -84,6 +84,10 @@ class DataHubConnection:
         return self.backend.select_table_query(
             repo_base=repo_base, repo=repo, table=table)
 
+    def import_rows(
+            self, repo, table, rows, delimiter=',', header=False):
+        return self.backend.import_rows(repo, table, rows, delimiter, header)
+
     def execute_sql(self, query, params=None):
         return self.backend.execute_sql(query, params)
 

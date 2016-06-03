@@ -771,6 +771,41 @@ class PGBackend:
             # RogerTangos 2015-12-09
             # return self.import_file_w_dbtruck(table_name, file_path)
 
+    def import_rows(self, repo, table, rows, delimiter=',', header=False):
+        # if there was a header, remove it
+        if header:
+            rows = rows[1:len(rows)]
+
+        query = 'INSERT INTO %s.%s values '
+        params = [AsIs(repo), AsIs(table)]
+
+        # prepare query
+        all_row_array = []
+        for row in rows:
+
+            # split the string into an array
+            row = row.split(delimiter)
+
+            # add the objects to params
+            params += row
+
+            # turn every item in the array into a %s
+            # and make a string out of it
+            row_array = ['%s' for c in row]
+            row_array = ', '.join(row_array)
+            row_array = '(' + row_array + ')'
+
+            all_row_array.append(row_array)
+
+        all_row_string = ', '.join(all_row_array)
+
+        # finalize the query and params
+        query += all_row_string
+        params = tuple(params)
+
+        res = self.execute_sql(query, params)
+        return res['status']
+
     def import_file_w_dbtruck(self, table_name, file_path):
         # dbtruck is not tested for safety. At all. It's currently disabled
         # in the project RogerTangos 2015-12-09

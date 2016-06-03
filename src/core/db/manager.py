@@ -849,6 +849,23 @@ class DataHubManager:
         return self.user_con.select_table_query(
             repo_base=self.repo_base, repo=repo, table=table)
 
+    def import_rows(self, repo, table, rows, delimiter=',', header=False):
+        delimiter = delimiter.decode('string_escape')
+
+        # column names are the extracted
+        columns = rows[0].split(delimiter)
+        if not header:
+            # if there's not a header, they're replaced with the word 'col'
+            columns = ['col' for c in columns]
+        columns = rename_duplicates(columns)
+
+        # prepare params and create the table
+        params = [{'column_name': c, 'data_type': 'text'} for c in columns]
+        self.create_table(repo=repo, table=table, params=params)
+
+        # now, insert the data and return the result
+        return self.user_con.import_rows(repo, table, rows, delimiter, header)
+
     """
     Static methods that don't require permissions
     """

@@ -469,17 +469,15 @@ Reported crime in 'Wyoming',
 </div>
 
 <div id="content">
-  <h3 class="inline-block">
-    <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
-    <a class="link" href=/browse/{{repo_base}}>/</a>
-    <a class="link" href=/browse/{{repo_base}}/{{repo}}>{{repo}}</a>
-    <a class="link" href=/browse/{{repo_base}}/{{repo}}>/</a>
-  </h3>
-  
-  <div class="pull-right">
-    <a class="btn btn-primary btn-sm" type="button" href="/console">Create Table with SQL</a>
-    <a class="btn btn-primary btn-sm" type="button" href="/browse/{{repo_base}}/{{repo}}#files">Upload Files</a> 
+  <div class="row">
+    <div class="col-sm-12">
+      <h2 class="inline-block">
+        Refiner
+      </h2>
+      <p class="inline-block"> gives structure to semi-structured data</p>
+    </div>
   </div>
+
   <hr />
   <h3>Paste data below (or, select an example data)</h3>
   <div style="padding-top:1em; padding-bottom:1em;">
@@ -526,26 +524,66 @@ Reported crime in 'Wyoming',
   <tr><td style="width:100%"><h4>Results</h4></td></tr>
   <tr>
   <td style="width:100%">
-  <textarea id="results_data" style="width:100%; height:600px;" ></textarea>
+  <textarea readonly id="results_data" style="width:100%; height:600px;" ></textarea>
   </td>
   </tr>
   </table>
   <br />
   <br />
+  {% if login != 'dh_anonymous' and login or user.is_authenticated  %}
   <h4>Save resuts as DataHub Table</h4>
   <div id="error_results"></div>
+  <h5> Repo Name </h4></td>
+  <input type="text" id="repo_name" placeholder="Repo Name"><br /><br />
   <h5> Table Name </h4></td>
   <input type="text" id="table_name" placeholder="Table Name"><br /><br />
   <button class="btn btn-primary" type="button" id="btn-create-table" style="margin-left:0px;">Create Table</button>
+  {% endif %}
   </div>
   <br />
   <br />
 </div>
 </div>
-  
+
 <script type="text/javascript">
 
-$(document).ready(function($) { 
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+var csv_lines = null;
+
+
+
+$(document).ready(function($) {
+  // csrf stuff
+  var csrftoken = getCookie('csrftoken');
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+  });
+
+
   $("#results_container").hide()
   var selected = $('#select_example').find(":selected").val()
   var record_separator = '\n'
@@ -571,31 +609,48 @@ $(document).ready(function($) {
     }
   })
 
-  
 
 
   var refine_data = function(){
     $.ajax({
       type:'POST',
       url:'/apps/refiner/refine-data',
-      async: false, 
       cache: false,
       data:{
         'training_input': $("#training_input").val(),
         'training_output': $("#training_output").val(),
         'test_data': $("#test_data").val(),
         'record_separator': record_separator
-      }, 
+      },
       success: function(res) {
         $("#results_container").show()
-        $("#results_data").val(res.output)        
+        csv_lines = res.csv_lines
+        var lines = csv_lines.join([separator = '\n'])
+        $("#results_data").val(lines)
+      },
+      error: function(res){
+        console.log(res)
       }
+
     });
   }
 
-  
+
+  var create_table = function(){
+    $.ajax({
+      type:'POST',
+      url:'/apps/refiner/create-table',
+      data:{
+        'csv_lines': csv_lines,
+        'header': false,
+        'table_name': $("#table_name").val(),
+        'repo_name': $("#repo_name").val()
+      }
+    })
+  }
+
   $("#btn-refine-data").click(refine_data);
-  //$("#btn-create-table").click(create_table);
+  $("#btn-create-table").click(create_table);
 });
 
 
