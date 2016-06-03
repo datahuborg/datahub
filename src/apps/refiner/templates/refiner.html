@@ -655,6 +655,15 @@ $(document).ready(function($) {
         'header': false,
         'table_name': $("#table_name").val(),
         'repo_name': $("#repo_name option:selected").val()
+      },
+      success: function(res){
+        var table = $("#table_name").val();
+        var repo = $("#repo_name option:selected").val();
+        var url = "/browse/{{login}}/" + repo + "/table/" + table;
+        window.location.replace(url);
+      },
+      error: function(res){
+        location.reload();
       }
     })
   }

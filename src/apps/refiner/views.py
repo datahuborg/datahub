@@ -3,8 +3,7 @@ import json
 from django.core.context_processors import csrf
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseServerError
 
 from core.db.manager import DataHubManager
 from distill import inference
@@ -20,9 +19,9 @@ Datahub Refiner
 
 def index(request):
     # if the user is authenticated, we pass them the available repos
-    res = {'login': request.user.get_username}
+    username = request.user.get_username()
+    res = {'login': username}
     try:
-        username = request.user.get_username
         with DataHubManager(username) as m:
             repos = m.list_repos()
             res['repos'] = repos
@@ -66,7 +65,7 @@ def refine_data(request):
 
 @login_required
 def create_table(request):
-    username = request.user.get_username
+    username = request.user.get_username()
     csv_lines = request.POST.getlist('csv_lines[]')
     header = json.loads(request.POST['header'])
     repo = request.POST['repo_name']
@@ -74,11 +73,16 @@ def create_table(request):
 
     # remove the "..." characters that refiner puts on both sides of the array
     csv_lines = csv_lines[1:len(csv_lines) - 1]
-    with DataHubManager(username) as m:
-        m.import_rows(
-            repo=repo,
-            table=table,
-            rows=csv_lines,
-            header=header)
 
-    return True
+    try:
+        with DataHubManager(username) as m:
+            m.import_rows(
+                repo=repo,
+                table=table,
+                rows=csv_lines,
+                header=header)
+
+            return HttpResponse('')
+
+    except Exception as e:
+        return HttpResponseServerError(e)
