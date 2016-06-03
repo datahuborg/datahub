@@ -533,8 +533,18 @@ Reported crime in 'Wyoming',
   {% if login != 'dh_anonymous' and login or user.is_authenticated  %}
   <h4>Save resuts as DataHub Table</h4>
   <div id="error_results"></div>
-  <h5> Repo Name </h4></td>
-  <input type="text" id="repo_name" placeholder="Repo Name"><br /><br />
+
+
+  <div class="form-group">
+  <label for="sel1">Select Repo:</label>
+  <select class="form-control" id="repo_name">
+    {% for repo in repos %}
+    <option value="{{repo}}">{{repo}}</option>
+    {% endfor %}
+  </select>
+</div>
+
+
   <h5> Table Name </h4></td>
   <input type="text" id="table_name" placeholder="Table Name"><br /><br />
   <button class="btn btn-primary" type="button" id="btn-create-table" style="margin-left:0px;">Create Table</button>
@@ -644,7 +654,7 @@ $(document).ready(function($) {
         'csv_lines': csv_lines,
         'header': false,
         'table_name': $("#table_name").val(),
-        'repo_name': $("#repo_name").val()
+        'repo_name': $("#repo_name option:selected").val()
       }
     })
   }

@@ -19,7 +19,16 @@ Datahub Refiner
 
 
 def index(request):
+    # if the user is authenticated, we pass them the available repos
     res = {'login': request.user.get_username}
+    try:
+        username = request.user.get_username
+        with DataHubManager(username) as m:
+            repos = m.list_repos()
+            res['repos'] = repos
+    except:
+        pass
+
     res.update(csrf(request))
     return render_to_response("refiner.html", res)
 
