@@ -49,6 +49,10 @@
 <h2>Using the API<a class="headerlink" href="#using-the-api" title="Permalink to this headline">¶</a></h2>
 <p>DataHub offers a RESTful API for both internal and external applications.
 You can find interactive documentation and examples at <a class="reference external" href="/api-docs">/api-docs</a></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The REST API doesn&#8217;t provide CSRF authentication, which prevents file upload through the <a class="reference external" href="https://django-rest-swagger.readthedocs.io/en/latest/">swagger UI</a>. This isn&#8217;t critical, since file upload through API Clients still works. It would be nice to resolve though. See <a class="reference external" href="https://github.com/datahuborg/datahub/issues/155">issue 155</a>.</p>
+</div>
 </div>
 </div>
 
