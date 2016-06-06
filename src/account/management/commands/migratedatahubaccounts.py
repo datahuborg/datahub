@@ -24,63 +24,70 @@ class Command(BaseCommand):
             help="Migrate accounts even if some users "
                  "are already using the new model.")
 
-    # Disable pre_save signals that would otherwise cancel user creation
-    # because we're creating users for usernames that already have db roles.
-    # Also, we don't want to create a database for these users since those
-    # already exist as well.
-    #
-    # @factory comes from the factory_boy module.
-    @factory.django.mute_signals(signals.pre_save)
     def handle(self, *args, **options):
-        old_users = DataHubLegacyUser.objects.all()
-        apps = App.objects.all()
-        users = User.objects.all()
-        print("Old model users: {0} New model users: {1}".format(
-            len(old_users), len(users)))
-        print("Apps: {0}".format(len(apps)))
+        migrate_datahub_accounts()
 
-        new_users = []
-        # Throw out all of these changes if it fails somehow
-        with transaction.atomic():
-            for old_user in old_users:
-                try:
-                    User.objects.get(username=old_user.username)
-                except User.DoesNotExist:
-                    new_user = User.objects.create_user(
-                        username=old_user.username,
-                        email=old_user.email
-                        )
-                    new_users.append(new_user)
-                DataHubManager.create_user_data_folder(
-                    repo_base=old_user.username)
 
-            for app in apps:
-                username = app.legacy_user.username
-                print("{0} legacy_user is {1}".format(
-                    app.app_id,
-                    username
-                    ))
-                if app.user is None:
-                    new_user = User.objects.get(username=username)
-                    app.user = new_user
-                    app.save(update_fields=['user'])
-                print("    user is {0}".format(app.user.username))
+# Disable pre_save signals that would otherwise cancel user creation
+# because we're creating users for usernames that already have db roles.
+# Also, we don't want to create a database for these users since those
+# already exist as well.
+#
+# @factory comes from the factory_boy module.
 
-        print("Migrated Users: {0}".format(new_users))
 
-        # grant existing users access to the dh_public role,
-        # which is used to share select-only repos
-        superuser_username = settings.DATABASES['default']['USER']
-        superuser_password = settings.DATABASES['default']['PASSWORD']
+@factory.django.mute_signals(signals.pre_save)
+def migrate_datahub_accounts(*args, **kwargs):
+    old_users = DataHubLegacyUser.objects.all()
+    apps = App.objects.all()
+    users = User.objects.all()
+    print("Old model users: {0} New model users: {1}".format(
+        len(old_users), len(users)))
+    print("Apps: {0}".format(len(apps)))
 
-        users = User.objects.exclude(username=settings.PUBLIC_ROLE)
-        pg = PGBackend(superuser_username, superuser_password)
+    new_users = []
+    # Throw out all of these changes if it fails somehow
+    with transaction.atomic():
+        for old_user in old_users:
+            try:
+                User.objects.get(username=old_user.username)
+            except User.DoesNotExist:
+                new_user = User.objects.create_user(
+                    username=old_user.username,
+                    email=old_user.email
+                    )
+                new_users.append(new_user)
+            DataHubManager.create_user_data_folder(
+                repo_base=old_user.username)
 
-        for user in users:
-            print 'granting %s to %s...' % (
-                settings.PUBLIC_ROLE, user.username)
-            query = 'GRANT %s to %s' % (settings.PUBLIC_ROLE, user.username)
-            pg.execute_sql(query)
-        pg.close_connection()
+        for app in apps:
+            username = app.legacy_user.username
+            print("{0} legacy_user is {1}".format(
+                app.app_id,
+                username
+                ))
+            if app.user is None:
+                new_user = User.objects.get(username=username)
+                app.user = new_user
+                app.save(update_fields=['user'])
+            print("    user is {0}".format(app.user.username))
 
-        print 'grants complete'
+    print("Migrated Users: {0}".format(new_users))
+
+    # grant existing users access to the dh_public role,
+    # which is used to share select-only repos
+    superuser_username = settings.DATABASES['default']['USER']
+    superuser_password = settings.DATABASES['default']['PASSWORD']
+
+    users = User.objects.exclude(username__in=[settings.PUBLIC_ROLE,
+                                 settings.OAUTH2_APP_OWNER])
+    pg = PGBackend(superuser_username, superuser_password)
+
+    for user in users:
+        print 'granting %s to %s...' % (
+            settings.PUBLIC_ROLE, user.username)
+        query = 'GRANT %s to %s' % (settings.PUBLIC_ROLE, user.username)
+        pg.execute_sql(query)
+    pg.close_connection()
+
+    print 'grants complete'
