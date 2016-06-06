@@ -35,12 +35,7 @@ from datahub.account import AccountService
 from service.handler import DataHubHandler
 from utils import post_or_get
 
-from .forms import QueryForm
-
 '''
-@author: Anant Bhardwaj
-@date: Mar 21, 2013
-
 Datahub Web Handler
 '''
 
