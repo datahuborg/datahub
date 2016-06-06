@@ -1069,7 +1069,7 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         self.assertEqual(self.mock_execute_sql.call_args[0][0], query)
         self.assertEqual(self.mock_execute_sql.call_args[0][1], params)
         self.assertEqual(self.mock_as_is.call_count, 3)
-        self.assertEqual(self.mock_check_for_injections. call_count, 4)
+        self.assertEqual(self.mock_check_for_injections. call_count, 3)
         self.assertEqual(self.mock_validate_table_name.call_count, 1)
 
     def test_import_table_with_no_header(self):

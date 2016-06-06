@@ -38,9 +38,6 @@ from service.handler import DataHubHandler
 from utils import post_or_get
 
 '''
-@author: Anant Bhardwaj
-@date: Mar 21, 2013
-
 Datahub Web Handler
 '''
 
@@ -183,7 +180,8 @@ def public(request):
         'login': username,
         'repo_base': 'repo_base',
         'repos': [],
-        'public_repos': public_repos})
+        'public_repos': public_repos,
+    })
 
 
 def user(request, repo_base=None):
@@ -240,6 +238,8 @@ def repo_tables(request, repo_base, repo):
     shows the tables under a repo.
     '''
     username = request.user.get_username()
+    if repo_base.lower() == 'user':
+        repo_base = username
 
     # get the base tables and views of the user's repo
     with DataHubManager(user=username, repo_base=repo_base) as manager:
@@ -265,6 +265,9 @@ def repo_files(request, repo_base, repo):
     shows thee files in a repo
     '''
     username = request.user.get_username()
+    if repo_base.lower() == 'user':
+        repo_base = username
+
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         uploaded_files = manager.list_repo_files(repo)
 
@@ -283,6 +286,9 @@ def repo_cards(request, repo_base, repo):
     shows the cards in a repo
     '''
     username = request.user.get_username()
+    if repo_base.lower() == 'user':
+        repo_base = username
+
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         cards = manager.list_repo_cards(repo)
 
@@ -306,7 +312,8 @@ def repo_create(request, repo_base):
         message = (
             'Error: Permission Denied. '
             '%s cannot create new repositories in %s.'
-            % (username, repo_base))
+            % (username, repo_base)
+        )
         return HttpResponseForbidden(message)
 
     if request.method == 'POST':
@@ -380,7 +387,8 @@ def repo_collaborators_add(request, repo_base, repo):
         manager.add_collaborator(
             repo, collaborator_username,
             db_privileges=db_privileges,
-            file_privileges=file_privileges)
+            file_privileges=file_privileges
+        )
 
     return HttpResponseRedirect(
         reverse('browser-repo_settings', args=(repo_base, repo,)))
@@ -420,6 +428,9 @@ def table(request, repo_base, repo, table):
         current_page = request.POST.get('page')
 
     username = request.user.get_username()
+    if repo_base.lower() == 'user':
+        repo_base = username
+
     url_path = reverse('browser-table', args=(repo_base, repo, table))
 
     with DataHubManager(user=username, repo_base=repo_base) as manager:
@@ -584,6 +595,19 @@ def query(request, repo_base, repo):
     query = post_or_get(request, key='q', fallback=None)
     username = request.user.get_username()
 
+    # if this is a shared link, redirect them to the table view
+    # with the SQL to be executed pre-populated
+    if repo_base.lower() == 'user':
+        repo_base = username
+        data = {
+            'login': username,
+            'repo_base': repo_base,
+            'repo': 'repo',
+            'select_query': False,  # hides the "save as card" button
+            'query': query}
+
+        return render_to_response("query-preview-statement.html", data)
+
     # if the user is just requesting the query page
     if not query:
         data = {
@@ -591,8 +615,8 @@ def query(request, repo_base, repo):
             'repo_base': repo_base,
             'repo': repo,
             'select_query': False,
-            'query': None}
-        return render_to_response("query.html", data)
+            'query': query}
+        return render_to_response("query-browse-results.html", data)
 
     # if the user is actually executing a query
     current_page = 1
@@ -654,6 +678,10 @@ Cards
 
 def card(request, repo_base, repo, card_name):
     username = request.user.get_username()
+
+    if repo_base.lower() == 'user':
+        repo_base = username
+
     # if the user is actually executing a query
     current_page = 1
     if request.POST.get('page'):
@@ -771,7 +799,8 @@ def thrift_app_detail(request, app_id):
     app = App.objects.get(user=user, app_id=app_id)
     c = RequestContext(request, {
         'login': request.user.get_username(),
-        'app': app})
+        'app': app
+    })
     return render_to_response('thrift_app_detail.html', c)
 
 

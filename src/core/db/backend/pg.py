@@ -757,7 +757,6 @@ class PGBackend:
             self._check_for_injections(word)
         self._validate_table_name(words[-1])
         self._check_for_injections(file_format)
-        self._check_for_injections(header_option)
 
         query = 'COPY %s FROM %s WITH %s %s DELIMITER %s ENCODING %s QUOTE %s;'
         params = (AsIs(table_name), file_path, AsIs(file_format),

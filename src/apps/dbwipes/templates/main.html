@@ -1,9 +1,14 @@
 <html>
-
+<title>DataHub DBWipes {{repo}}.{{table}}</title>
 <head>
+  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
   <script src="/static/dbwipes/js/lib/tether.js"></script>
   <script>
     window.enableScorpion = {{enableScorpion}};
+    window.cacheExists = {{cacheExists}};
     {% if idx and idx >= 0 %}
     window.jsidx = {{idx}};
     {% endif %}
@@ -14,7 +19,9 @@
     window.tablename = "{{table}}";
     window.x = "{{x}}";
     window.y = "{{y}}";
-    window.username = "{{username}}";
+    window.login = "{{username}}"; // the actual username
+    window.username = "{{repo_base}}"; // keep this here, because column_distribution still somehow uses it
+    window.repo_base = "{{repo_base}}";
   </script>
   <script data-main="/static/dbwipes/js/{{js}}" src="/static/dbwipes/js/require.js"></script>
 
@@ -22,13 +29,52 @@
 
 
 <body>
+
+<!-- Modal -->
+<div class="modal fade" id="ownerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">Create DBWipes Cache?</h4>
+            </div>
+            <div class="modal-body">
+                DBWipes needs to create its own repo for caching work on your data. If you make this data public, users will be able to access the cache.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default exit-button" data-dismiss="modal">Exit DBWipes</button>
+                <button type="button" id="create-cache-button" class="btn btn-primary">Create cache and use DBWipes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="nonOwnerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">DBWipes requires authorization from the table owner</h4>
+            </div>
+            <div class="modal-body">
+                DBWipes needs to create its own repo for caching work on this repo. Only the repo's owner can approve this. Please ask the repo owner to load this page and create the cache.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary exit-button">Exit DbWipes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 <h4>{{title}} <small>{{subtitle}}</small>
-<a class="blue bold" href="/browse/{{username}}">{{username}}</a> /
-<a class="blue bold" href="/browse/{{username}}/{{repo}}">{{repo}}</a> /
-<a class="blue bold" href="/browse/{{username}}/{{repo}}/{{table}}">{{table}}</a>
+<a class="blue bold" href="/browse/{{repo_base}}">{{repo_base}}</a> /
+<a class="blue bold" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a> /
+<a class="blue bold" href="/browse/{{repo_base}}/{{repo}}/{{table}}">{{table}}</a>
   {% if enableScorpion == 1 %}
   <span id="togglescorpion" class="btn btn-sm btn-primary walkthrough-btn">toggle scorpion</span>
   {% endif %}
+
 </h4>
 
 
@@ -38,6 +84,51 @@
 </div>
 
 
+<script>
+
+// Set up the create cache modal button
+$('#create-cache-button').click(function(){
+  data = { repo_base: window.repo_base, csrfmiddlewaretoken: "{{ csrf_token }}"};
+
+  $.ajax({
+  url: "/apps/dbwipes/api/create_data_cache/",
+  context: document.body,
+  method: "POST",
+  data: data,
+  }).done(function(result) {
+    window.cacheExists = false;
+    myModal = $('#ownerModal');
+    myModal.modal({keyboard: true, backdrop: true});
+    myModal.modal('hide');
+    $('.modal-backdrop').hide()
+    location.reload();
+  });
+});
+
+// set up the "exit" modal buttons
+$('.exit-button').click(function(){
+  window.location.href = '/';
+})
+
+// prevent the modal from being exited
+
+// launch the modal if the cache isn't created
+$( document ).ready(function(){
+  if (!window.cacheExists) {
+    if (window.repo_base !== window.login){
+      myModal = $('#nonOwnerModal');
+      myModal.modal({keyboard: false, backdrop: 'static'});
+      myModal.modal('show');
+    } else{
+      myModal = $('#ownerModal');
+      myModal.modal({keyboard: false, backdrop: 'static'});
+      myModal.modal('show');
+    }
+  }
+})
+
+
+</script>
 {% block content %}{% endblock %}
 
 {% include 'footer.html' %}
@@ -51,6 +142,24 @@
 {% include 'tasks.html' %}
 
 {% block includes %}{% endblock %}
+
+<script>
+  $(function() {
+    $( "#dialog-confirm" ).dialog({
+      resizable: false,
+      height:140,
+      modal: true,
+      buttons: {
+        "Go Back": function() {
+          $( this ).dialog( "close" );
+        },
+        "Use DBWipes": function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+  });
+</script>
 
 {% if study == 1 %}
 <script>
@@ -74,7 +183,5 @@
 	<link rel="stylesheet" type="text/css" href="/static/dbwipes/css/base.css"/>
 	<link rel="stylesheet" type="text/css" href="/static/dbwipes/css/docs.min.css"/>
 	<link rel="stylesheet" type="text/css" href="/static/dbwipes/css/tether.css"/>
-	<link rel="stylesheet" type="text/css" href="/static/dbwipes/css/tether-theme-arrows.css"/>
-	<link rel="stylesheet" type="text/css" href="/static/dbwipes/css/shepherd-theme-arrows.css"/>
 
 </html>

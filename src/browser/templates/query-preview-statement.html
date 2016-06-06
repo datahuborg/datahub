@@ -1,0 +1,99 @@
+{% extends "table-browse-template.html" %}
+{% block table-name %}
+{% endblock %}
+{% block apps %}
+{% endblock %}
+
+{% block panel-title %}
+  {% if query %}
+    <div class="row">
+      <div class="col-sm-10">
+        <span class="lead">
+          Query:
+          <code class="language-sql" data-lang="sql">{{query}}</code>
+        </span>
+      </div>
+      {% if select_query %}
+      <div class="col-sm-2">
+        <button class="btn btn-default btn-sm modal-link" type="button" target-modal="#save-card-modal" title="Save as Card">Save as Card</button>
+      </div>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block annotation %} 
+{% endblock %}
+
+{% block table-empty-warning %}
+    <p class="bg-warning">Hit run above to see the results of this query.</p>
+{% endblock %}
+
+{% block pagination %}
+  <ul class="pagination pagination-sm">
+    {% if pages|length > 1 %}
+      {% if prev_page > 0 %}
+        <li><a href="{{url_path}}?q={{query}}&amp;page={{prev_page}}">&laquo;</a></li>
+      {% endif %}
+      
+      {% for page in pages %}
+        {% if page == current_page %}
+          <li class="active"><a href="#">{{page}}</a></li>
+        {% else %}
+          <li><a href="{{url_path}}?q={{query}}&amp;page={{page}}">{{page}}</a></li>
+        {% endif %}
+      {% endfor %}
+      
+      {% if next_page < total_pages %}
+        <li><a href="{{url_path}}?q={{query}}&amp;page={{next_page}}">&raquo;</a></li>
+      {% endif %}
+    {% endif %}
+  </ul>
+{% endblock %}
+
+{% block extra %}
+<div class="modal" id="save-card-modal" 
+    tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="save-card-modal-title">Save as Card</h4>
+      </div>
+      <div class="modal-body" id="save-card-modal-body">
+        <form role="form" method="POST" action="/create/{{repo_base}}/{{repo}}/card" id="save-card-modal-form">
+          <div class="form-group">
+            {% csrf_token %}
+            <input type="hidden" name="query" value="{{query}}" />
+            <input type="text" class="form-control" name="card-name" placeholder="Enter Card Name" id="save-card-modal-input" />
+          </div>
+        </form>       
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+            class="btn btn-primary" id="save-card-modal-operation">Save</button>
+        <button type="button"
+            class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$('.modal-link').on('click', function(e){
+    var modal_id = $(this).attr('target-modal')
+    $(modal_id).off('click');
+    
+    $(modal_id).modal({keyboard: true})
+      .on('click', modal_id + '-operation', function (e) {
+        $('#save-card-modal-form').submit()
+        console.log('submitted')
+        $(modal_id).modal('hide')
+        $("#wait-dialog").modal()  
+      });
+  });
+</script>
+{% endblock %}

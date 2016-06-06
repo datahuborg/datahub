@@ -37,6 +37,7 @@ define(function(require) {
                             // only way to set basewhere is to click on a rule
         table: null,
         db: null,
+        repo_base: window.repo_base,
         data: null,
         limit: null,
       }
@@ -87,7 +88,7 @@ define(function(require) {
 
     fetch: function(options) {
       var json = this.toJSON();
-      json.username = window.username;
+      json.repo_base = window.repo_base;
       var resp = checkQueryCache(json);
       if (resp) {
         console.log(['q.fetch', 'cache hit', json, resp])
@@ -170,7 +171,7 @@ define(function(require) {
       var where = this.get('where');
 
       var ret = {
-        username: window.username,
+        repo_base: window.repo_base,
         x: this.get('x'),
         ys: this.get('ys'),
         table: this.get('table'),

@@ -32,9 +32,12 @@
     query = DataQ.Query();
     query.repo(repo_name);
 
-    // Add the table section outline to the container.
-    var html = DataQ.templates["dq-table-section"]();
-    $('.dq-table-section-container').append(html);
+    // Handle DataQ close when clicking backdrop.
+    $(".dq-black-background").click(function() {
+      $(".dq-black-background").remove();
+      $(".dataq").remove();
+      callback(null);
+    })
   };
 
   /**

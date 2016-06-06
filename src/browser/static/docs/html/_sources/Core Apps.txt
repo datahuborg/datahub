@@ -7,7 +7,7 @@ environments. Instead, they are deployed on the DataHub website itself.
 
 .. toctree::
     :hidden:
-    
+
     django-app-console
     django-app-dataq
     django-app-datatables
@@ -35,7 +35,7 @@ DataQ
 :ref:`django-app-dataq`
 
 | primary(s):   `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_
-| maintainer(s): `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_
+| maintainer(s): `Gina Yuan <https://github.com/ygina>`_
 
 DataQ is a visual SQL query builder
 
@@ -58,10 +58,10 @@ dbWipes
 :ref:`django-app-dbwipes`
 
 | primary(s):   `Eugene Wu <https://github.com/sirrice>`_
-| maintainer(s): `Eugene Wu <https://github.com/sirrice>`_
+| maintainer(s): `Albert Carter <https://github.com/RogerTangos>`_
 
-`DBWipes <http://www.mit.edu/~eugenewu/dbwipes.html>`_ helps you quickly 
-visualize data, identify outliers, and understand where those outliers arise 
+`DBWipes <http://www.cs.columbia.edu/~ewu/dbwipes.html>`_ helps you quickly
+visualize data, identify outliers, and understand where those outliers arise
 from in the underlying data set
 
 
@@ -98,5 +98,5 @@ Viz2 (formerly Viz)
 | primary(s):   `Anant Bhardwaj <https://github.com/abhardwaj>`_
 | maintainer(s): `Al Carter <https://github.com/RogerTangos>`_
 
-viz2 (renamed due to a naming collision) uses Google Charts to visualize the 
+viz2 (renamed due to a naming collision) uses Google Charts to visualize the
 results of database queries.

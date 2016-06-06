@@ -34,18 +34,23 @@
       $("body").append(html);
     }
 
-    // Display the modal.
+    // Display the modal. (disable Esc)
     $("#dq-grouping-modal").modal({
-      backdrop: "static",
       keyboard: false
     });
 
-    // When the modal is displayed, enable iCheck and HTML5Sortable.
+    // When the modal is displayed, enable HTML5Sortable.
     $("#dq-grouping-modal").on("shown.bs.modal", function() {
       $(".dq-grouping-modal-list").sortable({
         forcePlaceholderSize: true 
       });
     });
+
+    // Handle modal close when clicking backdrop.
+    $(".modal-backdrop").click(function() {
+      callback();
+      $("#dq-grouping-modal").remove();
+    })
   }; // End GroupingModal
 
   // Handler for close modal.
