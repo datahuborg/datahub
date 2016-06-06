@@ -85,6 +85,15 @@ class RowLevelSecurityManager:
         repo = settings.POLICY_SCHEMA
         table = settings.POLICY_TABLE
 
+        security_policies = RowLevelSecurityManager.find_security_policies(
+            repo_base, repo=repo, table=table,
+            policy=policy, policy_type=None,
+            grantee=grantee, grantor=grantor, safe=False)
+
+        # Skip if the user already has policies granted by the superuser.
+        if len(security_policies) > 0:
+            return
+
         with _superuser_connection(repo_base=settings.POLICY_DB) as conn:
             # allow select
             conn.create_security_policy(
