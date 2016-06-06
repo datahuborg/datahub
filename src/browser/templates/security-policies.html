@@ -19,11 +19,7 @@
     {% csrf_token %}
     <div class="row">
     <div class="form-group col-sm-10">
-      {% if query %}
-      <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Security Policy e.g.: grant SELECT to OTHERUSER on REPO.TABLE where ID=1" value="{{query}}">
-      {% else %}
-        <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Security Policy e.g.: grant SELECT to OTHERUSER on REPO.TABLE where ID=1">
-      {% endif %}
+      <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Security Policy e.g.: grant SELECT access to OTHERUSER on REPO.TABLE where ID=1" />
     </div>
 
     <div class="col-sm-2">
