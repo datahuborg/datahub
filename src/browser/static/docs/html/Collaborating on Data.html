@@ -53,40 +53,114 @@
 <li>Select the permissions you would like to grant to them</li>
 <li>Click &#8220;Add&#8221;</li>
 </ol>
-<p>To revoke a collaborator, click the x next to that user&#8217;s name on the same page.</p>
+<p>To revoke a collaborator, click the <cite>x</cite> next to that user&#8217;s name on the same page.</p>
 <div class="section" id="database-permissions">
 <h3>Database Permissions<a class="headerlink" href="#database-permissions" title="Permalink to this headline">¶</a></h3>
 <p>DataHub uses database permissions to control collaborator access to data. When
-adding collaborators, you may want to think about what types of access you would
-like to give them.</p>
+adding collaborators, you should consider the types of access you would
+like to give them to your data.</p>
+<p>If you trust your collaborators (which we hope you do), we suggest leaving all
+options checked.</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">SELECT</span></code> allows users to view and operate on the data. Users whom have only</li>
+<li><code class="docutils literal"><span class="pre">SELECT</span></code> allows users to view and operate on the data. Users whom have only been granted <code class="docutils literal"><span class="pre">SELECT</span></code> can <em>view</em> your data, but not change it.</li>
+<li><code class="docutils literal"><span class="pre">INSERT</span></code> allows users to add new data.</li>
+<li><code class="docutils literal"><span class="pre">UPDATE</span></code> allows users to change data that already exists.</li>
+<li><code class="docutils literal"><span class="pre">DELETE</span></code> allows users to to delete data that already exists.</li>
+<li><code class="docutils literal"><span class="pre">TRUNCATE</span></code>, <code class="docutils literal"><span class="pre">REFERENCES</span></code>, and <code class="docutils literal"><span class="pre">TRIGGER</span></code> require an additional understanding of databases. You can read more about them <a class="reference external" href="https://www.postgresql.org/docs/9.0/static/sql-grant.html">here</a>.</li>
 </ul>
-<p>been granted can <em>view</em> your data, but not change it.
-- <code class="docutils literal"><span class="pre">INSERT</span></code> allows users to add new data.
-- <code class="docutils literal"><span class="pre">UPDATE</span></code> allows users to change data that already exists.
-- <code class="docutils literal"><span class="pre">DELETE`</span></code> allows users to to delete data that already exists
-- <code class="docutils literal"><span class="pre">TRUNCATE</span></code>, <code class="docutils literal"><span class="pre">REFERENCES</span></code>, and <code class="docutils literal"><span class="pre">TRIGGER</span></code> require an additional understanding of databases. You can read more about them <a class="reference external" href="https://www.postgresql.org/docs/9.0/static/sql-grant.html">here</a></p>
 </div>
 <div class="section" id="file-permissions">
 <h3>File Permissions<a class="headerlink" href="#file-permissions" title="Permalink to this headline">¶</a></h3>
+<p>DataHub file permissions allow people to access the files in your &#8220;Files&#8221; tab.
+When adding collaborators, you should consider the types of access you would
+like to give them to your files.</p>
+<p>If you trust your collaborators (which we hope you do), we suggest leaving all
+options checked.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">read</span></code> allows users to view the contents of existing files.</li>
+<li><code class="docutils literal"><span class="pre">write</span></code> allows users to write new information to existing files, and to add new files.</li>
+</ul>
 </div>
 <div class="section" id="technical-details">
 <h3>Technical Details<a class="headerlink" href="#technical-details" title="Permalink to this headline">¶</a></h3>
-<p>DataHub records grants both in the database, and via Django&#8217;s ORM. Grants
-executed via queries (in the terminal or through queries to the API) are likely
-to have unforseen consequences. For instance: collaborators will not be able to
+<p>DataHub records <em>GRANTs</em> to schemas both in the database and via DataHub Website&#8217;s <a class="reference external" href="https://en.wikipedia.org/wiki/Object-relational_mapping">ORM</a>. Grants
+executed via queries (in the <a class="reference external" href="/apps/console/">terminal</a> or through <a class="reference external" href="http://datahub-local.mit.edu/api-docs/#!/query">queries to the API</a> are likely
+to have unforeseen consequences. For instance: collaborators will not be able to
 access files. (File permissions are recored only in the ORM.)</p>
-<p>DataHub lacks the ability to <cite>GRANTE CREATE on SCHEMA schema_name</cite>. It is
-currently acceptable to <cite>GRANT CREATE</cite> via a query or through the terminal.</p>
+<p>DataHub lacks the ability to <code class="docutils literal"><span class="pre">GRANTE</span> <span class="pre">CREATE</span> <span class="pre">on</span> <span class="pre">SCHEMA</span> <span class="pre">schema_name</span></code>. It is
+currently acceptable (2016-06-06) to <code class="docutils literal"><span class="pre">GRANT</span> <span class="pre">CREATE</span></code> via a query through the API or terminal.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Given time, we would have liked to make granting create possible through the API and browser interface. See <a class="reference external" href="https://github.com/datahuborg/datahub/issues/157">issue 157</a>.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The add collaborators (repo-settings) template could really use some love.
+See <a class="reference external" href="https://github.com/datahuborg/datahub/issues/159">issue 159</a>.</p>
 </div>
 </div>
 </div>
 <div class="section" id="row-level-security">
 <h2>Row Level Security<a class="headerlink" href="#row-level-security" title="Permalink to this headline">¶</a></h2>
+<p>Row Level Security (RLS) allows owner to specify what parts
+of a table collaborators can access (select, insert, update) from.</p>
+<p>For example,</p>
+<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="c1">-- Roadrunner creates a creates a security policy for coyote.</span>
+<span class="k">GRANT</span> <span class="k">SELECT</span> <span class="k">ACCESS</span> <span class="k">to</span> <span class="n">COYOTE</span> <span class="k">on</span> <span class="n">acme</span><span class="p">.</span><span class="n">explosives</span> <span class="k">WHERE</span> <span class="n">defective</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span><span class="p">;</span>
+
+<span class="c1">-- Coyote executes this query</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">acme</span><span class="p">.</span><span class="n">explosives</span><span class="p">;</span>
+
+<span class="c1">-- which becomes</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">acme</span><span class="p">.</span><span class="n">explosives</span> <span class="k">where</span> <span class="n">defective</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span><span class="p">;</span>
+
+<span class="c1">-- Now Coyote can only see (and purchase) defective explosives</span>
+</pre></div>
+</div>
+<p>To create a RLS policy</p>
+<ol class="arabic simple">
+<li>Go to <a class="reference external" href="/browse/">/browse/</a>.</li>
+<li>Click on the lock icon of the repo you would like to create a policy for.</li>
+<li>Click &#8220;new&#8221;.</li>
+<li>Add the security policy type, and what the policy will be. The policy itself will be dependent on your table&#8217;s structure.</li>
+<li>Add the grantee.</li>
+<li>Click save.</li>
+</ol>
+<p>To delete or edit a RLS security policy, navigate to the same page, and click the
+pencil (edit) or the trash can (delete).</p>
+<p>Row Level Security can also be applied on tables to ALL users in the database.
+This is useful if you would only like to publicly publish a subset of a
+table&#8217;s data. To do this, in the grantee field, add &#8220;ALL&#8221;</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Creating a RLS policy does not (by itself) allow collaborators to access a table. Users must also add collaborators via the collaborators menu described in the &#8220;Traditional Collaborators&#8221; section above. Row Level Security only provides an <em>additional</em> layer of specificity for what is shared.</p>
+</div>
+<div class="section" id="id1">
+<h3>Technical Details<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>The &#8220;ALL&#8221; keyword used to signify that a RLS policy applies to ALL users is
+defined in <a class="reference external" href="https://github.com/datahuborg/datahub/blob/master/src/config/settings.py">settings.py</a></p>
+<p>RLS is a result of a thesis project for her Spring 2016 Masters in Engineering Degree from MIT EECS. You can find her thesis <a class="reference external" href="https://github.com/datahuborg/datahub/blob/master/src/browser/static/www/papers/KellyZhang_RowLevelSecurity_Thesis.pdf">here</a></p>
+<p>RLS parses queries and recursively applies security policies as defined in the table. For example,</p>
+<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="c1">-- given the security policies</span>
+<span class="k">GRANT</span> <span class="k">SELECT</span> <span class="k">ACCESS</span> <span class="k">to</span> <span class="n">MYUSER</span> <span class="k">on</span> <span class="n">A</span> <span class="k">WHERE</span> <span class="k">COUNT</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">;</span>
+<span class="k">GRANT</span> <span class="k">SELECT</span> <span class="k">ACCESS</span> <span class="k">to</span> <span class="n">MYUSER</span> <span class="k">on</span> <span class="n">B</span> <span class="k">WHERE</span> <span class="n">NAME</span><span class="o">=</span><span class="s1">&#39;BOB&#39;</span><span class="p">;</span>
+
+<span class="c1">-- The query</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">A</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">B</span> <span class="k">on</span> <span class="n">A</span><span class="p">.</span><span class="n">ID</span> <span class="o">=</span> <span class="n">B</span><span class="p">.</span><span class="n">ID</span><span class="p">;</span>
+
+<span class="c1">-- becomes</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span>
+<span class="p">(</span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">A</span> <span class="k">WHERE</span> <span class="k">COUNT</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">)</span>
+<span class="k">INNER</span> <span class="k">JOIN</span>
+<span class="p">(</span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">B</span> <span class="k">WHERE</span> <span class="n">NAME</span><span class="o">=</span><span class="s1">&#39;Bob&#39;</span><span class="p">)</span>
+<span class="k">ON</span> <span class="n">A</span><span class="p">.</span><span class="n">ID</span> <span class="o">=</span> <span class="n">B</span><span class="p">.</span><span class="n">ID</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The Row Level Security interface could really use some love. Please see <cite>issues 160 &lt;https://github.com/datahuborg/datahub/issues/160&gt;__</cite></p>
+</div>
+</div>
 </div>
 </div>
 
@@ -106,7 +180,10 @@ currently acceptable to <cite>GRANT CREATE</cite> via a query or through the ter
 <li><a class="reference internal" href="#technical-details">Technical Details</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#row-level-security">Row Level Security</a></li>
+<li><a class="reference internal" href="#row-level-security">Row Level Security</a><ul>
+<li><a class="reference internal" href="#id1">Technical Details</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
