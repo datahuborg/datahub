@@ -148,6 +148,7 @@ class DataHubConnection:
             file_path=file_path,
             file_format=file_format,
             delimiter=delimiter,
+            header=header,
             encoding=encoding,
             quote_character=quote_character)
 
