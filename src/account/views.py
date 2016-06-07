@@ -73,8 +73,7 @@ def login(request):
         'form': form,
         'providers': providers,
         'next': redirect_uri,
-        'absolute_next': redirect_absolute_uri,
-        })
+        'absolute_next': redirect_absolute_uri})
     return render_to_response('login.html', context_instance=context)
 
 
@@ -113,6 +112,7 @@ def register(request):
             # doesn't exist. If the database cannot be created, that handler
             # will throw an exception.
             user = datahub_authenticate(username, password)
+
             if user is not None and user.is_active:
                 django_login(request, user)
                 # Append auth_user to redirect_uri so apps like Kibitz can
@@ -135,8 +135,7 @@ def register(request):
         'form': form,
         'providers': providers,
         'next': redirect_uri,
-        'absolute_next': redirect_absolute_uri,
-        })
+        'absolute_next': redirect_absolute_uri})
     return render_to_response('register.html', context_instance=context)
 
 
@@ -185,8 +184,7 @@ def get_user_details(request):
     context = RequestContext(request, {
         'form': form,
         'details': details,
-        'social': social
-        })
+        'social': social})
 
     return render(request, "username_form.html", context)
 
@@ -222,8 +220,7 @@ def account_settings(request):
         email_form = ChangeEmailForm({'email': old_email}, old_email=old_email)
 
     context = RequestContext(request, {
-        'email_form': email_form,
-        })
+        'email_form': email_form})
     # Python Social Auth sets a `backends` context variable, which includes
     # which social backends are and are not associated with the current user.
     return render(request, 'account-settings.html', context)
@@ -259,8 +256,7 @@ def add_password(request, is_disconnect=False):
 
     context = RequestContext(request, {
         'form': form,
-        'is_disconnect': is_disconnect,
-        })
+        'is_disconnect': is_disconnect})
     return render(request, "password_add.html", context)
 
 
@@ -277,8 +273,7 @@ def remove_password(request):
 def add_extra_login(request):
     """Enables logged in users to add more social logins to their account."""
     context = RequestContext(request, {
-        'providers': provider_details(),
-        })
+        'providers': provider_details()})
     return render(request, 'add-login.html', context)
 
 
@@ -307,8 +302,7 @@ def delete(request):
         return HttpResponseNotAllowed(['POST'])
     username = request.user.get_username()
     context = RequestContext(request, {
-        'username': username
-        })
+        'username': username})
     try:
         DataHubManager.remove_user(username=username, remove_db=True)
         django_logout(request)

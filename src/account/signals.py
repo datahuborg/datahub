@@ -4,6 +4,9 @@ from django.db.models.signals import pre_save
 from psycopg2 import OperationalError
 from django.db.utils import IntegrityError
 from core.db.manager import DataHubManager
+from core.db.rlsmanager import RowLevelSecurityManager
+
+from django.conf import settings
 
 # Note that these may fire multiple times and for users that already exist.
 
@@ -30,6 +33,24 @@ def enforce_email_uniqueness(sender, instance, **kwargs):
                 "The email address {0} is associated with another account."
                 .format(email)
             )
+
+
+@receiver(pre_save, sender=User,
+          dispatch_uid="dh_user_pre_save_not_blacklisted")
+def enforce_blacklist(sender, instance, **kwargs):
+    """
+    Prevents certain usernames from being created
+
+    Checks usernmames against settings.BLACKLISTED_USERNAMES
+    """
+    if instance is not None:
+        username = instance.username.lower()
+        if not username:
+            raise IntegrityError("Username required.")
+        if username in [x.lower() for x in settings.BLACKLISTED_USERNAMES]:
+            raise IntegrityError(
+                "Failed to create user. The name {0} is reserved"
+                "for DataHub use.".format(username))
 
 
 @receiver(pre_save, sender=User,
@@ -68,3 +89,21 @@ def create_user_db_and_data_folder_if_needed(sender, instance, **kwargs):
     else:
         raise Exception("Failed to create user. That name is already"
                         " in use by either a role, database, or data folder.")
+
+
+@receiver(pre_save, sender=User,
+          dispatch_uid="dh_user_pre_save_add_user_to_policy_table")
+def add_user_to_policy_table(sender, instance, **kwargs):
+    """
+    Adds default policies for user to row level security policy table.
+
+    Does nothing if the user already has an entry in the policy table.
+    """
+    username = instance.username
+    # Create row level security policies in the dh_public policy table
+    # granting user select, insert, update access to policies he create
+    try:
+        RowLevelSecurityManager.add_user_to_policy_table(username)
+    except Exception:
+        # Ignore failures when the user already has a policy.
+        pass

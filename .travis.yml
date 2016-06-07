@@ -24,6 +24,9 @@ install:
 
 before_script:
   - psql -c "create database datahub;" -U postgres
+  - psql -c "drop role rails;" -U postgres
+  - psql -c "drop database travis;" -U postgres
+  - psql -c "drop role travis;" -U postgres
 
 script:
   # Migrations must be run before creating public users

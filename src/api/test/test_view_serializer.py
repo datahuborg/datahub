@@ -30,7 +30,6 @@ class ViewSerializerTests(TestCase):
         return thing
 
     def test_create_view(self):
-        mm_set_search_paths = self.mock_manager.return_value.set_search_paths
         mock_manager_create_view = self.mock_manager.return_value.create_view
         mock_manager_create_view.return_value = True
 
@@ -40,7 +39,6 @@ class ViewSerializerTests(TestCase):
 
         success = self.serializer.create_view(repo, view, query)
 
-        self.assertTrue(mm_set_search_paths.called)
         self.assertTrue(mock_manager_create_view.called)
         self.assertEqual(success, True)
 

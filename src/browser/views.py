@@ -30,6 +30,8 @@ from oauth2_provider.views import ApplicationUpdate
 from inventory.models import App, Annotation
 from account.utils import grant_app_permission
 from core.db.manager import DataHubManager
+from core.db.rlsmanager import RowLevelSecurityManager
+from core.db.rls_permissions import RLSPermissionsParser
 from datahub import DataHub
 from datahub.account import AccountService
 from service.handler import DataHubHandler
@@ -244,12 +246,15 @@ def repo_tables(request, repo_base, repo):
         base_tables = manager.list_tables(repo)
         views = manager.list_views(repo)
 
+    rls_table = 'policy'
+
     res = {
         'login': username,
         'repo_base': repo_base,
         'repo': repo,
         'base_tables': base_tables,
-        'views': views}
+        'views': views,
+        'rls-table': rls_table}
 
     res.update(csrf(request))
     return render_to_response("repo-browse-tables.html", res)
@@ -430,6 +435,7 @@ def table(request, repo_base, repo, table):
 
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         query = manager.select_table_query(repo, table)
+
         res = manager.paginate_query(
             query=query, current_page=current_page, rows_per_page=50)
 
@@ -620,8 +626,6 @@ def query(request, repo_base, repo):
     url_path = reverse('browser-query', args=(repo_base, repo))
 
     with DataHubManager(user=username, repo_base=repo_base) as manager:
-        if repo:
-            manager.set_search_paths([repo])
         res = manager.paginate_query(
             query=query, current_page=current_page, rows_per_page=50)
 
@@ -687,7 +691,6 @@ def card(request, repo_base, repo, card_name):
 
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         card = manager.get_card(repo=repo, card_name=card_name)
-        manager.set_search_paths([card.repo_name])
         res = manager.paginate_query(
             query=card.query, current_page=current_page, rows_per_page=50)
 
@@ -908,6 +911,137 @@ def app_allow_access(request, app_id, repo_name):
             json.dumps(
                 {'error': str(e)}),
             content_type="application/json")
+
+
+'''
+Row Level Security Policies
+'''
+
+
+@login_required
+def security_policies(request, repo_base, repo, table):
+    '''
+    Shows the security policies defined for a table.
+    '''
+    username = request.user.get_username()
+
+    # get the security policies on a given repo.table
+    try:
+        policies = RowLevelSecurityManager.find_security_policies(
+            repo_base=repo_base, repo=repo, table=table, grantor=username,
+            safe=True)
+    except LookupError:
+        policies = []
+
+    # repack the named tuples. This is a bit of a hack, (since we could just
+    # get the view to display named tuples)
+    # but is happening for expediency
+    policies = [(p.id, p.policy, p.policy_type, p.grantee, p.grantor)
+                for p in policies]
+
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'table': table,
+        'policies': policies}
+
+    res.update(csrf(request))
+    return render_to_response("security-policies.html", res)
+
+
+@login_required
+def security_policy_delete(request, repo_base, repo, table, policy_id):
+    '''
+    Deletes a security policy defined for a table given a policy_id.
+    '''
+    username = request.user.get_username()
+    policy_id = int(policy_id)
+
+    try:
+        RowLevelSecurityManager.remove_security_policy(
+            policy_id, username)
+    except Exception as e:
+        return HttpResponse(
+            json.dumps(
+                {'error': str(e)}),
+            content_type="application/json")
+    return HttpResponseRedirect(
+        reverse('browse-security_policies', args=(repo_base, repo, table)))
+
+
+@login_required
+def security_policy_create(request, repo_base, repo, table):
+    '''
+    Creates a security policy for a table.
+    '''
+    username = request.user.get_username()
+    try:
+        policy = request.POST['security-policy']
+        policy_type = request.POST['policy-type']
+        grantee = request.POST['policy-grantee']
+
+        RowLevelSecurityManager.create_security_policy(policy=policy,
+                                                       policy_type=policy_type,
+                                                       grantee=grantee,
+                                                       grantor=username,
+                                                       repo_base=repo_base,
+                                                       repo=repo,
+                                                       table=table
+                                                       )
+
+    except Exception as e:
+        return HttpResponse(
+            json.dumps(
+                {'error': str(e)}),
+            content_type="application/json")
+
+    return HttpResponseRedirect(
+        reverse('browse-security_policies', args=(repo_base, repo, table)))
+
+
+@login_required
+def security_policy_edit(request, repo_base, repo, table, policyid):
+    '''
+    Edits a security policy defined for a table given a policy_id.
+    '''
+    username = request.user.get_username()
+    try:
+        policy = request.POST['security-policy-edit']
+        policy_type = request.POST['policy-type-edit']
+        grantee = request.POST['policy-grantee-edit']
+        RowLevelSecurityManager.update_security_policy(
+            policyid, policy, policy_type, grantee, username)
+
+    except Exception as e:
+        return HttpResponse(
+            json.dumps(
+                {'error': str(e)}),
+            content_type="application/json")
+
+    return HttpResponseRedirect(
+        reverse('browse-security_policies', args=(repo_base, repo, table)))
+
+
+@login_required
+def security_policy_query(request, repo_base, repo, table):
+    '''
+    Converts a SQL permissions statement into a new security policy.
+    '''
+    username = request.user.get_username()
+    query = post_or_get(request, key='q', fallback=None)
+    try:
+        permissions_parser = RLSPermissionsParser(repo_base, username)
+        permissions_parser.process_permissions(query)
+
+    except Exception as e:
+        return HttpResponse(
+            json.dumps(
+                {'error': str(e)}),
+            content_type="application/json")
+
+    return HttpResponseRedirect(
+        reverse('browse-security_policies', args=(repo_base, repo, table)))
 
 
 class OAuthAppUpdate(ApplicationUpdate):

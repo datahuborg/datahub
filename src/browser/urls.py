@@ -57,6 +57,7 @@ urlpatterns = patterns(
         name='browser-create_annotation'),
 
 
+
     # Browse
     url(r'^browse/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table',
         name='browser-table'),
@@ -76,6 +77,11 @@ urlpatterns = patterns(
     url(r'^browse/public/?$', 'browser.views.public', name='browser-public'),
     url(r'^browse/(\w+)/?$', 'browser.views.user', name='browser-user'),
     url(r'^browse/?$', 'browser.views.user', name='browser-user-default'),
+
+    url(r'^browse/(\w+)/(\w+)/securitypolicies/(\w+)/?$',
+        'browser.views.security_policies', name='browse-security_policies'),
+
+
 
 
     # Delete
@@ -142,6 +148,19 @@ urlpatterns = patterns(
     url(r'^update_visibility/(\w+)/(\w+)/card/(.+)/?$',
         'browser.views.card_update_public',
         name='browser-card_update_public'),
+
+
+    # Security Policies
+    url(r'^create/(\w+)/(\w+)/(\w+)/securitypolicy/?$',
+        'browser.views.security_policy_create', name='security-policy_create'),
+    url(r'^edit/(\w+)/(\w+)/(\w+)/securitypolicy/(\w+)/?$',
+        'browser.views.security_policy_edit', name='security-policy_edit'),
+    url(r'^delete/(\w+)/(\w+)/(\w+)/securitypolicy/(\w+)/?$',
+        'browser.views.security_policy_delete',
+        name='browser-securitypolicy_delete'),
+    url(r'^execute/(\w+)/(\w+)/(\w+)/securitypolicy/query/?$',
+        'browser.views.security_policy_query', name='security-policy_query'),
+
 
 
     # Client Apps

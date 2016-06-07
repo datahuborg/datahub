@@ -14,9 +14,6 @@ class DataHubConnection:
     def change_repo_base(self, repo_base):
         self.backend.change_repo_base(repo_base=repo_base)
 
-    def set_search_paths(self, search_paths=[]):
-        return self.backend.set_search_paths(search_paths)
-
     def close_connection(self):
         self.backend.close_connection()
 
@@ -178,3 +175,50 @@ class DataHubConnection:
 
     def list_collaborators(self, repo):
         return self.backend.list_collaborators(repo)
+
+    # Row Level Security Stuff
+    def create_security_policy_schema(self):
+        return self.backend.create_security_policy_schema()
+
+    def create_security_policy_table(self):
+        return self.backend.create_security_policy_table()
+
+    def create_security_policy(self, policy, policy_type, grantee,
+                               grantor, repo_base, repo, table):
+        return self.backend.create_security_policy(
+            policy=policy,
+            policy_type=policy_type,
+            grantee=grantee,
+            grantor=grantor,
+            repo_base=repo_base,
+            repo=repo,
+            table=table)
+
+    def find_security_policies(
+            self, repo_base, repo=None, table=None, policy_id=None,
+            policy=None, policy_type=None, grantee=None, grantor=None):
+        return self.backend.find_security_policies(
+            repo_base, repo, table, policy_id, policy, policy_type,
+            grantee, grantor)
+
+    def find_all_security_policies(self, username):
+        """
+        Find all security policies that are granted by or to a username
+        """
+        return self.backend.find_all_security_policies(username)
+
+    def update_security_policy(self, policy_id, new_policy, new_policy_type,
+                               new_grantee):
+        return self.backend.update_security_policy(
+            policy_id, new_policy, new_policy_type, new_grantee)
+
+    def find_security_policy_by_id(self, policy_id):
+        return self.backend.find_security_policy_by_id(policy_id)
+
+    def remove_security_policy(self, policy_id):
+        return self.backend.remove_security_policy(policy_id)
+
+    def can_user_access_rls_table(self,
+                                  username,
+                                  permissions=['SELECT', 'UPDATE', 'INSERT']):
+        return self.backend.can_user_access_rls_table(username, permissions)

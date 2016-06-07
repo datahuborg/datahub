@@ -11,8 +11,10 @@ from django.contrib.auth.models import User
 
 from config import settings
 from core.db.connection import DataHubConnection
+from core.db.rlsmanager import RowLevelSecurityManager
 from core.db.errors import PermissionDenied
 from inventory.models import App, Card, Collaborator, DataHubLegacyUser
+
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
@@ -77,13 +79,6 @@ class DataHubManager:
     def change_repo_base(self, repo_base):
         """Changes the repo base and resets the DB connection."""
         self.user_con.change_repo_base(repo_base=repo_base)
-
-    def set_search_paths(self, search_paths=[]):
-        """
-        Sets the search path, so that the user won't have to write
-        out schema names.
-        """
-        return self.user_con.set_search_paths(search_paths)
 
     def close_connection(self):
         self.user_con.close_connection()
@@ -998,6 +993,10 @@ class DataHubManager:
                     DataHubManager.drop_owned_by(username=username,
                                                  repo_base=db)
                 result = conn.remove_user(username=username)
+
+            RowLevelSecurityManager.remove_user_from_policy_table(
+                username=username)
+
         return result
 
     @staticmethod

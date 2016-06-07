@@ -1,4 +1,5 @@
 from mock import Mock, \
+                 MagicMock, \
                  patch, \
                  mock_open
 import itertools
@@ -129,12 +130,16 @@ class PGBackendHelperMethods(MockingMixin, TestCase):
         mock_cursor.return_value.fetchall.return_value = 'sometuples'
         mock_cursor.return_value.rowcount = 1000
 
+        mock_query_rewriter = MagicMock()
+        mock_query_rewriter.apply_row_level_security.side_effect = lambda x: x
+        self.backend.query_rewriter = mock_query_rewriter
+
         res = self.backend.execute_sql(query, params)
 
+        self.assertTrue(mock_query_rewriter.apply_row_level_security.called)
         self.assertTrue(mock_cursor.called)
         self.assertTrue(mock_execute.called)
 
-        self.assertEqual(mock_execute.call_args[0][1], params)
         self.assertEqual(res['tuples'], 'sometuples')
         self.assertEqual(res['status'], True)
         self.assertEqual(res['row_count'], 1000)
@@ -191,16 +196,6 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         self.mock_as_is.reset_mock()
         self.mock_execute_sql.reset_mock()
         self.mock_check_for_injections.reset_mock()
-
-    def test_set_search_paths(self):
-        path_query = 'set search_path to %s;'
-        self.mock_execute_sql.return_value = {'status': True, 'row_count': -1,
-                                              'tuples': [], 'fields': []}
-        self.backend.set_search_paths(['foo', 'bar'])
-
-        self.assertEqual(self.mock_check_for_injections.call_count, 2)
-        self.assertEqual(self.mock_execute_sql.call_args[0][0], path_query)
-        self.assertEqual(self.mock_execute_sql.call_args[0][1], ('foo, bar',))
 
     # testing externally called methods in PGBackend
     def test_create_repo(self):
@@ -1097,3 +1092,30 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         # The method does so little
         # that it doesn't even make much sense to test it.
         pass
+
+    def test_can_user_access_rls_table(self):
+        mock_settings = self.create_patch("core.db.backend.pg.settings")
+        mock_settings.POLICY_SCHEMA = 'SCHEMA'
+        mock_settings.POLICY_TABLE = 'TABLE'
+
+        self.mock_execute_sql.return_value = {
+            'status': True, 'row_count': 1,
+            'tuples': [
+                (True,),
+            ]}
+
+        username = 'delete_me_user'
+        permissions = ['select', 'update']
+
+        expected_query = (
+            "SELECT exists("
+            "SELECT * FROM %s.%s where grantee=lower(%s) and ("
+            "lower(policy_type)=lower(%s) or lower(policy_type)=lower(%s)"
+            "))")
+        expected_params = ('SCHEMA', 'TABLE', 'delete_me_user', 'select',
+                           'update')
+
+        self.backend.can_user_access_rls_table(username, permissions)
+        self.assertEqual(self.mock_execute_sql.call_args[0][0], expected_query)
+        self.assertEqual(
+            self.mock_execute_sql.call_args[0][1], expected_params)

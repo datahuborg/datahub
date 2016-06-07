@@ -5,6 +5,8 @@ from inventory.models import App
 from core.db.manager import DataHubManager
 from django.core.validators import RegexValidator
 
+from django.conf import settings
+
 
 def validate_unique_username(value):
     """
@@ -39,6 +41,15 @@ def validate_unique_username(value):
     return True
 
 
+def validate_against_blacklist(username):
+    if username.lower() in [x.lower() for x in settings.BLACKLISTED_USERNAMES]:
+        raise forms.ValidationError(
+            "The username '%s' is reserved for DataHub use." % (username)
+        )
+
+    return True
+
+
 def validate_unique_email(value):
     try:
         User.objects.get(email=value.lower())
@@ -61,7 +72,7 @@ class UsernameForm(forms.Form):
     invalid_username_msg = (
         "Usernames may only contain alphanumeric characters and "
         "underscores, and must not begin or end with an underscore."
-        )
+    )
     regex = r'^(?![\_])[\w\_]+(?<![\_])$'
     validate_username = RegexValidator(regex, invalid_username_msg)
 
@@ -69,7 +80,8 @@ class UsernameForm(forms.Form):
         label="DataHub username",
         min_length=3,
         max_length=255,
-        validators=[validate_username, validate_unique_username])
+        validators=[validate_username, validate_unique_username,
+                    validate_against_blacklist])
     email = forms.EmailField(
         label="Email address",
         max_length=255,

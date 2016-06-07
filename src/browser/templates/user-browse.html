@@ -1,11 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container">
-  
+
   <h4 class="inline-block">
     {{repo_base}} /
   </h4>
-  
+
   <hr />
   <br />
   <div class="panel panel-default">
@@ -15,14 +15,14 @@
       <a class="btn btn-default btn-sm" href="/create/{{repo_base}}/repo" title="Create a New Repository"><span class="glyphicon glyphicon-plus"></span></a>
     </span>
   </div>
-  
+
   {% if repos|length > 0 or collaborator_repos|length > 0 %}
     <div class="table-responsive">
-      <table id="repos" class="table">           
+      <table id="repos" class="table">
         {% for repo in repos %}
           <tr>
             <td><a class="link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
-            
+
             {% if repo.public %}
               <td>Public</td>
             {% else %}
@@ -46,11 +46,11 @@
                 <a href="#"><span class="glyphicon glyphicon-trash"></span></a>
               </span>
               &nbsp;&nbsp;
-            </td>            
+            </td>
           </tr>
         {% endfor %}
 
-          
+
         {% if collaborator_repos|length > 0%}
           <tr>
             <th class="lead" style="background-color:#f5f5f5;">Collaborator's Repositories &nbsp; <i class="fa fa-exchange"></i></th>
@@ -62,16 +62,16 @@
         {% for repo in collaborator_repos %}
           <tr>
             <td><a class="link" href=/browse/{{repo.repo_base}}/{{repo.repo_name}}>{{repo.repo_name}}</a></td>
-            
-       
+
+
             <td>Private</td>
 
             <td class="text-right">
               {{ repo.repo_base }} (owner)
             </td>
-            
+
             <td class="text-right" style="width: 5em; max-width: 30em;">
-              
+
               &nbsp;&nbsp;&nbsp;&nbsp;
 
               <span class="modal-confirm-dialog"
@@ -84,11 +84,25 @@
                 <a href="#"><span class="glyphicon glyphicon-trash"></span></a>
               </span>
               &nbsp;&nbsp;
-             
-            </td>            
+
+            </td>
           </tr>
         {% endfor %}
 
+
+        <tr>
+          <th class="lead" style="background-color:#f5f5f5;"> Security Policies &nbsp; <i class="fa fa-lock"></i></th>
+          <th style="background-color:#f5f5f5;"></th>
+          <th style="background-color:#f5f5f5;"></th>
+          <th style="background-color:#f5f5f5;"></th>
+        </tr>
+
+        <tr>
+            <td><a href="{% url 'browser-table' 'dh_public' 'dh_public' 'policy' %}">Row Level Access Policies</a></td>
+            <td></td>
+            <td class="text-right"></td>
+            <td class="text-right" style="width: 5em; max-width: 30em;"></td>
+        </tr>
 
       </table>
     </div>
@@ -96,7 +110,7 @@
     <p class="bg-warning"><strong>{{repo_base}}</strong> has not made any repositories available to you.</p>
   {% else %}
     <p class="bg-warning">No repositories in <strong>{{repo_base}}</strong></p>
-  {% endif %} 
+  {% endif %}
   </div>
 </div>
 {% endblock %}

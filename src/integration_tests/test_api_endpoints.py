@@ -98,9 +98,12 @@ class RepoTests(APIEndpointTests):
         response = self.client.patch(
             url, {'new_name': repo_name}, follow=True, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        error_detail = ('Repo not found. '
+                        'You must specify a repo in your query. '
+                        'i.e. select * from REPO_NAME.TABLE_NAME. ')
         self.assertEqual(response.data,
                          {'error_type': 'LookupError',
-                          'detail': 'Repo not found.'})
+                          'detail': error_detail})
 
         with DataHubManager(self.username) as manager:
             manager.create_repo(repo_name)
@@ -134,9 +137,12 @@ class RepoTests(APIEndpointTests):
                               'repo_name': repo_name})
         response = self.client.delete(url, follow=True)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        error_detail = ('Repo not found. '
+                        'You must specify a repo in your query. '
+                        'i.e. select * from REPO_NAME.TABLE_NAME. ')
         self.assertEqual(response.data,
                          {'error_type': 'LookupError',
-                          'detail': 'Repo not found.'})
+                          'detail': error_detail})
 
         # Create a repo and make sure it's a 200.
         with DataHubManager(self.username) as manager:
@@ -203,14 +209,13 @@ class QueryTests(APIEndpointTests):
 
     def _queries(self, table):
         return [
-            Query(sql="""
-                  CREATE TABLE """ + table + """ (
+            Query(sql="""CREATE TABLE """ + table + """ (
                       name varchar (255) NOT NULL,
                       deliciousness numeric,
                       is_deep_fried boolean);
                   """,
                   status_code=status.HTTP_200_OK,
-                  expect_json=None,
+                  expect_json=[{'status': 'success'}],
                   expect_csv=''),
             Query(sql="SELECT * FROM " + table + ";",
                   status_code=status.HTTP_200_OK,
@@ -219,7 +224,7 @@ class QueryTests(APIEndpointTests):
             Query(sql="INSERT INTO " + table +
                       " VALUES ('reuben', 25, FALSE);",
                   status_code=status.HTTP_200_OK,
-                  expect_json=None,
+                  expect_json=[{'status': 'success'}],
                   expect_csv=''),
             Query(sql="SELECT * FROM " + table + ";",
                   status_code=status.HTTP_200_OK,
@@ -231,7 +236,7 @@ class QueryTests(APIEndpointTests):
                              "25,False,reuben"),
             Query(sql="DROP TABLE " + table,
                   status_code=status.HTTP_200_OK,
-                  expect_json=None,
+                  expect_json=[{'status': 'success'}],
                   expect_csv=''),
         ]
 
@@ -254,26 +259,11 @@ class QueryTests(APIEndpointTests):
             self.assertEqual(response.status_code, q.status_code)
             self.assertEqual(response.data.get('rows'), q.expect_json)
 
-    def test_post_query(self):
-        repo_name = 'repo_one'
-        table_name = 'sandwiches'
-        queries = self._queries(table_name)
-
-        with DataHubManager(self.username) as manager:
-            manager.create_repo(repo_name)
-        url = reverse('api:query',
-                      kwargs={'repo_base': self.username})
-
-        for q in queries:
-            response = self.client.post(
-                url, {'query': q.sql}, follow=True, format='json')
-            self.assertEqual(response.status_code, q.status_code)
-            self.assertEqual(response.data.get('rows'), q.expect_json)
-
     def test_post_query_csv_accept_header(self):
         repo_name = 'repo_one'
         table_name = 'sandwiches'
-        queries = self._queries(table_name)
+        repo_table = repo_name + '.' + table_name
+        queries = self._queries(repo_table)
 
         with DataHubManager(self.username) as manager:
             manager.create_repo(repo_name)
@@ -291,7 +281,8 @@ class QueryTests(APIEndpointTests):
     def test_post_query_json_accept_header(self):
         repo_name = 'repo_one'
         table_name = 'sandwiches'
-        queries = self._queries(table_name)
+        repo_table = repo_name + '.' + table_name
+        queries = self._queries(repo_table)
 
         with DataHubManager(self.username) as manager:
             manager.create_repo(repo_name)
@@ -309,7 +300,8 @@ class QueryTests(APIEndpointTests):
     def test_post_query_csv_suffix(self):
         repo_name = 'repo_one'
         table_name = 'sandwiches'
-        queries = self._queries(table_name)
+        repo_table = repo_name + '.' + table_name
+        queries = self._queries(repo_table)
 
         with DataHubManager(self.username) as manager:
             manager.create_repo(repo_name)
@@ -326,7 +318,8 @@ class QueryTests(APIEndpointTests):
     def test_post_query_json_suffix(self):
         repo_name = 'repo_one'
         table_name = 'sandwiches'
-        queries = self._queries(table_name)
+        repo_table = repo_name + '.' + table_name
+        queries = self._queries(repo_table)
 
         with DataHubManager(self.username) as manager:
             manager.create_repo(repo_name)

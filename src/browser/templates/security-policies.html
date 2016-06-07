@@ -1,0 +1,238 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+  <h4 class="inline-block">
+    <a class="link" href="{% url 'browser-user' repo_base %}">{{repo_base}}</a>
+    /
+    <a class="link" href="{% url 'browser-repo' repo_base repo %}">{{repo}}</a>
+    /
+    {% block table-name %}
+      table / {{table}}
+    {% endblock %}
+  </h4>
+
+  <hr />
+  <br />
+
+  <form role="form" method="POST" action="{% url 'security-policy_query' repo_base repo table %}">
+    {% csrf_token %}
+    <div class="row">
+    <div class="form-group col-sm-10">
+      <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Security Policy e.g.: grant SELECT access to OTHERUSER on REPO.TABLE where ID=1" />
+    </div>
+
+    <div class="col-sm-2">
+      <button class="btn btn-primary btn-xsm" id="btn-run" type="submit">Execute</button>
+      <button class="btn btn-primary btn-xsm modal-upload-dialog" type="button" target-modal="#security-policy-modal" title="New Policy"> New </button>
+    </div>
+
+    </div>
+  </form>
+
+
+<div class="modal" id="security-policy-modal"
+    tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="security-policy-modal-title">Create New Security Policy</h4>
+      </div>
+      <div class="modal-body" id="security-policy-modal-body">
+        <form role="form" method="POST" action="{% url 'security-policy_create' repo_base repo table %}" enctype='multipart/form-data' id="security-policy-modal-form">
+
+        {% csrf_token %}
+        <p>This will create a new security policy for the <strong>{{repo_base}}/{{repo}}/{{table}}</strong> table.
+          <br />
+          <br />
+          Please provide the following Information:
+          <br />
+          <label for="security-policy">Security Policy: </label>&nbsp;
+          <input type="text" name="security-policy" id="security-policy"/>
+
+          <br />
+          <label for="policy-type">Policy Type </label>&nbsp;
+          <select id="policy-type" name="policy-type">
+            <option value="select">Select</option>
+            <option value="insert">Insert</option>
+            <option value="update">Update</option>
+          </select>&nbsp;&nbsp;
+          <br />
+          <label for="policy-grantee">Grantee: </label>&nbsp;
+          <input type="text" name="policy-grantee" id="policy-grantee"/>
+        </form>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+            class="btn btn-primary" id="security-policy-modal-operation">Create Policy</button>
+        <button type="button"
+            class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  {% block tabs %}
+  {% endblock %}
+
+  <br />
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      Security Policies
+    </div>
+
+
+    {% if policies %}
+        <div class="table-responsive datahub-datatable-no-scroll table-container">
+        <table id="table_data" class="table table-condensed table-bordered datahub-datatable-no-scroll">
+          <thead>
+            <tr>
+              <th> Policy ID </th>
+              <th> Policy </th>
+              <th> Type </th>
+              <th> Grantee </th>
+              <th> Grantor </th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for policy in policies %}
+            <tr id="policy_{{policy.0}}">
+              {% for cell in policy %}
+                <td class="strong">{{cell}}</td>
+              {% endfor %}
+              <td>
+                  <span
+                  class="modal-link modal-import-dialog"
+                  target-modal="#import-modal"
+                  target-url="{% url 'security-policy_edit' repo_base repo table policy.0 %}"
+                  data-policyid="policy_{{policy.0}}"
+                  title="edit">
+                 <span class="fa fa-pencil"></span>
+                 </span>
+
+                 <span
+                  class="modal-link modal-confirm-dialog"
+                  target-modal="#confirm-modal"
+                  target-modal-title="Confirm Delete"
+                  target-modal-body="This will permanently delete this security policy. The operation can't be undone. Are you sure?"
+                  target-modal-operation="Delete"
+                  target-url="{% url 'browser-securitypolicy_delete' repo_base repo table policy.0 %}"
+                  title="Delete">
+                 <span class="delete-icon"></span>
+                 </span>
+                 </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <br />
+        </div>
+
+    {% else %}
+      {% block table-empty-warning %}
+      <p class="bg-warning"> No security policies exist for <strong> {{table}} </strong>. </p>
+      {% endblock %}
+    {% endif %}
+
+  </div>
+
+</div>
+
+
+
+<div class="modal" id="import-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="confirm-modal-title">Update Security Policy</h4>
+      </div>
+      <div class="modal-body" id="confirm-modal-body">
+        <form id="frm-import" role="form" method="POST" action="#">
+         {% csrf_token %}
+         <p> Please insert the changes you wish to make to the security policy below.
+          <br />
+          <br />
+          <label for="security-policy-edit">Security Policy: </label>&nbsp;
+          <input type="text" name="security-policy-edit" id="security-policy-edit"/>
+
+          <br />
+          <label for="policy-type-edit">Policy Type </label>&nbsp;
+          <select id="policy-type-edit" name="policy-type-edit">
+            <option value="select">Select</option>
+            <option value="insert">Insert</option>
+            <option value="update">Update</option>
+          </select>&nbsp;&nbsp;
+          <br />
+          <label for="policy-grantee-edit">Grantee: </label>&nbsp;
+          <input type="text" name="policy-grantee-edit" id="policy-grantee-edit" value="temp"/>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+            class="btn btn-primary" id="import-modal-operation">Update</button>
+        <button type="button"
+            class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+<script type="text/javascript">
+
+$(function() {
+    $('.modal-import-dialog').on('click', function(e){
+      var modal_id = $(this).attr('target-modal')
+      var target_url = $(this).attr('target-url')
+      var target_file = $(this).attr('target-file')
+
+    $(modal_id).off('click');
+
+    var row = $(this).data('policyid');
+
+    current_policy = "#"+row + " td:nth-child(2)";
+    current_policy_type = "#"+row + " td:nth-child(3)";
+    current_grantee = "#"+row + " td:nth-child(4)";
+
+
+    $("#security-policy-edit").val($(current_policy).text());
+    $("#policy-type-edit").val($(current_policy_type).text());
+    $("#policy-grantee-edit").val($(current_grantee).text());
+
+    $(modal_id).modal({keyboard: true})
+      .on('click', modal_id + '-operation', function(e) {
+        $("#frm-import").attr("action", target_url)
+        $("#frm-import").submit()
+
+      });
+  });
+
+  $('.modal-upload-dialog').on('click', function(e){
+    var modal_id = $(this).attr('target-modal')
+    $(modal_id).off('click');
+
+    $(modal_id).modal({keyboard: true})
+      .on('click', modal_id + '-operation', function(e) {
+        $(modal_id + '-form').submit()
+        $(modal_id).modal('hide')
+        $("#wait-dialog").modal()
+      });
+  });
+
+});
+</script>
+{% endblock js %}

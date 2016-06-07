@@ -6,6 +6,7 @@ import hashlib
 from collections import namedtuple
 from uuid import uuid4
 import psycopg2
+import core.db.query_rewriter
 from psycopg2.extensions import AsIs
 from psycopg2.pool import ThreadedConnectionPool
 from psycopg2 import errorcodes
@@ -68,7 +69,10 @@ def _convert_pg_exception(e):
             e.pgcode == errorcodes.UNDEFINED_OBJECT):
         raise ValueError("Invalid parameter in query.")
     if e.pgcode == errorcodes.INVALID_SCHEMA_NAME:
-        raise LookupError("Repo not found.")
+        error = ('Repo not found. '
+                 'You must specify a repo in your query. '
+                 'i.e. select * from REPO_NAME.TABLE_NAME. ')
+        raise LookupError(error)
     if e.pgcode == errorcodes.UNDEFINED_TABLE:
         raise LookupError("Table or view not found.")
     if e.pgcode == errorcodes.DUPLICATE_SCHEMA:
@@ -88,6 +92,15 @@ class PGBackend:
         self.repo_base = repo_base
         self.connection = None
 
+        # row level security is enabled unless the user is a superuser
+        self.row_level_security = bool(
+            user != settings.DATABASES['default']['USER'])
+
+        # We only need a query rewriter if RLS is enabled
+        if self.row_level_security:
+            self.query_rewriter = core.db.query_rewriter.SQLQueryRewriter(
+                self.repo_base, self.user)
+
         self.__open_connection__()
 
     def __del__(self):
@@ -103,18 +116,6 @@ class PGBackend:
         self.close_connection()
         self.repo_base = repo_base
         self.__open_connection__()
-
-    def set_search_paths(self, search_paths):
-        for path in search_paths:
-            self._check_for_injections(path)
-
-        paths = ', '.join(search_paths)
-        params = (AsIs(paths),)
-
-        query = 'set search_path to %s;'
-
-        res = self.execute_sql(query, params)
-        return res
 
     def close_connection(self):
         pool = _pool_for_credentials(self.user, self.password, self.repo_base,
@@ -269,6 +270,7 @@ class PGBackend:
         self._check_for_injections(repo)
 
         all_repos = self.list_repos()
+
         if repo not in all_repos:
             raise LookupError('Invalid repository name: %s' % (repo))
 
@@ -276,9 +278,7 @@ class PGBackend:
                  'WHERE table_schema = %s AND table_type = \'BASE TABLE\';'
                  )
         params = (repo,)
-
         res = self.execute_sql(query, params)
-
         return [t[0] for t in res['tuples']]
 
     def describe_table(self, repo, table, detail=False):
@@ -420,7 +420,6 @@ class PGBackend:
                     'time_cost': time_cost,
                     'byte_width': int(byte_width)
                     }
-
         return response
 
     def limit_and_offset_select_query(self, query, limit, offset):
@@ -457,7 +456,11 @@ class PGBackend:
         cur = self.connection.cursor()
 
         try:
-            cur.execute(query, params)
+            sql_query = cur.mogrify(query, params)
+            if self.row_level_security:
+                sql_query = self.query_rewriter.apply_row_level_security(
+                    sql_query)
+            cur.execute(sql_query)
         except psycopg2.Error as e:
             # Convert some psycopg2 errors into exceptions meaningful to
             # Django.
@@ -585,9 +588,9 @@ class PGBackend:
         try:
             return self.execute_sql(query, params)
         except psycopg2.ProgrammingError as e:
-                print(e)
-                print('this probably happened because the postgres role'
-                      'exists, but a database of the same name does not.')
+            print(e)
+            print('this probably happened because the postgres role'
+                  'exists, but a database of the same name does not.')
 
     def change_password(self, username, password):
         self._check_for_injections(username)
@@ -788,3 +791,218 @@ class PGBackend:
 
         return import_datafiles([file_path], create_new, table_name, errfile,
                                 PGMethods, **dbsettings)
+
+    # Below methods can only be called from the RLSSecurityManager #
+
+    def create_security_policy_schema(self):
+        public_role = settings.PUBLIC_ROLE
+        schema = settings.POLICY_SCHEMA
+        self._check_for_injections(public_role)
+        self._check_for_injections(schema)
+
+        query = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'
+        params = (AsIs(schema), AsIs(public_role))
+        return self.execute_sql(query, params)
+
+    def create_security_policy_table(self):
+        schema = settings.POLICY_SCHEMA
+        table = settings.POLICY_TABLE
+        public_role = settings.PUBLIC_ROLE
+
+        self._check_for_injections(schema)
+        self._validate_table_name(table)
+        self._check_for_injections(public_role)
+
+        query = ('CREATE TABLE IF NOT EXISTS %s.%s'
+                 '('
+                 'policy_id serial primary key,'
+                 'policy VARCHAR(80) NOT NULL,'
+                 'policy_type VARCHAR(80) NOT NULL,'
+                 'grantee VARCHAR(80) NOT NULL,'
+                 'grantor VARCHAR(80) NOT NULL,'
+                 'table_name VARCHAR(80) NOT NULL,'
+                 'repo VARCHAR(80) NOT NULL,'
+                 'repo_base VARCHAR(80) NOT NULL'
+                 ');')
+        params = (AsIs(schema), AsIs(table))
+        self.execute_sql(query, params)
+
+        # create indexes for faster seraching
+        query = ('create index grantee_index on '
+                 'dh_public.policy using hash(grantee); '
+
+                 'create index grantor_index on '
+                 'dh_public.policy using hash(grantor); '
+
+                 'create index table_name_index on '
+                 'dh_public.policy using hash(table_name); '
+
+                 'create index repo_index on '
+                 'dh_public.policy using hash(repo); '
+
+                 'create index repo_base_index on '
+                 'dh_public.policy using hash(repo_base);')
+
+        # postgres 9.4 doesn't support IF NOT EXISTS when creating indexes
+        # so it's possible for tests to attempt to create duplicate indexes
+        # This catches that exception
+        try:
+            self.execute_sql(query)
+        except:
+            pass
+
+        # grant the public role access to the table
+        query = ('GRANT ALL ON %s.%s to %s;')
+        params = (AsIs(schema), AsIs(table), AsIs(public_role))
+        return self.execute_sql(query, params)
+
+    def create_security_policy(self, policy, policy_type, grantee, grantor,
+                               repo_base, repo, table):
+        '''
+        Creates a new security policy in the policy table if the policy
+        does not yet exist.
+        '''
+
+        # disallow semicolons in policy. This helps prevent the policy creator
+        # from shooting themself in the foot with an attempted sql injection.
+        # Note that we don't actually _need_ to do this. The parameters are all
+        # escaped in RLS methods executed by the superuser, so there's not a
+        # really a risk of a user acquiring root access.
+        if ';' in policy:
+            raise ValueError("\';'s are disallowed in the policy field")
+
+        query = ('INSERT INTO dh_public.policy (policy, policy_type, grantee, '
+                 'grantor, table_name, repo, repo_base) values '
+                 '(%s, %s, %s, %s, %s, %s, %s)')
+        params = (policy, policy_type, grantee, grantor, table, repo,
+                  repo_base)
+
+        res = self.execute_sql(query, params)
+
+        return res['status']
+
+    def find_all_security_policies(self, username):
+        params = (username, username)
+
+        query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
+                 'FROM dh_public.policy WHERE grantee = %s or '
+                 'grantor = %s')
+
+        res = self.execute_sql(query, params)
+        return res['tuples']
+
+    def find_security_policies(self, repo_base, repo=None, table=None,
+                               policy_id=None, policy=None, policy_type=None,
+                               grantee=None, grantor=None):
+        '''
+        Returns a list of all security polices that match the inputs specied
+        by the user.
+        '''
+        query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
+                 'repo_base, repo, table_name '
+                 'FROM %s.%s WHERE ')
+        params = [AsIs(settings.POLICY_SCHEMA), AsIs(settings.POLICY_TABLE)]
+        conditions = []
+
+        # append mandatory passed-in conditions
+        conditions.append('repo_base = %s')
+        params.append(repo_base)
+
+        # append optional conditions
+        if repo:
+            conditions.append('repo = %s')
+            params.append(repo)
+        if table:
+            conditions.append('table_name = %s')
+            params.append(table)
+        if policy_id:
+            conditions.append('policy_id = %s')
+            params.append(policy_id)
+        if policy:
+            conditions.append('policy = %s')
+            params.append(policy)
+        if policy_type:
+            conditions.append('policy_type = %s')
+            params.append(policy_type)
+        if grantee:
+            conditions.append('grantee = %s')
+            params.append(grantee)
+        if grantor:
+            conditions.append('grantor = %s')
+            params.append(grantor)
+
+        conditions = " and ".join(conditions)
+        params = tuple(params)
+        query += conditions
+
+        res = self.execute_sql(query, params)
+
+        return res['tuples']
+
+    def find_security_policy_by_id(self, policy_id):
+        '''
+        Returns the security policy that has a policy_id matching the input
+        specified by the user.
+        '''
+        query = ('SELECT policy_id, policy, policy_type, grantee, grantor, '
+                 'repo_base, repo, table_name '
+                 'FROM dh_public.policy WHERE policy_id = %s')
+        params = (policy_id,)
+        res = self.execute_sql(query, params)
+
+        # return None if the list is empty
+        if not res['tuples']:
+            return None
+
+        # else, return the policy
+        return res['tuples'][0]
+
+    def update_security_policy(self, policy_id, new_policy, new_policy_type,
+                               new_grantee):
+        '''
+        Updates an existing security policy based on the inputs specified
+        by the user.
+        '''
+        query = ('UPDATE dh_public.policy '
+                 'SET policy = %s, policy_type = %s, '
+                 'grantee = %s '
+                 'WHERE policy_id = %s')
+        params = (new_policy, new_policy_type, new_grantee, policy_id)
+
+        res = self.execute_sql(query, params)
+        return res['status']
+
+    def remove_security_policy(self, policy_id):
+        '''
+        Removes the security policy from the policy table with a policy_id
+        matching the one specified.
+        '''
+        query = 'DELETE FROM dh_public.policy WHERE policy_id = %s'
+        params = (policy_id,)
+        res = self.execute_sql(query, params)
+        return res['status']
+
+    def can_user_access_rls_table(self,
+                                  username,
+                                  permissions=['SELECT', 'UPDATE', 'INSERT']):
+        '''
+        Returns True if the has been granted specified type(s) of access to
+        select/update/insert into the RLS policy table. Else, returns false.
+
+        This must be executed from a connection to the
+        settings.POLICY_DB database. Otherwise, it will check the wrong
+        database, and (most likely) return fFalse
+        '''
+        query = ("SELECT exists("
+                 "SELECT * FROM %s.%s where grantee=lower(%s) and (")
+
+        conditions = ["lower(policy_type)=lower(%s)"] * len(permissions)
+        conditions = " or ".join(conditions)
+        query += conditions + "))"
+
+        params = (AsIs(settings.POLICY_SCHEMA),
+                  AsIs(settings.POLICY_TABLE),
+                  username) + tuple(permissions)
+
+        res = self.execute_sql(query, params)
+        return res['tuples'][0][0]

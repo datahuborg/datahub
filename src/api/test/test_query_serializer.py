@@ -31,11 +31,3 @@ class QuerySerializerTests(TestCase):
         query = "select * from foo.bar"
         self.serializer.execute_query(query)
         self.assertTrue(mock_paginate_query.called)
-
-    def test_query_with_repo(self):
-        mm_set_search_paths = self.mock_manager.return_value.set_search_paths
-
-        query = "select * from foo.bar"
-        self.serializer.execute_query(query, repo='foo')
-
-        self.assertTrue(mm_set_search_paths.called)

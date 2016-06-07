@@ -44,6 +44,18 @@ PUBLIC_ROLE_EMAIL = 'noreply+public@datahub.csail.mit.edu'
 ANONYMOUS_ROLE = 'dh_anonymous'
 ANONYMOUS_ROLE_EMAIL = 'noreply+anon@datahub.csail.mit.edu'
 
+# Where the row level security policies are stored
+POLICY_DB = PUBLIC_ROLE
+POLICY_SCHEMA = PUBLIC_ROLE
+POLICY_TABLE = 'policy'
+
+# RowLevelSecurity string to mean all users
+RLS_ALL = 'ALL'
+RLS_PUBLIC = 'PUBLIC'
+
+# Other blacklisted usernames
+BLACKLISTED_USERNAMES = [RLS_ALL, RLS_PUBLIC]
+
 TIME_ZONE = 'America/New_York'
 
 # Language code for this installation.
@@ -278,6 +290,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
+        # 'api.permissions.benchmarkTestAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
