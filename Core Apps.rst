@@ -84,8 +84,8 @@ Sentiment
 
 :ref:`django-app-sentiment`
 
-| primary(s):   `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_
-| maintainer(s): `Harihar Subramanyam <https://github.com/hariharsubramanyam>`_
+| primary(s):   `Harihar Subramanyam <https://github.com/hariharsubramanyam>`__
+| maintainer(s): `Harihar Subramanyam <https://github.com/hariharsubramanyam>`__, `Gina Yuan <https://github.com/ygina>`__
 
 Sentiment is a sentiment analysis tool for DataHub
 

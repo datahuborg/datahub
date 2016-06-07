@@ -37,3 +37,8 @@ Filters allow querying the table to display the rows which satisfy some conditio
 * **Multiple Filters**: If you have one filter, a row must satisfy every condition in the filter in order to appear in the table. If you have two filters (call them A and B), a row must satisfy all the conditions in filter A OR all the conditions in filter B OR both in order to appear in the table.
 
 You can **Invert Filter** by clicking the button (i.e. any row that was in the table will be gone, and any row that wasn't in the table will be shown).
+
+
+.. note:: DataTables is built using Gulp in a fashion similar to :ref:`django-app-dataq`. You can find out more about building with Gulp there.
+
+.. note:: DataTables could either use an upgrade or be replaced with something else. `HandsOnTable <https://handsontable.com/>`__ is a popular alternative. See `issue 163 <https://github.com/datahuborg/datahub/issues/163>`__.

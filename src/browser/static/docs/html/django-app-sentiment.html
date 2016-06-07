@@ -45,25 +45,42 @@
 <span id="django-app-sentiment"></span><h1>Sentiment<a class="headerlink" href="#sentiment" title="Permalink to this headline">¶</a></h1>
 <div class="line-block">
 <div class="line">primary(s): <a class="reference external" href="https://github.com/hariharsubramanyam">Harihar Subramanyam</a></div>
-<div class="line">maintainer(s): <a class="reference external" href="https://github.com/hariharsubramanyam">Harihar Subramanyam</a></div>
+<div class="line">maintainer(s): <a class="reference external" href="https://github.com/hariharsubramanyam">Harihar Subramanyam</a>, <a class="reference external" href="https://github.com/ygina">Gina Yuan</a></div>
 <div class="line">location: <code class="docutils literal"><span class="pre">src/apps/sentiment</span></code></div>
 </div>
 <p>A backend and JavaScript library for sentiment analysis using NLTK.</p>
-<div class="section" id="build-client-library">
-<h2>Build Client Library<a class="headerlink" href="#build-client-library" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="how-to-use">
+<h2>How to Use<a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Create a Repo and a Table. The table must include at least one text field</li>
+<li>Insert data into the table. Data must include some sentences or sentence fragments</li>
+<li>Navigate to the table</li>
+<li>Click &#8220;Run Sentiment Analysis&#8221; and select the column with sentences</li>
+<li>Sentences with negative sentiments will be in red font. Positive sentiments will be in green.</li>
+</ul>
+</div>
+<div class="section" id="technical-details">
+<h2>Technical Details<a class="headerlink" href="#technical-details" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="building-the-client-library">
+<h3>Building the Client Library<a class="headerlink" href="#building-the-client-library" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Navigate to the <code class="docutils literal"><span class="pre">src/apps/sentiment</span></code> directory</li>
 <li>Run <code class="docutils literal"><span class="pre">source</span> <span class="pre">build.sh</span></code>, this will produce the output client file in <code class="docutils literal"><span class="pre">src/browser/static/sentiment/sentiment.js</span></code></li>
 </ul>
 </div>
-<div class="section" id="using-client-library">
-<h2>Using Client Library<a class="headerlink" href="#using-client-library" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="using-the-client-library">
+<h3>Using the Client Library<a class="headerlink" href="#using-the-client-library" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Include <code class="docutils literal"><span class="pre">sentiment.js</span></code> (the build instructions are above) in your HTML file</li>
 <li>In your JavaScript code, call</li>
 </ul>
 <p><code class="docutils literal"><span class="pre">Sentiment(sentences,</span> <span class="pre">callback)</span></code></p>
 <p>where <code class="docutils literal"><span class="pre">sentences</span></code> is an array of strings (each is a sentence) and <code class="docutils literal"><span class="pre">callback</span></code> is a <code class="docutils literal"><span class="pre">function(err,</span> <span class="pre">sentiments)</span></code>. <code class="docutils literal"><span class="pre">err</span></code> is <code class="docutils literal"><span class="pre">null</span></code> if there is no error (or a <code class="docutils literal"><span class="pre">string</span></code> if there is an error). <code class="docutils literal"><span class="pre">sentiments</span></code> is an array of objects of the form <code class="docutils literal"><span class="pre">{&quot;sentence&quot;:</span> <span class="pre">String,</span> <span class="pre">&quot;polarity&quot;:</span> <span class="pre">Number,</span> <span class="pre">&quot;subjectivity&quot;:</span> <span class="pre">Number}</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Sentiment is closely tied to DataTables. DataTables is disabled when viewing collaborators&#8217; repos, and so sentiment is too.</p>
+</div>
+</div>
 </div>
 </div>
 
@@ -77,8 +94,12 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Sentiment</a><ul>
-<li><a class="reference internal" href="#build-client-library">Build Client Library</a></li>
-<li><a class="reference internal" href="#using-client-library">Using Client Library</a></li>
+<li><a class="reference internal" href="#how-to-use">How to Use</a></li>
+<li><a class="reference internal" href="#technical-details">Technical Details</a><ul>
+<li><a class="reference internal" href="#building-the-client-library">Building the Client Library</a></li>
+<li><a class="reference internal" href="#using-the-client-library">Using the Client Library</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
