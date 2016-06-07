@@ -3,6 +3,8 @@ import sys
 from django.core.management.base import BaseCommand
 
 from config import settings
+from django.contrib.auth.models import User
+from psycopg2 import OperationalError
 from core.db.manager import DataHubManager
 
 
@@ -33,13 +35,16 @@ def migrate_tables_and_views(apps, schema_editor):
 
     # give users select/update/insert access to their rows in the  policy table
     for username in all_users:
-        with DataHubManager(username) as m:
-            res = m.execute_sql(
-                "SELECT table_name FROM information_schema.tables "
-                "WHERE table_schema = 'public'")
-            tables_and_views = [table[0] for table in res['tuples']]
+        try:
+            with DataHubManager(username) as m:
+                res = m.execute_sql(
+                    "SELECT table_name FROM information_schema.tables "
+                    "WHERE table_schema = 'public'")
+                tables_and_views = [table[0] for table in res['tuples']]
 
-        move_tables_to_new_schema(username, tables_and_views)
+            move_tables_to_new_schema(username, tables_and_views)
+        except (User.DoesNotExist, OperationalError):
+            pass
 
 
 def move_tables_to_new_schema(username, tables_and_views):
