@@ -862,6 +862,15 @@ class PGBackend:
         Creates a new security policy in the policy table if the policy
         does not yet exist.
         '''
+
+        # disallow semicolons in policy. This helps prevent the policy creator
+        # from shooting themself in the foot with an attempted sql injection.
+        # Note that we don't actually _need_ to do this. The parameters are all
+        # escaped in RLS methods executed by the superuser, so there's not a
+        # really a risk of a user acquiring root access.
+        if ';' in policy:
+            raise ValueError("\';'s are disallowed in the policy field")
+
         query = ('INSERT INTO dh_public.policy (policy, policy_type, grantee, '
                  'grantor, table_name, repo, repo_base) values '
                  '(%s, %s, %s, %s, %s, %s, %s)')
