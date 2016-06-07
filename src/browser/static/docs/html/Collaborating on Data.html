@@ -128,17 +128,20 @@ of a table collaborators can access (select, insert, update) from.</p>
 </ol>
 <p>To delete or edit a RLS security policy, navigate to the same page, and click the
 pencil (edit) or the trash can (delete).</p>
-<p>Row Level Security can also be applied on tables to ALL users in the database.
+<p>Row Level Security can also be applied on tables to ALL users in the database. To do this, in the grantee field, add &#8220;ALL&#8221;.</p>
+<p>Similarly, RLS can be to data that is shared with the public.
 This is useful if you would only like to publicly publish a subset of a
-table&#8217;s data. To do this, in the grantee field, add &#8220;ALL&#8221;</p>
+table&#8217;s data, but would still like privileged collaborators to access all of it.
+To do this, in the grantee field, add &#8220;PUBLIC&#8221;.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Creating a RLS policy does not (by itself) allow collaborators to access a table. Users must also add collaborators via the collaborators menu described in the &#8220;Traditional Collaborators&#8221; section above. Row Level Security only provides an <em>additional</em> layer of specificity for what is shared.</p>
 </div>
 <div class="section" id="id1">
 <h3>Technical Details<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<p>The &#8220;ALL&#8221; keyword used to signify that a RLS policy applies to ALL users is
-defined in <a class="reference external" href="https://github.com/datahuborg/datahub/blob/master/src/config/settings.py">settings.py</a></p>
+<p>The &#8220;ALL&#8221; and &#8220;PUBLIC&#8221; keywords used to signify that a RLS policy applies to
+ALL users or just PUBLIC users are defined in
+<a class="reference external" href="https://github.com/datahuborg/datahub/blob/master/src/config/settings.py">settings.py</a></p>
 <p>RLS is a result of a thesis project for her Spring 2016 Masters in Engineering Degree from MIT EECS. You can find her thesis <a class="reference external" href="https://github.com/datahuborg/datahub/blob/master/src/browser/static/www/papers/KellyZhang_RowLevelSecurity_Thesis.pdf">here</a></p>
 <p>RLS parses queries and recursively applies security policies as defined in the table. For example,</p>
 <div class="highlight-sql"><div class="highlight"><pre><span></span><span class="c1">-- given the security policies</span>
@@ -158,7 +161,11 @@ defined in <a class="reference external" href="https://github.com/datahuborg/dat
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The Row Level Security interface could really use some love. Please see <cite>issues 160 &lt;https://github.com/datahuborg/datahub/issues/160&gt;__</cite></p>
+<p class="last">The Row Level Security interface could really use some love. Please see <a class="reference external" href="https://github.com/datahuborg/datahub/issues/160">issues 160</a>.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Access to the RowLevelSecurity policy is handled very naively. For a much more elegant solution, see <a class="reference external" href="https://github.com/datahuborg/datahub/issues/161">issue 161</a>.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>

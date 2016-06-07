@@ -95,9 +95,12 @@ To create a RLS policy
 To delete or edit a RLS security policy, navigate to the same page, and click the
 pencil (edit) or the trash can (delete).
 
-Row Level Security can also be applied on tables to ALL users in the database.
+Row Level Security can also be applied on tables to ALL users in the database. To do this, in the grantee field, add "ALL".
+
+Similarly, RLS can be to data that is shared with the public.
 This is useful if you would only like to publicly publish a subset of a
-table's data. To do this, in the grantee field, add "ALL"
+table's data, but would still like privileged collaborators to access all of it.
+To do this, in the grantee field, add "PUBLIC".
 
 
 .. note:: Creating a RLS policy does not (by itself) allow collaborators to access a table. Users must also add collaborators via the collaborators menu described in the "Traditional Collaborators" section above. Row Level Security only provides an *additional* layer of specificity for what is shared.
@@ -106,8 +109,9 @@ table's data. To do this, in the grantee field, add "ALL"
 Technical Details
 -----------------
 
-The "ALL" keyword used to signify that a RLS policy applies to ALL users is
-defined in `settings.py <https://github.com/datahuborg/datahub/blob/master/src/config/settings.py>`__
+The "ALL" and "PUBLIC" keywords used to signify that a RLS policy applies to
+ALL users or just PUBLIC users are defined in
+`settings.py <https://github.com/datahuborg/datahub/blob/master/src/config/settings.py>`__
 
 RLS is a result of a thesis project for her Spring 2016 Masters in Engineering Degree from MIT EECS. You can find her thesis `here <https://github.com/datahuborg/datahub/blob/master/src/browser/static/www/papers/KellyZhang_RowLevelSecurity_Thesis.pdf>`__
 
@@ -129,8 +133,12 @@ RLS parses queries and recursively applies security policies as defined in the t
     (SELECT * FROM B WHERE NAME='Bob')
     ON A.ID = B.ID;
 
-.. note:: The Row Level Security interface could really use some love. Please see `issues 160 <https://github.com/datahuborg/datahub/issues/160>__`
+.. note:: The Row Level Security interface could really use some love. Please see `issues 160 <https://github.com/datahuborg/datahub/issues/160>`__.
+
+
+.. note:: Access to the RowLevelSecurity policy is handled very naively. For a much more elegant solution, see `issue 161 <https://github.com/datahuborg/datahub/issues/161>`__.
 
 .. note:: Users can (and are encouraged to) write queries into the Row Level Security policy table. Therefore, it may (incorrectly) seem that RLS to introduces a nasty query/sql injection attack. Such an attack would grant a user root access to the database, or at the very minimum, give them the ability to execute arbitrary queries as a collaborator's role. For example, user *Alpha* might share *repo.table* with *Beta*, and then apply a malicious RLS policy to *repo.table*. Because of the way RLS is structured, 1) *Beta* can't get superuser permissions in this way, since all query parameters run by the the superuser are escaped. 2) All queries are run by *Beta* on *Alpha's* DB (and not on *Beta's* DB). This is because *Beta* is connected to *Alpha*'s database, and *Alpha* cannot change the connection.
 
 .. note:: Injection (as described above) can allow you to do some cool things. For example, RLS policies may reference other tables in your database, provided that you have granted your collaborators SELECT access to those tables.
+
