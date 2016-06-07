@@ -130,3 +130,7 @@ RLS parses queries and recursively applies security policies as defined in the t
     ON A.ID = B.ID;
 
 .. note:: The Row Level Security interface could really use some love. Please see `issues 160 <https://github.com/datahuborg/datahub/issues/160>__`
+
+.. note:: Users can (and are encouraged to) write queries into the Row Level Security policy table. Therefore, it may (incorrectly) seem that RLS to introduces a nasty query/sql injection attack. Such an attack would grant a user root access to the database, or at the very minimum, give them the ability to execute arbitrary queries as a collaborator's role. For example, user *Alpha* might share *repo.table* with *Beta*, and then apply a malicious RLS policy to *repo.table*. Because of the way RLS is structured, 1) *Beta* can't get superuser permissions in this way, since all query parameters run by the the superuser are escaped. 2) All queries are run by *Beta* on *Alpha's* DB (and not on *Beta's* DB). This is because *Beta* is connected to *Alpha*'s database, and *Alpha* cannot change the connection.
+
+.. note:: Injection (as described above) can allow you to do some cool things. For example, RLS policies may reference other tables in your database, provided that you have granted your collaborators SELECT access to those tables.

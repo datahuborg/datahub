@@ -160,6 +160,14 @@ defined in <a class="reference external" href="https://github.com/datahuborg/dat
 <p class="first admonition-title">Note</p>
 <p class="last">The Row Level Security interface could really use some love. Please see <cite>issues 160 &lt;https://github.com/datahuborg/datahub/issues/160&gt;__</cite></p>
 </div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Users can (and are encouraged to) write queries into the Row Level Security policy table. Therefore, it may (incorrectly) seem that RLS to introduces a nasty query/sql injection attack. Such an attack would grant a user root access to the database, or at the very minimum, give them the ability to execute arbitrary queries as a collaborator&#8217;s role. For example, user <em>Alpha</em> might share <em>repo.table</em> with <em>Beta</em>, and then apply a malicious RLS policy to <em>repo.table</em>. Because of the way RLS is structured, 1) <em>Beta</em> can&#8217;t get superuser permissions in this way, since all query parameters run by the the superuser are escaped. 2) All queries are run by <em>Beta</em> on <em>Alpha&#8217;s</em> DB (and not on <em>Beta&#8217;s</em> DB). This is because <em>Beta</em> is connected to <em>Alpha</em>&#8216;s database, and <em>Alpha</em> cannot change the connection.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Injection (as described above) can allow you to do some cool things. For example, RLS policies may reference other tables in your database, provided that you have granted your collaborators SELECT access to those tables.</p>
+</div>
 </div>
 </div>
 </div>
