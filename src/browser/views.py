@@ -473,9 +473,10 @@ def table(request, repo_base, repo, table):
 def table_export(request, repo_base, repo, table_name):
     username = request.user.get_username()
 
-    DataHubManager.export_table(
-        username=username, repo_base=repo_base, repo=repo,
-        table=table_name, file_format='CSV', delimiter=',', header=True)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.export_table(
+            repo=repo, table=table_name, file_format='CSV', delimiter=',',
+            header=True)
 
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))
