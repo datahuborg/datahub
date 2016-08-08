@@ -91,7 +91,7 @@ urlpatterns = patterns(
         name='browser-table_delete'),
     url(r'^delete/(\w+)/(\w+)/view/(\w+)/?$', 'browser.views.view_delete',
         name='browser-view_delete'),
-    url(r'^delete/(\w+)/(\w+)/card/(\w+)/?$', 'browser.views.card_delete',
+    url(r'^delete/(\w+)/(\w+)/card/(.*)/?$', 'browser.views.card_delete',
         name='browser-card_delete'),
     url(r'^delete/(\w+)/(\w+)/file/([ -~]+)/?$', 'browser.views.file_delete',
         name='browser-file_delete'),
@@ -100,7 +100,7 @@ urlpatterns = patterns(
     # Export
     url(r'^export/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table_export',
         name='browser-table_export'),
-    url(r'^export/(\w+)/(\w+)/card/(\w+)/?$', 'browser.views.card_export',
+    url(r'^export/(\w+)/(\w+)/card/(.*)/?$', 'browser.views.card_export',
         name='browser-card_export'),
 
 
