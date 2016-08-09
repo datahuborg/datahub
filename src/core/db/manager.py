@@ -703,10 +703,18 @@ class DataHubManager:
         Returns the card on success.
 
         Raises IntegrityError if card with same name already exists.
+        Raises ValueError if card name is not alphanumeric with underscores
+          or if the card name is blank
         Raises PermissionDenied on insufficient privileges or bad query.
         """
         DataHubManager.has_repo_file_privilege(
             self.username, self.repo_base, repo, 'write')
+
+        # reject card names that have non alphanumeric characters
+        if not re.match(r'^[A-Za-z0-9_]+$', card_name):
+            raise ValueError(
+                'Only numbers, letters, and '
+                'underscores are allowed in card names')
 
         # to create a card, the user must be able to successfully execute
         # the query from their own database user.
