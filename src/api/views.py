@@ -592,7 +592,7 @@ class Card(APIView):
 
     renderer_classes = (api_settings.DEFAULT_RENDERER_CLASSES +
                         [CSVRenderer])
-    permission_classes = (api_settings.DEFAULT_PERMISSION_CLASSES +
+    permission_classes = (api_settings.DEFAULT_PERMISSION_CLASSES or
                           [PublicCardPermission])
     authentication_classes = (api_settings.DEFAULT_AUTHENTICATION_CLASSES +
                               [PublicCardAuthentication])
