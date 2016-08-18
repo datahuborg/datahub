@@ -409,7 +409,7 @@ class QuerySerializer(DataHubSerializer):
         for row in rows:
             obj = {}
             for i in range(len(columns)):
-                column = columns[i]
+                column = return_unique_key(obj, columns[i])
                 obj[column] = row[i]
             new_rows.append(obj)
 
@@ -493,3 +493,19 @@ class RowLevelSecuritySerializer(object):
             username=self.username)
 
         return res
+
+
+def return_unique_key(obj, key, index=0):
+    '''
+    accepts and object and proposed key name.
+    returns a key name that is unique to the object
+    '''
+    key_to_be_used = key
+    if index != 0:
+        key_to_be_used = key + '_' + str(index)
+    # if the new named card already exists
+
+    if obj.get(key_to_be_used, False):
+        return return_unique_key(obj, key, index + 1)
+    else:
+        return key_to_be_used
