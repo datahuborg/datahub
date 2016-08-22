@@ -592,8 +592,7 @@ class Card(APIView):
 
     renderer_classes = (api_settings.DEFAULT_RENDERER_CLASSES +
                         [CSVRenderer])
-    permission_classes = (api_settings.DEFAULT_PERMISSION_CLASSES +
-                          [PublicCardPermission])
+    permission_classes = [PublicCardPermission]
     authentication_classes = (api_settings.DEFAULT_AUTHENTICATION_CLASSES +
                               [PublicCardAuthentication])
 
@@ -602,17 +601,22 @@ class Card(APIView):
         See the query and query results of a single card.
         The results of the card query is exactly what the repo base owner
         would see.
+
+        We've had trouble with getting the SWING demo framework to preview
+        this correctly. Try going to a card url. i.e.
+
+        /api/v1/repos/REPO_BASE/REPO_NAME/cards/CARD_NAME/?&current_page=2&rows_per_page=1
         ---
         omit_serializer: true
 
         parameters:
           - name: current_page
-            in: path
-            type: integer
+            in: query
+            type: string
             description: page being viewed
           - name: rows_per_page
-            in: path
-            type: integer
+            in: query
+            type: string
             description: number of rows per page
 
         produces:
@@ -621,14 +625,16 @@ class Card(APIView):
 
         """
         username = request.user.get_username()
-        data = request.data
 
-        current_page = int(data.get('current_page', 1))
-        rows_per_page = int(data.get('rows_per_page', 1000))
+        current_page = int(request.query_params.get('current_page', 1))
+        rows_per_page = int(request.query_params.get('rows_per_page', 1000))
+        print current_page
+        print rows_per_page
 
         serializer = CardSerializer(username, repo_base, request)
         res = serializer.describe_card(
-            repo_name, card_name, current_page, rows_per_page)
+            repo_name, card_name, current_page, rows_per_page,
+            rows_only=(request.accepted_media_type == 'text/csv'))
         return Response(res, status=status.HTTP_200_OK)
 
     def patch(self, request, repo_base, repo_name, card_name, format=None):
@@ -814,6 +820,7 @@ class RowLevelSecurityById(APIView):
     """
     manage the RLS table based on row IDs
     """
+
     def patch(self, request, policy_id, format=None):
         """
         Update a security policy of the specified id.
@@ -840,7 +847,6 @@ class RowLevelSecurityById(APIView):
             type: string
             required: false
         """
-
         username = request.user.get_username()
         serializer = RowLevelSecuritySerializer(username=username)
         policy_id = int(policy_id)

@@ -1,8 +1,10 @@
-from rest_framework import permissions, \
-                           authentication
-from oauth2_provider.ext.rest_framework import OAuth2Authentication, \
-                                               TokenHasScope, \
-                                               TokenHasReadWriteScope
+from rest_framework import \
+    permissions, \
+    authentication
+from oauth2_provider.ext.rest_framework import \
+    OAuth2Authentication, \
+    TokenHasScope, \
+    TokenHasReadWriteScope
 
 from inventory.models import Card
 
@@ -54,6 +56,21 @@ class WeakTokenHasReadWriteScope(TokenHasReadWriteScope):
             request, view)
 
 
+class IsAuthenticatedAndTokenHasReadWriteScope(WeakTokenHasReadWriteScope):
+    """
+    Will be replaced by a built-in class in a future version of OAuth Toolkit.
+
+    https://github.com/evonove/django-oauth-toolkit/pull/396/
+    """
+
+    def has_permission(self, request, view):
+        is_authenticated = permissions.IsAuthenticated().has_permission(
+            request, view)
+        has_scope_if_needed = WeakTokenHasReadWriteScope().has_permission(
+            request, view)
+        return (is_authenticated and has_scope_if_needed)
+
+
 def _card_is_public(repo_base, repo_name, card_name):
     """Returns True if card exists and is public, False otherwise."""
     try:
@@ -71,9 +88,9 @@ def _card_is_public(repo_base, repo_name, card_name):
 
 class PublicCardPermission(permissions.BasePermission):
     """
-    Returns True if the card exists and is public.
+    Returns True if the card exists and is public or user has other permission.
 
-    Only allows safe methods: GET, OPTIONS, and HEAD.
+    Only allows safe methods: GET, OPTIONS, and HEAD for anonymous users.
     """
 
     def has_permission(self, request, view):
@@ -84,7 +101,8 @@ class PublicCardPermission(permissions.BasePermission):
                             card_name=params['card_name'])):
             return True
 
-        return False
+        return IsAuthenticatedAndTokenHasReadWriteScope().has_permission(
+            request, view)
 
 
 class PublicCardAuthentication(authentication.BaseAuthentication):
