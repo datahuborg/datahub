@@ -592,8 +592,7 @@ class Card(APIView):
 
     renderer_classes = (api_settings.DEFAULT_RENDERER_CLASSES +
                         [CSVRenderer])
-    permission_classes = (api_settings.DEFAULT_PERMISSION_CLASSES or
-                          [PublicCardPermission])
+    permission_classes = [PublicCardPermission]
     authentication_classes = (api_settings.DEFAULT_AUTHENTICATION_CLASSES +
                               [PublicCardAuthentication])
 
@@ -820,6 +819,7 @@ class RowLevelSecurityById(APIView):
     """
     manage the RLS table based on row IDs
     """
+
     def patch(self, request, policy_id, format=None):
         """
         Update a security policy of the specified id.
@@ -846,7 +846,6 @@ class RowLevelSecurityById(APIView):
             type: string
             required: false
         """
-
         username = request.user.get_username()
         serializer = RowLevelSecuritySerializer(username=username)
         policy_id = int(policy_id)
