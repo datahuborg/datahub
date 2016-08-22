@@ -1,14 +1,13 @@
 {% extends "base.html" %}
 
 {% block stylesheets %}
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.1/skins/square/green.css">
 <link rel="stylesheet" href="/static/dataq/css/style.css">
 {% endblock stylesheets %}
 
 {% block content %}
 <div class="container">
   <h4 class="inline-block">
-    <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
+    <a class="link" href="/browse/{{repo_base}}">{{repo_base}}</a>
     /
     <a class="link" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a>
     /

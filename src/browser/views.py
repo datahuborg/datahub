@@ -603,8 +603,7 @@ def query(request, repo_base, repo):
         data = {
             'login': username,
             'repo_base': repo_base,
-            'repo': 'repo',
-            'select_query': False,  # hides the "save as card" button
+            'repo': repo,
             'query': query}
 
         return render_to_response("query-preview-statement.html", data)
