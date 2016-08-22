@@ -628,8 +628,6 @@ class Card(APIView):
 
         current_page = int(request.query_params.get('current_page', 1))
         rows_per_page = int(request.query_params.get('rows_per_page', 1000))
-        print current_page
-        print rows_per_page
 
         serializer = CardSerializer(username, repo_base, request)
         res = serializer.describe_card(
