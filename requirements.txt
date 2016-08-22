@@ -17,13 +17,13 @@ requests>=2.5.1
 python-social-auth==0.2.13
 pyjwkest==1.0.1
 django-crispy-forms==1.5.2
-factory_boy
+factory_boy==2.6.1
 djangorestframework==3.3.3
 django-rest-swagger==0.3.5
-django-oauth-toolkit
-django-cors-headers
-django-rest-framework-social-oauth2
-djangorestframework-csv
+django-oauth-toolkit==0.10.0
+django-cors-headers==1.1.0
+django-rest-framework-social-oauth2==1.0.4
+djangorestframework-csv==1.4.1
 
 # WSGI server
 gunicorn==19.3.0
@@ -32,8 +32,8 @@ gunicorn==19.3.0
 Sphinx==1.3.1
 
 # Testing
-selenium
+selenium==2.53.1
 mock==1.3.0
-coverage
+coverage==4.0.3
 pdb==0.1
-httpie
+httpie==0.9.3
