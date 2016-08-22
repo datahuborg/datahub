@@ -609,11 +609,15 @@ def query(request, repo_base, repo):
         return render_to_response("query-preview-statement.html", data)
 
     # if the user is just requesting the query page
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        cards = manager.list_repo_cards(repo)
+
     if not query:
         data = {
             'login': username,
             'repo_base': repo_base,
             'repo': repo,
+            'cards': json.dumps(cards),
             'select_query': False,
             'query': query}
         return render_to_response("query-browse-results.html", data)
@@ -643,6 +647,7 @@ def query(request, repo_base, repo):
         'prev_page': current_page - 1,  # the template should relaly do this
         'url_path': url_path,
         'query': query,
+        'cards': json.dumps(cards),
         'select_query': res['select_query'],
         'column_names': res['column_names'],
         'tuples': res['rows'],

@@ -196,8 +196,9 @@
         </form>
       </div>
       <div class="modal-footer">
+        <span id="card-naming-guildelines" style="float:left;"></span>
         <button type="button"
-            class="btn btn-primary" id="save-card-modal-operation">Save</button>
+            class="btn btn-primary" id="save-card-modal-operation" disabled>Save</button>
         <button type="button"
             class="btn btn-default" data-dismiss="modal">Cancel</button>
       </div>
@@ -304,6 +305,60 @@ $('.annotation-modal-dialog').on('click', function(e){
 
   //   });
   // });
+
+  function checkCardName(){
+    // check to see if the card name is good
+    // change the error message
+    // and enable or disable the card save button accordingly
+    var proposedName = $('#save-card-modal-input').val().toLowerCase();
+    var button = $('#save-card-modal-operation');
+    var guidanceText = $('#card-naming-guildelines');
+
+    var cards = {{cards|safe}};
+
+    // see if it's alphanumeric
+    var alphanumeric = isAlphanumeric(proposedName);
+    var unique = true;
+
+    // see if it's a word already in use
+    for (var i = 0; i < cards.length; i++) {
+      var cardName = cards[i].toLowerCase();
+      if (cardName === proposedName){
+        unique = false;
+        break;
+      }
+    }
+
+    // set the error text
+    if (!alphanumeric){
+      guidanceText.text('Card names cannot contain spaces or special characters.');
+    }
+    if (!unique){
+      guidanceText.text('That card name is already in use.');
+    }
+
+    // disable or enable the button
+    var goodName = alphanumeric && unique;
+    if (goodName){
+      button.prop('disabled', false);
+      guidanceText.text('');
+    } else{
+      button.prop('disabled', true);
+    }
+
+  }
+
+  function isAlphanumeric(text) {
+    var letterNumber = /^[0-9a-zA-Z_]+$/;
+    if(text.match(letterNumber)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // disable save button when name isn't right
+  $('#save-card-modal-input').keyup(function(){checkCardName()});
 
    // modal
    $('.modal-link').on('click', function(e){
