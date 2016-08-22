@@ -397,7 +397,9 @@ class QuerySerializer(DataHubSerializer):
             query, current_page, rows_per_page)
 
         rows = result.get('rows', None)
-        columns = result.get('column_names', None)
+
+        columns = _unique_keys(result.get('column_names', None))
+
         select_query = result.get('select_query', None)
 
         return_dict = {}
@@ -409,8 +411,7 @@ class QuerySerializer(DataHubSerializer):
         for row in rows:
             obj = {}
             for i in range(len(columns)):
-                column = return_unique_key(obj, columns[i])
-                obj[column] = row[i]
+                obj[columns[i]] = row[i]
             new_rows.append(obj)
 
         return_dict['rows'] = new_rows
@@ -495,17 +496,23 @@ class RowLevelSecuritySerializer(object):
         return res
 
 
-def return_unique_key(obj, key, index=0):
-    '''
-    accepts and object and proposed key name.
-    returns a key name that is unique to the object
-    '''
-    key_to_be_used = key
-    if index != 0:
-        key_to_be_used = key + '_' + str(index)
-    # if the new named card already exists
+def _unique_keys(proposed):
+    """
+    Uniques and returns a given list of strings.
 
-    if obj.get(key_to_be_used, False):
-        return return_unique_key(obj, key, index + 1)
-    else:
-        return key_to_be_used
+    e.g. ['foo', 'foo', 'foo'] => ['foo', 'foo_1', 'foo_2']
+         ['foo_2', 'foo_1', 'foo'] => ['foo_2', 'foo_1', 'foo_3']
+         ['one', 'two', 'three'] => ['one', 'two', 'three']
+    """
+    renamed = list()
+    for i in range(len(proposed)):
+        # List of used and proposed keys minus this instance.
+        current_keys = set(renamed + proposed[:i] + proposed[i + 1:])
+        key_to_be_used = proposed[i]
+        index = 1
+        if key_to_be_used in renamed:
+            while(key_to_be_used in current_keys):
+                key_to_be_used = proposed[i] + '_' + str(index)
+                index += 1
+        renamed.append(key_to_be_used)
+    return renamed
