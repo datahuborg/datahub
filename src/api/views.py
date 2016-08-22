@@ -633,7 +633,8 @@ class Card(APIView):
 
         serializer = CardSerializer(username, repo_base, request)
         res = serializer.describe_card(
-            repo_name, card_name, current_page, rows_per_page)
+            repo_name, card_name, current_page, rows_per_page,
+            rows_only=(request.accepted_media_type == 'text/csv'))
         return Response(res, status=status.HTTP_200_OK)
 
     def patch(self, request, repo_base, repo_name, card_name, format=None):

@@ -108,7 +108,7 @@ class RepoSerializer(DataHubSerializer):
                 'repo_name': repo,
                 'href': absolute_uri,
                 'owner': self.repo_base
-                })
+            })
 
         return {'repos': repo_obj_list}
 
@@ -138,7 +138,7 @@ class RepoSerializer(DataHubSerializer):
                 'repo_name': repo.repo_name,
                 'href': absolute_uri,
                 'owner': repo.repo_base,
-                })
+            })
 
         return {'repos': repo_obj_list}
 
@@ -155,7 +155,7 @@ class RepoSerializer(DataHubSerializer):
                 'repo_name': repo.repo_name,
                 'href': absolute_uri,
                 'owner': repo.repo_base,
-                })
+            })
 
         return {'repos': repo_obj_list}
 
@@ -172,7 +172,7 @@ class RepoSerializer(DataHubSerializer):
                 'repo_name': repo.repo_name,
                 'href': absolute_uri,
                 'owner': repo.repo_base,
-                })
+            })
 
         return {'repos': repo_obj_list}
 
@@ -320,7 +320,8 @@ class CardSerializer(DataHubSerializer):
         return {'cards': card_list}
 
     def describe_card(
-            self, repo, card_name, current_page=1, rows_per_page=1000):
+            self, repo, card_name, current_page=1, rows_per_page=1000,
+            rows_only=False):
         card = self.manager.get_card(repo, card_name)
         # relative_uri = reverse('api:query_with_repo', args=(
         #     self.repo_base, repo))
@@ -338,8 +339,13 @@ class CardSerializer(DataHubSerializer):
         query_results = query_serializer.execute_query(
             query=card.query, repo=repo, current_page=current_page,
             rows_per_page=rows_per_page,
-            rows_only=None)
+            rows_only=False)
         res['results'] = query_results
+
+        if rows_only:
+            # Some formats, like CSV, don't have a place for metadata.
+            # Only return raw tabular data in those cases.
+            res = res['results']['rows']
 
         return res
 
