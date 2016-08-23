@@ -107,7 +107,7 @@ textarea {
 }
 
 .error{
-  color: red;	
+  color: red;
 }
 
 .cell-left {
@@ -324,4 +324,8 @@ body {
 
 .bs-docs-sidebar .nav>li>a {
   color: #767676;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+  cursor: inherit;
 }
