@@ -94,10 +94,12 @@ Example Docker commands:
       cat /var/log/nginx/access.log
 
     # Run Django migrations
-    $ sudo dh-remove-all-containers && \
-      dh-create-dev-containers && \
-      dh-start-containers
-
+    $ sudo docker run --rm \
+      --net=datahub_dev \
+      --volumes-from app \
+      datahuborg/datahub \
+      python src/manage.py migrate --noinput
+    
     # Collect changes to Django's static files so the web container
     # can see them.
     $ sudo docker run --rm \
@@ -154,7 +156,10 @@ Once in the test container, you can run all functional tests with:
 
 Browser screenshots are saved in ``src/functional_tests/screenshots`` on teardown
 
-You can run individual functional tests:
+    
+You can run individual functional tests with:
+
+.. code-block:: bash
 
     $ python manage.py test functional_tests.test_login_auth          # tests authentication
     $ python manage.py test functional_tests.test_layout_and_styling  # tests main page layout
