@@ -187,8 +187,7 @@ def public(request):
 def user(request, repo_base=None):
     username = request.user.get_username()
 
-    if not repo_base:
-        repo_base = username
+    repo_base = username or 'public'
 
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         repos = manager.list_repos()
