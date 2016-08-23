@@ -24,7 +24,6 @@ django-oauth-toolkit==0.10.0
 django-cors-headers==1.1.0
 django-rest-framework-social-oauth2==1.0.4
 djangorestframework-csv==1.4.1
-django-debug-toolbar
 
 # WSGI server
 gunicorn==19.3.0
