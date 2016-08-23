@@ -600,6 +600,8 @@ def query(request, repo_base, repo):
     # with the SQL to be executed pre-populated
     if repo_base.lower() == 'user':
         repo_base = username
+        if not username:
+            repo_base = 'public'
         data = {
             'login': username,
             'repo_base': repo_base,
