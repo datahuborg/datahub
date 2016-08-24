@@ -40,7 +40,7 @@
     var modal = $("#dq-table-modal");
     if (modal.length === 0) {
       var html = DataQ.templates['dq-table-modal']({
-        "table_name": table 
+        "table_name": table
       });
       $('body').append(html);
     }
@@ -49,7 +49,7 @@
     $('#dq-table-modal').modal({
       keyboard: false
     });
-    
+
     // Don't allow clicking Done until the user selects a table.
     $(".dq-modal-done-btn").hide();
 
@@ -65,7 +65,7 @@
       $("#dq-table-modal").remove();
       cb();
     })
-  }; 
+  };
 
   // If the user quits, trigger the callback.
   $(document).on('click', '.dq-modal-quit', function() {
@@ -200,8 +200,8 @@
 
     // If the operated column should be in this table and has not been selected,
     // set the operated column as null.
-    if (query.operated_column() && 
-        query.operated_column().split(".")[0] === table && 
+    if (query.operated_column() &&
+        query.operated_column().split(".")[0] === table &&
         !is_op_col_checked) {
       query.operated_column(null);
     }
@@ -210,8 +210,9 @@
     query.selected_columns(table, columns);
     query.update_grouping();
 
-    // Remove the modal from the page.
+    // Remove the modals from the page.
     $("#dq-table-modal").remove();
+    $(".modal-backdrop").remove();
     cb();
   });
 
