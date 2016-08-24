@@ -46,24 +46,8 @@
   <hr />
   <br />
 
-  <form role="form" method="GET" action="/browse/{{repo_base}}/{{repo}}/query">
-    <div class="row">
-    <div class="form-group col-sm-10" style="padding-top: 1em;">
-      {% if query %}
-      <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Type SQL here" value="{{query}}">
-      {% else %}
-        <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Type SQL here">
-      {% endif %}
-    </div>
+  {% include "query-form.html" %}
 
-    <div class="col-sm-2 btn-group-vertical" role="group" >
-      <button class="btn btn-primary btn-sm" id="btn-run" title="Run the query in the input box and display the results" type="submit">Run</button>
-      <button class="btn btn-info btn-sm" id="btn-dataq" title="Query Builder (formerly dataQ) helps you create SQL statements to search your data.">Query Builder</button>
-    </div>
-
-
-    </div>
-  </form>
   <br />
     <!-- tabs -->
     <ul class="nav nav-tabs" role="tablist">

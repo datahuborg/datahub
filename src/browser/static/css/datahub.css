@@ -149,6 +149,26 @@ body {
   color:#aaa;
 }
 
+/* Query forms */
+
+.sql-form .form-group {
+  display: flex;
+  flex-direction: flex-row;
+}
+
+#btn-dataq {
+  margin-right: 10px;
+}
+
+#btn-run {
+  margin-left: 10px;
+}
+
+#txt-sql {
+  flex: 1;
+}
+
+
 /* GLOBAL */
 
 #page{
