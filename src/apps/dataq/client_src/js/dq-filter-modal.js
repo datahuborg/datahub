@@ -9,7 +9,7 @@
 
   // The callback to trigger when the modal is closed. This is executed as callback().
   var callback;
-  
+
   // The DataQ.Query object being built.
   var query;
 
@@ -44,7 +44,7 @@
       // Create the HTML for the filter modal.
       var html = DataQ.templates['dq-filter-modal']({
         "columns": columns,
-        "repo": query.repo() 
+        "repo": query.repo()
       });
 
       // Add the modal to the page.
@@ -67,6 +67,7 @@
   $(document).on("click", ".dq-filter-quit", function() {
     callback();
     $("#dq-filter-modal").remove();
+    $(".modal-backdrop").remove();
   });
 
   // Handle modal done.
@@ -79,6 +80,7 @@
       callback();
       $('#dq-filter-modal').modal('hide');
       $("#dq-filter-modal").remove();
+      $(".modal-backdrop").remove();
     } else {
       alert("You need to fill out the three text boxes");
     }

@@ -42,7 +42,7 @@
     // When the modal is displayed, enable HTML5Sortable.
     $("#dq-grouping-modal").on("shown.bs.modal", function() {
       $(".dq-grouping-modal-list").sortable({
-        forcePlaceholderSize: true 
+        forcePlaceholderSize: true
       });
     });
 
@@ -50,6 +50,7 @@
     $(".modal-backdrop").click(function() {
       callback();
       $("#dq-grouping-modal").remove();
+      $(".modal-backdrop").remove();
     })
   }; // End GroupingModal
 
@@ -57,6 +58,7 @@
   $(document).on("click", "#dq-grouping-modal-quit-btn", function() {
     callback();
     $("#dq-grouping-modal").remove();
+    $(".modal-backdrop").remove();
   });
 
   // Handle for finishing edits.
@@ -83,6 +85,7 @@
     query.grouping(new_grouping);
     callback();
     $("#dq-grouping-modal").remove();
+    $(".modal-backdrop").remove();
   });
 
 })();

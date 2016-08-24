@@ -63,6 +63,7 @@
     // Handle modal close when clicking backdrop.
     $(".modal-backdrop").click(function() {
       $("#dq-table-modal").remove();
+      $(".modal-backdrop").remove();
       cb();
     })
   };
@@ -70,6 +71,7 @@
   // If the user quits, trigger the callback.
   $(document).on('click', '.dq-modal-quit', function() {
     $("#dq-table-modal").remove();
+    $(".modal-backdrop").remove();
     cb();
   });
 
