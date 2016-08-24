@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block stylesheets %}
+<link rel="stylesheet" href="/static/dataq/css/style.css">
+{% endblock stylesheets %}
+
 {% block content %}
 <div class="container">
 
@@ -49,6 +53,12 @@
 
 
 {% block js %}
+  <!-- dataq -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.runtime.js"></script>
+  <script src="/static/dataq/templates.js"></script>
+  <script src="/static/dataq/js/dataq.min.js"></script>
+  <!-- /dataq -->
+
   <script>
     $(document).on("click", "#btn-dataq", function(e) {
       e.preventDefault();
