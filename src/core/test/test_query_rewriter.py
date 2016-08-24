@@ -9,7 +9,6 @@ from mock import patch
 
 
 class QueryRewriter(TestCase):
-
     """Tests all the query rewriter operations in query_rewriter.py."""
 
     @factory.django.mute_signals(signals.pre_save)
@@ -68,7 +67,7 @@ class QueryRewriter(TestCase):
                  "where ... ")
         token = sqlparse.parse(query)[0].tokens[6]
         expected_result = [(["repo1", "table1", None], "as tbl1"),
-                           (["repo2", "table2", None], "as tbl2")]
+                           (["repo2", "table2", None], "as tbl2 where ...")]
         self.assertEqual(
             self.query_rewriter.extract_table_token(token), expected_result)
 
