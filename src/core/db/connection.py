@@ -70,6 +70,10 @@ class DataHubConnection:
     def delete_table(self, repo, table, force=False):
         return self.backend.delete_table(repo=repo, table=table, force=force)
 
+    def clone_table(self, repo, table, new_table):
+        return self.backend.clone_table(
+            repo=repo, table=table, new_table=new_table)
+
     def get_schema(self, repo, table):
         return self.backend.get_schema(repo=repo, table=table)
 

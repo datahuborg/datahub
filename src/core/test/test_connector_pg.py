@@ -491,8 +491,7 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
             'status': True, 'row_count': 2,
             'tuples': [
                 (u'SELECT'), (u'UPDATE')],
-            'fields': [{'type': 1043, 'name': 'privilege_type'}]
-            }
+            'fields': [{'type': 1043, 'name': 'privilege_type'}]}
 
         self.backend.list_table_permissions(repo, table)
         self.assertEqual(self.mock_execute_sql.call_args[0][0], query)
@@ -503,7 +502,7 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         table = 'table_name'
         force = False
 
-        expected_query = ('DROP TABLE %s.%s.%s %s')
+        expected_query = 'DROP TABLE %s.%s.%s %s'
         expected_params = ('username', 'repo_name', 'table_name', 'RESTRICT')
         self.mock_execute_sql.return_value = {
             'status': True, 'row_count': -1, 'tuples': [], 'fields': []}
@@ -514,6 +513,25 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
 
         self.assertEqual(self.mock_check_for_injections.call_count, 1)
         self.assertEqual(self.mock_validate_table_name.call_count, 1)
+        self.assertEqual(final_query, expected_query)
+        self.assertEqual(final_params, expected_params)
+        self.assertEqual(res, True)
+
+    def test_clone_table(self):
+        repo = 'repo_name'
+        table = 'table_name'
+        new_table = 'new_table_name'
+
+        expected_query = ('CREATE TABLE %s.%s AS SELECT * FROM %s')
+        expected_params = (repo, new_table, table)
+        self.mock_execute_sql.return_value = {'status': True}
+        res = self.backend.clone_table(repo, table, new_table)
+
+        final_query = self.mock_execute_sql.call_args[0][0]
+        final_params = self.mock_execute_sql.call_args[0][1]
+
+        self.assertEqual(self.mock_check_for_injections.call_count, 0)
+        self.assertEqual(self.mock_validate_table_name.call_count, 2)
         self.assertEqual(final_query, expected_query)
         self.assertEqual(final_params, expected_params)
         self.assertEqual(res, True)

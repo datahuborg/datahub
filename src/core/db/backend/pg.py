@@ -374,6 +374,16 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['status']
 
+    def clone_table(self, repo, table, new_table):
+        self._validate_table_name(table)
+        self._validate_table_name(new_table)
+
+        query = 'CREATE TABLE %s.%s AS SELECT * FROM %s'
+        params = (AsIs(repo), AsIs(new_table), AsIs(table))
+
+        res = self.execute_sql(query, params)
+        return res['status']
+
     def get_schema(self, repo, table):
         self._check_for_injections(repo)
         self._validate_table_name(table)

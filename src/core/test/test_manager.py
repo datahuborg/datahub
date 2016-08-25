@@ -100,6 +100,12 @@ class BasicOperations(TestCase):
         self.manager.delete_table(repo='repo', table='table', force=False)
         self.assertTrue(con_delete_table.called)
 
+    def test_clone_table(self):
+        con_clone_table = self.mock_connection.return_value.clone_table
+        self.manager.clone_table(
+            repo='repo_name', table='table_name', new_table='new_table_name')
+        self.assertTrue(con_clone_table.called)
+
     def test_list_views(self):
         con_list_views = self.mock_connection.return_value.list_views
         self.manager.list_views('repo')
