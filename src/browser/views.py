@@ -772,7 +772,6 @@ def card_update_public(request, repo_base, repo, card_name):
 
 @login_required
 def card_export(request, repo_base, repo, card_name):
-    import pdb; pdb.set_trace()
     username = request.user.get_username()
     file_name = request.GET.get('var_text', card_name)
 
