@@ -96,6 +96,9 @@ urlpatterns = patterns(
     url(r'^delete/(\w+)/(\w+)/file/([ -~]+)/?$', 'browser.views.file_delete',
         name='browser-file_delete'),
 
+    # Clone
+    url(r'^clone/(\w+)/(\w+)/table/(\w+)/?$',
+        'browser.views.table_clone', name='browser-table_clone'),
 
     # Export
     url(r'^export/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table_export',

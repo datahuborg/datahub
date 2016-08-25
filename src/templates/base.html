@@ -140,6 +140,30 @@
     </div>
   </div>
 
+  <div class="modal fade" id="dialog-modal" tabindex="-1" role="dialog" aria-labelledby="dialog-modalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="dialog-modalLabel">New message</h4>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="variable-text" class="control-label">Variable:</label>
+              <input type="text" class="form-control" id="variable-text">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Send message</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
 
 
   <div class="modal hide" id="wait-dialog" data-backdrop="static" data-keyboard="false">
@@ -160,29 +184,40 @@
   $(document).ready(
     $(function() {
       $('.modal-confirm-dialog').on('click', function(e) {
-        var modal_id = $(this).attr('target-modal')
-        var modal_title = $(this).attr('target-modal-title')
-        var modal_body = $(this).attr('target-modal-body')
-        var modal_operation = $(this).attr('target-modal-operation')
-        var target_url = $(this).attr('target-url')
+        var modal_id = $(this).attr('target-modal');
+        var modal_title = $(this).attr('target-modal-title');
+        var modal_body = $(this).attr('target-modal-body');
+        var modal_operation = $(this).attr('target-modal-operation');
+        var target_url = $(this).attr('target-url');
 
-        $(modal_id + ' .modal-title').html(modal_title)
-        $(modal_id + ' .modal-body').html(modal_body)
-        $(modal_id + ' .btn-primary').html(modal_operation)
+        $(modal_id + ' .modal-title').html(modal_title);
+        $(modal_id + ' .modal-body').html(modal_body);
+        $(modal_id + ' .btn-primary').html(modal_operation);
 
-        $(modal_id).off('click')
-        $(modal_id + ' .btn-primary').off('click')
+        $(modal_id).off('click');
+        $(modal_id + ' .btn-primary').off('click');
 
         $(modal_id + ' .btn-primary').on('click', function(e) {
-          $(modal_id).modal('hide')
-          $("#wait-dialog").modal()
-          window.location.href = window.location.protocol + '//' + window.location.host + target_url
+          $(modal_id).modal('hide');
+          $("#wait-dialog").modal();
+
+          var new_location = window.location.protocol + '//' + window.location.host + target_url;
+
+          // append parameter, as necessary
+          var var_text = $("#variable-text").val();
+          if(var_text != ""){
+            new_location += '?var_text=' + var_text;
+          };
+
+          window.location.href = new_location;
+
         });
 
         $(modal_id).modal({keyboard: true})
       });
     })
   );
+
   </script>
   {% endblock modal_js %}
 

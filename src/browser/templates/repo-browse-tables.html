@@ -16,7 +16,7 @@
       <a class="btn btn-default btn-sm" href="/browse/{{repo_base}}/{{repo}}/files" title="Create a New Table"><span class="glyphicon glyphicon-plus"></span></a>
     </span>
   </div>
-  
+
   {% if base_tables and base_tables|length > 0 %}
     <div class="table-responsive">
       <table class="table">
@@ -26,14 +26,25 @@
             <td>
               <a href="/browse/{{repo_base}}/{{repo}}/table/{{base_table}}">{{base_table}}</a>
             </td>
-            
+
             <td class="text-right">
 
-              {% if login == repo_base %} 
+              {% if login == repo_base %}
               <a href="{% url 'browse-security_policies' repo_base repo base_table %}" title="View Security Policies"><span class="fa fa-lg fa-fw fa-lock" style="color:#333; vertical-align: 0%;"></span></a>
               &nbsp;&nbsp;
               {% endif %}
-               
+
+              <span
+                  class="modal-link modal-confirm-dialog"
+                  target-modal="#dialog-modal"
+                  target-modal-title="Confirm Table Clone"
+                  target-modal-body="<form action='/clone/{{repo_base}}/{{repo}}/table/{{base_table}}'><p>Creates a duplciate of the selected table</p><br /><div class='form-group'> <label for='variable-text' class='control-label'>Cloned Table Name:</label> <input type='text' class='form-control' id='variable-text'> </div><div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>Close</button> <button type='button' class='btn btn-primary'>Clone</button></div></form>"
+                  target-modal-operation="Clone"
+                  target-url="/clone/{{repo_base}}/{{repo}}/table/{{base_table}}"
+                  title="Clone Table">
+                <i class="fa fa-clone"></i>
+              </span>&nbsp;&nbsp;
+
               <span
                   class="modal-link modal-confirm-dialog"
                   target-modal="#confirm-modal"
@@ -44,7 +55,7 @@
                   title="CSV Export">
                 <span class="csv-icon"></span>
               </span>&nbsp;&nbsp;
-              
+
               <span
                   class="modal-link modal-confirm-dialog"
                   target-modal="#confirm-modal"
@@ -62,13 +73,13 @@
             <th class="lead" style="background-color:#f5f5f5;">&nbsp; <i class="fa fa-binoculars"></i> Views</th>
             <th style="background-color:#f5f5f5;"></th>
           </tr>
-          
+
           {% for view in views %}
           <tr>
             <td>
               <a href="/browse/{{repo_base}}/{{repo}}/table/{{view}}">{{view}}</a>
             </td>
-            
+
             <td class="text-right">
               <span
                   class="modal-link modal-confirm-dialog"
@@ -80,7 +91,7 @@
                   title="CSV Export">
                 <span class="csv-icon"></span>
               </span>&nbsp;&nbsp;
-              
+
               <span
                   class="modal-link modal-confirm-dialog"
                   target-modal="#confirm-modal"

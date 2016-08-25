@@ -469,6 +469,18 @@ def table(request, repo_base, repo, table):
 
 
 @login_required
+def table_clone(request, repo_base, repo, table):
+    username = request.user.get_username()
+    new_table = request.GET.get('var_text', None)
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.clone_table(repo, table, new_table)
+
+    return HttpResponseRedirect(
+        reverse('browser-repo_tables', args=(repo_base, repo)))
+
+
+@login_required
 def table_export(request, repo_base, repo, table_name):
     username = request.user.get_username()
 
