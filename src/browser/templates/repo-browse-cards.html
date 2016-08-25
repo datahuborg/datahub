@@ -19,24 +19,25 @@
   {% if cards and cards|length > 0 %}
     <div class="table-responsive">
       <table class="table">
-        <tbody>            
+        <tbody>
           {% for card in cards %}
           <tr>
             <td>
               <a href="/browse/{{repo_base}}/{{repo}}/card/{{card}}">{{card}}</a>
             </td>
             <td class="text-right">
-              
-              <span class="modal-link modal-confirm-dialog"
-                  target-modal="#confirm-modal"
+
+              <span
+                  class="modal-link modal-confirm-dialog"
+                  target-modal="#dialog-modal"
                   target-modal-title="Confirm CSV Export"
-                  target-modal-body="This will export the card <strong><em>{{card}}</em></strong> to a CSV file named <strong><em>{{table}}.csv</em></strong> inside the <strong><em>{{repo_base}}/{{repo}}</em></strong> repository. The operation will overwrite any existing file with the same name. Are you sure?"
+                  target-modal-body="<form action='/export/{{repo_base}}/{{repo}}/card/{{card}}'><p>This will export the card <strong><em>{{card}}</em></strong> to a CSV file inside the <strong><em>{{repo_base}}/{{repo}}</em></strong> repository. The operation will overwrite any existing file with the same name. Are you sure?</p><br /><div class='form-group'> <label for='variable-text' class='control-label'>CSV Name:</label> <input type='text' class='form-control' id='variable-text' placeholder='{{card}}'> </div><div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>Close</button> <button type='button' class='btn btn-primary'>Export</button></div></form>"
                   target-modal-operation="Export"
                   target-url="/export/{{repo_base}}/{{repo}}/card/{{card}}"
                   title="CSV Export">
                 <span class="csv-icon"></span>
               </span>&nbsp;&nbsp;
-              
+
               <span class="modal-link modal-confirm-dialog"
                   target-modal="#confirm-modal"
                   target-modal-title="Confirm Delete"
@@ -45,7 +46,7 @@
                   target-url="/delete/{{repo_base}}/{{repo}}/card/{{card}}"
                   title="Delete">
                 <span class="delete-icon"></span>
-              </span>&nbsp;&nbsp;                  
+              </span>&nbsp;&nbsp;
             </td>
           </tr>
           {% endfor %}

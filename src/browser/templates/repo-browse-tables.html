@@ -38,7 +38,7 @@
                   class="modal-link modal-confirm-dialog"
                   target-modal="#dialog-modal"
                   target-modal-title="Confirm Table Clone"
-                  target-modal-body="<form action='/clone/{{repo_base}}/{{repo}}/table/{{base_table}}'><p>Creates a duplciate of the selected table</p><br /><div class='form-group'> <label for='variable-text' class='control-label'>Cloned Table Name:</label> <input type='text' class='form-control' id='variable-text'> </div><div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>Close</button> <button type='button' class='btn btn-primary'>Clone</button></div></form>"
+                  target-modal-body="<form action='/clone/{{repo_base}}/{{repo}}/table/{{base_table}}'><p>This will create a duplicate of the table {{base_table}}</p><br /><div class='form-group'> <label for='variable-text' class='control-label'>Cloned Table Name:</label> <input type='text' class='form-control' id='variable-text'> </div><div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>Close</button> <button type='button' class='btn btn-primary'>Clone</button></div></form>"
                   target-modal-operation="Clone"
                   target-url="/clone/{{repo_base}}/{{repo}}/table/{{base_table}}"
                   title="Clone Table">
@@ -47,9 +47,9 @@
 
               <span
                   class="modal-link modal-confirm-dialog"
-                  target-modal="#confirm-modal"
+                  target-modal="#dialog-modal"
                   target-modal-title="Confirm CSV Export"
-                  target-modal-body="This will export the table <strong><em>{{base_table}}</em></strong> to a CSV file named <strong><em>{{base_table}}.csv</em></strong> inside the <strong><em>{{repo_base}}/{{repo}}</em></strong> repository. The operation will overwrite any existing file with the same name. Are you sure?"
+                  target-modal-body="<form action='/export/{{repo_base}}/{{repo}}/table/{{base_table}}'><p>This will export the table <strong><em>{{base_table}}</em></strong> to a CSV file inside the <strong><em>{{repo_base}}/{{repo}}</em></strong> repository. The operation will overwrite any existing file with the same name. Are you sure?</p><br /><div class='form-group'> <label for='variable-text' class='control-label'>CSV Name:</label> <input type='text' class='form-control' id='variable-text' placeholder='{{base_table}}'> </div><div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>Close</button> <button type='button' class='btn btn-primary'>Export</button></div></form>"
                   target-modal-operation="Export"
                   target-url="/export/{{repo_base}}/{{repo}}/table/{{base_table}}"
                   title="CSV Export">

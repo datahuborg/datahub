@@ -578,7 +578,7 @@ class DataHubManager:
         file = open(file_path).read()
         return file
 
-    def export_table(self, repo, table, file_format='CSV',
+    def export_table(self, repo, table, file_name, file_format='CSV',
                      delimiter=',', header=True):
         """
         Exports a table to a file in the same repo.
@@ -602,7 +602,7 @@ class DataHubManager:
         DataHubManager.create_user_data_folder(self.repo_base, repo)
 
         # define the file path for the new table
-        file_name = clean_file_name(table)
+        file_name = clean_file_name(file_name)
         file_path = user_data_path(
             self.repo_base, repo, file_name, file_format)
 
@@ -738,7 +738,7 @@ class DataHubManager:
 
         return card
 
-    def export_card(self, repo, card_name, file_format='CSV'):
+    def export_card(self, repo, file_name, card_name, file_format='CSV'):
         """
         Exports the results of a card to a new file in the repo.
 
@@ -764,7 +764,7 @@ class DataHubManager:
         # create the user data folder if it doesn't already exist
         DataHubManager.create_user_data_folder(self.repo_base, repo)
 
-        file_name = clean_file_name(card_name)
+        file_name = clean_file_name(file_name)
         file_path = user_data_path(
             self.repo_base, repo, file_name, file_format)
 

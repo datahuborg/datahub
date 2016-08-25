@@ -483,11 +483,12 @@ def table_clone(request, repo_base, repo, table):
 @login_required
 def table_export(request, repo_base, repo, table_name):
     username = request.user.get_username()
+    file_name = request.GET.get('var_text', table_name)
 
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         manager.export_table(
-            repo=repo, table=table_name, file_format='CSV', delimiter=',',
-            header=True)
+            repo=repo, table=table_name, file_name=file_name,
+            file_format='CSV', delimiter=',', header=True)
 
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))
@@ -771,10 +772,12 @@ def card_update_public(request, repo_base, repo, card_name):
 
 @login_required
 def card_export(request, repo_base, repo, card_name):
+    import pdb; pdb.set_trace()
     username = request.user.get_username()
+    file_name = request.GET.get('var_text', card_name)
 
     with DataHubManager(user=username, repo_base=repo_base) as manager:
-        manager.export_card(repo, card_name)
+        manager.export_card(repo, file_name, card_name)
 
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))
