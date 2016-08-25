@@ -378,8 +378,8 @@ class PGBackend:
         self._validate_table_name(table)
         self._validate_table_name(new_table)
 
-        query = 'CREATE TABLE %s.%s AS SELECT * FROM %s'
-        params = (AsIs(repo), AsIs(new_table), AsIs(table))
+        query = 'CREATE TABLE %s.%s AS SELECT * FROM %s.%s'
+        params = (AsIs(repo), AsIs(new_table), AsIs(repo), AsIs(table))
 
         res = self.execute_sql(query, params)
         return res['status']

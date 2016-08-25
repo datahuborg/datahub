@@ -522,8 +522,8 @@ class SchemaListCreateDeleteShare(MockingMixin, TestCase):
         table = 'table_name'
         new_table = 'new_table_name'
 
-        expected_query = ('CREATE TABLE %s.%s AS SELECT * FROM %s')
-        expected_params = (repo, new_table, table)
+        expected_query = ('CREATE TABLE %s.%s AS SELECT * FROM %s.%s')
+        expected_params = (repo, new_table, repo, table)
         self.mock_execute_sql.return_value = {'status': True}
         res = self.backend.clone_table(repo, table, new_table)
 
