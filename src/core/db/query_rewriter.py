@@ -73,7 +73,7 @@ class SQLQueryRewriter:
         tables in a token.
         '''
         table_list = []
-        token_string = token.to_unicode()
+        token_string = unicode(token)
         tables = token_string.split(',')
         for table in tables:
             table_info = self.extract_table_string(table.rstrip().lstrip())
@@ -88,7 +88,7 @@ class SQLQueryRewriter:
         '''
         if not token.is_group():
             return False
-        if "select" not in token.to_unicode().lower():
+        if "select" not in unicode(token).lower():
             return False
         return True
 
@@ -100,11 +100,11 @@ class SQLQueryRewriter:
         separating the subquery from the other parts that come before and
         after the query.
         '''
-        subquery_start = token.to_unicode().find('(')
-        subquery_end = token.to_unicode().rfind(')')
-        return (token.to_unicode()[:subquery_start + 1],
-                token.to_unicode()[subquery_start + 1:subquery_end],
-                token.to_unicode()[subquery_end:])
+        subquery_start = unicode(token).find('(')
+        subquery_end = unicode(token).rfind(')')
+        return (unicode(token)[:subquery_start + 1],
+                unicode(token)[subquery_start + 1:subquery_end],
+                unicode(token)[subquery_end:])
 
     def process_subquery(self, token):
         '''
@@ -122,7 +122,7 @@ class SQLQueryRewriter:
         return result % processed_subquery
 
     def apply_row_level_security(self, query):
-        token = sqlparse.parse(query)[0].tokens[0].to_unicode().lower()
+        token = unicode(sqlparse.parse(query)[0].tokens[0]).lower()
         if token == "insert":
             return self.apply_row_level_security_insert(query)
         elif token == "update":
@@ -158,16 +158,16 @@ class SQLQueryRewriter:
                 prev_token = token
                 continue
 
-            if (prev_token is None or token.to_unicode() == " " or
-                    prev_token.to_unicode().lower() != "into"):
-                result += token.to_unicode()
-                if token.to_unicode() != " ":
+            if (prev_token is None or unicode(token) == " " or
+                    unicode(prev_token).lower() != "into"):
+                result += unicode(token)
+                if unicode(token) != " ":
                     prev_token = token
                 continue
 
-            table = self.extract_table_string(token.to_unicode())
-            result += token.to_unicode()
-            if token.to_unicode() != " ":
+            table = self.extract_table_string(unicode(token))
+            result += unicode(token)
+            if unicode(token) != " ":
                 prev_token = token
 
         if table is not None:
@@ -194,16 +194,16 @@ class SQLQueryRewriter:
                 result += self.process_subquery(token)
                 continue
 
-            if (prev_token is None or token.to_unicode() == " " or
-                    prev_token.to_unicode().lower() != "update"):
-                result += token.to_unicode()
-                if token.to_unicode() != " ":
+            if (prev_token is None or unicode(token) == " " or
+                    unicode(prev_token).lower() != "update"):
+                result += unicode(token)
+                if unicode(token) != " ":
                     prev_token = token
                 continue
 
-            table = self.extract_table_info(token.to_unicode())
-            result += token.to_unicode()
-            if token.to_unicode() != " ":
+            table = self.extract_table_info(unicode(token))
+            result += unicode(token)
+            if unicode(token) != " ":
                 prev_token = token
 
         if table is not None:
@@ -216,13 +216,13 @@ class SQLQueryRewriter:
         return result
 
     def is_postgres_catalog(self, token):
-        token_name = token.to_unicode()
+        token_name = unicode(token)
         if token_name[:3] == 'pg_':
             return True
         return False
 
     def need_query_rewrite(self, prev_token):
-        prev_token = prev_token.to_unicode().lower()
+        prev_token = unicode(prev_token).lower()
         joins = ["inner join", "left join", "right join", "join"]
         if prev_token == "from" or prev_token in joins:
             return True
@@ -246,14 +246,14 @@ class SQLQueryRewriter:
                 continue
 
             if self.is_postgres_catalog(token):
-                result += token.to_unicode()
+                result += unicode(token)
                 prev_token = token
                 continue
 
-            if (prev_token is None or token.to_unicode() == " " or
+            if (prev_token is None or unicode(token) == " " or
                     not self.need_query_rewrite(prev_token)):
-                result += token.to_unicode()
-                if token.to_unicode() != " ":
+                result += unicode(token)
+                if unicode(token) != " ":
                     prev_token = token
                 continue
 
@@ -315,7 +315,6 @@ class SQLQueryRewriter:
         Look up policies associated with the table and repo and returns a
         list of all the policies defined for the user.
         '''
-
         if repo_base is None:
             repo_base = self.repo_base
 
