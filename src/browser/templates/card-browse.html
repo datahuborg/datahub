@@ -194,41 +194,6 @@
 
 {% endblock content %}
 
-{% block panel-title %}
-  <span class="lead">
-    {{card.card_name}} &nbsp;
-    <a class="btn btn-default btn-sm" href="/browse/{{repo_base}}/{{repo}}/cards" title="Back to All Cards"><span class="glyphicon glyphicon-arrow-left"></span></a>
-    {% if card.public %}
-    <span
-      class="btn btn-default btn-sm modal-link modal-confirm-form-dialog"
-      target-modal="#confirm-form-modal"
-      target-modal-title="Make Card Private"
-      target-modal-body="Make this card private to restrict access to collaborators."
-      target-modal-operation="Make Private"
-      target-url="{% url 'browser-card_update_public' repo_base repo card.card_name %}"
-      target-modal-form-inputs='<input type="hidden" name="public" value="False" />'
-      title="Change Visibility">Visibility: Public
-    </span>
-    <a href="{% url 'api:card' repo_base=repo_base repo_name=repo card_name=card.card_name format='json' %}"><span class="btn btn-default btn-sm">Public Link</span></a>
-    {% else %}
-    <span
-      class="btn btn-default btn-sm modal-link modal-confirm-form-dialog"
-      target-modal="#confirm-form-modal"
-      target-modal-title="Make Card Public"
-      target-modal-body="Make this card public to allow unauthenticated users to run this query and see its results."
-      target-modal-operation="Make Public"
-      target-url="{% url 'browser-card_update_public' repo_base repo card.card_name %}"
-      target-modal-form-inputs='<input type="hidden" name="public" value="True" />'
-      title="Change Visibility">Visibility: Private
-    </span>
-    {% endif %}
-
-
-  </span><br />
-  Query: <code class="language-sql" data-lang="sql">{{card.query}}</code><br />
-{% endblock panel-title%}
-
-
 {% block js %}
 <!-- dataq -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.runtime.js"></script>
@@ -354,7 +319,6 @@ $('.annotation-modal-dialog').on('click', function(e){
     $(modal_id + ' form').attr('action', target_url)
     $(modal_id + ' form').prepend(modal_form_inputs);
 
-    $(modal_id).off('click')
     $(modal_id + ' .btn-primary').off('click')
 
     $(modal_id).modal({keyboard: true})
