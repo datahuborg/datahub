@@ -102,7 +102,7 @@ class DataHubManager:
 
         Should never fail or raise any exceptions.
         """
-        return self.user_con.list_repos()
+        return sorted(self.user_con.list_repos())
 
     def rename_repo(self, repo, new_name):
         """
@@ -201,7 +201,7 @@ class DataHubManager:
         exist.
         Raises ValueError if repo is invalid.
         """
-        return self.user_con.list_tables(repo=repo)
+        return sorted(self.user_con.list_tables(repo=repo))
 
     def describe_table(self, repo, table, detail=False):
         """
@@ -257,7 +257,7 @@ class DataHubManager:
         Raises LookupError on insufficient permissions or if the repo doesn't
         exist.
         """
-        return self.user_con.list_views(repo=repo)
+        return sorted(self.user_con.list_views(repo=repo))
 
     def describe_view(self, repo, view, detail=False):
         """
@@ -468,7 +468,7 @@ class DataHubManager:
         # make a directory for files, if it doesn't already exist
         repo_dir = DataHubManager.create_user_data_folder(self.repo_base, repo)
 
-        uploaded_files = [f for f in os.listdir(repo_dir)]
+        uploaded_files = sorted([f for f in os.listdir(repo_dir)])
         return uploaded_files
 
     def list_repo_cards(self, repo):
@@ -487,7 +487,7 @@ class DataHubManager:
         # get the relevant cards
         cards = Card.objects.all().filter(
             repo_base=self.repo_base, repo_name=repo)
-        cards = [c.card_name for c in cards]
+        cards = sorted([c.card_name for c in cards])
         return cards
 
     def list_collaborators(self, repo):
