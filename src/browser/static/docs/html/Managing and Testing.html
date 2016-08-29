@@ -120,9 +120,11 @@ $ sudo docker run --rm <span class="se">\</span>
   cat /var/log/nginx/access.log
 
 <span class="c1"># Run Django migrations</span>
-$ sudo dh-remove-all-containers <span class="o">&amp;&amp;</span> <span class="se">\</span>
-  dh-create-dev-containers <span class="o">&amp;&amp;</span> <span class="se">\</span>
-  dh-start-containers
+$ sudo docker run --rm <span class="se">\</span>
+  --net<span class="o">=</span>datahub_dev <span class="se">\</span>
+  --volumes-from app <span class="se">\</span>
+  datahuborg/datahub <span class="se">\</span>
+  python src/manage.py migrate --noinput
 
 <span class="c1"># Collect changes to Django&#39;s static files so the web container</span>
 <span class="c1"># can see them.</span>
@@ -170,11 +172,12 @@ $ sudo dh-run-test-container
 </pre></div>
 </div>
 <p>Browser screenshots are saved in <code class="docutils literal"><span class="pre">src/functional_tests/screenshots</span></code> on teardown</p>
-<p>You can run individual functional tests:</p>
-<blockquote>
-<div>$ python manage.py test functional_tests.test_login_auth          # tests authentication
-$ python manage.py test functional_tests.test_layout_and_styling  # tests main page layout
-$ python manage.py test functional_tests.test_db                  # tests data control and sharing</div></blockquote>
+<p>You can run individual functional tests with:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ python manage.py <span class="nb">test</span> functional_tests.test_login_auth          <span class="c1"># tests authentication</span>
+$ python manage.py <span class="nb">test</span> functional_tests.test_layout_and_styling  <span class="c1"># tests main page layout</span>
+$ python manage.py <span class="nb">test</span> functional_tests.test_db                  <span class="c1"># tests data control and sharing</span>
+</pre></div>
+</div>
 <p>Functional test files are saved in <code class="docutils literal"><span class="pre">src/functional_tests</span></code>.</p>
 </div>
 <div class="section" id="integration-tests">
