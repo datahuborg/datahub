@@ -706,15 +706,14 @@ def card(request, repo_base, repo, card_name):
     if request.POST.get('page'):
         current_page = request.POST.get('page')
 
-    url_path = reverse('browser-query', args=(repo_base, repo))
-
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         card = manager.get_card(repo=repo, card_name=card_name)
         res = manager.paginate_query(
             query=card.query, current_page=current_page, rows_per_page=50)
 
     # get annotation to the table:
-    annotation, created = Annotation.objects.get_or_create(url_path=url_path)
+    annotation, created = Annotation.objects.get_or_create(
+        url_path=request.path)
     annotation_text = annotation.annotation_text
 
     data = {
@@ -726,7 +725,6 @@ def card(request, repo_base, repo, card_name):
         'current_page': current_page,
         'next_page': current_page + 1,  # the template should relaly do this
         'prev_page': current_page - 1,  # the template should relaly do this
-        'url_path': url_path,
         'select_query': res['select_query'],
         'column_names': res['column_names'],
         'tuples': res['rows'],

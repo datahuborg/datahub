@@ -15,7 +15,7 @@
         /
         <a class="link" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a>
         /
-        card / {{card_name}}
+        card / {{card.card_name}}
       </h4>
     </div>
 
@@ -96,9 +96,9 @@
       <br />
       <!-- annotation -->
       {% if annotation %}
-        <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}" url-path="/browse/{{repo_base}}/{{repo}}/card/{{card_name}}"><span class="glyphicon glyphicon-edit"></span></span>
+        <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}" url-path="/browse/{{repo_base}}/{{repo}}/card/{{card.card_name}}"><span class="glyphicon glyphicon-edit"></span></span>
       {% else %}
-        <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Add Description" url-path="/browse/{{repo_base}}/{{repo}}/card/{{card_name}}"><span class="glyphicon glyphicon-edit"></span></span>
+        <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Add Description" url-path="/browse/{{repo_base}}/{{repo}}/card/{{card.card_name}}"><span class="glyphicon glyphicon-edit"></span></span>
       {% endif %}
       <!-- /annotation -->
     </div>
@@ -202,129 +202,56 @@
 <!-- /dataq -->
 
 <!-- sentiment -->
-<!-- <script src="/static/sentiment/sentiment.js"></script> -->
+<script src="/static/sentiment/sentiment.js"></script>
 <!-- /sentiment -->
 
-<script type="text/javascript">
-$('.annotation-modal-dialog').on('click', function(e){
-    var modal_id = $(this).attr('target-modal')
-    var title = $(this).attr('title')
-    var placeholder = $(this).attr('placeholder')
-    var url_path = $(this).attr('url-path')
-
-    $(modal_id + '-title').text(title)
-    $(modal_id + '-input-annotation').val(placeholder)
-    $(modal_id + '-input-url').val(url_path)
-
-    $(modal_id).off('click');
-
-    $(modal_id).modal({keyboard: true})
-      .on('click', modal_id + '-operation', function (e) {
-        $("#frm-annotation").submit()
-        $(modal_id).modal('hide')
-        $("#wait-dialog").modal()
-      });
-  });
-</script>
+<!-- dataTables -->
+<script src="/static/lib/jquery-datatables/jquery.dataTables.js"></script>
+<script src="/static/lib/jquery-datatables/dataTables.bootstrap.js"></script>
+<script src="/static/lib/jquery-datatables/dataTables.colReorder.js"></script>
+<script src="/static/lib/jquery-datatables/dataTables.colVis.js"></script>
+<script src="/static/datatables/js/dataTables.extra.js"></script>
+<!-- /dataTables -->
 
 <script>
-  $(document).ready(function() {
 
-   // no datatables here
 
-   // dataq
-   $(document).on("click", "#btn-dataq", function(e) {
+function bindAnnotationModal(){
+  $('.annotation-modal-dialog').on('click', function(e){
+      var modal_id = $(this).attr('target-modal')
+      var title = $(this).attr('title')
+      var placeholder = $(this).attr('placeholder')
+      var url_path = $(this).attr('url-path')
+
+      $(modal_id + '-title').text(title)
+      $(modal_id + '-input-annotation').val(placeholder)
+      $(modal_id + '-input-url').val(url_path)
+
+      $(modal_id).off('click');
+
+      $(modal_id).modal({keyboard: true})
+        .on('click', modal_id + '-operation', function (e) {
+          $("#frm-annotation").submit()
+          $(modal_id).modal('hide')
+          $("#wait-dialog").modal()
+        });
+    });
+}
+
+function bindDataQ(){
+  $(document).on("click", "#btn-dataq", function(e) {
     e.preventDefault();
     DataQ.DQ("{{repo}}", function(query) {
       $("#txt-sql").val(query);
     });
   });
+}
 
-   // sentiment is disabled, because it has undocumented depencies on datatables
-  //  // $(".sentiment-dropdown").hide();
-  //   $("#table_data").EnhancedDataTable("{{repo}}", "{{table}}", function(query) {
-  //     $("#txt-sql").val(query);
-  //   }, function(datatable) {
-
-  //     $(".sentiment-dropdown").show();
-  //     var sentiment_col_list = $("#sentiment_col_list");
-  //     sentiment_col_list.html("");
-  //     datatable.getColDef().forEach(function(colDef) {
-  //       var colname = colDef.name;
-  //       sentiment_col_list.append('<li data-colname="'+ colname + '" role="presentation"><a role="menuitem" tabindex="-1" >'+ colname +'</a></li>');
-  //     });
-
-  //     sentiment_col_list.find("li").click(function() {
-  //       var colname = $(this).data("colname");
-  //       var sentences = [];
-  //       datatable.forEachRowInColumn(colname, function(value) {
-  //         sentences.push(value);
-  //       });
-  //       Sentiment(sentences, function(err, sentiments) {
-  //         if (err !== null) {
-  //           throw err;
-  //         } else {
-  //           var num_positive = 0;
-  //           var num_negative = 0;
-  //           var threshold = 0;
-  //           datatable.forEachRowInColumn(colname, function(value, node, index) {
-  //             var polarity = sentiments[index].polarity;
-  //             if (polarity < -1*threshold) {
-  //               num_negative++;
-  //               node.css("color", "red");
-  //             } else if (polarity > threshold) {
-  //               num_positive++;
-  //               node.css("color", "green");
-  //             }
-  //           });
-  //           var alertbox = $("#alertbox");
-  //           alertbox.html("Sentiment analysis finished with " + num_positive + " positive and " + num_negative + " negative.");
-  //           alertbox.css("visibility", "visible");
-  //           setTimeout(function() {
-  //             alertbox.css("visibility", "hidden");
-  //           }, 3000);
-  //         }
-  //       });
-  //     });
-
-  //   });
-  // });
-
-   // annotation modal
-   $('.modal-link').on('click', function(e){
-    var modal_id = $(this).attr('target-modal')
-    $(modal_id).off('click');
-
-    $(modal_id).modal({keyboard: true})
-      .on('click', modal_id + '-operation', function (e) {
-        $('#save-card-modal-form').submit()
-        console.log('submitted')
-        $(modal_id).modal('hide')
-        $("#wait-dialog").modal()
-      });
-  });
-
-
-  $('.modal-confirm-form-dialog').on('click', function(e) {
-    var modal_id = $(this).attr('target-modal')
-    var modal_title = $(this).attr('target-modal-title')
-    var modal_body = $(this).attr('target-modal-body')
-    var modal_operation = $(this).attr('target-modal-operation')
-    var target_url = $(this).attr('target-url')
-    var modal_form_inputs = $(this).attr('target-modal-form-inputs')
-
-    $(modal_id + ' .modal-title').html(modal_title)
-    $(modal_id + ' .modal-body').html(modal_body)
-    $(modal_id + ' .btn-primary').html(modal_operation)
-    $(modal_id + ' form').attr('action', target_url)
-    $(modal_id + ' form').prepend(modal_form_inputs);
-
-    $(modal_id + ' .btn-primary').off('click')
-
-    $(modal_id).modal({keyboard: true})
-    });
-
-
+$(document).ready(function() {
+  bindAnnotationModal();
+  bindDataQ();
 });
+
 </script>
-{% endblock js %}
+
+{% endblock js%}
