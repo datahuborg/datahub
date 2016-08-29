@@ -43,7 +43,7 @@
             {% block headlink-right %}
               {% if login != 'dh_anonymous' and login or user.is_authenticated  %}
                 <ul class="nav navbar-nav navbar-right">
-                  <li><a href="/"><i class="fa fa-home text-success" ></i> <strong>Home</strong></a></li>
+                  <li><a href="/"><i class="fa fa-home"></i> <strong>Home</strong></a></li>
                   <li><a href="/browse/public" title="Public data is available for anyone to build queries on. All registered users have the option of publishing data. This is useful if you're doing something like publishing a paper, and would like the raw data to be available to anyone to play with. Users cannot modify public data without express permission from the data owner."><i class="glyphicon glyphicon-globe"></i> <strong>Public Data</strong></a></li>
                   <li><a href="/apps/console" id="id_launch_terminal" title="SQL Console lets you directly connect to your or a collaborator's database via a terminal interface."><i class="glyphicon glyphicon-console"></i> <strong>SQL Console</strong></a></li>
 
