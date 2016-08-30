@@ -1,0 +1,13 @@
+  <form role="form" class="form-inline sql-form" method="GET" action="/browse/{{repo_base}}/{{repo}}/query">
+    <div class="row">
+      <div class="form-group col-sm-12">
+        <button class="btn btn-info" type="button" id="btn-dataq" title="Query Builder (formerly dataQ) helps you create SQL statements to search your data.">Query Builder</button>
+        {% if query %}
+            <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Type SQL query here" value="{{query}}" />
+        {% else %}
+            <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Type SQL query here" />
+        {% endif %}
+        <button class="btn btn-primary" id="btn-run" title="Run the query in the input box and display the results" type="submit">Run Query</button>
+      </div>
+    </div>
+  </form>

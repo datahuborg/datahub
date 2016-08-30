@@ -70,6 +70,10 @@ class DataHubConnection:
     def delete_table(self, repo, table, force=False):
         return self.backend.delete_table(repo=repo, table=table, force=force)
 
+    def clone_table(self, repo, table, new_table):
+        return self.backend.clone_table(
+            repo=repo, table=table, new_table=new_table)
+
     def get_schema(self, repo, table):
         return self.backend.get_schema(repo=repo, table=table)
 
@@ -83,6 +87,10 @@ class DataHubConnection:
     def select_table_query(self, repo_base, repo, table):
         return self.backend.select_table_query(
             repo_base=repo_base, repo=repo, table=table)
+
+    def import_rows(
+            self, repo, table, rows, delimiter=',', header=False):
+        return self.backend.import_rows(repo, table, rows, delimiter, header)
 
     def execute_sql(self, query, params=None):
         return self.backend.execute_sql(query, params)

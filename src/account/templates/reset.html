@@ -1,7 +1,5 @@
-{% extends "minimal-layout.html" %}
-{% block headlink-right %}
-<a href="{% url 'login' %}" title="Sign In" class="btn btn-default navbar-btn">Sign In</a>
-{% endblock %}
+{% extends "base.html" %}
+
 {% block content %}
 <div class="container">
 <form class="col-xs-12 col-sm-6 col-sm-offset-3" method="POST" action="/account/reset/{{ encrypted_email }}">
@@ -17,4 +15,4 @@
   <button type="submit" class="btn btn-lg btn-primary btn-block">Reset</button>
 </form>
 </div>
-{% endblock %}
+{% endblock content %}

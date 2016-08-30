@@ -1,4 +1,5 @@
 <html>
+<!-- This template exists to provide a base template that the user CANNOT link away from. It's used for OAuth flow !-->
 
 <head>
 <title>DataHub</title>
@@ -9,15 +10,18 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="Description" content="DataHub is a (GitHub-Like) Data Ecosystem for Individuals, Teams and People. It provides an efficient platform and easy to use tools/interfaces for publishing of your own data (hosting, sharing, collaboration), using other’s data (querying, linking), and making sense of data (analysis, visualization)" />
 
+<!-- jQuery + Bootstrap -->
+<script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<!-- /jQuery + bootstrap -->
 
-<link rel="stylesheet" type="text/css" href="/static/css/datahub.css"/>
-<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
-<link rel="stylesheet" type="text/css" href="/static/lib/datahub-font/css/MIT-Icons.css" />
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+<!-- /Font Awesome -->
+<link rel="stylesheet" type="text/css" href="/static/css/datahub.css" />
 
-<script type="text/javascript" src="https://code.jquery.com/jquery-1.7.2.min.js"></script>  
-<script type="text/javascript" src="https://code.jquery.com/ui/1.8.16/jquery-ui.min.js"></script>
-<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 
 {% block js %}
 {% endblock %}
@@ -31,7 +35,7 @@
   <div class="navbar-header">
     <a class="navbar-brand" id="logo" href="/">DataHub</a>
   </div>
-  
+
   <div class="navbar-collapse collapse">
     <div class="navbar-right">
       {% block headlink-right %}

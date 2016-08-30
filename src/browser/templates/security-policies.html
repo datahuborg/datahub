@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 
 {% block content %}
 <div class="container">
@@ -7,9 +7,7 @@
     /
     <a class="link" href="{% url 'browser-repo' repo_base repo %}">{{repo}}</a>
     /
-    {% block table-name %}
       table / {{table}}
-    {% endblock %}
   </h4>
 
   <hr />
@@ -78,9 +76,6 @@
 </div>
 
 
-  {% block tabs %}
-  {% endblock %}
-
   <br />
 
   <div class="panel panel-default">
@@ -138,9 +133,7 @@
         </div>
 
     {% else %}
-      {% block table-empty-warning %}
       <p class="bg-warning"> No security policies exist for <strong> {{table}} </strong>. </p>
-      {% endblock %}
     {% endif %}
 
   </div>

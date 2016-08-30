@@ -1,86 +1,226 @@
-<!--
-@author: Anant Bhardwaj
-@date: Feb 12, 2012
-
-The file is never used in the datahub project, though layout.html should honsetly probably be in the src/templates folder
--->
-
+<!DOCTYPE html>
 <html>
-
+{% load staticfiles %}
 <head>
-<title>DataHub</title>
-<meta charset="utf-8">
+  {% block meta_tags %}
+    <meta charset="utf-8">
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="viewport" content="initial-scale=1.0 user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="Description" content="DataHub is a (GitHub-Like) Data Ecosystem for Individuals, Teams and People. It provides an efficient platform and easy to use tools/interfaces for publishing of your own data (hosting, sharing, collaboration), using other’s data (querying, linking), and making sense of data (analysis, visualization)" />
+  {% endblock meta_tags %}
 
-<meta name="HandheldFriendly" content="true" />
-<meta name="viewport" content="initial-scale=1.0 user-scalable=no"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="Description" content="DataHub is a (GitHub-Like) Data Ecosystem for Individuals, Teams and People. It provides an efficient platform and easy to use tools/interfaces for publishing of your own data (hosting, sharing, collaboration), using other’s data (querying, linking), and making sense of data (analysis, visualization)" />
+  {% block title %} <title>DataHub</title> {% endblock title %}
 
+  <!-- jQuery + Bootstrap -->
+  <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  <!-- /jQuery + bootstrap -->
 
-<link rel="stylesheet" type="text/css" href="/static/css/datahub.css"/>
-<link href="https://code.jquery.com/ui/1.8.16/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css"/>
-<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
-
-<script type="text/javascript" src="https://code.jquery.com/jquery-1.7.2.min.js"></script>	
-<script type="text/javascript" src="https://code.jquery.com/ui/1.8.16/jquery-ui.min.js"></script>
-<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+  <!-- /Font Awesome -->
+  <link rel="stylesheet" type="text/css" href="/static/css/datahub.css" />
+  {% block stylesheets %} {% endblock stylesheets %}
+  {% block js %} {% endblock js %}
+  {% block extra_head %} {% endblock extra_head %}
 </head>
+<body>
+  <header class="navbar navbar-default navbar-fixed-top" role="banner">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" id="logo" href="/">DataHub</a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <div class="navbar-right">
+            {% block headlink-right %}
+              {% if login != 'dh_anonymous' and login or user.is_authenticated  %}
+                <ul class="nav navbar-nav navbar-right">
+                  <li><a href="/"><i class="fa fa-home"></i> <strong>Home</strong></a></li>
+                  <li><a href="/browse/public" title="Public data is available for anyone to build queries on. All registered users have the option of publishing data. This is useful if you're doing something like publishing a paper, and would like the raw data to be available to anyone to play with. Users cannot modify public data without express permission from the data owner."><i class="glyphicon glyphicon-globe"></i> <strong>Public Data</strong></a></li>
+                  <li><a href="/apps/console" id="id_launch_terminal" title="SQL Console lets you directly connect to your or a collaborator's database via a terminal interface."><i class="glyphicon glyphicon-console"></i> <strong>SQL Console</strong></a></li>
 
-<header class="navbar navbar-default navbar-fixed-top" role="banner">
-  <div class="container">
-  <div class="navbar-header">
-    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
-      <span class="sr-only">Toggle navigation</span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-    </button>
-    <a class="navbar-brand" id="logo" href="/">DataHub</a>
-  </div>
-  
-  <div class="navbar-collapse collapse">
-    <div class="navbar-right">
-      {% block headlink-right %}
-      {% endblock %}
+                  <!-- <li>
+                    <a href="/"><i class="fa fa-th-large"></i> <strong>App Center</strong></a>
+                  </li>
+
+                  <li>
+                    <a href="/"><i class="fa fa-bell"></i> <strong>Notifications</strong></a>
+                  </li> -->
+
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="id_user_menu" role="button" aria-expanded="false">
+                      <i class="fa fa-user"></i> <strong>{% if login %}{{ login }}{% else %}{{ user.get_username }}{% endif %}</strong> <i class="fa fa-caret-down"></i>
+                    </a>
+
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="/developer/apps" id="id_create_app" title="Manage Apps">Manage Apps</a></li>
+                      <li class="divider"></li>
+                      <li><a href="/account/settings" id="id_settings" title="Sign Out">Settings</a></li>
+                      <li><a href="/account/logout" id="id_sign_out" title="Sign Out">Sign Out</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              {% else %}
+                <div class="nav navbar-nav navbar-right">
+                  <a href="/browse/public" class="btn navbar-btn btn-info"><i class="fa fa-globe"></i> <strong>Public Data</strong></a>
+                   &nbsp; &nbsp;
+                  <a href="/account/login" title="Sign In" id="id_sign_in" class="btn navbar-btn btn-primary">Sign In</a> &nbsp; &nbsp;
+                  <a href="/account/register" title="Sign Up" id="id_sign_up" class="btn navbar-btn btn-success">Sign Up</a>
+                </div>
+              {% endif %}
+
+            {% endblock headlink-right %}
+        </div>
+      </div>
+    </div>
+  </header>
+  {% block header %} {% endblock header %}
+  {% block content %} {% endblock content %}
+  {% block footer %}
+    <div class="container" style="padding-top: 50px">
+      <div class="navbar navbar-default navbar-static-bottom text-center">
+          <div class="navbar-footer">
+              <a href="/www/" class="btn navbar-btn">About</a> &nbsp; &nbsp;
+              <a href="{% static 'docs/html/index.html' %}" class="btn navbar-btn">Documentation</a> &nbsp; &nbsp;
+              <a href="https://github.com/abhardwaj/datahub" class="btn navbar-btn">GitHub Repo</a> &nbsp; &nbsp;
+              <a href="{% url 'django.swagger.base.view' %}" class="btn navbar-btn">API</a>
+          </div>
+      </div>
+    </div>
+  {% endblock footer %}
+  {% block google_analytics %}
+    <script>
+      (function(i, s, o, g, r, a, m) { i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function() { (i[r].q = i[r].q || []).push(arguments) }, i[r].l = 1 * new Date(); a = s.createElement(o), m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m) })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga'); ga('create', 'UA-55860060-1', 'auto'); ga('send', 'pageview');
+    </script>
+  {% endblock google_analytics %}
+
+
+  {% block modal_dialog %}
+  <!-- Common Modal Dialogs -->
+  <div
+      class="modal" id="confirm-modal"
+      tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Confirm</h4>
+        </div>
+        <div class="modal-body">Are you sure?</div>
+        <div class="modal-footer">
+          <button type="button"
+              class="btn btn-primary">OK</button>
+          <button type="button"
+              class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
     </div>
   </div>
+
+  <div class="modal" id="confirm-form-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header"><h4 class="modal-title">Confirm</h4></div>
+        <div class="modal-body">Are you sure?</div>
+        <div class="modal-footer">
+          <form method="post" action="" style="margin-bottom:0">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-danger">OK</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
-</header>
 
-<body>
+  <div class="modal fade" id="dialog-modal" tabindex="-1" role="dialog" aria-labelledby="dialog-modalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="dialog-modalLabel">New message</h4>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="variable-text" class="control-label">Variable:</label>
+              <input type="text" class="form-control" id="variable-text">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Send message</button>
+            </div>
+          </form>
+        </div>
 
-<div class="push"></div>
-
-{% block content %}
-{% endblock %}
-{% load staticfiles %}
-
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-55860060-1', 'auto');
-  ga('send', 'pageview');
-
-</script>
-
-<div class="push"></div>
-<div class="container">
-  <div class="navbar navbar-default navbar-static-bottom text-center">
-  <div class="navbar-footer">
-    <a href="/www/" class="btn navbar-btn">About</a> &nbsp; &nbsp;
-    <a href="{% static 'docs/html/index.html' %}" class="btn navbar-btn">Documentation</a> &nbsp; &nbsp;
-    <a href="https://github.com/abhardwaj/datahub" class="btn navbar-btn">GitHub Repo</a> &nbsp; &nbsp;
-    <a href="{% url 'django.swagger.base.view' %}" class="btn navbar-btn">API</a>
+      </div>
+    </div>
   </div>
+
+
+
+  <div class="modal hide" id="wait-dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-header">
+      <h1>Processing...</h1>
+    </div>
+    <div class="modal-body">
+      <div class="progress progress-striped active">
+        <div class="bar" style="width: 100%;"></div>
+      </div>
+    </div>
   </div>
-</div>
+  <!-- /Confirm Modal Dialog -->
+  {% endblock modal_dialog %}
+
+  {% block modal_js %}
+  <script type="text/javascript">
+  $(document).ready(
+    $(function() {
+      $('.modal-confirm-dialog').on('click', function(e) {
+        var modal_id = $(this).attr('target-modal');
+        var modal_title = $(this).attr('target-modal-title');
+        var modal_body = $(this).attr('target-modal-body');
+        var modal_operation = $(this).attr('target-modal-operation');
+        var target_url = $(this).attr('target-url');
+
+        $(modal_id + ' .modal-title').html(modal_title);
+        $(modal_id + ' .modal-body').html(modal_body);
+        $(modal_id + ' .btn-primary').html(modal_operation);
+
+        $(modal_id).off('click');
+        $(modal_id + ' .btn-primary').off('click');
+
+        $(modal_id + ' .btn-primary').on('click', function(e) {
+          $(modal_id).modal('hide');
+          $("#wait-dialog").modal();
+
+          var new_location = window.location.protocol + '//' + window.location.host + target_url;
+
+          // append parameter, as necessary
+          var var_text = $("#variable-text").val();
+          if(var_text != ""){
+            new_location += '?var_text=' + var_text;
+          };
+
+          window.location.href = new_location;
+
+        });
+
+        $(modal_id).modal({keyboard: true})
+      });
+    })
+  );
+
+  </script>
+  {% endblock modal_js %}
 
 </body>
+
 </html>

@@ -1,16 +1,285 @@
-{% extends "table-browse-template.html" %}
+{% extends "base.html" %}
 
-{% block panel-title %}
-  <span class="lead">
-    {{table}} &nbsp;
-    <a class="btn btn-default btn-sm" href="/browse/{{repo_base}}/{{repo}}/tables" title="Back to All Tables"><span class="glyphicon glyphicon-arrow-left"></span></a>
-  </span>
-{% endblock %}
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="/static/datatables/css/dataTables.bootstrap.extra.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.colReorder.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.colVis.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.fontAwesome.css" />
+<link rel="stylesheet" href="/static/dataq/css/style.css">
+{% endblock stylesheets %}
 
-{% block tabs %}
-<ul class="nav nav-tabs" role="tablist">
-  <li class="active"><a href="/browse/{{repo_base}}/{{repo}}/tables" role="tab">Tables &amp; Views</a></li>
-  <li><a href="/browse/{{repo_base}}/{{repo}}/files" role="tab">Files</a></li>
-  <li><a href="/browse/{{repo_base}}/{{repo}}/cards" role="tab">Cards</a></li>
-</ul>
-{% endblock %}
+
+{% block content %}
+<div class="container">
+
+<div class="row">
+  <div class="col-sm-10">
+  <h4 class="inline-block">
+    <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a> /
+    <a class="link" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a> /
+    {% block table-name %}
+      table / {{table}}
+    {% endblock %}
+  </h4>
+  </div>
+
+  {% block apps %}
+  <div class="col-sm-2">
+    <div class="btn-group class=pull-right" style="width: 100%" role="group">
+      <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; display:block;">
+        Open in App...
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a href="/browse/{{repo_base}}/{{repo}}/securitypolicies/{{table}}" title="Row Level Security allows you to restrict collaborator access to individual rows in your table. Keep in mind that this only works for users who are *already* collaborators."><i class="fa fa-lock" aria-hidden="true"></i> Row Level Security</a></li>
+        <li><a href="/apps/dbwipes/page/{{repo_base}}/{{repo}}/{{table}}" title="dbwipes (outlier viz) allows you quickly explore your data and identify outliers. It does not write to your existing tables, and is an extremely powerful tool. Give it a try!"><i class="fa fa-bullseye" aria-hidden="true"></i> dbwipes (Outlier Viz)</a></li>
+        <li><a href="/apps/viz/" title="Viz (Chart Maker) allows you to visualize queries using Google Charts. Need to make a quick and dirty pie chart/histogram from an arbitrary query? This is the place."><i class="fa fa-pie-chart" aria-hidden="true"></i> Viz (Chart Maker)</a></li>
+        <li><a href="/apps/refiner/" title="Refiner takes semi-structured data and turns it into actually structured data, so that you can run queries on it. Sample data is included!"><i class="fa fa-filter" aria-hidden="true"></i> Refiner</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  {% endblock %}
+</div>
+  <hr />
+  <br />
+
+  {% include "query-form.html" %}
+
+  <br />
+    <!-- tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="active"><a href="/browse/{{repo_base}}/{{repo}}/tables" role="tab">Tables &amp; Views</a></li>
+      <li><a href="/browse/{{repo_base}}/{{repo}}/files" role="tab">Files</a></li>
+      <li><a href="/browse/{{repo_base}}/{{repo}}/cards" role="tab">Cards</a></li>
+    </ul>
+    <!-- /tabs -->
+
+  <br />
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+
+      <!-- panel title -->
+      <span class="lead">
+        {{table}} &nbsp;
+        <a class="btn btn-default btn-sm" href="/browse/{{repo_base}}/{{repo}}/tables" title="Back to All Tables"><span class="glyphicon glyphicon-arrow-left"></span></a>
+      </span>
+      <!-- /panel title -->
+      <br />
+
+      <!-- annotation -->
+        {% if annotation %}
+          <span class="text-muted">{{annotation}}</span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Edit Description" placeholder="{{annotation}}" url-path="/browse/{{repo_base}}/{{repo}}/table/{{table}}"><span class="glyphicon glyphicon-edit"></span></span>
+        {% else %}
+          <span class="text-warning"><em>No description yet</em></span>&nbsp; &nbsp;<span class="modal-link annotation-modal-dialog" target-modal="#annotation-modal" title="Add Description" url-path="/browse/{{repo_base}}/{{repo}}/table/{{table}}"><span class="glyphicon glyphicon-edit"></span></span>
+        {% endif %}
+      <!-- /annotation -->
+    </div>
+
+
+    <!-- sentiment -->
+    <div class="dropdown sentiment-dropdown" style="margin: 10px 0 0 5px">
+      <button class="btn btn-default dropdown-toggle" type="button" id="sentimentDropdown" data-toggle="dropdown" aria-expanded="true">
+        Run Sentiment Analysis
+        <span class="caret"></span>
+      </button>
+      <ul id="sentiment_col_list" class="dropdown-menu" role="menu" aria-labelledby="sentimentDropdown">
+      </ul>
+    </div>
+    <!-- /sentiment -->
+
+
+    {% if tuples and tuples|length > 0 %}
+      <!-- table_data -->
+        <div class="table-responsive datahub-datatable-no-scroll table-container">
+        <table id="table_data" class="table table-condensed table-bordered datahub-datatable-no-scroll">
+          <thead>
+            <tr>
+              {% for column_name in column_names %}
+              <th>{{column_name}}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tfoot>
+            <tr>
+              {% for column_name in column_names %}
+              <th data-colname="{{column_name}}">{{column_name}}</th>
+              {% endfor %}
+            </tr>
+          </tfoot>
+          <tbody>
+            {% for tuple in tuples %}
+            <tr>
+              {% for cell in tuple %}
+                <td class="strong">{{cell}}</td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <br />
+        </div>
+        <div class="inlineblock floatright">
+          <!-- Pagination would go here -->
+        </div>
+      <!-- /table_data -->
+
+    {% else %}
+      <!-- empty_table_warning -->
+      <p class="bg-warning">The <strong>{{table}}</strong> table is empty.</p>
+      <!-- empty_table_warning -->
+    {% endif %}
+
+  </div>
+  <!-- Uncomment for sentiment analysis. -->
+  <div class="alert alert-success" role="alert" id="alertbox" style="visibility: hidden">
+  </div>
+
+</div>
+
+<div class="modal" id="annotation-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="annotation-modal-title">Annotation</h4>
+      </div>
+      <div class="modal-body" id="annotation-modal-body">
+        <form role="form" method="POST" action="/create/annotation" id="frm-annotation">
+          <div class="form-group">
+            {% csrf_token %}
+            <input type="hidden" name="url" id="annotation-modal-input-url"/>
+            <input type="text" class="form-control" name="annotation" placeholder="Enter text description" id="annotation-modal-input-annotation" />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+            class="btn btn-primary" id="annotation-modal-operation">Save</button>
+        <button type="button"
+            class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+
+
+{% block js %}
+<!-- dataq -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.runtime.js"></script>
+<script src="/static/dataq/templates.js"></script>
+<script src="/static/dataq/js/dataq.min.js"></script>
+<!-- /dataq -->
+
+<!-- sentiment -->
+<script src="/static/sentiment/sentiment.js"></script>
+<!-- /sentiment -->
+
+<!-- dataTables -->
+<script src="/static/lib/jquery-datatables/jquery.dataTables.js"></script>
+<script src="/static/lib/jquery-datatables/dataTables.bootstrap.js"></script>
+<script src="/static/lib/jquery-datatables/dataTables.colReorder.js"></script>
+<script src="/static/lib/jquery-datatables/dataTables.colVis.js"></script>
+<script src="/static/datatables/js/dataTables.extra.js"></script>
+<!-- /dataTables -->
+
+<script>
+
+
+function bindAnnotationModal(){
+  $('.annotation-modal-dialog').on('click', function(e){
+      var modal_id = $(this).attr('target-modal')
+      var title = $(this).attr('title')
+      var placeholder = $(this).attr('placeholder')
+      var url_path = $(this).attr('url-path')
+
+      $(modal_id + '-title').text(title)
+      $(modal_id + '-input-annotation').val(placeholder)
+      $(modal_id + '-input-url').val(url_path)
+
+      $(modal_id).off('click');
+
+      $(modal_id).modal({keyboard: true})
+        .on('click', modal_id + '-operation', function (e) {
+          $("#frm-annotation").submit()
+          $(modal_id).modal('hide')
+          $("#wait-dialog").modal()
+        });
+    });
+}
+
+function bindDataQ(){
+  $(document).on("click", "#btn-dataq", function(e) {
+    e.preventDefault();
+    DataQ.DQ("{{repo}}", function(query) {
+      $("#txt-sql").val(query);
+    });
+  });
+}
+
+function setupSentimentAnalysis(){
+  // $(".sentiment-dropdown").hide();
+    $("#table_data").EnhancedDataTable("{{repo}}", "{{table}}", function(query) {
+      $("#txt-sql").val(query);
+    }, function(datatable) {
+
+      $(".sentiment-dropdown").show();
+      var sentiment_col_list = $("#sentiment_col_list");
+      sentiment_col_list.html("");
+      datatable.getColDef().forEach(function(colDef) {
+        var colname = colDef.name;
+        sentiment_col_list.append('<li data-colname="'+ colname + '" role="presentation"><a role="menuitem" tabindex="-1" >'+ colname +'</a></li>');
+      });
+
+      sentiment_col_list.find("li").click(function() {
+        var colname = $(this).data("colname");
+        var sentences = [];
+        datatable.forEachRowInColumn(colname, function(value) {
+          sentences.push(value);
+        });
+        Sentiment(sentences, function(err, sentiments) {
+          if (err !== null) {
+            throw err;
+          } else {
+            var num_positive = 0;
+            var num_negative = 0;
+            var threshold = 0;
+            datatable.forEachRowInColumn(colname, function(value, node, index) {
+              var polarity = sentiments[index].polarity;
+              if (polarity < -1*threshold) {
+                num_negative++;
+                node.css("color", "red");
+              } else if (polarity > threshold) {
+                num_positive++;
+                node.css("color", "green");
+              }
+            });
+            var alertbox = $("#alertbox");
+            alertbox.html("Sentiment analysis finished with " + num_positive + " positive and " + num_negative + " negative.");
+            alertbox.css("visibility", "visible");
+            setTimeout(function() {
+              alertbox.css("visibility", "hidden");
+            }, 3000);
+          }
+        });
+      });
+    });
+}
+
+$(document).ready(function() {
+  bindAnnotationModal();
+  bindDataQ();
+  setupSentimentAnalysis();
+});
+
+</script>
+
+{% endblock js%}

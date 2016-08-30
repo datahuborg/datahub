@@ -187,8 +187,7 @@ def public(request):
 def user(request, repo_base=None):
     username = request.user.get_username()
 
-    if not repo_base:
-        repo_base = username
+    repo_base = username or 'public'
 
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         repos = manager.list_repos()
@@ -235,7 +234,7 @@ def repo(request, repo_base, repo):
 
 def repo_tables(request, repo_base, repo):
     '''
-    shows the tables under a repo.
+    shows the tables and views under a repo.
     '''
     username = request.user.get_username()
     if repo_base.lower() == 'user':
@@ -470,13 +469,26 @@ def table(request, repo_base, repo, table):
 
 
 @login_required
+def table_clone(request, repo_base, repo, table):
+    username = request.user.get_username()
+    new_table = request.GET.get('var_text', None)
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.clone_table(repo, table, new_table)
+
+    return HttpResponseRedirect(
+        reverse('browser-repo_tables', args=(repo_base, repo)))
+
+
+@login_required
 def table_export(request, repo_base, repo, table_name):
     username = request.user.get_username()
+    file_name = request.GET.get('var_text', table_name)
 
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         manager.export_table(
-            repo=repo, table=table_name, file_format='CSV', delimiter=',',
-            header=True)
+            repo=repo, table=table_name, file_name=file_name,
+            file_format='CSV', delimiter=',', header=True)
 
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))
@@ -600,21 +612,26 @@ def query(request, repo_base, repo):
     # with the SQL to be executed pre-populated
     if repo_base.lower() == 'user':
         repo_base = username
+        if not username:
+            repo_base = 'public'
         data = {
             'login': username,
             'repo_base': repo_base,
-            'repo': 'repo',
-            'select_query': False,  # hides the "save as card" button
+            'repo': repo,
             'query': query}
 
         return render_to_response("query-preview-statement.html", data)
 
     # if the user is just requesting the query page
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        cards = manager.list_repo_cards(repo)
+
     if not query:
         data = {
             'login': username,
             'repo_base': repo_base,
             'repo': repo,
+            'cards': json.dumps(cards),
             'select_query': False,
             'query': query}
         return render_to_response("query-browse-results.html", data)
@@ -644,6 +661,7 @@ def query(request, repo_base, repo):
         'prev_page': current_page - 1,  # the template should relaly do this
         'url_path': url_path,
         'query': query,
+        'cards': json.dumps(cards),
         'select_query': res['select_query'],
         'column_names': res['column_names'],
         'tuples': res['rows'],
@@ -688,15 +706,14 @@ def card(request, repo_base, repo, card_name):
     if request.POST.get('page'):
         current_page = request.POST.get('page')
 
-    url_path = reverse('browser-query', args=(repo_base, repo))
-
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         card = manager.get_card(repo=repo, card_name=card_name)
         res = manager.paginate_query(
             query=card.query, current_page=current_page, rows_per_page=50)
 
     # get annotation to the table:
-    annotation, created = Annotation.objects.get_or_create(url_path=url_path)
+    annotation, created = Annotation.objects.get_or_create(
+        url_path=request.path)
     annotation_text = annotation.annotation_text
 
     data = {
@@ -708,7 +725,6 @@ def card(request, repo_base, repo, card_name):
         'current_page': current_page,
         'next_page': current_page + 1,  # the template should relaly do this
         'prev_page': current_page - 1,  # the template should relaly do this
-        'url_path': url_path,
         'select_query': res['select_query'],
         'column_names': res['column_names'],
         'tuples': res['rows'],
@@ -755,9 +771,10 @@ def card_update_public(request, repo_base, repo, card_name):
 @login_required
 def card_export(request, repo_base, repo, card_name):
     username = request.user.get_username()
+    file_name = request.GET.get('var_text', card_name)
 
     with DataHubManager(user=username, repo_base=repo_base) as manager:
-        manager.export_card(repo, card_name)
+        manager.export_card(repo, file_name, card_name)
 
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))

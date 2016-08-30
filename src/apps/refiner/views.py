@@ -1,9 +1,11 @@
-from django.shortcuts import render_to_response
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
 import json
 
+from django.core.context_processors import csrf
+from django.shortcuts import render_to_response
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpResponseServerError
+
+from core.db.manager import DataHubManager
 from distill import inference
 
 
@@ -15,14 +17,21 @@ Datahub Refiner
 '''
 
 
-@login_required
 def index(request):
-    return render_to_response("refiner.html", {
-        'login': request.user.get_username()
-    })
+    # if the user is authenticated, we pass them the available repos
+    username = request.user.get_username()
+    res = {'login': username}
+    try:
+        with DataHubManager(username) as m:
+            repos = m.list_repos()
+            res['repos'] = repos
+    except:
+        pass
+
+    res.update(csrf(request))
+    return render_to_response("refiner.html", res)
 
 
-@csrf_exempt
 def refine_data(request):
     res = {'error': None}
     try:
@@ -45,9 +54,35 @@ def refine_data(request):
 
             csv_str = '\n'.join(csv_lines)
             res['output'] = csv_str
+            res['csv_lines'] = csv_lines
         else:
             res['error'] = 'Invalid HTTP Method'
     except Exception, e:
         res['error'] = str(e)
 
     return HttpResponse(json.dumps(res), content_type="application/json")
+
+
+@login_required
+def create_table(request):
+    username = request.user.get_username()
+    csv_lines = request.POST.getlist('csv_lines[]')
+    header = json.loads(request.POST['header'])
+    repo = request.POST['repo_name']
+    table = request.POST['table_name']
+
+    # remove the "..." characters that refiner puts on both sides of the array
+    csv_lines = csv_lines[1:len(csv_lines) - 1]
+
+    try:
+        with DataHubManager(username) as m:
+            m.import_rows(
+                repo=repo,
+                table=table,
+                rows=csv_lines,
+                header=header)
+
+            return HttpResponse('')
+
+    except Exception as e:
+        return HttpResponseServerError(e)

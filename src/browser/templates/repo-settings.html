@@ -1,4 +1,6 @@
-{% extends "layout.html" %} {% block content %}
+{% extends "base.html" %}
+
+{% block content %}
 <div class="container">
     <h4 class="inline-block">
     <a class="link" href="/browse/{{repo_base}}">{{repo_base}}</a>
@@ -47,48 +49,48 @@
                         </div>
                         <p class="help-block">Permissions for repo database tables:</p>
                         <div class="checkbox">
-                            <label>
+                            <label title="Allows SELECT from any column, or the specific columns listed, of the specified table, view, or sequence. Also allows the use of COPY TO. This privilege is also needed to reference existing column values in UPDATE or DELETE. For sequences, this privilege also allows the use of the currval function. For large objects, this privilege allows the object to be read.">
                                 <input type="checkbox" name="db_privileges" value="SELECT" checked/> select
                             </label>
                         </div>
                         <div class="checkbox">
-                            <label>
+                            <label title="UPDATE changes the values of the specified columns in all rows that satisfy the condition. Only the columns to be modified need be mentioned in the SET clause; columns not explicitly modified retain their previous values.">
                                 <input type="checkbox" name="db_privileges" value="UPDATE" checked/> update
                             </label>
                         </div>
                         <div class="checkbox">
-                            <label>
+                            <label title="INSERT inserts new rows into a table. One can insert one or more rows specified by value expressions, or zero or more rows resulting from a query.">
                                 <input type="checkbox" name="db_privileges" value="INSERT" checked/> insert
                             </label>
                         </div>
                         <div class="checkbox">
-                            <label>
+                            <label title="DELETE deletes rows that satisfy the WHERE clause from the specified table. If the WHERE clause is absent, the effect is to delete all rows in the table. The result is a valid, but empty table.">
                                 <input type="checkbox" name="db_privileges" value="DELETE" checked/> delete
                             </label>
                         </div>
                         <div class="checkbox">
-                            <label>
+                            <label data-toggle="tooltip" title="TRUNCATE quickly removes all rows from a set of tables. It has the same effect as an unqualified DELETE on each table, but since it does not actually scan the tables it is faster. Furthermore, it reclaims disk space immediately, rather than requiring a subsequent VACUUM operation. This is most useful on large tables.">
                                 <input type="checkbox" name="db_privileges" value="TRUNCATE" checked/> truncate
                             </label>
                         </div>
                         <div class="checkbox">
-                            <label>
+                            <label title="To create a foreign key constraint, it is necessary to have this privilege on both the referencing and referenced columns. The privilege may be granted for all columns of a table, or just specific columns.">
                                 <input type="checkbox" name="db_privileges" value="REFERENCES" checked/> references
                             </label>
                         </div>
                         <div class="checkbox">
-                            <label>
+                            <label title="Allows the creation of a trigger on the specified table. A trigger is a specification that the database should automatically execute a particular function whenever a certain type of operation is performed. Triggers can be attached to both tables and views.">
                                 <input type="checkbox" name="db_privileges" value="TRIGGER" checked/> trigger
                             </label>
                         </div>
                         <p class="help-block">Permissions for repo files:</p>
                         <div class="checkbox">
-                            <label>
+                            <label title="Allows read access to files and cards in the repo">
                                 <input type="checkbox" name="file_privileges" value="read" checked/> read
                             </label>
                         </div>
                         <div class="checkbox">
-                            <label>
+                            <label title="Allows creation and modification of files and cards in the repo">
                                 <input type="checkbox" name="file_privileges" value="WRITE" checked/> write
                             </label>
                         </div>
@@ -137,6 +139,9 @@
     <br />
     <br />
 </div>
+{% endblock content %}
+
+{% block js %}
 <script type="text/javascript">
 $(document).ready(function () {
     $('#add_collaborator').click(function() {
@@ -162,8 +167,5 @@ $(document).ready(function () {
 
     });
 });
-
 </script>
-
-
-{% endblock %}
+{% endblock js %}

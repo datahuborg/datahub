@@ -67,6 +67,7 @@ class ManagerIntegrationTests(TestCase):
                 table = 'table1'
                 view = 'view1'
                 card = 'card1'
+                file_name = 'file_name'
                 m.create_repo(repo)
                 m.create_table(
                     repo=repo,
@@ -82,7 +83,8 @@ class ManagerIntegrationTests(TestCase):
                     query='SELECT * from %s.%s' % (repo, table))
                 m.export_table(
                     repo=repo,
-                    table=table)
+                    table=table,
+                    file_name=file_name)
             for i in xrange(1, 5):
                 repo = 'public%s' % i
                 m.create_repo(repo)

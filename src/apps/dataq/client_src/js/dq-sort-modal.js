@@ -45,6 +45,7 @@
     // Handle modal close when clicking backdrop.
     $(".modal-backdrop").click(function() {
       $("#dq-sort-modal").remove();
+      $(".modal-backdrop").remove();
       callback();
     })
   };
@@ -71,7 +72,7 @@
       used_dict[sort.string] = true;
     });
 
-    // Iterate through every column of every selected table and, if it isn't used, add it to the 
+    // Iterate through every column of every selected table and, if it isn't used, add it to the
     // list of items.
     var items = [];
     query.get_selected_tables().forEach(function(selected_table) {
@@ -104,7 +105,7 @@
     list.html("");
     query.sorts().forEach(function(sort) {
       var html = DataQ.templates["dq-sort-list-item"]({
-        "item": sort 
+        "item": sort
       });
       list.append(html);
     });
@@ -113,6 +114,7 @@
   // Handle modal close.
   $(document).on("click", ".dq-sort-modal-quit", function() {
     $('#dq-sort-modal').remove();
+    $(".modal-backdrop").remove();
     callback();
   });
 
@@ -147,6 +149,7 @@
   // Handle modal close.
   $(document).on("click", ".dq-sort-modal-done-btn", function() {
     $('#dq-sort-modal').remove();
+    $(".modal-backdrop").remove();
     callback();
   });
 

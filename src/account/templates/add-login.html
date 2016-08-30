@@ -2,6 +2,10 @@
 
 {% load crispy_forms_tags %}
 
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="/static/lib/datahub-font/css/MIT-Icons.css" />
+{% endblock stylesheets %}
+
 {% block content %}
 <div class="container-fluid" style="max-width:740px;">
 <form class="col-xs-12 col-sm-6 col-sm-offset-3" role="form" method="POST" action="{% url 'login' %}">
@@ -22,4 +26,4 @@
   <br />
 </form>
 </div>
-{% endblock %}
+{% endblock content %}

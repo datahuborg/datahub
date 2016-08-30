@@ -1,4 +1,16 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
+
+{% block extra_head %}
+<script type="text/javascript" src="/static/lib/thrift/thrift.js"></script>
+<script type="text/javascript" src="/static/lib/datahub/datahub_types.js"></script>
+<script type="text/javascript" src="/static/lib/datahub/DataHub.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+<!-- google.load must be in the head -->
+<script>google.load("visualization", "1", {packages:["corechart", "table", "timeline", "map"]});</script>
+{% endblock extra_head %}
+
+
 {% block content %}
 <div class="container">
   <h4 class="inline-block">
@@ -11,7 +23,7 @@
 
   <div class="row">
   <div class="form-group col-sm-10">
-    <input type="text" class="form-control" name="q" id="input-query" placeholder="Type SQL here">
+    <input type="text" class="form-control" name="q" id="input-query" placeholder="Type SQL here" value="select * from test_repo.bar">
   </div>
   
   <div class="col-sm-2">
@@ -46,12 +58,13 @@
         <button class="btn btn-primary btn-xsm" id="btn-draw-viz" type="button">Draw Viz</button>
       </div>
      
-    </div>
   </div>
-  <br />
-  <div id="viz-div"></div>
+</div>
+<br />
+<div id="viz-div"></div>
+{% endblock content %}
 
-
+{% block js %}
 <script type="text/javascript">
 $(document).ready(function($) {
   $("#options").hide();
@@ -66,10 +79,10 @@ $(document).ready(function($) {
   var run_query = function(){
     $("#options").hide();
     $("#viz-div").html();
-  	var results_arr = []
-  	res = client.execute_sql(con, $("#input-query").val());
-  	results_arr.push(res.field_names)
-  	$.each(res.tuples, function(tuple_idx, tuple) {
+    var results_arr = []
+    res = client.execute_sql(con, $("#input-query").val());
+    results_arr.push(res.field_names)
+    $.each(res.tuples, function(tuple_idx, tuple) {
       var cell_arr = []
       $.each(tuple.cells, function(cell_idx, cell) {
         var val = parseFloat(cell)
@@ -151,7 +164,11 @@ $(document).ready(function($) {
      }
   });
 
+  // google.load("visualization", "1", {packages:["corechart", "table", "timeline", "map"]});
+
+
 });
 </script>
-{% endblock %}
 
+
+{% endblock js %}

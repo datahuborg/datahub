@@ -24,6 +24,62 @@ body {
 }
 
 
+/* Home Page */
+
+.bs-docs-masthead {
+    position: relative;
+    padding: 100px 30px 15px;
+    margin-top: -20px;
+    color: #fff;
+    text-align: center;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, .1);
+    background-color: #6f5499;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#563d7c), to(#6f5499));
+    background-image: -webkit-linear-gradient(top, #563d7c 0, #6f5499 100%);
+    background-image: -o-linear-gradient(top, #563d7c 0, #6f5499 100%);
+    background-image: linear-gradient(to bottom, #563d7c 0, #6f5499 100%);
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#563d7c', endColorstr='#6F5499', GradientType=0);
+    background-repeat: repeat-x
+}
+
+.logo-home{
+  display: block;
+  background-image:url(/static/images/livinglab-logo.png);
+  background-repeat: no-repeat;
+  background-size: 200px 200px;
+  width: 200px;
+  height: 200px;
+}
+
+.logo-text {
+  font-family: 'Cantora One', cursive;
+  font-weight: 400;
+  font-size: 44px;
+}
+
+.logo-text .logo-first-half {
+    color: #00aeef;
+}
+
+.bs-docs-masthead .lead {
+    margin: 0 auto 30px;
+    font-size: 20px;
+    color: #fff
+}
+
+@media (min-width:992px) {
+    .bs-docs-masthead .lead {
+        width: 80%;
+        font-size: 30px
+    }
+}
+
+@media (min-width:768px) {
+    .bs-docs-masthead {
+        padding: 80px 0
+    }
+}
+
 /* Sign In/Sign Up/Password Reset Forms */
 
 .push {
@@ -94,6 +150,26 @@ body {
   color:#aaa;
 }
 
+/* Query forms */
+
+.sql-form .form-group {
+  display: flex;
+  flex-direction: flex-row;
+}
+
+#btn-dataq {
+  margin-right: 10px;
+}
+
+#btn-run {
+  margin-left: 10px;
+}
+
+#txt-sql {
+  flex: 1;
+}
+
+
 /* GLOBAL */
 
 #page{
@@ -107,20 +183,20 @@ textarea {
 }
 
 .error{
-  color: red;	
+  color: red;
 }
 
 .cell-left {
   vertical-align: top;
   padding-top:0.5em;
-  padding-bottom:0.5em;"
+  padding-bottom:0.5em;
 }
 
 .cell-right {
   vertical-align: top;
   padding-left:2em;
   padding-top:0.5em;
-  padding-bottom:0.5em;"
+  padding-bottom:0.5em;
 }
 
 p.bg-warning {
@@ -303,17 +379,14 @@ p.bg-warning {
   height: 17px;
 }
 
-.logo-home{
-  display: block;
-  background-image:url(/static/images/livinglab-logo.png);
-  background-repeat: no-repeat;
-  background-size: 200px 200px;
-  width: 200px;
-  height: 200px;
+body {
+  padding-top: 5em;
 }
 
-.logo-text {
-  font-family: 'Cantora One', cursive;
-  font-weight: 400;
-  font-size: 44px;
+.bs-docs-sidebar .nav>li>a {
+  color: #767676;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+  cursor: inherit;
 }

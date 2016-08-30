@@ -179,6 +179,8 @@ class DataHubManager:
 
         Returns True on success.
 
+        params = [{'column_name': '', 'data_type': ''} ...]
+
         Raises ValueError if repo, table, or the column names have invalid
         characters.
         Raises LookupError if the repo doesn't exist.
@@ -303,6 +305,20 @@ class DataHubManager:
         Raises ProgrammingError on insufficient permissions.
         """
         return self.user_con.delete_table(repo=repo, table=table, force=force)
+
+    def clone_table(self, repo, table, new_table):
+        """
+        Creates a copy of a table with the name new_table.
+
+        Returns True on success
+
+        Raises ValueError if repo or table have invalid characters
+        Raises ProgrammingError if the repo or table do not exist.
+        Raises ProgrammingError if the new_table already exists.
+        Raises ProgrammingError on insufficient permissions.
+        """
+        return self.user_con.clone_table(
+            repo=repo, table=table, new_table=new_table)
 
     def get_schema(self, repo, table):
         """
@@ -562,7 +578,7 @@ class DataHubManager:
         file = open(file_path).read()
         return file
 
-    def export_table(self, repo, table, file_format='CSV',
+    def export_table(self, repo, table, file_name, file_format='CSV',
                      delimiter=',', header=True):
         """
         Exports a table to a file in the same repo.
@@ -586,7 +602,7 @@ class DataHubManager:
         DataHubManager.create_user_data_folder(self.repo_base, repo)
 
         # define the file path for the new table
-        file_name = clean_file_name(table)
+        file_name = clean_file_name(file_name)
         file_path = user_data_path(
             self.repo_base, repo, file_name, file_format)
 
@@ -730,7 +746,7 @@ class DataHubManager:
 
         return card
 
-    def export_card(self, repo, card_name, file_format='CSV'):
+    def export_card(self, repo, file_name, card_name, file_format='CSV'):
         """
         Exports the results of a card to a new file in the repo.
 
@@ -756,7 +772,7 @@ class DataHubManager:
         # create the user data folder if it doesn't already exist
         DataHubManager.create_user_data_folder(self.repo_base, repo)
 
-        file_name = clean_file_name(card_name)
+        file_name = clean_file_name(file_name)
         file_path = user_data_path(
             self.repo_base, repo, file_name, file_format)
 
@@ -854,6 +870,23 @@ class DataHubManager:
         """
         return self.user_con.select_table_query(
             repo_base=self.repo_base, repo=repo, table=table)
+
+    def import_rows(self, repo, table, rows, delimiter=',', header=False):
+        delimiter = delimiter.decode('string_escape')
+
+        # column names are the extracted
+        columns = rows[0].split(delimiter)
+        if not header:
+            # if there's not a header, they're replaced with the word 'col'
+            columns = ['col' for c in columns]
+        columns = rename_duplicates(columns)
+
+        # prepare params and create the table
+        params = [{'column_name': c, 'data_type': 'text'} for c in columns]
+        self.create_table(repo=repo, table=table, params=params)
+
+        # now, insert the data and return the result
+        return self.user_con.import_rows(repo, table, rows, delimiter, header)
 
     """
     Static methods that don't require permissions
@@ -1085,13 +1118,13 @@ class DataHubManager:
             columns = map(lambda x: clean_str(x, 'col'), cells)
         columns = rename_duplicates(columns)
 
-        query = 'CREATE TABLE %s (%s text' % (dh_table_name, columns[0])
-        for column in columns[1:len(columns)]:
-            query += ', %s %s' % (column, 'text')
-        query += ')'
+        params = [{'column_name': c, 'data_type': 'text'} for c in columns]
 
-        manager = DataHubManager(user=username, repo_base=repo_base)
-        manager.execute_sql(query=query)
+        with DataHubManager(user=username, repo_base=repo_base) as manager:
+            manager.create_table(
+                repo=repo,
+                table=table_name,
+                params=params)
 
         # populate the newly created table with data from the csv
         with _superuser_connection(repo_base) as conn:

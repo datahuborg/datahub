@@ -1,45 +1,74 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="/static/dataq/css/style.css">
+{% endblock stylesheets %}
+
 {% block content %}
 <div class="container">
-  <h4 class="inline-block">
-    <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
-    / {{repo}} /
-  </h4>
+
+  <div class="row">
+    <div class="col-sm-10">
+      <h4 class="inline-block">
+        <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a>
+        / {{repo}} /
+      </h4>
+    </div>
+
+
+    <div class="col-sm-2">
+      <div class="btn-group class=pull-right" style="width: 100%" role="group">
+        <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; display:block;">
+          Open App...
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li class="disabled"><a href="/browse/{{repo_base}}/{{repo}}/securitypolicies/{{table}}" title="Row Level Security allows you to restrict collaborator access to individual rows in your table. Row Level Security can only be launched from a table in the tables & views tab."><i class="fa fa-lock" aria-hidden="true"></i> Row Level Security</a></li>
+          <li class="disabled"><a href="#" title="dbwipes (Outlier Viz) can only be launched from a table in the tables & views tab."><i class="fa fa-bullseye" aria-hidden="true"></i> dbwipes (Outlier Viz)</a></li>
+          <li><a href="/apps/viz/" title="Viz (Chart Maker) allows you to visualize queries using Google Charts. Need to make a quick and dirty pie chart/histogram from an arbitrary query? This is the place."><i class="fa fa-pie-chart" aria-hidden="true"></i> Viz (Chart Maker)</a></li>
+          <li><a href="/apps/refiner/" title="Refiner takes semi-structured data and turns it into actually structured data, so that you can run queries on it. Sample data is included!"><i class="fa fa-filter" aria-hidden="true"></i> Data Refiner</a></li>
+        </ul>
+      </div>
+    </div>
+
+
+  </div>
+
+
 
   <hr />
   <br />
 
-  <form role="form" method="GET" action="/browse/{{repo_base}}/{{repo}}/query">
-    <div class="row">
-    <div class="form-group col-sm-10">
-      <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Type SQL here">
-    </div>
-    
-    <div class="col-sm-2">
-      <button class="btn btn-primary btn-xsm" id="btn-run" type="submit">Run</button>
-      <button class="btn btn-primary btn-xsm" id="btn-dataq">DataQ</button>
-    </div>
-    
-    </div>
-  </form>
+  {% include "query-form.html" %}
+
   <br />
   {% block tabs %}
-  {% endblock %}
+  {% endblock tabs%}
   <br />
 
-  <script>    
-    $(document).on("click", "#btn-dataq", function(e) {    
-      e.preventDefault();    
-      DataQ.DQ("{{repo}}", function(query) {   
-        $("#txt-sql").val(query);    
-      });    
-    });    
-  </script>
-
   {% block tab-content %}
-  {% endblock %}
-{% endblock %}
+  {% endblock tab-content %}
 
+{% endblock content%}
+
+
+{% block js %}
+  <script src="//cdnjs.cloudflare.com/ajax/libs/blueimp-md5/1.0.1/js/md5.js"></script>
+  <!-- dataq -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.runtime.js"></script>
+  <script src="/static/dataq/templates.js"></script>
+  <script src="/static/dataq/js/dataq.min.js"></script>
+  <!-- /dataq -->
+
+  <script>
+    $(document).on("click", "#btn-dataq", function(e) {
+      e.preventDefault();
+      DataQ.DQ("{{repo}}", function(query) {
+        $("#txt-sql").val(query);
+      });
+    });
+  </script>
+{% endblock js %}
 
 
 
