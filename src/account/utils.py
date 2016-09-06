@@ -166,7 +166,8 @@ def grant_app_permission(username, repo_name, app_id, app_token):
         manager.add_collaborator(
             repo_name,
             app_id,
-            privileges=['SELECT', 'INSERT', 'UPDATE', 'DELETE'])
+            db_privileges=['SELECT', 'INSERT', 'UPDATE', 'DELETE'],
+            file_privileges=['read', 'write'])
         manager.close_connection()
     except Exception as e:
         raise e
