@@ -260,8 +260,8 @@ OAUTH2_PROVIDER = {
     'ACCESS_TOKEN_EXPIRE_SECONDS': 24 * 60 * 60,
     # Authorization codes must be redeemed within 10 minutes.
     'AUTHORIZATION_CODE_EXPIRE_SECONDS': 600,
-    # Refresh tokens are good for 2 weeks.
-    'REFRESH_TOKEN_EXPIRE_SECONDS': 14 * 24 * 60 * 60,
+    # Refresh tokens never expire. Users can still manually revoke tokens.
+    'REFRESH_TOKEN_EXPIRE_SECONDS': None,
     'REQUEST_APPROVAL_PROMPT': 'force',
     'OAUTH2_BACKEND_CLASS':
         'api.oauth2_backends.ContentNegotiatingOAuthLibCore',
