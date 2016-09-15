@@ -12,6 +12,7 @@ from account.forms import UsernameForm, \
                           ChangeEmailForm, \
                           AddPasswordForm
 from account.utils import provider_details, \
+                          datahub_register_user, \
                           datahub_authenticate, \
                           set_unusable_password, \
                           set_password
@@ -98,33 +99,16 @@ def register(request):
 
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username'].lower()
-            email = form.cleaned_data['email'].lower()
-            password = form.cleaned_data['password']
-            User.objects.create_user(username, email, password)
-            # A signal handler in signals.py listens for the pre_save signal
-            # and throws an IntegrityError if the user's email address is not
-            # unique. Username uniqueness is handled by the model.
-            #
-            # In the future, another pre_save signal handler will check if a
-            # DataHub database exists for the user and create one if it
-            # doesn't exist. If the database cannot be created, that handler
-            # will throw an exception.
-            user = datahub_authenticate(username, password)
-
-            if user is not None and user.is_active:
-                django_login(request, user)
-                # Append auth_user to redirect_uri so apps like Kibitz can
-                # pull the username out of the redirect. This should be
-                # removed when Thrift is removed from DataHub.
-                redirect_uri = add_query_params_to_url(
-                    redirect_uri, {'auth_user': request.user.get_username()})
-                return HttpResponseRedirect(redirect_uri)
-        else:
-            # Form isn't valid. Fall through and return it to the user with
-            # errors.
-            pass
+        # Fails if the form is not valid
+        user = datahub_register_user(form)
+        if user is not None and user.is_active:
+            django_login(request, user)
+            # Append auth_user to redirect_uri so apps like Kibitz can
+            # pull the username out of the redirect. This should be
+            # removed when Thrift is removed from DataHub.
+            redirect_uri = add_query_params_to_url(
+                redirect_uri, {'auth_user': request.user.get_username()})
+            return HttpResponseRedirect(redirect_uri)
     else:
         form = RegistrationForm()
 
