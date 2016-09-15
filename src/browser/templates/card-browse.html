@@ -247,9 +247,31 @@ function bindDataQ(){
   });
 }
 
+function bindPublicCardButton(){
+  $('.modal-confirm-form-dialog').on('click', function(e) {
+    var modal_id = $(this).attr('target-modal');
+    var modal_title = $(this).attr('target-modal-title');
+    var modal_body = $(this).attr('target-modal-body');
+    var modal_operation = $(this).attr('target-modal-operation');
+    var target_url = $(this).attr('target-url');
+    var modal_form_inputs = $(this).attr('target-modal-form-inputs');
+
+    $(modal_id + ' .modal-title').html(modal_title);
+    $(modal_id + ' .modal-body').html(modal_body);
+    $(modal_id + ' .btn-primary').html(modal_operation);
+    $(modal_id + ' form').attr('action', target_url);
+    $(modal_id + ' form').prepend(modal_form_inputs);
+
+    $(modal_id + ' .btn-primary').off('click');
+
+    $(modal_id).modal({keyboard: true});
+    });
+}
+
 $(document).ready(function() {
   bindAnnotationModal();
   bindDataQ();
+  bindPublicCardButton();
 });
 
 </script>
