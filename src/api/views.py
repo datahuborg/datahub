@@ -5,6 +5,9 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
+from account.forms import RegistrationForm
+from account.utils import datahub_register_user
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.views import exception_handler
@@ -37,6 +40,22 @@ class CurrentUser(APIView):
     def get(self, request, format=None):
         username = request.user.get_username()
         user = User.objects.get(username=username)
+
+        serializer = UserSerializer(user, many=False)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        data = {
+            'username': request.data['username'],
+            'password': request.data['password'],
+            'email': request.data['email'],
+        }
+        form = RegistrationForm(data)
+        if not form.is_valid():
+            # Concatenate all of the form validation errors.
+            msg = " ".join(["".join(s) for s in form.errors.itervalues()])
+            raise ValidationError(msg)
+        user = datahub_register_user(form)
 
         serializer = UserSerializer(user, many=False)
         return Response(serializer.data)

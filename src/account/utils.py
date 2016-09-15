@@ -89,6 +89,36 @@ def provider_details(backend=None):
     return providers
 
 
+def datahub_register_user(form):
+    """
+    Creates a new user given a RegistrationForm.
+
+    Returns the user or None if they couldn't be created.
+
+    Raises a ValidationError if the form contains invalid input.
+    Raises an IntegrityError if a conflicting save happens while this form is
+    being processed.
+    """
+    if not form.is_valid():
+        return None
+
+    username = form.cleaned_data['username'].lower()
+    email = form.cleaned_data['email'].lower()
+    password = form.cleaned_data['password']
+    User.objects.create_user(username, email, password)
+    # A signal handler in signals.py listens for the pre_save signal
+    # and throws an IntegrityError if the user's email address is not
+    # unique. Username uniqueness is handled by the model.
+    #
+    # In the future, another pre_save signal handler will check if a
+    # DataHub database exists for the user and create one if it
+    # doesn't exist. If the database cannot be created, that handler
+    # will throw an exception.
+    user = datahub_authenticate(username, password)
+
+    return user
+
+
 def datahub_authenticate(username, password):
     """
     Analog of django.contrib.auth.authenticate.
