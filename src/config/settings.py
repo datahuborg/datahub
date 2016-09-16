@@ -252,6 +252,7 @@ OAUTH2_PROVIDER = {
     'SCOPES': {
         'read': "Read your DataHub data.",
         'write': "Modify and delete your DataHub data.",
+        'profile': "Read your DataHub profile.",
     },
     'READ_SCOPE': 'read',
     'WRITE_SCOPE': 'write',
@@ -290,7 +291,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
-        # 'api.permissions.benchmarkTestAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
