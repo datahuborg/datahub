@@ -5,6 +5,7 @@ from oauth2_provider.ext.rest_framework import \
     OAuth2Authentication, \
     TokenHasScope, \
     TokenHasReadWriteScope
+from oauth2_provider.ext.rest_framework.permissions import SAFE_HTTP_METHODS
 
 from inventory.models import Card
 
@@ -50,6 +51,19 @@ class WeakTokenHasReadWriteScope(TokenHasReadWriteScope):
         # Allow users with a valid session to browse the API.
         if not isinstance(request.successful_authenticator,
                           OAuth2Authentication):
+            return True
+
+        # Allow tokens with the profile scope to read a user's profile.
+        token = request.auth
+        # Need to import here instead of at the top of this file because
+        # WeakTokenHasReadWriteScope is imported by settings.py, and
+        # CurrentUser doesn't import until that's been processed.
+        from api.views import CurrentUser
+        if (isinstance(view, CurrentUser) and
+                request.method.upper() in SAFE_HTTP_METHODS and
+                token and
+                hasattr(token, 'scope') and
+                token.is_valid(['profile'])):
             return True
 
         return super(WeakTokenHasReadWriteScope, self).has_permission(
