@@ -208,6 +208,12 @@ class PGBackend:
         for privilege in db_privileges:
             self._check_for_injections(privilege)
 
+        grantCreatePrivilege = False
+        if 'CREATE' in db_privileges:
+            grantCreatePrivilege = True
+            db_privileges.remove('CREATE')
+
+
         query = ('BEGIN;'
                  'GRANT USAGE ON SCHEMA %s TO %s;'
                  'GRANT %s ON ALL TABLES IN SCHEMA %s TO %s;'
@@ -221,6 +227,15 @@ class PGBackend:
                   collaborator, repo, privileges_str, collaborator]
         params = tuple(map(lambda x: AsIs(x), params))
         res = self.execute_sql(query, params)
+
+        query = ('BEGIN;'
+                 'GRANT CREATE ON SCHEMA %s TO %s;'
+                 'COMMIT;'
+                 )
+        params = [repo, collaborator]
+        params = tuple(map(lambda x: AsIs(x), params))
+        res = self.execute_sql(query, params)
+
         return res['status']
 
     def delete_collaborator(self, repo, collaborator):
