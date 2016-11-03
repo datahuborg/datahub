@@ -536,7 +536,7 @@ class DataHubManager:
 
         return db_collabs
 
-    def save_file(self, repo, data_file):
+    def save_file(self, repo, data_file, new_file_name):
         """
         Saves a file to a repo.
 
@@ -549,6 +549,10 @@ class DataHubManager:
 
         file_name = clean_file_name(data_file.name)
         file_path = user_data_path(self.repo_base, repo, file_name)
+
+        if new_file_name != "":
+            file_path = user_data_path(self.repo_base, repo, new_file_name)
+
         with open(file_path, 'wb+') as destination:
             for chunk in data_file.chunks():
                 destination.write(chunk)
