@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>DataHub Spreadsheet</title>
+    <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
+    <!-- <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/thrift/thrift.js"></script> -->
+    <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/datahub/datahub_types.js"></script>
+    <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/datahub/DataHub.js"></script>
+    <script type="text/javascript" src="datahub_utils.js"></script>
+    <script type="text/javascript" src="HandsOnTable.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/charts.js"></script>
+    <script type="text/javascript" src="js/d3/d3.js"></script>
+    <script type="text/javascript" src="js/saveSvgAsPng.js"></script>
+    <script src="http://handsontable.com/dist/handsontable.full.js"></script>
+    <script type="text/javascript" src="aggregate.js"></script> 
+    <script type="text/javascript" src="parser.js"></script>
+    <script type="text/javascript" src="row_ops.js"></script>
+    <script type="text/javascript" src="alter_schema.js"></script>
+    <link rel="stylesheet" media="screen" href="http://handsontable.com/dist/handsontable.full.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- TODO fix location --> 
+    <link rel="stylesheet" href="js/jquery-ui.min.css">
+    <link rel="stylesheet" href="css/charts.css">
+    <link rel="stylesheet" href="aggregate.css">
+    
+  </head>
+  <body>
+
+		<div id="dialog" title="Basic dialog">
+			<select id="selectRepo">
+			    <option value="" disabled>Select a Repo</option>
+			</select>
+
+			<select id="selectTable">
+			    <option value="" disabled>Select a Table</option>
+			</select>
+
+      <button type="button" id="select">Continue</button>
+		</div>
+
+  </body>
+</html>
