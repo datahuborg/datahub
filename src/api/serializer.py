@@ -219,6 +219,18 @@ class TableSerializer(DataHubSerializer):
         success = self.manager.create_table(repo, table, params)
         return success
 
+    def create_table_from_file(self, repo, table, file_name, delimiter,
+                               quote_character, has_header):
+        DataHubManager.import_file(
+                username=self.username,
+                repo_base=self.repo_base,
+                repo=repo,
+                table=table,
+                file_name=file_name,
+                delimiter=delimiter,
+                header=has_header,
+                quote_character=quote_character)
+
     def list_tables(self, repo):
         tables = self.manager.list_tables(repo)
         table_list = []
