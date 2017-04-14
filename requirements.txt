@@ -17,7 +17,7 @@ requests>=2.5.1
 python-social-auth==0.2.13
 pyjwkest==1.0.1
 django-crispy-forms==1.5.2
-factory_boy==2.6.1
+factory_boy==2.8.1
 djangorestframework==3.3.3
 django-rest-swagger==0.3.5
 django-oauth-toolkit==0.10.0
