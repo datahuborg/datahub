@@ -322,7 +322,10 @@ class Tables(APIView):
             description: column names and data types in those columns
             type: array[{'column_name': '', 'data_type': ''} ...]
             required: true
-
+          - name: from_file
+            in: body
+            type: string
+            description: name of the already uploaded CSV file to import.
         """
         username = request.user.get_username()
         serializer = TableSerializer(
@@ -330,11 +333,27 @@ class Tables(APIView):
 
         table_name = request.data['table_name']
 
-        # hack because swagger UI doesn't deal with arrays objects well
-        params = str(request.data['params'])
-        params = ast.literal_eval(params)
+        if 'from_file' in request.data:
+            # If from_file is defined, create this table from the already
+            # uploaded CSV with that name.
+            file_name = str(request.data['from_file'])
+            delimiter = str(request.data['delimiter'])
 
-        serializer.create_table(repo_name, table_name, params)
+            has_header = False
+            if request.data['has_header'] == 'true':
+                has_header = True
+
+            quote_character = str(request.data['quote_character'])
+            serializer.create_table_from_file(
+                repo_name, table_name, file_name,
+                delimiter, quote_character, has_header)
+        else:
+            # Default to creating an empty table from scratch.
+            # hack because swagger UI doesn't deal with arrays objects well
+            params = str(request.data['params'])
+            params = ast.literal_eval(params)
+
+            serializer.create_table(repo_name, table_name, params)
 
         table = serializer.describe_table(repo_name, table_name, False)
         return Response(table, status=status.HTTP_201_CREATED)
