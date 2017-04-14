@@ -337,7 +337,6 @@ class Tables(APIView):
             # If from_file is defined, create this table from the already
             # uploaded CSV with that name.
             file_name = str(request.data['from_file'])
-            print(file_name)
             delimiter = str(request.data['delimiter'])
 
             has_header = False
