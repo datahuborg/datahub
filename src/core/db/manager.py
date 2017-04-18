@@ -1103,7 +1103,10 @@ class DataHubManager:
 
         # prepare some variables
         file_path = user_data_path(repo_base, repo, file_name)
-        table_name, _ = os.path.splitext(file_name)
+        if table == '':
+            table_name, _ = os.path.splitext(file_name)
+        else:
+            table_name = table
         table_name = clean_str(table_name, 'table')
         dh_table_name = '%s.%s.%s' % (repo_base, repo, table_name)
 

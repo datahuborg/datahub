@@ -566,7 +566,7 @@ def file_import(request, repo_base, repo, file_name):
         username=username,
         repo_base=repo_base,
         repo=repo,
-        table=table,
+        table='',
         file_name=file_name,
         delimiter=delimiter,
         header=header,
