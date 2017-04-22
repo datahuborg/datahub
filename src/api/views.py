@@ -413,6 +413,9 @@ class Files(APIView):
         omit_serializer: true
 
         parameters:
+          - name: file_name
+            in: body
+            type: string
           - name: file_format
             in: body
             type: string
@@ -450,6 +453,9 @@ class Files(APIView):
         table = data.get('from_table', None)
         view = data.get('from_view', None)
         card = data.get('from_card', None)
+        # file_name should default to the name of the table
+        file_name = data.get('file_name',
+                             next((i for i in [table, view, card] if i), None))
 
         if file:
             serializer = FileSerializer(username, repo_base, request)
@@ -459,28 +465,28 @@ class Files(APIView):
 
         elif table:
             serializer = TableSerializer(username, repo_base, request)
-            serializer.export_table(repo_name, table, file_format, delimiter,
-                                    header)
+            serializer.export_table(repo_name, table, file_name, file_format,
+                                    delimiter, header)
 
-            filename = table + "." + file_format
+            filename = file_name + "." + file_format
             serializer = FileSerializer(username, repo_base, request)
             file = serializer.get_file(repo_name, filename)
             return Response(file, status=status.HTTP_201_CREATED)
 
         elif view:
             serializer = ViewSerializer(username, repo_base, request)
-            serializer.export_view(repo_name, view, file_format, delimiter,
-                                   header)
-            filename = view + "." + file_format
+            serializer.export_view(repo_name, view, file_name, file_format,
+                                   delimiter, header)
+            filename = file_name + "." + file_format
             serializer = FileSerializer(username, repo_base, request)
             file = serializer.get_file(repo_name, filename)
             return Response(file, status=status.HTTP_201_CREATED)
 
         elif card:
             serializer = CardSerializer(username, repo_base, request)
-            serializer.export_card(repo_name, card, file_format)
+            serializer.export_card(repo_name, card, file_name, file_format)
 
-            filename = card + "." + file_format
+            filename = file_name + "." + file_format
             serializer = FileSerializer(username, repo_base, request)
             file = serializer.get_file(repo_name, filename)
             return Response(file, status=status.HTTP_201_CREATED)

@@ -265,11 +265,12 @@ class TableSerializer(DataHubSerializer):
         success = self.manager.delete_table(repo, table, force)
         return success
 
-    def export_table(self, repo, table, file_format='CSV', delimiter=',',
-                     header=True):
+    def export_table(self, repo, table, file_name=None, file_format='CSV',
+                     delimiter=',', header=True):
+        file_name = file_name or table
         self.manager.export_table(
-            repo=repo, table=table, file_format=file_format,
-            delimiter=delimiter, header=header)
+            repo=repo, table=table, file_name=file_name,
+            file_format=file_format, delimiter=delimiter, header=header)
 
 
 class ViewSerializer(DataHubSerializer):
@@ -308,10 +309,11 @@ class ViewSerializer(DataHubSerializer):
         success = self.manager.delete_view(repo, view, force)
         return success
 
-    def export_view(self, repo, view, file_format='CSV', delimiter=',',
-                    header=True):
+    def export_view(self, repo, view, file_name=None, file_format='CSV',
+                    delimiter=',', header=True):
+        file_name = file_name or view
         self.manager.export_view(
-            repo=repo, view=view, file_format=file_format,
+            repo=repo, view=view, file_name=file_name, file_format=file_format,
             delimiter=delimiter, header=header)
 
 
@@ -375,8 +377,9 @@ class CardSerializer(DataHubSerializer):
     def delete_card(self, repo, card_name):
         return self.manager.delete_card(repo, card_name)
 
-    def export_card(self, repo, card_name, file_format='CSV'):
-        self.manager.export_card(repo, card_name, file_format)
+    def export_card(self, repo, card_name, file_name=None, file_format='CSV'):
+        file_name = file_name or card_name
+        self.manager.export_card(repo, card_name, file_name, file_format)
 
 
 class FileSerializer(DataHubSerializer):
