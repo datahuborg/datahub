@@ -163,7 +163,8 @@ class DataHubConnection:
             table_name=table_name,
             file_path=file_path,
             file_format=file_format,
-            delimiter=delimiter)
+            delimiter=delimiter,
+            header=header)
 
     def export_view(self, view_name, file_path, file_format='CSV',
                     delimiter=',', header=True):
@@ -171,7 +172,8 @@ class DataHubConnection:
             view_name=view_name,
             file_path=file_path,
             file_format=file_format,
-            delimiter=delimiter)
+            delimiter=delimiter,
+            header=header)
 
     def export_query(self, query, file_path, file_format='CSV',
                      delimiter=',', header=True):
@@ -179,7 +181,8 @@ class DataHubConnection:
             query=query,
             file_path=file_path,
             file_format=file_format,
-            delimiter=delimiter)
+            delimiter=delimiter,
+            header=header)
 
     def list_collaborators(self, repo):
         return self.backend.list_collaborators(repo)
