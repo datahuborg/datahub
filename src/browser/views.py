@@ -261,7 +261,7 @@ def repo_tables(request, repo_base, repo):
 
 def repo_files(request, repo_base, repo):
     '''
-    shows thee files in a repo
+    shows the files in a repo
     '''
     username = request.user.get_username()
     if repo_base.lower() == 'user':
@@ -270,11 +270,15 @@ def repo_files(request, repo_base, repo):
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         uploaded_files = manager.list_repo_files(repo)
 
+    files_json = json.dumps(uploaded_files)
+
     res = {
         'login': username,
         'repo_base': repo_base,
         'repo': repo,
-        'files': uploaded_files}
+        'files': uploaded_files,
+        'files_json': files_json
+    }
 
     res.update(csrf(request))
     return render_to_response("repo-browse-files.html", res)
@@ -538,9 +542,10 @@ Files
 def file_upload(request, repo_base, repo):
     username = request.user.get_username()
     data_file = request.FILES['data_file']
+    new_file_name = request.POST.get('new_file_name')
 
     with DataHubManager(user=username, repo_base=repo_base) as manager:
-        manager.save_file(repo, data_file)
+        manager.save_file(repo, data_file, new_file_name)
 
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))

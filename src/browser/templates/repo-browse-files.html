@@ -133,7 +133,11 @@
         <form role="form" method="POST" action="/upload/{{repo_base}}/{{repo}}/file" enctype='multipart/form-data' id="file-upload-modal-form">
           <div class="form-group">
             {% csrf_token %}
-            <input type="file" class="form-control" name="data_file" placeholder="Data File">
+            <input type="file" class="form-control" name="data_file" placeholder="Data File" id="file_upload_input">
+            <div id="file-exists-section">
+              <p id="file-exists-error">Oops! A file with this name already exists in this repository. Enter a new name for your file.</p>
+              <input type="text" class="form-control" name="new_file_name" placeholder="New file name" id="new_file_name">
+            </div>
           </div>
         </form>   
       </div>
@@ -151,6 +155,7 @@
 {% block js %}
 <script type="text/javascript">
 $(function() {
+
   $('.modal-import-dialog').on('click', function(e){
     var modal_id = $(this).attr('target-modal')
     var target_url = $(this).attr('target-url')
@@ -169,11 +174,27 @@ $(function() {
   });
 
   $('.modal-upload-dialog').on('click', function(e){
+    $("#file-exists-section").hide();
+    $("#new_file_name").val("");
+
     var modal_id = $(this).attr('target-modal')
     $(modal_id).off('click');
 
     $(modal_id).modal({keyboard: true})
       .on('click', modal_id + '-operation', function(e) {
+
+        var fullPath = $("#file_upload_input").val();
+        var fileName = fullPath.replace(/^.*[\\\/]/, '');
+        var files = {{files_json | safe}};
+        var newFileName = $("#new_file_name").val();
+
+        if (files.indexOf(fileName) != -1){
+          if (newFileName == "" || files.indexOf(newFileName) != -1){
+            $("#file-exists-section").show();
+            return;
+          }
+        }
+
         $(modal_id + '-form').submit()
         $(modal_id).modal('hide')
         $("#wait-dialog").modal()
