@@ -27,6 +27,7 @@ from .serializer import (
     UserSerializer, RepoSerializer, CollaboratorSerializer,
     TableSerializer, ViewSerializer, FileSerializer, QuerySerializer,
     CardSerializer, RowLevelSecuritySerializer)
+from core.db.manager import DataHubManager
 
 
 class CurrentUser(APIView):
@@ -368,6 +369,38 @@ class Table(APIView):
         This endpoint does not throw an error if the table does not exist.
         """
         username = request.user.get_username()
+        serializer = TableSerializer(
+            username=username, repo_base=repo_base)
+
+        table_info = serializer.describe_table(repo_name, table, detail=False)
+        return Response(table_info, status=status.HTTP_200_OK)
+
+    def post(self, request, repo_base, repo_name, table, format=None):
+        username = request.user.get_username()
+        delimiter = str(request.data['delimiter'])
+        file_name = str(request.data['file_name'])
+
+        if delimiter == '':
+            delimiter = str(request.data['other_delimiter'])
+
+        header = False
+        if request.data['has_header'] == 'true':
+            header = True
+
+        quote_character = request.data['quote_character']
+        if quote_character == '':
+            quote_character = request.data['other_quote_character']
+
+        DataHubManager.import_file(
+                username=username,
+                repo_base=repo_base,
+                repo=repo_name,
+                table=table,
+                file_name=file_name,
+                delimiter=delimiter,
+                header=header,
+                quote_character=quote_character)
+
         serializer = TableSerializer(
             username=username, repo_base=repo_base)
 
