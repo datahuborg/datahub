@@ -27,17 +27,13 @@
     var policy_name = policy.name();
 
     // Name of table to which the policy applies.
-    var table_name = policy.repo() + "." + policy.table_name();
+    var table_name = policy.repo() + "." + policy.name();
 
     // Command to which the policy applies.
     var command = policy.command();
 
     // List of roles to which the policy applies.
     var role_list = policy.roles();
-
-    // List of users to which the policy applies.
-    // Each element must be one of { PUBLIC | CURRENT_USER | SESSION_USER }
-    var user_list = policy.users();
 
     // SQL conditional expression to control row visibility.
     // Rows for which the expression returns true will be visible.
@@ -58,7 +54,6 @@
 
     // TO clause
     policy_string += " TO " + role_list.join(", ");
-    policy_string += ", " + user_list.join(", ");
 
     // USING clause
     policy_string += " USING " + using_expr;
