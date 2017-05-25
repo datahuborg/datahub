@@ -1,110 +1,80 @@
 /**
- * Logic for constructing a SQL query string from a DataQ.Query object.
- */
+* Logic for constructing a PostgreSQL CREATE POLICY command from a
+* DataQ.policy object.
+*/
 (function() {
   // If the global DataQ object does not exist, create it.
   window.DataQ = window.DataQ || {};
 
   /**
-   * Take a DataQ.Query object and generate a SQL query string from it.
+   * Take a DataQ.Policy object and generate a CREATE POLICY string from it.
+   * A CREATE POLICY command looks like:
    *
-   * @param query - The DataQ.Query object.
-   * @return A String representing the SQL query.
+   * CREATE POLICY name ON table_name
+   *    [ FOR { ALL | SELECT | INSERT | UPDATE | DELETE } ]
+   *    [ TO { role_name | PUBLIC | CURRENT_USER | SESSION_USER } [, ...] ]
+   *    [ USING ( using_expression ) ]
+   *    [ WITH CHECK ( check_expression ) ]
+   *
+   * see https://www.postgresql.org/docs/9.5/static/sql-createpolicy.html
+   *
+   * @param policy - The DataQ.policy object.
+   * @return A String representing the CREATE POLICY command.
    */
-  window.DataQ.build_query = function(query) {
+  window.DataQ.build_policy = function(policy) {
 
-    // The list of columns to select.
-    var select_list = [];
+    // Name of policy to be created.
+    var policy_name = policy.name();
 
-    // The list of tables to select from.
-    var from_list = [];
+    // Name of table to which the policy applies.
+    var table_name = policy.repo() + "." + policy.table_name();
 
-    // The filters to apply.
-    var where_list = [];
+    // Command to which the policy applies.
+    var command = policy.command();
 
-    // The grouping to perform.
-    var group_list = [];
+    // List of roles to which the policy applies.
+    var role_list = policy.roles();
 
-    // The sorting to apply.
-    var order_list = [];
+    // List of users to which the policy applies.
+    // Each element must be one of { PUBLIC | CURRENT_USER | SESSION_USER }
+    var user_list = policy.users();
 
-    // Get the current repo name - we'll need to prepend this to some of the table/column names.
-    var repo = query.repo();
+    // SQL conditional expression to control row visibility.
+    // Rows for which the expression returns true will be visible.
+    var using_expr = policy.using_expression();
 
-    // Create the FROM clause. It is simply the list of tables that the user has selected.
-    // Each item in the list is a String of the form: "repo.table".
-    query.get_selected_tables().forEach(function(table) {
-      from_list.push(repo + "." + table);
-    });
+    // SQL conditional expression to control INSERT and UPDATE privileges.
+    // Only rows for which the expression evaluates to true will be allowed.
+    var check_expr = policy.check_expression();
 
-    // Create the SELECT clause.
-    // Iterate through every selected column of every selected table and add the column to the 
-    // select list (and write the aggregate if possible).
-    query.get_selected_tables().forEach(function(table) {
-      query.selected_columns(table).forEach(function(column) {
-        if (column.agg === undefined || column.agg === null || column.agg === "none") {
-          select_list.push(repo + "." + table + "." + column.name);
-        } else {
-          // When an aggregate "agg" on column "col" in table "table" and repo "repo" appears, mark
-          // "agg(repo.table.col) as agg_table_col".
-          select_list.push(column.agg + "(" + repo + "." + table + "." + column.name + ")" + 
-            " as " + column.agg + "_" + table + "_"
-            + column.name);
-        }
-      });
-    });
+    /* Build policy string */
+    var policy_string = "CREATE POLICY " + policy_name;
 
-    // Create the WHERE clause.
-    // Simply iterate through each filter and add it to the list.
-    query.get_filters().forEach(function(filter) {
-      where_list.push(filter.filter1 + " " + filter.op + " " + filter.filter2);
-    });
+    // ON clause
+    policy_string += " ON " + table_name;
 
-    // Create the  GROUP BY clause.
-    query.grouping().forEach(function(group) {
-      var agg = group.column.agg;
+    // FOR clause
+    policy_string += " FOR " + command;
 
-      // We can only add a group by if it's not the aggregate column.
-      if (agg === null || agg === undefined || agg === "none") {
-        group_list.push(repo + "." + group.string);
-      } 
-    });
+    // TO clause
+    policy_string += " TO " + role_list.join(", ");
+    policy_string += ", " + user_list.join(", ");
 
-    // Create the ORDER BY clause.
-    query.sorts().forEach(function(sort) {
-      var agg = sort.column.agg;
-      if (agg === null || agg === undefined || agg === "none") {
-        order_list.push(repo + "." + sort.string);
-      } else {
-        order_list.push(agg + "_" + sort.table + "_" + sort.column.name);
-      }
-    });
+    // USING clause
+    policy_string += " USING " + using_expr;
 
-    // Set the query string.
-    if (select_list.length === 0) {
-      return "";
-    }
-    var query_string = "SELECT " + select_list.join(", ")
-        + " FROM " + from_list.join(", ");
-
-    // Set the where list.
-    if (where_list.length > 0) {
-      query_string +=  " WHERE " + where_list.join(" AND ");
-    }
-
-    // Set the group list.
-    if (group_list.length > 0) {
-      query_string += " GROUP BY " + group_list.join(", ")
-    }
-
-    // Set the order list.
-    if (order_list.length > 0) {
-      query_string += " ORDER BY " + order_list.join(", ")
+    // WITH CHECK clause
+    if (command !== "SELECT") {
+      // A SELECT policy cannot have a WITH CHECK expression, as it only applies
+      // in cases where records are being retrieved from the relation.
+      policy_string += " WITH CHECK " + check_expr;
     }
 
     // Remove leading and trailing spaces and then append semicolon.
-    query_string.trim();
-    query_string += ";";
-    return query_string;
+    policy_string.trim();
+    policy_string += ";";
+
+    return policy_string;
+
   };
 })();
