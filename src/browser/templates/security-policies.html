@@ -22,8 +22,8 @@
 
     <div class="col-sm-2">
       <button class="btn btn-primary btn-xsm" id="btn-run" type="submit">Execute</button>
-      <button class="btn btn-primary btn-xsm modal-upload-dialog" type="button" target-modal="#security-policy-modal" title="New Policy"> New </button>
-      <button class="btn btn-primary btn-xsm" id="btn-dataq" type="button">Query Builder</button>
+      <button class="btn btn-primary btn-xsm modal-upload-dialog" type="button" target-modal="#security-policy-modal" title="New Policy"> New Table-Level Policy </button>
+      <button class="btn btn-primary btn-xsm" id="btn-dataq-rls-policy" type="button">Row-Level Policy Builder</button>
     </div>
 
     </div>
@@ -238,12 +238,13 @@ $(function() {
 <!-- /dataq -->
 
 <script>
-  $(document).on("click", "#btn-dataq", function(e) {
+  $(document).on("click", "#btn-dataq-rls-policy", function(e) {
     e.preventDefault();
-    DataQ.DQ("{{repo}}", function(query) {
+    console.log(DataQ);
+    // DataQ.DQ("{{repo}}", function(query) {
+    DataQ.DQ_rls_policy("{{repo}}", function(query) {
       $("#txt-sql").val(query);
     });
-    console.log('click');
   });
 </script>
 {% endblock js %}

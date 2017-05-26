@@ -1,0 +1,56 @@
+<!-- HTML file containing an extension of the overall DataQ interface.
+     This interface is for building DataQ.Policy objects. -->
+
+<!-- Create a translucent black background -->
+<div class="dq-black-background"></div>
+
+<!-- The DataQ container -->
+<div class="dataq container-fluid">
+
+   <h4>
+   DataQ-Policy-Builder allows you to write PostgreSQL CREATE POLICY commands using a simple checklist-like user interface.
+   </h4>
+
+<div class="panel-group">
+   <div class="panel panel-default">
+      <div class="panel-heading dq-panel" data-toggle="collapse" href="#collapseOne">
+        <h4 class="panel-title">
+          Policy Name
+        </h4>
+   </div>
+   <div id="collapseOne" class="panel-collapse collapse in">
+     <div class="panel-body">
+
+        <input id="policyName" type="text" class="form-control" placeholder="Policy Name" />
+
+     </div>
+   </div>
+
+   <div class="panel panel-default">
+      <div class="panel-heading dq-panel" data-toggle="collapse" href="#collapseTwo">
+        <h4 class="panel-title">
+          Allowed commands
+        </h4>
+   </div>
+   <div id="collapseTwo" class="panel-collapse collapse in">
+     <div class="panel-body">
+       <div class="dropdown">
+          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Choose command
+          <span class="caret"></span></button>
+          <ul class="dropdown-menu">
+           <li><a href="#">SELECT</a></li>
+           <li><a href="#">INSERT</a></li>
+           <li><a href="#">UPDATE</a></li>
+           <li><a href="#">DELETE</a></li>
+           <li><a href="#">ALL</a></li>
+          </ul>
+       </div>
+     </div>
+   </div>
+
+   <!-- Button to run query -->
+   <div class="row">
+   <button class="btn btn-primary col-xs-3 dq-btn-run-query col-xs-offset-3">Query</button>
+   <button class="btn btn-default col-xs-3 dq-btn-cancel-query">Cancel</button>
+   </div>
+</div>

@@ -2,7 +2,7 @@
  * Defines the DataQ.DQ object, which is what the user of the library will interact with.
  *
  * Simply call DataQ.DQ(repo_name, callback) and DataQ will launch. After the user builds a query,
- * the callback is executed as callback(query), where query is a String representing the SQL query 
+ * the callback is executed as callback(query), where query is a String representing the SQL query
  * or null if the query was not built successfully.
  */
 (function() {
@@ -38,6 +38,30 @@
       $(".dataq").remove();
       callback(null);
     })
+  };
+
+  /**
+   * @param repo_name - The name of the repo that DataQ should work on.
+   * @param cb - The callback to trigger when the query is built.
+   */
+  DataQ.DQ_rls_policy = function(repo_name, cb) {
+    // Set the callback.
+    callback = cb;
+
+    // Add the container to the page.
+    var container = $(DataQ.templates["dataq-container-rls-policy"]());
+    $('body').append(container);
+
+    // Create the policy object and set the repo name.
+    policy = DataQ.Policy();
+    policy.repo(repo_name);
+
+    // Handle DataQ close when clicking backdrop.
+    $(".dq-black-background").click(function() {
+      $(".dq-black-background").remove();
+      $(".dataq").remove();
+      callback(null);
+    });
   };
 
   /**
@@ -107,7 +131,7 @@
     query.sorts().forEach(function(sort) {
       sort_strings.push(sort.string);
     });
-    
+
     // Display the sorts.
     if (sort_strings.length > 0) {
       $(".dq-sorting-text").html(sort_strings.join(", "));
