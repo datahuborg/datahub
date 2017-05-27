@@ -8,7 +8,7 @@
 <div class="dataq container-fluid">
 
    <h4>
-   DataQ-Policy-Builder allows you to write PostgreSQL CREATE POLICY commands using a simple checklist-like user interface.
+   DataQ Policy Builder allows you to write PostgreSQL CREATE POLICY commands using a simple checklist-like user interface.
    </h4>
 
 <div class="panel-group">
@@ -17,24 +17,24 @@
         <h4 class="panel-title">
           Policy Name
         </h4>
+      </div>
    </div>
    <div id="collapseOne" class="panel-collapse collapse in">
      <div class="panel-body">
-
-        <input id="policyName" type="text" class="form-control" placeholder="Policy Name" />
-
+        <input id="dq-policy-name" type="text" class="form-control" placeholder="Policy Name" />
      </div>
    </div>
 
    <div class="panel panel-default">
       <div class="panel-heading dq-panel" data-toggle="collapse" href="#collapseTwo">
         <h4 class="panel-title">
-          Allowed commands
+          Allowed Commands
         </h4>
+      </div>
    </div>
    <div id="collapseTwo" class="panel-collapse collapse in">
      <div class="panel-body">
-       <div class="dropdown">
+       <div class="dropdown" id="dq-policy-commands-dropdown">
           <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Choose command
           <span class="caret"></span></button>
           <ul class="dropdown-menu">
@@ -48,9 +48,147 @@
      </div>
    </div>
 
+   <div class="panel panel-default">
+      <div class="panel-heading dq-panel" data-toggle="collapse" href="#collapseThree">
+         <h4 class="panel-title">
+            Select role(s) this policy will apply to:
+         </h4>
+      </div>
+   </div>
+   <div id="collapseThree" class="panel-collapse collapse in">
+     <div class="panel-body">
+       <input id="dq-policy-role-list" type="text" class="form-control" placeholder="Comma separated role names. e.g. CURRENT_USER, admin, myGroupRole" />
+     </div>
+   </div>
+
+   <div class="panel panel-default">
+      <div class="panel-heading dq-panel" data-toggle="collapse" href="#collapseFour">
+        <h4 class="panel-title">
+          USING expression: Rows for which this expression returns true will be visible.
+        </h4>
+      </div>
+   </div>
+   <div id="collapseFour" class="panel-collapse collapse in">
+     <div class="panel-body">
+        <!-- The first dropdown where the user can specify <val1> in the filter <val1> <operation> <val2> -->
+   <div class="input-group col-xs-4">
+      <!-- Text box for entering the filter text -->
+      <input type="text" class="form-control dq-filter-1-text" placeholder="table1.col1 * 3">
+      <!-- Dropdown for selecting a column to add to filter -->
+      <div class="input-group-btn">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
+        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+          {{#each columns}}
+          <li><a href="#" class="dq-filter-1-link" data-columnname="{{this.column_name}}" data-reponame="{{../repo}}" data-tablename="{{this.table_name}}">{{this.full_name}}</a></li>
+          {{/each}}
+        </ul>
+      </div>
+   </div> <!-- end filter1 -->
+
+   <!-- The first dropdown where the user can specify <operation> in the filter <val1> <operation> <val2> -->
+   <div class="input-group col-xs-3">
+      <!-- Text box for entering the operation text -->
+      <input type="text" class="form-control dq-filter-op-text" value="=">
+      <!-- The possible operations are <, <=, >, >=, =, LIKE, IN, and NOT IN -->
+      <div class="input-group-btn">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
+        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+          <li><a href="#" class="dq-filter-op-link">&lt</a></li>
+          <li><a href="#" class="dq-filter-op-link">&lt=</a></li>
+          <li><a href="#" class="dq-filter-op-link">=</a></li>
+          <li><a href="#" class="dq-filter-op-link">&gt</a></li>
+          <li><a href="#" class="dq-filter-op-link">&gt=</a></li>
+          <li><a href="#" class="dq-filter-op-link">LIKE</a></li>
+          <li><a href="#" class="dq-filter-op-link">IN</a></li>
+          <li><a href="#" class="dq-filter-op-link">NOT IN</a></li>
+        </ul>
+      </div>
+   </div> <!-- end filterop -->
+
+   <!-- The second dropdown where the user can specify <val2> in the filter <val1> <operation> <val2> -->
+   <div class="input-group col-xs-4">
+      <!-- Text box for entering the filter text -->
+      <input type="text" class="form-control dq-filter-2-text" placeholder="table2.col2+3">
+      <!-- Dropdown for selecting a column to add to filter -->
+      <div class="input-group-btn">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
+        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+          {{#each columns}}
+          <li><a href="#" class="dq-filter-2-link" data-columnname="{{this.column_name}}" data-reponame="{{../repo}}" data-tablename="{{this.table_name}}">{{this.full_name}}</a></li>
+          {{/each}}
+        </ul>
+      </div>
+   </div> <!-- end filter2 -->
+</div>
+</div>
+
+   <div class="panel panel-default">
+      <div class="panel-heading dq-panel" data-toggle="collapse" href="#collapseFive">
+        <h4 class="panel-title">
+          WITH CHECK expression: New rows for which this expression returns true will be allowed.
+        </h4>
+   </div>
+   <div id="collapseFive" class="panel-collapse collapse in">
+     <div class="panel-body">
+        <div class="panel-body">
+           <!-- The first dropdown where the user can specify <val1> in the filter <val1> <operation> <val2> -->
+      <div class="input-group col-xs-4">
+         <!-- Text box for entering the filter text -->
+         <input type="text" class="form-control dq-filter-1-text" placeholder="table1.col1 * 3">
+         <!-- Dropdown for selecting a column to add to filter -->
+         <div class="input-group-btn">
+           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
+           <ul class="dropdown-menu dropdown-menu-right" role="menu">
+             {{#each columns}}
+             <li><a href="#" class="dq-filter-1-link" data-columnname="{{this.column_name}}" data-reponame="{{../repo}}" data-tablename="{{this.table_name}}">{{this.full_name}}</a></li>
+             {{/each}}
+           </ul>
+         </div>
+      </div> <!-- end filter1 -->
+
+      <!-- The first dropdown where the user can specify <operation> in the filter <val1> <operation> <val2> -->
+      <div class="input-group col-xs-3">
+         <!-- Text box for entering the operation text -->
+         <input type="text" class="form-control dq-filter-op-text" value="=">
+         <!-- The possible operations are <, <=, >, >=, =, LIKE, IN, and NOT IN -->
+         <div class="input-group-btn">
+           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
+           <ul class="dropdown-menu dropdown-menu-right" role="menu">
+             <li><a href="#" class="dq-filter-op-link">&lt</a></li>
+             <li><a href="#" class="dq-filter-op-link">&lt=</a></li>
+             <li><a href="#" class="dq-filter-op-link">=</a></li>
+             <li><a href="#" class="dq-filter-op-link">&gt</a></li>
+             <li><a href="#" class="dq-filter-op-link">&gt=</a></li>
+             <li><a href="#" class="dq-filter-op-link">LIKE</a></li>
+             <li><a href="#" class="dq-filter-op-link">IN</a></li>
+             <li><a href="#" class="dq-filter-op-link">NOT IN</a></li>
+           </ul>
+         </div>
+      </div> <!-- end filterop -->
+
+      <!-- The first dropdown where the user can specify <val2> in the filter <val1> <operation> <val2> -->
+      <div class="input-group col-xs-4">
+         <!-- Text box for entering the filter text -->
+         <input type="text" class="form-control dq-filter-2-text" placeholder="table2.col2+3">
+         <!-- Dropdown for selecting a column to add to filter -->
+         <div class="input-group-btn">
+           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
+           <ul class="dropdown-menu dropdown-menu-right" role="menu">
+             {{#each columns}}
+             <li><a href="#" class="dq-filter-2-link" data-columnname="{{this.column_name}}" data-reponame="{{../repo}}" data-tablename="{{this.table_name}}">{{this.full_name}}</a></li>
+             {{/each}}
+           </ul>
+         </div>
+      </div> <!-- end filter2 -->
+   </div>
+
+     </div>
+   </div>
+</div>
+
    <!-- Button to run query -->
    <div class="row">
-   <button class="btn btn-primary col-xs-3 dq-btn-run-query col-xs-offset-3">Query</button>
-   <button class="btn btn-default col-xs-3 dq-btn-cancel-query">Cancel</button>
+   <button class="btn btn-primary col-xs-3 dq-btn-create-policy col-xs-offset-3">Create Policy</button>
+   <button class="btn btn-default col-xs-3 dq-btn-cancel-create-policy">Cancel</button>
    </div>
 </div>

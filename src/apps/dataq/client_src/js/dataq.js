@@ -9,11 +9,15 @@
   // Create the global DataQ object if it doesn't exist.
   window.DataQ = window.DataQ || {};
 
-  // The DataQ.Query that is being built.
+  // The DataQ.Query that may be built.
   query = null;
 
-  // The callback to execute after the query is built. It is executed as cb(query) where query
-  // is a String representing the SQL query or null if the query was not built.
+  // The DataQ.Policy object that may be built.
+  policy = null;
+
+  // The callback to execute after the { query | policy } is built. It is executed as
+  // { cb(query) | cb(policy) } where { query | policy } is a String representing the
+  // SQL { query | policy } or null if the { query | policy } was not built.
   var callback;
 
   /**
@@ -196,5 +200,18 @@
     $(".dq-black-background").remove();
     $(".dataq").remove();
     callback(DataQ.build_query(query));
+  });
+
+  // Handle DataQ run policy.
+  $(document).on("click", ".dq-btn-run-policy", function() {
+    // Build policy object
+    
+
+    // Close DataQ
+    $(".dq-black-background").remove();
+    $(".dataq").remove();
+
+    // Build policy string
+    callback(DataQ.build_policy(policy));
   });
 })();
