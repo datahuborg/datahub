@@ -48,7 +48,7 @@
    * @param repo_name - The name of the repo that DataQ should work on.
    * @param cb - The callback to trigger when the query is built.
    */
-  DataQ.DQ_rls_policy = function(repo_name, cb) {
+  DataQ.DQ_rls_policy = function(repo_name, table_name, cb) {
     // Set the callback.
     callback = cb;
 
@@ -59,6 +59,7 @@
     // Create the policy object and set the repo name.
     policy = DataQ.Policy();
     policy.repo(repo_name);
+    policy.table(table_name);
 
     // Handle DataQ close when clicking backdrop.
     $(".dq-black-background").click(function() {
@@ -205,7 +206,8 @@
   // Handle DataQ run policy.
   $(document).on("click", ".dq-btn-run-policy", function() {
     // Build policy object
-    
+    policy.name($("#dq-policy-name").val());
+    policy.table
 
     // Close DataQ
     $(".dq-black-background").remove();
@@ -213,5 +215,13 @@
 
     // Build policy string
     callback(DataQ.build_policy(policy));
+  });
+
+  // Handle DataQ close
+  $(document).con("click", ".dq-btn-cancel-create-policy", function() {
+    console.log('click');
+    $(".dq-black-background").remove();
+    $(".dataq").remove();
+    callback(null);
   });
 })();
