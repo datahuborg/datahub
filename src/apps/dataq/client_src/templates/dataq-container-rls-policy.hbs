@@ -21,7 +21,7 @@
    </div>
    <div id="collapseOne" class="panel-collapse collapse in">
      <div class="panel-body">
-        <input id="dq-policy-name" type="text" class="form-control" placeholder="Policy Name" />
+        <input id="dq-policy-name" type="text" placeholder="Policy Name" />
      </div>
    </div>
 
@@ -35,9 +35,11 @@
    <div id="collapseTwo" class="panel-collapse collapse in">
      <div class="panel-body">
        <div class="dropdown" id="dq-policy-commands-dropdown">
-          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Choose command
-          <span class="caret"></span></button>
-          <ul class="dropdown-menu">
+          <button class="btn btn-primary dropdown-toggle dq-modal-dropdown-btn" type="button" data-toggle="dropdown">
+             <span id="dq-policy-command-selected">Choose command</span>
+             <span class="caret"></span>
+          </button>
+          <ul id="dq-policy-dropdown-menu" class="dropdown-menu">
            <li><a href="#">SELECT</a></li>
            <li><a href="#">INSERT</a></li>
            <li><a href="#">UPDATE</a></li>
@@ -57,7 +59,7 @@
    </div>
    <div id="collapseThree" class="panel-collapse collapse in">
      <div class="panel-body">
-       <input id="dq-policy-role-list" type="text" class="form-control" placeholder="Comma separated role names. e.g. CURRENT_USER, admin, myGroupRole" />
+       <input id="dq-policy-role-list" type="text" placeholder="Comma separated role names. e.g. CURRENT_USER, admin, myGroupRole" />
      </div>
    </div>
 
@@ -73,7 +75,7 @@
         <!-- The first dropdown where the user can specify <val1> in the filter <val1> <operation> <val2> -->
    <div class="input-group col-xs-4">
       <!-- Text box for entering the filter text -->
-      <input type="text" class="form-control dq-filter-1-text" placeholder="table1.col1 * 3">
+      <input type="text" id="dq-policy-using-expr-filter-1" class="dq-filter-1-text" placeholder="table1.col1 * 3">
       <!-- Dropdown for selecting a column to add to filter -->
       <div class="input-group-btn">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
@@ -88,7 +90,7 @@
    <!-- The first dropdown where the user can specify <operation> in the filter <val1> <operation> <val2> -->
    <div class="input-group col-xs-3">
       <!-- Text box for entering the operation text -->
-      <input type="text" class="form-control dq-filter-op-text" value="=">
+      <input type="text" id="dq-policy-using-expr-op" class="dq-filter-op-text" value="=">
       <!-- The possible operations are <, <=, >, >=, =, LIKE, IN, and NOT IN -->
       <div class="input-group-btn">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
@@ -108,7 +110,7 @@
    <!-- The second dropdown where the user can specify <val2> in the filter <val1> <operation> <val2> -->
    <div class="input-group col-xs-4">
       <!-- Text box for entering the filter text -->
-      <input type="text" class="form-control dq-filter-2-text" placeholder="table2.col2+3">
+      <input type="text" id="dq-policy-using-expr-filter-2" class="dq-filter-2-text" placeholder="table2.col2+3">
       <!-- Dropdown for selecting a column to add to filter -->
       <div class="input-group-btn">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
@@ -134,7 +136,7 @@
            <!-- The first dropdown where the user can specify <val1> in the filter <val1> <operation> <val2> -->
       <div class="input-group col-xs-4">
          <!-- Text box for entering the filter text -->
-         <input type="text" class="form-control dq-filter-1-text" placeholder="table1.col1 * 3">
+         <input type="text" id="dq-policy-check-expr-filter-1" class="dq-filter-1-text" placeholder="table1.col1 * 3">
          <!-- Dropdown for selecting a column to add to filter -->
          <div class="input-group-btn">
            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
@@ -149,7 +151,7 @@
       <!-- The first dropdown where the user can specify <operation> in the filter <val1> <operation> <val2> -->
       <div class="input-group col-xs-3">
          <!-- Text box for entering the operation text -->
-         <input type="text" class="form-control dq-filter-op-text" value="=">
+         <input type="text" id="dq-policy-check-expr-op" class="dq-filter-op-text" value="=">
          <!-- The possible operations are <, <=, >, >=, =, LIKE, IN, and NOT IN -->
          <div class="input-group-btn">
            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
@@ -169,7 +171,7 @@
       <!-- The first dropdown where the user can specify <val2> in the filter <val1> <operation> <val2> -->
       <div class="input-group col-xs-4">
          <!-- Text box for entering the filter text -->
-         <input type="text" class="form-control dq-filter-2-text" placeholder="table2.col2+3">
+         <input type="text" id="dq-policy-check-expr-filter-2" class="dq-filter-2-text" placeholder="table2.col2+3">
          <!-- Dropdown for selecting a column to add to filter -->
          <div class="input-group-btn">
            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>

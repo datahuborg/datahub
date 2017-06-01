@@ -49,6 +49,9 @@
    * @param cb - The callback to trigger when the query is built.
    */
   DataQ.DQ_rls_policy = function(repo_name, table_name, cb) {
+    console.log(repo_name);
+    console.log(table_name);
+
     // Set the callback.
     callback = cb;
 
@@ -203,11 +206,31 @@
     callback(DataQ.build_query(query));
   });
 
-  // Handle DataQ run policy.
-  $(document).on("click", ".dq-btn-run-policy", function() {
+  // Handle DataQ create policy.
+  $(document).on("click", ".dq-btn-create-policy", function() {
     // Build policy object
     policy.name($("#dq-policy-name").val());
-    policy.table
+
+    policy.command($("#dq-policy-command-selected").text());
+
+    roles = $("#dq-policy-role-list").val().split(",").map(function(r) {
+      return r.trim();
+    });
+    policy.roles(roles);
+
+    using_expr_obj = {
+      "filter1": $("#dq-policy-using-expr-filter-1").val(),
+      "op"     : $("#dq-policy-using-expr-op").val(),
+      "filter2": $("#dq-policy-using-expr-filter-2").val()
+    };
+    policy.using_expression(using_expr_obj);
+
+    check_expr_obj = {
+      "filter1": $("#dq-policy-check-expr-filter-1").val(),
+      "op"     : $("#dq-policy-check-expr-op").val(),
+      "filter2": $("#dq-policy-check-expr-filter-2").val()
+    };
+    policy.using_expression(check_expr_obj);
 
     // Close DataQ
     $(".dq-black-background").remove();
@@ -217,9 +240,13 @@
     callback(DataQ.build_policy(policy));
   });
 
+  // Handle policy command dropdown selection
+  $(document).on("click", "#dq-policy-dropdown-menu a", function() {
+    $('#dq-policy-command-selected').text($(this).text());
+  });
+
   // Handle DataQ close
-  $(document).con("click", ".dq-btn-cancel-create-policy", function() {
-    console.log('click');
+  $(document).on("click", ".dq-btn-cancel-create-policy", function() {
     $(".dq-black-background").remove();
     $(".dataq").remove();
     callback(null);

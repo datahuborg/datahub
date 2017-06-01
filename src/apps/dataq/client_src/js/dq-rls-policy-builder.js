@@ -27,7 +27,7 @@
     var policy_name = policy.name();
 
     // Name of table to which the policy applies.
-    var table_name = policy.repo() + "." + policy.name();
+    var table_name = policy.repo() + "." + policy.table();
 
     // Command to which the policy applies.
     var command = policy.command();
@@ -56,13 +56,27 @@
     policy_string += " TO " + role_list.join(", ");
 
     // USING clause
-    policy_string += " USING " + using_expr;
+    if (command !== "INSERT") {
+      policy_string += " USING " + using_expr;
+    } else if (using_expr !== null) {
+      var err_msg = "An INSERT policy cannot have a USING expression, as USING is"
+                    + " used for reading existing records, not adding new ones.";
+      alert(err_msg);
+      return null;
+    }
 
     // WITH CHECK clause
-    if (command !== "SELECT") {
-      // A SELECT policy cannot have a WITH CHECK expression, as it only applies
-      // in cases where records are being retrieved from the relation.
+    if (command !== "SELECT" && command !== "DELETE") {
+      // Neither a SELECT or DELETE policy can have a WITH CHECK expression,
+      // as this expression is used for validating new records, not reading or
+      // deleting existing ones.
       policy_string += " WITH CHECK " + check_expr;
+    } else if (check_expr !== null) {
+      var err_msg = "Neither a SELECT or DELETE policy can have a WITH CHECK expression"
+                + ", as this expression is used for validating new records, not"
+                + " reading or deleting existing ones.";
+      alert(err_msg);
+      return null;
     }
 
     // Remove leading and trailing spaces and then append semicolon.

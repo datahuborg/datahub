@@ -244,7 +244,7 @@ $(function() {
 <script>
   $(document).on("click", "#btn-dataq-rls-policy", function(e) {
     e.preventDefault();
-    DataQ.DQ_rls_policy("{{repo}}", function(query) {
+    DataQ.DQ_rls_policy("{{repo}}", "{{table}}", function(query) {
       $("#txt-sql").val(query);
     });
   });

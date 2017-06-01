@@ -63,11 +63,11 @@
     };
 
     /**
-     * Get or set the command { ALL | SELECT | INSERT| UPDATE | DELETE } to which
+     * Get or set the command { ALL | SELECT | INSERT | UPDATE | DELETE } to which
      * this policy will apply.
      *
      * @param cmd - If this argument is omitted (or undefined), this function acts as a
-     *                    getter. Otherwise, it acts as a setter, setting the repo name.
+     *                    getter. Otherwise, it acts as a setter, setting the allowed command.
      *
      * @return The name of the command.
      */
@@ -82,7 +82,7 @@
      * Get or set the Roles to which this policy will apply.
      *
      * @param role_list - If this argument is omitted (or undefined), this function acts as a
-     *                    getter. Otherwise, it acts as a setter, setting the repo name.
+     *                    getter. Otherwise, it acts as a setter, setting the list of roles.
      *
      * @return The list of Roles.
      */
@@ -100,13 +100,14 @@
      * Get or set the policy's using_expression.
      *
      * @param expr - If this argument is omitted (or undefined), this function acts as a
-     *                    getter. Otherwise, it acts as a setter, setting the repo name.
+     *               getter. Otherwise, it acts as a setter, setting the USING expression.
      *
-     * @return The full using_expression.
+     * @return The full USING expression.
      */
-    that.using_expression = function(expr) {
-      if (expr !== undefined) {
-        that._using_expr = expr;
+    that.using_expression = function(expr_obj) {
+      if (expr_obj !== undefined) {
+        using_expression = expr_obj.filter1 + " " + expr_obj.op + " " + expr_obj.filter2;
+        that._using_expr = using_expression;
       }
       return that._using_expr;
     };
@@ -115,12 +116,13 @@
      * Get or set the policy's check_expression.
      *
      * @param expr - If this argument is omitted (or undefined), this function acts as a
-     *                    getter. Otherwise, it acts as a setter, setting the repo name.
+     *               getter. Otherwise, it acts as a setter, setting the WITH CHECK expression.
      *
-     * @return The full check_expression.
+     * @return The full WITH CHECK expression.
      */
-    that.check_expression = function(expr) {
-      if (expr !== undefined) {
+    that.check_expression = function(expr_obj) {
+      if (expr_obj !== undefined) {
+        check_expression = expr_obj.filter1 + " " + expr_obj.op + " " + expr_obj.filter2;
         that._check_expr = expr;
       }
       return that._check_expr;
