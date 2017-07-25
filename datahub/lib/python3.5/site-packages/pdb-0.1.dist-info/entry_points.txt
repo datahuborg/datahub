@@ -1,0 +1,4 @@
+[console_scripts]
+manage-pdb = pdb.manage_pdb:main
+pdb = pdb.pdb:main
+

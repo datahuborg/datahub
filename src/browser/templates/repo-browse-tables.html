@@ -30,6 +30,8 @@
             <td class="text-right">
 
               {% if login == repo_base %}
+              <a href="/browse/{{repo_base}}/{{repo}}/table/{{base_table}}/createlicense" title="Create New License"><span class="fa fa-lg fa-fw fa-book" style="color:#333; vertical-align: 0%;"></span></a>
+              
               <a href="{% url 'browse-security_policies' repo_base repo base_table %}" title="View Security Policies"><span class="fa fa-lg fa-fw fa-lock" style="color:#333; vertical-align: 0%;"></span></a>
               &nbsp;&nbsp;
               {% endif %}
@@ -44,6 +46,7 @@
                   title="Clone Table">
                 <i class="fa fa-clone"></i>
               </span>&nbsp;&nbsp;
+
 
               <span
                   class="modal-link modal-confirm-dialog"

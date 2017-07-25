@@ -1,0 +1,3 @@
+[console_scripts]
+viz = viz.cli:main
+

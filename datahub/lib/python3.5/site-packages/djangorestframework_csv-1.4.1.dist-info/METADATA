@@ -1,0 +1,28 @@
+Metadata-Version: 2.0
+Name: djangorestframework-csv
+Version: 1.4.1
+Summary: CSV Tools for Django REST Framework
+Home-page: https://github.com/mjumbewu/django-rest-framework-csv
+Author: Mjumbe Wawatu Ukweli
+Author-email: mjumbewu@gmail.com
+License: BSD
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Framework :: Django
+Requires-Dist: djangorestframework
+Requires-Dist: six
+
+UNKNOWN
+
+

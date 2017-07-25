@@ -104,7 +104,7 @@ Please note that other sections of the documentation assume that you are using t
 
 --------------
 Clone the repo
---------------
+--------------sudo
 
 1. Make sure to clone the repo,
    ``git clone https://github.com/datahuborg/datahub.git``
