@@ -38,7 +38,9 @@
               &nbsp;&nbsp;
             </td>
 
-            <td class="text-right" style="width: 5em; max-width: 30em;">
+            <td class="text-right" style="width: 7em; max-width: 30em;">
+            <a href="/licenses/{{repo.owner}}/{{repo.name}}" title="Manage Licenses"><span class="glyphicon glyphicon-book"></span></a>
+              &nbsp;&nbsp;
               <a href="/settings/{{repo.owner}}/{{repo.name}}" title="Manage collaborators"><span class="glyphicon glyphicon-cog"></span></a>
               &nbsp;&nbsp;
               <span class="modal-confirm-dialog"
@@ -51,6 +53,8 @@
                 <a href="#"><span class="glyphicon glyphicon-trash"></span></a>
               </span>
             </td>
+
+            
           </tr>
         {% endfor %}
 

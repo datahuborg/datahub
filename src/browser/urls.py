@@ -56,8 +56,6 @@ urlpatterns = patterns(
     url(r'^create/annotation/?$', 'browser.views.create_annotation',
         name='browser-create_annotation'),
 
-
-
     # Browse
     url(r'^browse/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table',
         name='browser-table'),
@@ -70,8 +68,14 @@ urlpatterns = patterns(
 
     url(r'^browse/(\w+)/(\w+)/tables/?$', 'browser.views.repo_tables',
         name='browser-repo_tables'),
+
+
     url(r'^browse/(\w+)/(\w+)/files/?$', 'browser.views.repo_files',
         name='browser-repo_files'),
+  
+  url(r'^browse/(\w+)/(\w+)/filestest/?$', 'browser.views.repo_test',
+        name='browser-repo_test'),
+
     url(r'^browse/(\w+)/(\w+)/cards/?$', 'browser.views.repo_cards',
         name='browser-repo_cards'),
     url(r'^browse/public/?$', 'browser.views.public', name='browser-public'),
@@ -101,6 +105,8 @@ urlpatterns = patterns(
         'browser.views.table_clone', name='browser-table_clone'),
 
     # Export
+    url(r'^export/(\w+)/(\w+)/table/(\w+)/get-csv-json/?$', 'browser.views.table_export_csv',
+        name='browser-table_export'),
     url(r'^export/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table_export',
         name='browser-table_export'),
     url(r'^export/(\w+)/(\w+)/card/(\w+)/?$', 'browser.views.card_export',
@@ -112,6 +118,7 @@ urlpatterns = patterns(
         name='browser-file_upload'),
     url(r'^import/(\w+)/(\w+)/file/([ -~]+)', 'browser.views.file_import',
         name='browser-file_import'),
+    url(r'^download/(\w+)/(\w+)/file/([ -~]+)/getcsvapi', 'browser.views.file_download_csv_api'),
     url(r'^download/(\w+)/(\w+)/file/([ -~]+)', 'browser.views.file_download'),
 
 
@@ -119,6 +126,17 @@ urlpatterns = patterns(
     url(r'^settings/(\w+)/(\w+)/?$', 'browser.views.repo_settings',
         name='browser-repo_settings'),
 
+    # Licenses
+    url(r'^licenses/(\w+)/(\w+)/?$', 'browser.views.repo_licenses',
+        name='browser-repo_licenses'),
+    url(r'^licenses/(\w+)/(\w+)/createpage/?$', 'browser.views.repo_licenses_create_page',
+        name='browser-repo_licenses_create_page'),
+    url(r'^licenses/(\w+)/(\w+)/(\w+)/manage/?$', 'browser.views.repo_license_manage',
+        name='browser-repo_license_manage'),
+
+    # #get rid of this
+    # url(r'^browse/(\w+)/(\w+)/table/(\w+)/createlicense/?$', 'browser.views.table_license',
+    #     name='browser-table'),
 
     # Collaborators
     url(r'^collaborator/repo/(\w+)/(\w+)/add/?$',

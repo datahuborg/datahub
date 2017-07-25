@@ -279,6 +279,27 @@ def repo_files(request, repo_base, repo):
     res.update(csrf(request))
     return render_to_response("repo-browse-files.html", res)
 
+def repo_test(request, repo_base, repo):
+    '''
+    shows thee files in a repo
+    '''
+    username = request.user.get_username()
+    if repo_base.lower() == 'user':
+        repo_base = username
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        uploaded_files = manager.list_repo_files(repo)
+
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'files': uploaded_files}
+
+    res.update(csrf(request))
+    return render_to_response("repo-browse-files.html", res)
+
+
 
 def repo_cards(request, repo_base, repo):
     '''
@@ -371,6 +392,105 @@ def repo_settings(request, repo_base, repo):
 
     return render_to_response("repo-settings.html", res)
 
+
+@login_required
+def repo_licenses(request, repo_base, repo):
+    '''
+    returns the settings page for a repo.
+    '''
+    username = request.user.get_username()
+    public_role = settings.PUBLIC_ROLE
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo)
+
+    # if the public role is in collaborators, note that it's already added
+    repo_is_public = next(
+        (True for c in collaborators if
+            c['username'] == settings.PUBLIC_ROLE), False)
+
+    # remove the current user, public user from the collaborator list
+    # collaborators = [c.get('username') for c in collaborators]
+
+    collaborators = [c for c in collaborators if c['username']
+                     not in ['', username, settings.PUBLIC_ROLE]]
+
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'collaborators': collaborators,
+        'public_role': public_role,
+        'repo_is_public': repo_is_public}
+    res.update(csrf(request))
+
+    return render_to_response("repo-licenses.html", res)
+
+@login_required
+def repo_license_manage(request, repo_base, repo, license_id):
+    '''
+    shows the tables and views under a repo.
+    '''
+    username = request.user.get_username()
+    if repo_base.lower() == 'user':
+        repo_base = username
+
+    # get the base tables and views of the user's repo
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo)
+        base_tables = manager.list_tables(repo)
+        views = manager.list_views(repo)
+
+    rls_table = 'policy'
+
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'base_tables': base_tables,
+        'views': views,
+        'rls-table': rls_table,
+        'collaboratoes': collaborators,
+        'userused': username,
+        'repobaseused':repo_base}
+
+    res.update(csrf(request))
+
+    return render_to_response("repo-license-manage.html", res)
+
+
+@login_required
+def repo_licenses_create_page(request, repo_base, repo):
+    '''
+    returns the settings page for a repo.
+    '''
+    username = request.user.get_username()
+    public_role = settings.PUBLIC_ROLE
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo)
+
+    # if the public role is in collaborators, note that it's already added
+    repo_is_public = next(
+        (True for c in collaborators if
+            c['username'] == settings.PUBLIC_ROLE), False)
+
+    # remove the current user, public user from the collaborator list
+    # collaborators = [c.get('username') for c in collaborators]
+
+    collaborators = [c for c in collaborators if c['username']
+                     not in ['', username, settings.PUBLIC_ROLE]]
+
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'collaborators': collaborators,
+        'public_role': public_role,
+        'repo_is_public': repo_is_public}
+    res.update(csrf(request))
+
+    return render_to_response("new-license.html", res)
 
 @login_required
 def repo_collaborators_add(request, repo_base, repo):
@@ -467,6 +587,66 @@ def table(request, repo_base, repo, table):
     # use all of the data we prepared. ARC 2016-01-04
     return render_to_response("table-browse.html", data)
 
+@login_required
+def table_license(request, repo_base, repo, table_name):
+    '''
+    return a page indicating how many
+    '''
+    current_page = 1
+    if request.POST.get('page'):
+        current_page = request.POST.get('page')
+
+    username = request.user.get_username()
+    if repo_base.lower() == 'user':
+        repo_base = username
+
+    url_path = reverse('browser-table', args=(repo_base, repo, table_name))
+    
+    #create csv to work with
+
+    username = request.user.get_username()
+    file_name = "test-file-name" #request.GET.get('var_text', table_name)
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.export_table(
+            repo=repo, table=table_name, file_name=file_name,
+            file_format='CSV', delimiter=',', header=True)
+
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        query = manager.select_table_query(repo, table_name)
+
+        res = manager.paginate_query(
+            query=query, current_page=current_page, rows_per_page=50)
+
+    # get annotation to the table:
+    annotation, created = Annotation.objects.get_or_create(url_path=url_path)
+    annotation_text = annotation.annotation_text
+
+    data = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'table': table_name,
+        'annotation': annotation_text,
+        'current_page': current_page,
+        'next_page': current_page + 1,  # the template should relaly do this
+        'prev_page': current_page - 1,  # the template should relaly do this
+        'url_path': url_path,
+        'column_names': res['column_names'],
+        'tuples': res['rows'],
+        'total_pages': res['total_pages'],
+        'pages': range(res['start_page'], res['end_page'] + 1),  # template
+        'num_rows': res['num_rows'],
+        'time_cost': res['time_cost']
+    }
+
+    data.update(csrf(request))
+
+    # and then, after everything, hand this off to table-browse. It turns out
+    # that this is all using DataTables anyhow, so the template doesn't really
+    # use all of the data we prepared. ARC 2016-01-04
+    return render_to_response("new-license.html", data)
+
 
 @login_required
 def table_clone(request, repo_base, repo, table):
@@ -478,6 +658,20 @@ def table_clone(request, repo_base, repo, table):
 
     return HttpResponseRedirect(
         reverse('browser-repo_tables', args=(repo_base, repo)))
+
+@login_required
+def table_export_csv(request, repo_base, repo, table_name):
+    username = request.user.get_username()
+    file_name = request.GET.get('var_text', table_name)
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.export_table(
+            repo=repo, table=table_name, file_name=file_name,
+            file_format='CSV', delimiter=',', header=True)
+
+    return HttpResponseRedirect(
+        reverse('browser-repo_files', args=(repo_base, repo)))
+
 
 
 @login_required
@@ -586,6 +780,16 @@ def file_delete(request, repo_base, repo, file_name):
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))
 
+def file_download_csv_api(request, repo_base, repo, file_name):
+    username = request.user.get_username()
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        file_to_download = manager.get_file(repo, file_name)
+
+    response = HttpResponse(file_to_download,
+                            content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % (file_name)
+    return response
 
 def file_download(request, repo_base, repo, file_name):
     username = request.user.get_username()

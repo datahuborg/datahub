@@ -1,0 +1,565 @@
+{% extends "base.html" %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="/static/datatables/css/dataTables.bootstrap.extra.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.colReorder.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.colVis.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.fontAwesome.css" />
+<link rel="stylesheet" href="/static/dataq/css/style.css">
+{% endblock stylesheets %}
+
+
+{% block content %}
+<div class="container">
+
+  <div class="row">
+    <div class="col-sm-10">
+      <h4 class="inline-block">
+        <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a> /
+        <a class="link" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a> /
+        {% block table-name %}
+        table / {{table}}
+        {% endblock %}
+      </h4>
+    </div>
+
+
+  </div>
+  <hr />
+  <br />
+
+
+  <br />
+
+  <br />
+
+
+<button type="button"
+    class="btn btn-primary" data-toggle="modal" data-target="#newLicenseModal">Add License</button>
+
+<button type="button"
+    class="btn btn-primary" data-toggle="modal" data-target="#viewLicenseModal">View License</button>
+<ul class="list-unstyled" style="padding:10px; display: none;" id="license1list">
+  License Type 1
+  <li><button type="button"
+    class="btn btn-primary" data-toggle="modal" data-target="#removePIIModal" style="margin-top:12px;" id="removeChangePIIbtn">Remove/Change PII</button>  <div class="alert alert-success" style="display: none; padding-top:1px; padding-bottom:13px; margin-left: 10px;" id="piiSuccess">
+    <span class="glyphicon glyphicon-ok" style="top: 6px;" aria-hidden="true"></span>
+</div></li>
+
+     <li><button type="button"
+    class="btn btn-primary" data-toggle="modal" data-target="#changeAccessModal" style="margin-top:12px;">Change Access</button>  
+
+    <div class="alert alert-success" style="display: none; padding-top:1px; padding-bottom:13px; margin-left: 10px;" id="accessSuccess">
+    <span class="glyphicon glyphicon-ok" style="top: 6px;" aria-hidden="true"></span>
+
+</div></li>
+</ul>
+
+<!-- Remove PII Modal -->
+<div class="modal fade" id="removePIIModal" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      
+      <div class="modal-body">
+      <h4> Data preview </h4>
+        <div id="dataViewDiv"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+        class="btn btn-primary" id="removeChangePIIEnterbtn" data-dismiss="modal">Enter</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Change Access Modal -->
+<div class="modal fade" id="changeAccessModal" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      
+      <div class="modal-body">
+      <h4>Access settings </h4>
+
+        <div class="checkbox">
+          <label><input type="checkbox" value=""> Any User</label>
+        </div>
+
+        <div class="checkbox">
+          <label><input type="checkbox" value=""> Limited Time</label>
+        </div>
+
+        <div class="checkbox">
+          <label><input type="checkbox" value=""> Limited Users</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+        class="btn btn-primary" id="changeAccesEnterbtn" data-dismiss="modal">Enter</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="alert alert-success" role="alert" id="alertbox" style="visibility: hidden">
+</div>
+
+<div class="modal" id="annotation-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="annotation-modal-title">Annotation</h4>
+      </div>
+      <div class="modal-body" id="annotation-modal-body">
+        <form role="form" method="POST" action="/create/annotation" id="frm-annotation">
+          <div class="form-group">
+            {% csrf_token %}
+            <input type="hidden" name="url" id="annotation-modal-input-url"/>
+            <input type="text" class="form-control" name="annotation" placeholder="Enter text description" id="annotation-modal-input-annotation" />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+        class="btn btn-primary" id="annotation-modal-operation">Save</button>
+        <button type="button"
+        class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--New License Modal -->
+<div class="modal fade" id="newLicenseModal" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Choose License</h4>
+      </div>
+      <div class="modal-body">
+        <ul class="list-unstyled">
+        <li> <label style="font-weight: bold;">License Type 1 </label> <button type="button"
+    class="btn btn-primary" id="operation" data-toggle="modal" data-target="#viewLicenseDetailsModal" style="margin-left:20px;">View</button>
+    <button type="button"
+    class="btn btn-primary" id="linklicense1btn" >Link </button>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+        class="btn btn-primary" id="license-info-enter" data-dismiss="modal">Enter</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- License Details Modal -->
+<div class="modal fade" id="viewLicenseDetailsModal" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      
+      <div class="modal-body">
+       License 1 Details
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+        class="btn btn-primary" id="license-info-enter" data-dismiss="modal">Exit</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal fade" id="viewLicenseModal" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">License Preview</h4>
+      </div>
+      <div class="modal-body">
+        <span id="license-name">
+          ...
+        </span>
+      </div>
+      <ul> 
+      <li><h4> Privacy and Protection </h4></li>
+      <ul id="licenseList"></ul>
+     <li> <h4> Access and Security </h4></li>
+     <li> <h4> Responsibility </h4></li>
+      </ul>
+      <div class="modal-footer">
+        <button type="button"
+        class="btn btn-primary" id="license-name" ">Enter</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Change Column Modal -->
+<div id="modalChangeColumn" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title" id="changeModalHeader">Edit Column</h4>
+      </div>
+      <div class="modal-body">
+        <p>Edit column: </p>
+        <div id="modalColumnName" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
+        <button type="button"
+        class="btn btn-primary" id="removeColumnBtn" ">Remove column</button>
+        <button type="button"
+        class="btn btn-primary" id="hashColumnBtn" ">Hash Column</button>
+        <button type="button"
+        class="btn btn-primary" id="license-name" ">K Anonymity</button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+<!-- dataq -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.runtime.js"></script>
+<script src="/static/dataq/templates.js"></script>
+<script src="/static/dataq/js/dataq.min.js"></script>
+<!-- <script src="https://d3js.org/d3.v4.min.js"></script>
+-->    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.0.2/build/rollups/md5.js"></script>
+
+<!-- /dataq -->
+
+<!-- sentiment -->
+<script src="/static/sentiment/sentiment.js"></script>
+<!-- /sentiment -->
+
+<!-- dataTables -->
+<script src="/static/lib/jquery-datatables/jquery.dataTables.js"></script>
+<script src="/static/lib/jquery-datatables/dataTables.bootstrap.js"></script>
+<script src="/static/lib/jquery-datatables/dataTables.colReorder.js"></script>
+<script src="/static/lib/jquery-datatables/dataTables.colVis.js"></script>
+<script src="/static/datatables/js/dataTables.extra.js"></script>
+<!-- /dataTables -->
+
+
+
+<script>
+
+  function bindAnnotationModal() {
+    $('.annotation-modal-dialog').on('click', function(e) {
+      var modal_id = $(this).attr('target-modal')
+      var title = $(this).attr('title')
+      var placeholder = $(this).attr('placeholder')
+      var url_path = $(this).attr('url-path')
+
+      $(modal_id + '-title').text(title)
+      $(modal_id + '-input-annotation').val(placeholder)
+      $(modal_id + '-input-url').val(url_path)
+
+      $(modal_id).off('click');
+
+      $(modal_id).modal({
+        keyboard: true
+      })
+      .on('click', modal_id + '-operation', function(e) {
+        $("#frm-annotation").submit()
+        $(modal_id).modal('hide')
+        $("#wait-dialog").modal()
+      });
+    });
+  }
+
+  function bindDataQ() {
+    $(document).on("click", "#btn-dataq", function(e) {
+      e.preventDefault();
+      DataQ.DQ("{{repo}}", function(query) {
+        $("#txt-sql").val(query);
+      });
+    });
+  }
+
+  function bindDataQ() {
+    $(document).on("click", "#btn-license", function(e) {
+      e.preventDefault();
+      DataQ.DQ("{{repo}}", function(query) {
+        $("#txt-sql").val(query);
+      });
+    });
+  }
+
+  var license1 = {
+    id: 5,
+    name:"HIPAA PII Removed",
+    pii:false,
+    anonymization:true,
+    federalDataProtectionCompliant: true,
+    dataUse: "only for purpose"
+  }
+  function licenseInfo() {
+    $(document).on("click", "#license-info-enter", function(e) {
+      e.preventDefault();
+      $('#license-name').text($('#license-name-input').val())
+    });
+  }
+
+  function setupSentimentAnalysis() {
+    // $(".sentiment-dropdown").hide();
+    $("#table_data").EnhancedDataTable("{{repo}}", "{{table}}", function(query) {
+      $("#txt-sql").val(query);
+    }, function(datatable) {
+
+      $(".sentiment-dropdown").show();
+      var sentiment_col_list = $("#sentiment_col_list");
+      sentiment_col_list.html("");
+      datatable.getColDef().forEach(function(colDef) {
+        var colname = colDef.name;
+        sentiment_col_list.append('<li data-colname="' + colname + '" role="presentation"><a role="menuitem" tabindex="-1" >' + colname + '</a></li>');
+      });
+
+      sentiment_col_list.find("li").click(function() {
+        var colname = $(this).data("colname");
+        var sentences = [];
+        datatable.forEachRowInColumn(colname, function(value) {
+          sentences.push(value);
+        });
+        Sentiment(sentences, function(err, sentiments) {
+          if (err !== null) {
+            throw err;
+          } else {
+            var num_positive = 0;
+            var num_negative = 0;
+            var threshold = 0;
+            datatable.forEachRowInColumn(colname, function(value, node, index) {
+              var polarity = sentiments[index].polarity;
+              if (polarity < -1 * threshold) {
+                num_negative++;
+                node.css("color", "red");
+              } else if (polarity > threshold) {
+                num_positive++;
+                node.css("color", "green");
+              }
+            });
+            var alertbox = $("#alertbox");
+            alertbox.html("Sentiment analysis finished with " + num_positive + " positive and " + num_negative + " negative.");
+            alertbox.css("visibility", "visible");
+            setTimeout(function() {
+              alertbox.css("visibility", "hidden");
+            }, 3000);
+          }
+        });
+      });
+    });
+  }
+
+  var CSVData = null;
+
+  function updateCSVTable(data) {
+    $('#dataViewDiv').html('')
+
+    var table = d3.select("#dataViewDiv")
+    .append("table").attr("class", "table table-striped table-hover")
+
+    var thead = table.append("thead");
+    var tbody = table.append("tbody");
+
+    thead.selectAll("tr")
+    .data(data.slice(0,1)).enter()
+    .append("tr")
+
+    .selectAll("th")
+
+
+    .data(function(d) {
+      return d;
+    }).enter()
+    .append("th")
+    .text(function(d) {
+      return d;
+    }).append("button");
+
+
+
+
+    tbody.selectAll("tr")
+    .data(data.slice(1, data.length)).enter()
+    .append("tr")
+
+    .selectAll("td")
+    .data(function(d) {
+      return d;
+    }).enter()
+    .append("td")
+    .text(function(d) {
+      return d;
+    });
+
+    // Buttons for editing columns
+
+    $("table button").text("edit").addClass("btn").addClass("btn-warning").css("display","block");
+
+  }
+
+
+  $("table button").text("edit").addClass("btn").addClass("btn-warning")
+
+  $(document).on("click", "#license-info-enter", function(e) {
+    e.preventDefault();
+    $('#license-name').text($('#license-name-input').val())
+  });
+
+  $(document).on("click", ".l-new-license", function() {
+    createLicense();
+
+    $.get("/license/new")
+  });
+
+  var curColName = null;
+  var curColIndex = null;
+
+  $(document).on("click", "#testChangeData", function() {
+
+    newCSVDATA = [];
+    first = true;
+    CSVData.forEach(function(element){
+     var newElement = element.slice(0);
+
+     if (first) {
+        first = false;
+      } else {
+        if (element[0] == "john") {
+          newElement[0] = "joseph"
+        }
+      }
+      newCSVDATA.push(newElement);
+
+    });
+
+    CSVData = newCSVDATA;
+
+    updateCSVTable(CSVData); 
+  });
+
+  $(document).on("click", "thead tr button", function(e) {
+
+    console.log($(e.target).parent().index())
+    $("#modalColumnName").text($(e.target).text());
+    $("#modalChangeColumn").modal("show");
+
+    curColName = $(e.target).parent().text();
+    curColIndex = $(e.target).parent().index();
+  });
+
+  $(document).on("click", "#removeColumnBtn", function(e) {
+    console.log("working??")
+    CSVData.forEach(function(element){
+    element.splice(curColIndex,1 );
+    });
+
+    updateCSVTable(CSVData);
+
+    var html = "<li> Removed column: " + curColName + "</li>"
+
+    $("#licenseList").append(html);
+  });
+
+  $(document).on("click", "#hashColumnBtn", function(e) {
+    console.log("clicked")
+    newCSVDATA = [];
+    first = true;
+    CSVData.forEach(function(element){
+     var newElement = element.slice(0);
+
+     if (first) {
+        first = false;
+      } else {
+
+        hashedElement = Math.abs(element[curColIndex].toString().hashCode());
+        console.log("hasehed element: " + hashedElement)
+        newElement[curColIndex] = hashedElement;
+      }
+      newCSVDATA.push(newElement);
+
+    });
+
+    CSVData = newCSVDATA;
+
+    updateCSVTable(CSVData); 
+
+    var html = "<li> Hashed column: " + curColName + "</li>"
+
+    $("#licenseList").append(html);
+  });
+
+  $(document).on("click", "#linklicense1btn", function(e) {
+    $('#license1list').show();
+  });
+
+    $(document).on("click", "#removeChangePIIEnterbtn", function(e) {
+    $('#piiSuccess').css("display", "inline-block");
+  });
+
+
+   $(document).on("click", "#changeAccesEnterbtn", function(e) {
+    $('#accessSuccess').css("display", "inline-block");
+  });
+  $(document).ready(function() {
+    url = "/download/{{repo_base}}/{{repo}}/file/test-file-name.CSV/getcsvapi"
+    //url = "/export/{{repo_base}}/{{repo}}/table/{{base_table}}/test-file-name.CSV/getcsvapi";
+    console.log(url)
+
+    d3.text(url, function(datasetText) {
+
+      var parsedCSV = d3.csv.parseRows(datasetText);
+      updateCSVTable(parsedCSV);
+      CSVData = parsedCSV;
+
+
+    });
+
+    console.log("Praise God")
+    bindAnnotationModal();
+    bindDataQ();
+    setupSentimentAnalysis();
+    licenseInfo();
+  });
+
+  String.prototype.hashCode = function() {
+    var hash = 0;
+    if (this.length == 0) return hash;
+    for (i = 0; i < this.length; i++) {
+      char = this.charCodeAt(i)
+      hash = ((hash<<5) - hash) + char;
+      hash = hash & hash;
+    }
+    return hash
+  }
+
+</script>
+
+{% endblock js%}
