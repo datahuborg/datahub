@@ -1,3 +1,0 @@
-[console_scripts]
-http = httpie.__main__:main
-
