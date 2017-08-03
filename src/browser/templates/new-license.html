@@ -65,7 +65,7 @@ License Type 1
       
       <div class="modal-body">
       <h4> Data preview </h4>
-        <div id="testd3"></div>
+        <div id="dataViewDiv"></div>
       </div>
       <div class="modal-footer">
         <button type="button"
@@ -319,6 +319,12 @@ License Type 1
     });
   }
 
+  var license1 = {
+    id: 5,
+    name:"HIPAA PII Removed",
+    pii:false,
+    anonymization:true
+  }
   function licenseInfo() {
     $(document).on("click", "#license-info-enter", function(e) {
       e.preventDefault();
@@ -378,9 +384,9 @@ License Type 1
   var CSVData = null;
 
   function updateCSVTable(data) {
-    $('#testd3').html('')
+    $('#dataViewDiv').html('')
 
-    var table = d3.select("#testd3")
+    var table = d3.select("#dataViewDiv")
     .append("table").attr("class", "table table-striped table-hover")
 
     var thead = table.append("thead");
@@ -399,7 +405,7 @@ License Type 1
     .append("th")
     .text(function(d) {
       return d;
-    });
+    }).append("button");
 
 
 
@@ -417,26 +423,14 @@ License Type 1
       return d;
     });
 
-    // var sampleHTML = d3.select("#testd3")
-    //     .append("table")
-    //     .style("border-collapse", "collapse")
-    //     .style("border", "2px black solid")
+    // Buttons for editing columns
 
-    //     .selectAll("tr")
-    //     .data(data)
-    //     .enter().append("tr")
+    $("table button").text("edit").addClass("btn").addClass("btn-warning").css("display","block");
 
-    //     .selectAll("td")
-    //     .data(function(d) {
-    //         return d;
-    //     })
-    //     .enter().append("td")
-
-    //     .text(function(d) {
-    //         return d;
-    //     })
-    //     .style("font-size", "12px");
   }
+
+
+  $("table button").text("edit").addClass("btn").addClass("btn-warning")
 
   $(document).on("click", "#license-info-enter", function(e) {
     e.preventDefault();
@@ -475,14 +469,14 @@ License Type 1
     updateCSVTable(CSVData); 
   });
 
-  $(document).on("click", "thead tr", function(e) {
+  $(document).on("click", "thead tr button", function(e) {
 
-    console.log($(e.target).index())
+    console.log($(e.target).parent().index())
     $("#modalColumnName").text($(e.target).text());
     $("#modalChangeColumn").modal("show");
 
-    curColName = $(e.target).text();
-    curColIndex = $(e.target).index();
+    curColName = $(e.target).parent().text();
+    curColIndex = $(e.target).parent().index();
   });
 
   $(document).on("click", "#removeColumnBtn", function(e) {
