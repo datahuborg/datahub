@@ -56,10 +56,6 @@ urlpatterns = patterns(
     url(r'^create/annotation/?$', 'browser.views.create_annotation',
         name='browser-create_annotation'),
 
-    # License
-    url(r'^browse/(\w+)/(\w+)/table/(\w+)/createlicense/?$', 'browser.views.table_license',
-        name='browser-table'),
-
     # Browse
     url(r'^browse/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table',
         name='browser-table'),
@@ -130,6 +126,17 @@ urlpatterns = patterns(
     url(r'^settings/(\w+)/(\w+)/?$', 'browser.views.repo_settings',
         name='browser-repo_settings'),
 
+    # Licenses
+    url(r'^licenses/(\w+)/(\w+)/?$', 'browser.views.repo_licenses',
+        name='browser-repo_licenses'),
+    url(r'^licenses/(\w+)/(\w+)/createpage/?$', 'browser.views.repo_licenses_create_page',
+        name='browser-repo_licenses_create_page'),
+    url(r'^licenses/(\w+)/(\w+)/(\w+)/manage/?$', 'browser.views.repo_license_manage',
+        name='browser-repo_license_manage'),
+
+    # #get rid of this
+    # url(r'^browse/(\w+)/(\w+)/table/(\w+)/createlicense/?$', 'browser.views.table_license',
+    #     name='browser-table'),
 
     # Collaborators
     url(r'^collaborator/repo/(\w+)/(\w+)/add/?$',

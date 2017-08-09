@@ -394,6 +394,105 @@ def repo_settings(request, repo_base, repo):
 
 
 @login_required
+def repo_licenses(request, repo_base, repo):
+    '''
+    returns the settings page for a repo.
+    '''
+    username = request.user.get_username()
+    public_role = settings.PUBLIC_ROLE
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo)
+
+    # if the public role is in collaborators, note that it's already added
+    repo_is_public = next(
+        (True for c in collaborators if
+            c['username'] == settings.PUBLIC_ROLE), False)
+
+    # remove the current user, public user from the collaborator list
+    # collaborators = [c.get('username') for c in collaborators]
+
+    collaborators = [c for c in collaborators if c['username']
+                     not in ['', username, settings.PUBLIC_ROLE]]
+
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'collaborators': collaborators,
+        'public_role': public_role,
+        'repo_is_public': repo_is_public}
+    res.update(csrf(request))
+
+    return render_to_response("repo-licenses.html", res)
+
+@login_required
+def repo_license_manage(request, repo_base, repo, license_id):
+    '''
+    shows the tables and views under a repo.
+    '''
+    username = request.user.get_username()
+    if repo_base.lower() == 'user':
+        repo_base = username
+
+    # get the base tables and views of the user's repo
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo)
+        base_tables = manager.list_tables(repo)
+        views = manager.list_views(repo)
+
+    rls_table = 'policy'
+
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'base_tables': base_tables,
+        'views': views,
+        'rls-table': rls_table,
+        'collaboratoes': collaborators,
+        'userused': username,
+        'repobaseused':repo_base}
+
+    res.update(csrf(request))
+
+    return render_to_response("repo-license-manage.html", res)
+
+
+@login_required
+def repo_licenses_create_page(request, repo_base, repo):
+    '''
+    returns the settings page for a repo.
+    '''
+    username = request.user.get_username()
+    public_role = settings.PUBLIC_ROLE
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo)
+
+    # if the public role is in collaborators, note that it's already added
+    repo_is_public = next(
+        (True for c in collaborators if
+            c['username'] == settings.PUBLIC_ROLE), False)
+
+    # remove the current user, public user from the collaborator list
+    # collaborators = [c.get('username') for c in collaborators]
+
+    collaborators = [c for c in collaborators if c['username']
+                     not in ['', username, settings.PUBLIC_ROLE]]
+
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'collaborators': collaborators,
+        'public_role': public_role,
+        'repo_is_public': repo_is_public}
+    res.update(csrf(request))
+
+    return render_to_response("new-license.html", res)
+
+@login_required
 def repo_collaborators_add(request, repo_base, repo):
     '''
     adds a user as a collaborator in a repo
