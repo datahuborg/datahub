@@ -200,7 +200,7 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['status']
 
-    def add_collaborator(self, repo, collaborator, db_privileges=[]):
+    def add_collaborator(self, repo, collaborator, db_privileges=[], license_id= None):
         # check that all repo names, usernames, and privileges passed aren't
         # sql injections
         self._check_for_injections(repo)
@@ -208,20 +208,56 @@ class PGBackend:
         for privilege in db_privileges:
             self._check_for_injections(privilege)
 
-        query = ('BEGIN;'
+        if license_id:
+            query = ('BEGIN;'
                  'GRANT USAGE ON SCHEMA %s TO %s;'
-                 'GRANT %s ON ALL TABLES IN SCHEMA %s TO %s;'
+                 'COMMIT;'
+                 )
+            privileges_str = ', '.join(db_privileges)
+            params = [repo, collaborator, privileges_str, repo,
+                      collaborator, repo, privileges_str, collaborator]
+            params = tuple(map(lambda x: AsIs(x), params))
+            res = self.execute_sql(query, params)
+            return res['status']
+        else: 
+            query = ('BEGIN;'
+                     'GRANT USAGE ON SCHEMA %s TO %s;'
+                     'GRANT %s ON ALL TABLES IN SCHEMA %s TO %s;'
+                     'ALTER DEFAULT PRIVILEGES IN SCHEMA %s '
+                     'GRANT %s ON TABLES TO %s;'
+                     'COMMIT;'
+                     )
+
+            privileges_str = ', '.join(db_privileges)
+            params = [repo, collaborator, privileges_str, repo,
+                      collaborator, repo, privileges_str, collaborator]
+            params = tuple(map(lambda x: AsIs(x), params))
+            res = self.execute_sql(query, params)
+            return res['status']
+
+    def add_collaborator_to_license_view(self, repo, collaborator, db_privileges=[], view):
+        # check that all repo names, usernames, and privileges passed aren't
+        # sql injections
+        self._check_for_injections(repo)
+        self._check_for_injections(collaborator)
+        for privilege in db_privileges:
+            self._check_for_injections(privilege)
+
+
+        query = ('BEGIN;'
+                 'GRANT %s ON %s.%s TO %s;'
                  'ALTER DEFAULT PRIVILEGES IN SCHEMA %s '
-                 'GRANT %s ON TABLES TO %s;'
+                 'GRANT %s ON %s.%s TO %s;'
                  'COMMIT;'
                  )
 
         privileges_str = ', '.join(db_privileges)
-        params = [repo, collaborator, privileges_str, repo,
-                  collaborator, repo, privileges_str, collaborator]
+        params = [privileges_str, repo, view, collaborator, 
+                    repo, privileges_str, repo, view, collaborator]
         params = tuple(map(lambda x: AsIs(x), params))
         res = self.execute_sql(query, params)
         return res['status']
+
 
     def delete_collaborator(self, repo, collaborator):
         self._check_for_injections(repo)

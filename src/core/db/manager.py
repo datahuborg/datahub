@@ -350,7 +350,7 @@ class DataHubManager:
         return self.user_con.execute_sql(query=query, params=params)
 
     def add_collaborator(
-            self, repo, collaborator, db_privileges, file_privileges):
+            self, repo, collaborator, db_privileges, file_privileges, license_id = -1):
         """
         Grants a user or app privileges on a repo.
 
@@ -424,11 +424,31 @@ class DataHubManager:
 
         collaborator_obj.save()
 
-        return self.user_con.add_collaborator(
-            repo=repo,
-            collaborator=collaborator,
-            db_privileges=db_privileges
-        )
+        if license_id != -1:
+             # for view in views from license id:
+            #     add collab to to view
+            for view_id in self.list_views():
+                self.user_conn.add_collaborator_to_license_view(
+                    repo=repo,
+                    collborator=collaborator,
+                    db_privileges=db_privileges,
+                    view="LicenseView{}".format(str(view_id))
+                )
+
+            return self.user_con.add_collaborator(
+                repo=repo,
+                collaborator=collaborator,
+                db_privileges=db_privileges,
+                license_id=license_id,
+            )
+        else:
+            return self.user_con.add_collaborator(
+                repo=repo,
+                collaborator=collaborator,
+                db_privileges=db_privileges
+            )
+
+
 
     def delete_collaborator(self, repo, collaborator):
         """
@@ -535,6 +555,13 @@ class DataHubManager:
                 '')
 
         return db_collabs
+
+    def list_license_views(self, repo, license_id):
+        """
+            returns a list of license id's
+        """
+        views = LicenseViews.objects.filter(repo_base=self.repo_base, repo_name=repo, id = license_id)
+        return views
 
     def save_file(self, repo, data_file):
         """

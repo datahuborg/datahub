@@ -78,6 +78,7 @@ class Collaborator(models.Model):
     repo_name = models.TextField()
     repo_base = models.TextField()
     permission = models.TextField()  # e.g. 'SELECT, UPDATE, INSERT'
+    license_view = models.ForeignKey('LicenseView', blank=True, null=True)
     file_permission = models.TextField()  # e.g. 'read, write'
 
     def __unicode__(self):
@@ -100,3 +101,19 @@ class Collaborator(models.Model):
     class Meta:
         db_table = "collaborators"
         unique_together = ('repo_name', 'repo_base', 'user', 'app')
+
+class LicenseView(models.Model):
+    id = models.AutoField(primary_key=True)
+    timestamp = models.DateTimeField(auto_now=True)
+    # view_sql is the sql used to generate the view from the table
+    view_sql = models.TextField()
+    repo_name = models.TextField()
+    repo_base = models.TextField()
+
+    class Meta:
+        db_table = "license_views"
+        unique_together = ('repo_name', 'repo_base')
+
+    def __unicode__(self):
+        return "{base}.{repo}/licenseView/{id}".format(
+            base = self.repo_base, repo = self.repo_name, id = self.id)
