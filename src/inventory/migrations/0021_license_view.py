@@ -21,6 +21,10 @@ class Migration(migrations.Migration):
                 ('view_sql', models.TextField()),
                 ('repo_name', models.TextField()),
                 ('repo_base', models.TextField()),
+                ('table', models.TextField()),
+                ('start_date', models.DateField()),
+                ('end_date', models.DateField()),
+                ('license_id', models.TextField()),
                 
             ],
             options={

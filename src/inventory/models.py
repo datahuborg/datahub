@@ -109,6 +109,8 @@ class LicenseView(models.Model):
     view_sql = models.TextField()
     repo_name = models.TextField()
     repo_base = models.TextField()
+    table = models.TextField()
+    license_id = models.IntegerField()
 
     class Meta:
         db_table = "license_views"

@@ -12,7 +12,6 @@
 
 {% block content %}
 <div class="container">
-
   <div class="row">
     <div class="col-sm-10">
       <h4 class="inline-block">
@@ -22,15 +21,10 @@
         /
     </h4>
     </div>
-
-
   </div>
   <hr />
   <br />
-
-
   <br />
-
   <br />
 
 <p class="lead">Manage Repository Licenses</p>
@@ -74,7 +68,6 @@
 
   <div class="alert alert-success" style="display: none; padding-top:1px; padding-bottom:13px; margin-left: 10px;" id="accessSuccess">
     <span class="glyphicon glyphicon-ok" style="top: 6px;" aria-hidden="true"></span>
-
   </div>
   </li>
 </ul>
@@ -125,7 +118,7 @@
           <button type="button"  class="btn btn-primary" style="margin:20px;" id="choose-existing-btn"> Choose Existing License </button>
         </li>
         <li> 
-        <form action="{% url 'browser-repo_licenses_create_page' repo_base repo %}">
+        <form action="{% url 'browser-repo_licenses_create' repo_base repo %}">
           <button type="submit" title="Create a License"  class="btn btn-primary" style="margin:20px;"> Create New License</button>
           </form>
         </li>

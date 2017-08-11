@@ -13,7 +13,7 @@ from config import settings
 from core.db.connection import DataHubConnection
 from core.db.rlsmanager import RowLevelSecurityManager
 from core.db.errors import PermissionDenied
-from inventory.models import App, Card, Collaborator, DataHubLegacyUser
+from inventory.models import App, Card, Collaborator, DataHubLegacyUser, LicenseView
 
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
@@ -500,6 +500,32 @@ class DataHubManager:
             result = conn.delete_collaborator(
                 repo=repo, collaborator=collaborator)
         return result
+
+    def create_license_view(repo, table, view_params, license_id):
+
+        sql_view = self.user_con.get_view_sql(
+            repo_base=self.repo,
+            repo_name=repo, 
+            table=repo_self.base,
+            view_params=view_params,
+            license_id=license_id,
+            )
+
+        license_view_obj = LicenseView.objects.create(
+            repo_base=self.repo,
+            repo_name=repo, 
+            table=repo_self.base,
+            sql_view=sql_view,
+            )
+        
+        license_view_obj.save()
+
+        # Create view in database
+
+        return self.user_con.create_license_view(
+            repo=repo,
+            view_params=view_params
+            )
 
     def list_repo_files(self, repo):
         """

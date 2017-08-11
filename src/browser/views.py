@@ -438,6 +438,7 @@ def repo_license_manage(request, repo_base, repo, license_id):
     # get the base tables and views of the user's repo
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         collaborators = manager.list_collaborators(repo, license_id)
+        #collaborators = None
         base_tables = manager.list_tables(repo)
         views = manager.list_views(repo)
 
@@ -459,7 +460,7 @@ def repo_license_manage(request, repo_base, repo, license_id):
 
 
 @login_required
-def repo_licenses_create_page(request, repo_base, repo):
+def repo_license_create(request, repo_base, repo):
     '''
     returns the settings page for a repo.
     '''
@@ -476,20 +477,107 @@ def repo_licenses_create_page(request, repo_base, repo):
 
     # remove the current user, public user from the collaborator list
     # collaborators = [c.get('username') for c in collaborators]
+    if username != repo_base:
+        message = (
+            'Error: Permission Denied. '
+            '%s cannot create new licenses in %s.'
+            % (username, repo_base)
+        )
+        return HttpResponseForbidden(message)
 
-    collaborators = [c for c in collaborators if c['username']
-                     not in ['', username, settings.PUBLIC_ROLE]]
+    if request.method == 'POST':
+        #create license
+        removed_columns = request.POST.getlist('removed_columns')
+        with DataHubManager(user=username, repo_base=repo_base) as manager:
 
-    res = {
-        'login': username,
-        'repo_base': repo_base,
-        'repo': repo,
-        'collaborators': collaborators,
-        'public_role': public_role,
-        'repo_is_public': repo_is_public}
-    res.update(csrf(request))
+            manager.create_license(
+                repo, collaborator_username,
+                view_parameters = sql_parameters
+            )
 
-    return render_to_response("new-license.html", res)
+            license_id = license_view
+
+        return HttpResponseRedirect(reverse('browser-repo_license_manage', args=(repo_base, repo, license_id)))
+
+
+    elif request.method == 'GET':
+
+        collaborators = [c for c in collaborators if c['username']
+                         not in ['', username, settings.PUBLIC_ROLE]]
+
+        res = {
+            'login': username,
+            'repo_base': repo_base,
+            'repo': repo,
+            'collaborators': collaborators,
+            'public_role': public_role,
+            'repo_is_public': repo_is_public}
+        res.update(csrf(request))
+
+        return render_to_response("license-create.html", res)
+
+
+@login_required
+def repo_license_view_create(request, repo_base, repo, table, license_id):
+    '''
+    returns the settings page for a repo.
+    '''
+    username = request.user.get_username()
+    public_role = settings.PUBLIC_ROLE
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo)
+
+    # if the public role is in collaborators, note that it's already added
+    repo_is_public = next(
+        (True for c in collaborators if
+            c['username'] == settings.PUBLIC_ROLE), False)
+
+    # remove the current user, public user from the collaborator list
+    # collaborators = [c.get('username') for c in collaborators]
+    if username != repo_base:
+        message = (
+            'Error: Permission Denied. '
+            '%s cannot create new licenses in %s.'
+            % (username, repo_base)
+        )
+        return HttpResponseForbidden(message)
+
+    if request.method == 'POST':
+        #collect parameters that will be used to create the view of the table
+        removed_columns = request.POST.getlist('removed_columns')
+        view_params = {}
+        view_params['removed-columns'] = removed_columns
+        with DataHubManager(user=username, repo_base=repo_base) as manager:
+            manager.create_license_view(
+                repo, 
+                table,
+                view_params = view_params,
+                license_id=license_id
+            )
+
+            # give access to all current collaborators on this license
+            manager.grant_collaborators_access_to_view(
+            )
+
+        return HttpResponseRedirect(reverse('browser-repo_licenses', args=(repo_base, repo)))
+
+
+    elif request.method == 'GET':
+
+        collaborators = [c for c in collaborators if c['username']
+                         not in ['', username, settings.PUBLIC_ROLE]]
+
+        res = {
+            'login': username,
+            'repo_base': repo_base,
+            'repo': repo,
+            'collaborators': collaborators,
+            'public_role': public_role,
+            'repo_is_public': repo_is_public}
+        res.update(csrf(request))
+
+        return render_to_response("license-create.html", res)
 
 @login_required
 def repo_collaborators_add(request, repo_base, repo):
@@ -817,17 +905,6 @@ def file_delete(request, repo_base, repo, file_name):
 
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))
-
-def file_download_csv_api(request, repo_base, repo, file_name):
-    username = request.user.get_username()
-
-    with DataHubManager(user=username, repo_base=repo_base) as manager:
-        file_to_download = manager.get_file(repo, file_name)
-
-    response = HttpResponse(file_to_download,
-                            content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="%s"' % (file_name)
-    return response
 
 def file_download(request, repo_base, repo, file_name):
     username = request.user.get_username()

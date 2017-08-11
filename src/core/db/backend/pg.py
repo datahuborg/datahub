@@ -276,6 +276,53 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['status']
 
+    def create_license_view(self, repo_base, repo, table, view_params, license_id):
+        self._check_for_injections(repo)
+        self._check_for_injections(collaborator)
+        self._check_for_injections(license_id)
+
+        view_sql = get_view_sql(view_params)
+
+        self.create_view(repo, "LICENSEVIEW" +str(license_id), view_sql)
+
+        return res['status']
+
+    def get_view_sql(self, repo_base, repo, table, view_params):
+        # get all columns, then subtract removed columns from that set
+        columns_query = ('BEGIN;'
+                'SELECT * FROM information_schema.columns'
+                    'WHERE table_schema = %s'
+                    'AND table_name = %s'
+                 'COMMIT;')
+        params = [repo, table]
+        params = tuple(map(lambda x: AsIs(x), params))
+
+        columns_res = self.execute_sql(columns_query, params)['tuples']
+
+        columns = [t[0] for t in res['tuples']]
+
+        all_columns = set(columns)
+        removed_columns = set(view_params['removed-columns'])
+
+        columns_to_show = all_columns - removed_columns
+
+        if columns_to_show < 1:
+            #error
+            pass
+
+        query = 'SELECT %s FROM %s.%s'
+
+        columns_query = ""
+        for i in range(len(columns_to_show)):
+            columns_query += columns_to_show[i]
+            if i < len(columns_to_show) - 1:
+                columns_query += ","
+
+        query = query.format(columns_query, repo, table)
+
+        return query
+
+
     def create_table(self, repo, table, params):
         # check for injections
         self._check_for_injections(repo)
