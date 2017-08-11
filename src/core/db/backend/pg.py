@@ -235,7 +235,7 @@ class PGBackend:
             res = self.execute_sql(query, params)
             return res['status']
 
-    def add_collaborator_to_license_view(self, repo, collaborator, db_privileges=[], view):
+    def add_collaborator_to_license_view(self, repo, collaborator, view, db_privileges=[]):
         # check that all repo names, usernames, and privileges passed aren't
         # sql injections
         self._check_for_injections(repo)

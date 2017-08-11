@@ -143,6 +143,10 @@ urlpatterns = patterns(
         'browser.views.repo_collaborators_add',
         name='browser-repo_collaborators_add'),
 
+    url(r'^collaborator/repo/(\w+)/(\w+)/(\w+)/add/?$',
+        'browser.views.repo_license_collaborators_add',
+        name='browser-repo_license_collaborators_add'),
+
     url(r'^collaborator/repo/(\w+)/(\w+)/remove/(\w+)/?$',
         'browser.views.repo_collaborators_remove',
         name='browser-repo_collaborators_remove'),

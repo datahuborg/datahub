@@ -35,7 +35,7 @@ class DataHubConnection:
             collaborator=collaborator,
             db_privileges=db_privileges)
     
-    def add_collaborator_to_license_view(self, repo, collaborator, db_privileges, view):
+    def add_collaborator_to_license_view(self, repo, collaborator, view, db_privileges):
         return self.backend.add_collaborator_to_license_view(
             repo=repo,
             collaborator=collaborator,

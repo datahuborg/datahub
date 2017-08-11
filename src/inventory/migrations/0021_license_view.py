@@ -18,9 +18,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
                 ('timestamp', models.DateTimeField(auto_now=True)),
-                ('view_sql', models.Textfield()),
-                ('repo_name', models.Textfield()),
-                ('repo_base', models.Textfield()),
+                ('view_sql', models.TextField()),
+                ('repo_name', models.TextField()),
+                ('repo_base', models.TextField()),
                 
             ],
             options={

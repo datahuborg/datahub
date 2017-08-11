@@ -437,7 +437,7 @@ def repo_license_manage(request, repo_base, repo, license_id):
 
     # get the base tables and views of the user's repo
     with DataHubManager(user=username, repo_base=repo_base) as manager:
-        collaborators = manager.list_collaborators(repo)
+        collaborators = manager.list_collaborators(repo, license_id)
         base_tables = manager.list_tables(repo)
         views = manager.list_views(repo)
 
@@ -451,8 +451,7 @@ def repo_license_manage(request, repo_base, repo, license_id):
         'views': views,
         'rls-table': rls_table,
         'collaboratoes': collaborators,
-        'userused': username,
-        'repobaseused':repo_base}
+        }
 
     res.update(csrf(request))
 
@@ -511,6 +510,45 @@ def repo_collaborators_add(request, repo_base, repo):
 
     return HttpResponseRedirect(
         reverse('browser-repo_settings', args=(repo_base, repo,)))
+
+@login_required
+def repo_license_collaborators_add(request, repo_base, repo, license_id):
+    '''
+    adds a user as a collaborator in a repo
+    '''
+    username = request.user.get_username()
+    collaborator_username = request.POST['collaborator_username']
+    db_privileges = request.POST.getlist('db_privileges')
+    file_privileges = request.POST.getlist('file_privileges')
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.add_collaborator(
+            repo, collaborator_username,
+            db_privileges=db_privileges,
+            file_privileges=file_privileges,
+            license_id=license_id
+        )
+
+        collaborators = manager.list_collaborators(repo)
+        base_tables = manager.list_tables(repo)
+        views = manager.list_views(repo)
+
+    rls_table = 'policy'
+
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'base_tables': base_tables,
+        'views': views,
+        'rls-table': rls_table,
+        'collaboratoes': collaborators,
+        }
+
+    res.update(csrf(request))
+
+    return HttpResponseRedirect(
+        reverse('repo-license-manage.html',res))
 
 
 @login_required

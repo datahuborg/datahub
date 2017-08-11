@@ -133,7 +133,7 @@
 </ul>
 <div class="highlight">
         <h4>Add Collaborators</h4>
-        <form class="form-group" role="form" method="POST" action="/collaborator/repo/{{repo_base}}/{{repo}}/add">
+        <form class="form-group" role="form" method="POST" action="/collaborator/repo/{{repo_base}}/{{repo}}/{license_id}/add">
             {% csrf_token %}
             <div class="form-group">
                 <input type="text" class="form-control" name="collaborator_username" id="collaborator_username" placeholder="Username" />
