@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h4 class="inline-block">
+    <a class="link" href="/browse/{{repo_base}}">{{repo_base}}</a>
+    /
+    <a class="link" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a>
+    /
+  </h4>
+    <hr />
+    <h2>Create New License</h2>
+    <form class="form-group" role="form" method="POST" action="/collaborator/repo/{{repo_base}}/{{repo}}/add">
+
+    <table>
+        <h3>General</h3>
+
+        <tr>
+
+            <td class="cell-left">
+                Repository:
+            </td>
+            <td class="cell-right">
+                <strong>{{repo_base}}/{{repo}}</strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="cell-left">
+                Owner:
+            </td>
+            <td class="cell-right">
+                <strong>{{repo_base}}</strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="cell-left">
+                License Name:
+            </td>
+            <td class="cell-right">
+                <input type="text" class="form-control" name="license_name" id="license_name" placeholder="license name">
+            </td>
+        </tr>
+        <tr>
+            <td class="cell-left">
+                Project Name:
+            </td>
+            <td class="cell-right">
+                <input type="text" class="form-control" name="license_name" id="license_name" placeholder="project name">
+            </td>
+
+        </tr>
+        <tr>
+            <td>
+              <h3>Privacy and Protection  </h3>
+                <h4> Regulations <span class="glyphicon glyphicon-info-sign" style="font-size:13px;" data-toggle="modal" data-target="#viewLicenseDetailsModal"></span></h4>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" value="">
+                        HIPAA 
+                      </label>
+                    </div>
+                    <div class="checkbox disabled">
+                      <label>
+                        <input type="checkbox" value="" >
+                      </label>
+                    </div>
+                <h4>Privacy</h4>
+                  <div class="checkbox">
+                      <label>
+                        <input type="checkbox" value="">
+                        Data Anonymized
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" value="" >
+                        PII Anonymized or Removed
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" value="" >
+                        PII Anonymized
+                      </label>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" value="" >
+                        PII Removed
+                      </label>
+                    </div>
+                <h4> Exceptions </h4>
+                <h4> Reidentification </h4>
+                  <div class="">
+                    <div class="checkbox">
+                        <label>
+                          <input type="checkbox" value="">
+                          Use K-Anonymity
+                        </label>
+                    </div>
+                    <div id="kanonymity-div" style="display: none;">
+                      <label for="name" class="">K-size</label>
+                      <div class="">
+                        <input type="text" class="form-control" name="name" id="name" placeholder="Bucket Size for K">
+                      </div>
+                    </div>
+                  </div>
+                <h4>License Time Frame</h4>
+                  <h5> Start and End date of License terms </h5>
+                    <div class="form-group form-inline ">
+                      <label class="control-label " for="date">
+                      Start Date
+                      </label>
+                      <input class="form-control" id="date" name="date" placeholder="MM/DD/YYYY" type="text"/>
+                    <label class="control-label " for="date">
+                       End Date
+                      </label>
+                      <input class="form-control" id="date" name="date" placeholder="MM/DD/YYYY" type="text"/>
+                    </div>
+                  <h5> Post-License Terms </h5>
+                  (Portion of Data available after License etc)
+            </td>
+        </tr>
+    </table>
+    <button class="btn btn-primary btn-xsm" id="add_collaborator" type="submit" style="margin-top:20px;">Create</button>
+    </form>
+
+    <br />
+    <br />
+</div>
+
+<!-- License Details Modal -->
+<div class="modal fade" id="viewLicenseDetailsModal" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      
+      <div class="modal-body">
+        <table>
+        <tr>
+            <td class="cell-left">
+                Repository:
+            </td>
+            <td class="cell-right">
+                <strong>{{repo_base}}/{{repo}}</strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="cell-left">
+                Owner:
+            </td>
+            <td class="cell-right">
+                <strong>{{repo_base}}</strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="cell-left">
+                License Name:
+            </td>
+            <td class="cell-right">
+              HIPPA PII Removed
+            </td>
+        </tr>
+        <tr>
+            <td class="cell-left">
+              Project Name:
+            </td>
+            <td class="cell-right">
+              Patient Visitation Statistics
+            </td>
+
+        </tr>
+        <tr>
+            <td>
+                <h4>Privacy and Protection </h4>
+                    <h4> Regulations </h4>
+                        <div class="checkbox">
+                          <label>
+                            <input type="checkbox" value="" checked="checked">
+                            HIPAA
+                          </label>
+                        </div>
+                        <div class="checkbox disabled">
+                          <label>
+                            <input type="checkbox" value="" >
+                            FERPA
+                          </label>
+                        </div>
+                    <h4>Privacy</h4>
+                    <div class="checkbox disabled">
+                          <label>
+                            <input type="checkbox" value="">
+                            Data Anonymized
+                          </label>
+                        </div>
+                        <div class="checkbox disabled">
+                          <label>
+                            <input type="checkbox" value="" >
+                            PII Anonymized or Removed
+                          </label>
+                        </div>
+                        <div class="checkbox disabled">
+                          <label>
+                            <input type="checkbox" value="" >
+                            PII Anonymized
+                          </label>
+                        </div>
+                        <div class="checkbox">
+                          <label>
+                            <input type="checkbox" value="" checked="checked">
+                            PII Removed
+                          </label>
+                        </div>
+                    <h4> Exceptions </h4>
+                    <h4> Reidentification </h4>
+                    <div class="checkbox disabled">
+                          <label>
+                            <input type="checkbox" value="">
+                            Use K-Anonymity
+                          </label>
+                        </div>
+                        <label for="name" class="col-lg-4">K-size</label>
+                        <div class="col-lg-8">
+                          <input type="text" class="form-control" name="name" id="name" placeholder="Bucket Size for K">
+                        </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            </td>
+        </tr>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+        class="btn btn-primary" id="license-info-enter" data-dismiss="modal">Exit</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+<script type="text/javascript">
+$(document).ready(function () {
+    $('#add_collaborator').click(function() {
+      var displayAlert = false;
+      var message = "";
+
+      var checked = $("input[type=checkbox]:checked").length;
+      if(!checked) {
+        message += "Please select at least one checkbox.\n";
+        displayAlert = true;
+      }
+
+      username = $("#collaborator_username").val()
+      if(username.length < 1) {
+        message += "Please add your collaborator's username.\n";
+        displayAlert = true;
+      }
+
+      if(displayAlert){
+        alert(message);
+        return false;
+      }
+
+    });
+
+
+
+});
+</script>
+<!-- Include Date Range Picker -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+
+<script>
+    $(document).ready(function(){
+        var date_input=$('input[name="date"]'); //our date input has the name "date"
+        var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
+        date_input.datepicker({
+            format: 'mm/dd/yyyy',
+            container: container,
+            todayHighlight: true,
+            autoclose: true,
+        })
+    })
+</script>
+{% endblock js %}

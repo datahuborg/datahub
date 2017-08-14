@@ -490,7 +490,7 @@ def repo_licenses_create_page(request, repo_base, repo):
         'repo_is_public': repo_is_public}
     res.update(csrf(request))
 
-    return render_to_response("new-license.html", res)
+    return render_to_response("license-create.html", res)
 
 @login_required
 def repo_collaborators_add(request, repo_base, repo):
