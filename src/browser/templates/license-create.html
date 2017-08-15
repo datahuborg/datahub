@@ -52,7 +52,7 @@
         <tr>
             <td>
               <h3>Privacy and Protection  </h3>
-                <h4> Regulations <span class="glyphicon glyphicon-info-sign" style="font-size:13px;" data-toggle="modal" data-target="#viewLicenseDetailsModal"></span></h4>
+                <h4> Regulations <span class="glyphicon glyphicon-info-sign" style="font-size:13px;" data-toggle="modal" data-target="#regulations-info"></span></h4>
                     <div class="checkbox">
                       <label>
                         <input type="checkbox" value="">
@@ -62,9 +62,10 @@
                     <div class="checkbox disabled">
                       <label>
                         <input type="checkbox" value="" >
+                        FERPA   
                       </label>
                     </div>
-                <h4>Privacy</h4>
+                <h4>Privacy <span class="glyphicon glyphicon-info-sign" style="font-size:13px;" data-toggle="modal" data-target="#privacy-info"> </h4>
                   <div class="checkbox">
                       <label>
                         <input type="checkbox" value="">
@@ -89,8 +90,8 @@
                         PII Removed
                       </label>
                     </div>
-                <h4> Exceptions </h4>
-                <h4> Reidentification </h4>
+                <!-- <h4> Exceptions </h4> -->
+                <h4> Reidentification <span class="glyphicon glyphicon-info-sign" style="font-size:13px;" data-toggle="modal" data-target="#reidentification-info"></h4>
                   <div class="">
                     <div class="checkbox">
                         <label>
@@ -105,7 +106,7 @@
                       </div>
                     </div>
                   </div>
-                <h4>License Time Frame</h4>
+                <h4>License Time Frame <span class="glyphicon glyphicon-info-sign" style="font-size:13px;" data-toggle="modal" data-target="#time-frame-info"></h4>
                   <h5> Start and End date of License terms </h5>
                     <div class="form-group form-inline ">
                       <label class="control-label " for="date">
@@ -129,107 +130,113 @@
     <br />
 </div>
 
-<!-- License Details Modal -->
-<div class="modal fade" id="viewLicenseDetailsModal" role="dialog">
+<!-- Regulations Info Modal -->
+<div class="modal fade" id="regulations-info" role="dialog">
   <div class="modal-dialog">
     <!-- Modal content-->
     <div class="modal-content">
       
       <div class="modal-body">
-        <table>
-        <tr>
-            <td class="cell-left">
-                Repository:
-            </td>
-            <td class="cell-right">
-                <strong>{{repo_base}}/{{repo}}</strong>
-            </td>
-        </tr>
-        <tr>
-            <td class="cell-left">
-                Owner:
-            </td>
-            <td class="cell-right">
-                <strong>{{repo_base}}</strong>
-            </td>
-        </tr>
-        <tr>
-            <td class="cell-left">
-                License Name:
-            </td>
-            <td class="cell-right">
-              HIPPA PII Removed
-            </td>
-        </tr>
-        <tr>
-            <td class="cell-left">
-              Project Name:
-            </td>
-            <td class="cell-right">
-              Patient Visitation Statistics
-            </td>
+      <h3> Regulation definitions </h3>
+      <p> The following regualtions are used to define PII and may regulate how such PII is handled (who has access and to what). For more information please see official source information for these regulations. </p>
 
-        </tr>
-        <tr>
-            <td>
-                <h4>Privacy and Protection </h4>
-                    <h4> Regulations </h4>
-                        <div class="checkbox">
-                          <label>
-                            <input type="checkbox" value="" checked="checked">
-                            HIPAA
-                          </label>
-                        </div>
-                        <div class="checkbox disabled">
-                          <label>
-                            <input type="checkbox" value="" >
-                            FERPA
-                          </label>
-                        </div>
-                    <h4>Privacy</h4>
-                    <div class="checkbox disabled">
-                          <label>
-                            <input type="checkbox" value="">
-                            Data Anonymized
-                          </label>
-                        </div>
-                        <div class="checkbox disabled">
-                          <label>
-                            <input type="checkbox" value="" >
-                            PII Anonymized or Removed
-                          </label>
-                        </div>
-                        <div class="checkbox disabled">
-                          <label>
-                            <input type="checkbox" value="" >
-                            PII Anonymized
-                          </label>
-                        </div>
-                        <div class="checkbox">
-                          <label>
-                            <input type="checkbox" value="" checked="checked">
-                            PII Removed
-                          </label>
-                        </div>
-                    <h4> Exceptions </h4>
-                    <h4> Reidentification </h4>
-                    <div class="checkbox disabled">
-                          <label>
-                            <input type="checkbox" value="">
-                            Use K-Anonymity
-                          </label>
-                        </div>
-                        <label for="name" class="col-lg-4">K-size</label>
-                        <div class="col-lg-8">
-                          <input type="text" class="form-control" name="name" id="name" placeholder="Bucket Size for K">
-                        </div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-            </td>
-        </tr>
-        </table>
+      <h4> HIPAA </h4>
+
+      <p>
+           HIPAA is the acronym for the Health Insurance Portability and Accountability Act that was passed by Congress in 1996.  HIPAA does the following:
+
+      Provides the ability to transfer and continue health insurance coverage for millions of American workers and their families when they change or lose their jobs;
+      Reduces health care fraud and abuse;
+      Mandates industry-wide standards for health care information on electronic billing and other processes; and
+      Requires the protection and confidential handling of protected health information
+       
+
+      HIPAA is organized into separate "Titles."  For information on the HIPAA Titles, please go to the HIPAA Title Information Page.
+      <h4> FERPA </h4>
+
+      </p>
+
+      <p>The Family Educational Rights and Privacy Act (FERPA) (20 U.S.C. § 1232g; 34 CFR Part 99) is a Federal law that protects the privacy of student education records. The law applies to all schools that receive funds under an applicable program of the U.S. Department of Education.
+
+      FERPA gives parents certain rights with respect to their children's education records. These rights transfer to the student when he or she reaches the age of 18 or attends a school beyond the high school level. Students to whom the rights have transferred are "eligible students."
+
+      Parents or eligible students have the right to inspect and review the student's education records maintained by the school. Schools are not required to provide copies of records unless, for reasons such as great distance, it is impossible for parents or eligible students to review the records. Schools may charge a fee for copies.
+
+      Parents or eligible students have the right to request that a school correct records which they believe to be inaccurate or misleading. If the school decides not to amend the record, the parent or eligible student then has the right to a formal hearing. After the hearing, if the school still decides not to amend the record, the parent or eligible student has the right to place a statement with the record setting forth his or her view about the contested information.
+
+      Generally, schools must have written permission from the parent or eligible student in order to release any information from a student's education record. However, FERPA allows schools to disclose those records, without consent, to the following parties or under the following conditions (34 CFR § 99.31):
+
+      School officials with legitimate educational interest;
+      Other schools to which a student is transferring;
+      Specified officials for audit or evaluation purposes;
+      Appropriate parties in connection with financial aid to a student;
+      Organizations conducting certain studies for or on behalf of the school;
+      Accrediting organizations;
+      To comply with a judicial order or lawfully issued subpoena; 
+      Appropriate officials in cases of health and safety emergencies; and
+      State and local authorities, within a juvenile justice system, pursuant to specific State law.
+      Schools may disclose, without consent, "directory" information such as a student's name, address, telephone number, date and place of birth, honors and awards, and dates of attendance. However, schools must tell parents and eligible students about directory information and allow parents and eligible students a reasonable amount of time to request that the school not disclose directory information about them. Schools must notify parents and eligible students annually of their rights under FERPA. The actual means of notification (special letter, inclusion in a PTA bulletin, student handbook, or newspaper article) is left to the discretion of each school.</p>
+
+      
+      (HIPAA) http://www.dhcs.ca.gov/formsandpubs/laws/hipaa/Pages/1.00WhatisHIPAA.aspx
+      (FERPA) https://www2.ed.gov/policy/gen/guid/fpco/ferpa/index.html
+
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+        class="btn btn-primary" id="license-info-enter" data-dismiss="modal">Exit</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Privacy Info Modal -->
+<div class="modal fade" id="privacy-info" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      
+      <div class="modal-body">
+      <h3> Privacy Definitions </h3>
+      <p> You can choose what to do with PII, either remove it, or anonymize it (via hashing etc). </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+        class="btn btn-primary" id="license-info-enter" data-dismiss="modal">Exit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reidentification Info Modal -->
+<div class="modal fade" id="reidentification-info" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      
+      <div class="modal-body">
+      <h3> Reidentification Information </h3>
+      <p> K-Anoynymity is a </p>
+      
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+        class="btn btn-primary" id="license-info-enter" data-dismiss="modal">Exit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- License Time Frame Info Modal -->
+<div class="modal fade" id="time-frame-info" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      
+      <div class="modal-body">
+      <h3> Time Frame</h3>
+      <p> This frame indicates the range of time the above regulations apply to the data repo. After this date all access may be revokekd, or a some subset may be made available</p>
       </div>
       <div class="modal-footer">
         <button type="button"
