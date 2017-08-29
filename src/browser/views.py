@@ -545,7 +545,7 @@ def repo_license_view_create(request, repo_base, repo, table, license_id):
 
     if request.method == 'POST':
         #collect parameters that will be used to create the view of the table
-        removed_columns = request.POST.getlist('removed_columns')
+        removed_columns = request.POST.getlist('removed_columns[]')
         view_params = {}
         view_params['removed-columns'] = removed_columns
         with DataHubManager(user=username, repo_base=repo_base) as manager:

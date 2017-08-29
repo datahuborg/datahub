@@ -501,7 +501,7 @@ class DataHubManager:
                 repo=repo, collaborator=collaborator)
         return result
 
-    def create_license_view(repo, table, view_params, license_id):
+    def license_view_create(repo, table, view_params, license_id):
 
         sql_view = self.user_con.get_view_sql(
             repo_base=self.repo,

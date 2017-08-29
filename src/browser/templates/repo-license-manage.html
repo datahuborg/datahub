@@ -62,6 +62,27 @@
               </td>
               <td style="width:10%;">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#removePIIModal" style="dispaly:inline-block; margin-top:11px;"> Apply To Table </button>
+              <!-- Remove PII Modal -->
+              <div class="modal fade" id="removePIIModal{{base_table}}" role="dialog">
+                <div class="modal-dialog">
+
+                  <!-- Modal content-->
+                  <div class="modal-content">
+                    
+                    <div class="modal-body">
+                    <h4> Data Preview </h4>
+                    <h5> Please remove all PII according to HIPAA standards </h5>
+                      <div id="dataViewDiv{{base_table}}"></div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button"
+                      class="btn btn-primary" id="removeChangePIIEnterbtn{{base_table}}" data-dismiss="modal">Enter</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
               </td>
                 {% endif %}              
 
@@ -295,27 +316,6 @@
       <div class="modal-footer">
         <button type="button"
         class="btn btn-primary" id="license-info-enter" data-dismiss="modal">Exit</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- Remove PII Modal -->
-<div class="modal fade" id="removePIIModal" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      
-      <div class="modal-body">
-      <h4> Data Preview </h4>
-      <h5> Please remove all PII according to HIPAA standards </h5>
-        <div id="dataViewDiv"></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button"
-        class="btn btn-primary" id="removeChangePIIEnterbtn" data-dismiss="modal">Enter</button>
       </div>
     </div>
 
@@ -612,6 +612,16 @@
 
   // Hardcoded
   $(document).on("click", "#removeChangePIIEnterbtn", function(e) {
+
+    $.post({
+      '/licenses/{{repo_base}}/{{repo}}/{{table}}/create',
+      {
+        removed_columns: removed_columns
+      },
+      function(data, status){
+        //handle success or error
+      }
+    })
     $('#againAlertDanger').hide();
     $('#againAlertSuccess').css("display", "inline-block");
   });
