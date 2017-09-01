@@ -78,8 +78,8 @@ class Collaborator(models.Model):
     repo_name = models.TextField()
     repo_base = models.TextField()
     permission = models.TextField()  # e.g. 'SELECT, UPDATE, INSERT'
-    license_view = models.ForeignKey('LicenseView', blank=True, null=True)
     file_permission = models.TextField()  # e.g. 'read, write'
+    license_id = models.IntegerField(default=-1)
 
     def __unicode__(self):
         if self.user:
@@ -104,7 +104,8 @@ class Collaborator(models.Model):
 
 class LicenseView(models.Model):
     id = models.AutoField(primary_key=True)
-    timestamp = models.DateTimeField(auto_now=True)
+    start_date = models.DateTimeField(auto_now=True)
+    end_date = models.DateTimeField(auto_now=True)
     # view_sql is the sql used to generate the view from the table
     view_sql = models.TextField()
     repo_name = models.TextField()

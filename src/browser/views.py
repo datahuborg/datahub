@@ -437,7 +437,7 @@ def repo_license_manage(request, repo_base, repo, license_id):
 
     # get the base tables and views of the user's repo
     with DataHubManager(user=username, repo_base=repo_base) as manager:
-        collaborators = manager.list_collaborators(repo, license_id)
+        collaborators = manager.list_collaborators(repo, -1)
         #collaborators = None
         base_tables = manager.list_tables(repo)
         views = manager.list_views(repo)
@@ -495,8 +495,6 @@ def repo_license_create(request, repo_base, repo):
                 view_parameters = sql_parameters
             )
 
-            license_id = license_view
-
         return HttpResponseRedirect(reverse('browser-repo_license_manage', args=(repo_base, repo, license_id)))
 
 
@@ -518,7 +516,7 @@ def repo_license_create(request, repo_base, repo):
 
 
 @login_required
-def repo_license_view_create(request, repo_base, repo, table, license_id):
+def license_view_create(request, repo_base, repo, table, license_id):
     '''
     returns the settings page for a repo.
     '''

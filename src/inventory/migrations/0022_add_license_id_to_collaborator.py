@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='collaborator',
-            name='license_view',
-            field=models.ForeignKey(to='inventory.LicenseView',blank=True, null=True),
+            name='license_id',
+            field=models.IntegerField(default=-1),
         ),
     ]

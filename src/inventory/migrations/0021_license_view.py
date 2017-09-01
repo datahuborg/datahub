@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('table', models.TextField()),
                 ('start_date', models.DateField()),
                 ('end_date', models.DateField()),
-                ('license_id', models.TextField()),
+                ('license_id', models.IntegerField()),
                 
             ],
             options={

@@ -406,26 +406,14 @@ class DataHubManager:
                 "Unsupported file privileges: \"{0}\"".format(
                     ','.join(invalid_file_privileges)))
 
-        if license_id != -1:
-            license_view = LicenseView.objects.get(license_id=license_id)
-
-            try:
-                app = App.objects.get(app_id=collaborator)
-                collaborator_obj, _ = Collaborator.objects.get_or_create(
-                    app=app, repo_name=repo, repo_base=self.repo_base, license_view = license_view)
-            except App.DoesNotExist:
-                user = User.objects.get(username=collaborator)
-                collaborator_obj, _ = Collaborator.objects.get_or_create(
-                    user=user, repo_name=repo, repo_base=self.repo_base, license_view = license_view)
-        else:
-            try:
-                app = App.objects.get(app_id=collaborator)
-                collaborator_obj, _ = Collaborator.objects.get_or_create(
-                    app=app, repo_name=repo, repo_base=self.repo_base)
-            except App.DoesNotExist:
-                user = User.objects.get(username=collaborator)
-                collaborator_obj, _ = Collaborator.objects.get_or_create(
-                    user=user, repo_name=repo, repo_base=self.repo_base)
+        try:
+            app = App.objects.get(app_id=collaborator)
+            collaborator_obj, _ = Collaborator.objects.get_or_create(
+                app=app, repo_name=repo, repo_base=self.repo_base)
+        except App.DoesNotExist:
+            user = User.objects.get(username=collaborator)
+            collaborator_obj, _ = Collaborator.objects.get_or_create(
+                user=user, repo_name=repo, repo_base=self.repo_base)
 
         # convert privileges list to string and save the object
         db_privilege_str = ', '.join(db_privileges).upper()
@@ -585,17 +573,10 @@ class DataHubManager:
         # merge it with the datahub collaborator model permissions
         usernames = (db_collab['username'] for db_collab in db_collabs)
 
-        if license_id:
-            license_view = LicenseView.objects.get(license_id=license_id)
-            dh_collabs = Collaborator.objects.filter(user__username__in=usernames,
+        dh_collabs = Collaborator.objects.filter(user__username__in=usernames,
                                                  repo_base=self.repo_base,
                                                  repo_name=repo,
-                                                 license_view= license_view)
-
-        else:
-            dh_collabs = Collaborator.objects.filter(user__username__in=usernames,
-                                                 repo_base=self.repo_base,
-                                                 repo_name=repo)
+                                                 license_view= license_id)
         for db_collab in db_collabs:
             db_collab['file_permissions'] = next(
                 (dh_collab.file_permission for dh_collab in dh_collabs
