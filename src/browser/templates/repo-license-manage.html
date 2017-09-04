@@ -61,7 +61,7 @@
                <p class="alert alert-success" style="display: none; width:400px; float:right;" id="{{base_table}}AlertSuccess""> License applied <span class="glyphicon glyphicon-ok"></p></span>
               </td>
               <td style="width:10%;">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#removePIIModal" style="dispaly:inline-block; margin-top:11px;"> Apply To Table </button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#removePIIModal{{base_table}}" style="dispaly:inline-block; margin-top:11px;"> Apply To Table </button>
               <!-- Remove PII Modal -->
               <div class="modal fade" id="removePIIModal{{base_table}}" role="dialog">
                 <div class="modal-dialog">
@@ -471,9 +471,9 @@
   var CSVData = null;
 
   function updateCSVTable(data) {
-    $('#dataViewDiv').html('')
+    $('#dataViewDivtest').html('')
 
-    var table = d3.select("#dataViewDiv")
+    var table = d3.select("#dataViewDivtest")
     .append("table").attr("class", "table table-striped table-hover")
 
     var thead = table.append("thead");
@@ -611,20 +611,20 @@
   });
 
   // Hardcoded
-  $(document).on("click", "#removeChangePIIEnterbtn", function(e) {
+  // $(document).on("click", "#removeChangePIIEnterbtn", function(e) {
 
-    $.post({
-      '/licenses/{{repo_base}}/{{repo}}/{{table}}/create',
-      {
-        removed_columns: removed_columns
-      },
-      function(data, status){
-        //handle success or error
-      }
-    })
-    $('#againAlertDanger').hide();
-    $('#againAlertSuccess').css("display", "inline-block");
-  });
+  //   $.post({
+  //     '/licenses/{{repo_base}}/{{repo}}/{{table}}/create',
+  //     {
+  //       removed_columns: removed_columns
+  //     },
+  //     function(data, status){
+  //       //handle success or error
+  //     }
+  //   })
+  //   $('#againAlertDanger').hide();
+  //   $('#againAlertSuccess').css("display", "inline-block");
+  // });
 
 
    $(document).on("click", "#changeAccesEnterbtn", function(e) {
@@ -633,23 +633,51 @@
 
   // Load sample table
   $(document).ready(function() {
-    url = "/api/v1/repos/{{repo_base}}/{{repo}}/files/test-file-name.CSV"
-    //url = "/export/{{repo_base}}/{{repo}}/table/{{base_table}}/test-file-name.CSV/getcsvapi";
-    console.log(url)
 
-    d3.text(url, function(datasetText) {
+    // $.post({
+    //   'http://localhost:443/api/v1/query/johndoe/',
+    //   {
+    //     query : "select *"
+    //   },
+    //   function(data, status){
+    //     console.log(status);
+    //   }
+    // })
 
-      var parsedCSV = d3.csv.parseRows(datasetText);
-      updateCSVTable(parsedCSV);
-      CSVData = parsedCSV;
+    $.ajax({
+            url: 'http://localhost:443/api/v1/query/johndoe/',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'query': "select *"
+            }
+        })
+        .fail(function(xhr, status, error) {
+            // does not error when duplicating existing repo
+            console.log("error" + error)
+        })
+        .done(function(data, status, xhr) {
+            console.log("status" + status)
+        });
 
 
-    });
+    // url = "/api/v1/repos/{{repo_base}}/{{repo}}/files/test-file-name.CSV"
+    // //url = "/export/{{repo_base}}/{{repo}}/table/{{base_table}}/test-file-name.CSV/getcsvapi";
+    // console.log(url)
 
-    console.log("Praise God")
-    bindAnnotationModal();
-    bindDataQ();
-    licenseInfo();
+    // d3.text(url, function(datasetText) {
+
+    //   var parsedCSV = d3.csv.parseRows(datasetText);
+    //   updateCSVTable(parsedCSV);
+    //   CSVData = parsedCSV;
+
+
+    // });
+
+    // console.log("Praise God")
+    // bindAnnotationModal();
+    // bindDataQ();
+    // licenseInfo();
   });
 
   String.prototype.hashCode = function() {

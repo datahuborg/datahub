@@ -576,7 +576,7 @@ class DataHubManager:
         dh_collabs = Collaborator.objects.filter(user__username__in=usernames,
                                                  repo_base=self.repo_base,
                                                  repo_name=repo,
-                                                 license_view= license_id)
+                                                 license_id= license_id)
         for db_collab in db_collabs:
             db_collab['file_permissions'] = next(
                 (dh_collab.file_permission for dh_collab in dh_collabs
