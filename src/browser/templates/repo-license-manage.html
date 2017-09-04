@@ -79,6 +79,171 @@
                       class="btn btn-primary" id="removeChangePIIEnterbtn{{base_table}}" data-dismiss="modal">Enter</button>
                     </div>
                   </div>
+                  
+                <!-- Change Column Modal -->
+                <div id="modalChangeColumn{{base_table}}" class="modal fade" role="dialog">
+                  <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title" id="changeModalHeader">Edit Column</h4>
+                      </div>
+                      <div class="modal-body">
+                        <p>Edit column: </p>
+                        <div id="modalColumnName" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
+                        <button type="button"
+                        class="btn btn-primary" id="removeColumnBtn" ">Remove column</button>
+                       <!-- buttons should be placed based on license details -->
+                       <!--  <button type="button"
+                        class="btn btn-primary" id="hashColumnBtn" ">Hash Column</button>
+                        <button type="button"
+                        class="btn btn-primary" id="license-name" ">K Anonymity</button> -->
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+                  <script> 
+                    var license1 = {
+                      id: 5,
+                      name:"HIPAA PII Removed",
+                      pii:false,
+                      anonymization:true,
+                      federalDataProtectionCompliant: true,
+                      dataUse: "only for purpose"
+                    }
+
+                    var CSVData = null;
+
+                    function updateCSVTable(data) {
+                      $('#dataViewDivtest').html('')
+
+                      var table = d3.select("#dataViewDivtest")
+                      .append("table").attr("class", "table table-striped table-hover")
+
+                      var thead = table.append("thead");
+                      var tbody = table.append("tbody");
+
+                      thead.selectAll("tr")
+                      .data(data.slice(0,1)).enter()
+                      .append("tr")
+
+                      .selectAll("th")
+
+
+                      .data(function(d) {
+                        return d;
+                      }).enter()
+                      .append("th")
+                      .text(function(d) {
+                        return d;
+                      }).insert("button").attr("class","piiEditBtn-{{base_table}}");
+
+
+
+
+                      tbody.selectAll("tr")
+                      .data(data.slice(1, data.length)).enter()
+                      .append("tr")
+
+                      .selectAll("td")
+                      .data(function(d) {
+                        return d;
+                      }).enter()
+                      .append("td")
+                      .text(function(d) {
+                        return d;
+                      });
+
+                      // Buttons for editing columns
+
+                      $(".piiEditBtn-{{base_table}}").text("edit").addClass("btn").addClass("btn-warning").css("display","block");
+                    }
+
+
+                    //$("table button").text("edit").addClass("btn").addClass("btn-warning")
+
+                    var curColName = null;
+                    var curColIndex = null;
+
+                    $(document).on("click", "#removeColumnBtn", function(e) {
+                      console.log("working??")
+                      CSVData.forEach(function(element){
+                      element.splice(curColIndex,1 );
+                      });
+
+                      updateCSVTable(CSVData);
+
+                      var html = "<li> Removed column: " + curColName + "</li>"
+
+                      $("#licenseList").append(html);
+                    });
+
+                    $(document).on("click", "#hashColumnBtn", function(e) {
+                      console.log("clicked")
+                      newCSVDATA = [];
+                      first = true;
+                      CSVData.forEach(function(element){
+                       var newElement = element.slice(0);
+
+                       if (first) {
+                          first = false;
+                        } else {
+
+                          hashedElement = Math.abs(element[curColIndex].toString().hashCode());
+                          console.log("hasehed element: " + hashedElement)
+                          newElement[curColIndex] = hashedElement;
+                        }
+                        newCSVDATA.push(newElement);
+
+                      });
+
+                      CSVData = newCSVDATA;
+
+                      updateCSVTable(CSVData); 
+
+                      var html = "<li> Hashed column: " + curColName + "</li>"
+
+                      $("#licenseList").append(html);
+                    });
+
+                    // Hardcoded
+                    // $(document).on("click", "#removeChangePIIEnterbtn", function(e) {
+
+                    //   $.post({
+                    //     '/licenses/{{repo_base}}/{{repo}}/{{table}}/create',
+                    //     {
+                    //       removed_columns: removed_columns
+                    //     },
+                    //     function(data, status){
+                    //       //handle success or error
+                    //     }
+                    //   })
+                    //   $('#againAlertDanger').hide();
+                    //   $('#againAlertSuccess').css("display", "inline-block");
+                    // });
+                    console.log("this should go for each table");
+                    console.log("{{base_table}}");
+
+                     // Load sample table
+                    $(document).ready(function() {
+
+                      //url = "/api/v1/repos/{{repo_base}}/{{repo}}/files/test-file-name.CSV"
+                      url = "/download/{{repo_base}}/{{repo}}/file/test.csv";
+
+                      d3.text(url, function(datasetText) {
+                        var parsedCSV = d3.csv.parseRows(datasetText);
+                        updateCSVTable(parsedCSV);
+                        CSVData = parsedCSV;
+                      });
+                      // licenseInfo();
+                    });
+                  </script>
 
                 </div>
               </div>
@@ -337,33 +502,6 @@
         <div id="modalColumnName" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
         <button type="button"
         class="btn btn-primary" id="removeColumnBtn" ">Remove column</button>
-       <!-- buttons should be placed based on license details -->
-       <!--  <button type="button"
-        class="btn btn-primary" id="hashColumnBtn" ">Hash Column</button>
-        <button type="button"
-        class="btn btn-primary" id="license-name" ">K Anonymity</button> -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-
-  </div>
-</div><!-- Change Column Modal -->
-<div id="modalChangeColumn" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title" id="changeModalHeader">Edit Column</h4>
-      </div>
-      <div class="modal-body">
-        <p>Edit column: </p>
-        <div id="modalColumnName" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
-        <button type="button"
-        class="btn btn-primary" id="removeColumnBtn" ">Remove column</button>
         <button type="button"
         class="btn btn-primary" id="hashColumnBtn" ">Hash Column</button>
         <button type="button"
@@ -409,276 +547,6 @@
 
 
 <script>
-
-  function bindAnnotationModal() {
-    $('.annotation-modal-dialog').on('click', function(e) {
-      var modal_id = $(this).attr('target-modal')
-      var title = $(this).attr('title')
-      var placeholder = $(this).attr('placeholder')
-      var url_path = $(this).attr('url-path')
-
-      $(modal_id + '-title').text(title)
-      $(modal_id + '-input-annotation').val(placeholder)
-      $(modal_id + '-input-url').val(url_path)
-
-      $(modal_id).off('click');
-
-      $(modal_id).modal({
-        keyboard: true
-      })
-      .on('click', modal_id + '-operation', function(e) {
-        $("#frm-annotation").submit()
-        $(modal_id).modal('hide')
-        $("#wait-dialog").modal()
-      });
-    });
-  }
-
-  function bindDataQ() {
-    $(document).on("click", "#btn-dataq", function(e) {
-      e.preventDefault();
-      DataQ.DQ("{{repo}}", function(query) {
-        $("#txt-sql").val(query);
-      });
-    });
-  }
-
-  function bindDataQ() {
-    $(document).on("click", "#btn-license", function(e) {
-      e.preventDefault();
-      DataQ.DQ("{{repo}}", function(query) {
-        $("#txt-sql").val(query);
-      });
-    });
-  }
-
-  var license1 = {
-    id: 5,
-    name:"HIPAA PII Removed",
-    pii:false,
-    anonymization:true,
-    federalDataProtectionCompliant: true,
-    dataUse: "only for purpose"
-  }
-
-  function licenseInfo() {
-    $(document).on("click", "#license-info-enter", function(e) {
-      e.preventDefault();
-      $('#license-name').text($('#license-name-input').val())
-    });
-  }
-
-  var CSVData = null;
-
-  function updateCSVTable(data) {
-    $('#dataViewDivtest').html('')
-
-    var table = d3.select("#dataViewDivtest")
-    .append("table").attr("class", "table table-striped table-hover")
-
-    var thead = table.append("thead");
-    var tbody = table.append("tbody");
-
-    thead.selectAll("tr")
-    .data(data.slice(0,1)).enter()
-    .append("tr")
-
-    .selectAll("th")
-
-
-    .data(function(d) {
-      return d;
-    }).enter()
-    .append("th")
-    .text(function(d) {
-      return d;
-    }).insert("button");
-
-
-
-
-    tbody.selectAll("tr")
-    .data(data.slice(1, data.length)).enter()
-    .append("tr")
-
-    .selectAll("td")
-    .data(function(d) {
-      return d;
-    }).enter()
-    .append("td")
-    .text(function(d) {
-      return d;
-    });
-
-    // Buttons for editing columns
-
-    $("#dataViewDiv table button").text("edit").addClass("btn").addClass("btn-warning").css("display","block");
-  }
-
-
-  $("table button").text("edit").addClass("btn").addClass("btn-warning")
-
-  $(document).on("click", "#license-info-enter", function(e) {
-    e.preventDefault();
-    $('#license-name').text($('#license-name-input').val())
-  });
-
-  $(document).on("click", ".l-new-license", function() {
-    createLicense();
-
-    $.get("/license/new")
-  });
-
-  var curColName = null;
-  var curColIndex = null;
-
-  $(document).on("click", "#testChangeData", function() {
-
-    newCSVDATA = [];
-    first = true;
-    CSVData.forEach(function(element){
-     var newElement = element.slice(0);
-
-     if (first) {
-        first = false;
-      } else {
-        if (element[0] == "john") {
-          newElement[0] = "joseph"
-        }
-      }
-      newCSVDATA.push(newElement);
-
-    });
-
-    CSVData = newCSVDATA;
-
-    updateCSVTable(CSVData); 
-  });
-
-  $(document).on("click", "thead tr button", function(e) {
-
-    console.log($(e.target).parent().index())
-    $("#modalColumnName").text($(e.target).text());
-    $("#modalChangeColumn").modal("show");
-
-    curColName = $(e.target).parent().text();
-    curColIndex = $(e.target).parent().index();
-  });
-
-  $(document).on("click", "#removeColumnBtn", function(e) {
-    console.log("working??")
-    CSVData.forEach(function(element){
-    element.splice(curColIndex,1 );
-    });
-
-    updateCSVTable(CSVData);
-
-    var html = "<li> Removed column: " + curColName + "</li>"
-
-    $("#licenseList").append(html);
-  });
-
-  $(document).on("click", "#hashColumnBtn", function(e) {
-    console.log("clicked")
-    newCSVDATA = [];
-    first = true;
-    CSVData.forEach(function(element){
-     var newElement = element.slice(0);
-
-     if (first) {
-        first = false;
-      } else {
-
-        hashedElement = Math.abs(element[curColIndex].toString().hashCode());
-        console.log("hasehed element: " + hashedElement)
-        newElement[curColIndex] = hashedElement;
-      }
-      newCSVDATA.push(newElement);
-
-    });
-
-    CSVData = newCSVDATA;
-
-    updateCSVTable(CSVData); 
-
-    var html = "<li> Hashed column: " + curColName + "</li>"
-
-    $("#licenseList").append(html);
-  });
-
-  $(document).on("click", "#linklicense1btn", function(e) {
-    $('#license1list').show();
-  });
-
-  // Hardcoded
-  // $(document).on("click", "#removeChangePIIEnterbtn", function(e) {
-
-  //   $.post({
-  //     '/licenses/{{repo_base}}/{{repo}}/{{table}}/create',
-  //     {
-  //       removed_columns: removed_columns
-  //     },
-  //     function(data, status){
-  //       //handle success or error
-  //     }
-  //   })
-  //   $('#againAlertDanger').hide();
-  //   $('#againAlertSuccess').css("display", "inline-block");
-  // });
-
-
-   $(document).on("click", "#changeAccesEnterbtn", function(e) {
-    $('#accessSuccess').css("display", "inline-block");
-  });
-
-  // Load sample table
-  $(document).ready(function() {
-
-    // $.post({
-    //   'http://localhost:443/api/v1/query/johndoe/',
-    //   {
-    //     query : "select *"
-    //   },
-    //   function(data, status){
-    //     console.log(status);
-    //   }
-    // })
-
-    $.ajax({
-            url: 'http://localhost:443/api/v1/query/johndoe/',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                'query': "select *"
-            }
-        })
-        .fail(function(xhr, status, error) {
-            // does not error when duplicating existing repo
-            console.log("error" + error)
-        })
-        .done(function(data, status, xhr) {
-            console.log("status" + status)
-        });
-
-
-    // url = "/api/v1/repos/{{repo_base}}/{{repo}}/files/test-file-name.CSV"
-    // //url = "/export/{{repo_base}}/{{repo}}/table/{{base_table}}/test-file-name.CSV/getcsvapi";
-    // console.log(url)
-
-    // d3.text(url, function(datasetText) {
-
-    //   var parsedCSV = d3.csv.parseRows(datasetText);
-    //   updateCSVTable(parsedCSV);
-    //   CSVData = parsedCSV;
-
-
-    // });
-
-    // console.log("Praise God")
-    // bindAnnotationModal();
-    // bindDataQ();
-    // licenseInfo();
-  });
 
   String.prototype.hashCode = function() {
     var hash = 0;
