@@ -514,11 +514,11 @@ def repo_license_create(request, repo_base, repo):
 
         return render_to_response("license-create.html", res)
 
-
+@csrf_exempt
 @login_required
 def license_view_create(request, repo_base, repo, table, license_id):
     '''
-    returns the settings page for a repo.
+    returns the settings page for a repo
     '''
     username = request.user.get_username()
     public_role = settings.PUBLIC_ROLE
@@ -555,8 +555,9 @@ def license_view_create(request, repo_base, repo, table, license_id):
             )
 
             # give access to all current collaborators on this license
-            manager.grant_collaborators_access_to_view(
-            )
+            # manager.grant_collaborators_access_to_view(
+            # )
+            
 
         return HttpResponseRedirect(reverse('browser-repo_licenses', args=(repo_base, repo)))
 
@@ -576,6 +577,8 @@ def license_view_create(request, repo_base, repo, table, license_id):
         res.update(csrf(request))
 
         return render_to_response("license-create.html", res)
+
+
 
 @login_required
 def repo_collaborators_add(request, repo_base, repo):

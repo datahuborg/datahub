@@ -56,9 +56,9 @@
               <td class="text-right">
 
                 {% if login == repo_base %}
-               <p class="alert alert-danger" style="display:inline-block; width:400px; float:right;" id="{{base_table}}AlertDanger""> License not applied <span style="display:inline-block;" class="glyphicon glyphicon-remove"></p></span>
+               <p class="alert alert-danger" style="display:inline-block; width:400px; float:right;" id="{{base_table}}AlertDanger""> License not applied <span style="display:inline-block;" class="glyphicon glyphicon-remove"></p>
 
-               <p class="alert alert-success" style="display: none; width:400px; float:right;" id="{{base_table}}AlertSuccess""> License applied <span class="glyphicon glyphicon-ok"></p></span>
+               <p class="alert alert-success" style="display: none; width:400px; float:right;" id="{{base_table}}AlertSuccess""> License applied <span class="glyphicon glyphicon-ok"/></p>
               </td>
               <td style="width:10%;">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#removePIIModal{{base_table}}" style="dispaly:inline-block; margin-top:11px;"> Apply To Table </button>
@@ -79,7 +79,9 @@
                       class="btn btn-primary" id="removeChangePIIEnterbtn{{base_table}}" data-dismiss="modal">Enter</button>
                     </div>
                   </div>
-                  
+                </div>
+              </div>
+
                 <!-- Change Column Modal -->
                 <div id="modalChangeColumn{{base_table}}" class="modal fade" role="dialog">
                   <div class="modal-dialog">
@@ -92,31 +94,20 @@
                       </div>
                       <div class="modal-body">
                         <p>Edit column: </p>
-                        <div id="modalColumnName" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
+                        <div id="modalColumnName-{{base_table}}" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
                         <button type="button"
-                        class="btn btn-primary" id="removeColumnBtn" ">Remove column</button>
-                       <!-- buttons should be placed based on license details -->
-                       <!--  <button type="button"
-                        class="btn btn-primary" id="hashColumnBtn" ">Hash Column</button>
-                        <button type="button"
-                        class="btn btn-primary" id="license-name" ">K Anonymity</button> -->
+                        class="btn btn-primary" id="removeColumnBtn-{{base_table}}">Remove column</button>
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                       </div>
                     </div>
-
                   </div>
                 </div>
+                               
                   <script> 
-                    var license1 = {
-                      id: 5,
-                      name:"HIPAA PII Removed",
-                      pii:false,
-                      anonymization:true,
-                      federalDataProtectionCompliant: true,
-                      dataUse: "only for purpose"
-                    }
+
+                    var colsToRemove = []
 
                     var CSVData = null;
 
@@ -140,6 +131,9 @@
                         return d;
                       }).enter()
                       .append("th")
+                      .attr("value", function(d) {
+                        return d;
+                      })
                       .text(function(d) {
                         return d;
                       }).insert("button").attr("class","piiEditBtn-{{base_table}}");
@@ -164,25 +158,10 @@
 
                       $(".piiEditBtn-{{base_table}}").text("edit").addClass("btn").addClass("btn-warning").css("display","block");
                     }
-
-
                     //$("table button").text("edit").addClass("btn").addClass("btn-warning")
 
                     var curColName = null;
                     var curColIndex = null;
-
-                    $(document).on("click", "#removeColumnBtn", function(e) {
-                      console.log("working??")
-                      CSVData.forEach(function(element){
-                      element.splice(curColIndex,1 );
-                      });
-
-                      updateCSVTable(CSVData);
-
-                      var html = "<li> Removed column: " + curColName + "</li>"
-
-                      $("#licenseList").append(html);
-                    });
 
                     $(document).on("click", "#hashColumnBtn", function(e) {
                       console.log("clicked")
@@ -212,24 +191,6 @@
                       $("#licenseList").append(html);
                     });
 
-                    // Hardcoded
-                    // $(document).on("click", "#removeChangePIIEnterbtn", function(e) {
-
-                    //   $.post({
-                    //     '/licenses/{{repo_base}}/{{repo}}/{{table}}/create',
-                    //     {
-                    //       removed_columns: removed_columns
-                    //     },
-                    //     function(data, status){
-                    //       //handle success or error
-                    //     }
-                    //   })
-                    //   $('#againAlertDanger').hide();
-                    //   $('#againAlertSuccess').css("display", "inline-block");
-                    // });
-                    console.log("this should go for each table");
-                    console.log("{{base_table}}");
-
                      // Load sample table
                     $(document).ready(function() {
 
@@ -243,10 +204,67 @@
                       });
                       // licenseInfo();
                     });
+
+                    $(document).on("click", ".piiEditBtn-{{base_table}}", function(e) {
+                      console.log($(e.target).parent().attr("value"))
+                      
+                      curColName = $(e.target).parent().attr("value");
+                      curColIndex = $(e.target).parent().index();
+                      $("#modalColumnName-{{base_table}}").text(curColName);
+                      $("#modalChangeColumn{{base_table}}").modal("show");
+                    });
+
+                    $(document).on("click", "#removeColumnBtn-{{base_table}}", function(e) {
+                      console.log("remove btn clicked")
+                      console.log(curColName)
+                      colsToRemove.push(curColName);
+                      console.log(colsToRemove)
+
+                      CSVData.forEach(function(element){
+                      element.splice(curColIndex,1 );
+                      });
+
+                      updateCSVTable(CSVData);
+
+                      var html = "<li> Removed column: " + curColName + "</li>"
+
+                      $("#licenseList").append(html);
+                    });
+
+                    $(document).on("click", "#removeChangePIIEnterbtn{{base_table}}", function(e) {
+                     console.log('url: ' +'/licenses/{{repo_base}}/{{repo}}/{{base_table}}/create/' )
+
+
+                      // $.ajax({
+                      //   url: '/download/{{repo_base}}/{{repo}}/file/test.csv',
+                      //   type: 'GET',
+                        
+                      //  })
+                      // .fail(function(xhr, status, error) {
+                      //   // does not error when duplicating existing repo
+                      //   console.log("error " + error)
+                      //    })
+                      // .done(function(data, status, xhr) {
+                      //   console.log("status: " + status)
+                      //   console.log(data)
+                      // });
+                      $.ajax({
+                        url: '/licenses/{{repo_base}}/{{repo}}/{{base_table}}/1/create/',
+                        type: 'POST',
+                        
+                       })
+                      .fail(function(xhr, status, error) {
+                        // does not error when duplicating existing repo
+                        console.log("error" + error)
+                         })
+                      .done(function(data, status, xhr) {
+                        console.log("status " + status)
+                      });
+
+                    });          
                   </script>
 
-                </div>
-              </div>
+               
 
               </td>
                 {% endif %}              
@@ -487,34 +505,6 @@
   </div>
 </div>
 
-<!-- Change Column Modal -->
-<div id="modalChangeColumn" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title" id="changeModalHeader">Edit Column</h4>
-      </div>
-      <div class="modal-body">
-        <p>Edit column: </p>
-        <div id="modalColumnName" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
-        <button type="button"
-        class="btn btn-primary" id="removeColumnBtn" ">Remove column</button>
-        <button type="button"
-        class="btn btn-primary" id="hashColumnBtn" ">Hash Column</button>
-        <button type="button"
-        class="btn btn-primary" id="license-name" ">K Anonymity</button>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-
 </div>
 
 {% endblock content %}
@@ -526,15 +516,9 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.runtime.js"></script>
 <script src="/static/dataq/templates.js"></script>
 <script src="/static/dataq/js/dataq.min.js"></script>
-<!-- <script src="https://d3js.org/d3.v4.min.js"></script>
--->    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.js"></script>
+<script type="text/javascript" src="http://mbostock.github.com/d3/d3.js"></script>
 <script src="http://crypto-js.googlecode.com/svn/tags/3.0.2/build/rollups/md5.js"></script>
 
-<!-- /dataq -->
-
-<!-- sentiment -->
-<script src="/static/sentiment/sentiment.js"></script>
-<!-- /sentiment -->
 
 <!-- dataTables -->
 <script src="/static/lib/jquery-datatables/jquery.dataTables.js"></script>
