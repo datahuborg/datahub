@@ -47,12 +47,14 @@ class DataHubConnection:
             repo=repo,
             collaborator=collaborator)
 
-    def create_license_view(self, repo_base, repo, table, view_params):
+    def create_license_view(self, repo_base, repo, table, view_sql, license_id):
         return self.backend.create_license_view(
             repo_base=repo_base,
             repo=repo,
             table=table,
-            view_params=view_params)
+            view_sql=view_sql,
+            license_id=license_id)
+
 
     def get_view_sql(self, repo_base, repo, table, view_params, license_id):
         return self.backend.get_view_sql(

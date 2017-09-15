@@ -343,8 +343,6 @@ class SQLQueryRewriter:
         # If the user is not explicitly granted access, also load the
         # public_policies
         public_policies = []
-        print("collaborators:")
-        print(collaborators)
         if self.user not in collaborators:
             public_policies = RowLevelSecurityManager.find_security_policies(
                 repo_base=repo_base,

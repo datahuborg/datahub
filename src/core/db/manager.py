@@ -489,31 +489,41 @@ class DataHubManager:
                 repo=repo, collaborator=collaborator)
         return result
 
-    def create_license_view(repo, table, view_params, license_id):
-
-        sql_view = self.user_con.get_view_sql(
-            repo_base=self.repo,
-            repo_name=repo, 
-            table=repo_self.base,
+    def create_license_view(self, repo, table, view_params, license_id):
+        view_sql = self.user_con.get_view_sql(
+            repo_base=self.repo_base,
+            repo=repo, 
+            table=table,
             view_params=view_params,
             license_id=license_id,
             )
 
-        # license_view_obj = LicenseView.objects.create(
-        #     repo_base=self.repo,
+
+
+        # license_view_obj, created = LicenseView.objects.get_or_create(
+        #     repo_base=self.repo_base,
         #     repo_name=repo, 
-        #     table=repo_self.base,
-        #     sql_view=sql_view,
+        #     table=table,
+        #     view_sql=view_sql,
+        #     license_id=license_id,
         #     )
+
+
+        print('manager create license view')
+
         
-        # license_view_obj.save()
+        #license_view_obj.save()
 
         # Create view in database
 
-        # return self.user_con.create_license_view(
-        #     repo=repo,
-        #     view_params=view_params
-        #     )
+        return self.user_con.create_license_view(
+            repo_base=self.repo_base,
+            repo=repo,
+            table=table,
+            view_sql=view_sql,
+            license_id=license_id,
+            )
+
 
     def list_repo_files(self, repo):
         """

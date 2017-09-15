@@ -276,41 +276,52 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['status']
 
-    def create_license_view(self, repo_base, repo, table, view_params, license_id):
-        self._check_for_injections(repo)
-        self._check_for_injections(collaborator)
-        self._check_for_injections(license_id)
+    def create_license_view(self, repo_base, repo, table, view_sql, license_id):
+        # print(view_sql)
 
-        view_sql = get_view_sql(view_params)
+        res = self.create_view(repo, "LICENSEVIEW" +str(license_id), view_sql)
 
-        self.create_view(repo, "LICENSEVIEW" +str(license_id), view_sql)
-
+        print('res: ' + res)
         return res['status']
 
-    def get_view_sql(self, repo_base, repo, table, view_params):
+    def get_view_sql(self, repo_base, repo, table, view_params, license_id):
         # get all columns, then subtract removed columns from that set
-        columns_query = ('BEGIN;'
-                'SELECT * FROM information_schema.columns'
-                    'WHERE table_schema = %s'
-                    'AND table_name = %s'
-                 'COMMIT;')
-        params = [repo, table]
-        params = tuple(map(lambda x: AsIs(x), params))
+        
+        # columns_query = ('BEGIN;'
+        #         'SELECT * FROM information_schema.columns'
+        #             'WHERE table_schema = %s'
+        #             'AND table_name = %s'
+        #          'COMMIT;')
+        # params = [repo, table]
+        # params = tuple(map(lambda x: AsIs(x), params))
 
-        columns_res = self.execute_sql(columns_query, params)['tuples']
+        # query = ("SELECT * FROM information_schema.columns"
+        #          "WHERE table_schema = %s "
+        #          "AND table_name = %s")
+        # params = (repo, table)
+
+        # columns_res = self.execute_sql(query, params)['tuples']
+
+        query = ('SELECT column_name FROM information_schema.columns '
+                 'WHERE table_schema = %s'
+                 'AND table_name = %s'
+                 )
+        params = (repo,table)
+        res = self.execute_sql(query, params)
 
         columns = [t[0] for t in res['tuples']]
+
 
         all_columns = set(columns)
         removed_columns = set(view_params['removed-columns'])
 
-        columns_to_show = all_columns - removed_columns
+        columns_to_show = list(all_columns - removed_columns)
 
-        if columns_to_show < 1:
-            #error
-            pass
+        # if columns_to_show < 1:
+        #     #error
+        #     pass
 
-        query = 'SELECT %s FROM %s.%s'
+        query = 'SELECT {} FROM {}.{}'
 
         columns_query = ""
         for i in range(len(columns_to_show)):
@@ -319,7 +330,7 @@ class PGBackend:
                 columns_query += ","
 
         query = query.format(columns_query, repo, table)
-
+    
         return query
 
 
@@ -386,13 +397,17 @@ class PGBackend:
         return res['tuples']
 
     def create_view(self, repo, view, sql):
+       
         self._check_for_injections(repo)
         self._validate_table_name(view)
         query = ('CREATE VIEW %s.%s AS (%s)')
 
-        params = (AsIs(repo), AsIs(view), AsIs(sql))
+        print(repo + " " + view + " " + sql)
+        params = (AsIs(repo), AsIs("testView"), AsIs(sql))
+        print('about to execute')
         res = self.execute_sql(query, params)
 
+        print('res: ' + res)
         return res['status']
 
     def list_views(self, repo):
@@ -550,10 +565,13 @@ class PGBackend:
 
         try:
             sql_query = cur.mogrify(query, params)
+            print('final query: ' + sql_query)
             if self.row_level_security:
                 sql_query = self.query_rewriter.apply_row_level_security(
                     sql_query)
+            print('actually about to execute')
             cur.execute(sql_query)
+            print('executed')
         except psycopg2.Error as e:
             # Convert some psycopg2 errors into exceptions meaningful to
             # Django.

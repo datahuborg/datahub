@@ -557,7 +557,7 @@ def license_view_create(request, repo_base, repo, table, license_id):
             # give access to all current collaborators on this license
             # manager.grant_collaborators_access_to_view(
             # )
-            
+
 
         return HttpResponseRedirect(reverse('browser-repo_licenses', args=(repo_base, repo)))
 
