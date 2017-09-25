@@ -509,20 +509,21 @@ class DataHubManager:
         #     )
 
 
-        print('manager create license view')
+        #print('manager create license view')
 
         
         #license_view_obj.save()
 
         # Create view in database
 
-        return self.user_con.create_license_view(
+        res = self.user_con.create_license_view(
             repo_base=self.repo_base,
             repo=repo,
             table=table,
             view_sql=view_sql,
             license_id=license_id,
             )
+        return True
 
 
     def list_repo_files(self, repo):

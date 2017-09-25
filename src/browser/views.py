@@ -547,7 +547,7 @@ def license_view_create(request, repo_base, repo, table, license_id):
         view_params = {}
         view_params['removed-columns'] = removed_columns
         with DataHubManager(user=username, repo_base=repo_base) as manager:
-            manager.create_license_view(
+            manager.create_license_view (
                 repo, 
                 table,
                 view_params = view_params,

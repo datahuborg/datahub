@@ -277,12 +277,10 @@ class PGBackend:
         return res['status']
 
     def create_license_view(self, repo_base, repo, table, view_sql, license_id):
-        # print(view_sql)
 
         res = self.create_view(repo, "LICENSEVIEW" +str(license_id), view_sql)
-
-        print('res: ' + res)
-        return res['status']
+        
+        return res
 
     def get_view_sql(self, repo_base, repo, table, view_params, license_id):
         # get all columns, then subtract removed columns from that set
@@ -314,7 +312,7 @@ class PGBackend:
 
         all_columns = set(columns)
         removed_columns = set(view_params['removed-columns'])
-
+        print('removed', removed_columns)
         columns_to_show = list(all_columns - removed_columns)
 
         # if columns_to_show < 1:
@@ -396,18 +394,15 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['tuples']
 
-    def create_view(self, repo, view, sql):
-       
+    def create_view(self, repo, view_name, sql):
         self._check_for_injections(repo)
-        self._validate_table_name(view)
-        query = ('CREATE VIEW %s.%s AS (%s)')
+        self._validate_table_name(view_name)
+        query = ('BEGIN; DROP VIEW IF EXISTS %s.%s; CREATE VIEW %s.%s AS (%s); COMMIT;')
 
-        print(repo + " " + view + " " + sql)
-        params = (AsIs(repo), AsIs("testView"), AsIs(sql))
-        print('about to execute')
-        res = self.execute_sql(query, params)
+        params = (AsIs(repo), AsIs(view_name), AsIs(repo), AsIs(view_name), AsIs(sql))
 
-        print('res: ' + res)
+        res = self.execute_sql(query,params)
+
         return res['status']
 
     def list_views(self, repo):
@@ -565,13 +560,13 @@ class PGBackend:
 
         try:
             sql_query = cur.mogrify(query, params)
-            print('final query: ' + sql_query)
+            #print('final query: ' + sql_query)
             if self.row_level_security:
                 sql_query = self.query_rewriter.apply_row_level_security(
                     sql_query)
-            print('actually about to execute')
+            #print('actually about to execute')
             cur.execute(sql_query)
-            print('executed')
+            #print('executed: ' + sql_query)
         except psycopg2.Error as e:
             # Convert some psycopg2 errors into exceptions meaningful to
             # Django.
@@ -586,12 +581,17 @@ class PGBackend:
             pass
 
         result['status'] = True
+        
+
         result['row_count'] = cur.rowcount
+
         if cur.description:
             result['fields'] = [
                 {'name': col[0], 'type': col[1]} for col in cur.description]
 
+
         cur.close()
+
         return result
 
     def user_exists(self, username):
@@ -937,7 +937,87 @@ class PGBackend:
 
         return import_datafiles([file_path], create_new, table_name, errfile,
                                 PGMethods, **dbsettings)
+    # Methods for Licenses
+    def create_license_schema(self):
+        public_role = settings.PUBLIC_ROLE
+        schema = settings.POLICY_SCHEMA
+        self._check_for_injections(public_role)
+        self._check_for_injections(schema)
 
+        query = 'CREATE SCHEMA IF NOT EXISTS %s LICENSES %s'
+        params = (AsIs(schema), AsIs(public_role))
+        return self.execute_sql(query, params)
+
+    def create_license_table(self):
+        schema = settings.POLICY_SCHEMA
+        table = settings.POLICY_TABLE
+        public_role = settings.PUBLIC_ROLE
+
+        self._check_for_injections(schema)
+        self._validate_table_name(table)
+        self._check_for_injections(public_role)
+
+        query = ('CREATE TABLE IF NOT EXISTS %s.%s'
+                 '('
+                 'license_id serial primary key,'
+                 'pii_def VARCHAR(80) NOT NULL,'
+                 'pii_removed boolean NOT NULL,'
+                 'pii_anonymized VARCHAR(80) NOT NULL'
+                 ');')
+        params = (AsIs(schema), AsIs(table))
+        self.execute_sql(query, params)
+
+        # create indexes for faster seraching
+        query = ('create index grantee_index on '
+                 'dh_public.policy using hash(grantee); '
+
+                 'create index grantor_index on '
+                 'dh_public.policy using hash(grantor); '
+
+                 'create index table_name_index on '
+                 'dh_public.policy using hash(table_name); '
+
+                 'create index repo_index on '
+                 'dh_public.policy using hash(repo); '
+
+                 'create index repo_base_index on '
+                 'dh_public.policy using hash(repo_base);')
+
+        # postgres 9.4 doesn't support IF NOT EXISTS when creating indexes
+        # so it's possible for tests to attempt to create duplicate indexes
+        # This catches that exception
+        try:
+            self.execute_sql(query)
+        except:
+            pass
+
+        # grant the public role access to the table
+        query = ('GRANT ALL ON %s.%s to %s;')
+        params = (AsIs(schema), AsIs(table), AsIs(public_role))
+        return self.execute_sql(query, params)
+
+    def create_license(self, license_name, pii_def, pii_removed, pii_anonymized):
+        '''
+        Creates a new security policy in the policy table if the policy
+        does not yet exist.
+        '''
+
+        # disallow semicolons in policy. This helps prevent the policy creator
+        # from shooting themself in the foot with an attempted sql injection.
+        # Note that we don't actually _need_ to do this. The parameters are all
+        # escaped in RLS methods executed by the superuser, so there's not a
+        # really a risk of a user acquiring root access.
+        if ';' in policy:
+            raise ValueError("\';'s are disallowed in the policy field")
+
+        query = ('INSERT INTO dh_public.policy (license_name, pii_def, pii_anonymized'
+                 'values (%s, %s, %s, %s, %s, %s, %s)')
+        params = (policy, policy_type, grantee, grantor, table, repo,
+                  repo_base)
+
+        res = self.execute_sql(query, params)
+
+        return res['status']
     # Below methods can only be called from the RLSSecurityManager #
 
     def create_security_policy_schema(self):

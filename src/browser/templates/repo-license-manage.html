@@ -233,7 +233,8 @@
 
                     $(document).on("click", "#removeChangePIIEnterbtn{{base_table}}", function(e) {
                      console.log('url: ' +'/licenses/{{repo_base}}/{{repo}}/{{base_table}}/create/' )
-
+                    console.log("cols to remove: ");
+                    console.log(colsToRemove);
 
                       // $.ajax({
                       //   url: '/download/{{repo_base}}/{{repo}}/file/test.csv',
@@ -251,6 +252,9 @@
                       $.ajax({
                         url: '/licenses/{{repo_base}}/{{repo}}/{{base_table}}/1/create/',
                         type: 'POST',
+                        data: {
+                            'removed_columns':  colsToRemove
+                          }
                         
                        })
                       .fail(function(xhr, status, error) {
