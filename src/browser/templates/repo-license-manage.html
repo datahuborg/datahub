@@ -217,7 +217,7 @@
                     $(document).on("click", "#removeColumnBtn-{{base_table}}", function(e) {
                       console.log("remove btn clicked")
                       console.log(curColName)
-                      colsToRemove.push(curColName);
+                      colsToRemove.push($.trim(curColName));
                       console.log(colsToRemove)
 
                       CSVData.forEach(function(element){

@@ -515,7 +515,8 @@ class DataHubManager:
         #license_view_obj.save()
 
         # Create view in database
-
+        print("viewsql ")
+        print(view_sql)
         res = self.user_con.create_license_view(
             repo_base=self.repo_base,
             repo=repo,

@@ -300,6 +300,11 @@ class PGBackend:
 
         # columns_res = self.execute_sql(query, params)['tuples']
 
+        #license = get_license_from_id
+
+        #if license.pii_removed:
+
+            #remove columns
         query = ('SELECT column_name FROM information_schema.columns '
                  'WHERE table_schema = %s'
                  'AND table_name = %s'
@@ -311,10 +316,11 @@ class PGBackend:
 
 
         all_columns = set(columns)
+        print('all columns', all_columns)
         removed_columns = set(view_params['removed-columns'])
         print('removed', removed_columns)
         columns_to_show = list(all_columns - removed_columns)
-
+        print('columns to show: ', columns_to_show)
         # if columns_to_show < 1:
         #     #error
         #     pass
