@@ -49,6 +49,11 @@ POLICY_DB = PUBLIC_ROLE
 POLICY_SCHEMA = PUBLIC_ROLE
 POLICY_TABLE = 'policy'
 
+# Where the licenses are stored
+LICENSE_DB = PUBLIC_ROLE
+LICENSE_SCHEMA = PUBLIC_ROLE
+LICENSE_TABLE = 'license'
+
 # RowLevelSecurity string to mean all users
 RLS_ALL = 'ALL'
 RLS_PUBLIC = 'PUBLIC'

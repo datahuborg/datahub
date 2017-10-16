@@ -126,12 +126,14 @@ urlpatterns = patterns(
     # Licenses
     url(r'^licenses/(\w+)/(\w+)/?$', 'browser.views.repo_licenses',
         name='browser-repo_licenses'),
-    url(r'^licenses/(\w+)/(\w+)/create/?$', 'browser.views.repo_license_create',
-        name='browser-repo_licenses_create'),
+    url(r'^licenses/create/?$', 'browser.views.license_create',
+        name='license_create'),
     url(r'^licenses/(\w+)/(\w+)/(\w+)/manage/?$', 'browser.views.repo_license_manage',
         name='browser-repo_license_manage'),
     url(r'^licenses/(\w+)/(\w+)/(\w+)/(\w+)/create/?$', 'browser.views.license_view_create',
         name='browser-license_view_create'),
+    url(r'^licenses/', 'browser.views.browse_licenses',
+        name='browse_licenses'),
 
     # Collaborators
     url(r'^collaborator/repo/(\w+)/(\w+)/add/?$',

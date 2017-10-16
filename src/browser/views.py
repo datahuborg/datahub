@@ -31,6 +31,7 @@ from inventory.models import App, Annotation
 from account.utils import grant_app_permission
 from core.db.manager import DataHubManager
 from core.db.rlsmanager import RowLevelSecurityManager
+from core.db.licensemanager import LicenseManager
 from core.db.rls_permissions import RLSPermissionsParser
 from datahub import DataHub
 from datahub.account import AccountService
@@ -458,61 +459,132 @@ def repo_license_manage(request, repo_base, repo, license_id):
 
     return render_to_response("repo-license-manage.html", res)
 
-
+@csrf_exempt
 @login_required
-def repo_license_create(request, repo_base, repo):
+def license_create(request):
     '''
     returns the settings page for a repo.
     '''
     username = request.user.get_username()
     public_role = settings.PUBLIC_ROLE
 
-    with DataHubManager(user=username, repo_base=repo_base) as manager:
-        collaborators = manager.list_collaborators(repo)
+    # with DataHubManager(user=username, repo_base=repo_base) as manager:
+    #     collaborators = manager.list_collaborators(repo)
 
     # if the public role is in collaborators, note that it's already added
-    repo_is_public = next(
-        (True for c in collaborators if
-            c['username'] == settings.PUBLIC_ROLE), False)
+    # repo_is_public = next(
+    #     (True for c in collaborators if
+    #         c['username'] == settings.PUBLIC_ROLE), False)
 
     # remove the current user, public user from the collaborator list
     # collaborators = [c.get('username') for c in collaborators]
-    if username != repo_base:
-        message = (
-            'Error: Permission Denied. '
-            '%s cannot create new licenses in %s.'
-            % (username, repo_base)
-        )
-        return HttpResponseForbidden(message)
+    # if username != repo_base:
+    #     message = (
+    #         'Error: Permission Denied. '
+    #         '%s cannot create new licenses in %s.'
+    #         % (username, repo_base)
+    #     )
+    #     return HttpResponseForbidden(message)
 
     if request.method == 'POST':
+        print "post method repo license create"
         #create license
-        removed_columns = request.POST.getlist('removed_columns')
-        with DataHubManager(user=username, repo_base=repo_base) as manager:
+        # removed_columns = request.POST.getlist('removed_columns')
+        # with DataHubManager(user=username, repo_base=repo_base) as manager:
 
-            manager.create_license(
-                repo, collaborator_username,
-                view_parameters = sql_parameters
-            )
+        #     manager.create_license(
+        #         repo, collaborator_username,
+        #         view_parameters = sql_parameters
+        #     )
 
-        return HttpResponseRedirect(reverse('browser-repo_license_manage', args=(repo_base, repo, license_id)))
+        try:
+            pii_def = None
+            pii_anonymized = False
+            pii_removed = False
+            license_name = request.POST['license_name']
+
+            print "request: "
+            print request.POST
+            pii_def = request.POST['pii_def']
+            # pii_removed = request.POST['pii_removed']
+            # pii_anonymized = request.POST['pii_anonymized']
+            print "stuff: "
+            print request.POST.getlist('pii')
+            if 'anonymized' in request.POST.getlist('pii'):
+                pii_anonymized = True
+            if 'removed' in request.POST.getlist('pii'):
+                pii_removed = True
+
+            print "anonmyzed: ", pii_anonymized
+            print "pii def: ", pii_def
+
+
+            LicenseManager.create_license(license_name=license_name, pii_def=pii_def,
+                pii_anonymized=pii_anonymized,
+                pii_removed=pii_removed)
+
+        except Exception as e:
+            print "we have trouble here"
+            return HttpResponse(
+                json.dumps(
+                    {'error': str(e)}),
+                content_type="application/json")
+        return HttpResponseRedirect(reverse('browser-user', args=(username,)))
+        #return HttpResponseRedirect(reverse('browser-repo_license_manage', args=(repo_base, repo, license_id)))
 
 
     elif request.method == 'GET':
+        # with DataHubManager(user=username, repo_base=repo_base) as manager:
+        #     base_tables = manager.list_tables(repo)
+        #     views = manager.list_views(repo)
 
-        collaborators = [c for c in collaborators if c['username']
-                         not in ['', username, settings.PUBLIC_ROLE]]
+
+
+        # collaborators = [c for c in collaborators if c['username']
+        #                  not in ['', username, settings.PUBLIC_ROLE]]
+
+        # res = {
+        #     'login': username,
+        #     'collaborators': collaborators,
+        #     'public_role': public_role,
+        #     'repo_is_public': repo_is_public}
 
         res = {
             'login': username,
-            'repo_base': repo_base,
-            'repo': repo,
-            'collaborators': collaborators,
             'public_role': public_role,
-            'repo_is_public': repo_is_public}
+            }
         res.update(csrf(request))
 
         return render_to_response("license-create.html", res)
+
+@login_required
+def browse_licenses(request):
+    '''
+    Shows the security policies defined for a table.
+    '''
+    username = request.user.get_username()
+
+    # get the security policies on a given repo.table
+    try:
+        print "about to try licenses"
+        licenses = LicenseManager.find_licenses()
+    except LookupError:
+        licenses = []
+
+    # repack the named tuples. This is a bit of a hack, (since we could just
+    # get the view to display named tuples)
+    # but is happening for expediency
+    licenses = [(p.license_name, p.pii_def, p.pii_anonymized, p.pii_removed)
+                for p in licenses]
+
+    res = {
+        'login': username,
+  
+        'licenses': licenses}
+
+    res.update(csrf(request))
+    return render_to_response("licenses.html", res)
+
 
 @csrf_exempt
 @login_required

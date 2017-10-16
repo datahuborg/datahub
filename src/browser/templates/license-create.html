@@ -10,13 +10,24 @@
   </h4>
     <hr />
     <h2>Create New License</h2>
-    <form class="form-group" role="form" method="POST" action="/collaborator/repo/{{repo_base}}/{{repo}}/add">
+    <h2> Existing Tables
+    {% for base_table in base_tables %}
+    <a href="#"> {{base_table}} </a>
+    {% endfor%}
 
+    </h2>
+    <h2> Existing Licenses
+    {% for licenses in licenses %}
+    <a href="#"> {{license}} </a>
+    {% endfor%}
+
+    </h2>
+    <form role="form" method="POST" action="{% url 'license_create' %}" enctype='multipart/form-data' id="license-form">
+<input type="checkbox" value="anonymized"  name="pii">
+                            PII Anonymized
     <table>
         <h3>General</h3>
-
         <tr>
-
             <td class="cell-left">
                 Repository:
             </td>
@@ -47,7 +58,6 @@
             <td class="cell-right">
                 <input type="text" class="form-control" name="license_name" id="license_name" placeholder="project name">
             </td>
-
         </tr>
         <tr>
             <td>
@@ -55,13 +65,13 @@
                     <h4> Regulations </h4>
                         <div class="checkbox">
                           <label>
-                            <input type="checkbox" value="">
+                            <input type="checkbox" name="pii_def" value="hipaa">
                             HIPAA
                           </label>
                         </div>
                         <div class="checkbox disabled">
                           <label>
-                            <input type="checkbox" value="" >
+                            <input type="checkbox" value="ferpa" name="pii_def">
                             FERPA
                           </label>
                         </div>
@@ -112,9 +122,9 @@
          <button class="btn btn-primary btn-xsm" id="create_license" type="submit" style="margin-top:20px;">Create</button>
 
     </form>
-
     <br />
     <br />
+    }
 </div>
 {% endblock content %}
 

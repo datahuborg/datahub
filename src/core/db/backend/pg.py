@@ -258,7 +258,6 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['status']
 
-
     def delete_collaborator(self, repo, collaborator):
         self._check_for_injections(repo)
         self._check_for_injections(collaborator)
@@ -336,7 +335,6 @@ class PGBackend:
         query = query.format(columns_query, repo, table)
     
         return query
-
 
     def create_table(self, repo, table, params):
         # check for injections
@@ -946,66 +944,66 @@ class PGBackend:
     # Methods for Licenses
     def create_license_schema(self):
         public_role = settings.PUBLIC_ROLE
-        schema = settings.POLICY_SCHEMA
+        schema = settings.LICENSE_SCHEMA
         self._check_for_injections(public_role)
         self._check_for_injections(schema)
-
-        query = 'CREATE SCHEMA IF NOT EXISTS %s LICENSES %s'
+        print 'schema: ', schema
+        query = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'
         params = (AsIs(schema), AsIs(public_role))
         return self.execute_sql(query, params)
 
     def create_license_table(self):
-        schema = settings.POLICY_SCHEMA
-        table = settings.POLICY_TABLE
+        schema = settings.LICENSE_SCHEMA
+        table = settings.LICENSE_TABLE
         public_role = settings.PUBLIC_ROLE
 
         self._check_for_injections(schema)
         self._validate_table_name(table)
         self._check_for_injections(public_role)
 
-        query = ('CREATE TABLE IF NOT EXISTS %s.%s'
+        query = ('DROP TABLE %s.%s; CREATE TABLE IF NOT EXISTS %s.%s'
                  '('
                  'license_id serial primary key,'
-                 'pii_def VARCHAR(80) NOT NULL,'
+                 'license_name VARCHAR(40),'
+                 'pii_def VARCHAR(100) NOT NULL,'
                  'pii_removed boolean NOT NULL,'
-                 'pii_anonymized VARCHAR(80) NOT NULL'
+                 'pii_anonymized boolean NOT NULL'
                  ');')
-        params = (AsIs(schema), AsIs(table))
+        params = (AsIs(schema), AsIs(table), AsIs(schema), AsIs(table))
         self.execute_sql(query, params)
 
-        # create indexes for faster seraching
-        query = ('create index grantee_index on '
-                 'dh_public.policy using hash(grantee); '
+        # # create indexes for faster seraching
+        # query = ('create index grantee_index on '
+        #          'dh_public.policy using hash(grantee); '
 
-                 'create index grantor_index on '
-                 'dh_public.policy using hash(grantor); '
+        #          'create index grantor_index on '
+        #          'dh_public.policy using hash(grantor); '
 
-                 'create index table_name_index on '
-                 'dh_public.policy using hash(table_name); '
+        #          'create index table_name_index on '
+        #          'dh_public.policy using hash(table_name); '
 
-                 'create index repo_index on '
-                 'dh_public.policy using hash(repo); '
+        #          'create index repo_index on '
+        #          'dh_public.policy using hash(repo); '
 
-                 'create index repo_base_index on '
-                 'dh_public.policy using hash(repo_base);')
+        #          'create index repo_base_index on '
+        #          'dh_public.policy using hash(repo_base);')
 
-        # postgres 9.4 doesn't support IF NOT EXISTS when creating indexes
-        # so it's possible for tests to attempt to create duplicate indexes
-        # This catches that exception
-        try:
-            self.execute_sql(query)
-        except:
-            pass
+        # # postgres 9.4 doesn't support IF NOT EXISTS when creating indexes
+        # # so it's possible for tests to attempt to create duplicate indexes
+        # # This catches that exception
+        # try:
+        #     self.execute_sql(query)
+        # except:
+        #     pass
 
         # grant the public role access to the table
         query = ('GRANT ALL ON %s.%s to %s;')
         params = (AsIs(schema), AsIs(table), AsIs(public_role))
         return self.execute_sql(query, params)
 
-    def create_license(self, license_name, pii_def, pii_removed, pii_anonymized):
+    def create_license(self, license_name, pii_def, pii_anonymized, pii_removed):
         '''
-        Creates a new security policy in the policy table if the policy
-        does not yet exist.
+        Creates a new license
         '''
 
         # disallow semicolons in policy. This helps prevent the policy creator
@@ -1013,17 +1011,105 @@ class PGBackend:
         # Note that we don't actually _need_ to do this. The parameters are all
         # escaped in RLS methods executed by the superuser, so there's not a
         # really a risk of a user acquiring root access.
-        if ';' in policy:
-            raise ValueError("\';'s are disallowed in the policy field")
 
-        query = ('INSERT INTO dh_public.policy (license_name, pii_def, pii_anonymized'
-                 'values (%s, %s, %s, %s, %s, %s, %s)')
-        params = (policy, policy_type, grantee, grantor, table, repo,
-                  repo_base)
+        print "got to pg create license"
+        query = ('INSERT INTO dh_public.license (license_name, pii_def, pii_anonymized, pii_removed)'
+                 'values (%s, %s, %s, %s)')
+        params = (license_name, pii_def, pii_anonymized, pii_removed)
 
         res = self.execute_sql(query, params)
 
         return res['status']
+    def find_licenses(self):
+        '''
+        Returns a list of all security polices that match the inputs specied
+        by the user.
+        '''
+        query = ('SELECT license_id, license_name, pii_def, pii_anonymized, pii_removed '
+                 'FROM %s.%s;')
+        params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_TABLE))
+
+        #
+        res = self.execute_sql(query, params)
+
+        return res['tuples']
+    
+    # def find_license_by_id(self, policy_id):
+    #     '''
+    #     Returns the security policy that has a policy_id matching the input
+    #     specified by the user.
+    #     '''
+    #     query = ('SELECT policy_id, policy, policy_type, grantee, grantor, '
+    #              'repo_base, repo, table_name '
+    #              'FROM dh_public.policy WHERE policy_id = %s')
+    #     params = (policy_id,)
+    #     res = self.execute_sql(query, params)
+
+    #     # return None if the list is empty
+    #     if not res['tuples']:
+    #         return None
+
+    #     # else, return the policy
+    #     return res['tuples'][0]
+
+    # def find_all_licenses(self, username):
+    #     params = (username, username)
+
+    #     query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
+    #              'FROM dh_public.policy WHERE grantee = %s or '
+    #              'grantor = %s')
+
+    #     res = self.execute_sql(query, params)
+    #     return res['tuples']
+
+    # def find_licenses(self, repo_base, repo=None, table=None,
+    #                            policy_id=None, policy=None, policy_type=None,
+    #                            grantee=None, grantor=None):
+    #     '''
+    #     Returns a list of all security polices that match the inputs specied
+    #     by the user.
+    #     '''
+    #     query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
+    #              'repo_base, repo, table_name '
+    #              'FROM %s.%s WHERE ')
+    #     params = [AsIs(settings.POLICY_SCHEMA), AsIs(settings.POLICY_TABLE)]
+    #     conditions = []
+
+    #     # append mandatory passed-in conditions
+    #     conditions.append('repo_base = %s')
+    #     params.append(repo_base)
+
+    #     # append optional conditions
+    #     if repo:
+    #         conditions.append('repo = %s')
+    #         params.append(repo)
+    #     if table:
+    #         conditions.append('table_name = %s')
+    #         params.append(table)
+    #     if policy_id:
+    #         conditions.append('policy_id = %s')
+    #         params.append(policy_id)
+    #     if policy:
+    #         conditions.append('policy = %s')
+    #         params.append(policy)
+    #     if policy_type:
+    #         conditions.append('policy_type = %s')
+    #         params.append(policy_type)
+    #     if grantee:
+    #         conditions.append('grantee = %s')
+    #         params.append(grantee)
+    #     if grantor:
+    #         conditions.append('grantor = %s')
+    #         params.append(grantor)
+
+    #     conditions = " and ".join(conditions)
+    #     params = tuple(params)
+    #     query += conditions
+
+    #     res = self.execute_sql(query, params)
+
+    #     return res['tuples']
+
     # Below methods can only be called from the RLSSecurityManager #
 
     def create_security_policy_schema(self):

@@ -211,6 +211,24 @@ class DataHubConnection:
     def list_collaborators(self, repo):
         return self.backend.list_collaborators(repo)
 
+    # License Stuff
+    def create_license_schema(self):
+        return self.backend.create_license_schema()
+
+    def create_license_table(self):
+        return self.backend.create_license_table()
+
+    def create_license(self, license_name, pii_def, pii_anonymized, pii_removed):
+        print "got to connection create license"
+        return self.backend.create_license(
+            license_name=license_name,
+            pii_def=pii_def,
+            pii_anonymized=pii_anonymized,
+            pii_removed=pii_removed)
+
+    def find_licenses(self):
+        return self.backend.find_licenses()
+        
     # Row Level Security Stuff
     def create_security_policy_schema(self):
         return self.backend.create_security_policy_schema()
