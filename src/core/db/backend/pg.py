@@ -10,6 +10,8 @@ import core.db.query_rewriter
 from psycopg2.extensions import AsIs
 from psycopg2.pool import ThreadedConnectionPool
 from psycopg2 import errorcodes
+from core.db.rlsmanager import RowLevelSecurityManager
+from core.db.licensemanager import LicenseManager
 
 from core.db.errors import PermissionDenied
 from config import settings
@@ -282,6 +284,8 @@ class PGBackend:
         return res
 
     def get_view_sql(self, repo_base, repo, table, view_params, license_id):
+        
+
         # get all columns, then subtract removed columns from that set
         
         # columns_query = ('BEGIN;'
@@ -302,6 +306,28 @@ class PGBackend:
         #license = get_license_from_id
 
         #if license.pii_removed:
+        # find corresponding policy
+        # query = ('SELECT license_id, license_name, pii_def, pii_anonymized, pii_removed '
+        #          'FROM dh_public.dh_public.license WHERE license_id = %s')
+        # query = ('SELECT license_name '
+        #           'FROM dh_public.dh_public.license WHERE license_id = %s')
+        #query = ("SELECT * FROM dh_public.policy")
+        # params = (license_id,)
+
+        # # return None if the list is empty
+        # if not res['tuples']:
+        #     print "didn't find any tuples"
+        #     return None
+
+        # # else, return the policy
+        # license = res['tuples'][0]
+
+        # print "found license: "
+        # print license
+
+        licenses = LicenseManager.find_licenses()
+        print "licenses: "
+        print licenses
 
             #remove columns
         query = ('SELECT column_name FROM information_schema.columns '
@@ -1029,9 +1055,7 @@ class PGBackend:
                  'FROM %s.%s;')
         params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_TABLE))
 
-        #
         res = self.execute_sql(query, params)
-
         return res['tuples']
     
     # def find_license_by_id(self, policy_id):

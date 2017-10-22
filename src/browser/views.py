@@ -488,6 +488,10 @@ def license_create(request):
 
     if request.method == 'POST':
         print "post method repo license create"
+        print request.POST
+        print "name here: ", request.POST.get("license_name")
+        print "pii? ", request.POST['pii_def']
+       
         #create license
         # removed_columns = request.POST.getlist('removed_columns')
         # with DataHubManager(user=username, repo_base=repo_base) as manager:
@@ -501,22 +505,15 @@ def license_create(request):
             pii_def = None
             pii_anonymized = False
             pii_removed = False
-            license_name = request.POST['license_name']
+            #project_name = ""
 
-            print "request: "
-            print request.POST
+            license_name = request.POST['license_name']
+            #roject_name = request.POST['project_name']
             pii_def = request.POST['pii_def']
-            # pii_removed = request.POST['pii_removed']
-            # pii_anonymized = request.POST['pii_anonymized']
-            print "stuff: "
-            print request.POST.getlist('pii')
             if 'anonymized' in request.POST.getlist('pii'):
                 pii_anonymized = True
             if 'removed' in request.POST.getlist('pii'):
                 pii_removed = True
-
-            print "anonmyzed: ", pii_anonymized
-            print "pii def: ", pii_def
 
 
             LicenseManager.create_license(license_name=license_name, pii_def=pii_def,
@@ -562,11 +559,11 @@ def browse_licenses(request):
     '''
     Shows the security policies defined for a table.
     '''
+    print "we are here"
     username = request.user.get_username()
 
     # get the security policies on a given repo.table
     try:
-        print "about to try licenses"
         licenses = LicenseManager.find_licenses()
     except LookupError:
         licenses = []
@@ -589,6 +586,7 @@ def browse_licenses(request):
 @csrf_exempt
 @login_required
 def license_view_create(request, repo_base, repo, table, license_id):
+    print "should get here"
     '''
     returns the settings page for a repo
     '''
@@ -614,16 +612,18 @@ def license_view_create(request, repo_base, repo, table, license_id):
         return HttpResponseForbidden(message)
 
     if request.method == 'POST':
+
         #collect parameters that will be used to create the view of the table
         removed_columns = request.POST.getlist('removed_columns[]')
         view_params = {}
         view_params['removed-columns'] = removed_columns
+        print "about to do this"
         with DataHubManager(user=username, repo_base=repo_base) as manager:
             manager.create_license_view (
                 repo, 
                 table,
                 view_params = view_params,
-                license_id=license_id
+                license_id=1
             )
 
             # give access to all current collaborators on this license

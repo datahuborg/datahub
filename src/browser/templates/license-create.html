@@ -10,21 +10,15 @@
   </h4>
     <hr />
     <h2>Create New License</h2>
-    <h2> Existing Tables
-    {% for base_table in base_tables %}
-    <a href="#"> {{base_table}} </a>
-    {% endfor%}
-
-    </h2>
-    <h2> Existing Licenses
+ <!--    <h2> Existing Licenses
     {% for licenses in licenses %}
     <a href="#"> {{license}} </a>
     {% endfor%}
 
-    </h2>
+    </h2> -->
     <form role="form" method="POST" action="{% url 'license_create' %}" enctype='multipart/form-data' id="license-form">
-<input type="checkbox" value="anonymized"  name="pii">
-                            PII Anonymized
+
+
     <table>
         <h3>General</h3>
         <tr>
@@ -48,16 +42,16 @@
                 License Name:
             </td>
             <td class="cell-right">
-                <input type="text" class="form-control" name="license_name" id="license_name" placeholder="license name">
+                <input type="text" class="form-control" name="license_name" id="license_name" placeholder="license name" >
             </td>
         </tr>
         <tr>
-            <td class="cell-left">
+            <!-- <td class="cell-left">
                 Project Name:
             </td>
             <td class="cell-right">
-                <input type="text" class="form-control" name="license_name" id="license_name" placeholder="project name">
-            </td>
+                <input type="text" class="form-control" name="project_name" id="license_name" placeholder="project name">
+            </td> -->
         </tr>
         <tr>
             <td>
@@ -76,12 +70,12 @@
                           </label>
                         </div>
                     <h4>Privacy</h4>
-                    <div class="checkbox">
+                    <!-- <div class="checkbox">
                           <label>
                             <input type="checkbox" value="">
                             Data Anonymized
                           </label>
-                        </div>
+                        </div> -->
                         <div class="checkbox">
                           <label>
                             <input type="checkbox" value="" >
@@ -90,7 +84,7 @@
                         </div>
                         <div class="checkbox">
                           <label>
-                            <input type="checkbox" value="" >
+                            <input type="checkbox" value="anonymized"  name="pii">
                             PII Anonymized
                           </label>
                         </div>
@@ -124,7 +118,7 @@
     </form>
     <br />
     <br />
-    }
+    
 </div>
 {% endblock content %}
 
