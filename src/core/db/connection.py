@@ -228,6 +228,10 @@ class DataHubConnection:
 
     def find_licenses(self):
         return self.backend.find_licenses()
+
+    def find_license_by_id(self, license_id):
+        print "in conection, have license id: ", license_id
+        return self.backend.find_license_by_id(license_id)
         
     # Row Level Security Stuff
     def create_security_policy_schema(self):

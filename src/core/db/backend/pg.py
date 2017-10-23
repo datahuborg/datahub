@@ -324,12 +324,19 @@ class PGBackend:
 
         # print "found license: "
         # print license
+        print "license id: ", license_id
+        print" what"
+        license = LicenseManager.find_license_by_id(license_id)
+        print "license: "
+        print license
 
-        licenses = LicenseManager.find_licenses()
-        print "licenses: "
-        print licenses
+        print "license name: ", license.license_name
+        #create view based on license
+        pii_def = license.pii_def
 
-            #remove columns
+        if license.pii_removed:
+            pass
+        #remove columns
         query = ('SELECT column_name FROM information_schema.columns '
                  'WHERE table_schema = %s'
                  'AND table_name = %s'
@@ -1058,23 +1065,25 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['tuples']
     
-    # def find_license_by_id(self, policy_id):
-    #     '''
-    #     Returns the security policy that has a policy_id matching the input
-    #     specified by the user.
-    #     '''
-    #     query = ('SELECT policy_id, policy, policy_type, grantee, grantor, '
-    #              'repo_base, repo, table_name '
-    #              'FROM dh_public.policy WHERE policy_id = %s')
-    #     params = (policy_id,)
-    #     res = self.execute_sql(query, params)
+    def find_license_by_id(self, license_id):
+        '''
+        Returns the security policy that has a policy_id matching the input
+        specified by the user.
+        '''
+        license_id = 14
+        query = ('SELECT license_id, license_name, pii_def, pii_anonymized, pii_removed '
+                 'FROM %s.%s where license_id=14;')
+        params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_TABLE))
+        print "got to this other part"
+        res = self.execute_sql(query, params)
 
-    #     # return None if the list is empty
-    #     if not res['tuples']:
-    #         return None
+        print "res: ", res
+        # return None if the list is empty
+        if not res['tuples']:
+            return None
 
-    #     # else, return the policy
-    #     return res['tuples'][0]
+        # else, return the policy
+        return res['tuples'][0]
 
     # def find_all_licenses(self, username):
     #     params = (username, username)

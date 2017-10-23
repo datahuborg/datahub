@@ -166,7 +166,24 @@ class LicenseManager:
 
         return tuple_licenses
 
-    
+    @staticmethod
+    def find_license_by_id(license_id):
+        '''
+        Looks for a security policy matching the specified policy_id.
+        '''
+        license_id = int(license_id)
+        print "in license manager with license id: ", license_id
+        with _superuser_connection(settings.LICENSE_DB) as conn:
+            print "got the conn"
+            res = conn.find_license_by_id(license_id=license_id)
+        print "in license manager with res: ", res
+
+        License = namedtuple(
+                'License',
+                ['license_id', 'license_name', 'pii_def', 'pii_anonymized', 'pii_removed'])
+        tuple_license = License(*res)
+        print "tuple license: ", tuple_license
+        return tuple_license
 
     @staticmethod
     def create_license(license_name, pii_def, pii_anonymized, pii_removed):
