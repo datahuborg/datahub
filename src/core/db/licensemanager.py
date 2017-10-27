@@ -75,81 +75,9 @@ class LicenseManager:
             result = conn.create_license_link_table()
         return result
 
-    # managing users
-    # @staticmethod
-    # def add_user_to_license_table(username):
-    #     """
-    #     grant a user permission to select, insert, and update their own rows
-    #     in the Row Level Security policy table.
-
-    #     These rows are now owned by the superuser, so only the superuser can
-    #     remove them.
-    #     """
-    #     username = username.lower()
-    #     policy = ('grantor = \'%s\'' % username)
-    #     grantee = username
-    #     grantor = settings.DATABASES['default']['USER']
-    #     repo_base = settings.LICENSE_DB
-    #     repo = settings.LICENSE_SCHEMA
-    #     table = settings.LICENSE_TABLE
-
-    #     # licenses = LicenseManager.find_security_policies(
-    #     #     repo_base, repo=repo, table=table,
-    #     #     policy=policy, policy_type=None,
-    #     #     grantee=grantee, grantor=grantor, safe=False)
-
-    #     # Skip if the user already has policies granted by the superuser.
-    #     if len(licenses) > 0:
-    #         return
-
-    #     with _superuser_connection(repo_base=settings.POLICY_DB) as conn:
-    #         # allow select
-    #         conn.create_security_policy(
-    #             policy=policy,
-    #             policy_type="select",
-    #             grantee=grantee,
-    #             grantor=grantor,
-    #             repo_base=repo_base,
-    #             repo=repo,
-    #             table=table)
-
-    #         conn.create_security_policy(
-    #             policy=policy,
-    #             policy_type="insert",
-    #             grantee=grantee,
-    #             grantor=grantor,
-    #             repo_base=repo_base,
-    #             repo=repo,
-    #             table=table)
-
-    #         conn.create_security_policy(
-    #             policy=policy,
-    #             policy_type="update",
-    #             grantee=grantee,
-    #             grantor=grantor,
-    #             repo_base=repo_base,
-    #             repo=repo,
-    #             table=table)
-
-
-    # @staticmethod
-    # def find_all_security_policies(username):
-    #     '''
-    #     Find all security policies that are either granted to or granted by
-    #     the passed username
-    #     '''
-    #     username = username.lower()
-    #     with _superuser_connection(settings.POLICY_DB) as conn:
-    #         result = conn.find_all_security_policies(username)
-    #     return result
-
     @staticmethod
     def find_licenses():
-        '''
-        Looks for security policies matching what the user specified in
-        the input.
-        '''
-        
+        # Returns all licenses        
         with _superuser_connection(settings.LICENSE_DB) as conn:
             res = conn.find_licenses()
 
@@ -169,10 +97,9 @@ class LicenseManager:
     @staticmethod
     def find_license_by_id(license_id):
         '''
-        Looks for a security policy matching the specified policy_id.
+        Looks for a license matching the specified license_id.
         '''
         license_id = int(license_id)
-        print "in license manager with license id: ", license_id
         
         with _superuser_connection(settings.LICENSE_DB) as conn:
             res = conn.find_license_by_id(license_id=license_id)
@@ -182,17 +109,13 @@ class LicenseManager:
                 'License',
                 ['license_id', 'license_name', 'pii_def', 'pii_anonymized', 'pii_removed'])
         tuple_license = License(*res)
-        print "tuple license: ", tuple_license
         return tuple_license
 
     @staticmethod
     def find_licenses_by_repo(repo_base, repo):
         '''
-        Looks for security policies matching what the user specified in
-        the input.
+        Find Licenses based on a given repo_base and repo
         '''
-        
-        
         license_links = LicenseManager.find_license_links_by_repo(repo_base, repo)
 
         licenses = []
@@ -233,7 +156,6 @@ class LicenseManager:
         '''
         Creates a new license in the license table. 
         '''  
-
         with _superuser_connection(settings.LICENSE_DB) as conn:
             return conn.create_license_link(
                 repo_base=repo_base,
@@ -244,8 +166,7 @@ class LicenseManager:
     @staticmethod
     def find_license_links(license_id):
         '''
-        Looks for security policies matching what the user specified in
-        the input.
+        Returns all licenses links for a specified license id
         '''
         with _superuser_connection(settings.LICENSE_DB) as conn:
              res = conn.find_license_links(license_id)
@@ -266,8 +187,7 @@ class LicenseManager:
     @staticmethod
     def find_license_links_by_repo(repo_base, repo):
         '''
-        Looks for security policies matching what the user specified in
-        the input.
+        Finds LicenseLinks for a particular repo_base and repo
         '''
         with _superuser_connection(settings.LICENSE_DB) as conn:
              res = conn.find_license_links_by_repo(repo_base, repo)
