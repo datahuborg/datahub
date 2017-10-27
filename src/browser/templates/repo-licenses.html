@@ -24,13 +24,15 @@
   </div>
   <hr />
   <br />
-  <br />
-  <br />
 
 <p class="lead">Manage Repository Licenses</p>
 
-<button type="button"
-    class="btn btn-primary" data-toggle="modal" data-target="#newLicenseModal">Add License</button>
+<form action="{% url 'license_create' %}">
+  <button type="submit" title="Create a License"  class="btn btn-primary" style="margin:20px;"> Create New License</button>
+          </form>
+
+<div><button type="button"
+    class="btn btn-primary" data-toggle="modal" data-target="#newLicenseModal">Add Existing License</button></div>
 
 <table class="table table-striped" style="margin-top:20px;">
     <thead>
@@ -41,16 +43,13 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>FERPA Data Anonymized</td>
-        <td><p class="alert alert-success">Applied to All Tables <span style="float:right;"class="glyphicon glyphicon-ok"></p></span></td>
-        <td><a type="button" href="/licenses/{{repo_base}}/{{repo}}/2/manage" class="btn btn-primary" style="margin-top:12px; margin-left:50px;"> Manage </a></td>
-      </tr>
+    {% for license in licenses %}
        <tr>
-        <td>HIPAA PII Removed</td>
+        <td>{{license.license_name}}</td>
         <td><p class="alert alert-danger">Not Applied to All Tables <span style="float:right;"class="glyphicon glyphicon-remove"></p></span></td>
-        <td><a type="button" href="/licenses/{{repo_base}}/{{repo}}/1/manage" class="btn btn-primary" style="margin-top:12px; margin-left:50px;"> Manage </a></td>
+        <td><a type="button" href="/licenses/{{repo_base}}/{{repo}}/{{license.license_id}}/manage" class="btn btn-primary" style="margin-top:12px; margin-left:50px;"> Manage </a></td>
       </tr>
+    {% endfor %}
     </tbody>
   </table>
 
@@ -103,7 +102,7 @@
 
 <!--New License Modal -->
 <div class="modal fade" id="newLicenseModal" role="dialog">
-  <div class="modal-dialog">
+  <div class="modal-lg">
 
     <!-- Modal content-->
     <div class="modal-content">
@@ -112,18 +111,38 @@
         <h4 class="modal-title">Choose License</h4>
       </div>
       <div class="modal-body">
-      <div id="license-model-body-choose">
-        <ul class="list-unstyled">
-        <li> 
-          <button type="button"  class="btn btn-primary" style="margin:20px;" id="choose-existing-btn"> Choose Existing License </button>
-        </li>
-        <li> 
-        <form action="{% url 'license_create' %}">
-          <button type="submit" title="Create a License"  class="btn btn-primary" style="margin:20px;"> Create New License</button>
-          </form>
-        </li>
-        </ul>
-        </div>
+    <!--   <div id="license-model-body-choose"> -->
+        
+      <!-- <div class="table-responsive table-container"> -->
+        <table id="table_data" class="table table-condensed table-bordered ">
+          <thead>
+            <tr>
+              <th> License ID </th>
+              <th> Name </th>
+              <th> PII Def </th>
+              <th> PII Removed </th>
+              <th> PII Anonymized </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for license in licenses %}
+            License: {{license.license_name}} {{license.pii_def}}
+            <tr id="license_{{license.license_id}}">
+              {% for cell in license %}
+                <td class="strong">{{cell}}</td>
+              {% endfor %}
+              <td>
+              <a type="button" href="/licenses/{{repo_base}}/{{repo}}/linklicense/{{license.license_id}}/" class="btn btn-primary" style="margin-top:12px; margin-left:50px;"> Link </a>
+                 </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <br />
+        <!-- </div> -->
+
+       <!--  </div> -->
         <div id="license-model-body-existing" style="display:none;">
         <table class="table table-striped">
           <tr> 

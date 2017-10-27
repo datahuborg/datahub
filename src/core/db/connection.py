@@ -218,6 +218,10 @@ class DataHubConnection:
     def create_license_table(self):
         return self.backend.create_license_table()
 
+    def create_license_link_table(self):
+        return self.backend.create_license_link_table()
+
+
     def create_license(self, license_name, pii_def, pii_anonymized, pii_removed):
         print "got to connection create license"
         return self.backend.create_license(
@@ -226,7 +230,12 @@ class DataHubConnection:
             pii_anonymized=pii_anonymized,
             pii_removed=pii_removed)
 
+    def find_license_links(self,license_id):
+        print "got to connection find link license"
+        return self.backend.find_license_links(license_id=license_id)
+
     def find_licenses(self):
+        print "trying to find licenses in connection"
         return self.backend.find_licenses()
 
     def find_license_by_id(self, license_id):

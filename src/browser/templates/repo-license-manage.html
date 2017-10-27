@@ -23,8 +23,8 @@
   </div>
   <hr />
 
-  <h3> Mange License </h3>
-  <h2>HIPPA PII Removed</h2>
+  <h3> Manage License </h3>
+  <h2>{{license.license_name}}</h2>
   <h4>Patient Visitation Statistics </h4> 
 
   <button id="show-details-btn" data-toggle="modal" data-target="#viewLicenseDetailsModal" class="btn btn-primary">View Details </button>
@@ -71,7 +71,7 @@
                     
                     <div class="modal-body">
                     <h4> Data Preview </h4>
-                    <h5> Please remove all PII according to HIPAA standards </h5>
+                    <h5> Please remove all PII according to {{license.pii_def}} standards </h5>
                       <div id="dataViewDiv{{base_table}}"></div>
                     </div>
                     <div class="modal-footer">

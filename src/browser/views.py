@@ -415,12 +415,15 @@ def repo_licenses(request, repo_base, repo):
 
     collaborators = [c for c in collaborators if c['username']
                      not in ['', username, settings.PUBLIC_ROLE]]
+    licenses = LicenseManager.find_licenses()
 
+    print "licenses: ", licenses
     res = {
         'login': username,
         'repo_base': repo_base,
         'repo': repo,
         'collaborators': collaborators,
+        'licenses': licenses,
         'public_role': public_role,
         'repo_is_public': repo_is_public}
     res.update(csrf(request))
@@ -443,9 +446,11 @@ def repo_license_manage(request, repo_base, repo, license_id):
         base_tables = manager.list_tables(repo)
         views = manager.list_views(repo)
 
+    license = LicenseManager.find_license_by_id(license_id)
     rls_table = 'policy'
 
     res = {
+        'license': license,
         'login': username,
         'repo_base': repo_base,
         'repo': repo,
@@ -458,6 +463,48 @@ def repo_license_manage(request, repo_base, repo, license_id):
     res.update(csrf(request))
 
     return render_to_response("repo-license-manage.html", res)
+
+@csrf_exempt
+@login_required
+def link_license(request, repo_base, repo, license_id):
+    '''
+    returns the settings page for a repo.
+    '''
+    print "license id: ", license_id
+    username = request.user.get_username()
+    public_role = settings.PUBLIC_ROLE
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo)
+
+    # if the public role is in collaborators, note that it's already added
+    repo_is_public = next(
+        (True for c in collaborators if
+            c['username'] == settings.PUBLIC_ROLE), False)
+
+    # remove the current user, public user from the collaborator list
+    # collaborators = [c.get('username') for c in collaborators]
+
+    collaborators = [c for c in collaborators if c['username']
+                     not in ['', username, settings.PUBLIC_ROLE]]
+    licenses = LicenseManager.find_licenses()
+    lincense = LicenseManager.find_license_links(license_id)
+
+    print "licenses: ", licenses
+    print "license links: "
+
+    #LicenseManager.create_license_link(repo_base, repo, license_id)
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'collaborators': collaborators,
+        'licenses': licenses,
+        'public_role': public_role,
+        'repo_is_public': repo_is_public}
+    res.update(csrf(request))
+
+    return render_to_response("repo-licenses.html", res)
 
 @csrf_exempt
 @login_required
@@ -580,6 +627,7 @@ def browse_licenses(request):
         'licenses': licenses}
 
     res.update(csrf(request))
+    print "about to render response"
     return render_to_response("licenses.html", res)
 
 

@@ -986,6 +986,7 @@ class PGBackend:
         return self.execute_sql(query, params)
 
     def create_license_table(self):
+        print "top of create license table"
         schema = settings.LICENSE_SCHEMA
         table = settings.LICENSE_TABLE
         public_role = settings.PUBLIC_ROLE
@@ -994,7 +995,7 @@ class PGBackend:
         self._validate_table_name(table)
         self._check_for_injections(public_role)
 
-        query = ('DROP TABLE %s.%s; CREATE TABLE IF NOT EXISTS %s.%s'
+        query = ('CREATE TABLE IF NOT EXISTS %s.%s'
                  '('
                  'license_id serial primary key,'
                  'license_name VARCHAR(40),'
@@ -1002,8 +1003,11 @@ class PGBackend:
                  'pii_removed boolean NOT NULL,'
                  'pii_anonymized boolean NOT NULL'
                  ');')
-        params = (AsIs(schema), AsIs(table), AsIs(schema), AsIs(table))
+        params = (AsIs(schema), AsIs(table))
+        print "about to execute"
         self.execute_sql(query, params)
+
+        print "got here"
 
         # # create indexes for faster seraching
         # query = ('create index grantee_index on '
@@ -1034,6 +1038,29 @@ class PGBackend:
         params = (AsIs(schema), AsIs(table), AsIs(public_role))
         return self.execute_sql(query, params)
 
+    def create_license_link_table(self):
+        schema = settings.LICENSE_LINK_SCHEMA
+        table = settings.LICENSE_LINK_TABLE
+        public_role = settings.PUBLIC_ROLE
+
+        self._check_for_injections(schema)
+        self._validate_table_name(table)
+        self._check_for_injections(public_role)
+
+        query = ('DROP TABLE %s.%s; CREATE TABLE IF NOT EXISTS %s.%s'
+                 '('
+                 'license_link_id serial primary key,'
+                 'base_repo VARCHAR(40) NOT NULL,'
+                 'repo VARCHAR(40) NOT NULL,'
+                 'license_id VARCHAR(40) NOT NULL'
+                 ');')
+        params = (AsIs(schema), AsIs(table),AsIs(schema), AsIs(table))
+        self.execute_sql(query, params)
+
+        query = ('GRANT ALL ON %s.%s to %s;')
+        params = (AsIs(schema), AsIs(table), AsIs(public_role))
+        return self.execute_sql(query, params)
+
     def create_license(self, license_name, pii_def, pii_anonymized, pii_removed):
         '''
         Creates a new license
@@ -1053,6 +1080,66 @@ class PGBackend:
         res = self.execute_sql(query, params)
 
         return res['status']
+
+# def create_license_link(self, repo_base, repo, license_id):
+#         '''
+#         Creates a new license
+#         '''
+
+#         # disallow semicolons in policy. This helps prevent the policy creator
+#         # from shooting themself in the foot with an attempted sql injection.
+#         # Note that we don't actually _need_ to do this. The parameters are all
+#         # escaped in RLS methods executed by the superuser, so there's not a
+#         # really a risk of a user acquiring root access.
+
+#         print "got to pg create license link "
+#         query = ('INSERT INTO dh_public.license_link (repo_base, repo, license_id)'
+#                  'values (%s, %s, %s)')
+#         params = (repo_base, repo, license_id)
+
+#         res = self.execute_sql(query, params)
+
+#         return res['status']
+
+    def find_license_links(self, license_id):
+        print "at find license links in pg"
+#         '''
+#         Returns the security policy that has a policy_id matching the input
+#         specified by the user.
+#         '''
+#         query = ('SELECT license_link_id, repo_base, repo, license_id'
+#                  'FROM %s.%s where license_id= %s;')
+#         params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_LINK_TABLE), license_id)
+#         print "got to this other part in license links"
+#         res = self.execute_sql(query, params)
+
+#         print "res: ", res
+#         # return None if the list is empty
+#         if not res['tuples']:
+#             return None
+
+#         # else, return the policy
+#         return res['tuples'][0]
+    def create_license(self, repo_base, repo, license_id):
+        '''
+        Creates a new license
+        '''
+
+        # disallow semicolons in policy. This helps prevent the policy creator
+        # from shooting themself in the foot with an attempted sql injection.
+        # Note that we don't actually _need_ to do this. The parameters are all
+        # escaped in RLS methods executed by the superuser, so there's not a
+        # really a risk of a user acquiring root access.
+
+        print "got to pg create license link"
+        query = ('INSERT INTO dh_public.license_link (repo_base, repo, license_id)'
+                 'values (%s, %s, %s)')
+        params = (repo_base, repo, license_id)
+
+        res = self.execute_sql(query, params)
+
+        return res['status']
+
     def find_licenses(self):
         '''
         Returns a list of all security polices that match the inputs specied
@@ -1070,10 +1157,9 @@ class PGBackend:
         Returns the security policy that has a policy_id matching the input
         specified by the user.
         '''
-        license_id = 14
         query = ('SELECT license_id, license_name, pii_def, pii_anonymized, pii_removed '
-                 'FROM %s.%s where license_id=14;')
-        params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_TABLE))
+                 'FROM %s.%s where license_id= %s;')
+        params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_TABLE), license_id)
         print "got to this other part"
         res = self.execute_sql(query, params)
 

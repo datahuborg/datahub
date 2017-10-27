@@ -62,66 +62,76 @@ class LicenseManager:
     @staticmethod
     def create_license_table():
         ''' Used to create the license table on DataHub start '''
-        repo_base = settings.POLICY_DB
+        print "got to creat license license manager"
+
+        repo_base = settings.LICENSE_DB
         with _superuser_connection(repo_base) as conn:
             result = conn.create_license_table()
         return result
 
-    # managing users
     @staticmethod
-    def add_user_to_license_table(username):
-        """
-        grant a user permission to select, insert, and update their own rows
-        in the Row Level Security policy table.
-
-        These rows are now owned by the superuser, so only the superuser can
-        remove them.
-        """
-        username = username.lower()
-        policy = ('grantor = \'%s\'' % username)
-        grantee = username
-        grantor = settings.DATABASES['default']['USER']
+    def create_license_link_table():
+        ''' Used to create the license table on DataHub start '''
         repo_base = settings.LICENSE_DB
-        repo = settings.LICENSE_SCHEMA
-        table = settings.LICENSE_TABLE
+        with _superuser_connection(repo_base) as conn:
+            result = conn.create_license_link_table()
+        return result
 
-        licenses = LicenseManager.find_security_policies(
-            repo_base, repo=repo, table=table,
-            policy=policy, policy_type=None,
-            grantee=grantee, grantor=grantor, safe=False)
+    # managing users
+    # @staticmethod
+    # def add_user_to_license_table(username):
+    #     """
+    #     grant a user permission to select, insert, and update their own rows
+    #     in the Row Level Security policy table.
 
-        # Skip if the user already has policies granted by the superuser.
-        if len(licenses) > 0:
-            return
+    #     These rows are now owned by the superuser, so only the superuser can
+    #     remove them.
+    #     """
+    #     username = username.lower()
+    #     policy = ('grantor = \'%s\'' % username)
+    #     grantee = username
+    #     grantor = settings.DATABASES['default']['USER']
+    #     repo_base = settings.LICENSE_DB
+    #     repo = settings.LICENSE_SCHEMA
+    #     table = settings.LICENSE_TABLE
 
-        with _superuser_connection(repo_base=settings.POLICY_DB) as conn:
-            # allow select
-            conn.create_security_policy(
-                policy=policy,
-                policy_type="select",
-                grantee=grantee,
-                grantor=grantor,
-                repo_base=repo_base,
-                repo=repo,
-                table=table)
+    #     # licenses = LicenseManager.find_security_policies(
+    #     #     repo_base, repo=repo, table=table,
+    #     #     policy=policy, policy_type=None,
+    #     #     grantee=grantee, grantor=grantor, safe=False)
 
-            conn.create_security_policy(
-                policy=policy,
-                policy_type="insert",
-                grantee=grantee,
-                grantor=grantor,
-                repo_base=repo_base,
-                repo=repo,
-                table=table)
+    #     # Skip if the user already has policies granted by the superuser.
+    #     if len(licenses) > 0:
+    #         return
 
-            conn.create_security_policy(
-                policy=policy,
-                policy_type="update",
-                grantee=grantee,
-                grantor=grantor,
-                repo_base=repo_base,
-                repo=repo,
-                table=table)
+    #     with _superuser_connection(repo_base=settings.POLICY_DB) as conn:
+    #         # allow select
+    #         conn.create_security_policy(
+    #             policy=policy,
+    #             policy_type="select",
+    #             grantee=grantee,
+    #             grantor=grantor,
+    #             repo_base=repo_base,
+    #             repo=repo,
+    #             table=table)
+
+    #         conn.create_security_policy(
+    #             policy=policy,
+    #             policy_type="insert",
+    #             grantee=grantee,
+    #             grantor=grantor,
+    #             repo_base=repo_base,
+    #             repo=repo,
+    #             table=table)
+
+    #         conn.create_security_policy(
+    #             policy=policy,
+    #             policy_type="update",
+    #             grantee=grantee,
+    #             grantor=grantor,
+    #             repo_base=repo_base,
+    #             repo=repo,
+    #             table=table)
 
 
     # @staticmethod
@@ -173,9 +183,11 @@ class LicenseManager:
         '''
         license_id = int(license_id)
         print "in license manager with license id: ", license_id
+        
         with _superuser_connection(settings.LICENSE_DB) as conn:
             print "got the conn"
             res = conn.find_license_by_id(license_id=license_id)
+        
         print "in license manager with res: ", res
 
         License = namedtuple(
@@ -201,3 +213,40 @@ class LicenseManager:
                 pii_anonymized=pii_anonymized,
                 pii_removed=pii_removed,
                 )
+
+    # @staticmethod
+    # def create_license_link(repo_base, repo, license_id):
+    #     print "we got to create link"
+    #     '''
+    #     Creates a new license in the license table. 
+    #     '''  
+
+    #     with _superuser_connection(settings.LICENSE_DB) as conn:
+    #         return conn.create_license_link(
+    #             repo_base=repo_base,
+    #             repo=repo,
+    #             license_id=license_id
+    #             )
+
+    @staticmethod
+    def find_license_links(license_id):
+        '''
+        Looks for security policies matching what the user specified in
+        the input.
+        '''
+        print "getting to find license link in license manager"
+        with _superuser_connection(settings.LICENSE_DB) as conn:
+             res = conn.find_license_links(license_id)
+
+        # # convert this to a named tuple for easier handling
+        # tuple_license_links = []
+        # for license_link in res:
+        #     LicenseLink = namedtuple(
+        #         'LicenseLink',
+        #         ['license_link_id', 'repo_base', 'repo', 'license_id'])
+
+        #     tuple_license_link = LicenseLink(*license_link)
+
+        #     tuple_license_links.append(tuple_license_link)
+
+        # return tuple_license_links
