@@ -417,7 +417,14 @@ def repo_licenses(request, repo_base, repo):
                      not in ['', username, settings.PUBLIC_ROLE]]
     licenses = LicenseManager.find_licenses()
 
-    print "licenses: ", licenses
+    #license = LicenseManager.find_license_by_id(license_id)
+
+    license_links = LicenseManager.find_license_links_by_repo(repo_base, repo)
+
+    print "license links: ", license_links
+
+
+
     res = {
         'login': username,
         'repo_base': repo_base,
@@ -435,6 +442,7 @@ def repo_license_manage(request, repo_base, repo, license_id):
     '''
     shows the tables and views under a repo.
     '''
+    print "repo license manage"
     username = request.user.get_username()
     if repo_base.lower() == 'user':
         repo_base = username
@@ -447,6 +455,11 @@ def repo_license_manage(request, repo_base, repo, license_id):
         views = manager.list_views(repo)
 
     license = LicenseManager.find_license_by_id(license_id)
+
+    license_links = LicenseManager.find_license_links(license_id)
+
+    print "license links: ", license_links
+
     rls_table = 'policy'
 
     res = {
@@ -488,12 +501,13 @@ def link_license(request, repo_base, repo, license_id):
     collaborators = [c for c in collaborators if c['username']
                      not in ['', username, settings.PUBLIC_ROLE]]
     licenses = LicenseManager.find_licenses()
-    lincense = LicenseManager.find_license_links(license_id)
+    license_links = LicenseManager.find_license_links(license_id)
 
     print "licenses: ", licenses
-    print "license links: "
+    print "license links: ", license_links
 
-    #LicenseManager.create_license_link(repo_base, repo, license_id)
+    LicenseManager.create_license_link(repo_base, repo, license_id)
+    
     res = {
         'login': username,
         'repo_base': repo_base,

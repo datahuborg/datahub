@@ -223,23 +223,30 @@ class DataHubConnection:
 
 
     def create_license(self, license_name, pii_def, pii_anonymized, pii_removed):
-        print "got to connection create license"
         return self.backend.create_license(
             license_name=license_name,
             pii_def=pii_def,
             pii_anonymized=pii_anonymized,
             pii_removed=pii_removed)
 
+    def create_license_link(self, repo_base, repo, license_id):
+        return self.backend.create_license_link(
+            repo_base=repo_base,
+            repo=repo,
+            license_id=license_id)
+
     def find_license_links(self,license_id):
-        print "got to connection find link license"
         return self.backend.find_license_links(license_id=license_id)
 
+    def find_license_links_by_repo(self, repo_base, repo):
+        return self.backend.find_license_links_by_repo(
+            repo_base=repo_base,
+            repo=repo)
+
     def find_licenses(self):
-        print "trying to find licenses in connection"
         return self.backend.find_licenses()
 
     def find_license_by_id(self, license_id):
-        print "in conection, have license id: ", license_id
         return self.backend.find_license_by_id(license_id)
         
     # Row Level Security Stuff

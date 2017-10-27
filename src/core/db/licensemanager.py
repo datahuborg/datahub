@@ -214,19 +214,19 @@ class LicenseManager:
                 pii_removed=pii_removed,
                 )
 
-    # @staticmethod
-    # def create_license_link(repo_base, repo, license_id):
-    #     print "we got to create link"
-    #     '''
-    #     Creates a new license in the license table. 
-    #     '''  
+    @staticmethod
+    def create_license_link(repo_base, repo, license_id):
+        print "we got to create link"
+        '''
+        Creates a new license in the license table. 
+        '''  
 
-    #     with _superuser_connection(settings.LICENSE_DB) as conn:
-    #         return conn.create_license_link(
-    #             repo_base=repo_base,
-    #             repo=repo,
-    #             license_id=license_id
-    #             )
+        with _superuser_connection(settings.LICENSE_DB) as conn:
+            return conn.create_license_link(
+                repo_base=repo_base,
+                repo=repo,
+                license_id=license_id
+                )
 
     @staticmethod
     def find_license_links(license_id):
@@ -234,19 +234,42 @@ class LicenseManager:
         Looks for security policies matching what the user specified in
         the input.
         '''
-        print "getting to find license link in license manager"
         with _superuser_connection(settings.LICENSE_DB) as conn:
              res = conn.find_license_links(license_id)
 
-        # # convert this to a named tuple for easier handling
-        # tuple_license_links = []
-        # for license_link in res:
-        #     LicenseLink = namedtuple(
-        #         'LicenseLink',
-        #         ['license_link_id', 'repo_base', 'repo', 'license_id'])
+        print "res from find_ license _links: ", res
+        # convert this to a named tuple for easier handling
+        tuple_license_links = []
+        for license_link in res:
+            LicenseLink = namedtuple(
+                'LicenseLink',
+                ['license_link_id', 'repo_base', 'repo', 'license_id'])
 
-        #     tuple_license_link = LicenseLink(*license_link)
+            tuple_license_link = LicenseLink(*license_link)
 
-        #     tuple_license_links.append(tuple_license_link)
+            tuple_license_links.append(tuple_license_link)
 
-        # return tuple_license_links
+        return tuple_license_links
+
+    @staticmethod
+    def find_license_links_by_repo(repo_base, repo):
+        '''
+        Looks for security policies matching what the user specified in
+        the input.
+        '''
+        with _superuser_connection(settings.LICENSE_DB) as conn:
+             res = conn.find_license_links_by_repo(repo_base, repo)
+
+        print "res from find_ license _links repo: ", res
+        # convert this to a named tuple for easier handling
+        tuple_license_links = []
+        for license_link in res:
+            LicenseLink = namedtuple(
+                'LicenseLink',
+                ['license_link_id', 'repo_base', 'repo', 'license_id'])
+
+            tuple_license_link = LicenseLink(*license_link)
+
+            tuple_license_links.append(tuple_license_link)
+
+        return tuple_license_links
