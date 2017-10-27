@@ -62,8 +62,6 @@ class LicenseManager:
     @staticmethod
     def create_license_table():
         ''' Used to create the license table on DataHub start '''
-        print "got to creat license license manager"
-
         repo_base = settings.LICENSE_DB
         with _superuser_connection(repo_base) as conn:
             result = conn.create_license_table()
@@ -135,14 +133,6 @@ class LicenseManager:
 
 
     # @staticmethod
-    # def can_user_access_rls_table(username,
-    #                               permissions=['SELECT', 'UPDATE', 'INSERT']):
-    #     username = username.lower()
-    #     with _superuser_connection(settings.POLICY_DB) as conn:
-    #         result = conn.can_user_access_rls_table(username, permissions)
-    #     return result
-
-    # @staticmethod
     # def find_all_security_policies(username):
     #     '''
     #     Find all security policies that are either granted to or granted by
@@ -185,10 +175,8 @@ class LicenseManager:
         print "in license manager with license id: ", license_id
         
         with _superuser_connection(settings.LICENSE_DB) as conn:
-            print "got the conn"
             res = conn.find_license_by_id(license_id=license_id)
         
-        print "in license manager with res: ", res
 
         License = namedtuple(
                 'License',
@@ -198,8 +186,34 @@ class LicenseManager:
         return tuple_license
 
     @staticmethod
+    def find_licenses_by_repo(repo_base, repo):
+        '''
+        Looks for security policies matching what the user specified in
+        the input.
+        '''
+        
+        
+        license_links = LicenseManager.find_license_links_by_repo(repo_base, repo)
+
+        licenses = []
+        with _superuser_connection(settings.LICENSE_DB) as conn:
+
+            for license_link in license_links:
+                license_id = license_link.license_id
+                res = conn.find_license_by_id(license_id)
+
+                License = namedtuple(
+                'License',
+                ['license_id', 'license_name', 'pii_def', 'pii_anonymized', 'pii_removed'])
+                
+                tuple_license = License(*res)
+
+                licenses.append(tuple_license)
+
+        return licenses
+
+    @staticmethod
     def create_license(license_name, pii_def, pii_anonymized, pii_removed):
-        print "we got to create"
         '''
         Creates a new license in the license table. 
         '''
@@ -216,7 +230,6 @@ class LicenseManager:
 
     @staticmethod
     def create_license_link(repo_base, repo, license_id):
-        print "we got to create link"
         '''
         Creates a new license in the license table. 
         '''  
@@ -237,7 +250,6 @@ class LicenseManager:
         with _superuser_connection(settings.LICENSE_DB) as conn:
              res = conn.find_license_links(license_id)
 
-        print "res from find_ license _links: ", res
         # convert this to a named tuple for easier handling
         tuple_license_links = []
         for license_link in res:
@@ -260,7 +272,6 @@ class LicenseManager:
         with _superuser_connection(settings.LICENSE_DB) as conn:
              res = conn.find_license_links_by_repo(repo_base, repo)
 
-        print "res from find_ license _links repo: ", res
         # convert this to a named tuple for easier handling
         tuple_license_links = []
         for license_link in res:

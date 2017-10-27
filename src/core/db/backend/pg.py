@@ -992,7 +992,7 @@ class PGBackend:
         self._validate_table_name(table)
         self._check_for_injections(public_role)
 
-        query = ('CREATE TABLE IF NOT EXISTS %s.%s'
+        query = ('DROP TABLE %s.%s; CREATE TABLE IF NOT EXISTS %s.%s'
                  '('
                  'license_id serial primary key,'
                  'license_name VARCHAR(40),'
@@ -1000,7 +1000,7 @@ class PGBackend:
                  'pii_removed boolean NOT NULL,'
                  'pii_anonymized boolean NOT NULL'
                  ');')
-        params = (AsIs(schema), AsIs(table))
+        params = (AsIs(schema), AsIs(table), AsIs(schema), AsIs(table))
         print "about to execute"
         self.execute_sql(query, params)
 
@@ -1088,6 +1088,19 @@ class PGBackend:
         # escaped in RLS methods executed by the superuser, so there's not a
         # really a risk of a user acquiring root access.
 
+        # check if link already exists
+
+        print "create license link"
+        query = ('SELECT license_link_id, repo_base, repo, license_id '
+                 'FROM %s.%s where repo_base = %s and repo = %s and license_id = %s;')
+        params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_LINK_TABLE), repo_base, repo, license_id)
+        res = self.execute_sql(query, params)
+        
+        print "got right here"
+        if res['tuples']:
+            return res['status']
+            
+
 
         query = ('INSERT INTO dh_public.license_link (repo_base, repo, license_id)'
                  'values (%s, %s, %s)')
@@ -1098,10 +1111,10 @@ class PGBackend:
         return res['status']
 
     def find_license_links(self, license_id):
-#         '''
-#         Returns the security policy that has a policy_id matching the input
-#         specified by the user.
-#         '''
+        '''
+        Returns the security policy that has a policy_id matching the input
+        specified by the user.
+        '''
         query = ('SELECT license_link_id, repo_base, repo, license_id '
                  'FROM %s.%s ;')
         params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_LINK_TABLE))
@@ -1114,10 +1127,10 @@ class PGBackend:
         return res['tuples']
 
     def find_license_links_by_repo(self, repo_base, repo):
-#         '''
-#         Returns the security policy that has a policy_id matching the input
-#         specified by the user.
-#         '''
+        '''
+        Returns the security policy that has a policy_id matching the input
+        specified by the user.
+        '''
         query = ('SELECT license_link_id, repo_base, repo, license_id '
                  'FROM %s.%s where repo_base = %s and repo = %s;')
         params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_LINK_TABLE), repo_base, repo)
@@ -1128,26 +1141,6 @@ class PGBackend:
 
         # else, return the policy
         return res['tuples']
-    
-    def create_license(self, repo_base, repo, license_id):
-        '''
-        Creates a new license
-        '''
-
-        # disallow semicolons in policy. This helps prevent the policy creator
-        # from shooting themself in the foot with an attempted sql injection.
-        # Note that we don't actually _need_ to do this. The parameters are all
-        # escaped in RLS methods executed by the superuser, so there's not a
-        # really a risk of a user acquiring root access.
-
-        print "got to pg create license link"
-        query = ('INSERT INTO dh_public.license_link (repo_base, repo, license_id)'
-                 'values (%s, %s, %s)')
-        params = (repo_base, repo, license_id)
-
-        res = self.execute_sql(query, params)
-
-        return res['status']
 
     def find_licenses(self):
         '''
@@ -1169,10 +1162,8 @@ class PGBackend:
         query = ('SELECT license_id, license_name, pii_def, pii_anonymized, pii_removed '
                  'FROM %s.%s where license_id= %s;')
         params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_TABLE), license_id)
-        print "got to this other part"
         res = self.execute_sql(query, params)
 
-        print "res: ", res
         # return None if the list is empty
         if not res['tuples']:
             return None

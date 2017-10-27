@@ -43,7 +43,7 @@
       </tr>
     </thead>
     <tbody>
-    {% for license in licenses %}
+    {% for license in repo_licenses %}
        <tr>
         <td>{{license.license_name}}</td>
         <td><p class="alert alert-danger">Not Applied to All Tables <span style="float:right;"class="glyphicon glyphicon-remove"></p></span></td>
@@ -126,7 +126,7 @@
           </thead>
 
           <tbody>
-            {% for license in licenses %}
+            {% for license in all_licenses %}
             License: {{license.license_name}} {{license.pii_def}}
             <tr id="license_{{license.license_id}}">
               {% for cell in license %}

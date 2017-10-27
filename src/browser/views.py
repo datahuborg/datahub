@@ -415,14 +415,14 @@ def repo_licenses(request, repo_base, repo):
 
     collaborators = [c for c in collaborators if c['username']
                      not in ['', username, settings.PUBLIC_ROLE]]
-    licenses = LicenseManager.find_licenses()
-
+    repo_licenses = LicenseManager.find_licenses_by_repo(repo_base, repo)
+    all_licenses = LicenseManager.find_licenses()
     #license = LicenseManager.find_license_by_id(license_id)
 
-    license_links = LicenseManager.find_license_links_by_repo(repo_base, repo)
+    #license_links = LicenseManager.find_license_links_by_repo(repo_base, repo)
 
-    print "license links: ", license_links
 
+    #print "license links: ", license_links
 
 
     res = {
@@ -430,7 +430,8 @@ def repo_licenses(request, repo_base, repo):
         'repo_base': repo_base,
         'repo': repo,
         'collaborators': collaborators,
-        'licenses': licenses,
+        'repo_licenses': repo_licenses,
+        'all_licenses': all_licenses,
         'public_role': public_role,
         'repo_is_public': repo_is_public}
     res.update(csrf(request))
@@ -500,20 +501,19 @@ def link_license(request, repo_base, repo, license_id):
 
     collaborators = [c for c in collaborators if c['username']
                      not in ['', username, settings.PUBLIC_ROLE]]
-    licenses = LicenseManager.find_licenses()
-    license_links = LicenseManager.find_license_links(license_id)
-
-    print "licenses: ", licenses
-    print "license links: ", license_links
 
     LicenseManager.create_license_link(repo_base, repo, license_id)
     
+    repo_licenses = LicenseManager.find_licenses_by_repo(repo_base, repo)
+    all_licenses = LicenseManager.find_licenses()
+
     res = {
         'login': username,
         'repo_base': repo_base,
         'repo': repo,
         'collaborators': collaborators,
-        'licenses': licenses,
+        'repo_licenses': repo_licenses,
+        'all_licenses': all_licenses,
         'public_role': public_role,
         'repo_is_public': repo_is_public}
     res.update(csrf(request))
@@ -582,7 +582,6 @@ def license_create(request):
                 pii_removed=pii_removed)
 
         except Exception as e:
-            print "we have trouble here"
             return HttpResponse(
                 json.dumps(
                     {'error': str(e)}),
