@@ -43,11 +43,11 @@
       </span>
     </div>
 
-    {% if base_tables and base_tables|length > 0 %}
+    {% if table_info_tuples and table_info_tuples|length > 0 %}
       <div class="table-responsive">
         <table class="table">
           <tbody>
-            {% for base_table in base_tables %}
+            {% for base_table, license_applied in table_info_tuples %}
             <tr>
               <td>
                 <a href="/browse/{{repo_base}}/{{repo}}/table/{{base_table}}">{{base_table}}</a>
@@ -56,9 +56,17 @@
               <td class="text-right">
 
                 {% if login == repo_base %}
-               <p class="alert alert-danger" style="display:inline-block; width:400px; float:right;" id="{{base_table}}AlertDanger""> License not applied <span style="display:inline-block;" class="glyphicon glyphicon-remove"></p>
+                {% if license_applied %}
 
-               <p class="alert alert-success" style="display: none; width:400px; float:right;" id="{{base_table}}AlertSuccess""> License applied <span class="glyphicon glyphicon-ok"/></p>
+                <p class="alert alert-success" style="display: inline-block; width:400px; float:right;" id="{{base_table}}AlertSuccess""> License applied <span class="glyphicon glyphicon-ok"/></p>
+
+                {% else %}
+
+                <p class="alert alert-danger" style="display:inline-block; width:400px; float:right;" id="{{base_table}}AlertDanger""> License not applied <span style="display:inline-block;" class="glyphicon glyphicon-remove"></p>
+                {% endif %}
+               
+
+               
               </td>
               <td style="width:10%;">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#removePIIModal{{base_table}}" style="dispaly:inline-block; margin-top:11px;"> Apply To Table </button>
@@ -71,8 +79,16 @@
                     
                     <div class="modal-body">
                     <h4> Data Preview </h4>
+                    {% if license.pii_removed %}
                     <h5> Please remove all PII according to {{license.pii_def}} standards </h5>
+
+                    {% else %}
+
+                    <h5> Please anonymimze all PII according to {{license.pii_def}} standards </h5>
+
+                    {% endif %}
                       <div id="dataViewDiv{{base_table}}"></div>
+                 
                     </div>
                     <div class="modal-footer">
                       <button type="button"
@@ -88,12 +104,13 @@
 
                     <!-- Modal content-->
                     <div class="modal-content">
-                      <div class="modal-header">
+                    {% if license.pii_removed %}
+                    <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title" id="changeModalHeader">Edit Column</h4>
+                        <h4 class="modal-title" id="changeModalHeader">Remove Column</h4>
                       </div>
                       <div class="modal-body">
-                        <p>Edit column: </p>
+                        <h5>Column: </h5>
                         <div id="modalColumnName-{{base_table}}" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
                         <button type="button"
                         class="btn btn-primary" id="removeColumnBtn-{{base_table}}">Remove column</button>
@@ -101,6 +118,26 @@
                       <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                       </div>
+
+                    {% else %}
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title" id="changeModalHeader">Anonymize Column via MD5 Hash</h4>
+                      </div>
+                      <div class="modal-body">
+                        <h5>Column: </h5>
+                        <div id="modalColumnName-{{base_table}}" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
+                        <button type="button"
+                        class="btn btn-primary" id="removeColumnBtn-{{base_table}}">Anonymize Column</button>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      </div>
+
+                    {% endif %}
+
+                      
                     </div>
                   </div>
                 </div>
@@ -232,7 +269,7 @@
                     });
 
                     $(document).on("click", "#removeChangePIIEnterbtn{{base_table}}", function(e) {
-                     console.log('url: ' +'/licenses/{{repo_base}}/{{repo}}/{{base_table}}/create/' )
+                     console.log('url: ' +'/licenses/{{repo_base}}/{{repo}}/{{base_table}}/{{license.license_id}}/create/' )
                     console.log("cols to remove: ");
                     console.log(colsToRemove);
 
@@ -250,7 +287,7 @@
                       //   console.log(data)
                       // });
                       $.ajax({
-                        url: '/licenses/{{repo_base}}/{{repo}}/{{base_table}}/1/create/',
+                        url: '/licenses/{{repo_base}}/{{repo}}/{{base_table}}/{{license.license_id}}/create/',
                         type: 'POST',
                         data: {
                             'removed_columns':  colsToRemove
@@ -280,10 +317,10 @@
               <th style="background-color:#f5f5f5;"></th>
             </tr> -->
 
-            {% for view in views %}
+            {% for license_view in license_views %}
             <tr>
               <td>
-                <a href="/browse/{{repo_base}}/{{repo}}/table/{{view}}">{{view}}</a>
+                <a href="/browse/{{repo_base}}/{{repo}}/table/{{license_view}}">{{license_view}}</a>
               </td>
 
               <td class="text-right">
@@ -291,9 +328,9 @@
                     class="modal-link modal-confirm-dialog"
                     target-modal="#confirm-modal"
                     target-modal-title="Confirm CSV Export"
-                    target-modal-body="This will export the view <strong><em>{{view}}</em></strong> to a CSV file named <strong><em>{{view}}.csv</em></strong> inside the <strong><em>{{repo_base}}/{{repo}}</em></strong> repository. The operation will overwrite any existing file with the same name. Are you sure?"
+                    target-modal-body="This will export the view <strong><em>{{license_view}}</em></strong> to a CSV file named <strong><em>{{license_view}}.csv</em></strong> inside the <strong><em>{{repo_base}}/{{repo}}</em></strong> repository. The operation will overwrite any existing file with the same name. Are you sure?"
                     target-modal-operation="Export"
-                    target-url="/export/{{repo_base}}/{{repo}}/table/{{view}}"
+                    target-url="/export/{{repo_base}}/{{repo}}/table/{{license_view}}"
                     title="CSV Export">
                   <span class="csv-icon"></span>
                 </span>&nbsp;&nbsp;
@@ -302,9 +339,9 @@
                     class="modal-link modal-confirm-dialog"
                     target-modal="#confirm-modal"
                     target-modal-title="Confirm Delete"
-                    target-modal-body="This will permanently delete the view <strong><em>{{view}}</em></strong> from the repository <strong><em>{{repo_base}}/{{repo}}</em></strong>. The operation can't be undone. Are you sure?"
+                    target-modal-body="This will permanently delete the view <strong><em>{{license_view}}</em></strong> from the repository <strong><em>{{repo_base}}/{{repo}}</em></strong>. The operation can't be undone. Are you sure?"
                     target-modal-operation="Delete"
-                    target-url="/delete/{{repo_base}}/{{repo}}/view/{{view}}"
+                    target-url="/delete/{{repo_base}}/{{repo}}/view/{{license_view}}"
                     title="Delete">
                   <span class="delete-icon"></span>
                 </span>&nbsp;&nbsp;
@@ -341,7 +378,7 @@
 </ul>
 <div class="highlight">
         <h4>Add Collaborators</h4>
-        <form class="form-group" role="form" method="POST" action="/collaborator/repo/{{repo_base}}/{{repo}}/{license_id}/add">
+        <form class="form-group" role="form" method="POST" action="/collaborator/repo/{{repo_base}}/{{repo}}/{{license_id}}/add">
             {% csrf_token %}
             <div class="form-group">
                 <input type="text" class="form-control" name="collaborator_username" id="collaborator_username" placeholder="Username" />

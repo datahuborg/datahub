@@ -25,14 +25,14 @@
   <hr />
   <br />
 
-<p class="lead">Manage Repository Licenses</p>
+<p class="lead">Manage Repository Licenses </p>
 
 <form action="{% url 'license_create' %}">
-  <button type="submit" title="Create a License"  class="btn btn-primary" style="margin:20px;"> Create New License</button>
+  <button type="submit" title="Create a License"  class="btn btn-primary" style="margin:10px;"> Create New License</button>
           </form>
 
 <div><button type="button"
-    class="btn btn-primary" data-toggle="modal" data-target="#newLicenseModal">Add Existing License</button></div>
+    class="btn btn-primary" data-toggle="modal" data-target="#newLicenseModal" style="margin:10px;"">Add Existing License</button></div>
 
 <table class="table table-striped" style="margin-top:20px;">
     <thead>
@@ -43,10 +43,20 @@
       </tr>
     </thead>
     <tbody>
-    {% for license in repo_licenses %}
+    {% for license, license_applied_all in license_info_tuples %}
        <tr>
         <td>{{license.license_name}}</td>
-        <td><p class="alert alert-danger">Not Applied to All Tables <span style="float:right;"class="glyphicon glyphicon-remove"></p></span></td>
+        <td><!-- <p class="alert alert-danger">Not Applied to All Tables <span style="float:right;"class="glyphicon glyphicon-remove"></p></span> -->
+          {% if license_applied_all %}
+
+                <p class="alert alert-success" style="display: inline-block; width:400px; float:right;" id="{{base_table}}AlertSuccess""> License Applied To All Tables<span class="glyphicon glyphicon-ok"/></p>
+
+                {% else %}
+
+                <p class="alert alert-danger" style="display:inline-block; width:400px; float:right;" id="{{base_table}}AlertDanger""> License Not Applied To All Tables<span style="display:inline-block;" class="glyphicon glyphicon-remove"></p>
+                {% endif %}
+
+        </td>
         <td><a type="button" href="/licenses/{{repo_base}}/{{repo}}/{{license.license_id}}/manage" class="btn btn-primary" style="margin-top:12px; margin-left:50px;"> Manage </a></td>
       </tr>
     {% endfor %}
@@ -120,8 +130,9 @@
               <th> License ID </th>
               <th> Name </th>
               <th> PII Def </th>
-              <th> PII Removed </th>
               <th> PII Anonymized </th>
+              <th> PII Removed </th>
+              <th> Link To Repo </th>
             </tr>
           </thead>
 
@@ -234,19 +245,19 @@
                     <h4>Privacy</h4>
                     <div class="checkbox disabled">
                           <label>
-                            <input type="checkbox" value="">
+                            <input name= "pii_properties" type="checkbox" value="">
                             Data Anonymized
                           </label>
                         </div>
                         <div class="checkbox disabled">
                           <label>
-                            <input type="checkbox" value="" >
+                            <input name= "pii_properties" type="checkbox" value="" >
                             PII Anonymized or Removed
                           </label>
                         </div>
                         <div class="checkbox disabled">
                           <label>
-                            <input type="checkbox" value="" >
+                            <input name= "pii_properties" type="checkbox" value="" >
                             PII Anonymized
                           </label>
                         </div>

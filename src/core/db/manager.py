@@ -432,7 +432,7 @@ class DataHubManager:
                     repo=repo,
                     collborator=collaborator,
                     db_privileges=db_privileges,
-                    view="LicenseView{}".format(str(view_id)
+                    view="licenseview{}".format(str(view_id)
                     )
                 )
 
@@ -490,6 +490,7 @@ class DataHubManager:
         return result
 
     def create_license_view(self, repo, table, view_params, license_id):
+        #print "manager create license view method"
         view_sql = self.user_con.get_view_sql(
             repo_base=self.repo_base,
             repo=repo, 
@@ -498,19 +499,35 @@ class DataHubManager:
             license_id=license_id,
             )
 
+        #print "about to try to create"
+        license_id = int(license_id)
 
+        print "license id: ", license_id
+        print "type license id: ", type(license_id)
+        try:
+            # license_view_obj = LicenseView.objects.get(
+            #     license_id=1,
+            #     )
+            license_view_obj, created = LicenseView.objects.get_or_create(
+                repo_base=self.repo_base,
+                repo_name=repo, 
+                table=table,
+                view_sql=view_sql,
+                license_id=license_id,
+                )
+            # print "found lcense view: ", license_view_obj
+            # print "created? ", created
+           
+        except BaseException as  e:
+        #license_views = LicenseView.objects.filter()
+            print "error: ", str(e)
+        
+        print "made/found license views: ", license_view_obj
 
-        # license_view_obj, created = LicenseView.objects.get_or_create(
-        #     repo_base=self.repo_base,
-        #     repo_name=repo, 
-        #     table=table,
-        #     view_sql=view_sql,
-        #     license_id=license_id,
-        #     )
-
+        # print "manage created license view: ", license_view_obj
 
         #print('manager create license view')
-
+        print "should at least get here"
         
         #license_view_obj.save()
 
@@ -601,8 +618,46 @@ class DataHubManager:
         """
             returns a list of license id's
         """
-        views = LicenseViews.objects.filter(repo_base=self.repo_base, repo_name=repo, id = license_id)
-        return views
+        print "manager filtering on repo: ", repo, " repo base: ",self.repo_base, " license id: ", license_id
+        license_views = LicenseView.objects.filter(
+            repo_base=self.repo_base,
+            repo_name=repo,
+            license_id=int(license_id))
+        print "manager license views: ", license_views
+        #print "manager all license views: ", LicenseView.objects.filter()
+        license_view_names = []
+        for license_view in license_views: 
+            license_view_name = license_view.table +"_license_view_"+str(license_view.license_id)
+            license_view_names.append(license_view_name)
+        return license_view_names
+
+    def check_license_applied(self, table, repo, license_id):
+        """
+            Check if a license view exists for a particular repo and license_id
+        """
+        views = LicenseView.objects.filter(
+            table=table,
+            repo_base=self.repo_base, 
+            repo_name=repo, 
+            license_id = license_id)
+
+        if len(views) ==0:
+            return False
+        return True
+
+    def check_license_applied_all(self, repo, license_id):
+        """
+            Check if a license view exists for a particular repo and license_id
+        """
+        for table in self.list_tables(repo):
+            views = LicenseView.objects.filter(
+                table=table,
+                repo_base=self.repo_base, 
+                repo_name=repo, 
+                license_id = license_id)
+            if len(views) ==0:
+                return False
+        return True
 
     def save_file(self, repo, data_file):
         """

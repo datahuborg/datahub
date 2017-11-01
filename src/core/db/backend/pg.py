@@ -279,7 +279,9 @@ class PGBackend:
 
     def create_license_view(self, repo_base, repo, table, view_sql, license_id):
 
-        res = self.create_view(repo, "LICENSEVIEW" +str(license_id), view_sql)
+        view_name = table.lower() + "_LICENSE_VIEW_"+str(license_id)
+        print "creating view with name: ", view_name
+        res = self.create_view(repo, view_name, view_sql)
         
         return res
 
@@ -322,11 +324,8 @@ class PGBackend:
         # # else, return the policy
         # license = res['tuples'][0]
 
-        # print "found license: "
-        # print license
  
         license = LicenseManager.find_license_by_id(license_id)
-        print license
 
         #create view based on license
         pii_def = license.pii_def
@@ -345,11 +344,8 @@ class PGBackend:
 
 
         all_columns = set(columns)
-        print('all columns', all_columns)
         removed_columns = set(view_params['removed-columns'])
-        print('removed', removed_columns)
         columns_to_show = list(all_columns - removed_columns)
-        print('columns to show: ', columns_to_show)
         # if columns_to_show < 1:
         #     #error
         #     pass
@@ -977,13 +973,11 @@ class PGBackend:
         schema = settings.LICENSE_SCHEMA
         self._check_for_injections(public_role)
         self._check_for_injections(schema)
-        print 'schema: ', schema
         query = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'
         params = (AsIs(schema), AsIs(public_role))
         return self.execute_sql(query, params)
 
     def create_license_table(self):
-        print "top of create license table"
         schema = settings.LICENSE_SCHEMA
         table = settings.LICENSE_TABLE
         public_role = settings.PUBLIC_ROLE
@@ -1001,7 +995,6 @@ class PGBackend:
                  'pii_anonymized boolean NOT NULL'
                  ');')
         params = (AsIs(schema), AsIs(table), AsIs(schema), AsIs(table))
-        print "about to execute"
         self.execute_sql(query, params)
 
 
@@ -1090,13 +1083,11 @@ class PGBackend:
 
         # check if link already exists
 
-        print "create license link"
         query = ('SELECT license_link_id, repo_base, repo, license_id '
                  'FROM %s.%s where repo_base = %s and repo = %s and license_id = %s;')
         params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_LINK_TABLE), repo_base, repo, license_id)
         res = self.execute_sql(query, params)
         
-        print "got right here"
         if res['tuples']:
             return res['status']
             
