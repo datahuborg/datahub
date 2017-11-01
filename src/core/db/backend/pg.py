@@ -280,9 +280,18 @@ class PGBackend:
     def create_license_view(self, repo_base, repo, table, view_sql, license_id):
 
         view_name = table.lower() + "_LICENSE_VIEW_"+str(license_id)
-        print "creating view with name: ", view_name
         res = self.create_view(repo, view_name, view_sql)
         
+        return res
+
+    def delete_license_view(self, repo_base, repo, license_view):
+
+        #view_name = table.lower() + "_LICENSE_VIEW_"+str(license_id)
+        print "pg tyring to delete license view: ", license_view
+        res = self.delete_view(repo, license_view)
+        
+        print "response after deleting view: ", res
+
         return res
 
     def get_view_sql(self, repo_base, repo, table, view_params, license_id):

@@ -269,7 +269,7 @@
                     });
 
                     $(document).on("click", "#removeChangePIIEnterbtn{{base_table}}", function(e) {
-                     console.log('url: ' +'/licenses/{{repo_base}}/{{repo}}/{{base_table}}/{{license.license_id}}/create/' )
+                     console.log('url: ' +'/license_view/{{repo_base}}/{{repo}}/{{base_table}}/{{license.license_id}}/create/' )
                     console.log("cols to remove: ");
                     console.log(colsToRemove);
 
@@ -287,7 +287,7 @@
                       //   console.log(data)
                       // });
                       $.ajax({
-                        url: '/licenses/{{repo_base}}/{{repo}}/{{base_table}}/{{license.license_id}}/create/',
+                        url: '/license_view/{{repo_base}}/{{repo}}/{{base_table}}/{{license.license_id}}/create/',
                         type: 'POST',
                         data: {
                             'removed_columns':  colsToRemove
@@ -317,10 +317,10 @@
               <th style="background-color:#f5f5f5;"></th>
             </tr> -->
 
-            {% for license_view in license_views %}
+            {% for license_view_name, license_view_object in license_views %}
             <tr>
               <td>
-                <a href="/browse/{{repo_base}}/{{repo}}/table/{{license_view}}">{{license_view}}</a>
+                <a href="/browse/{{repo_base}}/{{repo}}/table/{{license_view_name}}">{{license_view_name}}</a>
               </td>
 
               <td class="text-right">
@@ -341,8 +341,8 @@
                     target-modal-title="Confirm Delete"
                     target-modal-body="This will permanently delete the view <strong><em>{{license_view}}</em></strong> from the repository <strong><em>{{repo_base}}/{{repo}}</em></strong>. The operation can't be undone. Are you sure?"
                     target-modal-operation="Delete"
-                    target-url="/delete/{{repo_base}}/{{repo}}/view/{{license_view}}"
-                    title="Delete">
+                    target-url="/license_view/{{repo_base}}/{{repo}}/{{license_view_object.table}}/{{license_view_name}}/{{license_view_object.license_id}}/delete"
+                    title="Delete LicenseView">
                   <span class="delete-icon"></span>
                 </span>&nbsp;&nbsp;
               </td>

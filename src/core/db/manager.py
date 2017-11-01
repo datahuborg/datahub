@@ -543,6 +543,33 @@ class DataHubManager:
             )
         return True
 
+    def delete_license_view(self, repo, table, license_view, license_id):
+        try:
+
+            license_views = LicenseView.objects.filter()
+
+            print "all license views: ", license_views
+            license_view_obj= LicenseView.objects.filter(
+                repo_base=self.repo_base,
+                repo_name=repo, 
+                table=table,
+                license_id=license_id)
+
+            print "found any ? ", license_view_obj
+            
+            if len(license_view_obj) == 1:
+                license_view_obj[0].delete()
+
+        except BaseException as  e:
+            print "error: ", str(e)
+
+        print "manager trying to delete actual view"
+        res = self.user_con.delete_license_view(
+            repo_base=self.repo_base,
+            repo=repo,
+            license_view=license_view)
+        return True
+
 
     def list_repo_files(self, repo):
         """
@@ -616,20 +643,18 @@ class DataHubManager:
 
     def list_license_views(self, repo, license_id):
         """
-            returns a list of license id's
+            returns a tuple of a list of license view name and respective LicenseView objects
         """
         print "manager filtering on repo: ", repo, " repo base: ",self.repo_base, " license id: ", license_id
         license_views = LicenseView.objects.filter(
             repo_base=self.repo_base,
             repo_name=repo,
             license_id=int(license_id))
-        print "manager license views: ", license_views
-        #print "manager all license views: ", LicenseView.objects.filter()
         license_view_names = []
         for license_view in license_views: 
             license_view_name = license_view.table +"_license_view_"+str(license_view.license_id)
             license_view_names.append(license_view_name)
-        return license_view_names
+        return [ (license_view_names[i], license_views[i]) for i in range(len(license_view_names))]
 
     def check_license_applied(self, table, repo, license_id):
         """

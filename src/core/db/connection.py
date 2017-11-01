@@ -55,6 +55,11 @@ class DataHubConnection:
             view_sql=view_sql,
             license_id=license_id)
 
+    def delete_license_view(self, repo_base, repo, license_view):
+        return self.backend.delete_license_view(
+            repo_base=repo_base,
+            repo=repo,
+            license_view=license_view)
 
     def get_view_sql(self, repo_base, repo, table, view_params, license_id):
         return self.backend.get_view_sql(

@@ -708,6 +708,47 @@ def license_view_create(request, repo_base, repo, table, license_id):
 
         return render_to_response("license-create.html", res)
 
+@csrf_exempt
+@login_required
+def license_view_delete(request, repo_base, repo, table, license_view, license_id):
+    '''
+    Deletes license view for table and given license_id
+    '''
+
+    print "in delete view "
+    username = request.user.get_username()
+    public_role = settings.PUBLIC_ROLE
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo)
+
+    # if the public role is in collaborators, note that it's already added
+    repo_is_public = next(
+        (True for c in collaborators if
+            c['username'] == settings.PUBLIC_ROLE), False)
+
+    # remove the current user, public user from the collaborator list
+    # collaborators = [c.get('username') for c in collaborators]
+    if username != repo_base:
+        message = (
+            'Error: Permission Denied. '
+            '%s cannot create new licenses in %s.'
+            % (username, repo_base)
+        )
+        return HttpResponseForbidden(message)
+
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        print "about to delete license view: ", license_view
+        manager.delete_license_view(
+            repo=repo,
+            table=table,
+            license_view=license_view,
+            license_id=license_id)
+
+
+    print "finished deleting license view"
+    return HttpResponseRedirect(reverse('browser-repo_licenses', args=(repo_base, repo)))
 
 
 @login_required
