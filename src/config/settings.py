@@ -54,9 +54,9 @@ LICENSE_DB = PUBLIC_ROLE
 LICENSE_SCHEMA = PUBLIC_ROLE
 LICENSE_TABLE = 'license'
 
-#
+# License Links: License -> repo
 LICENSE_LINK_SCHEMA = PUBLIC_ROLE
-LICENSE_LINK_TABLE='license_link'
+LICENSE_LINK_TABLE = 'license_link'
 
 # RowLevelSecurity string to mean all users
 RLS_ALL = 'ALL'

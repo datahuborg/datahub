@@ -280,27 +280,6 @@ def repo_files(request, repo_base, repo):
     res.update(csrf(request))
     return render_to_response("repo-browse-files.html", res)
 
-def repo_test(request, repo_base, repo):
-    '''
-    shows thee files in a repo
-    '''
-    username = request.user.get_username()
-    if repo_base.lower() == 'user':
-        repo_base = username
-
-    with DataHubManager(user=username, repo_base=repo_base) as manager:
-        uploaded_files = manager.list_repo_files(repo)
-
-    res = {
-        'login': username,
-        'repo_base': repo_base,
-        'repo': repo,
-        'files': uploaded_files}
-
-    res.update(csrf(request))
-    return render_to_response("repo-browse-files.html", res)
-
-
 
 def repo_cards(request, repo_base, repo):
     '''
@@ -397,7 +376,7 @@ def repo_settings(request, repo_base, repo):
 @login_required
 def repo_licenses(request, repo_base, repo):
     '''
-    returns the settings page for a repo.
+    returns the licenses linked to a particular repo.
     '''
     username = request.user.get_username()
     public_role = settings.PUBLIC_ROLE
@@ -405,15 +384,12 @@ def repo_licenses(request, repo_base, repo):
     repo_licenses = LicenseManager.find_licenses_by_repo(repo_base, repo)
     all_licenses = LicenseManager.find_licenses()
 
-    print "all licenses: ", all_licenses
-
     license_applied = []
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         collaborators = manager.list_collaborators(repo)
         for license in repo_licenses:
-            
-            license_applied.append(manager.check_license_applied_all(repo, license.license_id))
-
+            all_applied = manager.license_applied_all(repo, license.license_id)
+            license_applied.append(all_applied)
 
     # if the public role is in collaborators, note that it's already added
     repo_is_public = next(
@@ -426,8 +402,10 @@ def repo_licenses(request, repo_base, repo):
     collaborators = [c for c in collaborators if c['username']
                      not in ['', username, settings.PUBLIC_ROLE]]
 
-    
-    license_info_tuples = [(repo_licenses[i], license_applied[i]) for i in range(len(repo_licenses))]
+    license_info_tuples = []
+    for i in range(len(repo_licenses)):
+        license_info_tuples.append((repo_licenses[i], license_applied[i]))
+
     res = {
         'login': username,
         'repo_base': repo_base,
@@ -442,32 +420,33 @@ def repo_licenses(request, repo_base, repo):
 
     return render_to_response("repo-licenses.html", res)
 
+
 @login_required
 def repo_license_manage(request, repo_base, repo, license_id):
     '''
-    shows the tables and views under a repo.
+    shows all the tables for a repo,
+    and checks if the given license is applied to each one
     '''
     username = request.user.get_username()
     if repo_base.lower() == 'user':
         repo_base = username
 
     license_applied = []
-    # get the base tables and views of the user's repo
     license_views = []
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         collaborators = manager.list_collaborators(repo, -1)
-        #collaborators = None
+        # collaborators = None
         base_tables = manager.list_tables(repo)
         license_views = manager.list_license_views(repo, license_id)
         print "views, license_views: ", license_views
         for table in base_tables:
-         #check if license view exists for this license_id
-            license_applied.append(manager.check_license_applied(table, repo, license_id))
-
+            # check if license view exists for this license_id
+            applied = manager.check_license_applied(table, repo, license_id)
+            license_applied.append(applied)
 
     license = LicenseManager.find_license_by_id(license_id)
-    
-    table_info_tuples = [(x,y) for x in base_tables for y in license_applied]
+
+    table_info_tuples = [(x, y) for x in base_tables for y in license_applied]
 
     rls_table = 'policy'
 
@@ -486,11 +465,12 @@ def repo_license_manage(request, repo_base, repo, license_id):
 
     return render_to_response("repo-license-manage.html", res)
 
+
 @csrf_exempt
 @login_required
 def link_license(request, repo_base, repo, license_id):
     '''
-    returns the settings page for a repo.
+    links a license with a particular repo
     '''
     username = request.user.get_username()
     public_role = settings.PUBLIC_ROLE
@@ -510,69 +490,38 @@ def link_license(request, repo_base, repo, license_id):
                      not in ['', username, settings.PUBLIC_ROLE]]
 
     LicenseManager.create_license_link(repo_base, repo, license_id)
-    
+
     repo_licenses = LicenseManager.find_licenses_by_repo(repo_base, repo)
     all_licenses = LicenseManager.find_licenses()
 
-    return HttpResponseRedirect(reverse('browser-repo_licenses', args=(repo_base, repo)))
+    return HttpResponseRedirect(reverse('browser-repo_licenses',
+                                args=(repo_base, repo)))
+
 
 @csrf_exempt
 @login_required
 def license_create(request):
-    '''
-    returns the settings page for a repo.
-    '''
     username = request.user.get_username()
     public_role = settings.PUBLIC_ROLE
 
-    # with DataHubManager(user=username, repo_base=repo_base) as manager:
-    #     collaborators = manager.list_collaborators(repo)
-
-    # if the public role is in collaborators, note that it's already added
-    # repo_is_public = next(
-    #     (True for c in collaborators if
-    #         c['username'] == settings.PUBLIC_ROLE), False)
-
-    # remove the current user, public user from the collaborator list
-    # collaborators = [c.get('username') for c in collaborators]
-    # if username != repo_base:
-    #     message = (
-    #         'Error: Permission Denied. '
-    #         '%s cannot create new licenses in %s.'
-    #         % (username, repo_base)
-    #     )
-    #     return HttpResponseForbidden(message)
-
     if request.method == 'POST':
-        #create license
-        # removed_columns = request.POST.getlist('removed_columns')
-        # with DataHubManager(user=username, repo_base=repo_base) as manager:
-
-        #     manager.create_license(
-        #         repo, collaborator_username,
-        #         view_parameters = sql_parameters
-        #     )
-
+        # creates a new license
         try:
             pii_def = None
             pii_anonymized = False
             pii_removed = False
-            #project_name = ""
+            # project_name = ""
 
             license_name = request.POST['license_name']
-            #roject_name = request.POST['project_name']
+            # project_name = request.POST['project_name']
             pii_def = request.POST['pii_def']
             if 'anonymized' in request.POST.getlist('pii_properties'):
                 pii_anonymized = True
             if 'removed' in request.POST.getlist('pii_properties'):
                 pii_removed = True
 
-            print "post: ", request.POST
-
-            print "post list: ", request.POST.getlist('pii_properties')
-            
             LicenseManager.create_license(
-                license_name=license_name, 
+                license_name=license_name,
                 pii_def=pii_def,
                 pii_anonymized=pii_anonymized,
                 pii_removed=pii_removed)
@@ -583,25 +532,9 @@ def license_create(request):
                     {'error': str(e)}),
                 content_type="application/json")
         return HttpResponseRedirect(reverse('browser-user', args=(username,)))
-        #return HttpResponseRedirect(reverse('browser-repo_license_manage', args=(repo_base, repo, license_id)))
-
 
     elif request.method == 'GET':
-        # with DataHubManager(user=username, repo_base=repo_base) as manager:
-        #     base_tables = manager.list_tables(repo)
-        #     views = manager.list_views(repo)
-
-
-
-        # collaborators = [c for c in collaborators if c['username']
-        #                  not in ['', username, settings.PUBLIC_ROLE]]
-
-        # res = {
-        #     'login': username,
-        #     'collaborators': collaborators,
-        #     'public_role': public_role,
-        #     'repo_is_public': repo_is_public}
-
+        # returns page for creating a license
         res = {
             'login': username,
             'public_role': public_role,
@@ -610,42 +543,13 @@ def license_create(request):
 
         return render_to_response("license-create.html", res)
 
-@login_required
-def browse_licenses(request):
-    '''
-    Shows the security policies defined for a table.
-    '''
-    username = request.user.get_username()
-
-    # get the security policies on a given repo.table
-    try:
-        licenses = LicenseManager.find_licenses()
-    except LookupError:
-        licenses = []
-
-    # repack the named tuples. This is a bit of a hack, (since we could just
-    # get the view to display named tuples)
-    # but is happening for expediency
-    licenses = [(p.license_name, p.pii_def, p.pii_anonymized, p.pii_removed)
-                for p in licenses]
-
-    res = {
-        'login': username,
-  
-        'licenses': licenses}
-
-    res.update(csrf(request))
-    return render_to_response("licenses.html", res)
-
 
 @csrf_exempt
 @login_required
 def license_view_create(request, repo_base, repo, table, license_id):
     '''
-    returns the settings page for a repo
+    creates a new license view for a given table and license_id
     '''
-
-    print "we get a licensee id: ", license_id
     username = request.user.get_username()
     public_role = settings.PUBLIC_ROLE
 
@@ -668,29 +572,21 @@ def license_view_create(request, repo_base, repo, table, license_id):
         return HttpResponseForbidden(message)
 
     if request.method == 'POST':
-
-        #collect parameters that will be used to create the view of the table
+        # collect parameters that will be used to create the view of the table
         removed_columns = request.POST.getlist('removed_columns[]')
         view_params = {}
         view_params['removed-columns'] = removed_columns
         with DataHubManager(user=username, repo_base=repo_base) as manager:
-            print "about to create license view with id: ", license_id
             manager.create_license_view(
-                repo=repo, 
+                repo=repo,
                 table=table,
-                view_params = view_params,
-                license_id=license_id
-            )
-
-            print "returned from create license view"
-
+                view_params=view_params,
+                license_id=license_id)
             # give access to all current collaborators on this license
             # manager.grant_collaborators_access_to_view(
             # )
-
-        print "got past that other stuff"
-        return HttpResponseRedirect(reverse('browser-repo_licenses', args=(repo_base, repo)))
-
+        return HttpResponseRedirect(
+            reverse('browser-repo_licenses', args=(repo_base, repo)))
 
     elif request.method == 'GET':
 
@@ -708,14 +604,14 @@ def license_view_create(request, repo_base, repo, table, license_id):
 
         return render_to_response("license-create.html", res)
 
+
 @csrf_exempt
 @login_required
-def license_view_delete(request, repo_base, repo, table, license_view, license_id):
+def license_view_delete(request, repo_base, repo, table,
+                        license_view, license_id):
     '''
     Deletes license view for table and given license_id
     '''
-
-    print "in delete view "
     username = request.user.get_username()
     public_role = settings.PUBLIC_ROLE
 
@@ -737,18 +633,15 @@ def license_view_delete(request, repo_base, repo, table, license_view, license_i
         )
         return HttpResponseForbidden(message)
 
-
     with DataHubManager(user=username, repo_base=repo_base) as manager:
-        print "about to delete license view: ", license_view
         manager.delete_license_view(
             repo=repo,
             table=table,
             license_view=license_view,
             license_id=license_id)
 
-
-    print "finished deleting license view"
-    return HttpResponseRedirect(reverse('browser-repo_licenses', args=(repo_base, repo)))
+    return HttpResponseRedirect(reverse('browser-repo_licenses',
+                                args=(repo_base, repo)))
 
 
 @login_required
@@ -770,6 +663,7 @@ def repo_collaborators_add(request, repo_base, repo):
 
     return HttpResponseRedirect(
         reverse('browser-repo_settings', args=(repo_base, repo,)))
+
 
 @login_required
 def repo_license_collaborators_add(request, repo_base, repo, license_id):
@@ -808,7 +702,7 @@ def repo_license_collaborators_add(request, repo_base, repo, license_id):
     res.update(csrf(request))
 
     return HttpResponseRedirect(
-        reverse('repo-license-manage.html',res))
+        reverse('repo-license-manage.html', res))
 
 
 @login_required
@@ -885,66 +779,6 @@ def table(request, repo_base, repo, table):
     # use all of the data we prepared. ARC 2016-01-04
     return render_to_response("table-browse.html", data)
 
-@login_required
-def table_license(request, repo_base, repo, table_name):
-    '''
-    return a page indicating how many
-    '''
-    current_page = 1
-    if request.POST.get('page'):
-        current_page = request.POST.get('page')
-
-    username = request.user.get_username()
-    if repo_base.lower() == 'user':
-        repo_base = username
-
-    url_path = reverse('browser-table', args=(repo_base, repo, table_name))
-    
-    #create csv to work with
-
-    username = request.user.get_username()
-    file_name = "test-file-name" #request.GET.get('var_text', table_name)
-    with DataHubManager(user=username, repo_base=repo_base) as manager:
-        manager.export_table(
-            repo=repo, table=table_name, file_name=file_name,
-            file_format='CSV', delimiter=',', header=True)
-
-
-    with DataHubManager(user=username, repo_base=repo_base) as manager:
-        query = manager.select_table_query(repo, table_name)
-
-        res = manager.paginate_query(
-            query=query, current_page=current_page, rows_per_page=50)
-
-    # get annotation to the table:
-    annotation, created = Annotation.objects.get_or_create(url_path=url_path)
-    annotation_text = annotation.annotation_text
-
-    data = {
-        'login': username,
-        'repo_base': repo_base,
-        'repo': repo,
-        'table': table_name,
-        'annotation': annotation_text,
-        'current_page': current_page,
-        'next_page': current_page + 1,  # the template should relaly do this
-        'prev_page': current_page - 1,  # the template should relaly do this
-        'url_path': url_path,
-        'column_names': res['column_names'],
-        'tuples': res['rows'],
-        'total_pages': res['total_pages'],
-        'pages': range(res['start_page'], res['end_page'] + 1),  # template
-        'num_rows': res['num_rows'],
-        'time_cost': res['time_cost']
-    }
-
-    data.update(csrf(request))
-
-    # and then, after everything, hand this off to table-browse. It turns out
-    # that this is all using DataTables anyhow, so the template doesn't really
-    # use all of the data we prepared. ARC 2016-01-04
-    return render_to_response("new-license.html", data)
-
 
 @login_required
 def table_clone(request, repo_base, repo, table):
@@ -956,20 +790,6 @@ def table_clone(request, repo_base, repo, table):
 
     return HttpResponseRedirect(
         reverse('browser-repo_tables', args=(repo_base, repo)))
-
-@login_required
-def table_export_csv(request, repo_base, repo, table_name):
-    username = request.user.get_username()
-    file_name = request.GET.get('var_text', table_name)
-
-    with DataHubManager(user=username, repo_base=repo_base) as manager:
-        manager.export_table(
-            repo=repo, table=table_name, file_name=file_name,
-            file_format='CSV', delimiter=',', header=True)
-
-    return HttpResponseRedirect(
-        reverse('browser-repo_files', args=(repo_base, repo)))
-
 
 
 @login_required
@@ -1077,6 +897,7 @@ def file_delete(request, repo_base, repo, file_name):
 
     return HttpResponseRedirect(
         reverse('browser-repo_files', args=(repo_base, repo)))
+
 
 def file_download(request, repo_base, repo, file_name):
     username = request.user.get_username()

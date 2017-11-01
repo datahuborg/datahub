@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="/static/dataq/css/style.css">
 {% endblock stylesheets %}
 
-
 {% block content %}
 <div class="container">
 
@@ -25,11 +24,9 @@
 
   <h3> Manage License </h3>
   <h2>{{license.license_name}}</h2>
-  <h4>Patient Visitation Statistics </h4> 
 
   <button id="show-details-btn" data-toggle="modal" data-target="#viewLicenseDetailsModal" class="btn btn-primary">View Details </button>
 
-    <!-- Uncomment for sentiment analysis. -->
   <div class="alert alert-success" role="alert" id="alertbox" style="visibility: hidden">
   </div>
   {% block tab-content %}
@@ -64,8 +61,6 @@
 
                 <p class="alert alert-danger" style="display:inline-block; width:400px; float:right;" id="{{base_table}}AlertDanger""> License not applied <span style="display:inline-block;" class="glyphicon glyphicon-remove"></p>
                 {% endif %}
-               
-
                
               </td>
               <td style="width:10%;">
@@ -136,34 +131,30 @@
                       </div>
 
                     {% endif %}
-
                       
                     </div>
                   </div>
                 </div>
                                
                   <script> 
-
                     var colsToRemove = []
-
                     var CSVData = null;
 
                     function updateCSVTable(data) {
                       $('#dataViewDivtest').html('')
 
                       var table = d3.select("#dataViewDivtest")
-                      .append("table").attr("class", "table table-striped table-hover")
+                                  .append("table")
+                                  .attr("class", "table table-striped table-hover");
 
                       var thead = table.append("thead");
                       var tbody = table.append("tbody");
 
+                      // Create headings for update columns table
                       thead.selectAll("tr")
                       .data(data.slice(0,1)).enter()
                       .append("tr")
-
                       .selectAll("th")
-
-
                       .data(function(d) {
                         return d;
                       }).enter()
@@ -173,11 +164,11 @@
                       })
                       .text(function(d) {
                         return d;
-                      }).insert("button").attr("class","piiEditBtn-{{base_table}}");
+                      })
+                      .insert("button")
+                      .attr("class","piiEditBtn-{{base_table}}");
 
-
-
-
+                      // Fill in data for update columns table
                       tbody.selectAll("tr")
                       .data(data.slice(1, data.length)).enter()
                       .append("tr")
@@ -195,7 +186,6 @@
 
                       $(".piiEditBtn-{{base_table}}").text("edit").addClass("btn").addClass("btn-warning").css("display","block");
                     }
-                    //$("table button").text("edit").addClass("btn").addClass("btn-warning")
 
                     var curColName = null;
                     var curColIndex = null;
@@ -230,8 +220,6 @@
 
                      // Load sample table
                     $(document).ready(function() {
-
-                      //url = "/api/v1/repos/{{repo_base}}/{{repo}}/files/test-file-name.CSV"
                       url = "/download/{{repo_base}}/{{repo}}/file/test.csv";
 
                       d3.text(url, function(datasetText) {
@@ -239,7 +227,6 @@
                         updateCSVTable(parsedCSV);
                         CSVData = parsedCSV;
                       });
-                      // licenseInfo();
                     });
 
                     $(document).on("click", ".piiEditBtn-{{base_table}}", function(e) {
@@ -269,30 +256,12 @@
                     });
 
                     $(document).on("click", "#removeChangePIIEnterbtn{{base_table}}", function(e) {
-                     console.log('url: ' +'/license_view/{{repo_base}}/{{repo}}/{{base_table}}/{{license.license_id}}/create/' )
-                    console.log("cols to remove: ");
-                    console.log(colsToRemove);
-
-                      // $.ajax({
-                      //   url: '/download/{{repo_base}}/{{repo}}/file/test.csv',
-                      //   type: 'GET',
-                        
-                      //  })
-                      // .fail(function(xhr, status, error) {
-                      //   // does not error when duplicating existing repo
-                      //   console.log("error " + error)
-                      //    })
-                      // .done(function(data, status, xhr) {
-                      //   console.log("status: " + status)
-                      //   console.log(data)
-                      // });
                       $.ajax({
                         url: '/license_view/{{repo_base}}/{{repo}}/{{base_table}}/{{license.license_id}}/create/',
                         type: 'POST',
                         data: {
                             'removed_columns':  colsToRemove
                           }
-                        
                        })
                       .fail(function(xhr, status, error) {
                         // does not error when duplicating existing repo
@@ -301,21 +270,13 @@
                       .done(function(data, status, xhr) {
                         console.log("status " + status)
                       });
-
                     });          
                   </script>
-
-               
-
               </td>
                 {% endif %}              
 
             </tr>
             {% endfor %}
-            <!-- <tr>
-              <th class="lead" style="background-color:#f5f5f5;">&nbsp; <i class="fa fa-binoculars"></i> Views</th>
-              <th style="background-color:#f5f5f5;"></th>
-            </tr> -->
 
             {% for license_view_name, license_view_object in license_views %}
             <tr>
@@ -434,123 +395,9 @@
             <button class="btn btn-primary btn-xsm" id="add_collaborator" type="submit">Add</button>
         </form>
 </div>
-
-<!-- License Details Modal -->
-<div class="modal fade" id="viewLicenseDetailsModal" role="dialog">
-  <div class="modal-dialog">
-    <!-- Modal content-->
-    <div class="modal-content">
-      
-      <div class="modal-body">
-        <table>
-        <tr>
-            <td class="cell-left">
-                Repository:
-            </td>
-            <td class="cell-right">
-                <strong>{{repo_base}}/{{repo}}</strong>
-            </td>
-        </tr>
-        <tr>
-            <td class="cell-left">
-                Owner:
-            </td>
-            <td class="cell-right">
-                <strong>{{repo_base}}</strong>
-            </td>
-        </tr>
-        <tr>
-            <td class="cell-left">
-                License Name:
-            </td>
-            <td class="cell-right">
-              HIPPA PII Removed
-            </td>
-        </tr>
-        <tr>
-            <td class="cell-left">
-              Project Name:
-            </td>
-            <td class="cell-right">
-              Patient Visitation Statistics
-            </td>
-
-        </tr>
-        <tr>
-            <td>
-                <h4>Privacy and Protection </h4>
-                    <h4> Regulations </h4>
-                        <div class="checkbox">
-                          <label>
-                            <input type="checkbox" value="" checked="checked">
-                            HIPAA
-                          </label>
-                        </div>
-                        <div class="checkbox disabled">
-                          <label>
-                            <input type="checkbox" value="" >
-                            FERPA
-                          </label>
-                        </div>
-                    <h4>Privacy</h4>
-                    <div class="checkbox disabled">
-                          <label>
-                            <input type="checkbox" value="">
-                            Data Anonymized
-                          </label>
-                        </div>
-                        <div class="checkbox disabled">
-                          <label>
-                            <input type="checkbox" value="" >
-                            PII Anonymized or Removed
-                          </label>
-                        </div>
-                        <div class="checkbox disabled">
-                          <label>
-                            <input type="checkbox" value="" >
-                            PII Anonymized
-                          </label>
-                        </div>
-                        <div class="checkbox">
-                          <label>
-                            <input type="checkbox" value="" checked="checked">
-                            PII Removed
-                          </label>
-                        </div>
-                    <h4> Exceptions </h4>
-                    <h4> Reidentification </h4>
-                    <div class="checkbox disabled">
-                          <label>
-                            <input type="checkbox" value="">
-                            Use K-Anonymity
-                          </label>
-                        </div>
-                        <label for="name" class="col-lg-4">K-size</label>
-                        <div class="col-lg-8">
-                          <input type="text" class="form-control" name="name" id="name" placeholder="Bucket Size for K">
-                        </div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-            </td>
-        </tr>
-        </table>
-      </div>
-      <div class="modal-footer">
-        <button type="button"
-        class="btn btn-primary" id="license-info-enter" data-dismiss="modal">Exit</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-
 </div>
 
 {% endblock content %}
-
-
 
 {% block js %}
 <!-- dataq -->
@@ -569,8 +416,6 @@
 <script src="/static/datatables/js/dataTables.extra.js"></script>
 <!-- /dataTables -->
 
-
-
 <script>
 
   String.prototype.hashCode = function() {
@@ -583,7 +428,6 @@
     }
     return hash
   }
-
 </script>
 
 {% endblock js%}

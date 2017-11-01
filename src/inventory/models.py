@@ -102,6 +102,7 @@ class Collaborator(models.Model):
         db_table = "collaborators"
         unique_together = ('repo_name', 'repo_base', 'user', 'app')
 
+
 class LicenseView(models.Model):
     id = models.AutoField(primary_key=True)
     start_date = models.DateTimeField(auto_now=True)
@@ -118,10 +119,13 @@ class LicenseView(models.Model):
         unique_together = ('repo_name', 'repo_base')
 
     def __unicode__(self):
-        return "Base: {base}\n Repo: {repo}\n Table: {table}\n Viewsql: {view_sql}\n LicenseID: {license_id} \n ID: {id}\n".format(
-            base=self.repo_base, 
-            repo=self.repo_name, 
-            table=self.table, 
+        return """
+        Base: {base}\n Repo: {repo}\n Table: {table}\n
+        Viewsql: {view_sql}\n LicenseID: {license_id} \n ID: {id}\n
+        """.format(
+            base=self.repo_base,
+            repo=self.repo_name,
+            table=self.table,
             view_sql=self.view_sql,
             license_id=self.license_id,
             id=self.id)

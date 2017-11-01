@@ -10,7 +10,6 @@ import core.db.query_rewriter
 from psycopg2.extensions import AsIs
 from psycopg2.pool import ThreadedConnectionPool
 from psycopg2 import errorcodes
-from core.db.rlsmanager import RowLevelSecurityManager
 from core.db.licensemanager import LicenseManager
 
 from core.db.errors import PermissionDenied
@@ -202,7 +201,8 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['status']
 
-    def add_collaborator(self, repo, collaborator, db_privileges=[], license_id= None):
+    def add_collaborator(
+            self, repo, collaborator, db_privileges=[], license_id=None):
         # check that all repo names, usernames, and privileges passed aren't
         # sql injections
         self._check_for_injections(repo)
@@ -211,17 +211,17 @@ class PGBackend:
             self._check_for_injections(privilege)
 
         if license_id:
-            query = ('BEGIN;'
-                 'GRANT USAGE ON SCHEMA %s TO %s;'
-                 'COMMIT;'
-                 )
+            query = (
+                    'BEGIN;'
+                    'GRANT USAGE ON SCHEMA %s TO %s;'
+                    'COMMIT;')
             privileges_str = ', '.join(db_privileges)
             params = [repo, collaborator, privileges_str, repo,
                       collaborator, repo, privileges_str, collaborator]
             params = tuple(map(lambda x: AsIs(x), params))
             res = self.execute_sql(query, params)
             return res['status']
-        else: 
+        else:
             query = ('BEGIN;'
                      'GRANT USAGE ON SCHEMA %s TO %s;'
                      'GRANT %s ON ALL TABLES IN SCHEMA %s TO %s;'
@@ -237,14 +237,14 @@ class PGBackend:
             res = self.execute_sql(query, params)
             return res['status']
 
-    def add_collaborator_to_license_view(self, repo, collaborator, view, db_privileges=[]):
+    def add_collaborator_to_license_view(
+            self, repo, collaborator, view, db_privileges=[]):
         # check that all repo names, usernames, and privileges passed aren't
         # sql injections
         self._check_for_injections(repo)
         self._check_for_injections(collaborator)
         for privilege in db_privileges:
             self._check_for_injections(privilege)
-
 
         query = ('BEGIN;'
                  'GRANT %s ON %s.%s TO %s;'
@@ -254,8 +254,11 @@ class PGBackend:
                  )
 
         privileges_str = ', '.join(db_privileges)
-        params = [privileges_str, repo, view, collaborator, 
-                    repo, privileges_str, repo, view, collaborator]
+        params = [
+                privileges_str, repo, view,
+                collaborator, repo, privileges_str,
+                repo, view, collaborator]
+
         params = tuple(map(lambda x: AsIs(x), params))
         res = self.execute_sql(query, params)
         return res['status']
@@ -277,99 +280,53 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['status']
 
-    def create_license_view(self, repo_base, repo, table, view_sql, license_id):
-
-        view_name = table.lower() + "_LICENSE_VIEW_"+str(license_id)
+    def create_license_view(self, repo_base, repo,
+                            table, view_sql, license_id):
+        view_name = table.lower() + "_license_view_"+str(license_id)
         res = self.create_view(repo, view_name, view_sql)
-        
+
         return res
 
     def delete_license_view(self, repo_base, repo, license_view):
-
-        #view_name = table.lower() + "_LICENSE_VIEW_"+str(license_id)
-        print "pg tyring to delete license view: ", license_view
         res = self.delete_view(repo, license_view)
-        
-        print "response after deleting view: ", res
 
         return res
 
     def get_view_sql(self, repo_base, repo, table, view_params, license_id):
-        
-
-        # get all columns, then subtract removed columns from that set
-        
-        # columns_query = ('BEGIN;'
-        #         'SELECT * FROM information_schema.columns'
-        #             'WHERE table_schema = %s'
-        #             'AND table_name = %s'
-        #          'COMMIT;')
-        # params = [repo, table]
-        # params = tuple(map(lambda x: AsIs(x), params))
-
-        # query = ("SELECT * FROM information_schema.columns"
-        #          "WHERE table_schema = %s "
-        #          "AND table_name = %s")
-        # params = (repo, table)
-
-        # columns_res = self.execute_sql(query, params)['tuples']
-
-        #license = get_license_from_id
-
-        #if license.pii_removed:
-        # find corresponding policy
-        # query = ('SELECT license_id, license_name, pii_def, pii_anonymized, pii_removed '
-        #          'FROM dh_public.dh_public.license WHERE license_id = %s')
-        # query = ('SELECT license_name '
-        #           'FROM dh_public.dh_public.license WHERE license_id = %s')
-        #query = ("SELECT * FROM dh_public.policy")
-        # params = (license_id,)
-
-        # # return None if the list is empty
-        # if not res['tuples']:
-        #     print "didn't find any tuples"
-        #     return None
-
-        # # else, return the policy
-        # license = res['tuples'][0]
-
- 
+        # create view based on license
         license = LicenseManager.find_license_by_id(license_id)
 
-        #create view based on license
         pii_def = license.pii_def
 
         if license.pii_removed:
-            pass
-        #remove columns
-        query = ('SELECT column_name FROM information_schema.columns '
-                 'WHERE table_schema = %s'
-                 'AND table_name = %s'
-                 )
-        params = (repo,table)
-        res = self.execute_sql(query, params)
+            # remove columns
+            query = ('SELECT column_name FROM information_schema.columns '
+                     'WHERE table_schema = %s'
+                     'AND table_name = %s'
+                     )
+            params = (repo, table)
+            res = self.execute_sql(query, params)
 
-        columns = [t[0] for t in res['tuples']]
+            columns = [t[0] for t in res['tuples']]
 
+            all_columns = set(columns)
+            removed_columns = set(view_params['removed-columns'])
+            columns_to_show = list(all_columns - removed_columns)
+            # if columns_to_show < 1:
+            #     #error
+            #     pass
 
-        all_columns = set(columns)
-        removed_columns = set(view_params['removed-columns'])
-        columns_to_show = list(all_columns - removed_columns)
-        # if columns_to_show < 1:
-        #     #error
-        #     pass
+            query = 'SELECT {} FROM {}.{}'
 
-        query = 'SELECT {} FROM {}.{}'
+            columns_query = ""
+            for i in range(len(columns_to_show)):
+                columns_query += columns_to_show[i]
+                if i < len(columns_to_show) - 1:
+                    columns_query += ","
 
-        columns_query = ""
-        for i in range(len(columns_to_show)):
-            columns_query += columns_to_show[i]
-            if i < len(columns_to_show) - 1:
-                columns_query += ","
+            query = query.format(columns_query, repo, table)
 
-        query = query.format(columns_query, repo, table)
-    
-        return query
+            return query
 
     def create_table(self, repo, table, params):
         # check for injections
@@ -433,14 +390,21 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['tuples']
 
-    def create_view(self, repo, view_name, sql):
+    def create_view(self, repo, view, sql):
         self._check_for_injections(repo)
-        self._validate_table_name(view_name)
-        query = ('BEGIN; DROP VIEW IF EXISTS %s.%s; CREATE VIEW %s.%s AS (%s); COMMIT;')
+        self._validate_table_name(view)
+        query = (
+                'BEGIN;'
+                'DROP VIEW IF EXISTS %s.%s;'
+                'CREATE VIEW %s.%s AS (%s);'
+                'COMMIT;')
 
-        params = (AsIs(repo), AsIs(view_name), AsIs(repo), AsIs(view_name), AsIs(sql))
+        params = (
+                AsIs(repo), AsIs(view),
+                AsIs(repo), AsIs(view),
+                AsIs(sql))
 
-        res = self.execute_sql(query,params)
+        res = self.execute_sql(query, params)
 
         return res['status']
 
@@ -599,13 +563,10 @@ class PGBackend:
 
         try:
             sql_query = cur.mogrify(query, params)
-            #print('final query: ' + sql_query)
             if self.row_level_security:
                 sql_query = self.query_rewriter.apply_row_level_security(
                     sql_query)
-            #print('actually about to execute')
             cur.execute(sql_query)
-            #print('executed: ' + sql_query)
         except psycopg2.Error as e:
             # Convert some psycopg2 errors into exceptions meaningful to
             # Django.
@@ -620,17 +581,12 @@ class PGBackend:
             pass
 
         result['status'] = True
-        
-
         result['row_count'] = cur.rowcount
-
         if cur.description:
             result['fields'] = [
                 {'name': col[0], 'type': col[1]} for col in cur.description]
 
-
         cur.close()
-
         return result
 
     def user_exists(self, username):
@@ -977,6 +933,7 @@ class PGBackend:
         return import_datafiles([file_path], create_new, table_name, errfile,
                                 PGMethods, **dbsettings)
     # Methods for Licenses
+
     def create_license_schema(self):
         public_role = settings.PUBLIC_ROLE
         schema = settings.LICENSE_SCHEMA
@@ -984,6 +941,7 @@ class PGBackend:
         self._check_for_injections(schema)
         query = 'CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION %s'
         params = (AsIs(schema), AsIs(public_role))
+
         return self.execute_sql(query, params)
 
     def create_license_table(self):
@@ -996,44 +954,18 @@ class PGBackend:
         self._check_for_injections(public_role)
 
         query = ('DROP TABLE %s.%s; CREATE TABLE IF NOT EXISTS %s.%s'
-                 '('
-                 'license_id serial primary key,'
+                 '(license_id serial primary key,'
                  'license_name VARCHAR(40),'
                  'pii_def VARCHAR(100) NOT NULL,'
                  'pii_removed boolean NOT NULL,'
-                 'pii_anonymized boolean NOT NULL'
-                 ');')
+                 'pii_anonymized boolean NOT NULL);')
         params = (AsIs(schema), AsIs(table), AsIs(schema), AsIs(table))
         self.execute_sql(query, params)
-
-
-        # # create indexes for faster seraching
-        # query = ('create index grantee_index on '
-        #          'dh_public.policy using hash(grantee); '
-
-        #          'create index grantor_index on '
-        #          'dh_public.policy using hash(grantor); '
-
-        #          'create index table_name_index on '
-        #          'dh_public.policy using hash(table_name); '
-
-        #          'create index repo_index on '
-        #          'dh_public.policy using hash(repo); '
-
-        #          'create index repo_base_index on '
-        #          'dh_public.policy using hash(repo_base);')
-
-        # # postgres 9.4 doesn't support IF NOT EXISTS when creating indexes
-        # # so it's possible for tests to attempt to create duplicate indexes
-        # # This catches that exception
-        # try:
-        #     self.execute_sql(query)
-        # except:
-        #     pass
 
         # grant the public role access to the table
         query = ('GRANT ALL ON %s.%s to %s;')
         params = (AsIs(schema), AsIs(table), AsIs(public_role))
+
         return self.execute_sql(query, params)
 
     def create_license_link_table(self):
@@ -1045,34 +977,28 @@ class PGBackend:
         self._validate_table_name(table)
         self._check_for_injections(public_role)
 
-        query = ('DROP TABLE %s.%s; CREATE TABLE IF NOT EXISTS %s.%s'
-                 '('
-                 'license_link_id serial primary key,'
-                 'repo_base VARCHAR(40) NOT NULL,'#!!! change to repo_base
+        query = ('DROP TABLE %s.%s; CREATE TABLE IF NOT EXISTS %s.%s '
+                 '(license_link_id serial primary key,'
+                 'repo_base VARCHAR(40) NOT NULL,'
                  'repo VARCHAR(40) NOT NULL,'
-                 'license_id integer NOT NULL'
-                 ');')
-        params = (AsIs(schema), AsIs(table),AsIs(schema), AsIs(table))
+                 'license_id integer NOT NULL);')
+        params = (AsIs(schema), AsIs(table), AsIs(schema), AsIs(table))
         self.execute_sql(query, params)
 
         query = ('GRANT ALL ON %s.%s to %s;')
         params = (AsIs(schema), AsIs(table), AsIs(public_role))
+
         return self.execute_sql(query, params)
 
-    def create_license(self, license_name, pii_def, pii_anonymized, pii_removed):
+    def create_license(
+            self, license_name, pii_def, pii_anonymized, pii_removed):
         '''
         Creates a new license
         '''
-
-        # disallow semicolons in policy. This helps prevent the policy creator
-        # from shooting themself in the foot with an attempted sql injection.
-        # Note that we don't actually _need_ to do this. The parameters are all
-        # escaped in RLS methods executed by the superuser, so there's not a
-        # really a risk of a user acquiring root access.
-
-
-        query = ('INSERT INTO dh_public.license (license_name, pii_def, pii_anonymized, pii_removed)'
-                 'values (%s, %s, %s, %s)')
+        query = (
+                'INSERT INTO dh_public.license '
+                '(license_name, pii_def, pii_anonymized, pii_removed) '
+                'values (%s, %s, %s, %s)')
         params = (license_name, pii_def, pii_anonymized, pii_removed)
 
         res = self.execute_sql(query, params)
@@ -1084,26 +1010,24 @@ class PGBackend:
         Creates a new license
         '''
 
-        # disallow semicolons in policy. This helps prevent the policy creator
-        # from shooting themself in the foot with an attempted sql injection.
-        # Note that we don't actually _need_ to do this. The parameters are all
-        # escaped in RLS methods executed by the superuser, so there's not a
-        # really a risk of a user acquiring root access.
-
         # check if link already exists
-
         query = ('SELECT license_link_id, repo_base, repo, license_id '
-                 'FROM %s.%s where repo_base = %s and repo = %s and license_id = %s;')
-        params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_LINK_TABLE), repo_base, repo, license_id)
+                 'FROM %s.%s where '
+                 'repo_base = %s and repo = %s and license_id = %s;')
+        params = (
+                AsIs(settings.LICENSE_SCHEMA),
+                AsIs(settings.LICENSE_LINK_TABLE),
+                repo_base, repo, license_id)
+
         res = self.execute_sql(query, params)
-        
+
         if res['tuples']:
             return res['status']
-            
 
-
-        query = ('INSERT INTO dh_public.license_link (repo_base, repo, license_id)'
-                 'values (%s, %s, %s)')
+        query = (
+                'INSERT INTO dh_public.license_link '
+                '(repo_base, repo, license_id) '
+                'values (%s, %s, %s)')
         params = (repo_base, repo, license_id)
 
         res = self.execute_sql(query, params)
@@ -1112,56 +1036,56 @@ class PGBackend:
 
     def find_license_links(self, license_id):
         '''
-        Returns the security policy that has a policy_id matching the input
-        specified by the user.
+        finds all license_links associated with a given license_id
         '''
         query = ('SELECT license_link_id, repo_base, repo, license_id '
                  'FROM %s.%s ;')
-        params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_LINK_TABLE))
+        params = (
+                AsIs(settings.LICENSE_SCHEMA),
+                AsIs(settings.LICENSE_LINK_TABLE))
         res = self.execute_sql(query, params)
 
         if not res['tuples']:
             return []
 
-        # else, return the policy
         return res['tuples']
 
     def find_license_links_by_repo(self, repo_base, repo):
-        '''
-        Returns the security policy that has a policy_id matching the input
-        specified by the user.
-        '''
         query = ('SELECT license_link_id, repo_base, repo, license_id '
                  'FROM %s.%s where repo_base = %s and repo = %s;')
-        params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_LINK_TABLE), repo_base, repo)
+        params = (
+                AsIs(settings.LICENSE_SCHEMA),
+                AsIs(settings.LICENSE_LINK_TABLE),
+                repo_base, repo)
         res = self.execute_sql(query, params)
 
         if not res['tuples']:
             return []
 
-        # else, return the policy
         return res['tuples']
 
     def find_licenses(self):
         '''
-        Returns a list of all security polices that match the inputs specied
-        by the user.
+        find all licenses
         '''
-        query = ('SELECT license_id, license_name, pii_def, pii_anonymized, pii_removed '
-                 'FROM %s.%s;')
+        query = (
+                'SELECT license_id, license_name, pii_def, '
+                'pii_anonymized, pii_removed FROM %s.%s;')
         params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_TABLE))
 
         res = self.execute_sql(query, params)
         return res['tuples']
-    
+
     def find_license_by_id(self, license_id):
-        '''
-        Returns the security policy that has a policy_id matching the input
-        specified by the user.
-        '''
-        query = ('SELECT license_id, license_name, pii_def, pii_anonymized, pii_removed '
-                 'FROM %s.%s where license_id= %s;')
-        params = (AsIs(settings.LICENSE_SCHEMA), AsIs(settings.LICENSE_TABLE), license_id)
+        query = (
+                'SELECT license_id, license_name, pii_def, '
+                'pii_anonymized, pii_removed '
+                'FROM %s.%s where license_id= %s;')
+        params = (
+                AsIs(settings.LICENSE_SCHEMA),
+                AsIs(settings.LICENSE_TABLE),
+                license_id)
+
         res = self.execute_sql(query, params)
 
         # return None if the list is empty
@@ -1170,64 +1094,6 @@ class PGBackend:
 
         # else, return the policy
         return res['tuples'][0]
-
-    # def find_all_licenses(self, username):
-    #     params = (username, username)
-
-    #     query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
-    #              'FROM dh_public.policy WHERE grantee = %s or '
-    #              'grantor = %s')
-
-    #     res = self.execute_sql(query, params)
-    #     return res['tuples']
-
-    # def find_licenses(self, repo_base, repo=None, table=None,
-    #                            policy_id=None, policy=None, policy_type=None,
-    #                            grantee=None, grantor=None):
-    #     '''
-    #     Returns a list of all security polices that match the inputs specied
-    #     by the user.
-    #     '''
-    #     query = ('SELECT policy_id, policy, policy_type, grantee, grantor '
-    #              'repo_base, repo, table_name '
-    #              'FROM %s.%s WHERE ')
-    #     params = [AsIs(settings.POLICY_SCHEMA), AsIs(settings.POLICY_TABLE)]
-    #     conditions = []
-
-    #     # append mandatory passed-in conditions
-    #     conditions.append('repo_base = %s')
-    #     params.append(repo_base)
-
-    #     # append optional conditions
-    #     if repo:
-    #         conditions.append('repo = %s')
-    #         params.append(repo)
-    #     if table:
-    #         conditions.append('table_name = %s')
-    #         params.append(table)
-    #     if policy_id:
-    #         conditions.append('policy_id = %s')
-    #         params.append(policy_id)
-    #     if policy:
-    #         conditions.append('policy = %s')
-    #         params.append(policy)
-    #     if policy_type:
-    #         conditions.append('policy_type = %s')
-    #         params.append(policy_type)
-    #     if grantee:
-    #         conditions.append('grantee = %s')
-    #         params.append(grantee)
-    #     if grantor:
-    #         conditions.append('grantor = %s')
-    #         params.append(grantor)
-
-    #     conditions = " and ".join(conditions)
-    #     params = tuple(params)
-    #     query += conditions
-
-    #     res = self.execute_sql(query, params)
-
-    #     return res['tuples']
 
     # Below methods can only be called from the RLSSecurityManager #
 

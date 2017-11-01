@@ -8,25 +8,9 @@
   </h4>
     <hr />
     <h2>Create New License</h2>
- <!--    <h2> Existing Licenses
-    {% for licenses in licenses %}
-    <a href="#"> {{license}} </a>
-    {% endfor%}
-
-    </h2> -->
     <form role="form" method="POST" action="{% url 'license_create' %}" enctype='multipart/form-data' id="license-form">
-
-
     <table>
         <h3>General</h3>
-     <!--    <tr>
-            <td class="cell-left">
-                Repository:
-            </td>
-            <td class="cell-right">
-                <strong>{{repo_base}}/{{repo}}</strong>
-            </td>
-        </tr> -->
         <tr>
             <td class="cell-left">
                 Owner:
@@ -44,12 +28,6 @@
             </td>
         </tr>
         <tr>
-            <!-- <td class="cell-left">
-                Project Name:
-            </td>
-            <td class="cell-right">
-                <input type="text" class="form-control" name="project_name" id="license_name" placeholder="project name">
-            </td> -->
         </tr>
         <tr>
             <td>
@@ -68,12 +46,6 @@
                           </label>
                         </div>
                     <h4>Privacy</h4>
-                    <!-- <div class="checkbox">
-                          <label>
-                            <input type="checkbox" value="">
-                            Data Anonymized
-                          </label>
-                        </div> -->
                         <div class="checkbox">
                           <label>
                             <input  name="pii_properties" type="checkbox" value="anonymimzedorremoved" >
@@ -143,7 +115,6 @@ $(document).ready(function () {
         alert(message);
         return false;
       }
-
     });
 });
 </script>

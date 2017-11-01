@@ -77,7 +77,7 @@ class LicenseManager:
 
     @staticmethod
     def find_licenses():
-        # Returns all licenses        
+        # Returns all licenses
         with _superuser_connection(settings.LICENSE_DB) as conn:
             res = conn.find_licenses()
 
@@ -85,8 +85,12 @@ class LicenseManager:
         tuple_licenses = []
         for license in res:
             License = namedtuple(
-                'License',
-                ['license_id', 'license_name', 'pii_def', 'pii_anonymized', 'pii_removed'])
+                        'License',
+                        [
+                            'license_id', 'license_name', 'pii_def',
+                            'pii_anonymized', 'pii_removed'
+                        ]
+                    )
 
             tuple_license = License(*license)
 
@@ -100,14 +104,17 @@ class LicenseManager:
         Looks for a license matching the specified license_id.
         '''
         license_id = int(license_id)
-        
+
         with _superuser_connection(settings.LICENSE_DB) as conn:
             res = conn.find_license_by_id(license_id=license_id)
-        
 
         License = namedtuple(
-                'License',
-                ['license_id', 'license_name', 'pii_def', 'pii_anonymized', 'pii_removed'])
+                        'License',
+                        [
+                            'license_id', 'license_name', 'pii_def',
+                            'pii_anonymized', 'pii_removed'
+                        ]
+                    )
         tuple_license = License(*res)
         return tuple_license
 
@@ -116,7 +123,8 @@ class LicenseManager:
         '''
         Find Licenses based on a given repo_base and repo
         '''
-        license_links = LicenseManager.find_license_links_by_repo(repo_base, repo)
+        license_links = LicenseManager.find_license_links_by_repo(
+            repo_base, repo)
 
         licenses = []
         with _superuser_connection(settings.LICENSE_DB) as conn:
@@ -126,9 +134,13 @@ class LicenseManager:
                 res = conn.find_license_by_id(license_id)
 
                 License = namedtuple(
-                'License',
-                ['license_id', 'license_name', 'pii_def', 'pii_anonymized', 'pii_removed'])
-                
+                            'License',
+                            [
+                                'license_id', 'license_name',
+                                'pii_def', 'pii_anonymized', 'pii_removed'
+                            ]
+                        )
+
                 tuple_license = License(*res)
 
                 licenses.append(tuple_license)
@@ -138,30 +150,28 @@ class LicenseManager:
     @staticmethod
     def create_license(license_name, pii_def, pii_anonymized, pii_removed):
         '''
-        Creates a new license in the license table. 
+        Creates a new license in the license table.
         '''
         license_name = license_name.lower()
-        pii_def = pii_def.lower()     
+        pii_def = pii_def.lower()
 
         with _superuser_connection(settings.LICENSE_DB) as conn:
             return conn.create_license(
                 license_name=license_name,
                 pii_def=pii_def,
                 pii_anonymized=pii_anonymized,
-                pii_removed=pii_removed,
-                )
+                pii_removed=pii_removed)
 
     @staticmethod
     def create_license_link(repo_base, repo, license_id):
         '''
-        Creates a new license in the license table. 
-        '''  
+        Links a license to a repo
+        '''
         with _superuser_connection(settings.LICENSE_DB) as conn:
             return conn.create_license_link(
                 repo_base=repo_base,
                 repo=repo,
-                license_id=license_id
-                )
+                license_id=license_id)
 
     @staticmethod
     def find_license_links(license_id):
@@ -169,7 +179,7 @@ class LicenseManager:
         Returns all licenses links for a specified license id
         '''
         with _superuser_connection(settings.LICENSE_DB) as conn:
-             res = conn.find_license_links(license_id)
+            res = conn.find_license_links(license_id)
 
         # convert this to a named tuple for easier handling
         tuple_license_links = []
@@ -190,7 +200,7 @@ class LicenseManager:
         Finds LicenseLinks for a particular repo_base and repo
         '''
         with _superuser_connection(settings.LICENSE_DB) as conn:
-             res = conn.find_license_links_by_repo(repo_base, repo)
+            res = conn.find_license_links_by_repo(repo_base, repo)
 
         # convert this to a named tuple for easier handling
         tuple_license_links = []

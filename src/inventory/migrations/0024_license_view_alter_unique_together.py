@@ -13,6 +13,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterUniqueTogether(
             name='licenseview',
-            unique_together=set([('repo_name', 'repo_base', 'table', 'license_id')]),
+            unique_together=set(
+                [('repo_name', 'repo_base', 'table', 'license_id')]),
         ),
     ]

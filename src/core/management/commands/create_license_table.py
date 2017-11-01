@@ -32,7 +32,7 @@ def create_license_schema(apps, schema_editor):
 def create_license_table(apps, schema_editor):
     LicenseManager.create_license_table()
 
+
 @factory.django.mute_signals(signals.pre_save)
 def create_license_link_table(apps, schema_editor):
     LicenseManager.create_license_link_table()
-

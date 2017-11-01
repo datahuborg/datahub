@@ -56,6 +56,8 @@ urlpatterns = patterns(
     url(r'^create/annotation/?$', 'browser.views.create_annotation',
         name='browser-create_annotation'),
 
+
+
     # Browse
     url(r'^browse/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table',
         name='browser-table'),
@@ -65,17 +67,10 @@ urlpatterns = patterns(
         name='browser-card'),
     url(r'^browse/(\w+)/(\w+)/?$', 'browser.views.repo',
         name='browser-repo'),
-
     url(r'^browse/(\w+)/(\w+)/tables/?$', 'browser.views.repo_tables',
         name='browser-repo_tables'),
-
-
     url(r'^browse/(\w+)/(\w+)/files/?$', 'browser.views.repo_files',
         name='browser-repo_files'),
-  
-  url(r'^browse/(\w+)/(\w+)/filestest/?$', 'browser.views.repo_test',
-        name='browser-repo_test'),
-
     url(r'^browse/(\w+)/(\w+)/cards/?$', 'browser.views.repo_cards',
         name='browser-repo_cards'),
     url(r'^browse/public/?$', 'browser.views.public', name='browser-public'),
@@ -128,13 +123,16 @@ urlpatterns = patterns(
         name='browser-repo_licenses'),
     url(r'^licenses/create/?$', 'browser.views.license_create',
         name='license_create'),
-    url(r'^licenses/(\w+)/(\w+)/(\w+)/manage/?$', 'browser.views.repo_license_manage',
+    url(r'^licenses/(\w+)/(\w+)/(\w+)/manage/?$',
+        'browser.views.repo_license_manage',
         name='browser-repo_license_manage'),
     url(r'^licenses/(\w+)/(\w+)/linklicense/(\w+)/?$',
         'browser.views.link_license', name='link_license'),
-    url(r'^license_view/(\w+)/(\w+)/(\w+)/(\w+)/create/?$', 'browser.views.license_view_create',
+    url(r'^license_view/(\w+)/(\w+)/(\w+)/(\w+)/create/?$',
+        'browser.views.license_view_create',
         name='browser-license_view_create'),
-    url(r'^license_view/(\w+)/(\w+)/(\w+)/(\w+)/(\w+)/delete/?$', 'browser.views.license_view_delete',
+    url(r'^license_view/(\w+)/(\w+)/(\w+)/(\w+)/(\w+)/delete/?$',
+        'browser.views.license_view_delete',
         name='browser-license_view_delete'),
 
     # Collaborators
