@@ -396,15 +396,10 @@ def repo_licenses(request, repo_base, repo):
         (True for c in collaborators if
             c['username'] == settings.PUBLIC_ROLE), False)
 
-    # remove the current user, public user from the collaborator list
-    # collaborators = [c.get('username') for c in collaborators]
-
     collaborators = [c for c in collaborators if c['username']
                      not in ['', username, settings.PUBLIC_ROLE]]
 
-    license_info_tuples = []
-    for i in range(len(repo_licenses)):
-        license_info_tuples.append((repo_licenses[i], license_applied[i]))
+    license_info_tuples = zip(repo_licenses, license_applied)
 
     res = {
         'login': username,
@@ -506,31 +501,25 @@ def license_create(request):
 
     if request.method == 'POST':
         # creates a new license
-        try:
-            pii_def = None
-            pii_anonymized = False
-            pii_removed = False
-            # project_name = ""
+        pii_anonymized = False
+        pii_removed = False
 
-            license_name = request.POST['license_name']
-            # project_name = request.POST['project_name']
-            pii_def = request.POST['pii_def']
-            if 'anonymized' in request.POST.getlist('pii_properties'):
-                pii_anonymized = True
-            if 'removed' in request.POST.getlist('pii_properties'):
-                pii_removed = True
+        license_name = request.POST['license_name'] or None
+        pii_def = request.POST['pii_def'] or None
+        pii_anonymized =  'anonymized' in request.POST.getlist('pii_properties')
+        pii_removed ='removed' in request.POST.getlist('pii_properties')
 
-            LicenseManager.create_license(
-                license_name=license_name,
-                pii_def=pii_def,
-                pii_anonymized=pii_anonymized,
-                pii_removed=pii_removed)
+        if not license_name:
+            raise ValueError("Request missing \'license_name\' parameter.")
+        if not pii_def:
+            raise ValueError("Request missing \'pii definition\' parameter.")
 
-        except Exception as e:
-            return HttpResponse(
-                json.dumps(
-                    {'error': str(e)}),
-                content_type="application/json")
+        LicenseManager.create_license(
+            license_name=license_name,
+            pii_def=pii_def,
+            pii_anonymized=pii_anonymized,
+            pii_removed=pii_removed)
+
         return HttpResponseRedirect(reverse('browser-user', args=(username,)))
 
     elif request.method == 'GET':
@@ -564,12 +553,7 @@ def license_view_create(request, repo_base, repo, table, license_id):
     # remove the current user, public user from the collaborator list
     # collaborators = [c.get('username') for c in collaborators]
     if username != repo_base:
-        message = (
-            'Error: Permission Denied. '
-            '%s cannot create new licenses in %s.'
-            % (username, repo_base)
-        )
-        return HttpResponseForbidden(message)
+        raise PermissionDenied("User does not have access to this repo")
 
     if request.method == 'POST':
         # collect parameters that will be used to create the view of the table
@@ -626,12 +610,7 @@ def license_view_delete(request, repo_base, repo, table,
     # remove the current user, public user from the collaborator list
     # collaborators = [c.get('username') for c in collaborators]
     if username != repo_base:
-        message = (
-            'Error: Permission Denied. '
-            '%s cannot create new licenses in %s.'
-            % (username, repo_base)
-        )
-        return HttpResponseForbidden(message)
+        raise PermissionDenied("User does not have access to this repo")
 
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         manager.delete_license_view(

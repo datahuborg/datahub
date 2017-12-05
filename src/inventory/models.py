@@ -116,7 +116,7 @@ class LicenseView(models.Model):
 
     class Meta:
         db_table = "license_views"
-        unique_together = ('repo_name', 'repo_base')
+        unique_together = ('repo_name', 'repo_base', 'table', 'license_id')
 
     def __unicode__(self):
         return """

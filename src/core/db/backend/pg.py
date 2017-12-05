@@ -953,13 +953,13 @@ class PGBackend:
         self._validate_table_name(table)
         self._check_for_injections(public_role)
 
-        query = ('DROP TABLE %s.%s; CREATE TABLE IF NOT EXISTS %s.%s'
+        query = ('CREATE TABLE IF NOT EXISTS %s.%s'
                  '(license_id serial primary key,'
                  'license_name VARCHAR(40),'
                  'pii_def VARCHAR(100) NOT NULL,'
                  'pii_removed boolean NOT NULL,'
                  'pii_anonymized boolean NOT NULL);')
-        params = (AsIs(schema), AsIs(table), AsIs(schema), AsIs(table))
+        params = (AsIs(schema), AsIs(table))
         self.execute_sql(query, params)
 
         # grant the public role access to the table
@@ -977,12 +977,12 @@ class PGBackend:
         self._validate_table_name(table)
         self._check_for_injections(public_role)
 
-        query = ('DROP TABLE %s.%s; CREATE TABLE IF NOT EXISTS %s.%s '
+        query = ('CREATE TABLE IF NOT EXISTS %s.%s '
                  '(license_link_id serial primary key,'
                  'repo_base VARCHAR(40) NOT NULL,'
                  'repo VARCHAR(40) NOT NULL,'
                  'license_id integer NOT NULL);')
-        params = (AsIs(schema), AsIs(table), AsIs(schema), AsIs(table))
+        params = (AsIs(schema), AsIs(table))
         self.execute_sql(query, params)
 
         query = ('GRANT ALL ON %s.%s to %s;')

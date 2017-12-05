@@ -3,6 +3,9 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 from django.conf import settings
+from core.management.commands.create_license_table import(
+    create_license_schema, create_license_table,
+    create_license_link_table)
 
 
 class Migration(migrations.Migration):
@@ -13,6 +16,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(create_license_schema),
+        migrations.RunPython(create_license_table),
+        migrations.RunPython(create_license_link_table),
         migrations.CreateModel(
             name='LicenseView',
             fields=[
@@ -28,6 +34,11 @@ class Migration(migrations.Migration):
             ],
             options={
                 'db_table': 'license_views',
+
             },
+        ),
+        migrations.AlterUniqueTogether(
+            name='licenseview',
+            unique_together=set([('repo_name', 'repo_base', 'table', 'license_id')]),
         ),
     ]

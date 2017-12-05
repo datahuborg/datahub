@@ -497,19 +497,15 @@ class DataHubManager:
 
         license_id = int(license_id)
 
-        try:
-            license_view_obj, created = LicenseView.objects.get_or_create(
-                repo_base=self.repo_base,
-                repo_name=repo,
-                table=table,
-                view_sql=view_sql,
-                license_id=license_id)
-
-        except BaseException as e:
-            print "error: ", str(e)
+        license_view_obj, created = LicenseView.objects.get_or_create(
+            repo_base=self.repo_base,
+            repo_name=repo,
+            table=table,
+            view_sql=view_sql,
+            license_id=license_id)
 
         # Create view in database
-        res = self.user_con.create_license_view(
+        self.user_con.create_license_view(
             repo_base=self.repo_base,
             repo=repo,
             table=table,
@@ -519,21 +515,17 @@ class DataHubManager:
         return True
 
     def delete_license_view(self, repo, table, license_view, license_id):
-        try:
-            license_view = LicenseView.objects.filter(
-                repo_base=self.repo_base,
-                repo_name=repo,
-                table=table,
-                license_id=license_id)
+        license_view = LicenseView.objects.filter(
+            repo_base=self.repo_base,
+            repo_name=repo,
+            table=table,
+            license_id=license_id)
 
-            if len(license_view_obj) == 1:
-                license_view_obj[0].delete()
-
-        except BaseException as e:
-            print "error: ", str(e)
+        if len(license_view_obj) == 1:
+            license_view_obj[0].delete()
 
         # delete actual view
-        res = self.user_con.delete_license_view(
+        self.user_con.delete_license_view(
             repo_base=self.repo_base,
             repo=repo,
             license_view=license_view)

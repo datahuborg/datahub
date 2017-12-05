@@ -69,7 +69,7 @@ class LicenseManager:
 
     @staticmethod
     def create_license_link_table():
-        ''' Used to create the license table on DataHub start '''
+        ''' Used to create the license link table on DataHub start '''
         repo_base = settings.LICENSE_DB
         with _superuser_connection(repo_base) as conn:
             result = conn.create_license_link_table()
