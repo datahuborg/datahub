@@ -379,10 +379,7 @@ def repo_licenses(request, repo_base, repo):
     returns the licenses linked to a particular repo.
     '''
     username = request.user.get_username()
-    public_role = settings.PUBLIC_ROLE
-
     repo_licenses = LicenseManager.find_licenses_by_repo(repo_base, repo)
-    all_licenses = LicenseManager.find_licenses()
 
     license_applied = []
     with DataHubManager(user=username, repo_base=repo_base) as manager:
@@ -390,11 +387,6 @@ def repo_licenses(request, repo_base, repo):
         for license in repo_licenses:
             all_applied = manager.license_applied_all(repo, license.license_id)
             license_applied.append(all_applied)
-
-    # if the public role is in collaborators, note that it's already added
-    repo_is_public = next(
-        (True for c in collaborators if
-            c['username'] == settings.PUBLIC_ROLE), False)
 
     collaborators = [c for c in collaborators if c['username']
                      not in ['', username, settings.PUBLIC_ROLE]]
@@ -408,9 +400,8 @@ def repo_licenses(request, repo_base, repo):
         'collaborators': collaborators,
         'license_info_tuples': license_info_tuples,
         'repo_licenses': repo_licenses,
-        'all_licenses': all_licenses,
-        'public_role': public_role,
-        'repo_is_public': repo_is_public}
+        'all_licenses': LicenseManager.find_licenses(),
+        }
     res.update(csrf(request))
 
     return render_to_response("repo-licenses.html", res)
@@ -473,11 +464,6 @@ def link_license(request, repo_base, repo, license_id):
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         collaborators = manager.list_collaborators(repo)
 
-    # if the public role is in collaborators, note that it's already added
-    repo_is_public = next(
-        (True for c in collaborators if
-            c['username'] == settings.PUBLIC_ROLE), False)
-
     # remove the current user, public user from the collaborator list
     # collaborators = [c.get('username') for c in collaborators]
 
@@ -506,8 +492,8 @@ def license_create(request):
 
         license_name = request.POST['license_name'] or None
         pii_def = request.POST['pii_def'] or None
-        pii_anonymized =  'anonymized' in request.POST.getlist('pii_properties')
-        pii_removed ='removed' in request.POST.getlist('pii_properties')
+        pii_anonymized = 'anonymized' in request.POST.getlist('pii_properties')
+        pii_removed = 'removed' in request.POST.getlist('pii_properties')
 
         if not license_name:
             raise ValueError("Request missing \'license_name\' parameter.")
@@ -545,11 +531,6 @@ def license_view_create(request, repo_base, repo, table, license_id):
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         collaborators = manager.list_collaborators(repo)
 
-    # if the public role is in collaborators, note that it's already added
-    repo_is_public = next(
-        (True for c in collaborators if
-            c['username'] == settings.PUBLIC_ROLE), False)
-
     # remove the current user, public user from the collaborator list
     # collaborators = [c.get('username') for c in collaborators]
     if username != repo_base:
@@ -582,8 +563,7 @@ def license_view_create(request, repo_base, repo, table, license_id):
             'repo_base': repo_base,
             'repo': repo,
             'collaborators': collaborators,
-            'public_role': public_role,
-            'repo_is_public': repo_is_public}
+            'public_role': public_role}
         res.update(csrf(request))
 
         return render_to_response("license-create.html", res)
@@ -601,11 +581,6 @@ def license_view_delete(request, repo_base, repo, table,
 
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         collaborators = manager.list_collaborators(repo)
-
-    # if the public role is in collaborators, note that it's already added
-    repo_is_public = next(
-        (True for c in collaborators if
-            c['username'] == settings.PUBLIC_ROLE), False)
 
     # remove the current user, public user from the collaborator list
     # collaborators = [c.get('username') for c in collaborators]
