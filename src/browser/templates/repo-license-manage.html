@@ -47,8 +47,22 @@
               <td>
                 <a href="/browse/{{repo_base}}/{{repo}}/table/{{base_table}}">{{base_table}}</a>
               </td>
+
+               <td class="text-right">
+ 
+                 {% if login == repo_base %}
+                 {% if license_applied %}
+ 
+                 <p class="alert alert-success" style="display: inline-block; width:400px; float:right;" id="{{base_table}}AlertSuccess""> License applied <span class="glyphicon glyphicon-ok"/></p>
+ 
+                 {% else %}
+ 
+                 <p class="alert alert-danger" style="display:inline-block; width:400px; float:right;" id="{{base_table}}AlertDanger""> License not applied <span style="display:inline-block;" class="glyphicon glyphicon-remove"></p>
+                 {% endif %}
+                
+               </td>
               <td style="width:10%;">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#removePIIModal{{base_table}}" style="dispaly:inline-block; margin-top:11px;"> Modify Data Profile For this Table</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#removePIIModal{{base_table}}" style="dispaly:inline-block; margin-top:11px;"> Apply Data Profile to this table</button>
               <!-- Remove PII Modal -->
               <div class="modal fade" id="removePIIModal{{base_table}}" role="dialog">
                 <div class="modal-dialog">
@@ -248,11 +262,11 @@
                           }
                        })
                       .fail(function(xhr, status, error) {
-                        // does not error when duplicating existing repo
-                        console.log("error" + error)
                          })
                       .done(function(data, status, xhr) {
-                        console.log("status " + status)
+                        setTimeout(function(){
+                          location.reload();
+                        }, 1500); 
                       });
                     });          
                   </script>

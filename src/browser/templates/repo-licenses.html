@@ -32,8 +32,8 @@
   <button type="submit" title="Create a License"  class="btn btn-primary" style="margin:10px;"> Create New Data Profile</button>
           </form>
 
-<!-- <div><button type="button"
-    class="btn btn-primary" data-toggle="modal" data-target="#newLicenseModal" style="margin:10px;"">Add Existing License</button></div> -->
+<div><button type="button"
+    class="btn btn-primary" data-toggle="modal" data-target="#newLicenseModal" style="margin:10px;"">Add Existing Data Profile</button></div>
 
 <table class="table table-striped" style="margin-top:20px;">
     <thead>
@@ -47,7 +47,7 @@
     {% for license, license_applied_all in license_info_tuples %}
        <tr>
         <td>{{license.license_name}}</td>
-        <!-- <td><!-- <p class="alert alert-danger">Not Applied to All Tables <span style="float:right;"class="glyphicon glyphicon-remove"></p></span> 
+        <td>
           {% if license_applied_all %}
 
                 <p class="alert alert-success" style="display: inline-block; width:400px; float:right;" id="{{base_table}}AlertSuccess""> License Applied To All Tables<span class="glyphicon glyphicon-ok"/></p>
@@ -57,8 +57,8 @@
                 <p class="alert alert-danger" style="display:inline-block; width:400px; float:right;" id="{{base_table}}AlertDanger""> License Not Applied To All Tables<span style="display:inline-block;" class="glyphicon glyphicon-remove"></p>
                 {% endif %}
 
-        </td> -->
-        <td><a type="button" href="/licenses/{{repo_base}}/{{repo}}/{{license.license_id}}/manage" class="btn btn-primary" style="margin-top:12px; margin-right:20px; float: right;"> Details/Update </a></td>
+        </td>
+        <td><a type="button" href="/licenses/{{repo_base}}/{{repo}}/{{license.license_id}}/manage" class="btn btn-primary" style="margin-top:12px; margin-right:20px; float: right;"> Update / Apply Data Profile </a></td>
       </tr>
     {% endfor %}
     </tbody>
