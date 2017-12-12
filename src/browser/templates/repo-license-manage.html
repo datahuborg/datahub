@@ -22,10 +22,8 @@
   </div>
   <hr />
 
-  <h3> Manage License </h3>
+  <h3> Manage Data Profile </h3>
   <h2>{{license.license_name}}</h2>
-
-  <button id="show-details-btn" data-toggle="modal" data-target="#viewLicenseDetailsModal" class="btn btn-primary">View Details </button>
 
   <div class="alert alert-success" role="alert" id="alertbox" style="visibility: hidden">
   </div>
@@ -49,22 +47,8 @@
               <td>
                 <a href="/browse/{{repo_base}}/{{repo}}/table/{{base_table}}">{{base_table}}</a>
               </td>
-
-              <td class="text-right">
-
-                {% if login == repo_base %}
-                {% if license_applied %}
-
-                <p class="alert alert-success" style="display: inline-block; width:400px; float:right;" id="{{base_table}}AlertSuccess""> License applied <span class="glyphicon glyphicon-ok"/></p>
-
-                {% else %}
-
-                <p class="alert alert-danger" style="display:inline-block; width:400px; float:right;" id="{{base_table}}AlertDanger""> License not applied <span style="display:inline-block;" class="glyphicon glyphicon-remove"></p>
-                {% endif %}
-               
-              </td>
               <td style="width:10%;">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#removePIIModal{{base_table}}" style="dispaly:inline-block; margin-top:11px;"> Apply To Table </button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#removePIIModal{{base_table}}" style="dispaly:inline-block; margin-top:11px;"> Modify Data Profile For this Table</button>
               <!-- Remove PII Modal -->
               <div class="modal fade" id="removePIIModal{{base_table}}" role="dialog">
                 <div class="modal-dialog">
@@ -75,11 +59,11 @@
                     <div class="modal-body">
                     <h4> Data Preview </h4>
                     {% if license.pii_removed %}
-                    <h5> Please remove all PII according to {{license.pii_def}} standards </h5>
+                    <h5> Click edit for each data column to remove PII according to {{license.pii_def}} standards </h5>
 
                     {% else %}
 
-                    <h5> Please anonymimze all PII according to {{license.pii_def}} standards </h5>
+                    <h5> Click edit for each data column to anonymizez PII according to  {{license.pii_def}} standards </h5>
 
                     {% endif %}
                       <div id="dataViewDiv{{base_table}}"></div>
@@ -105,8 +89,8 @@
                         <h4 class="modal-title" id="changeModalHeader">Remove Column</h4>
                       </div>
                       <div class="modal-body">
-                        <h5>Column: </h5>
-                        <div id="modalColumnName-{{base_table}}" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
+                        <h5> Click Delete to delete this column from the table</h5>
+                        column name: <div id="modalColumnName-{{base_table}}" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
                         <button type="button"
                         class="btn btn-primary" id="removeColumnBtn-{{base_table}}">Remove column</button>
                       </div>
@@ -121,8 +105,8 @@
                         <h4 class="modal-title" id="changeModalHeader">Anonymize Column via MD5 Hash</h4>
                       </div>
                       <div class="modal-body">
-                        <h5>Column: </h5>
-                        <div id="modalColumnName-{{base_table}}" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
+                        <h5>Click Anonymize to anonymize this column in the table </h5>
+                        column name: <div id="modalColumnName-{{base_table}}" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
                         <button type="button"
                         class="btn btn-primary" id="removeColumnBtn-{{base_table}}">Anonymize Column</button>
                       </div>
@@ -281,7 +265,7 @@
             {% for license_view_name, license_view_object in license_views %}
             <tr>
               <td>
-                <a href="/browse/{{repo_base}}/{{repo}}/table/{{license_view_name}}">{{license_view_name}}</a>
+                <a href="/browse/{{repo_base}}/{{repo}}/table/{{license_view_name}}">Preview Dataset privacy settings</a>
               </td>
 
               <td class="text-right">
@@ -344,7 +328,7 @@
             <div class="form-group">
                 <input type="text" class="form-control" name="collaborator_username" id="collaborator_username" placeholder="Username" />
             </div>
-            <p class="help-block">Permissions for repo database tables:</p>
+            <p class="help-block">Select project collaborator permissions:</p>
             <div class="checkbox">
                 <label title="Allows SELECT from any column, or the specific columns listed, of the specified table, view, or sequence. Also allows the use of COPY TO. This privilege is also needed to reference existing column values in UPDATE or DELETE. For sequences, this privilege also allows the use of the currval function. For large objects, this privilege allows the object to be read.">
                     <input type="checkbox" name="db_privileges" value="SELECT" checked/> select

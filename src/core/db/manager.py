@@ -494,7 +494,6 @@ class DataHubManager:
             table=table,
             view_params=view_params,
             license_id=license_id)
-
         license_id = int(license_id)
 
         license_view_obj, created = LicenseView.objects.get_or_create(
@@ -515,7 +514,7 @@ class DataHubManager:
         return True
 
     def delete_license_view(self, repo, table, license_view, license_id):
-        license_view = LicenseView.objects.filter(
+        license_view_obj = LicenseView.objects.filter(
             repo_base=self.repo_base,
             repo_name=repo,
             table=table,

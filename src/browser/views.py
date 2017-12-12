@@ -356,8 +356,6 @@ def repo_settings(request, repo_base, repo):
             c['username'] == settings.PUBLIC_ROLE), False)
 
     # remove the current user, public user from the collaborator list
-    # collaborators = [c.get('username') for c in collaborators]
-
     collaborators = [c for c in collaborators if c['username']
                      not in ['', username, settings.PUBLIC_ROLE]]
 
@@ -424,7 +422,6 @@ def repo_license_manage(request, repo_base, repo, license_id):
         # collaborators = None
         base_tables = manager.list_tables(repo)
         license_views = manager.list_license_views(repo, license_id)
-        print "views, license_views: ", license_views
         for table in base_tables:
             # check if license view exists for this license_id
             applied = manager.check_license_applied(table, repo, license_id)
@@ -461,12 +458,11 @@ def link_license(request, repo_base, repo, license_id):
     username = request.user.get_username()
     public_role = settings.PUBLIC_ROLE
 
+
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         collaborators = manager.list_collaborators(repo)
 
     # remove the current user, public user from the collaborator list
-    # collaborators = [c.get('username') for c in collaborators]
-
     collaborators = [c for c in collaborators if c['username']
                      not in ['', username, settings.PUBLIC_ROLE]]
 
@@ -531,8 +527,6 @@ def license_view_create(request, repo_base, repo, table, license_id):
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         collaborators = manager.list_collaborators(repo)
 
-    # remove the current user, public user from the collaborator list
-    # collaborators = [c.get('username') for c in collaborators]
     if username != repo_base:
         raise PermissionDenied("User does not have access to this repo")
 
@@ -547,9 +541,6 @@ def license_view_create(request, repo_base, repo, table, license_id):
                 table=table,
                 view_params=view_params,
                 license_id=license_id)
-            # give access to all current collaborators on this license
-            # manager.grant_collaborators_access_to_view(
-            # )
         return HttpResponseRedirect(
             reverse('browser-repo_licenses', args=(repo_base, repo)))
 
@@ -582,8 +573,6 @@ def license_view_delete(request, repo_base, repo, table,
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         collaborators = manager.list_collaborators(repo)
 
-    # remove the current user, public user from the collaborator list
-    # collaborators = [c.get('username') for c in collaborators]
     if username != repo_base:
         raise PermissionDenied("User does not have access to this repo")
 

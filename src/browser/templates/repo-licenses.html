@@ -25,28 +25,29 @@
   <hr />
   <br />
 
-<p class="lead">Manage Repository Licenses </p>
+<p class="lead">Manage Data Profiles </p>
+<h4> Create or change data privacy specifications for your data sets. </h4>
 
 <form action="{% url 'license_create' %}">
-  <button type="submit" title="Create a License"  class="btn btn-primary" style="margin:10px;"> Create New License</button>
+  <button type="submit" title="Create a License"  class="btn btn-primary" style="margin:10px;"> Create New Data Profile</button>
           </form>
 
-<div><button type="button"
-    class="btn btn-primary" data-toggle="modal" data-target="#newLicenseModal" style="margin:10px;"">Add Existing License</button></div>
+<!-- <div><button type="button"
+    class="btn btn-primary" data-toggle="modal" data-target="#newLicenseModal" style="margin:10px;"">Add Existing License</button></div> -->
 
 <table class="table table-striped" style="margin-top:20px;">
     <thead>
       <tr>
-        <th>License Name</th>
-        <th>Applied To Tables</th>
-        <th>Manage Table Application</th>
+        <th>Data Profile Name</th>
+<!--         <th>Applied To Dataset</th>
+ -->        <th></th>
       </tr>
     </thead>
     <tbody>
     {% for license, license_applied_all in license_info_tuples %}
        <tr>
         <td>{{license.license_name}}</td>
-        <td><!-- <p class="alert alert-danger">Not Applied to All Tables <span style="float:right;"class="glyphicon glyphicon-remove"></p></span> -->
+        <!-- <td><!-- <p class="alert alert-danger">Not Applied to All Tables <span style="float:right;"class="glyphicon glyphicon-remove"></p></span> 
           {% if license_applied_all %}
 
                 <p class="alert alert-success" style="display: inline-block; width:400px; float:right;" id="{{base_table}}AlertSuccess""> License Applied To All Tables<span class="glyphicon glyphicon-ok"/></p>
@@ -56,8 +57,8 @@
                 <p class="alert alert-danger" style="display:inline-block; width:400px; float:right;" id="{{base_table}}AlertDanger""> License Not Applied To All Tables<span style="display:inline-block;" class="glyphicon glyphicon-remove"></p>
                 {% endif %}
 
-        </td>
-        <td><a type="button" href="/licenses/{{repo_base}}/{{repo}}/{{license.license_id}}/manage" class="btn btn-primary" style="margin-top:12px; margin-left:50px;"> Manage </a></td>
+        </td> -->
+        <td><a type="button" href="/licenses/{{repo_base}}/{{repo}}/{{license.license_id}}/manage" class="btn btn-primary" style="margin-top:12px; margin-right:20px; float: right;"> Details/Update </a></td>
       </tr>
     {% endfor %}
     </tbody>
