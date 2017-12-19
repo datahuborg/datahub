@@ -568,7 +568,7 @@ class DataHubManager:
         cards = sorted([c.card_name for c in cards])
         return cards
 
-    def list_collaborators(self, repo, license_id=None):
+    def list_collaborators(self, repo, license_id=-1):
         """
         returns a list of objects with keys 'username' and 'permissions'.
         'permissions' are tied to the database being queried, and left to the
