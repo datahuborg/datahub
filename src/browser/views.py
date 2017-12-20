@@ -31,6 +31,7 @@ from inventory.models import App, Annotation
 from account.utils import grant_app_permission
 from core.db.manager import DataHubManager
 from core.db.rlsmanager import RowLevelSecurityManager
+from core.db.licensemanager import LicenseManager
 from core.db.rls_permissions import RLSPermissionsParser
 from datahub import DataHub
 from datahub.account import AccountService
@@ -355,8 +356,6 @@ def repo_settings(request, repo_base, repo):
             c['username'] == settings.PUBLIC_ROLE), False)
 
     # remove the current user, public user from the collaborator list
-    # collaborators = [c.get('username') for c in collaborators]
-
     collaborators = [c for c in collaborators if c['username']
                      not in ['', username, settings.PUBLIC_ROLE]]
 
@@ -370,6 +369,222 @@ def repo_settings(request, repo_base, repo):
     res.update(csrf(request))
 
     return render_to_response("repo-settings.html", res)
+
+
+@login_required
+def repo_licenses(request, repo_base, repo):
+    '''
+    returns the licenses linked to a particular repo.
+    '''
+    username = request.user.get_username()
+    repo_licenses = LicenseManager.find_licenses_by_repo(repo_base, repo)
+
+    license_applied = []
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo)
+        for license in repo_licenses:
+            all_applied = manager.license_applied_all(repo, license.license_id)
+            license_applied.append(all_applied)
+
+    collaborators = [c for c in collaborators if c['username']
+                     not in ['', username, settings.PUBLIC_ROLE]]
+
+    license_info_tuples = zip(repo_licenses, license_applied)
+
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'collaborators': collaborators,
+        'license_info_tuples': license_info_tuples,
+        'repo_licenses': repo_licenses,
+        'all_licenses': LicenseManager.find_licenses(),
+        }
+    res.update(csrf(request))
+
+    return render_to_response("repo-licenses.html", res)
+
+
+@login_required
+def repo_license_manage(request, repo_base, repo, license_id):
+    '''
+    shows all the tables for a repo,
+    and checks if the given license is applied to each one
+    '''
+    username = request.user.get_username()
+    if repo_base.lower() == 'user':
+        repo_base = username
+
+    license_applied = []
+    license_views = []
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo, -1)
+        # collaborators = None
+        base_tables = manager.list_tables(repo)
+        license_views = manager.list_license_views(repo, license_id)
+        for table in base_tables:
+            # check if license view exists for this license_id
+            applied = manager.check_license_applied(table, repo, license_id)
+            license_applied.append(applied)
+
+    license = LicenseManager.find_license_by_id(license_id)
+
+    table_info_tuples = [(x, y) for x in base_tables for y in license_applied]
+
+    rls_table = 'policy'
+
+    res = {
+        'license': license,
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'table_info_tuples': table_info_tuples,
+        'license_views': license_views,
+        'rls-table': rls_table,
+        'collaboratoes': collaborators,
+        }
+
+    res.update(csrf(request))
+
+    return render_to_response("repo-license-manage.html", res)
+
+
+@csrf_exempt
+@login_required
+def link_license(request, repo_base, repo, license_id):
+    '''
+    links a license with a particular repo
+    '''
+    username = request.user.get_username()
+    public_role = settings.PUBLIC_ROLE
+
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo)
+
+    # remove the current user, public user from the collaborator list
+    collaborators = [c for c in collaborators if c['username']
+                     not in ['', username, settings.PUBLIC_ROLE]]
+
+    LicenseManager.create_license_link(repo_base, repo, license_id)
+
+    repo_licenses = LicenseManager.find_licenses_by_repo(repo_base, repo)
+    all_licenses = LicenseManager.find_licenses()
+
+    return HttpResponseRedirect(reverse('browser-repo_licenses',
+                                args=(repo_base, repo)))
+
+
+@csrf_exempt
+@login_required
+def license_create(request):
+    username = request.user.get_username()
+    public_role = settings.PUBLIC_ROLE
+
+    if request.method == 'POST':
+        # creates a new license
+        pii_anonymized = False
+        pii_removed = False
+
+        license_name = request.POST['license_name'] or None
+        pii_def = request.POST['pii_def'] or None
+        pii_anonymized = 'anonymized' in request.POST.getlist('pii_properties')
+        pii_removed = 'removed' in request.POST.getlist('pii_properties')
+
+        if not license_name:
+            raise ValueError("Request missing \'license_name\' parameter.")
+        if not pii_def:
+            raise ValueError("Request missing \'pii definition\' parameter.")
+
+        LicenseManager.create_license(
+            license_name=license_name,
+            pii_def=pii_def,
+            pii_anonymized=pii_anonymized,
+            pii_removed=pii_removed)
+
+        return HttpResponseRedirect(reverse('browser-user', args=(username,)))
+
+    elif request.method == 'GET':
+        # returns page for creating a license
+        res = {
+            'login': username,
+            'public_role': public_role,
+            }
+        res.update(csrf(request))
+
+        return render_to_response("license-create.html", res)
+
+
+@csrf_exempt
+@login_required
+def license_view_create(request, repo_base, repo, table, license_id):
+    '''
+    creates a new license view for a given table and license_id
+    '''
+    username = request.user.get_username()
+    public_role = settings.PUBLIC_ROLE
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo)
+
+    if username != repo_base:
+        raise PermissionDenied("User does not have access to this repo")
+
+    if request.method == 'POST':
+        # collect parameters that will be used to create the view of the table
+        removed_columns = request.POST.getlist('removed_columns[]')
+        view_params = {}
+        view_params['removed-columns'] = removed_columns
+        with DataHubManager(user=username, repo_base=repo_base) as manager:
+            manager.create_license_view(
+                repo=repo,
+                table=table,
+                view_params=view_params,
+                license_id=license_id)
+        return HttpResponseRedirect(
+            reverse('browser-repo_licenses', args=(repo_base, repo)))
+
+    elif request.method == 'GET':
+
+        collaborators = [c for c in collaborators if c['username']
+                         not in ['', username, settings.PUBLIC_ROLE]]
+
+        res = {
+            'login': username,
+            'repo_base': repo_base,
+            'repo': repo,
+            'collaborators': collaborators,
+            'public_role': public_role}
+        res.update(csrf(request))
+
+        return render_to_response("license-create.html", res)
+
+
+@csrf_exempt
+@login_required
+def license_view_delete(request, repo_base, repo, table,
+                        license_view, license_id):
+    '''
+    Deletes license view for table and given license_id
+    '''
+    username = request.user.get_username()
+    public_role = settings.PUBLIC_ROLE
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo)
+
+    if username != repo_base:
+        raise PermissionDenied("User does not have access to this repo")
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.delete_license_view(
+            repo=repo,
+            table=table,
+            license_view=license_view,
+            license_id=license_id)
+
+    return HttpResponseRedirect(reverse('browser-repo_licenses',
+                                args=(repo_base, repo)))
 
 
 @login_required
@@ -391,6 +606,46 @@ def repo_collaborators_add(request, repo_base, repo):
 
     return HttpResponseRedirect(
         reverse('browser-repo_settings', args=(repo_base, repo,)))
+
+
+@login_required
+def repo_license_collaborators_add(request, repo_base, repo, license_id):
+    '''
+    adds a user as a collaborator in a repo
+    '''
+    username = request.user.get_username()
+    collaborator_username = request.POST['collaborator_username']
+    db_privileges = request.POST.getlist('db_privileges')
+    file_privileges = request.POST.getlist('file_privileges')
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.add_collaborator(
+            repo, collaborator_username,
+            db_privileges=db_privileges,
+            file_privileges=file_privileges,
+            license_id=license_id
+        )
+
+        collaborators = manager.list_collaborators(repo)
+        base_tables = manager.list_tables(repo)
+        views = manager.list_views(repo)
+
+    rls_table = 'policy'
+
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'base_tables': base_tables,
+        'views': views,
+        'rls-table': rls_table,
+        'collaboratoes': collaborators,
+        }
+
+    res.update(csrf(request))
+
+    return HttpResponseRedirect(
+        reverse('repo-license-manage.html', res))
 
 
 @login_required

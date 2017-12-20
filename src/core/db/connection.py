@@ -35,10 +35,42 @@ class DataHubConnection:
             collaborator=collaborator,
             db_privileges=db_privileges)
 
+    def add_collaborator_to_license_view(
+            self, repo, collaborator, view, db_privileges):
+
+        return self.backend.add_collaborator_to_license_view(
+            repo=repo,
+            collaborator=collaborator,
+            db_privileges=db_privileges,
+            view=view)
+
     def delete_collaborator(self, repo, collaborator):
         return self.backend.delete_collaborator(
             repo=repo,
             collaborator=collaborator)
+
+    def create_license_view(self, repo_base, repo,
+                            table, view_sql, license_id):
+        return self.backend.create_license_view(
+            repo_base=repo_base,
+            repo=repo,
+            table=table,
+            view_sql=view_sql,
+            license_id=license_id)
+
+    def delete_license_view(self, repo_base, repo, license_view):
+        return self.backend.delete_license_view(
+            repo_base=repo_base,
+            repo=repo,
+            license_view=license_view)
+
+    def get_view_sql(self, repo_base, repo, table, view_params, license_id):
+        return self.backend.get_view_sql(
+            repo_base=repo_base,
+            repo=repo,
+            table=table,
+            view_params=view_params,
+            license_id=license_id)
 
     def create_table(self, repo, table, params):
         return self.backend.create_table(repo=repo, table=table, params=params)
@@ -186,6 +218,44 @@ class DataHubConnection:
 
     def list_collaborators(self, repo):
         return self.backend.list_collaborators(repo)
+
+    # License Stuff
+    def create_license_schema(self):
+        return self.backend.create_license_schema()
+
+    def create_license_table(self):
+        return self.backend.create_license_table()
+
+    def create_license_link_table(self):
+        return self.backend.create_license_link_table()
+
+    def create_license(
+            self, license_name, pii_def, pii_anonymized, pii_removed):
+        return self.backend.create_license(
+            license_name=license_name,
+            pii_def=pii_def,
+            pii_anonymized=pii_anonymized,
+            pii_removed=pii_removed)
+
+    def create_license_link(self, repo_base, repo, license_id):
+        return self.backend.create_license_link(
+            repo_base=repo_base,
+            repo=repo,
+            license_id=license_id)
+
+    def find_license_links(self, license_id):
+        return self.backend.find_license_links(license_id=license_id)
+
+    def find_license_links_by_repo(self, repo_base, repo):
+        return self.backend.find_license_links_by_repo(
+            repo_base=repo_base,
+            repo=repo)
+
+    def find_licenses(self):
+        return self.backend.find_licenses()
+
+    def find_license_by_id(self, license_id):
+        return self.backend.find_license_by_id(license_id)
 
     # Row Level Security Stuff
     def create_security_policy_schema(self):

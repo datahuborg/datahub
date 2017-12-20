@@ -13,7 +13,9 @@ from config import settings
 from core.db.connection import DataHubConnection
 from core.db.rlsmanager import RowLevelSecurityManager
 from core.db.errors import PermissionDenied
-from inventory.models import App, Card, Collaborator, DataHubLegacyUser
+from inventory.models import (
+    App, Card, Collaborator,
+    DataHubLegacyUser, LicenseView)
 
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
@@ -350,7 +352,8 @@ class DataHubManager:
         return self.user_con.execute_sql(query=query, params=params)
 
     def add_collaborator(
-            self, repo, collaborator, db_privileges, file_privileges):
+            self, repo, collaborator, db_privileges,
+            file_privileges):
         """
         Grants a user or app privileges on a repo.
 
@@ -424,11 +427,27 @@ class DataHubManager:
 
         collaborator_obj.save()
 
+        # if license_id != -1:
+        #     # for view in views from license id:
+        #     #     add collab to to view
+        #     for view_id in self.list_views():
+        #         self.user_conn.add_collaborator_to_license_view(
+        #             repo=repo,
+        #             collborator=collaborator,
+        #             db_privileges=db_privileges,
+        #             view="licenseview{}".format(str(view_id))
+        #         )
+
+        #     return self.user_con.add_collaborator(
+        #         repo=repo,
+        #         collaborator=collaborator,
+        #         db_privileges=db_privileges,
+        #         license_id=license_id)
+        # else:
         return self.user_con.add_collaborator(
             repo=repo,
             collaborator=collaborator,
-            db_privileges=db_privileges
-        )
+            db_privileges=db_privileges)
 
     def delete_collaborator(self, repo, collaborator):
         """
@@ -468,6 +487,49 @@ class DataHubManager:
                 repo=repo, collaborator=collaborator)
         return result
 
+    def create_license_view(self, repo, table, view_params, license_id):
+        view_sql = self.user_con.get_view_sql(
+            repo_base=self.repo_base,
+            repo=repo,
+            table=table,
+            view_params=view_params,
+            license_id=license_id)
+        license_id = int(license_id)
+
+        license_view_obj, created = LicenseView.objects.get_or_create(
+            repo_base=self.repo_base,
+            repo_name=repo,
+            table=table,
+            view_sql=view_sql,
+            license_id=license_id)
+
+        # Create view in database
+        self.user_con.create_license_view(
+            repo_base=self.repo_base,
+            repo=repo,
+            table=table,
+            view_sql=view_sql,
+            license_id=license_id)
+
+        return True
+
+    def delete_license_view(self, repo, table, license_view, license_id):
+        license_view_obj = LicenseView.objects.filter(
+            repo_base=self.repo_base,
+            repo_name=repo,
+            table=table,
+            license_id=license_id)
+
+        if len(license_view_obj) == 1:
+            license_view_obj[0].delete()
+
+        # delete actual view
+        self.user_con.delete_license_view(
+            repo_base=self.repo_base,
+            repo=repo,
+            license_view=license_view)
+        return True
+
     def list_repo_files(self, repo):
         """
         Lists a repo's files.
@@ -506,7 +568,7 @@ class DataHubManager:
         cards = sorted([c.card_name for c in cards])
         return cards
 
-    def list_collaborators(self, repo):
+    def list_collaborators(self, repo, license_id=-1):
         """
         returns a list of objects with keys 'username' and 'permissions'.
         'permissions' are tied to the database being queried, and left to the
@@ -525,9 +587,11 @@ class DataHubManager:
 
         # merge it with the datahub collaborator model permissions
         usernames = (db_collab['username'] for db_collab in db_collabs)
+
         dh_collabs = Collaborator.objects.filter(user__username__in=usernames,
                                                  repo_base=self.repo_base,
-                                                 repo_name=repo)
+                                                 repo_name=repo,
+                                                 license_id=license_id)
         for db_collab in db_collabs:
             db_collab['file_permissions'] = next(
                 (dh_collab.file_permission for dh_collab in dh_collabs
@@ -535,6 +599,58 @@ class DataHubManager:
                 '')
 
         return db_collabs
+
+    def list_license_views(self, repo, license_id):
+        """
+            returns a tuple of a list of license view names
+            and respective LicenseView objects
+        """
+        license_views = LicenseView.objects.filter(
+            repo_base=self.repo_base,
+            repo_name=repo,
+            license_id=int(license_id))
+        license_view_names = []
+        for license_view in license_views:
+            table = license_view.table
+            std_name = "_license_view_"
+            license_id = str(license_view.license_id)
+
+            license_view_name = table + std_name + license_id
+            license_view_names.append(license_view_name)
+
+        names = []
+        for i in range(len(license_view_names)):
+            new_tuple = (license_view_names[i], license_views[i])
+            names.append(new_tuple)
+        return names
+
+    def check_license_applied(self, table, repo, license_id):
+        """
+            Check if a license view exists for a particular repo and license_id
+        """
+        views = LicenseView.objects.filter(
+            table=table,
+            repo_base=self.repo_base,
+            repo_name=repo,
+            license_id=license_id)
+
+        if len(views) == 0:
+            return False
+        return True
+
+    def license_applied_all(self, repo, license_id):
+        """
+            Check if a license view exists for a particular repo and license_id
+        """
+        for table in self.list_tables(repo):
+            views = LicenseView.objects.filter(
+                table=table,
+                repo_base=self.repo_base,
+                repo_name=repo,
+                license_id=license_id)
+            if len(views) == 0:
+                return False
+        return True
 
     def save_file(self, repo, data_file):
         """
