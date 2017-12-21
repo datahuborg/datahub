@@ -415,7 +415,7 @@ def repo_license_manage(request, repo_base, repo, license_id):
     if repo_base.lower() == 'user':
         repo_base = username
 
-    license_applied = []
+    table_info_tuples = []
     license_views = []
     with DataHubManager(user=username, repo_base=repo_base) as manager:
         collaborators = manager.list_collaborators(repo, -1)
@@ -425,11 +425,9 @@ def repo_license_manage(request, repo_base, repo, license_id):
         for table in base_tables:
             # check if license view exists for this license_id
             applied = manager.check_license_applied(table, repo, license_id)
-            license_applied.append(applied)
+            table_info_tuples.append((table, applied))
 
     license = LicenseManager.find_license_by_id(license_id)
-
-    table_info_tuples = [(x, y) for x in base_tables for y in license_applied]
 
     rls_table = 'policy'
 
