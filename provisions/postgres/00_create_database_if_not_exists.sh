@@ -11,14 +11,15 @@ if [[ $TEST == "1" ]]; then
     # $? is 0
     exit 0
 else
+
+# remove the public schema from the template that
+# dh user databases are created from
 gosu postgres psql <<- EOSQL
     CREATE DATABASE $DB_NAME WITH OWNER $DB_USER TEMPLATE template0 ENCODING 'UTF8';
 
-    # remove the public schema from the template that
-    # dh user databases are created from
     \c template1;
     DROP SCHEMA PUBLIC;
-    SET SEARCH_PATH TO \"$user\";
+    SET SEARCH_PATH TO "\$user";
 EOSQL
     echo "******DOCKER DATABASE CREATED******"
 fi
