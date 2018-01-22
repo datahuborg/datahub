@@ -491,27 +491,6 @@ def table_anonymize(request, repo_base, repo, table):
     return HttpResponseRedirect(
         reverse('browser-repo_tables', args=(repo_base, repo)))
 
-    """
-    username = request.user.get_username()
-
-    var_text = request.GET.get('var_text', '')
-    if not var_text:
-        raise ValueError("Request missing quasi identifiers.")
-
-    var_num = request.GET.get('var_num', '')
-    if not var_num:
-        raise ValueError("Request missing K value.")
-
-    qids = map(lambda x: x.lower().strip(), var_text.split(","))
-    k = int(var_num)
-
-    with DataHubManager(user=username, repo_base=repo_base) as manager:
-        manager.anonymize_table(repo, table, qids, k)
-
-    return HttpResponseRedirect(
-        reverse('browser-repo_tables', args=(repo_base, repo)))
-    """
-
 @login_required
 def table_export(request, repo_base, repo, table_name):
     username = request.user.get_username()

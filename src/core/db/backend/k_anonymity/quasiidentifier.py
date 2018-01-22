@@ -8,20 +8,6 @@ class QuasiIdentifier(object):
 	def __init__(self, index, template):
 		self.index = index
 		self.name = template["column"]
-
-		"""
-		self.name = name
-
-		directory = os.path.dirname(__file__)
-		fp = os.path.join(directory, 'generalizations/%s.json' % self.name)
-
-		if not os.path.exists(fp):
-			raise Exception("The attribute %s is not supported." % self.name)
-
-		with open(fp, "r") as f:
-			template = json.load(f)
-		"""
-			
 		self.category_mapping = template["category"]
 
 		self.reverse_category_mapping = {}
@@ -61,14 +47,7 @@ class QuasiIdentifier(object):
 				self.children_lookup[parent_value] = children_values
 			else:
 				self.leaf_intervals.append(parent_interval)
-
-		# if self.category_mapping:
-		# 	for key in self.category_mapping:
-		# 		value = self.category_mapping[key]
-		# 		gen_value = self.generalize(str(value))
-		# 		if not gen_value:
-		# 			raise Exception("A category value cannot be generalized to any value.")
-
+				
 	def generalize(self, value):
 		if value == self.suppression_value:
 			return value

@@ -36,26 +36,6 @@ class EquivalenceTable(object):
 
 			self.backend.execute_sql(query, params)
 			self.backend.connection.commit()
-
-			"""
-			select_sql = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = \'%s\';" % self.name
-			result = self.cursor.execute(select_sql).fetchall()
-
-			if len(result) > 0:
-				drop_sql = "DROP TABLE " + self.name
-				self.cursor.execute(drop_sql)
-
-			create_sql = "CREATE TABLE %s " % self.name
-
-			columns = ["EID BIGINT PRIMARY KEY"]
-			for qid in self.qids:
-				columns.append("ATT_%d VARCHAR(128)" % qid.index)
-
-			create_sql += "(%s);" % ",".join(columns)
-
-			self.cursor.execute(create_sql)
-			self.connection.commit()
-			"""
 		except Exception as e:
 			raise e
 
@@ -86,34 +66,6 @@ class EquivalenceTable(object):
 				self.backend.connection.commit()
 
 			return eid
-
-			"""
-			eid = self.get_eid(qid_values)
-
-			if eid == -1:
-				eid = 0
-
-				select_sql = "SELECT MAX(EID) FROM %s" % self.name
-				result = self.cursor.execute(select_sql).fetchall()
-				if result[0][0] is not None:
-					eid = int(result[0][0]) + 1
-
-				insert_sql = "INSERT INTO %s VALUES " % self.name
-
-				columns = [str(eid)]
-				for value in qid_values:
-					columns.append("'%s'" % value)
-
-				insert_sql += "(%s);" % ",".join(columns)
-
-				self.cursor.execute(insert_sql)
-				self.connection.commit()
-
-			return eid
-			"""
-		#except pgdb.ProgrammingError:
-		#	print "Please check your values."
-		#	self.connection.rollback()
 		except Exception as e:
 			raise e
 
@@ -149,12 +101,6 @@ class EquivalenceTable(object):
 
 			self.backend.execute_sql(query, params)
 			self.backend.connection.commit()
-
-			"""
-			delete_sql = "DELETE FROM %s WHERE EID = %s" % (self.name, str(eid))
-			self.cursor.execute(delete_sql)
-			self.connection.commit()
-			"""
 		except Exception as e:
 			raise e
 
@@ -175,23 +121,6 @@ class EquivalenceTable(object):
 				return int(result[0][0])
 
 			return -1
-
-			"""
-			select_sql = "SELECT EID FROM %s WHERE " % self.name
-			
-			columns = []
-			for i in range(len(self.qids)):
-				columns.append("ATT_%d = '%s'" % (self.qids[i].index, qid_values[i]))
-
-			select_sql += " AND ".join(columns)
-
-			result = self.cursor.execute(select_sql).fetchall()
-
-			if len(result) > 0:
-				return int(result[0][0])
-
-			return -1
-			"""
 		except Exception as e:
 			raise e
 
@@ -209,27 +138,9 @@ class EquivalenceTable(object):
 				return values
 			
 			return None
-
-			"""
-			select_sql = "SELECT * FROM %s WHERE EID = %s" % (self.name, str(eid))
-			result = self.cursor.execute(select_sql).fetchall()
-
-			if len(result) > 0:
-				values = []
-				for i in range(len(self.qids)):
-					values.append(result[0][i+1])
-				return values
-			
-			return None
-			"""
 		except Exception as e:
 			raise e
 
 	def test(self):
 		columns_sql = "SELECT * from test3"
 		return self.cursor.execute(columns_sql).fetchall()
-
-
-# q1 = QuasiIdentifier(1, "age")
-# q2 = QuasiIdentifier(2, "gender")
-# e = EquivalenceTable("localhost", "testdb", "test", [q1, q2])

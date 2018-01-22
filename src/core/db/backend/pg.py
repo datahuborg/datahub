@@ -396,14 +396,6 @@ class PGBackend:
 
         return True
 
-        """
-        query = 'INSERT INTO %s.%s VALUES (%s, %s, %s, %s, %s)'
-        params = (AsIs(repo), AsIs(table), "Asian", "23", "Male", "02139", "Allergy")
-
-        res = self.execute_sql(query, params)
-        return res['status']
-        """
-
     def get_schema(self, repo, table):
         self._check_for_injections(repo)
         self._validate_table_name(table)
