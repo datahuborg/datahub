@@ -1,0 +1,34 @@
+{
+	"category": {},
+	"hierarchy": {
+		"value": "[0:100)",
+		"children": [
+			{
+				"value": "[0:50)",
+				"children": [
+					{
+						"value": "[0:25)",
+						"children": []
+					},
+					{
+						"value": "[25:50)",
+						"children": []
+					}
+				]
+			},
+			{
+				"value": "[50:100)",
+				"children": [
+					{
+						"value": "[50:75)",
+						"children": []
+					},
+					{
+						"value": "[75:100)",
+						"children": []
+					}
+				]
+			}
+		]
+	}
+}

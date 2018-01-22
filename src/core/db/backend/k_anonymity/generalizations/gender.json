@@ -1,0 +1,11 @@
+{
+	"category": {
+		"Male": 1,
+		"Female": 0,
+		"Person": -1
+	},
+	"hierarchy": {
+		"value": "[0:1]",
+		"children": []
+	}
+}
