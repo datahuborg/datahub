@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="/static/datatables/css/dataTables.bootstrap.extra.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.colReorder.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.colVis.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.fontAwesome.css" />
+<link rel="stylesheet" href="/static/dataq/css/style.css">
+{% endblock stylesheets %}
+
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-sm-10">
+      <h4 class="inline-block">
+        <a class="link" href="/browse/{{repo_base}}">{{repo_base}}</a>
+        /
+        <a class="link" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a>
+        /
+    </h4>
+    </div>
+  </div>
+  <hr />
+  <br />
+
+<p class="lead">Manage Data Profiles </p>
+<h4> Create or change data privacy specifications for your data sets. </h4>
+
+<form action="{% url 'license_create' %}">
+  <button type="submit" title="Create a License"  class="btn btn-primary" style="margin:10px;"> Create New Data Profile</button>
+          </form>
+
+<div><button type="button"
+    class="btn btn-primary" data-toggle="modal" data-target="#newLicenseModal" style="margin:10px;"">Add Existing Data Profile</button></div>
+
+<table class="table table-striped" style="margin-top:20px;">
+    <thead>
+      <tr>
+        <th>Data Profile Name</th>
+<!--         <th>Applied To Dataset</th>
+ -->        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for license, license_applied_all in license_info_tuples %}
+       <tr>
+        <td>{{license.license_name}}</td>
+        <td>
+          {% if license_applied_all %}
+
+                <p class="alert alert-success" style="display: inline-block; width:400px; float:right;" id="{{base_table}}AlertSuccess""> License Applied To All Tables<span class="glyphicon glyphicon-ok"/></p>
+
+                {% else %}
+
+                <p class="alert alert-danger" style="display:inline-block; width:400px; float:right;" id="{{base_table}}AlertDanger""> License Not Applied To All Tables<span style="display:inline-block;" class="glyphicon glyphicon-remove"></p>
+                {% endif %}
+
+        </td>
+        <td><a type="button" href="/licenses/{{repo_base}}/{{repo}}/{{license.license_id}}/manage" class="btn btn-primary" style="margin-top:12px; margin-right:20px; float: right;"> Update / Apply Data Profile </a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+<ul class="list-unstyled" style="padding:10px; display: none;" id="license1list">
+  License Type 1
+  <li><button type="button"
+    class="btn btn-primary" data-toggle="modal" data-target="#removePIIModal" style="margin-top:12px;" id="removeChangePIIbtn">Remove/Change PII</button> 
+    <div class="alert alert-success" style="display: none; padding-top:1px; padding-bottom:13px; margin-left: 10px;" id="piiSuccess">
+    <span class="glyphicon glyphicon-ok" style="top: 6px;" aria-hidden="true"></span>
+    </div>
+  </li>
+
+     <li><button type="button"
+    class="btn btn-primary" data-toggle="modal" data-target="#changeAccessModal" style="margin-top:12px;">Change Access</button>  
+
+  <div class="alert alert-success" style="display: none; padding-top:1px; padding-bottom:13px; margin-left: 10px;" id="accessSuccess">
+    <span class="glyphicon glyphicon-ok" style="top: 6px;" aria-hidden="true"></span>
+  </div>
+  </li>
+</ul>
+
+<div class="modal" id="annotation-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="annotation-modal-title">Annotation</h4>
+      </div>
+      <div class="modal-body" id="annotation-modal-body">
+        <form role="form" method="POST" action="/create/annotation" id="frm-annotation">
+          <div class="form-group">
+            {% csrf_token %}
+            <input type="hidden" name="url" id="annotation-modal-input-url"/>
+            <input type="text" class="form-control" name="annotation" placeholder="Enter text description" id="annotation-modal-input-annotation" />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+        class="btn btn-primary" id="annotation-modal-operation">Save</button>
+        <button type="button"
+        class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--New License Modal -->
+<div class="modal fade" id="newLicenseModal" role="dialog">
+  <div class="modal-lg">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Choose License</h4>
+      </div>
+      <div class="modal-body">
+    <!--   <div id="license-model-body-choose"> -->
+        
+      <!-- <div class="table-responsive table-container"> -->
+        <table id="table_data" class="table table-condensed table-bordered ">
+          <thead>
+            <tr>
+              <th> License ID </th>
+              <th> Name </th>
+              <th> PII Def </th>
+              <th> PII Anonymized </th>
+              <th> PII Removed </th>
+              <th> Link To Repo </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for license in all_licenses %}
+            License: {{license.license_name}} {{license.pii_def}}
+            <tr id="license_{{license.license_id}}">
+              {% for cell in license %}
+                <td class="strong">{{cell}}</td>
+              {% endfor %}
+              <td>
+              <a type="button" href="/licenses/{{repo_base}}/{{repo}}/linklicense/{{license.license_id}}/" class="btn btn-primary" style="margin-top:12px; margin-left:50px;"> Link </a>
+                 </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <br />
+        <!-- </div> -->
+
+       <!--  </div> -->
+        <div id="license-model-body-existing" style="display:none;">
+        <table class="table table-striped">
+          <tr> 
+            <td><label style="font-weight: bold;">HIPPA PII Removed </label> </td>
+            <td style="text-align: right;"> <button type="button" class="btn btn-primary" id="operation" data-toggle="modal" data-target="#viewLicense1DetailsModal" style="margin-left:20px;">View</button> </td>
+            <td><button type="button" class="btn btn-primary" id="linklicense1btn" >Add to Repo </button></td>
+          </tr>
+          <tr> 
+            <td><label style="font-weight: bold;">FERPA PII Removed </label> </td>
+            <td style="text-align: right;"> <button type="button" class="btn btn-primary" id="operation" data-toggle="modal" data-target="#viewLicense1DetailsModal" style="margin-left:20px;">View</button> </td>
+            <td><button type="button" class="btn btn-primary" id="linklicense1btn" >Add to Repo </button></td>
+          </tr>
+          <tr> 
+            <td><label style="font-weight: bold;">HIPPA PII Anonymized </label> </td>
+            <td style="text-align: right;"> <button type="button" class="btn btn-primary" id="operation" data-toggle="modal" data-target="#viewLicense1DetailsModal" style="margin-left:20px;">View</button> </td>
+            <td><button type="button" class="btn btn-primary" id="linklicense1btn" >Add to Repo </button></td>
+          </tr>
+        </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+        class="btn btn-primary" id="license-info-enter" data-dismiss="modal">Enter</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="viewLicense1DetailsModal" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      
+      <div class="modal-body">
+      <h4> License Details </h4>
+        <table>
+        <tr>
+            <td class="cell-left">
+                Repository:
+            </td>
+            <td class="cell-right">
+                <strong>{{repo_base}}/{{repo}}</strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="cell-left">
+                Owner:
+            </td>
+            <td class="cell-right">
+                <strong>{{repo_base}}</strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="cell-left">
+                License Name:
+            </td>
+            <td class="cell-right">
+              HIPPA PII Removed
+            </td>
+        </tr>
+        <tr>
+            <td class="cell-left">
+              Project Name:
+            </td>
+            <td class="cell-right">
+              Patient Visitation Statistics
+            </td>
+
+        </tr>
+        <tr>
+            <td>
+                <h4>Privacy and Protection </h4>
+                    <h4> Regulations </h4>
+                        <div class="checkbox">
+                          <label>
+                            <input type="checkbox" value="" checked="checked">
+                            HIPAA
+                          </label>
+                        </div>
+                        <div class="checkbox disabled">
+                          <label>
+                            <input type="checkbox" value="" >
+                            FERPA
+                          </label>
+                        </div>
+                    <h4>Privacy</h4>
+                    <div class="checkbox disabled">
+                          <label>
+                            <input name= "pii_properties" type="checkbox" value="">
+                            Data Anonymized
+                          </label>
+                        </div>
+                        <div class="checkbox disabled">
+                          <label>
+                            <input name= "pii_properties" type="checkbox" value="" >
+                            PII Anonymized or Removed
+                          </label>
+                        </div>
+                        <div class="checkbox disabled">
+                          <label>
+                            <input name= "pii_properties" type="checkbox" value="" >
+                            PII Anonymized
+                          </label>
+                        </div>
+                        <div class="checkbox">
+                          <label>
+                            <input type="checkbox" value="" checked="checked">
+                            PII Removed
+                          </label>
+                        </div>
+                    <h4> Exceptions </h4>
+                    <h4> Reidentification </h4>
+                    <div class="checkbox disabled">
+                          <label>
+                            <input type="checkbox" value="">
+                            Use K-Anonymity
+                          </label>
+                        </div>
+                        <label for="name" class="col-lg-4">K-size</label>
+                        <div class="col-lg-8">
+                          <input type="text" class="form-control" name="name" id="name" placeholder="Bucket Size for K">
+                        </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            </td>
+        </tr>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+        class="btn btn-primary" id="license-info-enter" data-dismiss="modal">Exit</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block js %}
+<!-- dataq -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.runtime.js"></script>
+<script src="/static/dataq/templates.js"></script>
+<script src="/static/dataq/js/dataq.min.js"></script>
+<script type="text/javascript" src="/static/lib/d3/d3.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.0.2/build/rollups/md5.js"></script>
+
+<!-- /dataq -->
+
+<!-- sentiment -->
+<script src="/static/sentiment/sentiment.js"></script>
+<!-- /sentiment -->
+
+<!-- dataTables -->
+<script src="/static/lib/jquery-datatables/jquery.dataTables.js"></script>
+<script src="/static/lib/jquery-datatables/dataTables.bootstrap.js"></script>
+<script src="/static/lib/jquery-datatables/dataTables.colReorder.js"></script>
+<script src="/static/lib/jquery-datatables/dataTables.colVis.js"></script>
+<script src="/static/datatables/js/dataTables.extra.js"></script>
+<!-- /dataTables -->
+
+
+
+<script>
+
+  function bindAnnotationModal() {
+    $('.annotation-modal-dialog').on('click', function(e) {
+      var modal_id = $(this).attr('target-modal')
+      var title = $(this).attr('title')
+      var placeholder = $(this).attr('placeholder')
+      var url_path = $(this).attr('url-path')
+
+      $(modal_id + '-title').text(title)
+      $(modal_id + '-input-annotation').val(placeholder)
+      $(modal_id + '-input-url').val(url_path)
+
+      $(modal_id).off('click');
+
+      $(modal_id).modal({
+        keyboard: true
+      })
+      .on('click', modal_id + '-operation', function(e) {
+        $("#frm-annotation").submit()
+        $(modal_id).modal('hide')
+        $("#wait-dialog").modal()
+      });
+    });
+  }
+
+  function bindDataQ() {
+    $(document).on("click", "#btn-dataq", function(e) {
+      e.preventDefault();
+      DataQ.DQ("{{repo}}", function(query) {
+        $("#txt-sql").val(query);
+      });
+    });
+  }
+
+$(document).ready(function() {
+     $(document).on("click", "#choose-existing-btn", function(e) {
+      e.preventDefault();
+      
+      $("#license-model-body-choose").hide()
+      $("#license-model-body-existing").show();
+    });
+  });
+</script>
+
+{% endblock js%}

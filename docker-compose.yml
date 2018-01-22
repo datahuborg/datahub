@@ -1,0 +1,63 @@
+# 1. Make sure server certs already exist in ./ssl.
+#
+# mkdir ssl
+# openssl req \
+#     -new \
+#     -newkey rsa:4096 \
+#     -days 365 \
+#     -nodes \
+#     -x509 \
+#     -subj "/C=US/ST=Massachusetts/L=Cambridge/O=MIT CSAIL/CN=datahub-local.mit.edu" \
+#     -keyout ssl/nginx.key \
+#     -out ssl/nginx.crt 2> /dev/null
+#
+# 2. Build images
+#
+# docker-compose build
+#
+# 3. Start servers
+#
+# docker-compose up -d
+#
+# 4. Run Django migrations
+#
+# docker-compose exec app python src/manage.py migrate --noinput
+
+version: '3'
+
+volumes:
+  db_data:
+  user_data:
+  db_logs:
+  app_logs:
+  web_logs:
+  static:
+
+services:
+  db:
+    build:
+      context: ./provisions/postgres
+    volumes:
+      - 'db_data:/var/lib/postgresql/data'
+      - 'user_data:/user_data'
+      - 'db_logs:/var/log/postgresql'
+
+  app:
+    build:
+      context: .
+    volumes:
+      - 'user_data:/user_data'
+      - 'static:/static'
+      - 'app_logs:/var/log/gunicorn'
+
+
+  web:
+    build:
+      context: ./provisions/nginx
+    volumes:
+      - './ssl/:/etc/nginx/ssl/'
+      - 'static:/static'
+      - 'web_logs:/var/log/nginx'
+    ports:
+      - '0.0.0.0:80:80'
+      - '0.0.0.0:443:443'

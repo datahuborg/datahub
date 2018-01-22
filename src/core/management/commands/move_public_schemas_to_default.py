@@ -37,6 +37,12 @@ def migrate_tables_and_views(apps, schema_editor):
     for username in all_users:
         try:
             with DataHubManager(username) as m:
+                # Disable query rewriting during migrations to avoid a race
+                # condition. The final Collaborator model has a license_id
+                # attribute, but that won't be added to the database until
+                # a later migration. The query rewriter uses Collaborators,
+                # so the migration will fail if it is enabled.
+                m.user_con.backend.row_level_security = False
                 res = m.execute_sql(
                     "SELECT table_name FROM information_schema.tables "
                     "WHERE table_schema = 'public'")

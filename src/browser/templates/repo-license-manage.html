@@ -1,0 +1,431 @@
+{% extends "base.html" %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="/static/datatables/css/dataTables.bootstrap.extra.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.colReorder.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.colVis.css" />
+<link rel="stylesheet" type="text/css" href="/static/lib/jquery-datatables/css/dataTables.fontAwesome.css" />
+<link rel="stylesheet" href="/static/dataq/css/style.css">
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="container">
+
+  <div class="row">
+    <div class="col-sm-10">
+      <h4 class="inline-block">
+        <a class="link" href=/browse/{{repo_base}}>{{repo_base}}</a> /
+        <a class="link" href="/browse/{{repo_base}}/{{repo}}">{{repo}}</a> /
+      </h4>
+    </div>
+  </div>
+  <hr />
+
+  <h3> Manage Data Profile </h3>
+  <h2>{{license.license_name}}</h2>
+
+  <div class="alert alert-success" role="alert" id="alertbox" style="visibility: hidden">
+  </div>
+  {% block tab-content %}
+ 
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <span class="lead">
+        <i class="fa fa-table"></i>
+        Base Tables &nbsp;
+        <a class="btn btn-default btn-sm" href="/browse/{{repo_base}}/{{repo}}/files" title="Create a New Table"><span class="glyphicon glyphicon-plus"></span></a>
+      </span>
+    </div>
+
+    {% if table_info_tuples and table_info_tuples|length > 0 %}
+      <div class="table-responsive">
+        <table class="table">
+          <tbody>
+            {% for base_table, license_applied in table_info_tuples %}
+            <tr>
+              <td>
+                <a href="/browse/{{repo_base}}/{{repo}}/table/{{base_table}}">{{base_table}}</a>
+              </td>
+
+               <td class="text-right">
+ 
+                 {% if login == repo_base %}
+                 {% if license_applied %}
+ 
+                 <p class="alert alert-success" style="display: inline-block; width:400px; float:right;" id="{{base_table}}AlertSuccess""> License applied <span class="glyphicon glyphicon-ok"/></p>
+ 
+                 {% else %}
+ 
+                 <p class="alert alert-danger" style="display:inline-block; width:400px; float:right;" id="{{base_table}}AlertDanger""> License not applied <span style="display:inline-block;" class="glyphicon glyphicon-remove"></p>
+                 {% endif %}
+                
+               </td>
+              <td style="width:10%;">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#removePIIModal{{base_table}}" style="dispaly:inline-block; margin-top:11px;"> Apply Data Profile to this table</button>
+              <!-- Remove PII Modal -->
+              <div class="modal fade" id="removePIIModal{{base_table}}" role="dialog">
+                <div class="modal-dialog">
+
+                  <!-- Modal content-->
+                  <div class="modal-content">
+                    
+                    <div class="modal-body">
+                    <h4> Data Preview </h4>
+                    {% if license.pii_removed %}
+                    <h5> Click edit for each data column to remove PII according to {{license.pii_def}} standards </h5>
+
+                    {% else %}
+
+                    <h5> Click edit for each data column to anonymizez PII according to  {{license.pii_def}} standards </h5>
+
+                    {% endif %}
+                      <div id="dataViewDiv{{base_table}}"></div>
+                 
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button"
+                      class="btn btn-primary" id="removeChangePIIEnterbtn{{base_table}}" data-dismiss="modal">Enter</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+                <!-- Change Column Modal -->
+                <div id="modalChangeColumn{{base_table}}" class="modal fade" role="dialog">
+                  <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                    {% if license.pii_removed %}
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title" id="changeModalHeader">Remove Column</h4>
+                      </div>
+                      <div class="modal-body">
+                        <h5> Click Delete to delete this column from the table</h5>
+                        column name: <div id="modalColumnName-{{base_table}}" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
+                        <button type="button"
+                        class="btn btn-primary" id="removeColumnBtn-{{base_table}}">Remove column</button>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      </div>
+
+                    {% else %}
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title" id="changeModalHeader">Anonymize Column via MD5 Hash</h4>
+                      </div>
+                      <div class="modal-body">
+                        <h5>Click Anonymize to anonymize this column in the table </h5>
+                        column name: <div id="modalColumnName-{{base_table}}" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
+                        <button type="button"
+                        class="btn btn-primary" id="removeColumnBtn-{{base_table}}">Anonymize Column</button>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      </div>
+
+                    {% endif %}
+                      
+                    </div>
+                  </div>
+                </div>
+                               
+                  <script> 
+                    var colsToRemove = []
+                    var CSVData = null;
+
+                    function updateCSVTable(data) {
+                      $('#dataViewDivtest').html('')
+
+                      var table = d3.select("#dataViewDivtest")
+                                  .append("table")
+                                  .attr("class", "table table-striped table-hover");
+
+                      var thead = table.append("thead");
+                      var tbody = table.append("tbody");
+
+                      // Create headings for update columns table
+                      thead.selectAll("tr")
+                      .data(data.slice(0,1)).enter()
+                      .append("tr")
+                      .selectAll("th")
+                      .data(function(d) {
+                        return d;
+                      }).enter()
+                      .append("th")
+                      .attr("value", function(d) {
+                        return d;
+                      })
+                      .text(function(d) {
+                        return d;
+                      })
+                      .insert("button")
+                      .attr("class","piiEditBtn-{{base_table}}");
+
+                      // Fill in data for update columns table
+                      tbody.selectAll("tr")
+                      .data(data.slice(1, data.length)).enter()
+                      .append("tr")
+
+                      .selectAll("td")
+                      .data(function(d) {
+                        return d;
+                      }).enter()
+                      .append("td")
+                      .text(function(d) {
+                        return d;
+                      });
+
+                      // Buttons for editing columns
+
+                      $(".piiEditBtn-{{base_table}}").text("edit").addClass("btn").addClass("btn-warning").css("display","block");
+                    }
+
+                    var curColName = null;
+                    var curColIndex = null;
+
+                    $(document).on("click", "#hashColumnBtn", function(e) {
+                      console.log("clicked")
+                      newCSVDATA = [];
+                      first = true;
+                      CSVData.forEach(function(element){
+                       var newElement = element.slice(0);
+
+                       if (first) {
+                          first = false;
+                        } else {
+
+                          hashedElement = Math.abs(element[curColIndex].toString().hashCode());
+                          console.log("hasehed element: " + hashedElement)
+                          newElement[curColIndex] = hashedElement;
+                        }
+                        newCSVDATA.push(newElement);
+
+                      });
+
+                      CSVData = newCSVDATA;
+
+                      updateCSVTable(CSVData); 
+
+                      var html = "<li> Hashed column: " + curColName + "</li>"
+
+                      $("#licenseList").append(html);
+                    });
+
+                     // Load sample table
+                    $(document).ready(function() {
+                      url = "/download/{{repo_base}}/{{repo}}/file/test.csv";
+
+                      d3.text(url, function(datasetText) {
+                        var parsedCSV = d3.csv.parseRows(datasetText);
+                        updateCSVTable(parsedCSV);
+                        CSVData = parsedCSV;
+                      });
+                    });
+
+                    $(document).on("click", ".piiEditBtn-{{base_table}}", function(e) {
+                      console.log($(e.target).parent().attr("value"))
+                      
+                      curColName = $(e.target).parent().attr("value");
+                      curColIndex = $(e.target).parent().index();
+                      $("#modalColumnName-{{base_table}}").text(curColName);
+                      $("#modalChangeColumn{{base_table}}").modal("show");
+                    });
+
+                    $(document).on("click", "#removeColumnBtn-{{base_table}}", function(e) {
+                      console.log("remove btn clicked")
+                      console.log(curColName)
+                      colsToRemove.push($.trim(curColName));
+                      console.log(colsToRemove)
+
+                      CSVData.forEach(function(element){
+                      element.splice(curColIndex,1 );
+                      });
+
+                      updateCSVTable(CSVData);
+
+                      var html = "<li> Removed column: " + curColName + "</li>"
+
+                      $("#licenseList").append(html);
+                    });
+
+                    $(document).on("click", "#removeChangePIIEnterbtn{{base_table}}", function(e) {
+                      $.ajax({
+                        url: '/license_view/{{repo_base}}/{{repo}}/{{base_table}}/{{license.license_id}}/create/',
+                        type: 'POST',
+                        data: {
+                            'removed_columns':  colsToRemove
+                          }
+                       })
+                      .fail(function(xhr, status, error) {
+                         })
+                      .done(function(data, status, xhr) {
+                        setTimeout(function(){
+                          location.reload();
+                        }, 1500); 
+                      });
+                    });          
+                  </script>
+              </td>
+                {% endif %}              
+
+            </tr>
+            {% endfor %}
+
+            {% for license_view_name, license_view_object in license_views %}
+            <tr>
+              <td>
+                <a href="/browse/{{repo_base}}/{{repo}}/table/{{license_view_name}}">Preview Dataset privacy settings</a>
+              </td>
+
+              <td class="text-right">
+                <span
+                    class="modal-link modal-confirm-dialog"
+                    target-modal="#confirm-modal"
+                    target-modal-title="Confirm CSV Export"
+                    target-modal-body="This will export the view <strong><em>{{license_view}}</em></strong> to a CSV file named <strong><em>{{license_view}}.csv</em></strong> inside the <strong><em>{{repo_base}}/{{repo}}</em></strong> repository. The operation will overwrite any existing file with the same name. Are you sure?"
+                    target-modal-operation="Export"
+                    target-url="/export/{{repo_base}}/{{repo}}/table/{{license_view}}"
+                    title="CSV Export">
+                  <span class="csv-icon"></span>
+                </span>&nbsp;&nbsp;
+
+                <span
+                    class="modal-link modal-confirm-dialog"
+                    target-modal="#confirm-modal"
+                    target-modal-title="Confirm Delete"
+                    target-modal-body="This will permanently delete the view <strong><em>{{license_view}}</em></strong> from the repository <strong><em>{{repo_base}}/{{repo}}</em></strong>. The operation can't be undone. Are you sure?"
+                    target-modal-operation="Delete"
+                    target-url="/license_view/{{repo_base}}/{{repo}}/{{license_view_object.table}}/{{license_view_name}}/{{license_view_object.license_id}}/delete"
+                    title="Delete LicenseView">
+                  <span class="delete-icon"></span>
+                </span>&nbsp;&nbsp;
+              </td>
+            </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="bg-warning">No table in <strong>{{repo_base}}.{{repo}}</strong></p>
+    {% endif %}
+  </div>
+  {% endblock %}
+
+<h3> Collaborators </h3>
+<ul class="list-unstyled">
+  {{collaborators}}
+  {% if collaborators|length > 0 %} {% for collaborator in collaborators %}
+  <li>
+      <a href="/collaborator/repo/{{repo_base}}/{{repo}}/remove/{{collaborator.username}}" title="Remove"><span class="glyphicon glyphicon-remove"></span></a> &nbsp;
+      <span title="The user you added as a collaborator" class="label label-default">{{collaborator.username}}</span> <a href="http://www.postgresql.org/docs/9.4/static/sql-grant.html" title="Permissions are tied to the database being queried, and left to the user to be interpreted. For postgres, see http://www.postgresql.org/docs/9.4/static/sql-grant.html" target="_blank"><span class="label label-default">{{collaborator.permissions}}</span></a>
+  </li>
+  {% endfor %} {% endif %}
+  <li style="margin: 20px 0 20px 8px;">
+      <a href="/collaborator/repo/{{repo_base}}/{{repo}}/remove/{{collaborator.username}}" title="Remove"><span class="glyphicon glyphicon-remove"></span></a> &nbsp;
+      <span title="The user you added as a collaborator" class="label label-default" style="font-size:12px; padding:8px; margin:8px;">user1</span> <a href="http://www.postgresql.org/docs/9.4/static/sql-grant.html" title="Permissions are tied to the database being queried, and left to the user to be interpreted. For postgres, see http://www.postgresql.org/docs/9.4/static/sql-grant.html" target="_blank"><span class="label label-default">{{collaborator.permissions}}</span></a>
+  </li>
+  <li style="margin: 20px 0 20px 8px;">
+      <a href="/collaborator/repo/{{repo_base}}/{{repo}}/remove/{{collaborator.username}}" title="Remove"><span class="glyphicon glyphicon-remove"></span></a> &nbsp;
+      <span title="The user you added as a collaborator" class="label label-default" style="font-size:12px; padding:8px; margin:8px;">user2</span> <a href="http://www.postgresql.org/docs/9.4/static/sql-grant.html" title="Permissions are tied to the database being queried, and left to the user to be interpreted. For postgres, see http://www.postgresql.org/docs/9.4/static/sql-grant.html" target="_blank"><span class="label label-default">{{collaborator.permissions}}</span></a>
+  </li>
+</ul>
+<div class="highlight">
+        <h4>Add Collaborators</h4>
+        <form class="form-group" role="form" method="POST" action="/collaborator/repo/{{repo_base}}/{{repo}}/{{license_id}}/add">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="text" class="form-control" name="collaborator_username" id="collaborator_username" placeholder="Username" />
+            </div>
+            <p class="help-block">Select project collaborator permissions:</p>
+            <div class="checkbox">
+                <label title="Allows SELECT from any column, or the specific columns listed, of the specified table, view, or sequence. Also allows the use of COPY TO. This privilege is also needed to reference existing column values in UPDATE or DELETE. For sequences, this privilege also allows the use of the currval function. For large objects, this privilege allows the object to be read.">
+                    <input type="checkbox" name="db_privileges" value="SELECT" checked/> select
+                </label>
+            </div>
+            <div class="checkbox">
+                <label title="UPDATE changes the values of the specified columns in all rows that satisfy the condition. Only the columns to be modified need be mentioned in the SET clause; columns not explicitly modified retain their previous values.">
+                    <input type="checkbox" name="db_privileges" value="UPDATE" checked/> update
+                </label>
+            </div>
+            <div class="checkbox">
+                <label title="INSERT inserts new rows into a table. One can insert one or more rows specified by value expressions, or zero or more rows resulting from a query.">
+                    <input type="checkbox" name="db_privileges" value="INSERT" checked/> insert
+                </label>
+            </div>
+            <div class="checkbox">
+                <label title="DELETE deletes rows that satisfy the WHERE clause from the specified table. If the WHERE clause is absent, the effect is to delete all rows in the table. The result is a valid, but empty table.">
+                    <input type="checkbox" name="db_privileges" value="DELETE" checked/> delete
+                </label>
+            </div>
+            <div class="checkbox">
+                <label data-toggle="tooltip" title="TRUNCATE quickly removes all rows from a set of tables. It has the same effect as an unqualified DELETE on each table, but since it does not actually scan the tables it is faster. Furthermore, it reclaims disk space immediately, rather than requiring a subsequent VACUUM operation. This is most useful on large tables.">
+                    <input type="checkbox" name="db_privileges" value="TRUNCATE" checked/> truncate
+                </label>
+            </div>
+            <div class="checkbox">
+                <label title="To create a foreign key constraint, it is necessary to have this privilege on both the referencing and referenced columns. The privilege may be granted for all columns of a table, or just specific columns.">
+                    <input type="checkbox" name="db_privileges" value="REFERENCES" checked/> references
+                </label>
+            </div>
+            <div class="checkbox">
+                <label title="Allows the creation of a trigger on the specified table. A trigger is a specification that the database should automatically execute a particular function whenever a certain type of operation is performed. Triggers can be attached to both tables and views.">
+                    <input type="checkbox" name="db_privileges" value="TRIGGER" checked/> trigger
+                </label>
+            </div>
+            <p class="help-block">Permissions for repo files:</p>
+            <div class="checkbox">
+                <label title="Allows read access to files and cards in the repo">
+                    <input type="checkbox" name="file_privileges" value="read" checked/> read
+                </label>
+            </div>
+            <div class="checkbox">
+                <label title="Allows creation and modification of files and cards in the repo">
+                    <input type="checkbox" name="file_privileges" value="WRITE" checked/> write
+                </label>
+            </div>
+
+            <button class="btn btn-primary btn-xsm" id="add_collaborator" type="submit">Add</button>
+        </form>
+</div>
+</div>
+
+{% endblock content %}
+
+{% block js %}
+<!-- dataq -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.runtime.js"></script>
+<script src="/static/dataq/templates.js"></script>
+<script src="/static/dataq/js/dataq.min.js"></script>
+<script type="text/javascript" src="/static/lib/d3/d3.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.0.2/build/rollups/md5.js"></script>
+
+
+<!-- dataTables -->
+<script src="/static/lib/jquery-datatables/jquery.dataTables.js"></script>
+<script src="/static/lib/jquery-datatables/dataTables.bootstrap.js"></script>
+<script src="/static/lib/jquery-datatables/dataTables.colReorder.js"></script>
+<script src="/static/lib/jquery-datatables/dataTables.colVis.js"></script>
+<script src="/static/datatables/js/dataTables.extra.js"></script>
+<!-- /dataTables -->
+
+<script>
+
+  String.prototype.hashCode = function() {
+    var hash = 0;
+    if (this.length == 0) return hash;
+    for (i = 0; i < this.length; i++) {
+      char = this.charCodeAt(i)
+      hash = ((hash<<5) - hash) + char;
+      hash = hash & hash;
+    }
+    return hash
+  }
+</script>
+
+{% endblock js%}

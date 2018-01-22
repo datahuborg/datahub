@@ -67,7 +67,6 @@ urlpatterns = patterns(
         name='browser-card'),
     url(r'^browse/(\w+)/(\w+)/?$', 'browser.views.repo',
         name='browser-repo'),
-
     url(r'^browse/(\w+)/(\w+)/tables/?$', 'browser.views.repo_tables',
         name='browser-repo_tables'),
     url(r'^browse/(\w+)/(\w+)/files/?$', 'browser.views.repo_files',
@@ -123,11 +122,31 @@ urlpatterns = patterns(
     url(r'^settings/(\w+)/(\w+)/?$', 'browser.views.repo_settings',
         name='browser-repo_settings'),
 
+    # Licenses
+    url(r'^licenses/(\w+)/(\w+)/?$', 'browser.views.repo_licenses',
+        name='browser-repo_licenses'),
+    url(r'^licenses/create/?$', 'browser.views.license_create',
+        name='license_create'),
+    url(r'^licenses/(\w+)/(\w+)/(\w+)/manage/?$',
+        'browser.views.repo_license_manage',
+        name='browser-repo_license_manage'),
+    url(r'^licenses/(\w+)/(\w+)/linklicense/(\w+)/?$',
+        'browser.views.link_license', name='link_license'),
+    url(r'^license_view/(\w+)/(\w+)/(\w+)/(\w+)/create/?$',
+        'browser.views.license_view_create',
+        name='browser-license_view_create'),
+    url(r'^license_view/(\w+)/(\w+)/(\w+)/(\w+)/(\w+)/delete/?$',
+        'browser.views.license_view_delete',
+        name='browser-license_view_delete'),
 
     # Collaborators
     url(r'^collaborator/repo/(\w+)/(\w+)/add/?$',
         'browser.views.repo_collaborators_add',
         name='browser-repo_collaborators_add'),
+
+    url(r'^collaborator/repo/(\w+)/(\w+)/(\w+)/add/?$',
+        'browser.views.repo_license_collaborators_add',
+        name='browser-repo_license_collaborators_add'),
 
     url(r'^collaborator/repo/(\w+)/(\w+)/remove/(\w+)/?$',
         'browser.views.repo_collaborators_remove',

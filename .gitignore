@@ -96,4 +96,4 @@ ghostdriver.log
 
 # Developer Specific
 devnotes.txt
-src/functional_tests/screenshots/*
+src/functional_tests/screenshots/* 
