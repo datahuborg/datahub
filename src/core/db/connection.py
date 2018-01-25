@@ -106,6 +106,9 @@ class DataHubConnection:
         return self.backend.clone_table(
             repo=repo, table=table, new_table=new_table)
 
+    def anonymize_table(self, repo, table, templates, k):
+        return self.backend.anonymize_table(repo=repo, table=table, templates=templates, k=k)
+
     def get_schema(self, repo, table):
         return self.backend.get_schema(repo=repo, table=table)
 

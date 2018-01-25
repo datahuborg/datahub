@@ -197,19 +197,46 @@
         $(modal_id).off('click');
         $(modal_id + ' .btn-primary').off('click');
 
+        $(modal_id + ' #add-qid').on('click', function(e) {
+          $('#add-qid').before("<label for='variable-text' class='control-label'>Quasi Identifier:</label><br /> <textarea style=' width:500px; height:270px; '></textarea><br />");
+        });
+
         $(modal_id + ' .btn-primary').on('click', function(e) {
           $(modal_id).modal('hide');
           $("#wait-dialog").modal();
 
           var new_location = window.location.protocol + '//' + window.location.host + target_url;
 
-          // append parameter, as necessary
-          var var_text = $("#variable-text").val();
-          if(var_text != ""){
-            new_location += '?var_text=' + var_text;
-          };
+          if ($(this).attr('id') == 'anonymize-btn') {
+            qids = $("textarea").map(function() {
+              return JSON.stringify(JSON.parse($(this).val()));
+            }).toArray();
 
-          window.location.href = new_location;
+            var value = qids.reduce(function(a,b) {
+              return String(a) + "|" + String(b)
+            });
+
+            var element = "<input type='hidden' name='templates' value=" + value + " />";
+
+            $(modal_id + ' .form-group').after(element);
+            $(modal_id + ' #anonymize-modal-form').submit();
+          } else {
+            // append parameter, as necessary
+            var var_text = $("#variable-text").val();
+            if(var_text != "" && var_text != undefined){
+              new_location += new_location.indexOf("?") == -1 ? "?" : "&";
+              new_location += 'var_text=' + var_text;
+            };
+
+            // append parameter, as necessary
+            var var_num = $("#variable-num").val();
+            if(var_num != "" && var_num != undefined){
+              new_location += new_location.indexOf("?") == -1 ? "?" : "&";
+              new_location += 'var_num=' + var_num;
+            };
+
+            window.location.href = new_location;
+          }
 
         });
 

@@ -734,6 +734,17 @@ def table_clone(request, repo_base, repo, table):
     return HttpResponseRedirect(
         reverse('browser-repo_tables', args=(repo_base, repo)))
 
+@login_required
+def table_anonymize(request, repo_base, repo, table):
+    username = request.user.get_username()
+    templates = [json.loads(i) for i in request.POST['templates'].split('|')]
+    k = int(request.POST['k-value'])
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        manager.anonymize_table(repo, table, templates, k)
+
+    return HttpResponseRedirect(
+        reverse('browser-repo_tables', args=(repo_base, repo)))
 
 @login_required
 def table_export(request, repo_base, repo, table_name):

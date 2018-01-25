@@ -322,6 +322,19 @@ class DataHubManager:
         return self.user_con.clone_table(
             repo=repo, table=table, new_table=new_table)
 
+    def anonymize_table(self, repo, table, templates, k):
+        """
+        Creates a copy of a table with the name new_table.
+
+        Returns True on success
+
+        Raises ValueError if repo or table have invalid characters
+        Raises ProgrammingError if the repo or table do not exist.
+        Raises ProgrammingError if the new_table already exists.
+        Raises ProgrammingError on insufficient permissions.
+        """
+        return self.user_con.anonymize_table(repo=repo, table=table, templates=templates, k=k)
+
     def get_schema(self, repo, table):
         """
         Lists a table or view's schema.

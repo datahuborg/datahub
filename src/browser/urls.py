@@ -99,6 +99,10 @@ urlpatterns = patterns(
     url(r'^clone/(\w+)/(\w+)/table/(\w+)/?$',
         'browser.views.table_clone', name='browser-table_clone'),
 
+    # Anonymize
+    url(r'^anonymize/(\w+)/(\w+)/table/(\w+)/?$',
+        'browser.views.table_anonymize', name='browser-table_anonymize'),
+
     # Export
     url(r'^export/(\w+)/(\w+)/table/(\w+)/?$', 'browser.views.table_export',
         name='browser-table_export'),

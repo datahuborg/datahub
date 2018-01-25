@@ -48,6 +48,17 @@
               <span
                   class="modal-link modal-confirm-dialog"
                   target-modal="#dialog-modal"
+                  target-modal-title="Confirm Table Anonymize"
+                  target-modal-body="<form method='POST' action='/anonymize/{{repo_base}}/{{repo}}/table/{{base_table}}' id='anonymize-modal-form'><p>This will create a k-anonymized version of the table {{base_table}}</p><br /><div class='form-group'> {% csrf_token %} <label for='variable-num' class='control-label'>K Value:</label> <input type='text' class='form-control' name='k-value' id='variable-num'><br /> <label for='variable-text' class='control-label'>Quasi Identifier:</label><br /> <textarea style=' width:500px; height:270px; '></textarea><br /> <button type='button' class='btn btn-default' id='add-qid'>Add More</button></div><div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>Close</button> <button type='button' class='btn btn-primary' id='anonymize-btn'>Anonymize</button></div></form>"
+                  target-modal-operation="Anonymize"
+                  target-url="/anonymize/{{repo_base}}/{{repo}}/table/{{base_table}}"
+                  title="Anonymize Table">
+                <i class="fa fa-user-secret"></i>
+              </span>&nbsp;&nbsp;
+
+              <span
+                  class="modal-link modal-confirm-dialog"
+                  target-modal="#dialog-modal"
                   target-modal-title="Confirm CSV Export"
                   target-modal-body="<form action='/export/{{repo_base}}/{{repo}}/table/{{base_table}}'><p>This will export the table <strong><em>{{base_table}}</em></strong> to a CSV file inside the <strong><em>{{repo_base}}/{{repo}}</em></strong> repository. The operation will overwrite any existing file with the same name. Are you sure?</p><br /><div class='form-group'> <label for='variable-text' class='control-label'>CSV Name:</label> <input type='text' class='form-control' id='variable-text' placeholder='{{base_table}}'> </div><div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>Close</button> <button type='button' class='btn btn-primary'>Export</button></div></form>"
                   target-modal-operation="Export"

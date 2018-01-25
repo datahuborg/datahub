@@ -8,12 +8,15 @@ from uuid import uuid4
 import psycopg2
 import core.db.query_rewriter
 from psycopg2.extensions import AsIs
+from psycopg2.extras import NamedTupleCursor
 from psycopg2.pool import ThreadedConnectionPool
 from psycopg2 import errorcodes
 from core.db.licensemanager import LicenseManager
 
 from core.db.errors import PermissionDenied
 from config import settings
+
+from k_anonymity.kanonymizer import KAnonymizer
 
 """
 DataHub internal APIs for postgres repo_base
@@ -475,6 +478,15 @@ class PGBackend:
         res = self.execute_sql(query, params)
         return res['status']
 
+    def anonymize_table(self, repo, table, templates, k):
+        self._check_for_injections(repo)
+        self._validate_table_name(table)
+
+        k = KAnonymizer(self, repo, table, templates, k)
+        k.anonymize()
+
+        return True
+
     def get_schema(self, repo, table):
         self._check_for_injections(repo)
         self._validate_table_name(table)
@@ -550,10 +562,12 @@ class PGBackend:
             'status': False,
             'row_count': 0,
             'tuples': [],
-            'fields': []
+            'fields': [],
+            'positions': {}
         }
 
         query = query.strip()
+        # cur = self.connection.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor)
         cur = self.connection.cursor()
 
         try:
@@ -578,8 +592,13 @@ class PGBackend:
         result['status'] = True
         result['row_count'] = cur.rowcount
         if cur.description:
-            result['fields'] = [
-                {'name': col[0], 'type': col[1]} for col in cur.description]
+            for i in range(len(cur.description)):
+                col = cur.description[i]
+                result['fields'].append({ 'name': col[0], 'type': col[1]})
+                result['positions'][col[0]] = i
+
+            #result['fields'] = [
+            #    {'name': col[0], 'type': col[1]} for col in cur.description]
 
         cur.close()
         return result
