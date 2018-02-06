@@ -600,7 +600,7 @@ class PGBackend:
         self._check_for_injections(username)
 
         query = ('CREATE ROLE %s WITH LOGIN '
-                 'NOCREATEDB NOCREATEROLE NOCREATEUSER PASSWORD %s')
+                 'NOCREATEDB NOCREATEROLE NOSUPERUSER PASSWORD %s')
         params = (AsIs(username), password)
         self.execute_sql(query, params)
 
