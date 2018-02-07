@@ -18,7 +18,7 @@ if 'TRAVIS' in os.environ:
     DB_HOST = 'localhost'
     DB_PASSWORD = ''
 else:
-    DB_HOST = 'localhost'
+    DB_HOST = 'db'
     DB_PASSWORD = 'postgres'
 
 DATABASES = {
