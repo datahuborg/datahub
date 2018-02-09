@@ -36,16 +36,16 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" id="logo" href="/">DataHub</a>
+        <a class="navbar-brand" id="logo" href="/">ShareDB</a>
       </div>
       <div class="navbar-collapse collapse">
         <div class="navbar-right">
             {% block headlink-right %}
               {% if login != 'dh_anonymous' and login or user.is_authenticated  %}
                 <ul class="nav navbar-nav navbar-right">
-                  <li><a href="/"><i class="fa fa-home"></i> <strong>Home</strong></a></li>
-                  <li><a href="/browse/public" title="Public data is available for anyone to build queries on. All registered users have the option of publishing data. This is useful if you're doing something like publishing a paper, and would like the raw data to be available to anyone to play with. Users cannot modify public data without express permission from the data owner."><i class="glyphicon glyphicon-globe"></i> <strong>Public Data</strong></a></li>
-                  <li><a href="/apps/console" id="id_launch_terminal" title="SQL Console lets you directly connect to your or a collaborator's database via a terminal interface."><i class="glyphicon glyphicon-console"></i> <strong>SQL Console</strong></a></li>
+                  <li><a href="/"><i class="fa fa-home"></i> <strong>My Datasets</strong></a></li>
+                  <!-- <li><a href="/browse/public" title="Public data is available for anyone to build queries on. All registered users have the option of publishing data. This is useful if you're doing something like publishing a paper, and would like the raw data to be available to anyone to play with. Users cannot modify public data without express permission from the data owner."><i class="glyphicon glyphicon-globe"></i> <strong>Public Data</strong></a></li>
+                  <li><a href="/apps/console" id="id_launch_terminal" title="SQL Console lets you directly connect to your or a collaborator's database via a terminal interface."><i class="glyphicon glyphicon-console"></i> <strong>SQL Console</strong></a></li> ui change-->
 
                   <!-- <li>
                     <a href="/"><i class="fa fa-th-large"></i> <strong>App Center</strong></a>
@@ -54,14 +54,17 @@
                   <li>
                     <a href="/"><i class="fa fa-bell"></i> <strong>Notifications</strong></a>
                   </li> -->
+                  <li><a href="/"></i> <strong>Privacy Profiles</strong></a></li>
+                  <li><a href="/"></i> <strong>Create New Agreement</strong></a></li>
+                  <li><a href="/"></i> <strong>Manage Agreements</strong></a></li>
 
-                  <li class="dropdown">
+                   <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="id_user_menu" role="button" aria-expanded="false">
                       <i class="fa fa-user"></i> <strong>{% if login %}{{ login }}{% else %}{{ user.get_username }}{% endif %}</strong> <i class="fa fa-caret-down"></i>
                     </a>
 
                     <ul class="dropdown-menu" role="menu">
-                      <li><a href="/developer/apps" id="id_create_app" title="Manage Apps">Manage Apps</a></li>
+                      <!-- <li><a href="/developer/apps" id="id_create_app" title="Manage Apps">Manage Apps</a></li> advanced feature-->
                       <li class="divider"></li>
                       <li><a href="/account/settings" id="id_settings" title="Sign Out">Settings</a></li>
                       <li><a href="/account/logout" id="id_sign_out" title="Sign Out">Sign Out</a></li>

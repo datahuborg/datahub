@@ -6,17 +6,16 @@
 
 {% block content %}
 <div class="container">
-
-  <h4 class="inline-block">
-    {{repo_base}} /
-  </h4>
-
-  <hr />
-  <br />
+  <h4> Guide to using ShareDB </h4>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item"><b style="display:inline-block;"> STEP 1: Click '+' To create a new data collection</b> </li>
+    <li class="list-group-item"><b style="display:inline-block;"> STEP 2: Click on the newly create repo to add data to it</b> </li>
+    <li class="list-group-item"><b style="display:inline-block;"> STEP 3: Select "Privacy Profiles" for policy application and other features</b> </li>
+  </ul>
   <div class="panel panel-default">
   <div class="panel-heading">
     <span class="lead">
-      Your Repositories &nbsp;
+      Create Data Repo &nbsp;
       <a class="btn btn-default btn-sm" href="/create/{{repo_base}}/repo" title="Create a New Repository"><span class="glyphicon glyphicon-plus"></span></a>
     </span>
   </div>
@@ -29,9 +28,9 @@
             <td><a class="link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
 
             {% if repo.public %}
-              <td>Public</td>
+              <td>(Public)</td>
             {% else %}
-              <td>Private</td>
+              <td>(Private)</td>
             {% endif %}
             <td class="text-right">
               <a href="/settings/{{repo.owner}}/{{repo.name}}" title="Shared with {{repo.collaborators|join:', '}}">{{repo.collaborators|length}} collaborator(s)</a>
@@ -39,7 +38,7 @@
             </td>
 
             <td class="text-right" style="width: 14em; max-width: 30em;">
-            <a href="/licenses/{{repo.owner}}/{{repo.name}}" title="Manage Data Profiles">Data Profiles</span></a>
+            <a href="/licenses/{{repo.owner}}/{{repo.name}}" title="Manage Data Profiles">Privacy Profiles</span></a>
               &nbsp;&nbsp;
               <a href="/settings/{{repo.owner}}/{{repo.name}}" title="Manage collaborators"><span class="glyphicon glyphicon-cog"></span></a>
               &nbsp;&nbsp;
@@ -93,7 +92,7 @@
             </td>
           </tr>
         {% endfor %}
-
+<!-- 
         <tr>
           <th class="lead" style="background-color:#f5f5f5;"> Security Policies &nbsp; <i class="fa fa-lock"></i></th>
           <th style="background-color:#f5f5f5;"></th>
@@ -106,7 +105,7 @@
             <td></td>
             <td class="text-right"></td>
             <td class="text-right" style="width: 5em; max-width: 30em;"></td>
-        </tr>
+        </tr> -->
       </table>
     </div>
   {% elif repo_base != login %}
