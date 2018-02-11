@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="container">
-  <h4> Guide to using ShareDB </h4>
+  <h4> Guide to using ShareDB: Privacy Profiles</h4>
   <ul class="list-group list-group-flush">
     <li class="list-group-item"><b style="display:inline-block;"> To create a new Privacy Profile for a data set , click Add 'Privacy Profile' next to desired data set</b> </li>
     <li class="list-group-item"><b style="display:inline-block;"> To browse previously create Privacy Profiles for a data set, click 'Manage Privacy Profiles'</b> </li>
@@ -21,15 +21,18 @@
   {% if repos|length > 0 or collaborator_repos|length > 0 %}
     <div class="table-responsive">
       <table id="repos" class="table">
+        <thead>
+          <tr> <h5 style="margin-left: 10px"> Data Set Name</h5></tr>
+        </thead>
         {% for repo in repos %}
           <tr>
             <td><a class="link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
-
+<!-- 
             {% if repo.public %}
               <td>(Public)</td>
             {% else %}
               <td>(Private)</td>
-            {% endif %}
+            {% endif %} -->
             <td class="text-right">
               <a href="/privacy_profiles/{{repo.owner}}/{{repo.name}}/create" title="Add Privacy Profile to data set">Add Privacy Profile</a>
               &nbsp;&nbsp;

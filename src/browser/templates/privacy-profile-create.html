@@ -1,109 +1,105 @@
 {% extends "base.html" %}
-
 {% block content %}
 <div class="container">
-    <hr />
-    <h3>Create New Privacy Profile For: </h3>
-    <h4>{{repo}}</h4>
-    <form role="form" method="POST" action="{% url 'license_create' %}" enctype='multipart/form-data' id="license-form">
-    <table>
-        <tr>
+   <h4> Guide to using ShareDB: Privacy Profiles</h4>
+     <ul class="list-group list-group-flush">
+       <li class="list-group-item"><b style="display:inline-block;"> Select desired privacy and security settings for your dataset. Once the Profile is created, it can be applied to tables within your dataset</b> </li>
+     </ul>
+      <hr />
+   <h4>Create new Privacy Profile for: {{repo}}</h4>
+   <form role="form" method="POST" action="{% url 'license_create' %}" enctype='multipart/form-data' id="license-form">
+      <table>
+         <tr>
             <td class="cell-left">
-                Privacy Profile Name:
+               Privacy Profile Name:
             </td>
             <td class="cell-right">
-                <input type="text" class="form-control" name="license_name" id="license_name" placeholder="license name" >
+               <input type="text" class="form-control" name="license_name" id="license_name" placeholder="license name" >
             </td>
-        </tr>
-        <tr>
-        </tr>
-        <tr>
+         </tr>
+         <tr>
+         </tr>
+         <tr>
             <td>
-                <h3>Privacy and Protection </h3>
-                    <h4> Regulations </h4>
-                        <div class="checkbox">
-                          <label>
-                            <input type="checkbox" name="pii_def" value="hipaa">
-                            HIPAA
-                          </label>
-                        </div>
-                        <div class="checkbox disabled">
-                          <label>
-                            <input type="checkbox" value="ferpa" name="pii_def">
-                            FERPA
-                          </label>
-                        </div>
-                    <h4>Privacy</h4>
-                        <div class="checkbox">
-                          <label>
-                            <input  name="pii_properties" type="checkbox" value="anonymimzedorremoved" >
-                            PII Anonymized or Removed
-                          </label>
-                        </div>
-                        <div class="checkbox">
-                          <label>
-                            <input  name="pii_properties" type="checkbox" value="anonymized"  name="pii">
-                            PII Anonymized
-                          </label>
-                        </div>
-                        <div class="checkbox">
-                          <label>
-                            <input  name="pii_properties" type="checkbox" value="removed" >
-                            PII Removed
-                          </label>
-                        </div>
-                    <h4> Exceptions </h4>
-                    <h4> Reidentification </h4>
-                    <div class="checkbox">
-                          <label>
-                            <input type="checkbox" value="">
-                            Use K-Anonymity
-                          </label>
-                        </div>
-                        <label for="name" class="col-lg-4">K-size</label>
-                        <div class="col-lg-8">
-                          <input type="text" class="form-control" name="name" id="name" placeholder="Bucket Size for K">
-                        </div>
+               <h4> Regulations </h4>
+               <div class="checkbox" title="HIPAA, which stands for the Health Insurance Portability and Accountability Act of 1996, is a federal privacy regulation that specifies privacy and security provisions for medical information. The privacy rule pinpoints 18 identifiers, which are considered “personally identifiable information” or (PII), when used in conjunction with healthcare information.">
+                  <label>
+                  <input type="checkbox" name="pii_def" value="hipaa">
+                  HIPAA <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+                  </label>
+               </div>
+               <div class="checkbox disabled" title="FERPA, which stands for the The Family Educational Rights and Privacy Act of 1974, is another federal privacy law that specifies the conditions for disclosing children's educational records, such as report cards, transcripts, disciplinary records, contact and family information, and class schedules. ">
+                  <label>
+                  <input type="checkbox" value="ferpa" name="pii_def">
+                  FERPA <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+                  </label>
+               </div>
+               </br>
+               <h4 title="Sanitization of information to ensure privacy protection. It is the process of either encrypting or removing personally identifiable information from data sets, so that the people whom the data describe remain anonymous.">Privacy <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></h4>
+               <div class="checkbox">
+                  <label>
+                  <input  name="pii_properties" type="checkbox" value="anonymimzedorremoved" >
+                  PII Anonymized or Removed
+                  </label>
+               </div>
+               <div class="checkbox">
+                  <label>
+                  <input  name="pii_properties" type="checkbox" value="anonymized"  name="pii">
+                  PII Anonymized
+                  </label>
+               </div>
+               <div class="checkbox">
+                  <label>
+                  <input  name="pii_properties" type="checkbox" value="removed" >
+                  PII Removed
+                  </label>
+               </div>
+               </br>
+               <h4> Reidentification </h4>
+               <div class="checkbox" title="The k-anonymity property applies to data if the information for each person contained in the release cannot be distinguished from at least k-1 individuals whose information also appear in the release.
+">
+                  <label>
+                  <input type="checkbox" value="">
+                  Use K-Anonymity <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+                  </label>
+               </div>
+               <label for="name" class="col-lg-4">K-size</label>
+               <div class="col-lg-8">
+                  <input type="text" class="form-control" name="name" id="name" placeholder="Bucket Size for K">
+               </div>
             </td>
-        </tr>
-        <tr>
-            <td>
-            </td>
-        </tr>
-    </table>
-         <button class="btn btn-primary btn-xsm" id="create_license" type="submit" style="margin-top:20px;">Create</button>
-
-    </form>
-    <br />
-    <br />
-    
+         </tr>
+      </table>
+      <button class="btn btn-primary btn-xsm" id="create_license" type="submit" style="margin-top:20px;">Create</button>
+   </form>
+   <br />
+   <br />
 </div>
 {% endblock content %}
-
 {% block js %}
 <script type="text/javascript">
-$(document).ready(function () {
-    $('#add_collaborator').click(function() {
-      var displayAlert = false;
-      var message = "";
-
-      var checked = $("input[type=checkbox]:checked").length;
-      if(!checked) {
-        message += "Please select at least one checkbox.\n";
-        displayAlert = true;
-      }
-
-      username = $("#collaborator_username").val()
-      if(username.length < 1) {
-        message += "Please add your collaborator's username.\n";
-        displayAlert = true;
-      }
-
-      if(displayAlert){
-        alert(message);
-        return false;
-      }
-    });
-});
+   $(document).ready(function () {
+       $('#add_collaborator').click(function() {
+         var displayAlert = false;
+         var message = "";
+   
+         var checked = $("input[type=checkbox]:checked").length;
+         if(!checked) {
+           message += "Please select at least one checkbox.\n";
+           displayAlert = true;
+         }
+   
+         username = $("#collaborator_username").val()
+         if(username.length < 1) {
+           message += "Please add your collaborator's username.\n";
+           displayAlert = true;
+         }
+   
+         if(displayAlert){
+           alert(message);
+           return false;
+         }
+       });
+   });
 </script>
 {% endblock js %}
