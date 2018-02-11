@@ -8,15 +8,13 @@
 <div class="container">
   <h4> Guide to using ShareDB </h4>
   <ul class="list-group list-group-flush">
-    <li class="list-group-item"><b style="display:inline-block;"> STEP 1: Click '+' To create a new data collection</b> </li>
-    <li class="list-group-item"><b style="display:inline-block;"> STEP 2: Click on the newly create repo to add data to it</b> </li>
-    <li class="list-group-item"><b style="display:inline-block;"> STEP 3: Select "Privacy Profiles" for policy application and other features</b> </li>
+    <li class="list-group-item"><b style="display:inline-block;"> To create a new Privacy Profile for a data set , click Add 'Privacy Profile' next to desired data set</b> </li>
+    <li class="list-group-item"><b style="display:inline-block;"> To browse previously create Privacy Profiles for a data set, click 'Manage Privacy Profiles'</b> </li>
   </ul>
   <div class="panel panel-default">
   <div class="panel-heading">
     <span class="lead">
-      Create Data Repo &nbsp;
-      <a class="btn btn-default btn-sm" href="/create/{{repo_base}}/repo" title="Create a New Repository"><span class="glyphicon glyphicon-plus"></span></a>
+      Data Privacy Profiles &nbsp;
     </span>
   </div>
 
@@ -33,24 +31,12 @@
               <td>(Private)</td>
             {% endif %}
             <td class="text-right">
-              <a href="/settings/{{repo.owner}}/{{repo.name}}" title="Shared with {{repo.collaborators|join:', '}}">{{repo.collaborators|length}} collaborator(s)</a>
+              <a href="/privacy_profiles/{{repo.owner}}/{{repo.name}}/create" title="Add Privacy Profile to data set">Add Privacy Profile</a>
               &nbsp;&nbsp;
             </td>
 
             <td class="text-right" style="width: 14em; max-width: 30em;">
-            <a href="/privacy_profiles/{{repo.owner}}/{{repo.name}}/create" title="Create Privacy Profiles">Privacy Profiles</span></a>
-              &nbsp;&nbsp;
-              <a href="/settings/{{repo.owner}}/{{repo.name}}" title="Manage collaborators"><span class="glyphicon glyphicon-cog"></span></a>
-              &nbsp;&nbsp;
-              <span class="modal-confirm-dialog"
-                  target-modal="#confirm-modal"
-                  target-modal-title="Confirm Delete"
-                  target-modal-body="This will permanently delete the repository <label>{{repo.owner}}/{{repo.name}}</label> and all the tables inside it. The operation can't be undone. Are you sure?"
-                  target-modal-operation="Delete"
-                  target-url="/delete/{{repo.owner}}/{{repo.name}}"
-                  title="Delete">
-                <a href="#"><span class="glyphicon glyphicon-trash"></span></a>
-              </span>
+            <a href="/privacy_profiles/{{repo.owner}}/{{repo.name}}" title="Manage Data Profiles">Manage Privacy Profiles</span></a>
             </td> 
           </tr>
         {% endfor %}

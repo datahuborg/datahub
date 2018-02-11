@@ -135,6 +135,12 @@ urlpatterns = patterns(
         'browser.views.license_view_delete',
         name='browser-license_view_delete'),
 
+    # Privacy Profiles
+    url(r'^privacy_profiles/?$', 'browser.views.privacy_profiles',
+        name='browser-privacy_profiles'),
+     url(r'^privacy_profiles/(\w+)/(\w+)/create/?$', 'browser.views.privacy_profiles_create',
+        name='browser-privacy_profiles'),
+
     # Collaborators
     url(r'^collaborator/repo/(\w+)/(\w+)/add/?$',
         'browser.views.repo_collaborators_add',

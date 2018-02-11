@@ -512,7 +512,60 @@ def license_create(request):
 
         return render_to_response("license-create.html", res)
 
+@csrf_exempt
+@login_required
+def privacy_profiles(request):
+    username = request.user.get_username()
 
+    repo_base = username or 'public'
+
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        repos = manager.list_repos()
+
+    visible_repos = []
+    public_role = settings.PUBLIC_ROLE
+
+    for repo in repos:
+        collaborators = manager.list_collaborators(repo)
+        collaborators = [c.get('username') for c in collaborators]
+        collaborators = filter(
+            lambda x: x != '' and x != repo_base, collaborators)
+        non_public_collaborators = filter(
+            lambda x: x != public_role, collaborators)
+
+        visible_repos.append({
+            'name': repo,
+            'owner': repo_base,
+            'public': True if public_role in collaborators else False,
+            'collaborators': non_public_collaborators,
+        })
+
+
+    if request.method == 'GET':
+        res = {
+            'login':username,
+            'repo_base': repo_base,
+            'repos': visible_repos,
+        }
+        res.update(csrf(request))
+
+        return render_to_response('privacy_profiles.html', res)
+
+@csrf_exempt
+@login_required
+def privacy_profiles_create(request, repo_base, repo):
+    username = request.user.get_username()
+    public_role = settings.PUBLIC_ROLE
+
+    res = {
+            'login': username,
+            'public_role': public_role,
+            'repo_base':repo_base,
+            'repo':repo,
+            }
+    res.update(csrf(request))
+
+    return render_to_response("privacy-profile-create.html", res)
 @csrf_exempt
 @login_required
 def license_view_create(request, repo_base, repo, table, license_id):
