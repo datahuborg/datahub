@@ -123,9 +123,8 @@ urlpatterns = patterns(
         name='browser-repo_licenses'),
     url(r'^licenses/create/?$', 'browser.views.license_create',
         name='license_create'),
-    url(r'^licenses/(\w+)/(\w+)/(\w+)/manage/?$',
-        'browser.views.repo_license_manage',
-        name='browser-repo_license_manage'),
+    url(r'^licenses/(\w+)/(\w+)/create/?$', 'browser.views.license_create',
+        name='license_create'),
     url(r'^licenses/(\w+)/(\w+)/linklicense/(\w+)/?$',
         'browser.views.link_license', name='link_license'),
     url(r'^license_view/(\w+)/(\w+)/(\w+)/(\w+)/create/?$',
@@ -138,8 +137,17 @@ urlpatterns = patterns(
     # Privacy Profiles
     url(r'^privacy_profiles/?$', 'browser.views.privacy_profiles',
         name='browser-privacy_profiles'),
-     url(r'^privacy_profiles/(\w+)/(\w+)/create/?$', 'browser.views.privacy_profiles_create',
-        name='browser-privacy_profiles'),
+    url(r'^privacy_profiles/(\w+)/(\w+)/add/?$', 'browser.views.privacy_profiles_add',
+        name='privacy_profiles_add'),
+    url(r'^privacy_profiles/(\w+)/(\w+)/create/?$', 'browser.views.privacy_profiles_create',
+        name='privacy_profiles_create'),
+    url(r'^privacy_profiles/(\w+)/(\w+)/?$',
+        'browser.views.repo_privacy_profiles',
+        name='repo_privacy_profiles'),
+    url(r'^privacy_profiles/(\w+)/(\w+)/(\w+)/manage/?$',
+        'browser.views.privacy_profile_manage',
+        name='privacy_profile_manage'),
+
 
     # Collaborators
     url(r'^collaborator/repo/(\w+)/(\w+)/add/?$',

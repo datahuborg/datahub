@@ -404,49 +404,6 @@ def repo_licenses(request, repo_base, repo):
 
     return render_to_response("repo-licenses.html", res)
 
-
-@login_required
-def repo_license_manage(request, repo_base, repo, license_id):
-    '''
-    shows all the tables for a repo,
-    and checks if the given license is applied to each one
-    '''
-    username = request.user.get_username()
-    if repo_base.lower() == 'user':
-        repo_base = username
-
-    table_info_tuples = []
-    license_views = []
-    with DataHubManager(user=username, repo_base=repo_base) as manager:
-        collaborators = manager.list_collaborators(repo, -1)
-        # collaborators = None
-        base_tables = manager.list_tables(repo)
-        license_views = manager.list_license_views(repo, license_id)
-        for table in base_tables:
-            # check if license view exists for this license_id
-            applied = manager.check_license_applied(table, repo, license_id)
-            table_info_tuples.append((table, applied))
-
-    license = LicenseManager.find_license_by_id(license_id)
-
-    rls_table = 'policy'
-
-    res = {
-        'license': license,
-        'login': username,
-        'repo_base': repo_base,
-        'repo': repo,
-        'table_info_tuples': table_info_tuples,
-        'license_views': license_views,
-        'rls-table': rls_table,
-        'collaboratoes': collaborators,
-        }
-
-    res.update(csrf(request))
-
-    return render_to_response("repo-license-manage.html", res)
-
-
 @csrf_exempt
 @login_required
 def link_license(request, repo_base, repo, license_id):
@@ -466,16 +423,12 @@ def link_license(request, repo_base, repo, license_id):
 
     LicenseManager.create_license_link(repo_base, repo, license_id)
 
-    repo_licenses = LicenseManager.find_licenses_by_repo(repo_base, repo)
-    all_licenses = LicenseManager.find_licenses()
-
-    return HttpResponseRedirect(reverse('browser-repo_licenses',
-                                args=(repo_base, repo)))
-
+    return HttpResponseRedirect(
+            reverse('repo_privacy_profiles', args=(repo_base, repo)))
 
 @csrf_exempt
 @login_required
-def license_create(request):
+def license_create(request, repo_base = None, repo = None):
     username = request.user.get_username()
     public_role = settings.PUBLIC_ROLE
 
@@ -500,7 +453,18 @@ def license_create(request):
             pii_anonymized=pii_anonymized,
             pii_removed=pii_removed)
 
-        return HttpResponseRedirect(reverse('browser-user', args=(username,)))
+        if repo_base and repo:
+            res = {
+                'login': username,
+                'public_role': public_role,
+                'repo_base':repo_base,
+                'repo':repo,
+                'all_licenses': LicenseManager.find_licenses(),
+                }
+            res.update(csrf(request))
+
+            return render_to_response('privacy-profiles-add.html', res)
+
 
     elif request.method == 'GET':
         # returns page for creating a license
@@ -566,6 +530,102 @@ def privacy_profiles_create(request, repo_base, repo):
     res.update(csrf(request))
 
     return render_to_response("privacy-profile-create.html", res)
+
+@csrf_exempt
+@login_required
+def privacy_profiles_add(request, repo_base, repo):
+    username = request.user.get_username()
+    public_role = settings.PUBLIC_ROLE
+
+    username = request.user.get_username()
+
+    repo_base = username or 'public'
+
+    res = {
+            'login': username,
+            'public_role': public_role,
+            'repo_base':repo_base,
+            'repo':repo,
+            'all_licenses': LicenseManager.find_licenses(),
+            }
+    res.update(csrf(request))
+
+    return render_to_response("privacy-profiles-add.html", res)
+
+@login_required
+def privacy_profile_manage(request, repo_base, repo, license_id):
+    '''
+    shows all the tables for a repo,
+    and checks if the given license is applied to each one
+    '''
+    username = request.user.get_username()
+    if repo_base.lower() == 'user':
+        repo_base = username
+
+    table_info_tuples = []
+    license_views = []
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo, -1)
+        # collaborators = None
+        base_tables = manager.list_tables(repo)
+        license_views = manager.list_license_views(repo, license_id)
+        for table in base_tables:
+            # check if license view exists for this license_id
+            applied = manager.check_license_applied(table, repo, license_id)
+            table_info_tuples.append((table, applied))
+
+    license = LicenseManager.find_license_by_id(license_id)
+
+    rls_table = 'policy'
+
+    res = {
+        'license': license,
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'table_info_tuples': table_info_tuples,
+        'license_views': license_views,
+        'rls-table': rls_table,
+        'collaboratoes': collaborators,
+        }
+
+    res.update(csrf(request))
+
+    return render_to_response("repo-license-manage.html", res)
+
+@login_required
+def repo_privacy_profiles(request, repo_base, repo):
+    '''
+    returns the licenses linked to a particular repo.
+    '''
+    username = request.user.get_username()
+    repo_licenses = LicenseManager.find_licenses_by_repo(repo_base, repo)
+
+    license_applied = []
+    with DataHubManager(user=username, repo_base=repo_base) as manager:
+        collaborators = manager.list_collaborators(repo)
+        for license in repo_licenses:
+            all_applied = manager.license_applied_all(repo, license.license_id)
+            license_applied.append(all_applied)
+
+    collaborators = [c for c in collaborators if c['username']
+                     not in ['', username, settings.PUBLIC_ROLE]]
+
+    license_info_tuples = zip(repo_licenses, license_applied)
+
+    res = {
+        'login': username,
+        'repo_base': repo_base,
+        'repo': repo,
+        'collaborators': collaborators,
+        'license_info_tuples': license_info_tuples,
+        'repo_licenses': repo_licenses,
+        'all_licenses': LicenseManager.find_licenses(),
+        }
+    res.update(csrf(request))
+
+    return render_to_response("repo-privacy-profiles.html", res)
+
 @csrf_exempt
 @login_required
 def license_view_create(request, repo_base, repo, table, license_id):

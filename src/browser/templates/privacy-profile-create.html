@@ -7,14 +7,14 @@
      </ul>
       <hr />
    <h4>Create new Privacy Profile for: {{repo}}</h4>
-   <form role="form" method="POST" action="{% url 'license_create' %}" enctype='multipart/form-data' id="license-form">
+   <form role="form" method="POST" action="{% url 'license_create' repo_base repo%}" enctype='multipart/form-data' id="license-form">
       <table>
          <tr>
             <td class="cell-left">
                Privacy Profile Name:
             </td>
             <td class="cell-right">
-               <input type="text" class="form-control" name="license_name" id="license_name" placeholder="license name" >
+               <input type="text" class="form-control" name="license_name" id="license_name" placeholder="Privacy Profile Name" >
             </td>
          </tr>
          <tr>
@@ -56,8 +56,7 @@
                </div>
                </br>
                <h4> Reidentification </h4>
-               <div class="checkbox" title="The k-anonymity property applies to data if the information for each person contained in the release cannot be distinguished from at least k-1 individuals whose information also appear in the release.
-">
+               <div class="checkbox" title="The k-anonymity property applies to data if the information for each person contained in the release cannot be distinguished from at least k-1 individuals whose information also appear in the release.">
                   <label>
                   <input type="checkbox" value="">
                   Use K-Anonymity <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
