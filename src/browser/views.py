@@ -694,7 +694,7 @@ def license_view_delete(request, repo_base, repo, table,
             license_view=license_view,
             license_id=license_id)
 
-    return HttpResponseRedirect(reverse('browser-repo_licenses',
+    return HttpResponseRedirect(reverse('repo_privacy_profiles',
                                 args=(repo_base, repo)))
 
 

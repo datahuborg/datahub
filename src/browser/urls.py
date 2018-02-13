@@ -119,8 +119,6 @@ urlpatterns = patterns(
         name='browser-repo_settings'),
 
     # Licenses
-    url(r'^licenses/(\w+)/(\w+)/?$', 'browser.views.repo_licenses',
-        name='browser-repo_licenses'),
     url(r'^licenses/create/?$', 'browser.views.license_create',
         name='license_create'),
     url(r'^licenses/(\w+)/(\w+)/create/?$', 'browser.views.license_create',
