@@ -553,7 +553,7 @@ def privacy_profiles_add(request, repo_base, repo):
     return render_to_response("privacy-profiles-add.html", res)
 
 @login_required
-def privacy_profile_manage(request, repo_base, repo, license_id):
+def privacy_profile_manage(request, repo_base, repo, license_id, view_params = None):
     '''
     shows all the tables for a repo,
     and checks if the given license is applied to each one
@@ -587,6 +587,7 @@ def privacy_profile_manage(request, repo_base, repo, license_id):
         'license_views': license_views,
         'rls-table': rls_table,
         'collaboratoes': collaborators,
+        'view_params': view_params
         }
 
     res.update(csrf(request))
@@ -644,6 +645,7 @@ def license_view_create(request, repo_base, repo, table, license_id):
     if request.method == 'POST':
         # collect parameters that will be used to create the view of the table
         removed_columns = request.POST.getlist('removed_columns[]')
+        removed_columns = map(lambda x : x.lower(), removed_columns)
         view_params = {}
         view_params['removed-columns'] = removed_columns
         with DataHubManager(user=username, repo_base=repo_base) as manager:
@@ -653,7 +655,7 @@ def license_view_create(request, repo_base, repo, table, license_id):
                 view_params=view_params,
                 license_id=license_id)
         return HttpResponseRedirect(
-            reverse('browser-repo_licenses', args=(repo_base, repo)))
+            reverse('privacy_profile_manage', args=(repo_base, repo, license_id, view_params)))
 
     elif request.method == 'GET':
 
@@ -694,8 +696,8 @@ def license_view_delete(request, repo_base, repo, table,
             license_view=license_view,
             license_id=license_id)
 
-    return HttpResponseRedirect(reverse('repo_privacy_profiles',
-                                args=(repo_base, repo)))
+    return HttpResponseRedirect(reverse('privacy_profile_manage',
+                                args=(repo_base, repo, license_id)))
 
 
 @login_required

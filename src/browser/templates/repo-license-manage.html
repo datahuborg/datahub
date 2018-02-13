@@ -20,7 +20,7 @@
 
   <h3> Apply Privacy Profile To Tables</h3>
   <h4> Profile name: {{license.license_name}}</h4>
-
+<h4>params: {{view_params}} </h4>
   <div class="alert alert-success" role="alert" id="alertbox" style="visibility: hidden">
   </div>
   {% block tab-content %}
@@ -61,7 +61,7 @@
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#removePIIModal{{base_table}}" style="dispaly:inline-block; margin-top:11px;"> Apply Profile</button>
               <!-- Remove PII Modal -->
               <div class="modal fade" id="removePIIModal{{base_table}}" role="dialog">
-                <div class="modal-dialog">
+                <div class="modal-dialog modal-lg">
 
                   <!-- Modal content-->
                   <div class="modal-content">
@@ -105,7 +105,6 @@
                         class="btn btn-primary" id="removeColumnBtn-{{base_table}}" data-dismiss="modal">Remove column</button>
                       </div>
                       <div class="modal-footer">
-                      <!--  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
                       </div>
 
                     {% else %}
@@ -121,7 +120,6 @@
                         class="btn btn-primary" id="removeColumnBtn-{{base_table}}" data-dismiss="modal">Anonymize Column</button>
                       </div>
                       <div class="modal-footer">
-                       <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> ui change-->
                       </div>
 
                     {% endif %}
@@ -131,13 +129,15 @@
                 </div>
                                
                   <script> 
-                    var colsToRemove = []
+                    var csvData = {}
+                    var colsToRemove = {}
                     var CSVData = null;
 
-                    function updateCSVTable(data) {
-                      $('#dataViewDivtest').html('')
+                    function updateCSVTable(data, tableName) {
+                      console.log("working with : " + tableName)
+                      $('#dataViewDiv' + tableName).html('')
 
-                      var table = d3.select("#dataViewDivtest")
+                      var table = d3.select("#dataViewDiv" + tableName)
                                   .append("table")
                                   .attr("class", "table table-striped table-hover");
 
@@ -160,7 +160,7 @@
                         return d;
                       })
                       .insert("button")
-                      .attr("class","piiEditBtn-{{base_table}}");
+                      .attr("class","piiEditBtn-" + tableName);
 
                       // Fill in data for update columns table
                       tbody.selectAll("tr")
@@ -177,8 +177,7 @@
                       });
 
                       // Buttons for editing columns
-
-                      $(".piiEditBtn-{{base_table}}").text("edit").addClass("btn").addClass("btn-warning").css("display","block");
+                      $(".piiEditBtn-" + tableName).text("edit").addClass("btn").addClass("btn-warning").css("display","block");
                     }
 
                     var curColName = null;
@@ -196,7 +195,6 @@
                         } else {
 
                           hashedElement = Math.abs(element[curColIndex].toString().hashCode());
-                          console.log("hasehed element: " + hashedElement)
                           newElement[curColIndex] = hashedElement;
                         }
                         newCSVDATA.push(newElement);
@@ -214,12 +212,28 @@
 
                      // Load sample table
                     $(document).ready(function() {
-                      url = "/download/{{repo_base}}/{{repo}}/file/test.csv";
 
-                      d3.text(url, function(datasetText) {
-                        var parsedCSV = d3.csv.parseRows(datasetText);
-                        updateCSVTable(parsedCSV);
-                        CSVData = parsedCSV;
+                      $( "#tables li" ).each(function( index ) {
+                        var owner = $('#owner').text().trim();
+
+                        var table = $( this ).text().trim();
+
+                        owner = $.trim(owner)
+                        table = $.trim(table)
+                        //console.log('owner: '+owner)
+
+                        var url = "/download/" + owner + "/{{repo}}/file/" + table + ".csv";
+                        // console.log('url: ' + url);
+
+                        colsToRemove[table] = [] //initialize cols to remove for each table
+
+                        d3.text(url, function(datasetText) {
+                          var parsedCSV = d3.csv.parseRows(datasetText);
+                          updateCSVTable(parsedCSV, table);
+                          CSVData = parsedCSV;
+
+                          csvData[table] = parsedCSV;
+                        });
                       });
                     });
 
@@ -235,14 +249,16 @@
                     $(document).on("click", "#removeColumnBtn-{{base_table}}", function(e) {
                       console.log("remove btn clicked")
                       console.log(curColName)
-                      colsToRemove.push($.trim(curColName));
-                      console.log(colsToRemove)
-
-                      CSVData.forEach(function(element){
+                      //console.log("csvdata: ", csvData)
+                      colsToRemove["{{base_table}}"].push($.trim(curColName));
+                      console.log("base table: " + "{{base_table}}")
+                      csvData["{{base_table}}"].forEach(function(element){
                       element.splice(curColIndex,1 );
                       });
 
-                      updateCSVTable(CSVData);
+                      console.log("csv data new: ", csvData["{{base_table}}"])
+
+                      updateCSVTable(csvData["{{base_table}}"], "{{base_table}}");
 
                       var html = "<li> Removed column: " + curColName + "</li>"
 
@@ -250,20 +266,23 @@
                     });
 
                     $(document).on("click", "#removeChangePIIEnterbtn{{base_table}}", function(e) {
+                      console.log("cols to remove: ", colsToRemove["{{base_table}}"])
                       $.ajax({
                         url: '/license_view/{{repo_base}}/{{repo}}/{{base_table}}/{{license.license_id}}/create/',
                         type: 'POST',
                         data: {
-                            'removed_columns':  colsToRemove
+                            'removed_columns':  colsToRemove["{{base_table}}"]
                           }
                        })
                       .fail(function(xhr, status, error) {
                          })
                       .done(function(data, status, xhr) {
                         setTimeout(function(){
-                          location.reload();
                         }, 1500); 
+
                       });
+
+                      location.reload();
                     });          
                   </script>
               </td>
@@ -275,7 +294,7 @@
             {% for license_view_name, license_view_object in license_views %}
             <tr>
               <td>
-                <a href="/browse/{{repo_base}}/{{repo}}/table/{{license_view_name}}">Preview Dataset privacy settings</a>
+                <a href="/browse/{{repo_base}}/{{repo}}/table/{{license_view_name}}">Preview '{{license_view_name}}' privacy settings</a>
               </td>
 
               <td class="text-right">
@@ -389,7 +408,13 @@
             <button class="btn btn-primary btn-xsm" id="add_collaborator" type="submit">Add</button>
         </form>
 </div> -->
+<ul id="tables" style="display:none">
+{% for base_table, license_applied in table_info_tuples %}
+<li> {{base_table}} </li>
+{% endfor %}
+</ul>
 </div>
+<div id="owner" style="display: none;">{{repo_base}} </div>
 
 {% endblock content %}
 

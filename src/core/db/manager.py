@@ -612,7 +612,7 @@ class DataHubManager:
         license_view_names = []
         for license_view in license_views:
             table = license_view.table
-            std_name = "_license_view_"
+            std_name = "_privacy_profile_"
             license_id = str(license_view.license_id)
 
             license_view_name = table + std_name + license_id

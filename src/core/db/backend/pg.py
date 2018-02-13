@@ -282,7 +282,7 @@ class PGBackend:
 
     def create_license_view(self, repo_base, repo,
                             table, view_sql, license_id):
-        view_name = table.lower() + "_license_view_"+str(license_id)
+        view_name = table.lower() + "_privacy_profile_"+str(license_id)
         res = self.create_view(repo, view_name, view_sql)
 
         return res
