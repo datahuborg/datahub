@@ -102,10 +102,10 @@
                         <h5> Click Delete to delete this column from the table</h5>
                         column name: <div id="modalColumnName-{{base_table}}" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
                         <button type="button"
-                        class="btn btn-primary" id="removeColumnBtn-{{base_table}}">Remove column</button>
+                        class="btn btn-primary" id="removeColumnBtn-{{base_table}}" data-dismiss="modal">Remove column</button>
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      <!--  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
                       </div>
 
                     {% else %}
@@ -118,10 +118,10 @@
                         <h5>Click Anonymize to anonymize this column in the table </h5>
                         column name: <div id="modalColumnName-{{base_table}}" style="font-weight: bold; font: 18px; margin-bottom: 10px;"></div>
                         <button type="button"
-                        class="btn btn-primary" id="removeColumnBtn-{{base_table}}">Anonymize Column</button>
+                        class="btn btn-primary" id="removeColumnBtn-{{base_table}}" data-dismiss="modal">Anonymize Column</button>
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                       <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> ui change-->
                       </div>
 
                     {% endif %}

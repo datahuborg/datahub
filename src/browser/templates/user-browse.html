@@ -25,7 +25,7 @@
       <table id="repos" class="table">
         {% for repo in repos %}
           <tr>
-            <td><a class="link" href=/browse/{{repo.base}}/{{repo.name}}>{{repo.name}}</a></td>
+            <td><a class="link" href=/browse/{{repo.owner}}/{{repo.name}}>{{repo.name}}</a></td>
 
             {% if repo.public %}
               <td>(Public)</td>
