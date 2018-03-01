@@ -1,0 +1,207 @@
+ <html>
+  <head>
+    <meta charset="UTF-8">
+    <title>DataHub Spreadsheet</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
+    <script type="text/javascript" src="datahub_utils.js"></script>
+    <script type="text/javascript" src="HandsOnTable.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/charts.js"></script>
+    <script type="text/javascript" src="js/d3/d3.js"></script>
+    <script type="text/javascript" src="js/saveSvgAsPng.js"></script>
+    <script src="http://handsontable.com/dist/handsontable.full.js"></script>
+    <script type="text/javascript" src="aggregate.js"></script> 
+    <script type="text/javascript" src="parser.js"></script>
+    <script type="text/javascript" src="row_ops.js"></script>
+    <script type="text/javascript" src="alter_schema.js"></script>
+    <link rel="stylesheet" media="screen" href="http://handsontable.com/dist/handsontable.full.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- TODO fix location --> 
+
+    <link rel="stylesheet" href="css/charts.css">
+    <link rel="stylesheet" href="aggregate.css">
+
+    <script type="text/javascript" src="main.js"></script>
+    
+  </head>
+  <body>
+  <div class="container-fluid">
+
+    <h1>HandsOnTable View</h1>
+    <ul class="navbar-oauth">
+      <li>
+        <a id="clear" class="btn btn-link">Sign Out</a>
+      </li>
+      <li>
+        <a id="request" class="btn btn-link">Sign In</a>
+      </li>
+    </ul>
+
+    <ul>
+        <li>Access token: <span id="access_token"></span></li>
+        <li>Granted scopes: <span id="scope"></span></li>
+    </ul>
+
+    <div id="interactive_part" style="display: none;">
+      <h1>Hi, <span class="username"></span></h1>       
+    
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="btn-group dropdown">
+              <button type="button" class="btn btn-info dropdown-toggle navbar-btn" data-toggle="dropdown" aria-expanded="false">
+                  <span class="table-name"></span> <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu tables-menu" role="menu">
+                  <li class="divider"></li>
+                  <li role="presentation" class="dropdown-header">Switch repositories...</li>
+              </ul>
+          </li>
+          <li><a id="aggregateButton" href="" data-toggle="modal" data-target="#aggregateModal">Aggregate</a></li>
+          <li><a id="chart_menu" href="" data-toggle="modal" data-target="#chartModal">Chart</a></li>
+          <li><a id="addColumnButton" href="" data-toggle="modal" data-target="#columnModal">Add Column</a></li>
+          <li><a id="alterSchemaButton" href="" data-toggle="modal" data-target="#schemaModal">Alter Schema</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a id="save" href="#">Save Changes</a></li>
+        </ul>
+      
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /#interactive_part -->
+  </div><!-- /.container-fluid -->
+  <div class="alert alert-danger fade in" role="alert" id="error_alert" hidden="true">
+    <button type="button" class="close" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <span id="error_msg">Here's some error text</span>
+    <a class="btn btn-default" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample"> ... 
+    </a>
+    <div class="collapse" id="collapseExample">
+      <div class="well" id="error_submsg">
+        
+      </div>
+    </div>
+  </div>
+  <span class="glyphicon glyphicon-option-horizontal"></span>
+  <div id="results" class="handsontable">
+  </div>
+
+<div class="modal fade" id="chartModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close close_button" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default close_button" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary go_button">Go</button>
+        <button type="button" class="btn btn-primary" id="exportSVGButton" style="display:none">Download as PNG</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<div class="modal fade" id="aggregateModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close close_button" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <button type="button" data-dismiss="modal" class="btn pull-right btn-primary" id="openNewTableButton"></button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default close_button" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary go_button">Go</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<div class="modal fade" id="columnModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close close_button" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body" style="padding-bottom: 80px">
+        <div id='expressionAlert' class='form-group alert alert-danger hidden' role='alert'>Invalid Expression!</div>
+        <div class="form-group">Type in an algebraic expression for the new column. It can include aggregation operations such as AVG or SUM. For example AVG(columnName) computes the average of all rows of columnName.</div>
+        <div class="form-group">
+          <label class="col-sm-4 control-label">Title of New Column</label>
+          <div class="col-sm-8">
+            <input type="text" id='columnName' placeholder='newCol' class="form-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="col-sm-4 control-label">Data in New Column</label>
+          <div class="col-sm-8">
+            <input id='expressionText' type='text' class='form-control' placeholder='columnName1 + columnName2'>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default close_button" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary go_button" data-dismiss="modal">Go</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<div class="modal fade" id="schemaModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close close_button" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body">
+        <div id="schemaList">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default close_button" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="submitAlts" data-dismiss="modal">Go</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" id="addColModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close close_button" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body" style="padding-bottom: 80px">
+        <div class="form-group">
+          <label class="col-sm-4 control-label">Title of New Column</label>
+          <div class="col-sm-8">
+            <input type="text" id='newColName' placeholder='newCol' class="form-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="col-sm-4 control-label">Data Type in New Column</label>
+          <div id="typeDiv" class="ui-widget col-sm-8">
+            <select id='colTypes' style="width: 100%" class="form-control">
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default close_button" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary go_button" data-dismiss="modal">Go</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+ 
+
+  </body>
+</html>

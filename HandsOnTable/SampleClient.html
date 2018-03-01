@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <title>Sample DataHub HTML</title>
+    <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/jquery/jquery.min.js"></script> 
+    <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/datahub/datahub_types.js"></script>
+    <script type="text/javascript" src="http://datahub.csail.mit.edu/static/lib/datahub/DataHub.js"></script>
+  </head>
+  <body>
+    <table id="results">
+    </table>
+  </body>
+</html>
+
+
+<script type="text/javascript">
+/**
+@author: anant bhardwaj
+@date: Oct 11, 2013
+
+Sample javascript client for DataHub
+*/
+
+transport = new Thrift.Transport("http://datahub.csail.mit.edu/service/json"),
+protocol = new Thrift.Protocol(transport),
+client = new DataHubClient(protocol),
+con_params = new ConnectionParams({'user': 'anantb', 'password': 'anant'}),
+con = client.open_connection(con_params),
+res = client.execute_sql(con, 'select * from anantb.test.demo');
+
+$('#results').append('<tr><th>' + res.field_names.join('</th><th>') + '</th></tr>');
+
+$.each(res.tuples, function(tuple_idx, tuple) {
+  $('#results').append('<tr><td>' + tuple.cells.join('</td><td>') + '</td></tr>');
+});
+</script>

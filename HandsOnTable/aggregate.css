@@ -1,0 +1,49 @@
+body {
+	padding: 15px;
+}
+
+.container-fluid {
+	padding: 0;
+}
+
+.navbar-collapse {
+    padding: 0;
+}
+
+.aggregateSection {
+	border: 5px;
+}
+
+.aggregateHeaderTable {
+	padding-bottom: 45px;
+}
+
+.navbar-oauth {
+    list-style-type: none;
+    margin-top: 10px;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #e7e7e7;
+    background-color: #f3f3f3;
+}
+
+.navbar-oauth > li {
+    float: right;
+}
+
+.navbar-oauth > li a {
+    display: block;
+    color: #666;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.navbar-oauth > li a:hover:not(.active) {
+    background-color: #ddd;
+}
+
+.navbar-oauth > li a.active {
+    color: white;
+    background-color: #4CAF50;
+}

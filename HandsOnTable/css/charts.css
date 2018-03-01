@@ -1,0 +1,43 @@
+.chart rect {
+  fill: steelblue;
+}
+.chart circle {
+  fill: steelblue;
+}
+.chart text {
+  font: 14px;
+}
+.chart {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.slice text {
+  font: 14px;
+}
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.ui-autocomplete {
+  z-index: 5000;
+}
+#popUpDiv{
+    z-index: 100;
+    position: absolute;
+    background-color: rgba(123, 123,123, 0.8);
+    display: none;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 300px;
+}
+#popupSelect{
+    z-index: 1000;
+    position: absolute;
+    top: 130px;
+    left: 50px;
+}
