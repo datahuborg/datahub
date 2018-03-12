@@ -16,13 +16,18 @@
   <form role="form" method="POST" action="{% url 'security-policy_query' repo_base repo table %}">
     {% csrf_token %}
     <div class="row">
-    <div class="form-group col-sm-10">
+
+    <div class="col-sm-2">
+      <button class="btn btn-primary btn-xsm" id="btn-dataq-rls-policy" type="button">Row-Level Policy Builder</button>
+    </div>
+
+    <div class="form-group col-sm-7">
       <input id="txt-sql" type="text" class="form-control" name="q" placeholder="Security Policy e.g.: grant SELECT access to OTHERUSER on REPO.TABLE where ID=1" />
     </div>
 
-    <div class="col-sm-2">
+    <div class="col-sm-3">
       <button class="btn btn-primary btn-xsm" id="btn-run" type="submit">Execute</button>
-      <button class="btn btn-primary btn-xsm modal-upload-dialog" type="button" target-modal="#security-policy-modal" title="New Policy"> New </button>
+      <button class="btn btn-primary btn-xsm modal-upload-dialog" type="button" target-modal="#security-policy-modal" title="New Policy"> New Table-Level Policy </button>
     </div>
 
     </div>
@@ -228,4 +233,24 @@ $(function() {
 
 });
 </script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/blueimp-md5/1.0.1/js/md5.js"></script>
+<!-- dataq -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.runtime.js"></script>
+<script src="/static/dataq/templates.js"></script>
+<script src="/static/dataq/js/dataq.min.js"></script>
+<!-- /dataq -->
+
+<script>
+  $(document).on("click", "#btn-dataq-rls-policy", function(e) {
+    e.preventDefault();
+    DataQ.DQ_rls_policy("{{repo}}", "{{table}}", function(query) {
+      $("#txt-sql").val(query);
+    });
+  });
+</script>
 {% endblock js %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="/static/dataq/css/style.css">
+{% endblock stylesheets %}

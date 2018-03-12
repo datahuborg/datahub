@@ -2,18 +2,22 @@
  * Defines the DataQ.DQ object, which is what the user of the library will interact with.
  *
  * Simply call DataQ.DQ(repo_name, callback) and DataQ will launch. After the user builds a query,
- * the callback is executed as callback(query), where query is a String representing the SQL query 
+ * the callback is executed as callback(query), where query is a String representing the SQL query
  * or null if the query was not built successfully.
  */
 (function() {
   // Create the global DataQ object if it doesn't exist.
   window.DataQ = window.DataQ || {};
 
-  // The DataQ.Query that is being built.
+  // The DataQ.Query that may be built.
   query = null;
 
-  // The callback to execute after the query is built. It is executed as cb(query) where query
-  // is a String representing the SQL query or null if the query was not built.
+  // The DataQ.Policy object that may be built.
+  policy = null;
+
+  // The callback to execute after the { query | policy } is built. It is executed as
+  // { cb(query) | cb(policy) } where { query | policy } is a String representing the
+  // SQL { query | policy } or null if the { query | policy } was not built.
   var callback;
 
   /**
@@ -38,6 +42,34 @@
       $(".dataq").remove();
       callback(null);
     })
+  };
+
+  /**
+   * @param repo_name - The name of the repo that DataQ should work on.
+   * @param cb - The callback to trigger when the query is built.
+   */
+  DataQ.DQ_rls_policy = function(repo_name, table_name, cb) {
+    console.log(repo_name);
+    console.log(table_name);
+
+    // Set the callback.
+    callback = cb;
+
+    // Add the container to the page.
+    var container = $(DataQ.templates["dataq-container-rls-policy"]());
+    $('body').append(container);
+
+    // Create the policy object and set the repo name.
+    policy = DataQ.Policy();
+    policy.repo(repo_name);
+    policy.table(table_name);
+
+    // Handle DataQ close when clicking backdrop.
+    $(".dq-black-background").click(function() {
+      $(".dq-black-background").remove();
+      $(".dataq").remove();
+      callback(null);
+    });
   };
 
   /**
@@ -107,7 +139,7 @@
     query.sorts().forEach(function(sort) {
       sort_strings.push(sort.string);
     });
-    
+
     // Display the sorts.
     if (sort_strings.length > 0) {
       $(".dq-sorting-text").html(sort_strings.join(", "));
@@ -172,5 +204,51 @@
     $(".dq-black-background").remove();
     $(".dataq").remove();
     callback(DataQ.build_query(query));
+  });
+
+  // Handle DataQ create policy.
+  $(document).on("click", ".dq-btn-create-policy", function() {
+    // Build policy object
+    policy.name($("#dq-policy-name").val());
+
+    policy.command($("#dq-policy-command-selected").text());
+
+    roles = $("#dq-policy-role-list").val().split(",").map(function(r) {
+      return r.trim();
+    });
+    policy.roles(roles);
+
+    using_expr_obj = {
+      "filter1": $("#dq-policy-using-expr-filter-1").val(),
+      "op"     : $("#dq-policy-using-expr-op").val(),
+      "filter2": $("#dq-policy-using-expr-filter-2").val()
+    };
+    policy.using_expression(using_expr_obj);
+
+    check_expr_obj = {
+      "filter1": $("#dq-policy-check-expr-filter-1").val(),
+      "op"     : $("#dq-policy-check-expr-op").val(),
+      "filter2": $("#dq-policy-check-expr-filter-2").val()
+    };
+    policy.using_expression(check_expr_obj);
+
+    // Close DataQ
+    $(".dq-black-background").remove();
+    $(".dataq").remove();
+
+    // Build policy string
+    callback(DataQ.build_policy(policy));
+  });
+
+  // Handle policy command dropdown selection
+  $(document).on("click", "#dq-policy-dropdown-menu a", function() {
+    $('#dq-policy-command-selected').text($(this).text());
+  });
+
+  // Handle DataQ close
+  $(document).on("click", ".dq-btn-cancel-create-policy", function() {
+    $(".dq-black-background").remove();
+    $(".dataq").remove();
+    callback(null);
   });
 })();
