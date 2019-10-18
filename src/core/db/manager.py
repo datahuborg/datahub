@@ -398,7 +398,7 @@ class DataHubManager:
 
         invalid_db_privileges = set(db_privileges) - {
             'SELECT', 'INSERT', 'UPDATE', 'DELETE',
-            'TRUNCATE', 'REFERENCES', 'TRIGGER'}
+            'TRUNCATE', 'REFERENCES', 'TRIGGER', 'CREATE'}
         if len(invalid_db_privileges) > 0:
             raise ValueError(
                 "Unsupported db privileges: \"{0}\"".format(
